@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Spin the Globe - GEOTOPIA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 30px;
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding-top: 100px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px 25px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-icon {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFD700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Globe Container */
+        .globe-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .globe-container {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .globe {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                #1e5631 0%, 
+                #2e8b57 20%, 
+                #228b22 40%, 
+                #006400 60%, 
+                #1e5631 80%, 
+                #2e8b57 100%);
+            position: relative;
+            transform-style: preserve-3d;
+            box-shadow: 
+                inset -30px -30px 60px rgba(0, 0, 0, 0.4),
+                inset 20px 20px 60px rgba(255, 255, 255, 0.1),
+                0 0 60px rgba(135, 206, 235, 0.3),
+                0 0 100px rgba(135, 206, 235, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .globe::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(135, 206, 235, 0.8) 0%, transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(135, 206, 235, 0.6) 0%, transparent 30%),
+                radial-gradient(circle at 40% 70%, rgba(135, 206, 235, 0.5) 0%, transparent 25%),
+                radial-gradient(circle at 60% 25%, rgba(135, 206, 235, 0.4) 0%, transparent 20%);
+        }
+
+        .globe::after {
+            content: '';
+            position: absolute;
+            top: 5%;
+            left: 10%;
+            width: 25%;
+            height: 15%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            filter: blur(10px);
+            transform: rotate(-30deg);
+        }
+
+        /* Continents overlay */
+        .continents {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .continent {
+            position: absolute;
+            background: rgba(34, 139, 34, 0.6);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        }
+
+        .continent-1 { top: 15%; left: 20%; width: 25%; height: 20%; transform: rotate(-15deg); }
+        .continent-2 { top: 25%; left: 55%; width: 30%; height: 25%; transform: rotate(10deg); }
+        .continent-3 { top: 50%; left: 15%; width: 20%; height: 25%; transform: rotate(-5deg); }
+        .continent-4 { top: 55%; left: 45%; width: 15%; height: 15%; transform: rotate(20deg); }
+        .continent-5 { top: 65%; left: 65%; width: 18%; height: 18%; transform: rotate(-10deg); }
+
+        /* Spinning Animation */
+        .globe.spinning {
+            animation: spinGlobe 2s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        @keyframes spinGlobe {
+            0% { transform: rotateY(0deg) rotateX(0deg); }
+            25% { transform: rotateY(360deg) rotateX(15deg); }
+            50% { transform: rotateY(720deg) rotateX(-10deg); }
+            75% { transform: rotateY(1080deg) rotateX(5deg); }
+            100% { transform: rotateY(1440deg) rotateX(0deg); }
+        }
+
+        /* Idle Animation */
+        .globe.idle {
+            animation: idleFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes idleFloat {
+            0%, 100% { transform: rotateY(0deg) translateY(0); }
+            50% { transform: rotateY(10deg) translateY(-10px); }
+        }
+
+        /* Glow Effect */
+        .globe-glow {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(135, 206, 235, 0.2) 0%, transparent 70%);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Stars Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Spin Button */
+        .spin-btn {
+            padding: 20px 50px;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .spin-btn:hover::before {
+            left: 100%;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+        }
+
+        .spin-btn:active {
+            transform: translateY(0);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Country Card */
+        .country-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            margin: 30px auto;
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        .country-card.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .landed-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .country-flag {
+            font-size: 80px;
+            line-height: 1;
+            margin-bottom: 15px;
+            animation: flagWave 1s ease-in-out;
+        }
+
+        @keyframes flagWave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .country-name {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .country-description {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Info Section */
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .info-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFD700;
+        }
+
+        /* Facts Section */
+        .facts-section {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .facts-title {
+            font-size: 14px;
+            color: #FFD700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+
+        .fact-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .fact-bullet {
+            color: #FFD700;
+            font-size: 18px;
+        }
+
+        /* Quiz Section */
+        .quiz-section {
+            background: rgba(135, 206, 235, 0.1);
+            border: 1px solid rgba(135, 206, 235, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .quiz-title {
+            font-size: 14px;
+            color: #87CEEB;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quiz-question {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 215, 0, 0.5);
+            transform: translateX(5px);
+        }
+
+        .quiz-option.selected {
+            border-color: #87CEEB;
+            background: rgba(135, 206, 235, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: #FF6B6B;
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: #FFD700;
+        }
+
+        .quiz-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .quiz-result.correct {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            display: block;
+        }
+
+        .quiz-result.incorrect {
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            display: block;
+        }
+
+        /* Card Actions */
+        .card-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .spin-again-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+        }
+
+        .spin-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .save-btn {
+            background: rgba(135, 206, 235, 0.2);
+            color: #87CEEB;
+            border: 2px solid #87CEEB;
+        }
+
+        .save-btn:hover {
+            background: rgba(135, 206, 235, 0.3);
+        }
+
+        /* Discovery Progress */
+        .progress-section {
+            margin-top: 40px;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #FFD700;
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Recently Discovered */
+        .recent-section {
+            margin-top: 30px;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .recent-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+
+        .recent-flags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .recent-flag {
+            font-size: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .recent-flag:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                padding: 10px 15px;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .stats-bar {
+                gap: 15px;
+            }
+
+            .stat-item {
+                padding: 12px 18px;
+                min-width: 100px;
+            }
+
+            .stat-value {
+                font-size: 22px;
+            }
+
+            .globe-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .spin-btn {
+                padding: 15px 35px;
+                font-size: 16px;
+            }
+
+            .country-card {
+                padding: 25px;
+            }
+
+            .country-flag {
+                font-size: 60px;
+            }
+
+            .country-name {
+                font-size: 28px;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            margin-top: 50px;
+        }
+
+        footer a {
+            color: #FFD700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars Background -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">🌍 GEOTOPIA</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="atlas.html">Atlas</a>
+            <a href="upsc-zone.html">UPSC Zone</a>
+            <a href="games-hub.html">Games</a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-icon">🌍</div>
+                <div class="stat-value" id="discovered-count">0</div>
+                <div class="stat-label">Countries Discovered</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="streak-count">0</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="quiz-score">0%</div>
+                <div class="stat-label">Quiz Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">📅</div>
+                <div class="stat-value" id="today-count">0</div>
+                <div class="stat-label">Today's Discoveries</div>
+            </div>
+        </div>
+
+        <!-- Globe Section -->
+        <div class="globe-section">
+            <div class="globe-container">
+                <div class="globe-glow"></div>
+                <div class="globe idle" id="globe">
+                    <div class="continents">
+                        <div class="continent continent-1"></div>
+                        <div class="continent continent-2"></div>
+                        <div class="continent continent-3"></div>
+                        <div class="continent continent-4"></div>
+                        <div class="continent continent-5"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="spin-btn" id="spin-btn" onclick="spinGlobe()">
+                🌍 Spin the Globe
+            </button>
+        </div>
+
+        <!-- Country Card -->
+        <div class="country-card" id="country-card">
+            <div class="card-header">
+                <div class="landed-text">🌍 You Landed In</div>
+                <div class="country-flag" id="country-flag">🇮🇳</div>
+                <h1 class="country-name" id="country-name">India</h1>
+                <p class="country-description" id="country-description">
+                    The seventh-largest country by area and second-most populous country.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <div class="info-item">
+                    <div class="info-icon">📍</div>
+                    <div class="info-label">Capital</div>
+                    <div class="info-value" id="country-capital">New Delhi</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🗺️</div>
+                    <div class="info-label">Continent</div>
+                    <div class="info-value" id="country-continent">Asia</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🌐</div>
+                    <div class="info-label">Latitude</div>
+                    <div class="info-value" id="country-lat">20.5937°N</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🧭</div>
+                    <div class="info-label">Longitude</div>
+                    <div class="info-value" id="country-lng">78.9629°E</div>
+                </div>
+            </div>
+
+            <div class="facts-section">
+                <div class="facts-title">🧠 Did You Know?</div>
+                <div class="fact-item">
+                    <span class="fact-bullet">•</span>
+                    <span id="fact-1">India has 28 states and 8 Union Territories.</span>
+                </div>
+                <div class="fact-item">
+                    <span class="fact-bullet">•</span>
+                    <span id="fact-2">The Himalayas, the highest mountain range, form India's northern border.</span>
+                </div>
+                <div class="fact-item">
+                    <span class="fact-bullet">•</span>
+                    <span id="fact-3">India has the second-largest river network in the world.</span>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <div class="quiz-title">🎮 Quick Quiz</div>
+                <div class="quiz-question" id="quiz-question">
+                    What is the longest river in India?
+                </div>
+                <div class="quiz-options" id="quiz-options">
+                    <div class="quiz-option" data-answer="A" onclick="checkAnswer(this, 'A')">
+                        <span class="option-letter">A</span>
+                        <span>Yamuna</span>
+                    </div>
+                    <div class="quiz-option" data-answer="B" onclick="checkAnswer(this, 'B')">
+                        <span class="option-letter">B</span>
+                        <span>Ganga</span>
+                    </div>
+                    <div class="quiz-option" data-answer="C" onclick="checkAnswer(this, 'C')">
+                        <span class="option-letter">C</span>
+                        <span>Brahmaputra</span>
+                    </div>
+                    <div class="quiz-option" data-answer="D" onclick="checkAnswer(this, 'D')">
+                        <span class="option-letter">D</span>
+                        <span>Godavari</span>
+                    </div>
+                </div>
+                <div class="quiz-result" id="quiz-result"></div>
+            </div>
+
+            <div class="card-actions">
+                <button class="action-btn spin-again-btn" onclick="spinGlobe()">
+                    🔄 Spin Again
+                </button>
+                <button class="action-btn save-btn" onclick="saveCountry()">
+                    ⭐ Save Country
+                </button>
+            </div>
+        </div>
+
+        <!-- Discovery Progress -->
+        <div class="progress-section">
+            <div class="progress-title">🗺️ World Discovery Progress</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progress-count">0</span> of 195 countries discovered
+            </div>
+        </div>
+
+        <!-- Recently Discovered -->
+        <div class="recent-section">
+            <div class="recent-title">🕐 Recently Discovered</div>
+            <div class="recent-flags" id="recent-flags">
+                <span class="recent-flag" data-tooltip="Start spinning to discover!">❓</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div class="confetti" id="confetti"></div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Made with ❤️ for Geography Lovers | <a href="index.html">GEOTOPIA</a> © 2025</p>
+    </footer>
+
+    <!-- Countries Data -->
+    <script src="countries-data.js"></script>
+
+    <script>
+        // Initialize stars background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.opacity = Math.random() * 0.5 + 0.3;
+                starsContainer.appendChild(star);
+            }
+        }
+        createStars();
+
+        // Game State
+        let gameState = {
+            discoveredCountries: new Set(),
+            recentCountries: [],
+            todayDiscoveries: 0,
+            streak: 0,
+            lastPlayDate: null,
+            totalQuizzes: 0,
+            correctQuizzes: 0
+        };
+
+        // Load saved state
+        function loadGameState() {
+            const saved = localStorage.getItem('geotopia_state');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                gameState.discoveredCountries = new Set(parsed.discoveredCountries || []);
+                gameState.recentCountries = parsed.recentCountries || [];
+                gameState.todayDiscoveries = parsed.todayDiscoveries || 0;
+                gameState.streak = parsed.streak || 0;
+                gameState.lastPlayDate = parsed.lastPlayDate;
+                gameState.totalQuizzes = parsed.totalQuizzes || 0;
+                gameState.correctQuizzes = parsed.correctQuizzes || 0;
+
+                // Check streak
+                const today = new Date().toDateString();
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                
+                if (gameState.lastPlayDate === today) {
+                    // Continue today
+                } else if (gameState.lastPlayDate === yesterday) {
+                    // Streak continues
+                } else if (gameState.lastPlayDate) {
+                    // Streak broken
+                    gameState.streak = 0;
+                    gameState.todayDiscoveries = 0;
+                }
+            }
+            updateUI();
+        }
+
+        // Save game state
+        function saveGameState() {
+            const toSave = {
+                discoveredCountries: Array.from(gameState.discoveredCountries),
+                recentCountries: gameState.recentCountries,
+                todayDiscoveries: gameState.todayDiscoveries,
+                streak: gameState.streak,
+                lastPlayDate: new Date().toDateString(),
+                totalQuizzes: gameState.totalQuizzes,
+                correctQuizzes: gameState.correctQuizzes
+            };
+            localStorage.setItem('geotopia_state', JSON.stringify(toSave));
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('discovered-count').textContent = gameState.discoveredCountries.size;
+            document.getElementById('streak-count').textContent = gameState.streak;
+            document.getElementById('today-count').textContent = gameState.todayDiscoveries;
+            
+            const accuracy = gameState.totalQuizzes > 0 
+                ? Math.round((gameState.correctQuizzes / gameState.totalQuizzes) * 100) 
+                : 0;
+            document.getElementById('quiz-score').textContent = accuracy + '%';
+
+            // Progress bar
+            const progress = (gameState.discoveredCountries.size / 195) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-count').textContent = gameState.discoveredCountries.size;
+
+            // Recent flags
+            updateRecentFlags();
+        }
+
+        function updateRecentFlags() {
+            const container = document.getElementById('recent-flags');
+            if (gameState.recentCountries.length === 0) {
+                container.innerHTML = '<span class="recent-flag">❓</span>';
+                return;
+            }
+
+            container.innerHTML = gameState.recentCountries
+                .slice(-10)
+                .reverse()
+                .map(name => {
+                    const country = countriesData.find(c => c.country_name === name);
+                    return country ? `<span class="recent-flag tooltip" data-tooltip="${country.country_name}">${country.flag_emoji}</span>` : '';
+                })
+                .join('');
+        }
+
+        // Current country for quiz
+        let currentCountry = null;
+        let currentCorrectAnswer = null;
+        let quizAnswered = false;
+
+        // Spin Globe Function
+        function spinGlobe() {
+            const globe = document.getElementById('globe');
+            const spinBtn = document.getElementById('spin-btn');
+            const card = document.getElementById('country-card');
+
+            // Disable button
+            spinBtn.disabled = true;
+
+            // Hide card
+            card.classList.remove('visible');
+
+            // Start spinning
+            globe.classList.remove('idle');
+            globe.classList.add('spinning');
+
+            // Reset quiz state
+            quizAnswered = false;
+
+            // After spin animation
+            setTimeout(() => {
+                globe.classList.remove('spinning');
+                globe.classList.add('idle');
+
+                // Select random country
+                currentCountry = countriesData[Math.floor(Math.random() * countriesData.length)];
+                
+                // Display country
+                displayCountry(currentCountry);
+
+                // Track discovery
+                const wasNew = !gameState.discoveredCountries.has(currentCountry.country_name);
+                gameState.discoveredCountries.add(currentCountry.country_name);
+                
+                if (wasNew) {
+                    gameState.todayDiscoveries++;
+                    
+                    // Update streak
+                    const today = new Date().toDateString();
+                    if (gameState.lastPlayDate !== today) {
+                        const yesterday = new Date(Date.now() - 86400000).toDateString();
+                        if (gameState.lastPlayDate === yesterday || !gameState.lastPlayDate) {
+                            gameState.streak++;
+                        }
+                    }
+
+                    // Add to recent
+                    if (!gameState.recentCountries.includes(currentCountry.country_name)) {
+                        gameState.recentCountries.push(currentCountry.country_name);
+                        if (gameState.recentCountries.length > 20) {
+                            gameState.recentCountries.shift();
+                        }
+                    }
+
+                    // Milestone celebration
+                    if (gameState.discoveredCountries.size % 10 === 0) {
+                        createConfetti();
+                    }
+                }
+
+                saveGameState();
+                updateUI();
+
+                // Re-enable button
+                spinBtn.disabled = false;
+            }, 2000);
+        }
+
+        // Display Country
+        function displayCountry(country) {
+            document.getElementById('country-flag').textContent = country.flag_emoji;
+            document.getElementById('country-name').textContent = country.country_name;
+            document.getElementById('country-description').textContent = country.short_description;
+            document.getElementById('country-capital').textContent = country.capital;
+            document.getElementById('country-continent').textContent = country.continent;
+            
+            // Coordinates
+            const lat = country.map_coordinates[0];
+            const lng = country.map_coordinates[1];
+            document.getElementById('country-lat').textContent = Math.abs(lat).toFixed(2) + '°' + (lat >= 0 ? 'N' : 'S');
+            document.getElementById('country-lng').textContent = Math.abs(lng).toFixed(2) + '°' + (lng >= 0 ? 'E' : 'W');
+
+            // Facts
+            document.getElementById('fact-1').textContent = country.fact_1;
+            document.getElementById('fact-2').textContent = country.fact_2;
+            document.getElementById('fact-3').textContent = country.fact_3;
+
+            // Quiz
+            document.getElementById('quiz-question').textContent = country.quiz_question;
+            currentCorrectAnswer = country.correct_answer;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            const letters = ['A', 'B', 'C', 'D'];
+            optionsContainer.innerHTML = country.quiz_options.map((opt, i) => `
+                <div class="quiz-option" data-answer="${opt}" onclick="checkAnswer(this, '${opt}')">
+                    <span class="option-letter">${letters[i]}</span>
+                    <span>${opt}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('quiz-result').className = 'quiz-result';
+            document.getElementById('quiz-result').textContent = '';
+
+            // Show card with animation
+            setTimeout(() => {
+                document.getElementById('country-card').classList.add('visible');
+            }, 100);
+        }
+
+        // Check Quiz Answer
+        function checkAnswer(element, answer) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const options = document.querySelectorAll('.quiz-option');
+            const resultDiv = document.getElementById('quiz-result');
+
+            gameState.totalQuizzes++;
+
+            if (answer === currentCorrectAnswer) {
+                element.classList.add('correct');
+                resultDiv.textContent = '🎉 Correct! Great geography knowledge!';
+                resultDiv.className = 'quiz-result correct';
+                gameState.correctQuizzes++;
+            } else {
+                element.classList.add('incorrect');
+                // Highlight correct answer
+                options.forEach(opt => {
+                    if (opt.getAttribute('data-answer') === currentCorrectAnswer) {
+                        opt.classList.add('correct');
+                    }
+                });
+                resultDiv.textContent = `❌ The correct answer is: ${currentCorrectAnswer}`;
+                resultDiv.className = 'quiz-result incorrect';
+            }
+
+            saveGameState();
+            updateUI();
+        }
+
+        // Save Country (Favorite)
+        function saveCountry() {
+            if (!currentCountry) return;
+            
+            let favorites = JSON.parse(localStorage.getItem('geotopia_favorites') || '[]');
+            
+            if (!favorites.includes(currentCountry.country_name)) {
+                favorites.push(currentCountry.country_name);
+                localStorage.setItem('geotopia_favorites', JSON.stringify(favorites));
+                alert(`⭐ ${currentCountry.country_name} saved to favorites!`);
+            } else {
+                alert(`${currentCountry.country_name} is already in your favorites!`);
+            }
+        }
+
+        // Confetti Effect
+        function createConfetti() {
+            const container = document.getElementById('confetti');
+            const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#87CEEB', '#4CAF50', '#E91E63'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // Initialize
+        loadGameState();
+    </script>
+</body>
+</html>
