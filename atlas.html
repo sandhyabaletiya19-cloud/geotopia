@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Atlas - Geotopia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: clamp(20px, 4vw, 32px);
+            font-weight: bold;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-home {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s;
+            font-size: clamp(12px, 2vw, 16px);
+        }
+
+        .back-home:hover {
+            transform: scale(1.05);
+        }
+
+        /* Hero Section */
+        .atlas-hero {
+            text-align: center;
+            padding: clamp(40px, 8vw, 80px) 20px;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.95), rgba(42, 82, 152, 0.95));
+            color: white;
+        }
+
+        .atlas-hero h1 {
+            font-size: clamp(28px, 6vw, 56px);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .atlas-hero p {
+            font-size: clamp(14px, 3vw, 20px);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Search and Filter Section */
+        .control-panel {
+            background: white;
+            padding: clamp(20px, 4vw, 30px);
+            margin: 20px auto;
+            max-width: 1400px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: clamp(14px, 2vw, 16px);
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
+            background: #f0f0f0;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: clamp(12px, 2vw, 16px);
+            font-weight: bold;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Maps Grid */
+        .maps-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+            gap: clamp(20px, 3vw, 30px);
+        }
+
+        .map-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .map-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(40px, 8vw, 60px);
+        }
+
+        .map-info {
+            padding: clamp(15px, 3vw, 20px);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-info h3 {
+            font-size: clamp(16px, 3vw, 20px);
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .map-info p {
+            font-size: clamp(12px, 2vw, 14px);
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .map-tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: clamp(10px, 1.5vw, 12px);
+            margin-right: 5px;
+            margin-top: 5px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .view-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: clamp(10px, 2vw, 12px) 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(12px, 2vw, 14px);
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Modal for Map Viewing */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: clamp(20px, 5%, 50px) auto;
+            padding: 0;
+            width: 95%;
+            max-width: 1200px;
+            border-radius: 15px;
+            overflow: hidden;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: clamp(15px, 3vw, 20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .modal-header h2 {
+            font-size: clamp(18px, 4vw, 28px);
+        }
+
+        .close {
+            color: white;
+            font-size: clamp(28px, 6vw, 40px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            line-height: 1;
+        }
+
+        .close:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: clamp(15px, 3vw, 30px);
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .modal-map-display {
+            width: 100%;
+            height: auto;
+            min-height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(60px, 12vw, 120px);
+            margin-bottom: 20px;
+        }
+
+        .modal-description {
+            font-size: clamp(14px, 2.5vw, 16px);
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+            padding: clamp(12px, 2.5vw, 15px) clamp(25px, 5vw, 40px);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: clamp(14px, 2.5vw, 16px);
+            font-weight: bold;
+            transition: transform 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: white;
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: clamp(30px, 5vw, 50px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: clamp(20px, 4vw, 30px);
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: clamp(28px, 6vw, 48px);
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            font-size: clamp(12px, 2vw, 16px);
+            color: #666;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            text-align: center;
+            padding: clamp(30px, 5vw, 40px) 20px;
+            margin-top: 60px;
+        }
+
+        footer p {
+            font-size: clamp(12px, 2vw, 16px);
+            margin: 10px 0;
+        }
+
+        footer a {
+            color: #FFD700;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: clamp(12px, 2vw, 14px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-container {
+                gap: 10px;
+                justify-content: center;
+            }
+
+            .control-panel {
+                margin: 20px 10px;
+            }
+
+            .maps-container {
+                padding: 0 10px;
+            }
+
+            .modal-content {
+                width: 98%;
+                margin: 10px auto;
+                max-height: 95vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .filter-tabs {
+                gap: 5px;
+            }
+
+            .filter-btn {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: clamp(16px, 3vw, 20px);
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #FFD700;
+            border-radius: 50%;
+            width: clamp(40px, 8vw, 60px);
+            height: clamp(40px, 8vw, 60px);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">🗺️ WORLD ATLAS</div>
+            <a href="index.html" class="back-home">← Back to Home</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="atlas-hero">
+        <h1>🌍 World Atlas - 200+ Maps</h1>
+        <p>Explore every corner of our planet with comprehensive maps covering political boundaries, physical features, climate zones, historical conflicts, and more. Your complete geographic reference.</p>
+    </section>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stat-item">
+            <h3>200+</h3>
+            <p>Total Maps</p>
+        </div>
+        <div class="stat-item">
+            <h3>195</h3>
+            <p>Countries</p>
+        </div>
+        <div class="stat-item">
+            <h3>15</h3>
+            <p>Categories</p>
+        </div>
+        <div class="stat-item">
+            <h3>100%</h3>
+            <p>Coverage</p>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchInput" placeholder="🔍 Search maps by name, country, or feature...">
+        </div>
+        
+        <div class="filter-tabs">
+            <button class="filter-btn active" data-category="all">All Maps</button>
+            <button class="filter-btn" data-category="political">Political</button>
+            <button class="filter-btn" data-category="physical">Physical</button>
+            <button class="filter-btn" data-category="climate">Climate</button>
+            <button class="filter-btn" data-category="mercator">Mercator</button>
+            <button class="filter-btn" data-category="true-size">True Size</button>
+            <button class="filter-btn" data-category="conflict">Conflict Zones</button>
+            <button class="filter-btn" data-category="population">Population</button>
+            <button class="filter-btn" data-category="economic">Economic</button>
+            <button class="filter-btn" data-category="historical">Historical</button>
+            <button class="filter-btn" data-category="topographic">Topographic</button>
+        </div>
+    </div>
+
+    <!-- Maps Container -->
+    <div class="maps-container" id="mapsContainer">
+        <!-- Maps will be dynamically loaded here -->
+    </div>
+
+    <!-- Modal for viewing maps -->
+    <div id="mapModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Map Title</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-map-display" id="modalMapDisplay">🗺️</div>
+                <div class="modal-description" id="modalDescription"></div>
+                <button class="download-btn" onclick="downloadMap()">📥 Download High-Res Map</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>🌍 Geotopia World Atlas - Your Complete Geographic Reference</p>
+        <p>© 2025 Geotopia | All Maps Updated for 2025</p>
+        <p>
+            <a href="index.html">Home</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a href="contact.html">Contact</a>
+        </p>
+    </footer>
+
+    <script>
+        // Comprehensive Map Database
+        const mapsDatabase = [
+            // Political Maps
+            { id: 1, name: "World Political Map", category: "political", icon: "🌍", description: "Complete political boundaries of all 195 countries with capitals and major cities marked." },
+            { id: 2, name: "Asia Political Map", category: "political", icon: "🗾", description: "Detailed political divisions of Asian countries including borders, capitals, and administrative regions." },
+            { id: 3, name: "Europe Political Map", category: "political", icon: "🏰", description: "European nations with EU member states, capitals, and major metropolitan areas highlighted." },
+            { id: 4, name: "Africa Political Map", category: "political", icon: "🦁", description: "African continent showing all 54 countries, borders, capitals, and key geographical features." },
+            { id: 5, name: "North America Political", category: "political", icon: "🗽", description: "Political map of North American countries, states, provinces, and territories." },
+            { id: 6, name: "South America Political", category: "political", icon: "🌴", description: "South American nations with borders, capitals, and major administrative divisions." },
+            { id: 7, name: "Australia & Oceania", category: "political", icon: "🦘", description: "Political divisions of Australia, New Zealand, and Pacific Island nations." },
+            { id: 8, name: "Antarctica Political", category: "political", icon: "🐧", description: "Territorial claims and research stations across the Antarctic continent." },
+
+            // Physical Maps
+            { id: 9, name: "World Physical Map", category: "physical", icon: "⛰️", description: "Terrain, elevation, mountains, rivers, deserts, and oceans across the globe." },
+            { id: 10, name: "Himalayan Mountain Range", category: "physical", icon: "🏔️", description: "Detailed topography of the Himalayas including all 8000m+ peaks." },
+            { id: 11, name: "Amazon Rainforest", category: "physical", icon: "🌳", description: "Physical features of the Amazon basin, river system, and rainforest coverage." },
+            { id: 12, name: "Sahara Desert", category: "physical", icon: "🏜️", description: "Terrain map of the world's largest hot desert with dunes, oases, and rock formations." },
+            { id: 13, name: "Great Barrier Reef", category: "physical", icon: "🐠", description: "Underwater topography and coral formations of the Great Barrier Reef system." },
+            { id: 14, name: "Grand Canyon", category: "physical", icon: "🏞️", description: "Geological layers and formations of the Grand Canyon with elevation details." },
+            { id: 15, name: "Pacific Ocean Floor", category: "physical", icon: "🌊", description: "Ocean floor topography, trenches, ridges, and underwater volcanoes." },
+
+            // Climate Maps
+            { id: 16, name: "World Climate Zones", category: "climate", icon: "🌡️", description: "Köppen climate classification showing all major climate zones globally." },
+            { id: 17, name: "Global Temperature Map", category: "climate", icon: "🔥", description: "Average annual temperatures across different regions of the world." },
+            { id: 18, name: "Precipitation Patterns", category: "climate", icon: "🌧️", description: "Annual rainfall distribution and wet/dry zones worldwide." },
+            { id: 19, name: "Ocean Currents", category: "climate", icon: "🌀", description: "Major ocean currents affecting global climate patterns." },
+            { id: 20, name: "Wind Patterns", category: "climate", icon: "💨", description: "Trade winds, westerlies, and monsoon patterns across the globe." },
+            { id: 21, name: "Hurricane & Typhoon Zones", category: "climate", icon: "🌪️", description: "Areas prone to tropical cyclones and storm tracks." },
+
+            // Mercator Projection
+            { id: 22, name: "Mercator World Map", category: "mercator", icon: "📐", description: "Traditional Mercator projection showing size distortion near poles." },
+            { id: 23, name: "Mercator vs Reality", category: "mercator", icon: "📏", description: "Comparison showing how Mercator distorts country sizes." },
+
+            // True Size Maps
+            { id: 24, name: "True Size World Map", category: "true-size", icon: "🎯", description: "Accurate representation of country sizes without projection distortion." },
+            { id: 25, name: "Africa True Size", category: "true-size", icon: "📊", description: "Africa's actual size compared to other continents and countries." },
+            { id: 26, name: "Greenland True Size", category: "true-size", icon: "❄️", description: "Greenland's real size vs Mercator projection comparison." },
+
+            // Conflict & War Zones
+            { id: 27, name: "Current Conflict Zones 2025", category: "conflict", icon: "⚠️", description: "Active conflict areas, disputed territories, and tension zones worldwide." },
+            { id: 28, name: "Middle East Conflicts", category: "conflict", icon: "🏛️", description: "Detailed map of ongoing conflicts and territorial disputes in Middle East." },
+            { id: 29, name: "Ukraine-Russia Conflict", category: "conflict", icon: "🛡️", description: "Current territorial control and conflict zones in Ukraine (Updated 2025)." },
+            { id: 30, name: "Kashmir Dispute", category: "conflict", icon: "⚔️", description: "Disputed territories between India, Pakistan, and China in Kashmir region." },
+            { id: 31, name: "South China Sea Disputes", category: "conflict", icon: "🚢", description: "Overlapping territorial claims in the South China Sea." },
+            { id: 32, name: "Israel-Palestine", category: "conflict", icon: "🕊️", description: "Detailed map of territories, settlements, and borders in the region." },
+
+            // Population Maps
+            { id: 33, name: "World Population Density", category: "population", icon: "👥", description: "Population distribution showing dense urban areas and sparse regions." },
+            { id: 34, name: "Megacities Map", category: "population", icon: "🏙️", description: "Cities with over 10 million population marked and ranked." },
+            { id: 35, name: "Population Growth Rates", category: "population", icon: "📈", description: "Countries color-coded by population growth rates." },
+            { id: 36, name: "Aging Population", category: "population", icon: "👴", description: "Countries with highest percentage of elderly citizens." },
+
+            // Economic Maps
+            { id: 37, name: "GDP by Country", category: "economic", icon: "💰", description: "Global GDP distribution with top economies highlighted." },
+            { id: 38, name: "Trade Routes", category: "economic", icon: "🚢", description: "Major shipping lanes and international trade routes." },
+            { id: 39, name: "Oil & Gas Reserves", category: "economic", icon: "🛢️", description: "Global petroleum reserves and production areas." },
+            { id: 40, name: "Cryptocurrency Adoption", category: "economic", icon: "₿", description: "Countries by cryptocurrency usage and regulation (2025)." },
+
+            // Historical Maps
+            { id: 41, name: "Ancient Roman Empire", category: "historical", icon: "🏛️", description: "Extent of Roman Empire at its peak (117 AD)." },
+            { id: 42, name: "Mongol Empire", category: "historical", icon: "🐎", description: "Largest contiguous land empire in history (13th century)." },
+            { id: 43, name: "Colonial World 1914", category: "historical", icon: "🗺️", description: "World map showing colonial empires before World War I." },
+            { id: 44, name: "Cold War Division", category: "historical", icon: "🧊", description: "NATO vs Warsaw Pact and non-aligned nations during Cold War." },
+            { id: 45, name: "Silk Road Routes", category: "historical", icon: "🐫", description: "Ancient trade routes connecting East and West." },
+
+            // Topographic Maps
+            { id: 46, name: "Mount Everest Topographic", category: "topographic", icon: "🗻", description: "Detailed contour map of Mount Everest and surrounding peaks." },
+            { id: 47, name: "Mariana Trench", category: "topographic", icon: "🕳️", description: "Deepest ocean trench with depth measurements." },
+            { id: 48, name: "Nile River Basin", category: "topographic", icon: "🏞️", description: "Complete Nile river system from source to delta." },
+
+            // Additional Maps (Expanding to 200+)
+            { id: 49, name: "World Time Zones", category: "political", icon: "🕐", description: "All 24 time zones with UTC offsets and daylight saving regions." },
+            { id: 50, name: "Internet Connectivity", category: "economic", icon: "📡", description: "Global internet penetration and speed by country (2025)." },
+            { id: 51, name: "Earthquakes & Volcanoes", category: "physical", icon: "🌋", description: "Ring of Fire and seismically active zones worldwide." },
+            { id: 52, name: "World Languages Map", category: "political", icon: "🗣️", description: "Major language families and distribution across the globe." },
+            { id: 53, name: "Religions of the World", category: "political", icon: "🕌", description: "Predominant religions by country and region." },
+            { id: 54, name: "UNESCO World Heritage", category: "historical", icon: "🏰", description: "All UNESCO World Heritage Sites marked globally." },
+            { id: 55, name: "Biodiversity Hotspots", category: "physical", icon: "🦋", description: "Areas with highest species diversity and conservation priority." },
+            { id: 56, name: "Deforestation Rates", category: "climate", icon: "🌲", description: "Forest loss and reforestation areas (2020-2025)." },
+            { id: 57, name: "Polar Ice Coverage", category: "climate", icon: "🧊", description: "Arctic and Antarctic ice extent with historical comparison." },
+            { id: 58, name: "Coral Reef Systems", category: "physical", icon: "🪸", description: "Major coral reef locations and health status." },
+            { id: 59, name: "Migration Routes", category: "population", icon: "✈️", description: "Global human migration patterns and refugee movements." },
+            { id: 60, name: "Space Debris Map", category: "economic", icon: "🛰️", description: "Orbital paths of satellites and space junk (2025)." },
+
+            // Continental Deep Dives (61-100)
+            { id: 61, name: "India State Map", category: "political", icon: "🇮🇳", description: "All 28 states and 8 union territories of India with capitals." },
+            { id: 62, name: "USA State Map", category: "political", icon: "🇺🇸", description: "50 states with capitals, major cities, and interstate highways." },
+            { id: 63, name: "China Provincial Map", category: "political", icon: "🇨🇳", description: "23 provinces, 5 autonomous regions, and 4 municipalities." },
+            { id: 64, name: "Brazil States", category: "political", icon: "🇧🇷", description: "26 states and Federal District of Brazil." },
+            { id: 65, name: "Russia Federal Subjects", category: "political", icon: "🇷🇺", description: "85 federal subjects of the Russian Federation." },
+            { id: 66, name: "Canadian Provinces", category: "political", icon: "🇨🇦", description: "10 provinces and 3 territories of Canada." },
+            { id: 67, name: "Australian States", category: "political", icon: "🇦🇺", description: "6 states and 2 territories of Australia." },
+            { id: 68, name: "African Union Members", category: "political", icon: "🌍", description: "55 member states of the African Union." },
+            { id: 69, name: "European Union Map", category: "political", icon: "🇪🇺", description: "27 current EU member states (post-Brexit)." },
+            { id: 70, name: "ASEAN Nations", category: "political", icon: "🌏", description: "10 Southeast Asian nations and their cooperation." },
+
+            // More Physical Features (71-90)
+            { id: 71, name: "World's Longest Rivers", category: "physical", icon: "🏞️", description: "Nile, Amazon, Yangtze and other major river systems." },
+            { id: 72, name: "Tallest Mountains", category: "physical", icon: "⛰️", description: "All 14 eight-thousanders and other notable peaks." },
+            { id: 73, name: "Largest Lakes", category: "physical", icon: "💧", description: "Caspian Sea, Great Lakes, and major freshwater bodies." },
+            { id: 74, name: "Major Deserts", category: "physical", icon: "🏜️", description: "Sahara, Gobi, Mojave and world's arid regions." },
+            { id: 75, name: "Rainforest Coverage", category: "physical", icon: "🌿", description: "Amazon, Congo, and other tropical rainforests." },
+            { id: 76, name: "Tectonic Plates", category: "physical", icon: "🌍", description: "Major and minor tectonic plates and fault lines." },
+            { id: 77, name: "Continental Shelves", category: "physical", icon: "🌊", description: "Underwater continental shelves and slopes." },
+            { id: 78, name: "Glacier Distribution", category: "physical", icon: "❄️", description: "Major glaciers and ice sheets worldwide." },
+            { id: 79, name: "Cave Systems", category: "physical", icon: "🕳️", description: "World's largest and deepest cave systems." },
+            { id: 80, name: "Island Chains", category: "physical", icon: "🏝️", description: "Major archipelagos and island nations." },
+
+            // Climate & Environment (91-110)
+            { id: 81, name: "Carbon Emissions", category: "climate", icon: "🏭", description: "CO2 emissions by country (2025 data)." },
+            { id: 82, name: "Renewable Energy", category: "climate", icon: "♻️", description: "Solar, wind, hydro power distribution globally." },
+            { id: 83, name: "Water Stress Areas", category: "climate", icon: "💧", description: "Regions facing water scarcity and drought." },
+            { id: 84, name: "Air Quality Index", category: "climate", icon: "😷", description: "Global air pollution levels by city." },
+            { id: 85, name: "Sea Level Rise", category: "climate", icon: "🌊", description: "Projected coastal flooding by 2100." },
+            { id: 86, name: "Wildfire Risk Zones", category: "climate", icon: "🔥", description: "Areas prone to forest fires and bushfires." },
+            { id: 87, name: "Tornado Alley", category: "climate", icon: "🌪️", description: "Tornado-prone regions especially in USA." },
+            { id: 88, name: "Monsoon Patterns", category: "climate", icon: "🌧️", description: "Asian and African monsoon systems." },
+            { id: 89, name: "El Niño Effects", category: "climate", icon: "🌊", description: "ENSO impact zones and weather patterns." },
+            { id: 90, name: "Permafrost Regions", category: "climate", icon: "🧊", description: "Permanently frozen ground areas and thawing." },
+
+            // Economic & Development (111-130)
+            { id: 91, name: "Human Development Index", category: "economic", icon: "📊", description: "Countries ranked by HDI (2025)." },
+            { id: 92, name: "Poverty Rates", category: "economic", icon: "💸", description: "Percentage living below poverty line by country." },
+            { id: 93, name: "Literacy Rates", category: "economic", icon: "📚", description: "Adult literacy percentages worldwide." },
+            { id: 94, name: "Life Expectancy", category: "economic", icon: "❤️", description: "Average life expectancy by country." },
+            { id: 95, name: "Healthcare Access", category: "economic", icon: "🏥", description: "Doctors per capita and hospital coverage." },
+            { id: 96, name: "Tourism Hotspots", category: "economic", icon: "✈️", description: "Most visited countries and attractions." },
+            { id: 97, name: "Agricultural Zones", category: "economic", icon: "🌾", description: "Major farming regions and crop types." },
+            { id: 98, name: "Mining & Resources", category: "economic", icon: "⛏️", description: "Mineral deposits and extraction sites." },
+            { id: 99, name: "Manufacturing Hubs", category: "economic", icon: "🏭", description: "Global industrial production centers." },
+            { id: 100, name: "Stock Exchanges", category: "economic", icon: "📈", description: "Major world stock markets and financial centers." },
+
+            // Conflict & Geopolitics (131-145)
+            { id: 101, name: "NATO Members", category: "conflict", icon: "🛡️", description: "North Atlantic Treaty Organization countries (2025)." },
+            { id: 102, name: "Nuclear Powers", category: "conflict", icon: "☢️", description: "Countries with nuclear weapons capability." },
+            { id: 103, name: "Military Spending", category: "conflict", icon: "⚔️", description: "Defense budgets by country." },
+            { id: 104, name: "Territorial Waters", category: "conflict", icon: "🌊", description: "Exclusive Economic Zones (EEZ) worldwide." },
+            { id: 105, name: "Border Disputes", category: "conflict", icon: "⚠️", description: "Active territorial disagreements globally." },
+            { id: 106, name: "Peacekeeping Missions", category: "conflict", icon: "🕊️", description: "UN peacekeeping operations locations." },
+            { id: 107, name: "Refugee Camps", category: "conflict", icon: "⛺", description: "Major refugee settlements worldwide." },
+            { id: 108, name: "Piracy Hotspots", category: "conflict", icon: "☠️", description: "Maritime piracy risk areas." },
+            { id: 109, name: "Cyber Attack Origins", category: "conflict", icon: "💻", description: "Countries with most cyber warfare activity." },
+            { id: 110, name: "Drone Strike Zones", category: "conflict", icon: "🎯", description: "Regions affected by drone warfare." },
+
+            // Historical Deep Dives (146-165)
+            { id: 111, name: "World War I Fronts", category: "historical", icon: "⚔️", description: "Major battles and front lines of WWI." },
+            { id: 112, name: "World War II", category: "historical", icon: "🎖️", description: "Allied vs Axis powers and key battles." },
+            { id: 113, name: "Ancient Egypt", category: "historical", icon: "🏺", description: "Extent of Egyptian civilization and dynasties." },
+            { id: 114, name: "Greek City-States", category: "historical", icon: "🏛️", description: "Ancient Greece and Hellenistic world." },
+            { id: 115, name: "Ottoman Empire", category: "historical", icon: "🕌", description: "Ottoman territories at maximum extent." },
+            { id: 116, name: "British Empire", category: "historical", icon: "👑", description: "The empire where sun never set (1920)." },
+            { id: 117, name: "Viking Expeditions", category: "historical", icon: "⚓", description: "Norse exploration and settlements." },
+            { id: 118, name: "Inca Empire", category: "historical", icon: "🏔️", description: "Inca civilization in South America." },
+            { id: 119, name: "Aztec Empire", category: "historical", icon: "🗿", description: "Aztec territories in Mesoamerica." },
+            { id: 120, name: "Mauryan Empire", category: "historical", icon: "🛕", description: "Ancient Indian empire under Ashoka." },
+
+            // Transportation & Infrastructure (166-180)
+            { id: 121, name: "World Airport Hubs", category: "economic", icon: "✈️", description: "Busiest airports and flight connections." },
+            { id: 122, name: "Railway Networks", category: "economic", icon: "🚂", description: "Major train routes and high-speed rail." },
+            { id: 123, name: "Shipping Ports", category: "economic", icon: "⚓", description: "World's largest cargo and container ports." },
+            { id: 124, name: "Submarine Cables", category: "economic", icon: "🔌", description: "Undersea internet and communication cables." },
+            { id: 125, name: "Oil Pipelines", category: "economic", icon: "🛢️", description: "Major petroleum pipeline networks." },
+            { id: 126, name: "Space Launch Sites", category: "economic", icon: "🚀", description: "Rocket launch facilities worldwide." },
+            { id: 127, name: "Lighthouse Locations", category: "physical", icon: "🗼", description: "Historic and active lighthouses." },
+            { id: 128, name: "Canal Systems", category: "physical", icon: "🚢", description: "Suez, Panama and other major canals." },
+
+            // Cultural & Social (181-200)
+            { id: 129, name: "World Cup Hosts", category: "historical", icon: "⚽", description: "FIFA World Cup host nations since 1930." },
+            { id: 130, name: "Olympic Cities", category: "historical", icon: "🏅", description: "Summer and Winter Olympics locations." },
+            { id: 131, name: "Nobel Prize Countries", category: "economic", icon: "🏆", description: "Nobel laureates by nation." },
+            { id: 132, name: "UNESCO Sites", category: "historical", icon: "🏛️", description: "Cultural and natural heritage sites." },
+            { id: 133, name: "Wine Regions", category: "economic", icon: "🍷", description: "Major wine-producing areas globally." },
+            { id: 134, name: "Coffee Growing Zones", category: "economic", icon: "☕", description: "Coffee belt and major producers." },
+            { id: 135, name: "Tea Plantations", category: "economic", icon: "🍵", description: "Tea growing regions worldwide." },
+            { id: 136, name: "Diamond Mines", category: "economic", icon: "💎", description: "Major diamond extraction sites." },
+            { id: 137, name: "Film Industry Hubs", category: "economic", icon: "🎬", description: "Hollywood, Bollywood and other centers." },
+            { id: 138, name: "Music Festivals", category: "economic", icon: "🎵", description: "Major global music festival locations." },
+            { id: 139, name: "National Parks", category: "physical", icon: "🏞️", description: "Protected natural areas worldwide." },
+            { id: 140, name: "Ski Resorts", category: "physical", icon: "⛷️", description: "Major skiing destinations globally." },
+            { id: 141, name: "Scuba Diving Sites", category: "physical", icon: "🤿", description: "Best diving locations and reefs." },
+            { id: 142, name: "Surfing Spots", category: "physical", icon: "🏄", description: "World's top surfing beaches." },
+            { id: 143, name: "Safari Locations", category: "physical", icon: "🦁", description: "Wildlife safari parks and reserves." },
+            { id: 144, name: "Ancient Wonders", category: "historical", icon: "🗿", description: "Seven Wonders and other marvels." },
+            { id: 145, name: "Modern Architecture", category: "economic", icon: "🏗️", description: "Iconic buildings and skyscrapers." },
+            { id: 146, name: "Food Origins", category: "economic", icon: "🍕", description: "Where famous cuisines originated." },
+            { id: 147, name: "Language Families", category: "political", icon: "💬", description: "Indo-European, Sino-Tibetan etc." },
+            { id: 148, name: "Alphabets Used", category: "political", icon: "🔤", description: "Latin, Cyrillic, Arabic scripts distribution." },
+            { id: 149, name: "Driving Sides", category: "political", icon: "🚗", description: "Left vs right-hand traffic countries." },
+            { id: 150, name: "Currency Zones", category: "economic", icon: "💵", description: "Major currencies and their usage areas." },
+            { id: 151, name: "Metric vs Imperial", category: "political", icon: "📏", description: "Countries using different measurement systems." },
+            { id: 152, name: "Daylight Hours", category: "climate", icon: "☀️", description: "Seasonal sunlight variation by latitude." },
+            { id: 153, name: "Aurora Zones", category: "physical", icon: "🌌", description: "Where to see Northern/Southern Lights." },
+            { id: 154, name: "Meteor Crater Sites", category: "physical", icon: "☄️", description: "Impact craters around the world." },
+            { id: 155, name: "Hot Springs", category: "physical", icon: "♨️", description: "Natural geothermal springs globally." },
+            { id: 156, name: "Active Geysers", category: "physical", icon: "💦", description: "Yellowstone and other geyser fields." },
+            { id: 157, name: "Bioluminescent Bays", category: "physical", icon: "✨", description: "Glowing water locations worldwide." },
+            { id: 158, name: "Underground Cities", category: "historical", icon: "🕳️", description: "Ancient and modern subterranean settlements." },
+            { id: 159, name: "Ghost Towns", category: "historical", icon: "👻", description: "Abandoned settlements globally." },
+            { id: 160, name: "Disputed Islands", category: "conflict", icon: "🏝️", description: "Islands with sovereignty disputes." },
+            { id: 161, name: "Artificial Islands", category: "economic", icon: "🏗️", description: "Man-made islands like Palm Jumeirah." },
+            { id: 162, name: "Bridges & Tunnels", category: "economic", icon: "🌉", description: "Engineering marvels connecting regions." },
+            { id: 163, name: "Dam Locations", category: "economic", icon: "🏞️", description: "Major hydroelectric and water dams." },
+            { id: 164, name: "Nuclear Plants", category: "economic", icon: "☢️", description: "Nuclear power stations worldwide." },
+            { id: 165, name: "Solar Farms", category: "economic", icon: "☀️", description: "Large-scale solar power installations." },
+            { id: 166, name: "Wind Farms", category: "economic", icon: "💨", description: "Major wind energy generation sites." },
+            { id: 167, name: "Geothermal Plants", category: "economic", icon: "🌋", description: "Geothermal energy production areas." },
+            { id: 168, name: "Battery Storage", category: "economic", icon: "🔋", description: "Large energy storage facilities." },
+            { id: 169, name: "Data Centers", category: "economic", icon: "💾", description: "Major cloud and data storage hubs." },
+            { id: 170, name: "Tech Company HQs", category: "economic", icon: "💻", description: "Silicon Valley and global tech centers." },
+            { id: 171, name: "University Rankings", category: "economic", icon: "🎓", description: "Top universities by location." },
+            { id: 172, name: "Hospital Density", category: "economic", icon: "🏥", description: "Healthcare facility distribution." },
+            { id: 173, name: "Prison Populations", category: "political", icon: "⛓️", description: "Incarceration rates by country." },
+            { id: 174, name: "Press Freedom", category: "political", icon: "📰", description: "Media freedom index by nation." },
+            { id: 175, name: "Corruption Index", category: "political", icon: "💰", description: "Transparency International rankings." },
+            { id: 176, name: "Democracy Index", category: "political", icon: "🗳️", description: "Democratic vs authoritarian states." },
+            { id: 177, name: "Gender Equality", category: "political", icon: "⚖️", description: "Gender gap index by country." },
+            { id: 178, name: "LGBT Rights", category: "political", icon: "🏳️‍🌈", description: "Legal status of LGBT+ communities." },
+            { id: 179, name: "Death Penalty", category: "political", icon: "⚖️", description: "Countries with capital punishment." },
+            { id: 180, name: "Gun Ownership", category: "political", icon: "🔫", description: "Civilian firearms per capita." },
+            { id: 181, name: "Alcohol Consumption", category: "economic", icon: "🍺", description: "Per capita alcohol use by country." },
+            { id: 182, name: "Coffee Consumption", category: "economic", icon: "☕", description: "Who drinks most coffee globally." },
+            { id: 183, name: "Mobile Phone Usage", category: "economic", icon: "📱", description: "Smartphone penetration rates." },
+            { id: 184, name: "Social Media Users", category: "economic", icon: "📱", description: "Platform usage by country." },
+            { id: 185, name: "Electric Vehicle Adoption", category: "economic", icon: "🔌", description: "EV sales and charging infrastructure." },
+            { id: 186, name: "Bicycle Infrastructure", category: "economic", icon: "🚲", description: "Bike-friendly cities and lanes." },
+            { id: 187, name: "Public Transit", category: "economic", icon: "🚇", description: "Metro, tram and bus systems." },
+            { id: 188, name: "Traffic Congestion", category: "economic", icon: "🚗", description: "Most congested cities globally." },
+            { id: 189, name: "Pollution Levels", category: "climate", icon: "🏭", description: "PM2.5 and air quality by city." },
+            { id: 190, name: "Plastic Waste", category: "climate", icon: "♻️", description: "Plastic production and ocean pollution." },
+            { id: 191, name: "E-Waste Generation", category: "climate", icon: "📱", description: "Electronic waste by country." },
+            { id: 192, name: "Recycling Rates", category: "climate", icon: "♻️", description: "Countries with best recycling." },
+            { id: 193, name: "Organic Farming", category: "economic", icon: "🌱", description: "Organic agriculture adoption." },
+            { id: 194, name: "GMO Crops", category: "economic", icon: "🧬", description: "Genetically modified crop regions." },
+            { id: 195, name: "Bee Population", category: "physical", icon: "🐝", description: "Pollinator decline and conservation." },
+            { id: 196, name: "Endangered Species", category: "physical", icon: "🦏", description: "Critically endangered animal habitats." },
+            { id: 197, name: "Invasive Species", category: "physical", icon: "🐀", description: "Non-native species spread zones." },
+            { id: 198, name: "Whale Migration", category: "physical", icon: "🐋", description: "Cetacean migration routes." },
+            { id: 199, name: "Bird Migration", category: "physical", icon: "🦅", description: "Major bird flyways worldwide." },
+            { id: 200, name: "Monarch Butterfly Route", category: "physical", icon: "🦋", description: "Epic migration journey of Monarchs." }
+        ];
+
+        let currentCategory = 'all';
+        let currentMapData = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            displayMaps(mapsDatabase);
+            setupFilterButtons();
+            setupSearch();
+            setupModal();
+        });
+
+        // Display Maps
+        function displayMaps(maps) {
+            const container = document.getElementById('mapsContainer');
+            
+            if (maps.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: white;">
+                        <h2 style="font-size: clamp(24px, 4vw, 36px); margin-bottom: 20px;">No maps found</h2>
+                        <p style="font-size: clamp(14px, 2vw, 18px);">Try a different category or search term</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = maps.map(map => `
+                <div class="map-card" onclick="openMapModal(${map.id})">
+                    <div class="map-image">${map.icon}</div>
+                    <div class="map-info">
+                        <h3>${map.name}</h3>
+                        <p>${map.description}</p>
+                        <div>
+                            <span class="map-tag">${map.category.toUpperCase()}</span>
+                        </div>
+                        <button class="view-btn">🔍 View Map</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter Functionality
+        function setupFilterButtons() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    // Add active to clicked
+                    this.classList.add('active');
+                    
+                    currentCategory = this.dataset.category;
+                    filterMaps();
+                });
+            });
+        }
+
+        function filterMaps() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = mapsDatabase;
+
+            // Filter by category
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(map => map.category === currentCategory);
+            }
+
+            // Filter by search
+            if (searchTerm) {
+                filtered = filtered.filter(map => 
+                    map.name.toLowerCase().includes(searchTerm) ||
+                    map.description.toLowerCase().includes(searchTerm) ||
+                    map.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            displayMaps(filtered);
+        }
+
+        // Search Functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', filterMaps);
+        }
+
+        // Modal Functionality
+        function setupModal() {
+            const modal = document.getElementById('mapModal');
+            const closeBtn = document.querySelector('.close');
+
+            closeBtn.onclick = function() {
+                modal.style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+
+        function openMapModal(mapId) {
+            const map = mapsDatabase.find(m => m.id === mapId);
+            if (!map) return;
+
+            currentMapData = map;
+
+            document.getElementById('modalTitle').textContent = map.name;
+            document.getElementById('modalMapDisplay').textContent = map.icon;
+            document.getElementById('modalDescription').innerHTML = `
+                <p><strong>Category:</strong> ${map.category.toUpperCase()}</p>
+                <p><strong>Description:</strong> ${map.description}</p>
+                <p style="margin-top: 20px;"><em>This is a comprehensive ${map.category} map providing detailed geographic information. In the full version, you would see high-resolution imagery, interactive features, and downloadable formats.</em></p>
+                <p style="margin-top: 15px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+                    <strong>💡 Pro Tip:</strong> Use this map for educational purposes, research, or exam preparation. Combine with other maps for comprehensive understanding.
+                </p>
+            `;
+
+            document.getElementById('mapModal').style.display = 'block';
+        }
+
+        function downloadMap() {
+            if (!currentMapData) return;
+            
+            // Simulate download
+            alert(`📥 Downloading: ${currentMapData.name}\n\nIn the full version, this would download a high-resolution version of the map in multiple formats (PNG, PDF, SVG).\n\nFile size: ~5-15 MB\nResolution: 4K (3840x2160)`);
+        }
+
+        // Prevent zoom on double tap for iOS
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+
+</body>
+</html>
