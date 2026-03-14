@@ -6,10 +6,6 @@
     <title>Spin the Globe - Geotopia</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Three.js and Globe.gl -->
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -61,38 +57,13 @@
             inset: 0;
             z-index: -1;
             overflow: hidden;
+            background: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a1a 50%, #050510 100%);
         }
-
-        .galaxy-layer {
-            position: absolute;
-            inset: 0;
-            background: 
-                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(88, 28, 135, 0.4) 0%, transparent 50%),
-                radial-gradient(ellipse 60% 40% at 80% 30%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
-                radial-gradient(ellipse 70% 50% at 70% 80%, rgba(236, 72, 153, 0.25) 0%, transparent 50%),
-                radial-gradient(ellipse 100% 100% at 50% 50%, #0a0a1a 0%, #050510 100%);
-            transition: opacity 0.5s;
-        }
-
-        [data-theme="light"] .galaxy-layer { opacity: 0; }
-
-        .solar-layer {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, #87CEEB 0%, #b8e0f7 30%, #d4e8f5 60%, #e8f4fc 100%);
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        [data-theme="light"] .solar-layer { opacity: 1; }
 
         .stars-container {
             position: absolute;
             inset: 0;
-            transition: opacity 0.5s;
         }
-
-        [data-theme="light"] .stars-container { opacity: 0.1; }
 
         .star {
             position: absolute;
@@ -207,14 +178,14 @@
             border-color: var(--accent-purple);
         }
 
-        /* Main Container */
+        /* Main Layout */
         .main-container {
             display: flex;
             min-height: 100vh;
             padding-top: 70px;
         }
 
-        /* Globe Container */
+        /* Globe Section */
         .globe-section {
             flex: 1;
             display: flex;
@@ -225,7 +196,7 @@
             min-height: calc(100vh - 70px);
         }
 
-        #globeViz {
+        #globeContainer {
             width: 100%;
             height: 100%;
             position: absolute;
@@ -233,6 +204,7 @@
             left: 0;
         }
 
+        /* Globe Controls */
         .globe-controls {
             position: absolute;
             bottom: 40px;
@@ -279,6 +251,7 @@
 
         .spin-btn .globe-emoji {
             font-size: 26px;
+            display: inline-block;
             animation: emojiSpin 4s linear infinite;
         }
 
@@ -299,15 +272,11 @@
         .globe-stats {
             display: flex;
             gap: 40px;
-            background: rgba(10, 10, 26, 0.8);
+            background: rgba(10, 10, 26, 0.85);
             backdrop-filter: blur(15px);
             padding: 16px 30px;
             border-radius: 20px;
             border: 1px solid var(--border-color);
-        }
-
-        [data-theme="light"] .globe-stats {
-            background: rgba(255, 255, 255, 0.9);
         }
 
         .globe-stat {
@@ -320,6 +289,7 @@
             background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .globe-stat-label {
@@ -329,7 +299,32 @@
             letter-spacing: 1px;
         }
 
-        /* Country Card Panel */
+        /* Title overlay */
+        .globe-title {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            text-align: center;
+        }
+
+        .globe-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--earth-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .globe-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Country Panel */
         .country-panel {
             width: 420px;
             min-width: 420px;
@@ -450,12 +445,7 @@
             background: linear-gradient(135deg, var(--text-white), var(--earth-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        [data-theme="light"] .country-name {
-            background: linear-gradient(135deg, #1a202c, var(--earth-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .country-tagline {
@@ -498,7 +488,6 @@
         .info-icon.capital { background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); }
         .info-icon.region { background: linear-gradient(135deg, var(--earth-blue), var(--accent-cyan)); }
         .info-icon.population { background: linear-gradient(135deg, var(--earth-green), var(--accent-cyan)); }
-        .info-icon.area { background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink)); }
         .info-icon.language { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
         .info-icon.currency { background: linear-gradient(135deg, #10b981, #059669); }
 
@@ -614,34 +603,16 @@
         .quiz-option.correct {
             border-color: var(--earth-green) !important;
             background: rgba(45, 155, 78, 0.2) !important;
-            transform: translateX(0) !important;
-        }
-
-        .quiz-option.correct::after {
-            content: '✓ Correct!';
-            margin-left: auto;
-            color: var(--earth-green);
-            font-weight: 700;
-            font-size: 12px;
         }
 
         .quiz-option.wrong {
             border-color: #ef4444 !important;
             background: rgba(239, 68, 68, 0.2) !important;
-            transform: translateX(0) !important;
-        }
-
-        .quiz-option.wrong::after {
-            content: '✗ Wrong';
-            margin-left: auto;
-            color: #ef4444;
-            font-weight: 700;
-            font-size: 12px;
         }
 
         .quiz-option.disabled {
             cursor: not-allowed;
-            opacity: 0.7;
+            pointer-events: none;
         }
 
         .quiz-option span {
@@ -684,7 +655,7 @@
             box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
         }
 
-        /* Streak Tracker Footer */
+        /* Streak Footer */
         .streak-footer {
             position: fixed;
             bottom: 0;
@@ -703,10 +674,6 @@
 
         .streak-footer.panel-closed {
             right: 0;
-        }
-
-        [data-theme="light"] .streak-footer {
-            background: rgba(255, 255, 255, 0.95);
         }
 
         .streak-item {
@@ -743,6 +710,44 @@
             color: var(--text-muted);
         }
 
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid rgba(139, 92, 246, 0.2);
+            border-top-color: var(--accent-purple);
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .country-panel {
@@ -761,20 +766,11 @@
         }
 
         @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
-
             .country-panel {
                 max-width: 100%;
-                position: fixed;
                 top: auto;
                 bottom: 0;
-                left: 0;
-                right: 0;
-                height: 70vh;
-                border-left: none;
-                border-top: 1px solid var(--border-color);
+                height: 75vh;
                 border-radius: 24px 24px 0 0;
                 transform: translateY(100%);
             }
@@ -802,61 +798,13 @@
                 display: none;
             }
 
+            .globe-title h1 {
+                font-size: 24px;
+            }
+
             .back-btn span {
                 display: none;
             }
-        }
-
-        /* Loading State */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-primary);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-
-        .loading-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loading-globe {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--earth-blue), var(--earth-green));
-            animation: loadingPulse 1.5s ease-in-out infinite;
-            margin-bottom: 20px;
-            box-shadow: 0 0 50px rgba(74, 144, 217, 0.5);
-        }
-
-        @keyframes loadingPulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        .loading-text {
-            font-size: 16px;
-            color: var(--text-muted);
-            animation: loadingDots 1.5s infinite;
-        }
-
-        @keyframes loadingDots {
-            0%, 20% { content: 'Loading globe.'; }
-            40% { content: 'Loading globe..'; }
-            60%, 100% { content: 'Loading globe...'; }
-        }
-
-        /* Confetti */
-        .confetti {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
         }
 
         /* Scrollbar */
@@ -870,16 +818,14 @@
 </head>
 <body data-theme="dark">
 
-    <!-- Loading Overlay -->
+    <!-- Loading -->
     <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-globe"></div>
+        <div class="loading-spinner"></div>
         <p class="loading-text">Loading 3D Globe...</p>
     </div>
 
     <!-- Space Background -->
     <div class="space-background">
-        <div class="galaxy-layer"></div>
-        <div class="solar-layer"></div>
         <div class="stars-container" id="starsContainer"></div>
     </div>
 
@@ -904,11 +850,15 @@
         </div>
     </header>
 
-    <!-- Main Container -->
+    <!-- Main -->
     <div class="main-container">
-        <!-- Globe Section -->
         <section class="globe-section">
-            <div id="globeViz"></div>
+            <div class="globe-title">
+                <h1>🌍 Spin the Globe</h1>
+                <p>Discover random countries from around the world</p>
+            </div>
+            
+            <div id="globeContainer"></div>
             
             <div class="globe-controls">
                 <button class="spin-btn" id="spinBtn" onclick="spinGlobe()">
@@ -927,7 +877,6 @@
             </div>
         </section>
 
-        <!-- Country Panel -->
         <aside class="country-panel" id="countryPanel">
             <div class="panel-placeholder" id="panelPlaceholder">
                 <div class="placeholder-icon">🌍</div>
@@ -940,58 +889,54 @@
                     <button class="close-panel-btn" onclick="closePanel()">×</button>
                     <div class="landed-text">🌍 You Landed In</div>
                     <span class="country-flag" id="cardFlag">🇺🇸</span>
-                    <h2 class="country-name" id="cardName">United States</h2>
-                    <p class="country-tagline" id="cardTagline">Land of the free</p>
+                    <h2 class="country-name" id="cardName">Country</h2>
+                    <p class="country-tagline" id="cardTagline">Tagline</p>
                 </div>
                 <div class="card-body">
                     <div class="info-row">
                         <div class="info-icon capital">📍</div>
                         <div class="info-content">
                             <div class="info-label">Capital</div>
-                            <div class="info-value" id="cardCapital">Washington D.C.</div>
+                            <div class="info-value" id="cardCapital">Capital</div>
                         </div>
                     </div>
                     <div class="info-row">
                         <div class="info-icon region">🗺️</div>
                         <div class="info-content">
                             <div class="info-label">Region</div>
-                            <div class="info-value" id="cardRegion">North America</div>
+                            <div class="info-value" id="cardRegion">Region</div>
                         </div>
                     </div>
                     <div class="info-row">
                         <div class="info-icon population">👥</div>
                         <div class="info-content">
                             <div class="info-label">Population</div>
-                            <div class="info-value" id="cardPopulation">331 million</div>
+                            <div class="info-value" id="cardPopulation">Population</div>
                         </div>
                     </div>
                     <div class="info-row">
                         <div class="info-icon language">🗣️</div>
                         <div class="info-content">
                             <div class="info-label">Language</div>
-                            <div class="info-value" id="cardLanguage">English</div>
+                            <div class="info-value" id="cardLanguage">Language</div>
                         </div>
                     </div>
                     <div class="info-row">
                         <div class="info-icon currency">💰</div>
                         <div class="info-content">
                             <div class="info-label">Currency</div>
-                            <div class="info-value" id="cardCurrency">US Dollar (USD)</div>
+                            <div class="info-value" id="cardCurrency">Currency</div>
                         </div>
                     </div>
                     
                     <div class="facts-box">
                         <h4>🧠 Did You Know?</h4>
-                        <ul class="facts-list" id="cardFacts">
-                            <li>Fact 1</li>
-                            <li>Fact 2</li>
-                            <li>Fact 3</li>
-                        </ul>
+                        <ul class="facts-list" id="cardFacts"></ul>
                     </div>
                     
                     <div class="quiz-box">
                         <h4>🎮 Quick Quiz</h4>
-                        <p class="quiz-question" id="quizQuestion">What is the capital?</p>
+                        <p class="quiz-question" id="quizQuestion"></p>
                         <div class="quiz-options" id="quizOptions"></div>
                     </div>
                 </div>
@@ -1004,7 +949,7 @@
         </aside>
     </div>
 
-    <!-- Streak Footer -->
+    <!-- Footer -->
     <div class="streak-footer panel-closed" id="streakFooter">
         <div class="streak-item">
             <div class="streak-icon discover">🌍</div>
@@ -1022,15 +967,18 @@
         </div>
     </div>
 
+    <!-- Globe.gl Library -->
+    <script src="https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
+    
     <!-- Countries Data -->
     <script src="countries-data.js"></script>
-    
+
     <script>
-        // ==================== GLOBE INITIALIZATION ====================
+        // ==================== INITIALIZATION ====================
         
-        let globe;
+        let globe = null;
         let isSpinning = false;
-        let autoRotate = true;
+        let countriesGeoJSON = null;
         
         // Game State
         const gameState = {
@@ -1041,10 +989,11 @@
             quizCorrect: parseInt(localStorage.getItem('globeQuizCorrect') || '0')
         };
 
-        // Check if new day
+        // Check streak
         const today = new Date().toDateString();
         if (gameState.lastVisit !== today) {
-            if (gameState.lastVisit && new Date(gameState.lastVisit).toDateString() === new Date(Date.now() - 86400000).toDateString()) {
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            if (gameState.lastVisit === yesterday) {
                 gameState.streak++;
             } else if (gameState.lastVisit) {
                 gameState.streak = 1;
@@ -1064,12 +1013,10 @@
             localStorage.setItem('globeQuizCorrect', gameState.quizCorrect);
         }
 
-        // Create stars
+        // Create Stars
         function createStars() {
             const container = document.getElementById('starsContainer');
-            const starCount = window.innerWidth < 768 ? 80 : 150;
-            
-            for (let i = 0; i < starCount; i++) {
+            for (let i = 0; i < 150; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
@@ -1082,57 +1029,78 @@
         }
         createStars();
 
-        // Initialize Globe
+        // ==================== GLOBE SETUP ====================
+        
         function initGlobe() {
-            const container = document.getElementById('globeViz');
+            const container = document.getElementById('globeContainer');
             
+            // Create globe with political map
             globe = Globe()
-                .globeImageUrl('https://unpkg.com/three-globe@2.30.0/example/img/earth-blue-marble.jpg')
-                .bumpImageUrl('https://unpkg.com/three-globe@2.30.0/example/img/earth-topology.png')
+                (container)
+                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+                .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
                 .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
                 .showAtmosphere(true)
-                .atmosphereColor('#4A90D9')
-                .atmosphereAltitude(0.25)
+                .atmosphereColor('lightskyblue')
+                .atmosphereAltitude(0.15)
                 .width(container.offsetWidth)
-                .height(container.offsetHeight)
-                (container);
+                .height(container.offsetHeight);
 
-            // Set initial view
-            globe.pointOfView({ lat: 20, lng: 0, altitude: 2.5 });
+            // Set initial camera position
+            globe.pointOfView({ lat: 20, lng: 0, altitude: 2.2 });
             
-            // Auto-rotate
+            // Enable auto-rotation
             globe.controls().autoRotate = true;
             globe.controls().autoRotateSpeed = 0.5;
             globe.controls().enableZoom = true;
-            globe.controls().minDistance = 150;
-            globe.controls().maxDistance = 500;
 
-            // Load country polygons for borders
-            fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+            // Load countries GeoJSON for borders
+            fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
                 .then(res => res.json())
-                .then(countries => {
+                .then(data => {
+                    countriesGeoJSON = data;
+                    
                     globe
-                        .polygonsData(countries.features)
-                        .polygonCapColor(() => 'rgba(74, 144, 217, 0.1)')
-                        .polygonSideColor(() => 'rgba(74, 144, 217, 0.05)')
-                        .polygonStrokeColor(() => 'rgba(255, 255, 255, 0.3)')
-                        .polygonAltitude(0.006)
-                        .polygonsTransitionDuration(300);
+                        .polygonsData(data.features)
+                        .polygonCapColor(() => 'rgba(100, 180, 255, 0.15)')
+                        .polygonSideColor(() => 'rgba(100, 180, 255, 0.05)')
+                        .polygonStrokeColor(() => 'rgba(255, 255, 255, 0.5)')
+                        .polygonAltitude(0.01)
+                        .polygonLabel(({ properties: p }) => `
+                            <div style="background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 8px; font-family: Inter, sans-serif;">
+                                <b>${p.ADMIN}</b>
+                            </div>
+                        `);
+                })
+                .catch(err => {
+                    console.log('Using fallback borders');
+                    // Fallback to simpler geojson
+                    fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+                        .then(res => res.json())
+                        .then(data => {
+                            countriesGeoJSON = data;
+                            globe
+                                .polygonsData(data.features)
+                                .polygonCapColor(() => 'rgba(100, 180, 255, 0.15)')
+                                .polygonSideColor(() => 'rgba(100, 180, 255, 0.05)')
+                                .polygonStrokeColor(() => 'rgba(255, 255, 255, 0.5)')
+                                .polygonAltitude(0.01);
+                        });
                 });
+
+            // Resize handler
+            window.addEventListener('resize', () => {
+                globe.width(container.offsetWidth);
+                globe.height(container.offsetHeight);
+            });
 
             // Hide loading
             setTimeout(() => {
                 document.getElementById('loadingOverlay').classList.add('hidden');
             }, 1500);
-
-            // Handle resize
-            window.addEventListener('resize', () => {
-                globe.width(container.offsetWidth);
-                globe.height(container.offsetHeight);
-            });
         }
 
-        // Wait for countries data then init
+        // Wait for countries data then init globe
         function waitForData() {
             if (typeof countries !== 'undefined') {
                 initGlobe();
@@ -1141,12 +1109,21 @@
                 setTimeout(waitForData, 100);
             }
         }
-        waitForData();
+        
+        // Start initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForData);
+        } else {
+            waitForData();
+        }
 
         // ==================== SPIN FUNCTIONALITY ====================
         
         function spinGlobe() {
-            if (isSpinning || typeof countries === 'undefined') return;
+            if (isSpinning || !globe || typeof countries === 'undefined') {
+                console.log('Cannot spin:', { isSpinning, globe: !!globe, countries: typeof countries });
+                return;
+            }
             
             isSpinning = true;
             const spinBtn = document.getElementById('spinBtn');
@@ -1156,61 +1133,97 @@
             // Stop auto-rotate during spin
             globe.controls().autoRotate = false;
             
-            // Close panel if open
+            // Close panel
             closePanel();
             
-            // Spin animation
-            let spinDuration = 2000;
-            let startTime = Date.now();
-            let startLat = globe.pointOfView().lat;
-            let startLng = globe.pointOfView().lng;
+            // Animate spin
+            const duration = 2000;
+            const startTime = Date.now();
+            const startPov = globe.pointOfView();
             
-            function animate() {
+            function animateSpin() {
                 const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / spinDuration, 1);
+                const progress = Math.min(elapsed / duration, 1);
                 
-                // Easing function for smooth slow-down
-                const easeOut = 1 - Math.pow(1 - progress, 3);
+                // Ease out
+                const ease = 1 - Math.pow(1 - progress, 3);
                 
-                // Spin the globe
-                const newLng = startLng + (720 * easeOut); // 2 full rotations
-                const newLat = startLat + (Math.sin(progress * Math.PI) * 40); // Slight wobble
-                
+                // Rotate
                 globe.pointOfView({
-                    lat: newLat,
-                    lng: newLng % 360,
-                    altitude: 2.5 - (0.5 * Math.sin(progress * Math.PI)) // Zoom effect
+                    lat: startPov.lat + Math.sin(progress * Math.PI) * 30,
+                    lng: startPov.lng + (ease * 720),
+                    altitude: 2.2 - (Math.sin(progress * Math.PI) * 0.3)
                 });
                 
                 if (progress < 1) {
-                    requestAnimationFrame(animate);
+                    requestAnimationFrame(animateSpin);
                 } else {
-                    // Spin complete - select random country
                     selectRandomCountry();
                 }
             }
             
-            animate();
+            animateSpin();
         }
 
         function selectRandomCountry() {
+            // Get random country
             const country = countries[Math.floor(Math.random() * countries.length)];
             
-            // Animate to country location
+            // Fly to country
             globe.pointOfView({
                 lat: country.lat,
                 lng: country.lng,
-                altitude: 1.8
+                altitude: 1.5
             }, 1500);
 
-            // Highlight the country
-            highlightCountry(country);
-            
-            // Show country card after animation
+            // Highlight with ring
+            globe.ringsData([{
+                lat: country.lat,
+                lng: country.lng,
+                maxR: 8,
+                propagationSpeed: 3,
+                repeatPeriod: 800
+            }]);
+            globe.ringColor(() => 'rgba(139, 92, 246, 0.8)');
+            globe.ringMaxRadius('maxR');
+            globe.ringPropagationSpeed('propagationSpeed');
+            globe.ringRepeatPeriod('repeatPeriod');
+
+            // Add label
+            globe.labelsData([{
+                lat: country.lat,
+                lng: country.lng,
+                text: country.name,
+                color: 'white',
+                size: 1.2
+            }]);
+            globe.labelText('text');
+            globe.labelSize('size');
+            globe.labelColor('color');
+            globe.labelDotRadius(0.4);
+            globe.labelAltitude(0.02);
+
+            // Highlight country polygon if available
+            if (countriesGeoJSON) {
+                const countryNames = [country.name.toLowerCase()];
+                // Add common variations
+                if (country.name === 'United States') countryNames.push('united states of america');
+                if (country.name === 'United Kingdom') countryNames.push('united kingdom of great britain and northern ireland');
+                if (country.name === 'Russia') countryNames.push('russian federation');
+                
+                globe.polygonCapColor(feat => {
+                    const name = (feat.properties.ADMIN || feat.properties.name || '').toLowerCase();
+                    return countryNames.some(cn => name.includes(cn) || cn.includes(name)) 
+                        ? 'rgba(139, 92, 246, 0.6)' 
+                        : 'rgba(100, 180, 255, 0.15)';
+                });
+            }
+
+            // Show card after animation
             setTimeout(() => {
                 showCountryCard(country);
                 
-                // Update game state
+                // Update state
                 if (!gameState.discovered.includes(country.name)) {
                     gameState.discovered.push(country.name);
                 }
@@ -1218,66 +1231,25 @@
                 saveGameState();
                 updateStats();
                 
-                // Create confetti
-                createConfetti();
-                
-                // Reset spin button
+                // Reset
                 const spinBtn = document.getElementById('spinBtn');
                 spinBtn.disabled = false;
                 spinBtn.classList.remove('spinning');
                 isSpinning = false;
                 
-                // Resume auto-rotate slowly
+                // Resume slow rotation
                 setTimeout(() => {
                     globe.controls().autoRotate = true;
                     globe.controls().autoRotateSpeed = 0.2;
-                }, 3000);
+                }, 2000);
                 
             }, 1500);
-        }
-
-        function highlightCountry(country) {
-            // Add a ring/marker at country location
-            const ringData = [{
-                lat: country.lat,
-                lng: country.lng,
-                maxR: 5,
-                propagationSpeed: 2,
-                repeatPeriod: 1000
-            }];
-            
-            globe
-                .ringsData(ringData)
-                .ringColor(() => '#8B5CF6')
-                .ringMaxRadius('maxR')
-                .ringPropagationSpeed('propagationSpeed')
-                .ringRepeatPeriod('repeatPeriod');
-
-            // Add label
-            globe
-                .labelsData([{
-                    lat: country.lat,
-                    lng: country.lng,
-                    text: country.flag + ' ' + country.name,
-                    color: '#ffffff',
-                    size: 1.5
-                }])
-                .labelText('text')
-                .labelSize('size')
-                .labelColor('color')
-                .labelDotRadius(0.5)
-                .labelAltitude(0.01);
         }
 
         // ==================== COUNTRY CARD ====================
         
         function showCountryCard(country) {
-            const panel = document.getElementById('countryPanel');
-            const placeholder = document.getElementById('panelPlaceholder');
-            const card = document.getElementById('countryCard');
-            const footer = document.getElementById('streakFooter');
-            
-            // Update card content
+            // Update content
             document.getElementById('cardFlag').textContent = country.flag;
             document.getElementById('cardName').textContent = country.name;
             document.getElementById('cardTagline').textContent = country.tagline;
@@ -1288,42 +1260,40 @@
             document.getElementById('cardCurrency').textContent = country.currency;
             
             // Facts
-            const factsList = document.getElementById('cardFacts');
-            factsList.innerHTML = country.facts.map(f => `<li>${f}</li>`).join('');
+            document.getElementById('cardFacts').innerHTML = country.facts.map(f => `<li>${f}</li>`).join('');
             
             // Quiz
             document.getElementById('quizQuestion').textContent = country.quiz.question;
-            const optsContainer = document.getElementById('quizOptions');
-            optsContainer.innerHTML = country.quiz.options.map((opt, i) => 
+            document.getElementById('quizOptions').innerHTML = country.quiz.options.map((opt, i) => 
                 `<div class="quiz-option" onclick="checkAnswer(this, ${i}, ${country.quiz.answer})">
                     <span>${String.fromCharCode(65 + i)}</span> ${opt}
                 </div>`
             ).join('');
             
-            // Show card
-            placeholder.style.display = 'none';
-            card.classList.add('active');
-            panel.classList.add('active');
-            footer.classList.remove('panel-closed');
+            // Show panel
+            document.getElementById('panelPlaceholder').style.display = 'none';
+            document.getElementById('countryCard').classList.add('active');
+            document.getElementById('countryPanel').classList.add('active');
+            document.getElementById('streakFooter').classList.remove('panel-closed');
         }
 
         function closePanel() {
-            const panel = document.getElementById('countryPanel');
-            const placeholder = document.getElementById('panelPlaceholder');
-            const card = document.getElementById('countryCard');
-            const footer = document.getElementById('streakFooter');
-            
-            panel.classList.remove('active');
-            footer.classList.add('panel-closed');
+            document.getElementById('countryPanel').classList.remove('active');
+            document.getElementById('streakFooter').classList.add('panel-closed');
             
             setTimeout(() => {
-                card.classList.remove('active');
-                placeholder.style.display = 'flex';
+                document.getElementById('countryCard').classList.remove('active');
+                document.getElementById('panelPlaceholder').style.display = 'flex';
             }, 500);
             
             // Clear highlights
-            globe.ringsData([]);
-            globe.labelsData([]);
+            if (globe) {
+                globe.ringsData([]);
+                globe.labelsData([]);
+                if (countriesGeoJSON) {
+                    globe.polygonCapColor(() => 'rgba(100, 180, 255, 0.15)');
+                }
+            }
         }
 
         // ==================== QUIZ ====================
@@ -1331,7 +1301,6 @@
         function checkAnswer(element, selected, correct) {
             const options = document.querySelectorAll('.quiz-option');
             options.forEach((opt, i) => {
-                opt.onclick = null;
                 opt.classList.add('disabled');
                 if (i === correct) {
                     opt.classList.add('correct');
@@ -1343,9 +1312,6 @@
             if (selected === correct) {
                 gameState.quizCorrect++;
                 saveGameState();
-                
-                // Small celebration
-                createConfetti(10);
             }
         }
 
@@ -1357,39 +1323,6 @@
             document.getElementById('footerCountries').textContent = gameState.todayCount;
             document.getElementById('footerStreak').textContent = gameState.streak;
         }
-
-        // ==================== CONFETTI ====================
-        
-        function createConfetti(count = 30) {
-            const colors = ['#8B5CF6', '#EC4899', '#F59E0B', '#06B6D4', '#4A90D9', '#2D9B4E'];
-            
-            for (let i = 0; i < count; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.cssText = `
-                    left: ${Math.random() * 100}vw;
-                    top: -20px;
-                    width: ${Math.random() * 10 + 5}px;
-                    height: ${Math.random() * 10 + 5}px;
-                    background: ${colors[Math.floor(Math.random() * colors.length)]};
-                    border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
-                    animation: confettiFall ${Math.random() * 2 + 2}s linear forwards;
-                `;
-                document.body.appendChild(confetti);
-                
-                setTimeout(() => confetti.remove(), 4000);
-            }
-        }
-
-        // Add confetti animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes confettiFall {
-                0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
 
         // ==================== THEME ====================
         
@@ -1408,13 +1341,13 @@
             }
         }
 
-        // Load saved theme
+        // Load theme
         if (localStorage.getItem('theme') === 'light') {
             document.body.setAttribute('data-theme', 'light');
             document.getElementById('themeIcon').textContent = '☀️';
         }
 
-        // Keyboard shortcut
+        // Keyboard
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !isSpinning) {
                 e.preventDefault();
