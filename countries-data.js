@@ -1,1501 +1,1908 @@
-const countriesData = [
-    // ============ AFRICA (54 Countries) ============
-    {
-        "country_name": "Algeria",
-        "flag_emoji": "🇩🇿",
-        "capital": "Algiers",
-        "continent": "Africa",
-        "short_description": "The largest country in Africa by area, located in North Africa.",
-        "fact_1": "Algeria is the largest country in Africa and the 10th largest in the world.",
-        "fact_2": "About 80% of the country is covered by the Sahara Desert.",
-        "fact_3": "It has the longest coastline on the Mediterranean Sea among African countries.",
-        "quiz_question": "What percentage of Algeria is covered by the Sahara Desert?",
-        "quiz_options": ["50%", "60%", "80%", "90%"],
-        "correct_answer": "80%",
-        "map_coordinates": [28.0339, 1.6596]
-    },
-    {
-        "country_name": "Angola",
-        "flag_emoji": "🇦🇴",
-        "capital": "Luanda",
-        "continent": "Africa",
-        "short_description": "A Southern African nation rich in oil and diamonds.",
-        "fact_1": "Angola is Africa's second-largest oil producer after Nigeria.",
-        "fact_2": "The Kalandula Falls are among the largest waterfalls in Africa.",
-        "fact_3": "It was a Portuguese colony until gaining independence in 1975.",
-        "quiz_question": "What is the capital of Angola?",
-        "quiz_options": ["Luanda", "Benguela", "Huambo", "Lobito"],
-        "correct_answer": "Luanda",
-        "map_coordinates": [-11.2027, 17.8739]
-    },
-    {
-        "country_name": "Benin",
-        "flag_emoji": "🇧🇯",
-        "capital": "Porto-Novo",
-        "continent": "Africa",
-        "short_description": "A West African nation known as the birthplace of Voodoo religion.",
-        "fact_1": "Benin is considered the birthplace of the Voodoo religion.",
-        "fact_2": "The former Kingdom of Dahomey was located in present-day Benin.",
-        "fact_3": "Porto-Novo is the official capital, but Cotonou is the largest city.",
-        "quiz_question": "Which religion is said to have originated in Benin?",
-        "quiz_options": ["Christianity", "Islam", "Voodoo", "Hinduism"],
-        "correct_answer": "Voodoo",
-        "map_coordinates": [9.3077, 2.3158]
-    },
-    {
-        "country_name": "Botswana",
-        "flag_emoji": "🇧🇼",
-        "capital": "Gaborone",
-        "continent": "Africa",
-        "short_description": "A landlocked country famous for the Okavango Delta and wildlife.",
-        "fact_1": "The Okavango Delta is the world's largest inland delta.",
-        "fact_2": "About 70% of Botswana is covered by the Kalahari Desert.",
-        "fact_3": "Botswana is one of Africa's most stable democracies since 1966.",
-        "quiz_question": "Which famous delta is located in Botswana?",
-        "quiz_options": ["Nile Delta", "Okavango Delta", "Niger Delta", "Ganges Delta"],
-        "correct_answer": "Okavango Delta",
-        "map_coordinates": [-22.3285, 24.6849]
-    },
-    {
-        "country_name": "Burkina Faso",
-        "flag_emoji": "🇧🇫",
-        "capital": "Ouagadougou",
-        "continent": "Africa",
-        "short_description": "A landlocked West African country whose name means 'Land of Honest People'.",
-        "fact_1": "Burkina Faso means 'Land of Honest People' in local languages.",
-        "fact_2": "It was formerly known as Upper Volta until 1984.",
-        "fact_3": "Ouagadougou hosts Africa's largest film festival, FESPACO.",
-        "quiz_question": "What was Burkina Faso formerly known as?",
-        "quiz_options": ["Lower Volta", "Upper Volta", "Gold Coast", "Ivory Coast"],
-        "correct_answer": "Upper Volta",
-        "map_coordinates": [12.2383, -1.5616]
-    },
-    {
-        "country_name": "Burundi",
-        "flag_emoji": "🇧🇮",
-        "capital": "Gitega",
-        "continent": "Africa",
-        "short_description": "A small landlocked country in the African Great Lakes region.",
-        "fact_1": "Burundi is one of the most densely populated countries in Africa.",
-        "fact_2": "Lake Tanganyika, the world's second-deepest lake, borders Burundi.",
-        "fact_3": "The capital was moved from Bujumbura to Gitega in 2019.",
-        "quiz_question": "Which lake borders Burundi?",
-        "quiz_options": ["Lake Victoria", "Lake Malawi", "Lake Tanganyika", "Lake Chad"],
-        "correct_answer": "Lake Tanganyika",
-        "map_coordinates": [-3.3731, 29.9189]
-    },
-    {
-        "country_name": "Cabo Verde",
-        "flag_emoji": "🇨🇻",
-        "capital": "Praia",
-        "continent": "Africa",
-        "short_description": "An island nation off the west coast of Africa in the Atlantic Ocean.",
-        "fact_1": "Cabo Verde consists of 10 volcanic islands.",
-        "fact_2": "It was uninhabited until Portuguese colonizers arrived in 1456.",
-        "fact_3": "The country has no natural freshwater sources.",
-        "quiz_question": "How many islands make up Cabo Verde?",
-        "quiz_options": ["5", "7", "10", "15"],
-        "correct_answer": "10",
-        "map_coordinates": [16.5388, -23.0418]
-    },
-    {
-        "country_name": "Cameroon",
-        "flag_emoji": "🇨🇲",
-        "capital": "Yaoundé",
-        "continent": "Africa",
-        "short_description": "A Central African nation known as 'Africa in Miniature' for its diversity.",
-        "fact_1": "Cameroon is called 'Africa in Miniature' due to its diverse landscapes.",
-        "fact_2": "Mount Cameroon is the highest peak in West and Central Africa.",
-        "fact_3": "It has both English and French as official languages.",
-        "quiz_question": "Why is Cameroon called 'Africa in Miniature'?",
-        "quiz_options": ["Small size", "Diverse landscapes", "Many languages", "Ancient history"],
-        "correct_answer": "Diverse landscapes",
-        "map_coordinates": [7.3697, 12.3547]
-    },
-    {
-        "country_name": "Central African Republic",
-        "flag_emoji": "🇨🇫",
-        "capital": "Bangui",
-        "continent": "Africa",
-        "short_description": "A landlocked country in Central Africa with dense rainforests.",
-        "fact_1": "The country is home to one of Africa's largest remaining rainforests.",
-        "fact_2": "Diamonds and timber are the main export resources.",
-        "fact_3": "The Ubangi River forms part of its southern border with DR Congo.",
-        "quiz_question": "What is the capital of the Central African Republic?",
-        "quiz_options": ["Kinshasa", "Bangui", "Libreville", "Brazzaville"],
-        "correct_answer": "Bangui",
-        "map_coordinates": [6.6111, 20.9394]
-    },
-    {
-        "country_name": "Chad",
-        "flag_emoji": "🇹🇩",
-        "capital": "N'Djamena",
-        "continent": "Africa",
-        "short_description": "A landlocked country with the Sahara Desert in the north.",
-        "fact_1": "Lake Chad, once one of Africa's largest lakes, has shrunk by 90%.",
-        "fact_2": "The Tibesti Mountains in northern Chad reach over 3,400 meters.",
-        "fact_3": "Chad is sometimes called the 'Dead Heart of Africa'.",
-        "quiz_question": "By how much has Lake Chad shrunk since the 1960s?",
-        "quiz_options": ["50%", "70%", "90%", "30%"],
-        "correct_answer": "90%",
-        "map_coordinates": [15.4542, 18.7322]
-    },
-    {
-        "country_name": "Comoros",
-        "flag_emoji": "🇰🇲",
-        "capital": "Moroni",
-        "continent": "Africa",
-        "short_description": "An island nation in the Indian Ocean between Madagascar and Mozambique.",
-        "fact_1": "Comoros is one of the world's largest producers of ylang-ylang perfume essence.",
-        "fact_2": "Mount Karthala is one of the world's largest active volcanoes.",
-        "fact_3": "The country consists of three major islands and several smaller ones.",
-        "quiz_question": "What fragrant essence is Comoros famous for producing?",
-        "quiz_options": ["Lavender", "Rose", "Ylang-ylang", "Jasmine"],
-        "correct_answer": "Ylang-ylang",
-        "map_coordinates": [-11.6455, 43.3333]
-    },
-    {
-        "country_name": "Democratic Republic of the Congo",
-        "flag_emoji": "🇨🇩",
-        "capital": "Kinshasa",
-        "continent": "Africa",
-        "short_description": "The largest country in Sub-Saharan Africa with vast rainforests.",
-        "fact_1": "DRC has the second-largest rainforest in the world after the Amazon.",
-        "fact_2": "The Congo River is the deepest river in the world, reaching 220 meters.",
-        "fact_3": "It contains about 70% of the world's coltan, used in electronics.",
-        "quiz_question": "Which river in DRC is the world's deepest?",
-        "quiz_options": ["Nile", "Amazon", "Congo", "Zambezi"],
-        "correct_answer": "Congo",
-        "map_coordinates": [-4.0383, 21.7587]
-    },
-    {
-        "country_name": "Republic of the Congo",
-        "flag_emoji": "🇨🇬",
-        "capital": "Brazzaville",
-        "continent": "Africa",
-        "short_description": "A Central African country sharing a border with the Congo River.",
-        "fact_1": "Brazzaville and Kinshasa are the world's closest national capitals.",
-        "fact_2": "About 70% of the country is covered by rainforest.",
-        "fact_3": "Oil accounts for about 90% of the country's exports.",
-        "quiz_question": "Which two capitals are located directly across the Congo River from each other?",
-        "quiz_options": ["Brazzaville and Kinshasa", "Libreville and Malabo", "Bangui and Kinshasa", "Luanda and Brazzaville"],
-        "correct_answer": "Brazzaville and Kinshasa",
-        "map_coordinates": [-0.2280, 15.8277]
-    },
-    {
-        "country_name": "Côte d'Ivoire",
-        "flag_emoji": "🇨🇮",
-        "capital": "Yamoussoukro",
-        "continent": "Africa",
-        "short_description": "The world's largest cocoa producer in West Africa.",
-        "fact_1": "Côte d'Ivoire produces about 40% of the world's cocoa.",
-        "fact_2": "The Basilica of Our Lady of Peace is the world's largest church.",
-        "fact_3": "Yamoussoukro is the official capital, but Abidjan is the largest city.",
-        "quiz_question": "What crop is Côte d'Ivoire the world's largest producer of?",
-        "quiz_options": ["Coffee", "Cocoa", "Cotton", "Rubber"],
-        "correct_answer": "Cocoa",
-        "map_coordinates": [7.5400, -5.5471]
-    },
-    {
-        "country_name": "Djibouti",
-        "flag_emoji": "🇩🇯",
-        "capital": "Djibouti",
-        "continent": "Africa",
-        "short_description": "A small nation at the Horn of Africa with strategic importance.",
-        "fact_1": "Lake Assal is the lowest point in Africa and the saltiest lake outside Antarctica.",
-        "fact_2": "Djibouti hosts military bases for several countries including the US and China.",
-        "fact_3": "The country is located at the strategic Bab-el-Mandeb strait.",
-        "quiz_question": "What is the lowest point in Africa?",
-        "quiz_options": ["Lake Tanganyika", "Lake Assal", "Dead Sea", "Qattara Depression"],
-        "correct_answer": "Lake Assal",
-        "map_coordinates": [11.8251, 42.5903]
-    },
-    {
-        "country_name": "Egypt",
-        "flag_emoji": "🇪🇬",
-        "capital": "Cairo",
-        "continent": "Africa",
-        "short_description": "Home to ancient pyramids and the world's longest river, the Nile.",
-        "fact_1": "The Nile River, the world's longest, flows through Egypt for 1,500 km.",
-        "fact_2": "The Great Pyramid of Giza is the only surviving ancient wonder.",
-        "fact_3": "The Suez Canal connects the Mediterranean Sea to the Red Sea.",
-        "quiz_question": "Which canal connects the Mediterranean to the Red Sea?",
-        "quiz_options": ["Panama Canal", "Suez Canal", "Kiel Canal", "Erie Canal"],
-        "correct_answer": "Suez Canal",
-        "map_coordinates": [26.8206, 30.8025]
-    },
-    {
-        "country_name": "Equatorial Guinea",
-        "flag_emoji": "🇬🇶",
-        "capital": "Malabo",
-        "continent": "Africa",
-        "short_description": "Africa's only Spanish-speaking country, rich in oil.",
-        "fact_1": "Equatorial Guinea is the only African country with Spanish as an official language.",
-        "fact_2": "It is one of the richest countries in Africa per capita due to oil.",
-        "fact_3": "The capital Malabo is located on an island, not the mainland.",
-        "quiz_question": "Which European language is official in Equatorial Guinea?",
-        "quiz_options": ["French", "Portuguese", "Spanish", "English"],
-        "correct_answer": "Spanish",
-        "map_coordinates": [1.6508, 10.2679]
-    },
-    {
-        "country_name": "Eritrea",
-        "flag_emoji": "🇪🇷",
-        "capital": "Asmara",
-        "continent": "Africa",
-        "short_description": "A country on the Red Sea coast that gained independence in 1993.",
-        "fact_1": "Eritrea has one of the world's longest coastlines on the Red Sea.",
-        "fact_2": "Asmara is called 'Little Rome' for its Italian colonial architecture.",
-        "fact_3": "The Dahlak Archipelago has over 200 islands in the Red Sea.",
-        "quiz_question": "What architectural style is Asmara famous for?",
-        "quiz_options": ["British Victorian", "Italian Art Deco", "French Gothic", "Spanish Colonial"],
-        "correct_answer": "Italian Art Deco",
-        "map_coordinates": [15.1794, 39.7823]
-    },
-    {
-        "country_name": "Eswatini",
-        "flag_emoji": "🇸🇿",
-        "capital": "Mbabane",
-        "continent": "Africa",
-        "short_description": "A small landlocked kingdom, formerly known as Swaziland.",
-        "fact_1": "Eswatini is one of the world's last absolute monarchies.",
-        "fact_2": "The country changed its name from Swaziland in 2018.",
-        "fact_3": "It is one of the smallest countries in Africa by area.",
-        "quiz_question": "What was Eswatini formerly known as?",
-        "quiz_options": ["Lesotho", "Swaziland", "Basutoland", "Bechuanaland"],
-        "correct_answer": "Swaziland",
-        "map_coordinates": [-26.5225, 31.4659]
-    },
-    {
-        "country_name": "Ethiopia",
-        "flag_emoji": "🇪🇹",
-        "capital": "Addis Ababa",
-        "continent": "Africa",
-        "short_description": "Africa's oldest independent nation and birthplace of coffee.",
-        "fact_1": "Ethiopia is the birthplace of coffee, discovered in the Kaffa region.",
-        "fact_2": "It follows its own calendar that is 7-8 years behind the Gregorian calendar.",
-        "fact_3": "Ethiopia was never colonized, except for a brief Italian occupation.",
-        "quiz_question": "Which beverage is said to have originated in Ethiopia?",
-        "quiz_options": ["Tea", "Coffee", "Cocoa", "Wine"],
-        "correct_answer": "Coffee",
-        "map_coordinates": [9.1450, 40.4897]
-    },
-    {
-        "country_name": "Gabon",
-        "flag_emoji": "🇬🇦",
-        "capital": "Libreville",
-        "continent": "Africa",
-        "short_description": "A Central African nation with 80% of its land covered by rainforest.",
-        "fact_1": "About 80% of Gabon is covered by tropical rainforest.",
-        "fact_2": "Gabon is home to the largest population of forest elephants in Africa.",
-        "fact_3": "Oil exports make up about 80% of the country's revenue.",
-        "quiz_question": "What percentage of Gabon is covered by rainforest?",
-        "quiz_options": ["50%", "60%", "80%", "95%"],
-        "correct_answer": "80%",
-        "map_coordinates": [-0.8037, 11.6094]
-    },
-    {
-        "country_name": "Gambia",
-        "flag_emoji": "🇬🇲",
-        "capital": "Banjul",
-        "continent": "Africa",
-        "short_description": "The smallest country in mainland Africa, surrounded by Senegal.",
-        "fact_1": "Gambia is the smallest country on mainland Africa.",
-        "fact_2": "The country is essentially a narrow strip along the Gambia River.",
-        "fact_3": "Gambia is almost entirely surrounded by Senegal.",
-        "quiz_question": "Which country almost completely surrounds Gambia?",
-        "quiz_options": ["Guinea", "Mauritania", "Senegal", "Mali"],
-        "correct_answer": "Senegal",
-        "map_coordinates": [13.4432, -15.3101]
-    },
-    {
-        "country_name": "Ghana",
-        "flag_emoji": "🇬🇭",
-        "capital": "Accra",
-        "continent": "Africa",
-        "short_description": "West African nation formerly known as Gold Coast, rich in gold and cocoa.",
-        "fact_1": "Ghana was the first Sub-Saharan African country to gain independence in 1957.",
-        "fact_2": "It was formerly called the Gold Coast due to its gold resources.",
-        "fact_3": "Lake Volta is one of the world's largest artificial lakes.",
-        "quiz_question": "In what year did Ghana gain independence?",
-        "quiz_options": ["1947", "1957", "1960", "1963"],
-        "correct_answer": "1957",
-        "map_coordinates": [7.9465, -1.0232]
-    },
-    {
-        "country_name": "Guinea",
-        "flag_emoji": "🇬🇳",
-        "capital": "Conakry",
-        "continent": "Africa",
-        "short_description": "A West African country with the world's largest bauxite reserves.",
-        "fact_1": "Guinea has the world's largest reserves of bauxite (aluminum ore).",
-        "fact_2": "The Niger, Senegal, and Gambia rivers all originate in Guinea.",
-        "fact_3": "Mount Nimba on the border reaches 1,752 meters.",
-        "quiz_question": "Which mineral is Guinea the world's largest reserve holder of?",
-        "quiz_options": ["Gold", "Diamond", "Bauxite", "Iron"],
-        "correct_answer": "Bauxite",
-        "map_coordinates": [9.9456, -9.6966]
-    },
-    {
-        "country_name": "Guinea-Bissau",
-        "flag_emoji": "🇬🇼",
-        "capital": "Bissau",
-        "continent": "Africa",
-        "short_description": "A small West African nation with a coast on the Atlantic Ocean.",
-        "fact_1": "Guinea-Bissau has the Bijagós Archipelago with 88 islands.",
-        "fact_2": "Cashew nuts are the country's main export product.",
-        "fact_3": "Portuguese is the official language from colonial times.",
-        "quiz_question": "What is Guinea-Bissau's main export crop?",
-        "quiz_options": ["Coffee", "Cocoa", "Cashew nuts", "Palm oil"],
-        "correct_answer": "Cashew nuts",
-        "map_coordinates": [11.8037, -15.1804]
-    },
-    {
-        "country_name": "Kenya",
-        "flag_emoji": "🇰🇪",
-        "capital": "Nairobi",
-        "continent": "Africa",
-        "short_description": "East African nation famous for wildlife safaris and the Great Rift Valley.",
-        "fact_1": "Kenya is named after Mount Kenya, the second-highest peak in Africa.",
-        "fact_2": "The Great Wildebeest Migration passes through Kenya's Masai Mara.",
-        "fact_3": "Kenya is the world's third-largest tea exporter.",
-        "quiz_question": "Which famous animal migration passes through Kenya's Masai Mara?",
-        "quiz_options": ["Elephant Migration", "Wildebeest Migration", "Zebra Migration", "Lion Migration"],
-        "correct_answer": "Wildebeest Migration",
-        "map_coordinates": [-0.0236, 37.9062]
-    },
-    {
-        "country_name": "Lesotho",
-        "flag_emoji": "🇱🇸",
-        "capital": "Maseru",
-        "continent": "Africa",
-        "short_description": "A mountainous kingdom completely surrounded by South Africa.",
-        "fact_1": "Lesotho is the only country in the world entirely above 1,000 meters elevation.",
-        "fact_2": "It is completely surrounded by South Africa, making it an enclave.",
-        "fact_3": "Lesotho is sometimes called 'The Kingdom in the Sky'.",
-        "quiz_question": "What unique geographical feature does Lesotho have?",
-        "quiz_options": ["Lowest point in Africa", "Entirely above 1000m", "Largest lake", "Longest river"],
-        "correct_answer": "Entirely above 1000m",
-        "map_coordinates": [-29.6100, 28.2336]
-    },
-    {
-        "country_name": "Liberia",
-        "flag_emoji": "🇱🇷",
-        "capital": "Monrovia",
-        "continent": "Africa",
-        "short_description": "Founded by freed American slaves, Africa's oldest republic.",
-        "fact_1": "Liberia was founded by freed American slaves in 1822.",
-        "fact_2": "The capital Monrovia is named after US President James Monroe.",
-        "fact_3": "It is Africa's first and oldest republic, established in 1847.",
-        "quiz_question": "After which US President is Monrovia named?",
-        "quiz_options": ["Washington", "Jefferson", "Monroe", "Lincoln"],
-        "correct_answer": "Monroe",
-        "map_coordinates": [6.4281, -9.4295]
-    },
-    {
-        "country_name": "Libya",
-        "flag_emoji": "🇱🇾",
-        "capital": "Tripoli",
-        "continent": "Africa",
-        "short_description": "A North African country with the largest proven oil reserves in Africa.",
-        "fact_1": "Libya has the largest proven oil reserves in Africa.",
-        "fact_2": "About 90% of the country is desert, mostly the Sahara.",
-        "fact_3": "Libya has the longest Mediterranean coastline in Africa.",
-        "quiz_question": "What percentage of Libya is desert?",
-        "quiz_options": ["60%", "75%", "90%", "99%"],
-        "correct_answer": "90%",
-        "map_coordinates": [26.3351, 17.2283]
-    },
-    {
-        "country_name": "Madagascar",
-        "flag_emoji": "🇲🇬",
-        "capital": "Antananarivo",
-        "continent": "Africa",
-        "short_description": "The world's fourth-largest island with unique wildlife found nowhere else.",
-        "fact_1": "About 90% of Madagascar's wildlife is found nowhere else on Earth.",
-        "fact_2": "It is the world's fourth-largest island after Greenland, New Guinea, and Borneo.",
-        "fact_3": "Madagascar separated from India about 88 million years ago.",
-        "quiz_question": "What percentage of Madagascar's wildlife is endemic (found only there)?",
-        "quiz_options": ["50%", "70%", "90%", "100%"],
-        "correct_answer": "90%",
-        "map_coordinates": [-18.7669, 46.8691]
-    },
-    {
-        "country_name": "Malawi",
-        "flag_emoji": "🇲🇼",
-        "capital": "Lilongwe",
-        "continent": "Africa",
-        "short_description": "A landlocked country known as 'The Warm Heart of Africa'.",
-        "fact_1": "Lake Malawi contains more fish species than any other lake in the world.",
-        "fact_2": "Malawi is known as 'The Warm Heart of Africa' for its friendly people.",
-        "fact_3": "Lake Malawi covers about 20% of the country's total area.",
-        "quiz_question": "What nickname is given to Malawi?",
-        "quiz_options": ["Pearl of Africa", "Warm Heart of Africa", "Gift of the Nile", "Rainbow Nation"],
-        "correct_answer": "Warm Heart of Africa",
-        "map_coordinates": [-13.2543, 34.3015]
-    },
-    {
-        "country_name": "Mali",
-        "flag_emoji": "🇲🇱",
-        "capital": "Bamako",
-        "continent": "Africa",
-        "short_description": "A landlocked West African country that was once part of powerful empires.",
-        "fact_1": "Timbuktu was once one of the world's greatest centers of learning.",
-        "fact_2": "The Mali Empire was one of the richest in history.",
-        "fact_3": "The Niger River flows through Mali, providing a lifeline in the desert.",
-        "quiz_question": "Which historic city in Mali was a great center of learning?",
-        "quiz_options": ["Bamako", "Timbuktu", "Gao", "Mopti"],
-        "correct_answer": "Timbuktu",
-        "map_coordinates": [17.5707, -3.9962]
-    },
-    {
-        "country_name": "Mauritania",
-        "flag_emoji": "🇲🇷",
-        "capital": "Nouakchott",
-        "continent": "Africa",
-        "short_description": "A Saharan country bridging Arab North Africa and Sub-Saharan Africa.",
-        "fact_1": "Mauritania was the last country to abolish slavery in 1981.",
-        "fact_2": "The Richat Structure, called the 'Eye of Africa', is a 50 km wide formation.",
-        "fact_3": "About 90% of the country is in the Sahara Desert.",
-        "quiz_question": "What is the 'Eye of Africa' also known as?",
-        "quiz_options": ["Lake Chad", "Mount Kilimanjaro", "Richat Structure", "Victoria Falls"],
-        "correct_answer": "Richat Structure",
-        "map_coordinates": [21.0079, -10.9408]
-    },
-    {
-        "country_name": "Mauritius",
-        "flag_emoji": "🇲🇺",
-        "capital": "Port Louis",
-        "continent": "Africa",
-        "short_description": "An island nation in the Indian Ocean known for its beaches and reefs.",
-        "fact_1": "The dodo bird, now extinct, was endemic to Mauritius.",
-        "fact_2": "Mauritius has one of Africa's highest GDPs per capita.",
-        "fact_3": "The country has the world's third-largest coral reef system.",
-        "quiz_question": "Which extinct bird was native only to Mauritius?",
-        "quiz_options": ["Passenger Pigeon", "Dodo", "Great Auk", "Moa"],
-        "correct_answer": "Dodo",
-        "map_coordinates": [-20.3484, 57.5522]
-    },
-    {
-        "country_name": "Morocco",
-        "flag_emoji": "🇲🇦",
-        "capital": "Rabat",
-        "continent": "Africa",
-        "short_description": "A North African kingdom with coastlines on both the Atlantic and Mediterranean.",
-        "fact_1": "Morocco is the world's largest exporter of phosphates.",
-        "fact_2": "The University of Al-Qarawiyyin, founded in 859 AD, is the world's oldest university.",
-        "fact_3": "Morocco controls Western Sahara, though its sovereignty is disputed.",
-        "quiz_question": "What is Morocco the world's largest exporter of?",
-        "quiz_options": ["Oil", "Phosphates", "Gold", "Diamonds"],
-        "correct_answer": "Phosphates",
-        "map_coordinates": [31.7917, -7.0926]
-    },
-    {
-        "country_name": "Mozambique",
-        "flag_emoji": "🇲🇿",
-        "capital": "Maputo",
-        "continent": "Africa",
-        "short_description": "A Southeast African country with a long Indian Ocean coastline.",
-        "fact_1": "Mozambique has one of Africa's longest coastlines at 2,500 km.",
-        "fact_2": "The country's flag features an AK-47, symbolizing the independence struggle.",
-        "fact_3": "The Zambezi River forms part of its border with Zambia and Zimbabwe.",
-        "quiz_question": "What unusual symbol appears on Mozambique's flag?",
-        "quiz_options": ["A sword", "A spear", "An AK-47", "A shield"],
-        "correct_answer": "An AK-47",
-        "map_coordinates": [-18.6657, 35.5296]
-    },
-    {
-        "country_name": "Namibia",
-        "flag_emoji": "🇳🇦",
-        "capital": "Windhoek",
-        "continent": "Africa",
-        "short_description": "Home to the world's oldest desert, the Namib Desert.",
-        "fact_1": "The Namib Desert is considered the world's oldest desert at 55-80 million years.",
-        "fact_2": "Namibia has the second-lowest population density in the world after Mongolia.",
-        "fact_3": "Fish River Canyon is the largest canyon in Africa.",
-        "quiz_question": "How old is the Namib Desert, the world's oldest?",
-        "quiz_options": ["10 million years", "55-80 million years", "100 million years", "1 million years"],
-        "correct_answer": "55-80 million years",
-        "map_coordinates": [-22.9576, 18.4904]
-    },
-    {
-        "country_name": "Niger",
-        "flag_emoji": "🇳🇪",
-        "capital": "Niamey",
-        "continent": "Africa",
-        "short_description": "A landlocked Saharan nation named after the Niger River.",
-        "fact_1": "Niger is one of the hottest countries in the world, called 'The Frying Pan of the World'.",
-        "fact_2": "About 80% of the country lies within the Sahara Desert.",
-        "fact_3": "Niger has some of the world's largest uranium deposits.",
-        "quiz_question": "What nickname is given to Niger due to its extreme heat?",
-        "quiz_options": ["The Sun Country", "The Frying Pan of the World", "The Hot Zone", "The Burning Land"],
-        "correct_answer": "The Frying Pan of the World",
-        "map_coordinates": [17.6078, 8.0817]
-    },
-    {
-        "country_name": "Nigeria",
-        "flag_emoji": "🇳🇬",
-        "capital": "Abuja",
-        "continent": "Africa",
-        "short_description": "Africa's most populous country and largest economy.",
-        "fact_1": "Nigeria is Africa's most populous country with over 200 million people.",
-        "fact_2": "It is Africa's largest oil producer and has the continent's largest economy.",
-        "fact_3": "Nigeria has over 500 ethnic groups and 500 languages.",
-        "quiz_question": "Approximately how many people live in Nigeria?",
-        "quiz_options": ["100 million", "150 million", "200 million", "300 million"],
-        "correct_answer": "200 million",
-        "map_coordinates": [9.0820, 8.6753]
-    },
-    {
-        "country_name": "Rwanda",
-        "flag_emoji": "🇷🇼",
-        "capital": "Kigali",
-        "continent": "Africa",
-        "short_description": "Known as 'Land of a Thousand Hills' in the African Great Lakes region.",
-        "fact_1": "Rwanda is called 'Land of a Thousand Hills' due to its mountainous terrain.",
-        "fact_2": "Rwanda has one of the cleanest cities in Africa, Kigali.",
-        "fact_3": "The mountain gorillas of Rwanda are critically endangered.",
-        "quiz_question": "What is Rwanda nicknamed due to its landscape?",
-        "quiz_options": ["Land of Lakes", "Land of a Thousand Hills", "Pearl of Africa", "Heart of Africa"],
-        "correct_answer": "Land of a Thousand Hills",
-        "map_coordinates": [-1.9403, 29.8739]
-    },
-    {
-        "country_name": "São Tomé and Príncipe",
-        "flag_emoji": "🇸🇹",
-        "capital": "São Tomé",
-        "continent": "Africa",
-        "short_description": "Africa's smallest country, an island nation in the Gulf of Guinea.",
-        "fact_1": "São Tomé and Príncipe is Africa's smallest country by area.",
-        "fact_2": "The country straddles the Equator.",
-        "fact_3": "Cocoa is the main export, once called 'chocolate islands'.",
-        "quiz_question": "What geographic line passes through São Tomé and Príncipe?",
-        "quiz_options": ["Tropic of Cancer", "Tropic of Capricorn", "Equator", "Prime Meridian"],
-        "correct_answer": "Equator",
-        "map_coordinates": [0.1864, 6.6131]
-    },
-    {
-        "country_name": "Senegal",
-        "flag_emoji": "🇸🇳",
-        "capital": "Dakar",
-        "continent": "Africa",
-        "short_description": "The westernmost country on the African mainland.",
-        "fact_1": "Senegal is the westernmost country on the African mainland.",
-        "fact_2": "The Dakar Rally, a famous off-road race, was named after its capital.",
-        "fact_3": "Lake Retba (Pink Lake) is known for its rose-colored waters.",
-        "quiz_question": "What is special about Senegal's geographic position in Africa?",
-        "quiz_options": ["Northernmost", "Southernmost", "Easternmost", "Westernmost"],
-        "correct_answer": "Westernmost",
-        "map_coordinates": [14.4974, -14.4524]
-    },
-    {
-        "country_name": "Seychelles",
-        "flag_emoji": "🇸🇨",
-        "capital": "Victoria",
-        "continent": "Africa",
-        "short_description": "An archipelago of 115 islands in the Indian Ocean.",
-        "fact_1": "Seychelles has the smallest population of any African country.",
-        "fact_2": "The coco de mer palm produces the world's largest seed.",
-        "fact_3": "Victoria is the smallest capital city in the world by population.",
-        "quiz_question": "What world record does the coco de mer hold?",
-        "quiz_options": ["Tallest tree", "Largest seed", "Oldest plant", "Smallest flower"],
-        "correct_answer": "Largest seed",
-        "map_coordinates": [-4.6796, 55.4920]
-    },
-    {
-        "country_name": "Sierra Leone",
-        "flag_emoji": "🇸🇱",
-        "capital": "Freetown",
-        "continent": "Africa",
-        "short_description": "A West African nation known for its diamonds and beaches.",
-        "fact_1": "Freetown was founded as a home for freed slaves.",
-        "fact_2": "Sierra Leone is one of the world's top diamond-producing countries.",
-        "fact_3": "The name means 'Lion Mountains' in Portuguese.",
-        "quiz_question": "What does 'Sierra Leone' mean?",
-        "quiz_options": ["Golden Coast", "Lion Mountains", "Free Land", "Diamond Country"],
-        "correct_answer": "Lion Mountains",
-        "map_coordinates": [8.4606, -11.7799]
-    },
-    {
-        "country_name": "Somalia",
-        "flag_emoji": "🇸🇴",
-        "capital": "Mogadishu",
-        "continent": "Africa",
-        "short_description": "Located at the Horn of Africa with the longest coastline on the continent.",
-        "fact_1": "Somalia has the longest coastline in Africa at over 3,000 km.",
-        "fact_2": "It is often called the 'Land of Punt', an ancient Egyptian trading partner.",
-        "fact_3": "Camel herding is a major part of the traditional economy.",
-        "quiz_question": "How long is Somalia's coastline, Africa's longest?",
-        "quiz_options": ["1,000 km", "2,000 km", "3,000 km", "4,000 km"],
-        "correct_answer": "3,000 km",
-        "map_coordinates": [5.1521, 46.1996]
-    },
-    {
-        "country_name": "South Africa",
-        "flag_emoji": "🇿🇦",
-        "capital": "Pretoria",
-        "continent": "Africa",
-        "short_description": "The southernmost country in Africa with three capital cities.",
-        "fact_1": "South Africa has three capital cities: Pretoria, Cape Town, and Bloemfontein.",
-        "fact_2": "It is the only country to have voluntarily dismantled its nuclear weapons.",
-        "fact_3": "The Kruger National Park is one of Africa's largest game reserves.",
-        "quiz_question": "How many capital cities does South Africa have?",
-        "quiz_options": ["1", "2", "3", "4"],
-        "correct_answer": "3",
-        "map_coordinates": [-30.5595, 22.9375]
-    },
-    {
-        "country_name": "South Sudan",
-        "flag_emoji": "🇸🇸",
-        "capital": "Juba",
-        "continent": "Africa",
-        "short_description": "The world's newest country, gaining independence in 2011.",
-        "fact_1": "South Sudan is the world's newest country, independent since 2011.",
-        "fact_2": "The White Nile flows through the country.",
-        "fact_3": "It has one of the largest swamp ecosystems in the world, the Sudd.",
-        "quiz_question": "In what year did South Sudan gain independence?",
-        "quiz_options": ["2005", "2008", "2011", "2015"],
-        "correct_answer": "2011",
-        "map_coordinates": [6.8770, 31.3070]
-    },
-    {
-        "country_name": "Sudan",
-        "flag_emoji": "🇸🇩",
-        "capital": "Khartoum",
-        "continent": "Africa",
-        "short_description": "Located where the Blue and White Nile rivers merge.",
-        "fact_1": "Khartoum is located where the Blue Nile and White Nile merge.",
-        "fact_2": "Sudan has more pyramids than Egypt, with over 200 ancient pyramids.",
-        "fact_3": "It was Africa's largest country until South Sudan's independence.",
-        "quiz_question": "How many pyramids does Sudan have?",
-        "quiz_options": ["50", "100", "200+", "20"],
-        "correct_answer": "200+",
-        "map_coordinates": [12.8628, 30.2176]
-    },
-    {
-        "country_name": "Tanzania",
-        "flag_emoji": "🇹🇿",
-        "capital": "Dodoma",
-        "continent": "Africa",
-        "short_description": "Home to Mount Kilimanjaro, Africa's highest peak.",
-        "fact_1": "Mount Kilimanjaro is Africa's highest peak at 5,895 meters.",
-        "fact_2": "The Serengeti hosts the world's largest terrestrial animal migration.",
-        "fact_3": "Zanzibar, part of Tanzania, was once a major spice trading center.",
-        "quiz_question": "How tall is Mount Kilimanjaro?",
-        "quiz_options": ["4,895m", "5,895m", "6,895m", "5,495m"],
-        "correct_answer": "5,895m",
-        "map_coordinates": [-6.3690, 34.8888]
-    },
-    {
-        "country_name": "Togo",
-        "flag_emoji": "🇹🇬",
-        "capital": "Lomé",
-        "continent": "Africa",
-        "short_description": "One of the smallest countries in Africa, stretching north from the Gulf of Guinea.",
-        "fact_1": "Togo is one of Africa's smallest countries at about 56,000 sq km.",
-        "fact_2": "Lomé is one of the few African capitals located directly on the coast.",
-        "fact_3": "Phosphate mining is a major industry.",
-        "quiz_question": "What makes Lomé's location unusual among African capitals?",
-        "quiz_options": ["In mountains", "On coast", "On island", "In desert"],
-        "correct_answer": "On coast",
-        "map_coordinates": [8.6195, 0.8248]
-    },
-    {
-        "country_name": "Tunisia",
-        "flag_emoji": "🇹🇳",
-        "capital": "Tunis",
-        "continent": "Africa",
-        "short_description": "The northernmost country in Africa, home to ancient Carthage.",
-        "fact_1": "Tunisia is the northernmost country in Africa.",
-        "fact_2": "The ancient city of Carthage, Rome's great rival, was located here.",
-        "fact_3": "Star Wars scenes were filmed in Tunisia's desert landscapes.",
-        "quiz_question": "Which ancient civilization was based in Tunisia?",
-        "quiz_options": ["Egypt", "Carthage", "Greece", "Babylon"],
-        "correct_answer": "Carthage",
-        "map_coordinates": [33.8869, 9.5375]
-    },
-    {
-        "country_name": "Uganda",
-        "flag_emoji": "🇺🇬",
-        "capital": "Kampala",
-        "continent": "Africa",
-        "short_description": "Called 'The Pearl of Africa' for its natural beauty.",
-        "fact_1": "Winston Churchill called Uganda 'The Pearl of Africa'.",
-        "fact_2": "The source of the Nile River is at Lake Victoria in Uganda.",
-        "fact_3": "Uganda is home to more than half of the world's mountain gorillas.",
-        "quiz_question": "Who called Uganda 'The Pearl of Africa'?",
-        "quiz_options": ["Queen Victoria", "Winston Churchill", "David Livingstone", "Henry Stanley"],
-        "correct_answer": "Winston Churchill",
-        "map_coordinates": [1.3733, 32.2903]
-    },
-    {
-        "country_name": "Zambia",
-        "flag_emoji": "🇿🇲",
-        "capital": "Lusaka",
-        "continent": "Africa",
-        "short_description": "A landlocked country sharing Victoria Falls with Zimbabwe.",
-        "fact_1": "Victoria Falls, one of the world's largest waterfalls, borders Zambia and Zimbabwe.",
-        "fact_2": "Zambia was formerly known as Northern Rhodesia.",
-        "fact_3": "The country has one of Africa's largest copper reserves.",
-        "quiz_question": "What was Zambia's colonial name?",
-        "quiz_options": ["Southern Rhodesia", "Northern Rhodesia", "Nyasaland", "Bechuanaland"],
-        "correct_answer": "Northern Rhodesia",
-        "map_coordinates": [-13.1339, 27.8493]
-    },
-    {
-        "country_name": "Zimbabwe",
-        "flag_emoji": "🇿🇼",
-        "capital": "Harare",
-        "continent": "Africa",
-        "short_description": "Home to ancient stone ruins and shared Victoria Falls.",
-        "fact_1": "The Great Zimbabwe ruins are one of Africa's most impressive ancient structures.",
-        "fact_2": "Victoria Falls locally is called 'Mosi-oa-Tunya' (The Smoke That Thunders).",
-        "fact_3": "Zimbabwe once experienced one of the worst hyperinflations in history.",
-        "quiz_question": "What is the local name for Victoria Falls?",
-        "quiz_options": ["Mosi-oa-Tunya", "Livingstone Falls", "Zimbabwe Falls", "Zambezi Falls"],
-        "correct_answer": "Mosi-oa-Tunya",
-        "map_coordinates": [-19.0154, 29.1549]
-    },
+// ==================== ALL 195 COUNTRIES DATABASE ====================
+// Part 1: Countries 1-100
 
-    // ============ ASIA (48 Countries) ============
+const countries = [
+    // 1. Afghanistan
     {
-        "country_name": "Afghanistan",
-        "flag_emoji": "🇦🇫",
-        "capital": "Kabul",
-        "continent": "Asia",
-        "short_description": "A landlocked country at the crossroads of Central and South Asia.",
-        "fact_1": "Afghanistan is known as the 'Graveyard of Empires' due to failed invasions.",
-        "fact_2": "The Hindu Kush mountain range crosses the country.",
-        "fact_3": "Afghanistan is the world's largest producer of opium poppies.",
-        "quiz_question": "What mountain range runs through Afghanistan?",
-        "quiz_options": ["Himalayas", "Hindu Kush", "Karakoram", "Tian Shan"],
-        "correct_answer": "Hindu Kush",
-        "map_coordinates": [33.9391, 67.7100]
+        name: "Afghanistan",
+        flag: "🇦🇫",
+        capital: "Kabul",
+        region: "South Asia",
+        population: "40 million",
+        tagline: "The heart of Asia.",
+        facts: [
+            "Home to the Hindu Kush mountain range",
+            "One of the world's oldest civilizations",
+            "Landlocked country bordered by 6 nations"
+        ],
+        quiz: {
+            question: "What mountain range runs through Afghanistan?",
+            options: ["Himalayas", "Hindu Kush", "Alps", "Andes"],
+            answer: 1
+        }
     },
+    // 2. Albania
     {
-        "country_name": "Armenia",
-        "flag_emoji": "🇦🇲",
-        "capital": "Yerevan",
-        "continent": "Asia",
-        "short_description": "One of the oldest Christian nations in the world.",
-        "fact_1": "Armenia was the first country to adopt Christianity as a state religion in 301 AD.",
-        "fact_2": "Mount Ararat, where Noah's Ark allegedly landed, is visible from Armenia.",
-        "fact_3": "The Armenian alphabet was created in 405 AD and has 39 letters.",
-        "quiz_question": "In what year did Armenia become the first Christian nation?",
-        "quiz_options": ["200 AD", "301 AD", "400 AD", "500 AD"],
-        "correct_answer": "301 AD",
-        "map_coordinates": [40.0691, 45.0382]
+        name: "Albania",
+        flag: "🇦🇱",
+        capital: "Tirana",
+        region: "Southern Europe",
+        population: "2.8 million",
+        tagline: "Land of the Eagles.",
+        facts: [
+            "Only country with a double-headed eagle on its flag",
+            "Over 750,000 bunkers built during communist era",
+            "Home to one of Europe's oldest lakes - Lake Ohrid"
+        ],
+        quiz: {
+            question: "What animal appears on Albania's flag?",
+            options: ["Lion", "Bear", "Eagle", "Wolf"],
+            answer: 2
+        }
     },
+    // 3. Algeria
     {
-        "country_name": "Azerbaijan",
-        "flag_emoji": "🇦🇿",
-        "capital": "Baku",
-        "continent": "Asia",
-        "short_description": "Known as the 'Land of Fire' due to natural gas fires.",
-        "fact_1": "Azerbaijan is called 'Land of Fire' for its natural gas fires.",
-        "fact_2": "Baku is the lowest lying capital city in the world at 28m below sea level.",
-        "fact_3": "The Caspian Sea, the world's largest lake, borders Azerbaijan.",
-        "quiz_question": "Why is Azerbaijan called the 'Land of Fire'?",
-        "quiz_options": ["Hot climate", "Natural gas fires", "Volcanoes", "Desert"],
-        "correct_answer": "Natural gas fires",
-        "map_coordinates": [40.1431, 47.5769]
+        name: "Algeria",
+        flag: "🇩🇿",
+        capital: "Algiers",
+        region: "North Africa",
+        population: "45 million",
+        tagline: "Africa's largest country.",
+        facts: [
+            "Largest country in Africa by area",
+            "90% of the land is covered by Sahara Desert",
+            "Has 7 UNESCO World Heritage Sites"
+        ],
+        quiz: {
+            question: "What percentage of Algeria is covered by desert?",
+            options: ["50%", "70%", "90%", "30%"],
+            answer: 2
+        }
     },
+    // 4. Andorra
     {
-        "country_name": "Bahrain",
-        "flag_emoji": "🇧🇭",
-        "capital": "Manama",
-        "continent": "Asia",
-        "short_description": "An island nation in the Persian Gulf connected to Saudi Arabia by causeway.",
-        "fact_1": "Bahrain means 'Two Seas' in Arabic, referring to fresh and salt water.",
-        "fact_2": "The King Fahd Causeway connects Bahrain to Saudi Arabia.",
-        "fact_3": "Bahrain was the first Gulf state to discover oil in 1932.",
-        "quiz_question": "What connects Bahrain to Saudi Arabia?",
-        "quiz_options": ["Bridge", "Tunnel", "Causeway", "Ferry"],
-        "correct_answer": "Causeway",
-        "map_coordinates": [26.0667, 50.5577]
+        name: "Andorra",
+        flag: "🇦🇩",
+        capital: "Andorra la Vella",
+        region: "Southern Europe",
+        population: "77,000",
+        tagline: "The Pyrenean microstate.",
+        facts: [
+            "One of the world's smallest countries",
+            "Has no airport, railway, or seaport",
+            "Highest capital city in Europe by elevation"
+        ],
+        quiz: {
+            question: "Which mountains is Andorra located in?",
+            options: ["Alps", "Pyrenees", "Carpathians", "Apennines"],
+            answer: 1
+        }
     },
+    // 5. Angola
     {
-        "country_name": "Bangladesh",
-        "flag_emoji": "🇧🇩",
-        "capital": "Dhaka",
-        "continent": "Asia",
-        "short_description": "One of the world's most densely populated countries in South Asia.",
-        "fact_1": "Bangladesh has the world's largest river delta, the Ganges-Brahmaputra Delta.",
-        "fact_2": "The Sundarbans mangrove forest is the largest in the world.",
-        "fact_3": "Cox's Bazar has the world's longest natural sea beach at 120 km.",
-        "quiz_question": "What is special about Cox's Bazar beach?",
-        "quiz_options": ["Oldest beach", "Most beautiful", "Longest natural beach", "Whitest sand"],
-        "correct_answer": "Longest natural beach",
-        "map_coordinates": [23.6850, 90.3563]
+        name: "Angola",
+        flag: "🇦🇴",
+        capital: "Luanda",
+        region: "Southern Africa",
+        population: "34 million",
+        tagline: "Rich in oil and diamonds.",
+        facts: [
+            "Second-largest oil producer in Africa",
+            "Portuguese is the official language",
+            "Home to the giant sable antelope"
+        ],
+        quiz: {
+            question: "What is the official language of Angola?",
+            options: ["French", "English", "Portuguese", "Spanish"],
+            answer: 2
+        }
     },
+    // 6. Antigua and Barbuda
     {
-        "country_name": "Bhutan",
-        "flag_emoji": "🇧🇹",
-        "capital": "Thimphu",
-        "continent": "Asia",
-        "short_description": "The only carbon-negative country in the world, in the Himalayas.",
-        "fact_1": "Bhutan is the world's only carbon-negative country.",
-        "fact_2": "It measures success by Gross National Happiness instead of GDP.",
-        "fact_3": "Television was introduced in Bhutan only in 1999.",
-        "quiz_question": "What unique metric does Bhutan use instead of GDP?",
-        "quiz_options": ["Gross National Happiness", "Life Satisfaction Index", "Wellness Score", "Peace Index"],
-        "correct_answer": "Gross National Happiness",
-        "map_coordinates": [27.5142, 90.4336]
+        name: "Antigua and Barbuda",
+        flag: "🇦🇬",
+        capital: "St. John's",
+        region: "Caribbean",
+        population: "100,000",
+        tagline: "Land of 365 beaches.",
+        facts: [
+            "Claims to have a beach for every day of the year",
+            "Gained independence from UK in 1981",
+            "Cricket is the national sport"
+        ],
+        quiz: {
+            question: "How many beaches does Antigua claim to have?",
+            options: ["100", "200", "365", "500"],
+            answer: 2
+        }
     },
+    // 7. Argentina
     {
-        "country_name": "Brunei",
-        "flag_emoji": "🇧🇳",
-        "capital": "Bandar Seri Begawan",
-        "continent": "Asia",
-        "short_description": "A small, oil-rich sultanate on the island of Borneo.",
-        "fact_1": "Brunei is one of the richest countries in the world per capita.",
-        "fact_2": "Education and healthcare are completely free for all citizens.",
-        "fact_3": "The Sultan's palace has 1,788 rooms, the world's largest residential palace.",
-        "quiz_question": "How many rooms does the Sultan's palace have?",
-        "quiz_options": ["500", "1,000", "1,788", "2,500"],
-        "correct_answer": "1,788",
-        "map_coordinates": [4.5353, 114.7277]
+        name: "Argentina",
+        flag: "🇦🇷",
+        capital: "Buenos Aires",
+        region: "South America",
+        population: "45 million",
+        tagline: "Land of silver and tango.",
+        facts: [
+            "Second largest country in South America",
+            "Birthplace of Tango dance",
+            "Has the widest avenue in the world - 9 de Julio"
+        ],
+        quiz: {
+            question: "What dance originated in Argentina?",
+            options: ["Salsa", "Tango", "Flamenco", "Samba"],
+            answer: 1
+        }
     },
+    // 8. Armenia
     {
-        "country_name": "Cambodia",
-        "flag_emoji": "🇰🇭",
-        "capital": "Phnom Penh",
-        "continent": "Asia",
-        "short_description": "Home to the ancient temple complex of Angkor Wat.",
-        "fact_1": "Angkor Wat is the largest religious monument in the world.",
-        "fact_2": "Cambodia's flag is the only one featuring a building (Angkor Wat).",
-        "fact_3": "The Mekong River flows through Cambodia, vital for fishing and farming.",
-        "quiz_question": "What is the largest religious monument in the world?",
-        "quiz_options": ["Vatican", "Angkor Wat", "Taj Mahal", "Golden Temple"],
-        "correct_answer": "Angkor Wat",
-        "map_coordinates": [12.5657, 104.9910]
+        name: "Armenia",
+        flag: "🇦🇲",
+        capital: "Yerevan",
+        region: "Western Asia",
+        population: "3 million",
+        tagline: "The first Christian nation.",
+        facts: [
+            "First country to adopt Christianity as state religion (301 AD)",
+            "Home to the world's oldest winery (6,000 years old)",
+            "Mount Ararat is its national symbol"
+        ],
+        quiz: {
+            question: "What was Armenia the first country to adopt?",
+            options: ["Democracy", "Christianity", "Islam", "Buddhism"],
+            answer: 1
+        }
     },
+    // 9. Australia
     {
-        "country_name": "China",
-        "flag_emoji": "🇨🇳",
-        "capital": "Beijing",
-        "continent": "Asia",
-        "short_description": "The world's most populous country with over 1.4 billion people.",
-        "fact_1": "The Great Wall of China is over 21,000 km long.",
-        "fact_2": "China has more high-speed rail than the rest of the world combined.",
-        "fact_3": "The Yangtze is the longest river in Asia at 6,300 km.",
-        "quiz_question": "How long is the Great Wall of China?",
-        "quiz_options": ["5,000 km", "10,000 km", "21,000 km", "15,000 km"],
-        "correct_answer": "21,000 km",
-        "map_coordinates": [35.8617, 104.1954]
+        name: "Australia",
+        flag: "🇦🇺",
+        capital: "Canberra",
+        region: "Oceania",
+        population: "26 million",
+        tagline: "The land down under.",
+        facts: [
+            "Only country that is also a continent",
+            "Home to the Great Barrier Reef",
+            "Has over 10,000 beaches"
+        ],
+        quiz: {
+            question: "What is the capital of Australia?",
+            options: ["Sydney", "Melbourne", "Canberra", "Perth"],
+            answer: 2
+        }
     },
+    // 10. Austria
     {
-        "country_name": "Cyprus",
-        "flag_emoji": "🇨🇾",
-        "capital": "Nicosia",
-        "continent": "Asia",
-        "short_description": "An island nation in the Eastern Mediterranean, divided since 1974.",
-        "fact_1": "Nicosia is the world's last divided capital city.",
-        "fact_2": "Cyprus is the third-largest island in the Mediterranean.",
-        "fact_3": "According to legend, Aphrodite was born on Cyprus.",
-        "quiz_question": "What is unique about Nicosia among world capitals?",
-        "quiz_options": ["Oldest", "Smallest", "Last divided capital", "Highest"],
-        "correct_answer": "Last divided capital",
-        "map_coordinates": [35.1264, 33.4299]
+        name: "Austria",
+        flag: "🇦🇹",
+        capital: "Vienna",
+        region: "Central Europe",
+        population: "9 million",
+        tagline: "The heart of classical music.",
+        facts: [
+            "Birthplace of Mozart and Strauss",
+            "One of the world's greenest countries",
+            "The oldest zoo in the world is in Vienna"
+        ],
+        quiz: {
+            question: "Which famous composer was born in Austria?",
+            options: ["Beethoven", "Mozart", "Bach", "Chopin"],
+            answer: 1
+        }
     },
+    // 11. Azerbaijan
     {
-        "country_name": "Georgia",
-        "flag_emoji": "🇬🇪",
-        "capital": "Tbilisi",
-        "continent": "Asia",
-        "short_description": "A Caucasus nation considered the birthplace of wine.",
-        "fact_1": "Georgia is believed to be where wine was first made 8,000 years ago.",
-        "fact_2": "The Georgian alphabet is one of the world's 14 unique scripts.",
-        "fact_3": "Georgia has diverse climates from subtropical to alpine.",
-        "quiz_question": "How long ago was wine first made in Georgia?",
-        "quiz_options": ["2,000 years", "4,000 years", "8,000 years", "1,000 years"],
-        "correct_answer": "8,000 years",
-        "map_coordinates": [42.3154, 43.3569]
+        name: "Azerbaijan",
+        flag: "🇦🇿",
+        capital: "Baku",
+        region: "Western Asia",
+        population: "10 million",
+        tagline: "Land of fire.",
+        facts: [
+            "Known for eternal flames from natural gas",
+            "First Muslim-majority democratic republic",
+            "Has more mud volcanoes than any other country"
+        ],
+        quiz: {
+            question: "Why is Azerbaijan called 'Land of Fire'?",
+            options: ["Hot climate", "Natural gas flames", "Red deserts", "Volcanic activity"],
+            answer: 1
+        }
     },
+    // 12. Bahamas
     {
-        "country_name": "India",
-        "flag_emoji": "🇮🇳",
-        "capital": "New Delhi",
-        "continent": "Asia",
-        "short_description": "The world's largest democracy with over 1.4 billion people.",
-        "fact_1": "India has 22 official languages and over 1,600 spoken languages.",
-        "fact_2": "The Himalayas, world's highest mountains, form India's northern border.",
-        "fact_3": "India is the birthplace of four major religions: Hinduism, Buddhism, Jainism, and Sikhism.",
-        "quiz_question": "How many official languages does India have?",
-        "quiz_options": ["10", "15", "22", "30"],
-        "correct_answer": "22",
-        "map_coordinates": [20.5937, 78.9629]
+        name: "Bahamas",
+        flag: "🇧🇸",
+        capital: "Nassau",
+        region: "Caribbean",
+        population: "400,000",
+        tagline: "It's better in the Bahamas.",
+        facts: [
+            "Archipelago of over 700 islands",
+            "Famous for swimming pigs of Exuma",
+            "Has the third largest barrier reef in the world"
+        ],
+        quiz: {
+            question: "What unusual animals swim in the Bahamas?",
+            options: ["Dolphins", "Pigs", "Horses", "Dogs"],
+            answer: 1
+        }
     },
+    // 13. Bahrain
     {
-        "country_name": "Indonesia",
-        "flag_emoji": "🇮🇩",
-        "capital": "Jakarta",
-        "continent": "Asia",
-        "short_description": "The world's largest archipelago with over 17,000 islands.",
-        "fact_1": "Indonesia has over 17,000 islands, with about 6,000 inhabited.",
-        "fact_2": "It is the world's most populous Muslim-majority country.",
-        "fact_3": "Krakatoa, one of the most famous volcanoes, is in Indonesia.",
-        "quiz_question": "How many islands does Indonesia have?",
-        "quiz_options": ["5,000", "10,000", "17,000+", "25,000"],
-        "correct_answer": "17,000+",
-        "map_coordinates": [-0.7893, 113.9213]
+        name: "Bahrain",
+        flag: "🇧🇭",
+        capital: "Manama",
+        region: "Middle East",
+        population: "1.5 million",
+        tagline: "Pearl of the Gulf.",
+        facts: [
+            "First country in the Gulf to discover oil",
+            "Connected to Saudi Arabia by a 25km bridge",
+            "Island kingdom in the Persian Gulf"
+        ],
+        quiz: {
+            question: "What was Bahrain historically famous for?",
+            options: ["Gold", "Pearls", "Spices", "Silk"],
+            answer: 1
+        }
     },
+    // 14. Bangladesh
     {
-        "country_name": "Iran",
-        "flag_emoji": "🇮🇷",
-        "capital": "Tehran",
-        "continent": "Asia",
-        "short_description": "Ancient Persia, one of the world's oldest continuous civilizations.",
-        "fact_1": "Iran was known as Persia until 1935.",
-        "fact_2": "It has one of the world's largest natural gas reserves.",
-        "fact_3": "The Persian Empire was once the largest empire in ancient history.",
-        "quiz_question": "What was Iran known as until 1935?",
-        "quiz_options": ["Mesopotamia", "Persia", "Babylon", "Arabia"],
-        "correct_answer": "Persia",
-        "map_coordinates": [32.4279, 53.6880]
+        name: "Bangladesh",
+        flag: "🇧🇩",
+        capital: "Dhaka",
+        region: "South Asia",
+        population: "170 million",
+        tagline: "Land of rivers.",
+        facts: [
+            "Has over 700 rivers flowing through it",
+            "Home to the world's largest mangrove forest - Sundarbans",
+            "World's second-largest garment exporter"
+        ],
+        quiz: {
+            question: "What natural feature is Bangladesh famous for?",
+            options: ["Mountains", "Rivers", "Deserts", "Volcanoes"],
+            answer: 1
+        }
     },
+    // 15. Barbados
     {
-        "country_name": "Iraq",
-        "flag_emoji": "🇮🇶",
-        "capital": "Baghdad",
-        "continent": "Asia",
-        "short_description": "Ancient Mesopotamia, the 'Cradle of Civilization'.",
-        "fact_1": "Iraq is home to ancient Mesopotamia, where writing was invented.",
-        "fact_2": "The Tigris and Euphrates rivers flow through Iraq.",
-        "fact_3": "The ancient city of Babylon was located in present-day Iraq.",
-        "quiz_question": "What was Iraq's region called in ancient times?",
-        "quiz_options": ["Persia", "Mesopotamia", "Levant", "Arabia"],
-        "correct_answer": "Mesopotamia",
-        "map_coordinates": [33.2232, 43.6793]
+        name: "Barbados",
+        flag: "🇧🇧",
+        capital: "Bridgetown",
+        region: "Caribbean",
+        population: "290,000",
+        tagline: "Gem of the Caribbean.",
+        facts: [
+            "Birthplace of rum",
+            "Pop star Rihanna was born here",
+            "Became a republic in 2021"
+        ],
+        quiz: {
+            question: "Which pop star was born in Barbados?",
+            options: ["Beyoncé", "Rihanna", "Shakira", "Adele"],
+            answer: 1
+        }
     },
+    // 16. Belarus
     {
-        "country_name": "Israel",
-        "flag_emoji": "🇮🇱",
-        "capital": "Jerusalem",
-        "continent": "Asia",
-        "short_description": "A small Middle Eastern country holy to three major religions.",
-        "fact_1": "The Dead Sea, the lowest point on Earth, borders Israel.",
-        "fact_2": "Israel has more museums per capita than any other country.",
-        "fact_3": "Hebrew was revived as a spoken language after being dormant for 2,000 years.",
-        "quiz_question": "What is the lowest point on Earth's surface?",
-        "quiz_options": ["Mariana Trench", "Dead Sea", "Death Valley", "Caspian Sea"],
-        "correct_answer": "Dead Sea",
-        "map_coordinates": [31.0461, 34.8516]
+        name: "Belarus",
+        flag: "🇧🇾",
+        capital: "Minsk",
+        region: "Eastern Europe",
+        population: "9.3 million",
+        tagline: "The white Russia.",
+        facts: [
+            "40% of the country is covered by forests",
+            "Has Europe's largest primeval forest - Białowieża",
+            "Landlocked country with 11,000 lakes"
+        ],
+        quiz: {
+            question: "What covers 40% of Belarus?",
+            options: ["Lakes", "Forests", "Mountains", "Farms"],
+            answer: 1
+        }
     },
+    // 17. Belgium
     {
-        "country_name": "Japan",
-        "flag_emoji": "🇯🇵",
-        "capital": "Tokyo",
-        "continent": "Asia",
-        "short_description": "An island nation known for technology, tradition, and Mount Fuji.",
-        "fact_1": "Japan consists of 6,852 islands but four make up 97% of the area.",
-        "fact_2": "Japan has the world's oldest company, founded in 578 AD.",
-        "fact_3": "There are more vending machines in Japan than in almost any other country.",
-        "quiz_question": "How many islands make up Japan?",
-        "quiz_options": ["1,000", "3,000", "6,852", "10,000"],
-        "correct_answer": "6,852",
-        "map_coordinates": [36.2048, 138.2529]
+        name: "Belgium",
+        flag: "🇧🇪",
+        capital: "Brussels",
+        region: "Western Europe",
+        population: "11.5 million",
+        tagline: "Heart of Europe.",
+        facts: [
+            "Famous for chocolate, waffles, and beer",
+            "Home to EU and NATO headquarters",
+            "Has three official languages"
+        ],
+        quiz: {
+            question: "What organization has its headquarters in Belgium?",
+            options: ["UN", "EU", "WHO", "IMF"],
+            answer: 1
+        }
     },
+    // 18. Belize
     {
-        "country_name": "Jordan",
-        "flag_emoji": "🇯🇴",
-        "capital": "Amman",
-        "continent": "Asia",
-        "short_description": "Home to the ancient city of Petra, carved into rose-red cliffs.",
-        "fact_1": "Petra, a UNESCO World Heritage Site, was carved from rock over 2,000 years ago.",
-        "fact_2": "The Dead Sea's shore is the lowest land point on Earth at 430m below sea level.",
-        "fact_3": "Jordan is one of the most water-scarce countries in the world.",
-        "quiz_question": "What ancient city was carved from rock in Jordan?",
-        "quiz_options": ["Jerash", "Petra", "Amman", "Aqaba"],
-        "correct_answer": "Petra",
-        "map_coordinates": [30.5852, 36.2384]
+        name: "Belize",
+        flag: "🇧🇿",
+        capital: "Belmopan",
+        region: "Central America",
+        population: "400,000",
+        tagline: "Mother Nature's best kept secret.",
+        facts: [
+            "Only English-speaking country in Central America",
+            "Home to the Great Blue Hole",
+            "Has ancient Mayan ruins"
+        ],
+        quiz: {
+            question: "What language is official in Belize?",
+            options: ["Spanish", "English", "French", "Portuguese"],
+            answer: 1
+        }
     },
+    // 19. Benin
     {
-        "country_name": "Kazakhstan",
-        "flag_emoji": "🇰🇿",
-        "capital": "Astana",
-        "continent": "Asia",
-        "short_description": "The world's largest landlocked country located in Central Asia.",
-        "fact_1": "Kazakhstan is the largest landlocked country in the world.",
-        "fact_2": "The Baikonur Cosmodrome, world's first spaceport, is located here.",
-        "fact_3": "It shares borders with Russia, China, Kyrgyzstan, Uzbekistan, and Turkmenistan.",
-        "quiz_question": "Which country shares the longest border with Kazakhstan?",
-        "quiz_options": ["China", "Russia", "Uzbekistan", "Kyrgyzstan"],
-        "correct_answer": "Russia",
-        "map_coordinates": [48.0196, 66.9237]
+        name: "Benin",
+        flag: "🇧🇯",
+        capital: "Porto-Novo",
+        region: "West Africa",
+        population: "13 million",
+        tagline: "Birthplace of Voodoo.",
+        facts: [
+            "Voodoo religion originated here",
+            "Former Kingdom of Dahomey",
+            "Has the Door of No Return slave memorial"
+        ],
+        quiz: {
+            question: "What religion originated in Benin?",
+            options: ["Buddhism", "Voodoo", "Hinduism", "Shinto"],
+            answer: 1
+        }
     },
+    // 20. Bhutan
     {
-        "country_name": "Kuwait",
-        "flag_emoji": "🇰🇼",
-        "capital": "Kuwait City",
-        "continent": "Asia",
-        "short_description": "A small but oil-rich nation on the Persian Gulf.",
-        "fact_1": "Kuwait has about 6% of the world's oil reserves.",
-        "fact_2": "Kuwait has no natural permanent rivers or lakes.",
-        "fact_3": "The Kuwaiti dinar is the world's highest-valued currency unit.",
-        "quiz_question": "What currency holds the highest value per unit?",
-        "quiz_options": ["US Dollar", "Euro", "British Pound", "Kuwaiti Dinar"],
-        "correct_answer": "Kuwaiti Dinar",
-        "map_coordinates": [29.3117, 47.4818]
+        name: "Bhutan",
+        flag: "🇧🇹",
+        capital: "Thimphu",
+        region: "South Asia",
+        population: "780,000",
+        tagline: "Land of the Thunder Dragon.",
+        facts: [
+            "Measures Gross National Happiness instead of GDP",
+            "Only carbon-negative country in the world",
+            "Television was introduced only in 1999"
+        ],
+        quiz: {
+            question: "What does Bhutan measure instead of GDP?",
+            options: ["Wealth", "Happiness", "Health", "Education"],
+            answer: 1
+        }
     },
+    // 21. Bolivia
     {
-        "country_name": "Kyrgyzstan",
-        "flag_emoji": "🇰🇬",
-        "capital": "Bishkek",
-        "continent": "Asia",
-        "short_description": "A mountainous Central Asian country with nomadic traditions.",
-        "fact_1": "About 94% of Kyrgyzstan is mountainous.",
-        "fact_2": "Issyk-Kul is the world's second-largest alpine lake.",
-        "fact_3": "The traditional sport of kok-boru involves horseback players and a goat carcass.",
-        "quiz_question": "What percentage of Kyrgyzstan is mountainous?",
-        "quiz_options": ["50%", "70%", "94%", "80%"],
-        "correct_answer": "94%",
-        "map_coordinates": [41.2044, 74.7661]
+        name: "Bolivia",
+        flag: "🇧🇴",
+        capital: "Sucre",
+        region: "South America",
+        population: "12 million",
+        tagline: "The Tibet of the Americas.",
+        facts: [
+            "Has two capitals - Sucre and La Paz",
+            "Home to the world's largest salt flat - Salar de Uyuni",
+            "Has 37 official languages"
+        ],
+        quiz: {
+            question: "What is the world's largest salt flat in Bolivia called?",
+            options: ["Uyuni", "Bonneville", "Makgadikgadi", "Atacama"],
+            answer: 0
+        }
     },
+    // 22. Bosnia and Herzegovina
     {
-        "country_name": "Laos",
-        "flag_emoji": "🇱🇦",
-        "capital": "Vientiane",
-        "continent": "Asia",
-        "short_description": "A landlocked Southeast Asian country known for Buddhist monasteries.",
-        "fact_1": "Laos is the most heavily bombed country in history per capita.",
-        "fact_2": "The Plain of Jars contains thousands of mysterious stone jars.",
-        "fact_3": "Laos is the only landlocked country in Southeast Asia.",
-        "quiz_question": "What is Laos's geographical distinction in Southeast Asia?",
-        "quiz_options": ["Largest", "Smallest", "Only landlocked", "Most islands"],
-        "correct_answer": "Only landlocked",
-        "map_coordinates": [19.8563, 102.4955]
+        name: "Bosnia and Herzegovina",
+        flag: "🇧🇦",
+        capital: "Sarajevo",
+        region: "Southeast Europe",
+        population: "3.2 million",
+        tagline: "Heart-shaped land.",
+        facts: [
+            "World War I started here with assassination of Archduke Franz Ferdinand",
+            "Has a heart-shaped country outline",
+            "Three presidents rotate leadership every 8 months"
+        ],
+        quiz: {
+            question: "What major war started in Sarajevo?",
+            options: ["WWII", "WWI", "Korean War", "Cold War"],
+            answer: 1
+        }
     },
+    // 23. Botswana
     {
-        "country_name": "Lebanon",
-        "flag_emoji": "🇱🇧",
-        "capital": "Beirut",
-        "continent": "Asia",
-        "short_description": "A small Mediterranean country with ancient Phoenician history.",
-        "fact_1": "Lebanon is home to the world's oldest continuously inhabited city, Byblos.",
-        "fact_2": "The Cedar of Lebanon is the national symbol and appears on the flag.",
-        "fact_3": "Lebanon has 18 recognized religious communities.",
-        "quiz_question": "Which city in Lebanon is considered the oldest continuously inhabited city?",
-        "quiz_options": ["Beirut", "Tripoli", "Byblos", "Sidon"],
-        "correct_answer": "Byblos",
-        "map_coordinates": [33.8547, 35.8623]
+        name: "Botswana",
+        flag: "🇧🇼",
+        capital: "Gaborone",
+        region: "Southern Africa",
+        population: "2.4 million",
+        tagline: "Pride of Africa.",
+        facts: [
+            "Home to the Okavango Delta",
+            "One of Africa's most stable democracies",
+            "Diamonds are the major export"
+        ],
+        quiz: {
+            question: "What famous delta is in Botswana?",
+            options: ["Nile", "Okavango", "Mississippi", "Ganges"],
+            answer: 1
+        }
     },
+    // 24. Brazil
     {
-        "country_name": "Malaysia",
-        "flag_emoji": "🇲🇾",
-        "capital": "Kuala Lumpur",
-        "continent": "Asia",
-        "short_description": "A Southeast Asian nation split between a peninsula and Borneo.",
-        "fact_1": "Malaysia is divided into two regions separated by the South China Sea.",
-        "fact_2": "The Petronas Twin Towers were the world's tallest buildings from 1998-2004.",
-        "fact_3": "Malaysia is one of the 17 megadiverse countries in the world.",
-        "quiz_question": "What sea separates Peninsular Malaysia from East Malaysia?",
-        "quiz_options": ["Andaman Sea", "Java Sea", "South China Sea", "Sulu Sea"],
-        "correct_answer": "South China Sea",
-        "map_coordinates": [4.2105, 101.9758]
+        name: "Brazil",
+        flag: "🇧🇷",
+        capital: "Brasília",
+        region: "South America",
+        population: "215 million",
+        tagline: "The land of samba and soccer.",
+        facts: [
+            "Largest country in South America",
+            "Contains 60% of the Amazon Rainforest",
+            "Has won the FIFA World Cup 5 times - more than any other country"
+        ],
+        quiz: {
+            question: "How many FIFA World Cups has Brazil won?",
+            options: ["3", "4", "5", "6"],
+            answer: 2
+        }
     },
+    // 25. Brunei
     {
-        "country_name": "Maldives",
-        "flag_emoji": "🇲🇻",
-        "capital": "Malé",
-        "continent": "Asia",
-        "short_description": "The world's lowest-lying country, an island paradise in the Indian Ocean.",
-        "fact_1": "The Maldives is the world's lowest country with an average elevation of 1.5 meters.",
-        "fact_2": "It consists of about 1,200 coral islands grouped into 26 atolls.",
-        "fact_3": "The Maldives could be underwater by 2100 due to rising sea levels.",
-        "quiz_question": "What is the average elevation of the Maldives?",
-        "quiz_options": ["5 meters", "3 meters", "1.5 meters", "10 meters"],
-        "correct_answer": "1.5 meters",
-        "map_coordinates": [3.2028, 73.2207]
+        name: "Brunei",
+        flag: "🇧🇳",
+        capital: "Bandar Seri Begawan",
+        region: "Southeast Asia",
+        population: "440,000",
+        tagline: "The abode of peace.",
+        facts: [
+            "Sultan is one of the world's richest people",
+            "Citizens pay no income tax",
+            "Oil and gas make up 90% of exports"
+        ],
+        quiz: {
+            question: "What natural resource made Brunei wealthy?",
+            options: ["Gold", "Oil", "Diamonds", "Coal"],
+            answer: 1
+        }
     },
+    // 26. Bulgaria
     {
-        "country_name": "Mongolia",
-        "flag_emoji": "🇲🇳",
-        "capital": "Ulaanbaatar",
-        "continent": "Asia",
-        "short_description": "The world's least densely populated country, land of Genghis Khan.",
-        "fact_1": "Mongolia has the lowest population density in the world.",
-        "fact_2": "Genghis Khan founded the largest contiguous land empire in history.",
-        "fact_3": "About 30% of Mongolians are still nomadic or semi-nomadic.",
-        "quiz_question": "What distinction does Mongolia hold regarding population?",
-        "quiz_options": ["Most populous", "Fastest growing", "Least densely populated", "Oldest population"],
-        "correct_answer": "Least densely populated",
-        "map_coordinates": [46.8625, 103.8467]
+        name: "Bulgaria",
+        flag: "🇧🇬",
+        capital: "Sofia",
+        region: "Southeast Europe",
+        population: "6.9 million",
+        tagline: "Land of roses.",
+        facts: [
+            "Produces 70% of the world's rose oil",
+            "Home to the oldest gold treasure ever found",
+            "Shaking head means 'yes', nodding means 'no'"
+        ],
+        quiz: {
+            question: "What gesture means 'no' in Bulgaria?",
+            options: ["Shaking head", "Nodding", "Waving", "Thumbs up"],
+            answer: 1
+        }
     },
+    // 27. Burkina Faso
     {
-        "country_name": "Myanmar",
-        "flag_emoji": "🇲🇲",
-        "capital": "Naypyidaw",
-        "continent": "Asia",
-        "short_description": "A Southeast Asian country formerly known as Burma.",
-        "fact_1": "Myanmar was called Burma until 1989.",
-        "fact_2": "Bagan has over 2,000 ancient Buddhist temples and pagodas.",
-        "fact_3": "Myanmar is the world's second-largest producer of opium.",
-        "quiz_question": "What was Myanmar's former name?",
-        "quiz_options": ["Siam", "Burma", "Ceylon", "Indochina"],
-        "correct_answer": "Burma",
-        "map_coordinates": [21.9162, 95.9560]
+        name: "Burkina Faso",
+        flag: "🇧🇫",
+        capital: "Ouagadougou",
+        region: "West Africa",
+        population: "22 million",
+        tagline: "Land of honest people.",
+        facts: [
+            "Name means 'Land of Incorruptible People'",
+            "Hosts FESPACO - Africa's largest film festival",
+            "Landlocked country in West Africa"
+        ],
+        quiz: {
+            question: "What does 'Burkina Faso' mean?",
+            options: ["Land of Lions", "Land of Honest People", "Land of Rivers", "Land of Mountains"],
+            answer: 1
+        }
     },
+    // 28. Burundi
     {
-        "country_name": "Nepal",
-        "flag_emoji": "🇳🇵",
-        "capital": "Kathmandu",
-        "continent": "Asia",
-        "short_description": "Home to Mount Everest, the world's highest peak.",
-        "fact_1": "Nepal is home to 8 of the world's 14 highest peaks.",
-        "fact_2": "Nepal's flag is the only non-quadrilateral national flag.",
-        "fact_3": "Lumbini in Nepal is the birthplace of Buddha.",
-        "quiz_question": "What is unique about Nepal's national flag?",
-        "quiz_options": ["Oldest flag", "Largest flag", "Only non-rectangular", "Only circular"],
-        "correct_answer": "Only non-rectangular",
-        "map_coordinates": [28.3949, 84.1240]
+        name: "Burundi",
+        flag: "🇧🇮",
+        capital: "Gitega",
+        region: "East Africa",
+        population: "12 million",
+        tagline: "Heart of Africa.",
+        facts: [
+            "One of the world's smallest countries",
+            "Famous for traditional drumming",
+            "Landlocked country near the Great Lakes"
+        ],
+        quiz: {
+            question: "What is Burundi famous for?",
+            options: ["Dance", "Drumming", "Singing", "Art"],
+            answer: 1
+        }
     },
+    // 29. Cabo Verde (Cape Verde)
     {
-        "country_name": "North Korea",
-        "flag_emoji": "🇰🇵",
-        "capital": "Pyongyang",
-        "continent": "Asia",
-        "short_description": "One of the world's most isolated countries on the Korean Peninsula.",
-        "fact_1": "North Korea is one of the most isolated countries in the world.",
-        "fact_2": "Mount Paektu is considered sacred in Korean culture.",
-        "fact_3": "The DMZ between North and South Korea is one of the most fortified borders.",
-        "quiz_question": "What is the DMZ?",
-        "quiz_options": ["River", "Mountain", "Demilitarized Zone", "City"],
-        "correct_answer": "Demilitarized Zone",
-        "map_coordinates": [40.3399, 127.5101]
+        name: "Cabo Verde",
+        flag: "🇨🇻",
+        capital: "Praia",
+        region: "West Africa",
+        population: "590,000",
+        tagline: "Islands of music.",
+        facts: [
+            "Island nation off Africa's western coast",
+            "Morna music genre originated here",
+            "Was a Portuguese colony until 1975"
+        ],
+        quiz: {
+            question: "What music genre originated in Cabo Verde?",
+            options: ["Reggae", "Morna", "Samba", "Fado"],
+            answer: 1
+        }
     },
+    // 30. Cambodia
     {
-        "country_name": "Oman",
-        "flag_emoji": "🇴🇲",
-        "capital": "Muscat",
-        "continent": "Asia",
-        "short_description": "An Arab country on the southeastern coast of the Arabian Peninsula.",
-        "fact_1": "Oman was a major maritime power and controlled Zanzibar until 1856.",
-        "fact_2": "Frankincense has been harvested in Oman for over 5,000 years.",
-        "fact_3": "The Rub' al Khali (Empty Quarter), the world's largest sand desert, extends into Oman.",
-        "quiz_question": "What precious resin has been harvested in Oman for 5,000 years?",
-        "quiz_options": ["Myrrh", "Amber", "Frankincense", "Copal"],
-        "correct_answer": "Frankincense",
-        "map_coordinates": [21.4735, 55.9754]
+        name: "Cambodia",
+        flag: "🇰🇭",
+        capital: "Phnom Penh",
+        region: "Southeast Asia",
+        population: "17 million",
+        tagline: "Kingdom of wonder.",
+        facts: [
+            "Home to Angkor Wat - world's largest religious monument",
+            "Only country with a building on its flag",
+            "Mekong River flows through the country"
+        ],
+        quiz: {
+            question: "What famous temple is in Cambodia?",
+            options: ["Taj Mahal", "Angkor Wat", "Borobudur", "Shwedagon"],
+            answer: 1
+        }
     },
+    // 31. Cameroon
     {
-        "country_name": "Pakistan",
-        "flag_emoji": "🇵🇰",
-        "capital": "Islamabad",
-        "continent": "Asia",
-        "short_description": "Home to K2, the world's second-highest mountain.",
-        "fact_1": "K2 is the world's second-highest mountain and more dangerous than Everest.",
-        "fact_2": "The Indus Valley Civilization, one of the oldest, was in Pakistan.",
-        "fact_3": "Pakistan has the world's largest irrigation system.",
-        "quiz_question": "What is the world's second-highest mountain located in Pakistan?",
-        "quiz_options": ["Nanga Parbat", "K2", "Broad Peak", "Gasherbrum"],
-        "correct_answer": "K2",
-        "map_coordinates": [30.3753, 69.3451]
+        name: "Cameroon",
+        flag: "🇨🇲",
+        capital: "Yaoundé",
+        region: "Central Africa",
+        population: "28 million",
+        tagline: "Africa in miniature.",
+        facts: [
+            "Called 'Africa in miniature' for its geographic diversity",
+            "Has both French and English as official languages",
+            "Mount Cameroon is the highest peak in West Africa"
+        ],
+        quiz: {
+            question: "Why is Cameroon called 'Africa in miniature'?",
+            options: ["It's small", "Has all African landscapes", "Many languages", "Oldest country"],
+            answer: 1
+        }
     },
+    // 32. Canada
     {
-        "country_name": "Palestine",
-        "flag_emoji": "🇵🇸",
-        "capital": "Ramallah",
-        "continent": "Asia",
-        "short_description": "A territory in the Middle East with disputed sovereignty.",
-        "fact_1": "Palestine includes the West Bank and Gaza Strip.",
-        "fact_2": "Bethlehem, the birthplace of Jesus, is in Palestine.",
-        "fact_3": "The Dead Sea borders Palestinian territory.",
-        "quiz_question": "Which significant religious site is located in Palestine?",
-        "quiz_options": ["Mecca", "Bethlehem", "Vatican", "Bodh Gaya"],
-        "correct_answer": "Bethlehem",
-        "map_coordinates": [31.9522, 35.2332]
+        name: "Canada",
+        flag: "🇨🇦",
+        capital: "Ottawa",
+        region: "North America",
+        population: "38 million",
+        tagline: "True north strong and free.",
+        facts: [
+            "Second largest country in the world by area",
+            "Has more lakes than all other countries combined",
+            "Produces 71% of the world's maple syrup"
+        ],
+        quiz: {
+            question: "What leaf is on Canada's flag?",
+            options: ["Oak", "Maple", "Birch", "Pine"],
+            answer: 1
+        }
     },
+    // 33. Central African Republic
     {
-        "country_name": "Philippines",
-        "flag_emoji": "🇵🇭",
-        "capital": "Manila",
-        "continent": "Asia",
-        "short_description": "An archipelago of over 7,000 islands in Southeast Asia.",
-        "fact_1": "The Philippines has over 7,641 islands.",
-        "fact_2": "It is the only Christian-majority nation in Asia.",
-        "fact_3": "The Philippine Eagle is one of the world's largest and rarest eagles.",
-        "quiz_question": "How many islands does the Philippines have?",
-        "quiz_options": ["1,000", "5,000", "7,641", "10,000"],
-        "correct_answer": "7,641",
-        "map_coordinates": [12.8797, 121.7740]
+        name: "Central African Republic",
+        flag: "🇨🇫",
+        capital: "Bangui",
+        region: "Central Africa",
+        population: "5 million",
+        tagline: "Heart of Africa.",
+        facts: [
+            "One of the world's least developed countries",
+            "Rich in diamonds and gold",
+            "Rainforests home to forest elephants and gorillas"
+        ],
+        quiz: {
+            question: "What precious stone is CAR rich in?",
+            options: ["Rubies", "Diamonds", "Emeralds", "Sapphires"],
+            answer: 1
+        }
     },
+    // 34. Chad
     {
-        "country_name": "Qatar",
-        "flag_emoji": "🇶🇦",
-        "capital": "Doha",
-        "continent": "Asia",
-        "short_description": "A wealthy peninsula nation with the world's highest GDP per capita.",
-        "fact_1": "Qatar has one of the world's highest GDP per capita.",
-        "fact_2": "Qatar hosted the 2022 FIFA World Cup.",
-        "fact_3": "Natural gas makes up about 70% of government revenue.",
-        "quiz_question": "What major sporting event did Qatar host in 2022?",
-        "quiz_options": ["Olympics", "FIFA World Cup", "Asian Games", "Cricket World Cup"],
-        "correct_answer": "FIFA World Cup",
-        "map_coordinates": [25.3548, 51.1839]
+        name: "Chad",
+        flag: "🇹🇩",
+        capital: "N'Djamena",
+        region: "Central Africa",
+        population: "17 million",
+        tagline: "The dead heart of Africa.",
+        facts: [
+            "Flag is nearly identical to Romania's",
+            "Lake Chad has shrunk by 90% since 1960s",
+            "Named after Lake Chad"
+        ],
+        quiz: {
+            question: "Which country's flag is nearly identical to Chad's?",
+            options: ["France", "Belgium", "Romania", "Mali"],
+            answer: 2
+        }
     },
+    // 35. Chile
     {
-        "country_name": "Russia",
-        "flag_emoji": "🇷🇺",
-        "capital": "Moscow",
-        "continent": "Europe",
-        "short_description": "The world's largest country, spanning Europe and Asia.",
-        "fact_1": "Russia spans 11 time zones, more than any other country.",
-        "fact_2": "Lake Baikal contains about 20% of the world's unfrozen fresh water.",
-        "fact_3": "Russia is home to the Trans-Siberian Railway, the longest railway in the world.",
-        "quiz_question": "How many time zones does Russia span?",
-        "quiz_options": ["5", "8", "11", "15"],
-        "correct_answer": "11",
-        "map_coordinates": [61.5240, 105.3188]
+        name: "Chile",
+        flag: "🇨🇱",
+        capital: "Santiago",
+        region: "South America",
+        population: "19 million",
+        tagline: "The longest country.",
+        facts: [
+            "Longest north-south country in the world (4,300 km)",
+            "Atacama Desert is the driest place on Earth",
+            "Easter Island with its Moai statues belongs to Chile"
+        ],
+        quiz: {
+            question: "What famous island belongs to Chile?",
+            options: ["Galapagos", "Easter Island", "Fiji", "Hawaii"],
+            answer: 1
+        }
     },
+    // 36. China
     {
-        "country_name": "Saudi Arabia",
-        "flag_emoji": "🇸🇦",
-        "capital": "Riyadh",
-        "continent": "Asia",
-        "short_description": "Home to Islam's two holiest cities, Mecca and Medina.",
-        "fact_1": "Saudi Arabia has the world's largest continuous sand desert, the Rub' al Khali.",
-        "fact_2": "Mecca is visited by millions of Muslims during Hajj pilgrimage.",
-        "fact_3": "Saudi Arabia is the world's largest oil exporter.",
-        "quiz_question": "What is the world's largest continuous sand desert?",
-        "quiz_options": ["Sahara", "Gobi", "Rub' al Khali", "Kalahari"],
-        "correct_answer": "Rub' al Khali",
-        "map_coordinates": [23.8859, 45.0792]
+        name: "China",
+        flag: "🇨🇳",
+        capital: "Beijing",
+        region: "East Asia",
+        population: "1.4 billion",
+        tagline: "The Middle Kingdom.",
+        facts: [
+            "Most populous country in the world",
+            "Great Wall stretches over 21,000 km",
+            "Invented paper, compass, gunpowder, and printing"
+        ],
+        quiz: {
+            question: "What is the capital of China?",
+            options: ["Shanghai", "Beijing", "Hong Kong", "Shenzhen"],
+            answer: 1
+        }
     },
+    // 37. Colombia
     {
-        "country_name": "Singapore",
-        "flag_emoji": "🇸🇬",
-        "capital": "Singapore",
-        "continent": "Asia",
-        "short_description": "A city-state and one of the world's most prosperous countries.",
-        "fact_1": "Singapore is one of only three city-states in the world.",
-        "fact_2": "Singapore's Changi Airport has been named the world's best multiple times.",
-        "fact_3": "Chewing gum is banned in Singapore to keep the city clean.",
-        "quiz_question": "What is banned in Singapore to maintain cleanliness?",
-        "quiz_options": ["Plastic bags", "Chewing gum", "Cigarettes", "Candy"],
-        "correct_answer": "Chewing gum",
-        "map_coordinates": [1.3521, 103.8198]
+        name: "Colombia",
+        flag: "🇨🇴",
+        capital: "Bogotá",
+        region: "South America",
+        population: "52 million",
+        tagline: "The only risk is wanting to stay.",
+        facts: [
+            "Named after Christopher Columbus",
+            "World's largest producer of emeralds",
+            "Second most biodiverse country in the world"
+        ],
+        quiz: {
+            question: "What precious stone is Colombia famous for?",
+            options: ["Diamonds", "Rubies", "Emeralds", "Sapphires"],
+            answer: 2
+        }
     },
+    // 38. Comoros
     {
-        "country_name": "South Korea",
-        "flag_emoji": "🇰🇷",
-        "capital": "Seoul",
-        "continent": "Asia",
-        "short_description": "A high-tech nation on the southern half of the Korean Peninsula.",
-        "fact_1": "South Korea has the world's fastest average internet speed.",
-        "fact_2": "K-pop and Korean dramas have become global cultural phenomena.",
-        "fact_3": "Seoul is one of the world's largest metropolitan areas.",
-        "quiz_question": "What is South Korea famous for having the fastest of in the world?",
-        "quiz_options": ["Trains", "Internet", "Cars", "Planes"],
-        "correct_answer": "Internet",
-        "map_coordinates": [35.9078, 127.7669]
+        name: "Comoros",
+        flag: "🇰🇲",
+        capital: "Moroni",
+        region: "East Africa",
+        population: "900,000",
+        tagline: "Islands of the Moon.",
+        facts: [
+            "Island nation in the Indian Ocean",
+            "Made up of volcanic islands",
+            "Major producer of vanilla and ylang-ylang"
+        ],
+        quiz: {
+            question: "What does 'Comoros' mean?",
+            options: ["Islands of Sun", "Islands of Moon", "Islands of Stars", "Islands of Dreams"],
+            answer: 1
+        }
     },
+    // 39. DR Congo
     {
-        "country_name": "Sri Lanka",
-        "flag_emoji": "🇱🇰",
-        "capital": "Sri Jayawardenepura Kotte",
-        "continent": "Asia",
-        "short_description": "An island nation known as the 'Pearl of the Indian Ocean'.",
-        "fact_1": "Sri Lanka is the world's fourth-largest tea producer.",
-        "fact_2": "It is called the 'Pearl of the Indian Ocean' for its natural beauty.",
-        "fact_3": "Sri Lanka has one of the highest literacy rates in South Asia.",
-        "quiz_question": "What is Sri Lanka's nickname?",
-        "quiz_options": ["Spice Island", "Pearl of the Indian Ocean", "Garden of Eden", "Emerald Isle"],
-        "correct_answer": "Pearl of the Indian Ocean",
-        "map_coordinates": [7.8731, 80.7718]
+        name: "Democratic Republic of Congo",
+        flag: "🇨🇩",
+        capital: "Kinshasa",
+        region: "Central Africa",
+        population: "95 million",
+        tagline: "The heart of Africa.",
+        facts: [
+            "Second largest country in Africa",
+            "Congo River is the world's deepest river",
+            "Has 80% of world's coltan used in phones"
+        ],
+        quiz: {
+            question: "What is the world's deepest river?",
+            options: ["Amazon", "Nile", "Congo", "Mississippi"],
+            answer: 2
+        }
     },
+    // 40. Republic of Congo
     {
-        "country_name": "Syria",
-        "flag_emoji": "🇸🇾",
-        "capital": "Damascus",
-        "continent": "Asia",
-        "short_description": "Home to Damascus, one of the oldest continuously inhabited cities.",
-        "fact_1": "Damascus is often cited as the oldest continuously inhabited city.",
-        "fact_2": "Syria was part of the ancient Fertile Crescent civilization.",
-        "fact_3": "Aleppo's ancient souq was one of the longest covered markets in the world.",
-        "quiz_question": "What is Damascus known as?",
-        "quiz_options": ["Newest capital", "Oldest continuously inhabited city", "Largest city", "Highest capital"],
-        "correct_answer": "Oldest continuously inhabited city",
-        "map_coordinates": [34.8021, 38.9968]
+        name: "Republic of Congo",
+        flag: "🇨🇬",
+        capital: "Brazzaville",
+        region: "Central Africa",
+        population: "5.8 million",
+        tagline: "The land of forests.",
+        facts: [
+            "65% of the country is covered by rainforest",
+            "Major oil producer in Africa",
+            "Capital faces Kinshasa across the Congo River"
+        ],
+        quiz: {
+            question: "What covers most of Republic of Congo?",
+            options: ["Desert", "Rainforest", "Savanna", "Mountains"],
+            answer: 1
+        }
     },
+    // 41. Costa Rica
     {
-        "country_name": "Tajikistan",
-        "flag_emoji": "🇹🇯",
-        "capital": "Dushanbe",
-        "continent": "Asia",
-        "short_description": "A mountainous Central Asian country with 93% mountain coverage.",
-        "fact_1": "About 93% of Tajikistan is mountainous.",
-        "fact_2": "Ismoil Somoni Peak at 7,495m is the highest in the former Soviet Union.",
-        "fact_3": "The ancient Silk Road passed through Tajikistan.",
-        "quiz_question": "What percentage of Tajikistan is mountainous?",
-        "quiz_options": ["70%", "80%", "93%", "60%"],
-        "correct_answer": "93%",
-        "map_coordinates": [38.8610, 71.2761]
+        name: "Costa Rica",
+        flag: "🇨🇷",
+        capital: "San José",
+        region: "Central America",
+        population: "5.2 million",
+        tagline: "Pura Vida.",
+        facts: [
+            "Has had no army since 1948",
+            "Contains 5% of world's biodiversity",
+            "Over 25% of land is protected nature reserves"
+        ],
+        quiz: {
+            question: "What does 'Pura Vida' mean?",
+            options: ["Pure water", "Pure life", "Pure love", "Pure joy"],
+            answer: 1
+        }
     },
+    // 42. Croatia
     {
-        "country_name": "Thailand",
-        "flag_emoji": "🇹🇭",
-        "capital": "Bangkok",
-        "continent": "Asia",
-        "short_description": "The only Southeast Asian country never colonized by Europeans.",
-        "fact_1": "Thailand is the only Southeast Asian country never colonized by Europeans.",
-        "fact_2": "Thailand means 'Land of the Free'.",
-        "fact_3": "Bangkok's full ceremonial name is 168 characters long, the longest city name.",
-        "quiz_question": "What does 'Thailand' mean?",
-        "quiz_options": ["Land of Smiles", "Land of the Free", "Golden Land", "Land of Temples"],
-        "correct_answer": "Land of the Free",
-        "map_coordinates": [15.8700, 100.9925]
+        name: "Croatia",
+        flag: "🇭🇷",
+        capital: "Zagreb",
+        region: "Southeast Europe",
+        population: "3.9 million",
+        tagline: "The Mediterranean as it once was.",
+        facts: [
+            "Croatians invented the necktie (cravat)",
+            "Game of Thrones was filmed in Dubrovnik",
+            "Has over 1,000 islands"
+        ],
+        quiz: {
+            question: "What accessory was invented in Croatia?",
+            options: ["Belt", "Necktie", "Hat", "Glasses"],
+            answer: 1
+        }
     },
+    // 43. Cuba
     {
-        "country_name": "Timor-Leste",
-        "flag_emoji": "🇹🇱",
-        "capital": "Dili",
-        "continent": "Asia",
-        "short_description": "One of the world's newest nations, independent since 2002.",
-        "fact_1": "Timor-Leste (East Timor) gained independence in 2002.",
-        "fact_2": "It is the only Asian country located entirely in the Southern Hemisphere.",
-        "fact_3": "Portuguese and Tetum are the official languages.",
-        "quiz_question": "When did Timor-Leste gain independence?",
-        "quiz_options": ["1999", "2002", "2005", "2010"],
-        "correct_answer": "2002",
-        "map_coordinates": [-8.8742, 125.7275]
+        name: "Cuba",
+        flag: "🇨🇺",
+        capital: "Havana",
+        region: "Caribbean",
+        population: "11 million",
+        tagline: "The pearl of the Caribbean.",
+        facts: [
+            "Largest island in the Caribbean",
+            "Famous for classic American cars from the 1950s",
+            "World-renowned for cigars and rum"
+        ],
+        quiz: {
+            question: "What is Cuba famous for exporting?",
+            options: ["Coffee", "Cigars", "Tea", "Wine"],
+            answer: 1
+        }
     },
+    // 44. Cyprus
     {
-        "country_name": "Turkey",
-        "flag_emoji": "🇹🇷",
-        "capital": "Ankara",
-        "continent": "Asia",
-        "short_description": "A transcontinental country bridging Europe and Asia.",
-        "fact_1": "Istanbul is the only city in the world on two continents.",
-        "fact_2": "Turkey has the most UNESCO World Heritage Sites in Asia.",
-        "fact_3": "Turkish coffee and tea culture are central to daily life.",
-        "quiz_question": "What is unique about Istanbul's geographic position?",
-        "quiz_options": ["Highest city", "Largest port", "On two continents", "Most ancient"],
-        "correct_answer": "On two continents",
-        "map_coordinates": [38.9637, 35.2433]
+        name: "Cyprus",
+        flag: "🇨🇾",
+        capital: "Nicosia",
+        region: "Europe/Asia",
+        population: "1.2 million",
+        tagline: "Island of Aphrodite.",
+        facts: [
+            "Birthplace of Aphrodite in Greek mythology",
+            "Only divided capital city in the world (Nicosia)",
+            "Third largest island in the Mediterranean"
+        ],
+        quiz: {
+            question: "Which goddess was born in Cyprus according to myth?",
+            options: ["Athena", "Aphrodite", "Hera", "Artemis"],
+            answer: 1
+        }
     },
+    // 45. Czech Republic (Czechia)
     {
-        "country_name": "Turkmenistan",
-        "flag_emoji": "🇹🇲",
-        "capital": "Ashgabat",
-        "continent": "Asia",
-        "short_description": "A Central Asian country with the world's fourth-largest natural gas reserves.",
-        "fact_1": "The Darvaza gas crater has been burning since 1971, called 'Door to Hell'.",
-        "fact_2": "Turkmenistan has the world's fourth-largest natural gas reserves.",
-        "fact_3": "About 80% of the country is covered by the Karakum Desert.",
-        "quiz_question": "What is the 'Door to Hell' in Turkmenistan?",
-        "quiz_options": ["Volcano", "Gas crater", "Cave", "Mine"],
-        "correct_answer": "Gas crater",
-        "map_coordinates": [38.9697, 59.5563]
+        name: "Czech Republic",
+        flag: "🇨🇿",
+        capital: "Prague",
+        region: "Central Europe",
+        population: "10.5 million",
+        tagline: "Land of stories.",
+        facts: [
+            "Highest beer consumption per capita in the world",
+            "Prague Castle is the largest ancient castle complex",
+            "Invented contact lenses and sugar cubes"
+        ],
+        quiz: {
+            question: "What country drinks the most beer per capita?",
+            options: ["Germany", "Czech Republic", "Ireland", "Belgium"],
+            answer: 1
+        }
     },
+    // 46. Denmark
     {
-        "country_name": "United Arab Emirates",
-        "flag_emoji": "🇦🇪",
-        "capital": "Abu Dhabi",
-        "continent": "Asia",
-        "short_description": "A federation of seven emirates including Dubai and Abu Dhabi.",
-        "fact_1": "The Burj Khalifa in Dubai is the world's tallest building at 828 meters.",
-        "fact_2": "The UAE was formed from seven emirates in 1971.",
-        "fact_3": "Dubai has the world's largest artificial islands.",
-        "quiz_question": "How tall is the Burj Khalifa?",
-        "quiz_options": ["600m", "728m", "828m", "900m"],
-        "correct_answer": "828m",
-        "map_coordinates": [23.4241, 53.8478]
+        name: "Denmark",
+        flag: "🇩🇰",
+        capital: "Copenhagen",
+        region: "Northern Europe",
+        population: "5.9 million",
+        tagline: "Happiest country on Earth.",
+        facts: [
+            "Has the oldest flag still in use (since 1219)",
+            "LEGO was invented here",
+            "Consistently ranked among happiest countries"
+        ],
+        quiz: {
+            question: "What toy was invented in Denmark?",
+            options: ["Barbie", "LEGO", "Hot Wheels", "Monopoly"],
+            answer: 1
+        }
     },
+    // 47. Djibouti
     {
-        "country_name": "Uzbekistan",
-        "flag_emoji": "🇺🇿",
-        "capital": "Tashkent",
-        "continent": "Asia",
-        "short_description": "A doubly landlocked Central Asian country on the Silk Road.",
-        "fact_1": "Uzbekistan is one of only two doubly landlocked countries in the world.",
-        "fact_2": "Samarkand was a key city on the ancient Silk Road.",
-        "fact_3": "The Aral Sea has shrunk by 90% due to Soviet irrigation projects.",
-        "quiz_question": "What does 'doubly landlocked' mean?",
-        "quiz_options": ["No rivers", "Surrounded only by landlocked countries", "Desert country", "Mountain country"],
-        "correct_answer": "Surrounded only by landlocked countries",
-        "map_coordinates": [41.3775, 64.5853]
+        name: "Djibouti",
+        flag: "🇩🇯",
+        capital: "Djibouti",
+        region: "East Africa",
+        population: "1 million",
+        tagline: "Where Africa meets Arabia.",
+        facts: [
+            "Lake Assal is the lowest point in Africa",
+            "Strategic location at Red Sea entrance",
+            "Hosts military bases from multiple countries"
+        ],
+        quiz: {
+            question: "What is special about Lake Assal in Djibouti?",
+            options: ["Largest lake", "Lowest point in Africa", "Hottest lake", "Oldest lake"],
+            answer: 1
+        }
     },
+    // 48. Dominica
     {
-        "country_name": "Vietnam",
-        "flag_emoji": "🇻🇳",
-        "capital": "Hanoi",
-        "continent": "Asia",
-        "short_description": "A Southeast Asian country known for Ha Long Bay and rich history.",
-        "fact_1": "Ha Long Bay has about 1,600 limestone islands and islets.",
-        "fact_2": "Vietnam is the world's second-largest coffee exporter.",
-        "fact_3": "The Mekong Delta is called the 'Rice Bowl of Vietnam'.",
-        "quiz_question": "What is Vietnam's rank in world coffee production?",
-        "quiz_options": ["First", "Second", "Third", "Fifth"],
-        "correct_answer": "Second",
-        "map_coordinates": [14.0583, 108.2772]
+        name: "Dominica",
+        flag: "🇩🇲",
+        capital: "Roseau",
+        region: "Caribbean",
+        population: "72,000",
+        tagline: "The nature island.",
+        facts: [
+            "Only flag in the world featuring purple color",
+            "Called the Nature Island of the Caribbean",
+            "Has a boiling lake - second largest in the world"
+        ],
+        quiz: {
+            question: "What rare color appears on Dominica's flag?",
+            options: ["Pink", "Purple", "Orange", "Brown"],
+            answer: 1
+        }
     },
+    // 49. Dominican Republic
     {
-        "country_name": "Yemen",
-        "flag_emoji": "🇾🇪",
-        "capital": "Sana'a",
-        "continent": "Asia",
-        "short_description": "An Arabian Peninsula country with ancient skyscrapers made of mud.",
-        "fact_1": "Sana'a has been continuously inhabited for over 2,500 years.",
-        "fact_2": "Shibam has mud-brick skyscrapers, called 'Manhattan of the Desert'.",
-        "fact_3": "Socotra Island has plants found nowhere else on Earth.",
-        "quiz_question": "What is Shibam nicknamed for its tall mud buildings?",
-        "quiz_options": ["Tower Town", "Manhattan of the Desert", "Mud City", "Sky Village"],
-        "correct_answer": "Manhattan of the Desert",
-        "map_coordinates": [15.5527, 48.5164]
+        name: "Dominican Republic",
+        flag: "🇩🇴",
+        capital: "Santo Domingo",
+        region: "Caribbean",
+        population: "11 million",
+        tagline: "Endless beaches and culture.",
+        facts: [
+            "Shares the island of Hispaniola with Haiti",
+            "Santo Domingo was first European settlement in Americas",
+            "Major source of MLB baseball players"
+        ],
+        quiz: {
+            question: "Which island does Dominican Republic share?",
+            options: ["Cuba", "Jamaica", "Hispaniola", "Puerto Rico"],
+            answer: 2
+        }
     },
+    // 50. Ecuador
+    {
+        name: "Ecuador",
+        flag: "🇪🇨",
+        capital: "Quito",
+        region: "South America",
+        population: "18 million",
+        tagline: "The middle of the world.",
+        facts: [
+            "Named after the equator which runs through it",
+            "Galápagos Islands belong to Ecuador",
+            "Has the highest capital city in the world"
+        ],
+        quiz: {
+            question: "What famous islands belong to Ecuador?",
+            options: ["Canary", "Galápagos", "Maldives", "Seychelles"],
+            answer: 1
+        }
+    },
+    // 51. Egypt
+    {
+        name: "Egypt",
+        flag: "🇪🇬",
+        capital: "Cairo",
+        region: "North Africa",
+        population: "104 million",
+        tagline: "Mother of the world.",
+        facts: [
+            "Home to the only remaining ancient wonder - Great Pyramid",
+            "Suez Canal connects Mediterranean and Red Sea",
+            "Nile River is the lifeline of the country"
+        ],
+        quiz: {
+            question: "What ancient wonder is in Egypt?",
+            options: ["Colosseum", "Pyramids of Giza", "Parthenon", "Machu Picchu"],
+            answer: 1
+        }
+    },
+    // 52. El Salvador
+    {
+        name: "El Salvador",
+        flag: "🇸🇻",
+        capital: "San Salvador",
+        region: "Central America",
+        population: "6.5 million",
+        tagline: "The land of volcanoes.",
+        facts: [
+            "Smallest and most densely populated country in Central America",
+            "First country to adopt Bitcoin as legal tender",
+            "Has over 20 volcanoes"
+        ],
+        quiz: {
+            question: "El Salvador was first to adopt what as legal tender?",
+            options: ["Euro", "Dollar", "Bitcoin", "Gold"],
+            answer: 2
+        }
+    },
+    // 53. Equatorial Guinea
+    {
+        name: "Equatorial Guinea",
+        flag: "🇬🇶",
+        capital: "Malabo",
+        region: "Central Africa",
+        population: "1.5 million",
+        tagline: "Africa's richest per capita.",
+        facts: [
+            "Only Spanish-speaking country in Africa",
+            "Oil discovery made it one of Africa's richest",
+            "Capital Malabo is located on an island"
+        ],
+        quiz: {
+            question: "What language is official in Equatorial Guinea?",
+            options: ["French", "Portuguese", "Spanish", "English"],
+            answer: 2
+        }
+    },
+    // 54. Eritrea
+    {
+        name: "Eritrea",
+        flag: "🇪🇷",
+        capital: "Asmara",
+        region: "East Africa",
+        population: "3.6 million",
+        tagline: "The Red Sea nation.",
+        facts: [
+            "One of the youngest countries (independence in 1993)",
+            "Asmara is a UNESCO World Heritage Site",
+            "Has no private media - all state-controlled"
+        ],
+        quiz: {
+            question: "When did Eritrea gain independence?",
+            options: ["1960", "1975", "1993", "2000"],
+            answer: 2
+        }
+    },
+    // 55. Estonia
+    {
+        name: "Estonia",
+        flag: "🇪🇪",
+        capital: "Tallinn",
+        region: "Northern Europe",
+        population: "1.3 million",
+        tagline: "E-Estonia: Digital society.",
+        facts: [
+            "Most digitally advanced country in the world",
+            "Skype was invented here",
+            "Has free public transport in the capital"
+        ],
+        quiz: {
+            question: "What communication platform was invented in Estonia?",
+            options: ["WhatsApp", "Zoom", "Skype", "Slack"],
+            answer: 2
+        }
+    },
+    // 56. Eswatini (Swaziland)
+    {
+        name: "Eswatini",
+        flag: "🇸🇿",
+        capital: "Mbabane",
+        region: "Southern Africa",
+        population: "1.2 million",
+        tagline: "Africa's last absolute monarchy.",
+        facts: [
+            "Changed name from Swaziland in 2018",
+            "One of the world's last absolute monarchies",
+            "Famous for the Reed Dance festival"
+        ],
+        quiz: {
+            question: "What was Eswatini's former name?",
+            options: ["Rhodesia", "Swaziland", "Basutoland", "Nyasaland"],
+            answer: 1
+        }
+    },
+    // 57. Ethiopia
+    {
+        name: "Ethiopia",
+        flag: "🇪🇹",
+        capital: "Addis Ababa",
+        region: "East Africa",
+        population: "120 million",
+        tagline: "Land of origins.",
+        facts: [
+            "Never colonized (except brief Italian occupation)",
+            "Birthplace of coffee",
+            "Uses a unique calendar - 7-8 years behind Gregorian"
+        ],
+        quiz: {
+            question: "What beverage originated in Ethiopia?",
+            options: ["Tea", "Coffee", "Cocoa", "Wine"],
+            answer: 1
+        }
+    },
+    // 58. Fiji
+    {
+        name: "Fiji",
+        flag: "🇫🇯",
+        capital: "Suva",
+        region: "Oceania",
+        population: "900,000",
+        tagline: "Where happiness finds you.",
+        facts: [
+            "Archipelago of over 330 islands",
+            "'Bula' is the famous greeting",
+            "Rugby sevens is extremely popular"
+        ],
+        quiz: {
+            question: "How many islands make up Fiji?",
+            options: ["100", "200", "330+", "500"],
+            answer: 2
+        }
+    },
+    // 59. Finland
+    {
+        name: "Finland",
+        flag: "🇫🇮",
+        capital: "Helsinki",
+        region: "Northern Europe",
+        population: "5.5 million",
+        tagline: "Land of a thousand lakes.",
+        facts: [
+            "Has 188,000 lakes",
+            "Home to Santa Claus Village in Lapland",
+            "Consistently ranked world's happiest country"
+        ],
+        quiz: {
+            question: "Approximately how many lakes does Finland have?",
+            options: ["10,000", "50,000", "100,000", "188,000"],
+            answer: 3
+        }
+    },
+    // 60. France
+    {
+        name: "France",
+        flag: "🇫🇷",
+        capital: "Paris",
+        region: "Western Europe",
+        population: "68 million",
+        tagline: "Liberty, equality, fraternity.",
+        facts: [
+            "Most visited country in the world",
+            "Eiffel Tower is the most-visited paid monument",
+            "Invented cinema (Lumière brothers)"
+        ],
+        quiz: {
+            question: "What is the most visited country in the world?",
+            options: ["USA", "Spain", "France", "Italy"],
+            answer: 2
+        }
+    },
+    // 61. Gabon
+    {
+        name: "Gabon",
+        flag: "🇬🇦",
+        capital: "Libreville",
+        region: "Central Africa",
+        population: "2.3 million",
+        tagline: "Green gold of Africa.",
+        facts: [
+            "85% of the country is covered by rainforest",
+            "One of Africa's most prosperous countries",
+            "Home to forest elephants and gorillas"
+        ],
+        quiz: {
+            question: "What covers 85% of Gabon?",
+            options: ["Desert", "Rainforest", "Savanna", "Mountains"],
+            answer: 1
+        }
+    },
+    // 62. Gambia
+    {
+        name: "Gambia",
+        flag: "🇬🇲",
+        capital: "Banjul",
+        region: "West Africa",
+        population: "2.5 million",
+        tagline: "Smiling coast of Africa.",
+        facts: [
+            "Smallest country in mainland Africa",
+            "Almost entirely surrounded by Senegal",
+            "Gambia River runs through the entire country"
+        ],
+        quiz: {
+            question: "Which country almost completely surrounds Gambia?",
+            options: ["Mali", "Senegal", "Guinea", "Mauritania"],
+            answer: 1
+        }
+    },
+    // 63. Georgia
+    {
+        name: "Georgia",
+        flag: "🇬🇪",
+        capital: "Tbilisi",
+        region: "Western Asia",
+        population: "3.7 million",
+        tagline: "Where Europe meets Asia.",
+        facts: [
+            "Birthplace of wine - 8,000 years of winemaking",
+            "Has its own unique alphabet",
+            "Joseph Stalin was born here"
+        ],
+        quiz: {
+            question: "How old is Georgian winemaking?",
+            options: ["1,000 years", "4,000 years", "8,000 years", "500 years"],
+            answer: 2
+        }
+    },
+    // 64. Germany
+    {
+        name: "Germany",
+        flag: "🇩🇪",
+        capital: "Berlin",
+        region: "Central Europe",
+        population: "84 million",
+        tagline: "Land of ideas.",
+        facts: [
+            "Largest economy in Europe",
+            "Autobahn has sections with no speed limit",
+            "Has over 1,500 types of sausages"
+        ],
+        quiz: {
+            question: "What is special about the Autobahn?",
+            options: ["It's free", "No speed limit in parts", "It's underground", "Only trucks allowed"],
+            answer: 1
+        }
+    },
+    // 65. Ghana
+    {
+        name: "Ghana",
+        flag: "🇬🇭",
+        capital: "Accra",
+        region: "West Africa",
+        population: "33 million",
+        tagline: "Gateway to Africa.",
+        facts: [
+            "First African country to gain independence (1957)",
+            "World's second largest cocoa producer",
+            "Lake Volta is one of the largest artificial lakes"
+        ],
+        quiz: {
+            question: "When did Ghana gain independence?",
+            options: ["1947", "1957", "1960", "1963"],
+            answer: 1
+        }
+    },
+    // 66. Greece
+    {
+        name: "Greece",
+        flag: "🇬🇷",
+        capital: "Athens",
+        region: "Southern Europe",
+        population: "10.4 million",
+        tagline: "Birthplace of democracy.",
+        facts: [
+            "Birthplace of democracy and the Olympic Games",
+            "Has over 6,000 islands",
+            "The Parthenon has stood for 2,500 years"
+        ],
+        quiz: {
+            question: "What political system was born in Greece?",
+            options: ["Monarchy", "Communism", "Democracy", "Fascism"],
+            answer: 2
+        }
+    },
+    // 67. Grenada
+    {
+        name: "Grenada",
+        flag: "🇬🇩",
+        capital: "St. George's",
+        region: "Caribbean",
+        population: "125,000",
+        tagline: "Spice island of the Caribbean.",
+        facts: [
+            "World's second largest nutmeg producer",
+            "Known as the Spice Island",
+            "Was invaded by US in 1983"
+        ],
+        quiz: {
+            question: "What spice is Grenada famous for?",
+            options: ["Cinnamon", "Nutmeg", "Pepper", "Vanilla"],
+            answer: 1
+        }
+    },
+    // 68. Guatemala
+    {
+        name: "Guatemala",
+        flag: "🇬🇹",
+        capital: "Guatemala City",
+        region: "Central America",
+        population: "18 million",
+        tagline: "Heart of the Mayan world.",
+        facts: [
+            "Ancient Mayan civilization was centered here",
+            "Most populous country in Central America",
+            "Tikal is one of the largest Mayan sites"
+        ],
+        quiz: {
+            question: "What ancient civilization was centered in Guatemala?",
+            options: ["Aztec", "Inca", "Maya", "Olmec"],
+            answer: 2
+        }
+    },
+    // 69. Guinea
+    {
+        name: "Guinea",
+        flag: "🇬🇳",
+        capital: "Conakry",
+        region: "West Africa",
+        population: "13.5 million",
+        tagline: "Rivers of West Africa.",
+        facts: [
+            "Sources of major rivers including Niger and Senegal",
+            "Has the world's largest bauxite reserves",
+            "Former French colony until 1958"
+        ],
+        quiz: {
+            question: "What mineral is Guinea rich in?",
+            options: ["Gold", "Bauxite", "Diamonds", "Iron"],
+            answer: 1
+        }
+    },
+    // 70. Guinea-Bissau
+    {
+        name: "Guinea-Bissau",
+        flag: "🇬🇼",
+        capital: "Bissau",
+        region: "West Africa",
+        population: "2 million",
+        tagline: "Archipelago nation.",
+        facts: [
+            "One of world's poorest and least stable countries",
+            "Portuguese is the official language",
+            "Bijagós Archipelago is a UNESCO Biosphere Reserve"
+        ],
+        quiz: {
+            question: "What language is official in Guinea-Bissau?",
+            options: ["French", "English", "Portuguese", "Spanish"],
+            answer: 2
+        }
+    },
+    // 71. Guyana
+    {
+        name: "Guyana",
+        flag: "🇬🇾",
+        capital: "Georgetown",
+        region: "South America",
+        population: "800,000",
+        tagline: "Land of many waters.",
+        facts: [
+            "Only English-speaking country in South America",
+            "Kaieteur Falls is one of world's most powerful waterfalls",
+            "Recent oil discovery is transforming economy"
+        ],
+        quiz: {
+            question: "What language is spoken in Guyana?",
+            options: ["Spanish", "Portuguese", "Dutch", "English"],
+            answer: 3
+        }
+    },
+    // 72. Haiti
+    {
+        name: "Haiti",
+        flag: "🇭🇹",
+        capital: "Port-au-Prince",
+        region: "Caribbean",
+        population: "11.5 million",
+        tagline: "First Black republic.",
+        facts: [
+            "First successful slave revolution in history (1804)",
+            "Second oldest republic in the Western Hemisphere",
+            "Shares island of Hispaniola with Dominican Republic"
+        ],
+        quiz: {
+            question: "What was Haiti the first successful example of?",
+            options: ["Democracy", "Slave revolution", "Monarchy", "Communism"],
+            answer: 1
+        }
+    },
+    // 73. Honduras
+    {
+        name: "Honduras",
+        flag: "🇭🇳",
+        capital: "Tegucigalpa",
+        region: "Central America",
+        population: "10 million",
+        tagline: "Heart of Central America.",
+        facts: [
+            "Copán is one of the most important Mayan sites",
+            "Second largest country in Central America",
+            "Coffee is a major export"
+        ],
+        quiz: {
+            question: "What ancient ruins are in Honduras?",
+            options: ["Aztec", "Copán (Mayan)", "Inca", "Olmec"],
+            answer: 1
+        }
+    },
+    // 74. Hungary
+    {
+        name: "Hungary",
+        flag: "🇭🇺",
+        capital: "Budapest",
+        region: "Central Europe",
+        population: "9.7 million",
+        tagline: "Pearl of the Danube.",
+        facts: [
+            "Invented the Rubik's Cube",
+            "Has the largest thermal water cave system",
+            "Hungarian is one of the hardest languages to learn"
+        ],
+        quiz: {
+            question: "What puzzle was invented in Hungary?",
+            options: ["Sudoku", "Rubik's Cube", "Crossword", "Jigsaw"],
+            answer: 1
+        }
+    },
+    // 75. Iceland
+    {
+        name: "Iceland",
+        flag: "🇮🇸",
+        capital: "Reykjavik",
+        region: "Northern Europe",
+        population: "370,000",
+        tagline: "Land of fire and ice.",
+        facts: [
+            "No mosquitoes exist in Iceland",
+            "Runs on nearly 100% renewable energy",
+            "Northern Lights visible from September to April"
+        ],
+        quiz: {
+            question: "What type of energy powers Iceland?",
+            options: ["Coal", "Nuclear", "Renewable", "Oil"],
+            answer: 2
+        }
+    },
+    // 76. India
+    {
+        name: "India",
+        flag: "🇮🇳",
+        capital: "New Delhi",
+        region: "South Asia",
+        population: "1.4 billion",
+        tagline: "Incredible India.",
+        facts: [
+            "World's largest democracy",
+            "Taj Mahal is one of the New Seven Wonders",
+            "Invented chess, zero, and the decimal system"
+        ],
+        quiz: {
+            question: "What game was invented in India?",
+            options: ["Checkers", "Chess", "Go", "Backgammon"],
+            answer: 1
+        }
+    },
+    // 77. Indonesia
+    {
+        name: "Indonesia",
+        flag: "🇮🇩",
+        capital: "Jakarta",
+        region: "Southeast Asia",
+        population: "275 million",
+        tagline: "Wonderful Indonesia.",
+        facts: [
+            "Largest archipelago nation with 17,000+ islands",
+            "Fourth most populous country",
+            "Home to Komodo dragons"
+        ],
+        quiz: {
+            question: "How many islands does Indonesia have?",
+            options: ["1,000", "5,000", "17,000+", "50,000"],
+            answer: 2
+        }
+    },
+    // 78. Iran
+    {
+        name: "Iran",
+        flag: "🇮🇷",
+        capital: "Tehran",
+        region: "Western Asia",
+        population: "87 million",
+        tagline: "Cradle of civilization.",
+        facts: [
+            "Formerly known as Persia - one of oldest civilizations",
+            "Invented algebra, chess notation, and the postal service",
+            "Has the world's second largest natural gas reserves"
+        ],
+        quiz: {
+            question: "What mathematical concept did Persia (Iran) develop?",
+            options: ["Geometry", "Algebra", "Calculus", "Trigonometry"],
+            answer: 1
+        }
+    },
+    // 79. Iraq
+    {
+        name: "Iraq",
+        flag: "🇮🇶",
+        capital: "Baghdad",
+        region: "Western Asia",
+        population: "42 million",
+        tagline: "Land between two rivers.",
+        facts: [
+            "Home to ancient Mesopotamia - cradle of civilization",
+            "Writing was invented here 5,000 years ago",
+            "Tigris and Euphrates rivers run through it"
+        ],
+        quiz: {
+            question: "What ancient civilization was in Iraq?",
+            options: ["Egyptian", "Mesopotamian", "Greek", "Roman"],
+            answer: 1
+        }
+    },
+    // 80. Ireland
+    {
+        name: "Ireland",
+        flag: "🇮🇪",
+        capital: "Dublin",
+        region: "Western Europe",
+        population: "5 million",
+        tagline: "The Emerald Isle.",
+        facts: [
+            "No snakes in Ireland (legend credits St. Patrick)",
+            "Halloween originated from Irish festival Samhain",
+            "Guinness is brewed in Dublin since 1759"
+        ],
+        quiz: {
+            question: "What holiday originated in Ireland?",
+            options: ["Christmas", "Easter", "Halloween", "Valentine's Day"],
+            answer: 2
+        }
+    },
+    // 81. Israel
+    {
+        name: "Israel",
+        flag: "🇮🇱",
+        capital: "Jerusalem",
+        region: "Western Asia",
+        population: "9.5 million",
+        tagline: "The Holy Land.",
+        facts: [
+            "Holy to Judaism, Christianity, and Islam",
+            "Dead Sea is the lowest point on Earth's surface",
+            "More tech startups per capita than any other nation"
+        ],
+        quiz: {
+            question: "What body of water is the lowest point on Earth?",
+            options: ["Death Valley", "Dead Sea", "Mariana Trench", "Caspian Sea"],
+            answer: 1
+        }
+    },
+    // 82. Italy
+    {
+        name: "Italy",
+        flag: "🇮🇹",
+        capital: "Rome",
+        region: "Southern Europe",
+        population: "59 million",
+        tagline: "La dolce vita.",
+        facts: [
+            "Has more UNESCO World Heritage Sites than any country",
+            "Contains two independent countries: Vatican and San Marino",
+            "Birthplace of pizza, pasta, and the Renaissance"
+        ],
+        quiz: {
+            question: "What food is Italy most famous for?",
+            options: ["Sushi", "Tacos", "Pizza", "Curry"],
+            answer: 2
+        }
+    },
+    // 83. Ivory Coast (Côte d'Ivoire)
+    {
+        name: "Ivory Coast",
+        flag: "🇨🇮",
+        capital: "Yamoussoukro",
+        region: "West Africa",
+        population: "28 million",
+        tagline: "Land of hospitality.",
+        facts: [
+            "World's largest cocoa producer",
+            "Has the largest church in the world (Basilica of Our Lady of Peace)",
+            "Flag is reverse of Ireland's"
+        ],
+        quiz: {
+            question: "What is Ivory Coast the largest producer of?",
+            options: ["Coffee", "Cocoa", "Tea", "Sugar"],
+            answer: 1
+        }
+    },
+    // 84. Jamaica
+    {
+        name: "Jamaica",
+        flag: "🇯🇲",
+        capital: "Kingston",
+        region: "Caribbean",
+        population: "3 million",
+        tagline: "Out of many, one people.",
+        facts: [
+            "Birthplace of reggae music and Bob Marley",
+            "Usain Bolt - fastest man ever - is Jamaican",
+            "First Caribbean nation to compete in Winter Olympics"
+        ],
+        quiz: {
+            question: "What music genre originated in Jamaica?",
+            options: ["Jazz", "Reggae", "Blues", "Rock"],
+            answer: 1
+        }
+    },
+    // 85. Japan
+    {
+        name: "Japan",
+        flag: "🇯🇵",
+        capital: "Tokyo",
+        region: "East Asia",
+        population: "125 million",
+        tagline: "Land of the rising sun.",
+        facts: [
+            "Archipelago of 6,852 islands",
+            "Invented sushi, anime, and bullet trains",
+            "Has the world's oldest continuous monarchy"
+        ],
+        quiz: {
+            question: "What is Japan known as?",
+            options: ["Land of Dragons", "Land of Rising Sun", "Eternal Empire", "Golden Kingdom"],
+            answer: 1
+        }
+    },
+    // 86. Jordan
+    {
+        name: "Jordan",
+        flag: "🇯🇴",
+        capital: "Amman",
+        region: "Western Asia",
+        population: "11 million",
+        tagline: "The Hashemite Kingdom.",
+        facts: [
+            "Petra is one of the New Seven Wonders of the World",
+            "Over 100,000 archaeological sites",
+            "Floats easily in the Dead Sea due to high salt content"
+        ],
+        quiz: {
+            question: "What ancient city is one of the New Seven Wonders?",
+            options: ["Amman", "Petra", "Jerash", "Aqaba"],
+            answer: 1
+        }
+    },
+    // 87. Kazakhstan
+    {
+        name: "Kazakhstan",
+        flag: "🇰🇿",
+        capital: "Astana",
+        region: "Central Asia",
+        population: "19 million",
+        tagline: "World's largest landlocked country.",
+        facts: [
+            "Largest landlocked country in the world",
+            "Baikonur Cosmodrome - first space launch site - is here",
+            "Borders five countries including Russia and China"
+        ],
+        quiz: {
+            question: "What's special about Kazakhstan's size?",
+            options: ["Smallest country", "Largest landlocked", "Most islands", "Highest altitude"],
+            answer: 1
+        }
+    },
+    // 88. Kenya
+    {
+        name: "Kenya",
+        flag: "🇰🇪",
+        capital: "Nairobi",
+        region: "East Africa",
+        population: "54 million",
+        tagline: "Magical Kenya.",
+        facts: [
+            "Famous for wildlife safaris and the Big Five",
+            "Great Rift Valley runs through the country",
+            "Produces some of the world's best long-distance runners"
+        ],
+        quiz: {
+            question: "What is Kenya most famous for?",
+            options: ["Skiing", "Safaris", "Beaches", "Mountains"],
+            answer: 1
+        }
+    },
+    // 89. Kiribati
+    {
+        name: "Kiribati",
+        flag: "🇰🇮",
+        capital: "South Tarawa",
+        region: "Oceania",
+        population: "120,000",
+        tagline: "Where East meets West.",
+        facts: [
+            "Only country in all four hemispheres",
+            "First to see the new millennium (Year 2000)",
+            "At risk of disappearing due to rising sea levels"
+        ],
+        quiz: {
+            question: "What makes Kiribati geographically unique?",
+            options: ["Largest islands", "All four hemispheres", "Highest point", "Most volcanoes"],
+            answer: 1
+        }
+    },
+    // 90. North Korea
+    {
+        name: "North Korea",
+        flag: "🇰🇵",
+        capital: "Pyongyang",
+        region: "East Asia",
+        population: "26 million",
+        tagline: "The hermit kingdom.",
+        facts: [
+            "Most isolated country in the world",
+            "Has nuclear weapons capability",
+            "Divided from South Korea since 1948"
+        ],
+        quiz: {
+            question: "What is North Korea often called?",
+            options: ["Golden Kingdom", "Hermit Kingdom", "Dragon Kingdom", "Lion Kingdom"],
+            answer: 1
+        }
+    },
+    // 91. South Korea
+    {
+        name: "South Korea",
+        flag: "🇰🇷",
+        capital: "Seoul",
+        region: "East Asia",
+        population: "52 million",
+        tagline: "Dynamic Korea.",
+        facts: [
+            "K-pop and K-dramas are global phenomena",
+            "Home to Samsung, LG, and Hyundai",
+            "Has the world's fastest internet speeds"
+        ],
+        quiz: {
+            question: "What music genre from Korea is now global?",
+            options: ["J-pop", "K-pop", "C-pop", "T-pop"],
+            answer: 1
+        }
+    },
+    // 92. Kuwait
+    {
+        name: "Kuwait",
+        flag: "🇰🇼",
+        capital: "Kuwait City",
+        region: "Middle East",
+        population: "4.3 million",
+        tagline: "Pearl of the Gulf.",
+        facts: [
+            "Has nearly 10% of world's oil reserves",
+            "No income tax for citizens",
+            "Was invaded by Iraq in 1990"
+        ],
+        quiz: {
+            question: "What natural resource is Kuwait rich in?",
+            options: ["Gold", "Oil", "Diamonds", "Uranium"],
+            answer: 1
+        }
+    },
+    // 93. Kyrgyzstan
+    {
+        name: "Kyrgyzstan",
+        flag: "🇰🇬",
+        capital: "Bishkek",
+        region: "Central Asia",
+        population: "6.7 million",
+        tagline: "Switzerland of Central Asia.",
+        facts: [
+            "Over 90% of the country is mountainous",
+            "Has a traditional tent called a yurt",
+            "Eagle hunting is a traditional practice"
+        ],
+        quiz: {
+            question: "What percentage of Kyrgyzstan is mountainous?",
+            options: ["50%", "70%", "90%", "30%"],
+            answer: 2
+        }
+    },
+    // 94. Laos
+    {
+        name: "Laos",
+        flag: "🇱🇦",
+        capital: "Vientiane",
+        region: "Southeast Asia",
+        population: "7.4 million",
+        tagline: "Simply beautiful.",
+        facts: [
+            "Only landlocked country in Southeast Asia",
+            "Most bombed country in history (Vietnam War era)",
+            "Mekong River runs along the border"
+        ],
+        quiz: {
+            question: "What is unique about Laos in Southeast Asia?",
+            options: ["Largest", "Only landlocked", "Most islands", "Highest peak"],
+            answer: 1
+        }
+    },
+    // 95. Latvia
+    {
+        name: "Latvia",
+        flag: "🇱🇻",
+        capital: "Riga",
+        region: "Northern Europe",
+        population: "1.9 million",
+        tagline: "Best enjoyed slowly.",
+        facts: [
+            "Riga has one of the best collections of Art Nouveau architecture",
+            "Invented blue jeans (Levi Strauss was of Latvian descent)",
+            "Over 50% of the country is forested"
+        ],
+        quiz: {
+            question: "What architectural style is Riga famous for?",
+            options: ["Gothic", "Art Nouveau", "Baroque", "Modernist"],
+            answer: 1
+        }
+    },
+    // 96. Lebanon
+    {
+        name: "Lebanon",
+        flag: "🇱🇧",
+        capital: "Beirut",
+        region: "Western Asia",
+        population: "5.5 million",
+        tagline: "The land of cedars.",
+        facts: [
+            "Cedar tree is the national symbol (on the flag)",
+            "Phoenicians invented the alphabet here",
+            "Has one of the oldest continuously inhabited cities - Byblos"
+        ],
+        quiz: {
+            question: "What tree is Lebanon famous for?",
+            options: ["Oak", "Cedar", "Pine", "Olive"],
+            answer: 1
+        }
+    },
+    // 97. Lesotho
+    {
+        name: "Lesotho",
+        flag: "🇱🇸",
+        capital: "Maseru",
+        region: "Southern Africa",
+        population: "2.1 million",
+        tagline: "Kingdom in the sky.",
+        facts: [
+            "Only country entirely above 1,000 meters elevation",
+            "Completely surrounded by South Africa",
+            "Known as the 'Kingdom in the Sky'"
+        ],
+        quiz: {
+            question: "What country completely surrounds Lesotho?",
+            options: ["Botswana", "Zimbabwe", "South Africa", "Namibia"],
+            answer: 2
+        }
+    },
+    // 98. Liberia
+    {
+        name: "Liberia",
+        flag: "🇱🇷",
+        capital: "Monrovia",
+        region: "West Africa",
+        population: "5.2 million",
+        tagline: "The love of liberty brought us here.",
+        facts: [
+            "Founded by freed American slaves in 1847",
+            "Capital named after US President James Monroe",
+            "One of only two African nations never colonized by Europeans"
+        ],
+        quiz: {
+            question: "Who founded Liberia?",
+            options: ["Europeans", "Freed American slaves", "Arab traders", "Chinese explorers"],
+            answer: 1
+        }
+    },
+    // 99. Libya
+    {
+        name: "Libya",
+        flag: "🇱🇾",
+        capital: "Tripoli",
+        region: "North Africa",
+        population: "7 million",
+        tagline: "Land of ancient civilizations.",
+        facts: [
+            "90% of the country is desert",
+            "Has the largest proven oil reserves in Africa",
+            "Ancient Roman ruins of Leptis Magna are here"
+        ],
+        quiz: {
+            question: "What percentage of Libya is desert?",
+            options: ["50%", "70%", "90%", "30%"],
+            answer: 2
+        }
+    },
+    // 100. Liechtenstein
+    {
+        name: "Liechtenstein",
+        flag: "🇱🇮",
+        capital: "Vaduz",
+        region: "Central Europe",
+        population: "39,000",
+        tagline: "A small country with big ideas.",
+        facts: [
+            "One of only two doubly landlocked countries",
+            "More companies than citizens",
+            "No airport - nearest is in Switzerland"
+        ],
+        quiz: {
+            question: "What's unusual about Liechtenstein's geography?",
+            options: ["Island nation", "Doubly landlocked", "Below sea level", "Highest altitude"],
+            answer: 1
+        }
+    }
+];
 
-    // ============ EUROPE (44 Countries) ============
-    {
-        "country_name": "Albania",
-        "flag_emoji": "🇦🇱",
-        "capital": "Tirana",
-        "continent": "Europe",
-        "short_description": "A Balkan country with a coastline on both the Adriatic and Ionian Seas.",
-        "fact_1": "Albania has over 750,000 bunkers built during communist rule.",
-        "fact_2": "Mother Teresa was of Albanian origin.",
-        "fact_3": "Albanians call their country 'Shqipëria', meaning 'Land of Eagles'.",
-        "quiz_question": "What does Albania's native name 'Shqipëria' mean?",
-        "quiz_options": ["Land of Mountains", "Land of Eagles", "Land of Heroes", "Land of Sun"],
-        "correct_answer": "Land of Eagles",
-        "map_coordinates": [41.1533, 20.1683]
-    },
-    {
-        "country_name": "Andorra",
-        "flag_emoji": "🇦🇩",
-        "capital": "Andorra la Vella",
-        "continent": "Europe",
-        "short_description": "A tiny principality in the Pyrenees mountains between France and Spain.",
-        "fact_1": "Andorra la Vella is the highest capital city in Europe.",
-        "fact_2": "Andorra has no airport; visitors arrive through Spain or France.",
-        "fact_3": "Tourism, especially skiing, accounts for 80% of GDP.",
-        "quiz_question": "What is special about Andorra la Vella among European capitals?",
-        "quiz_options": ["Oldest", "Smallest", "Highest", "Coldest"],
-        "correct_answer": "Highest",
-        "map_coordinates": [42.5063, 1.5218]
-    },
-    {
-        "country_name": "Austria",
-        "flag_emoji": "🇦🇹",
-        "capital": "Vienna",
-        "continent": "Europe",
-        "short_description": "A landlocked Alpine country known for classical music and skiing.",
-        "fact_1": "Vienna has been voted the world's most livable city multiple times.",
-        "fact_2": "Austria has produced famous composers like Mozart, Haydn, and Schubert.",
-        "fact_3": "The Alps cover about 60% of Austria's territory.",
-        "quiz_question": "What percentage of Austria is covered by the Alps?",
-        "quiz_options": ["30%", "45%", "60%", "80%"],
-        "correct_answer": "60%",
-        "map_coordinates": [47.5162, 14.5501]
-    },
-    {
-        "country_name": "Belarus",
-        "flag_emoji": "🇧🇾",
-        "capital": "Minsk",
-        "continent": "Europe",
-        "short_description": "A landlocked Eastern European country between Russia and Poland.",
-        "fact_1": "Belarus has Europe's largest remaining primeval forest, Białowieża.",
-        "fact_2": "Minsk was almost completely destroyed in World War II.",
-        "fact_3": "European bison were saved from extinction in Belarusian forests.",
-        "quiz_question": "What rare animal was saved from extinction in Belarus?",
-        "quiz_options": ["Brown
+// Note: Countries 101-195 will be added in Part 3
+// The 'countries' array will be extended
