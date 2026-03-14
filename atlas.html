@@ -2,1151 +2,1115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>World Atlas - Geotopia | 200+ Interactive Maps</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-fullscreen@1.0.2/dist/leaflet.fullscreen.css" />
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        header {
-            background: rgba(0, 0, 0, 0.95);
-            padding: 15px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-
-        .header-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .logo {
-            font-size: clamp(18px, 4vw, 28px);
-            font-weight: bold;
-            background: linear-gradient(45deg, #00d4ff, #00ff88);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: clamp(12px, 2vw, 14px);
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #00d4ff, #00ff88);
-            color: #000;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #00d4ff;
-            border: 2px solid #00d4ff;
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
-        }
-
-        /* Main Container */
-        .main-container {
-            display: flex;
-            height: calc(100vh - 70px);
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 350px;
-            background: rgba(0, 0, 0, 0.8);
-            overflow-y: auto;
-            padding: 20px;
-            flex-shrink: 0;
-            transition: transform 0.3s;
-        }
-
-        .sidebar.hidden {
-            transform: translateX(-100%);
-            position: absolute;
-        }
-
-        .sidebar-toggle {
-            display: none;
-            position: fixed;
-            left: 10px;
-            top: 80px;
-            z-index: 999;
-            background: #00d4ff;
-            color: #000;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #333;
-            border-radius: 10px;
-            background: #1a1a2e;
-            color: white;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #00d4ff;
-        }
-
-        .search-box::placeholder {
-            color: #666;
-        }
-
-        /* Categories */
-        .category {
-            margin-bottom: 15px;
-        }
-
-        .category-header {
-            background: linear-gradient(90deg, #1a1a2e, transparent);
-            padding: 12px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s;
-            border-left: 3px solid #00d4ff;
-        }
-
-        .category-header:hover {
-            background: linear-gradient(90deg, #00d4ff22, transparent);
-        }
-
-        .category-header .icon {
-            font-size: 20px;
-            margin-right: 10px;
-        }
-
-        .category-header .arrow {
-            transition: transform 0.3s;
-        }
-
-        .category.open .arrow {
-            transform: rotate(180deg);
-        }
-
-        .category-content {
-            display: none;
-            padding: 10px 0;
-        }
-
-        .category.open .category-content {
-            display: block;
-        }
-
-        .map-item {
-            padding: 10px 15px;
-            margin: 5px 0;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .map-item:hover {
-            background: rgba(0, 212, 255, 0.2);
-            transform: translateX(5px);
-        }
-
-        .map-item.active {
-            background: linear-gradient(90deg, #00d4ff33, transparent);
-            border-left: 3px solid #00d4ff;
-        }
-
-        .map-item .emoji {
-            font-size: 18px;
-        }
-
-        /* Map Container */
-        .map-container {
-            flex: 1;
-            position: relative;
-            background: #0a0a1a;
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        /* Map Controls */
-        .map-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 500;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .control-btn {
-            width: 45px;
-            height: 45px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00d4ff;
-            border-radius: 10px;
-            color: #00d4ff;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .control-btn:hover {
-            background: #00d4ff;
-            color: #000;
-        }
-
-        /* Layer Selector */
-        .layer-selector {
-            position: absolute;
-            bottom: 30px;
-            left: 20px;
-            z-index: 500;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 15px;
-            border-radius: 12px;
-            border: 2px solid #333;
-        }
-
-        .layer-selector h4 {
-            margin-bottom: 10px;
-            color: #00d4ff;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        .layer-options {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .layer-btn {
-            padding: 8px 12px;
-            background: #1a1a2e;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: white;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .layer-btn:hover, .layer-btn.active {
-            background: #00d4ff;
-            color: #000;
-            border-color: #00d4ff;
-        }
-
-        /* Info Panel */
-        .info-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 500;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #00d4ff;
-            max-width: 300px;
-        }
-
-        .info-panel h3 {
-            color: #00d4ff;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .info-panel p {
-            font-size: 13px;
-            color: #ccc;
-            line-height: 1.6;
-        }
-
-        .info-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        /* Coordinates Display */
-        .coords-display {
-            position: absolute;
-            bottom: 30px;
-            right: 20px;
-            z-index: 500;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            color: #00ff88;
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .loading-overlay.hidden {
-            display: none;
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #333;
-            border-top-color: #00d4ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 20px;
-            color: #00d4ff;
-            font-size: 16px;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 70px;
-                height: calc(100vh - 70px);
-                z-index: 998;
-                transform: translateX(-100%);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-container {
-                flex-direction: column;
-            }
-
-            .map-container {
-                height: calc(100vh - 70px);
-            }
-
-            .info-panel {
-                max-width: calc(100% - 80px);
-                font-size: 12px;
-            }
-
-            .layer-selector {
-                bottom: 80px;
-                left: 10px;
-                right: 10px;
-                max-width: none;
-            }
-
-            .coords-display {
-                bottom: 10px;
-                right: 10px;
-                font-size: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .sidebar {
-                width: 280px;
-            }
-
-            .map-controls {
-                top: 10px;
-                right: 10px;
-            }
-
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-        }
-
-        /* Custom Leaflet Styles */
-        .leaflet-control-zoom {
-            border: none !important;
-        }
-
-        .leaflet-control-zoom a {
-            background: rgba(0, 0, 0, 0.8) !important;
-            color: #00d4ff !important;
-            border: 2px solid #00d4ff !important;
-        }
-
-        .leaflet-control-zoom a:hover {
-            background: #00d4ff !important;
-            color: #000 !important;
-        }
-
-        .leaflet-popup-content-wrapper {
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            border: 2px solid #00d4ff;
-            border-radius: 10px;
-        }
-
-        .leaflet-popup-tip {
-            background: #00d4ff;
-        }
-
-        .leaflet-popup-content {
-            margin: 15px;
-        }
-
-        .leaflet-popup-content h4 {
-            color: #00d4ff;
-            margin-bottom: 5px;
-        }
-
-        /* Marker Clusters */
-        .marker-cluster {
-            background: rgba(0, 212, 255, 0.6);
-            border: 2px solid #00d4ff;
-        }
-
-        .marker-cluster div {
-            background: rgba(0, 212, 255, 0.9);
-            color: #000;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asia - GEOTOPIA</title>
+    <link rel="stylesheet" href="../css/continent.css">
+    <link rel="icon" href="../assets/favicon.png" type="image/png">
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <div class="header-container">
-            <div class="logo">🌍 GEOTOPIA WORLD ATLAS</div>
-            <div class="header-buttons">
-                <a href="index.html" class="btn btn-secondary">← Home</a>
-                <button class="btn btn-primary" onclick="resetMap()">🔄 Reset View</button>
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <header class="continent-header" style="background: linear-gradient(180deg, rgba(255,87,34,0.3) 0%, transparent 100%);">
+        <div class="header-content">
+            <a href="../index.html" class="back-btn">
+                <span>←</span>
+                <span>Back to Home</span>
+            </a>
+            
+            <div class="continent-title">
+                <h1>🌏 ASIA</h1>
+                <p class="subtitle">The Largest Continent on Earth</p>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <div class="number">48</div>
+                    <div class="label">Countries</div>
+                </div>
+                <div class="stat-badge">
+                    <div class="number">4.7B</div>
+                    <div class="label">Population</div>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Sidebar Toggle for Mobile -->
-    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <!-- ============================================
+         MAP SECTION
+         ============================================ -->
+    <section class="map-section">
+        <div class="continent-map-container">
+            <svg class="continent-map-svg" viewBox="0 0 1000 600" id="asiaMap">
+                <!-- Simplified Asia Map SVG Path -->
+                <path d="M150,100 L200,80 L280,70 L350,60 L450,50 L550,55 L650,70 L750,90 L850,120 L900,150 L920,200 L930,280 L920,350 L900,420 L850,480 L780,520 L700,540 L600,550 L500,545 L400,530 L300,500 L220,460 L160,400 L120,320 L110,240 L120,170 L150,100 Z" 
+                      fill="rgba(255,215,0,0.2)" 
+                      stroke="#FFD700" 
+                      stroke-width="2"/>
+                
+                <!-- Major Features Labels -->
+                <text x="400" y="200" fill="#FFD700" font-size="16" font-weight="bold">HIMALAYAS</text>
+                <text x="700" y="150" fill="#87CEEB" font-size="14">Siberia</text>
+                <text x="250" y="350" fill="#FFA500" font-size="14">Middle East</text>
+                <text x="550" y="450" fill="#4ECDC4" font-size="14">Southeast Asia</text>
+                <text x="800" y="300" fill="#EC4899" font-size="14">East Asia</text>
+                <text x="350" y="280" fill="#A855F7" font-size="14">South Asia</text>
+            </svg>
+        </div>
+    </section>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <input type="text" class="search-box" id="searchInput" placeholder="🔍 Search 200+ maps...">
-            
-            <div id="categoriesContainer">
-                <!-- Categories will be loaded dynamically -->
-            </div>
+    <!-- ============================================
+         CATEGORY TABS
+         ============================================ -->
+    <section class="category-section">
+        <div class="category-tabs">
+            <button class="category-tab active" onclick="showCategory('countries')">
+                <span class="icon">🏳️</span>
+                <span>Countries</span>
+            </button>
+            <button class="category-tab" onclick="showCategory('physical')">
+                <span class="icon">🏔️</span>
+                <span>Physical Geography</span>
+            </button>
+            <button class="category-tab" onclick="showCategory('human')">
+                <span class="icon">👥</span>
+                <span>Human Geography</span>
+            </button>
         </div>
 
-        <!-- Map Container -->
-        <div class="map-container">
-            <!-- Loading Overlay -->
-            <div class="loading-overlay" id="loadingOverlay">
-                <div class="spinner"></div>
-                <div class="loading-text">Loading Map...</div>
-            </div>
-
-            <!-- The Map -->
-            <div id="map"></div>
-
-            <!-- Info Panel -->
-            <div class="info-panel" id="infoPanel">
-                <button class="info-close" onclick="closeInfoPanel()">×</button>
-                <h3 id="infoPanelTitle">🌍 World Atlas</h3>
-                <p id="infoPanelDesc">Welcome to Geotopia's Interactive World Atlas! Select any map from the sidebar to explore. Use mouse/touch to pan and zoom.</p>
-            </div>
-
-            <!-- Map Controls -->
-            <div class="map-controls">
-                <button class="control-btn" onclick="zoomIn()" title="Zoom In">+</button>
-                <button class="control-btn" onclick="zoomOut()" title="Zoom Out">−</button>
-                <button class="control-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
-                <button class="control-btn" onclick="locateUser()" title="My Location">📍</button>
-                <button class="control-btn" onclick="takeScreenshot()" title="Screenshot">📷</button>
-            </div>
-
-            <!-- Layer Selector -->
-            <div class="layer-selector">
-                <h4>🗺️ Map Style</h4>
-                <div class="layer-options">
-                    <button class="layer-btn active" onclick="changeLayer('street')">Street</button>
-                    <button class="layer-btn" onclick="changeLayer('satellite')">Satellite</button>
-                    <button class="layer-btn" onclick="changeLayer('terrain')">Terrain</button>
-                    <button class="layer-btn" onclick="changeLayer('dark')">Dark</button>
-                    <button class="layer-btn" onclick="changeLayer('topo')">Topo</button>
+        <!-- ============================================
+             COUNTRIES CONTENT
+             ============================================ -->
+        <div id="countries" class="category-content active">
+            <div class="countries-grid">
+                <!-- Central Asia -->
+                <div class="country-card">
+                    <span class="flag">🇦🇫</span>
+                    <div class="name">Afghanistan</div>
+                    <div class="capital">Kabul</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇦🇲</span>
+                    <div class="name">Armenia</div>
+                    <div class="capital">Yerevan</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇦🇿</span>
+                    <div class="name">Azerbaijan</div>
+                    <div class="capital">Baku</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇧🇭</span>
+                    <div class="name">Bahrain</div>
+                    <div class="capital">Manama</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇧🇩</span>
+                    <div class="name">Bangladesh</div>
+                    <div class="capital">Dhaka</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇧🇹</span>
+                    <div class="name">Bhutan</div>
+                    <div class="capital">Thimphu</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇧🇳</span>
+                    <div class="name">Brunei</div>
+                    <div class="capital">Bandar Seri Begawan</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇰🇭</span>
+                    <div class="name">Cambodia</div>
+                    <div class="capital">Phnom Penh</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇨🇳</span>
+                    <div class="name">China</div>
+                    <div class="capital">Beijing</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇨🇾</span>
+                    <div class="name">Cyprus</div>
+                    <div class="capital">Nicosia</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇬🇪</span>
+                    <div class="name">Georgia</div>
+                    <div class="capital">Tbilisi</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇮🇳</span>
+                    <div class="name">India</div>
+                    <div class="capital">New Delhi</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇮🇩</span>
+                    <div class="name">Indonesia</div>
+                    <div class="capital">Jakarta</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇮🇷</span>
+                    <div class="name">Iran</div>
+                    <div class="capital">Tehran</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇮🇶</span>
+                    <div class="name">Iraq</div>
+                    <div class="capital">Baghdad</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇮🇱</span>
+                    <div class="name">Israel</div>
+                    <div class="capital">Jerusalem</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇯🇵</span>
+                    <div class="name">Japan</div>
+                    <div class="capital">Tokyo</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇯🇴</span>
+                    <div class="name">Jordan</div>
+                    <div class="capital">Amman</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇰🇿</span>
+                    <div class="name">Kazakhstan</div>
+                    <div class="capital">Astana</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇰🇼</span>
+                    <div class="name">Kuwait</div>
+                    <div class="capital">Kuwait City</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇰🇬</span>
+                    <div class="name">Kyrgyzstan</div>
+                    <div class="capital">Bishkek</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇱🇦</span>
+                    <div class="name">Laos</div>
+                    <div class="capital">Vientiane</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇱🇧</span>
+                    <div class="name">Lebanon</div>
+                    <div class="capital">Beirut</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇲🇾</span>
+                    <div class="name">Malaysia</div>
+                    <div class="capital">Kuala Lumpur</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇲🇻</span>
+                    <div class="name">Maldives</div>
+                    <div class="capital">Malé</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇲🇳</span>
+                    <div class="name">Mongolia</div>
+                    <div class="capital">Ulaanbaatar</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇲🇲</span>
+                    <div class="name">Myanmar</div>
+                    <div class="capital">Naypyidaw</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇳🇵</span>
+                    <div class="name">Nepal</div>
+                    <div class="capital">Kathmandu</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇰🇵</span>
+                    <div class="name">North Korea</div>
+                    <div class="capital">Pyongyang</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇴🇲</span>
+                    <div class="name">Oman</div>
+                    <div class="capital">Muscat</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇵🇰</span>
+                    <div class="name">Pakistan</div>
+                    <div class="capital">Islamabad</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇵🇸</span>
+                    <div class="name">Palestine</div>
+                    <div class="capital">Ramallah</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇵🇭</span>
+                    <div class="name">Philippines</div>
+                    <div class="capital">Manila</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇶🇦</span>
+                    <div class="name">Qatar</div>
+                    <div class="capital">Doha</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇸🇦</span>
+                    <div class="name">Saudi Arabia</div>
+                    <div class="capital">Riyadh</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇸🇬</span>
+                    <div class="name">Singapore</div>
+                    <div class="capital">Singapore</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇰🇷</span>
+                    <div class="name">South Korea</div>
+                    <div class="capital">Seoul</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇱🇰</span>
+                    <div class="name">Sri Lanka</div>
+                    <div class="capital">Sri Jayawardenepura Kotte</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇸🇾</span>
+                    <div class="name">Syria</div>
+                    <div class="capital">Damascus</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇹🇯</span>
+                    <div class="name">Tajikistan</div>
+                    <div class="capital">Dushanbe</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇹🇭</span>
+                    <div class="name">Thailand</div>
+                    <div class="capital">Bangkok</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇹🇱</span>
+                    <div class="name">Timor-Leste</div>
+                    <div class="capital">Dili</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇹🇷</span>
+                    <div class="name">Turkey</div>
+                    <div class="capital">Ankara</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇹🇲</span>
+                    <div class="name">Turkmenistan</div>
+                    <div class="capital">Ashgabat</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇦🇪</span>
+                    <div class="name">UAE</div>
+                    <div class="capital">Abu Dhabi</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇺🇿</span>
+                    <div class="name">Uzbekistan</div>
+                    <div class="capital">Tashkent</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇻🇳</span>
+                    <div class="name">Vietnam</div>
+                    <div class="capital">Hanoi</div>
+                </div>
+                <div class="country-card">
+                    <span class="flag">🇾🇪</span>
+                    <div class="name">Yemen</div>
+                    <div class="capital">Sana'a</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Coordinates Display -->
-            <div class="coords-display" id="coordsDisplay">
-                Lat: 0.0000 | Lng: 0.0000 | Zoom: 2
+        <!-- ============================================
+             PHYSICAL GEOGRAPHY CONTENT
+             ============================================ -->
+        <div id="physical" class="category-content">
+            <div class="mind-map-container">
+                <div class="mind-map">
+                    
+                    <!-- Central Node -->
+                    <div class="central-node">🏔️ ASIA PHYSICAL GEOGRAPHY</div>
+                    
+                    <!-- First Row of Branches -->
+                    <div class="branch-row">
+                        
+                        <!-- Mountains -->
+                        <div class="branch mountains">
+                            <div class="branch-header">
+                                <span class="branch-icon">🏔️</span>
+                                <span class="branch-title">MAJOR MOUNTAINS</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Himalayas</span>
+                                        <span class="highlight">8,848m (Everest)</span>
+                                    </li>
+                                    <li>
+                                        <span>Karakoram</span>
+                                        <span class="highlight">8,611m (K2)</span>
+                                    </li>
+                                    <li>
+                                        <span>Hindu Kush</span>
+                                        <span class="highlight">7,708m</span>
+                                    </li>
+                                    <li>
+                                        <span>Kunlun Mountains</span>
+                                        <span class="highlight">7,167m</span>
+                                    </li>
+                                    <li>
+                                        <span>Tian Shan</span>
+                                        <span class="highlight">7,439m</span>
+                                    </li>
+                                    <li>
+                                        <span>Ural Mountains</span>
+                                        <span class="highlight">Europe-Asia Border</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">10 of 14 peaks above 8000m</span>
+                                    <span class="sub-branch">Roof of the World</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Rivers -->
+                        <div class="branch rivers">
+                            <div class="branch-header">
+                                <span class="branch-icon">🌊</span>
+                                <span class="branch-title">MAJOR RIVERS</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Yangtze (China)</span>
+                                        <span class="highlight">6,300 km</span>
+                                    </li>
+                                    <li>
+                                        <span>Yellow River</span>
+                                        <span class="highlight">5,464 km</span>
+                                    </li>
+                                    <li>
+                                        <span>Mekong</span>
+                                        <span class="highlight">4,350 km</span>
+                                    </li>
+                                    <li>
+                                        <span>Ganges</span>
+                                        <span class="highlight">2,525 km</span>
+                                    </li>
+                                    <li>
+                                        <span>Indus</span>
+                                        <span class="highlight">3,180 km</span>
+                                    </li>
+                                    <li>
+                                        <span>Brahmaputra</span>
+                                        <span class="highlight">2,900 km</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Himalayan Rivers</span>
+                                    <span class="sub-branch">Peninsular Rivers</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Deserts -->
+                        <div class="branch deserts">
+                            <div class="branch-header">
+                                <span class="branch-icon">🏜️</span>
+                                <span class="branch-title">MAJOR DESERTS</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Gobi Desert</span>
+                                        <span class="highlight">1.3M km² (Mongolia/China)</span>
+                                    </li>
+                                    <li>
+                                        <span>Arabian Desert</span>
+                                        <span class="highlight">2.3M km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Thar Desert</span>
+                                        <span class="highlight">200,000 km² (India)</span>
+                                    </li>
+                                    <li>
+                                        <span>Karakum</span>
+                                        <span class="highlight">350,000 km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Taklamakan</span>
+                                        <span class="highlight">337,000 km²</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Hot Deserts</span>
+                                    <span class="sub-branch">Cold Deserts</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Second Row of Branches -->
+                    <div class="branch-row">
+                        
+                        <!-- Plateaus -->
+                        <div class="branch plateaus">
+                            <div class="branch-header">
+                                <span class="branch-icon">🗻</span>
+                                <span class="branch-title">MAJOR PLATEAUS</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Tibetan Plateau</span>
+                                        <span class="highlight">4,500m avg (Roof of World)</span>
+                                    </li>
+                                    <li>
+                                        <span>Deccan Plateau</span>
+                                        <span class="highlight">India (600m avg)</span>
+                                    </li>
+                                    <li>
+                                        <span>Iranian Plateau</span>
+                                        <span class="highlight">1,250,000 km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Mongolian Plateau</span>
+                                        <span class="highlight">2.6M km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Central Siberian</span>
+                                        <span class="highlight">3.5M km²</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Highest Plateau: Tibet</span>
+                                    <span class="sub-branch">Largest: Siberian</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Climate -->
+                        <div class="branch climate">
+                            <div class="branch-header">
+                                <span class="branch-icon">🌡️</span>
+                                <span class="branch-title">CLIMATE ZONES</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Tropical</span>
+                                        <span class="highlight">SE Asia, S India</span>
+                                    </li>
+                                    <li>
+                                        <span>Monsoon</span>
+                                        <span class="highlight">South & SE Asia</span>
+                                    </li>
+                                    <li>
+                                        <span>Arid/Semi-Arid</span>
+                                        <span class="highlight">Middle East, Central Asia</span>
+                                    </li>
+                                    <li>
+                                        <span>Temperate</span>
+                                        <span class="highlight">East Asia</span>
+                                    </li>
+                                    <li>
+                                        <span>Subarctic/Tundra</span>
+                                        <span class="highlight">Siberia</span>
+                                    </li>
+                                    <li>
+                                        <span>Highland</span>
+                                        <span class="highlight">Himalayas, Tibet</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Monsoon Dominant</span>
+                                    <span class="sub-branch">Most Diverse Climate</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lakes -->
+                        <div class="branch lakes">
+                            <div class="branch-header">
+                                <span class="branch-icon">💧</span>
+                                <span class="branch-title">MAJOR LAKES & SEAS</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Caspian Sea</span>
+                                        <span class="highlight">371,000 km² (Largest)</span>
+                                    </li>
+                                    <li>
+                                        <span>Lake Baikal</span>
+                                        <span class="highlight">Deepest (1,642m)</span>
+                                    </li>
+                                    <li>
+                                        <span>Aral Sea</span>
+                                        <span class="highlight">Shrinking Lake</span>
+                                    </li>
+                                    <li>
+                                        <span>Dead Sea</span>
+                                        <span class="highlight">Lowest Point (-430m)</span>
+                                    </li>
+                                    <li>
+                                        <span>Lake Balkhash</span>
+                                        <span class="highlight">Kazakhstan</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Freshwater Lakes</span>
+                                    <span class="sub-branch">Salt Lakes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Third Row of Branches -->
+                    <div class="branch-row">
+                        
+                        <!-- Islands -->
+                        <div class="branch islands">
+                            <div class="branch-header">
+                                <span class="branch-icon">🏝️</span>
+                                <span class="branch-title">MAJOR ISLANDS</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Borneo</span>
+                                        <span class="highlight">743,330 km² (3rd largest)</span>
+                                    </li>
+                                    <li>
+                                        <span>Sumatra</span>
+                                        <span class="highlight">473,481 km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Honshu (Japan)</span>
+                                        <span class="highlight">227,960 km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Java</span>
+                                        <span class="highlight">138,794 km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Sri Lanka</span>
+                                        <span class="highlight">65,610 km²</span>
+                                    </li>
+                                    <li>
+                                        <span>Taiwan</span>
+                                        <span class="highlight">36,193 km²</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Indonesia: 17,000+ islands</span>
+                                    <span class="sub-branch">Philippines: 7,640 islands</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Forests -->
+                        <div class="branch forests">
+                            <div class="branch-header">
+                                <span class="branch-icon">🌲</span>
+                                <span class="branch-title">FORESTS & VEGETATION</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Taiga (Siberia)</span>
+                                        <span class="highlight">Largest Forest Biome</span>
+                                    </li>
+                                    <li>
+                                        <span>Tropical Rainforests</span>
+                                        <span class="highlight">SE Asia, Indonesia</span>
+                                    </li>
+                                    <li>
+                                        <span>Mangroves</span>
+                                        <span class="highlight">Sundarbans (Largest)</span>
+                                    </li>
+                                    <li>
+                                        <span>Temperate Forests</span>
+                                        <span class="highlight">China, Japan, Korea</span>
+                                    </li>
+                                    <li>
+                                        <span>Steppes</span>
+                                        <span class="highlight">Central Asia</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Biodiversity Hotspots</span>
+                                    <span class="sub-branch">Endangered Ecosystems</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <script>
-        // ==================== MAP DATABASE ====================
-        const mapsDatabase = {
-            "political": {
-                name: "Political Maps",
-                icon: "🏛️",
-                maps: [
-                    { id: 1, name: "World Political Map", lat: 20, lng: 0, zoom: 2, icon: "🌍", desc: "Complete political boundaries of all 195 countries." },
-                    { id: 2, name: "Asia Political", lat: 34.0479, lng: 100.6197, zoom: 3, icon: "🗾", desc: "48 countries of Asia with borders and capitals." },
-                    { id: 3, name: "Europe Political", lat: 54.526, lng: 15.2551, zoom: 4, icon: "🏰", desc: "European nations including EU members." },
-                    { id: 4, name: "Africa Political", lat: 1.6508, lng: 17.3, zoom: 3, icon: "🦁", desc: "54 African countries and their borders." },
-                    { id: 5, name: "North America", lat: 54.526, lng: -105.2551, zoom: 3, icon: "🗽", desc: "USA, Canada, Mexico and Central America." },
-                    { id: 6, name: "South America", lat: -14.235, lng: -51.9253, zoom: 3, icon: "🌴", desc: "12 South American nations." },
-                    { id: 7, name: "Australia & Oceania", lat: -25.2744, lng: 133.7751, zoom: 4, icon: "🦘", desc: "Australia, NZ, and Pacific Islands." },
-                    { id: 8, name: "Antarctica", lat: -82.8628, lng: 135, zoom: 3, icon: "🐧", desc: "Antarctic territorial claims and stations." },
-                    { id: 9, name: "Middle East", lat: 29.2985, lng: 42.5510, zoom: 5, icon: "🕌", desc: "Countries of the Middle East region." },
-                    { id: 10, name: "Caribbean Islands", lat: 18.7357, lng: -70.1627, zoom: 5, icon: "🏝️", desc: "Caribbean nations and territories." },
-                    { id: 11, name: "Central Asia", lat: 45.0, lng: 65.0, zoom: 4, icon: "🏔️", desc: "The 5 'Stan' countries." },
-                    { id: 12, name: "Southeast Asia", lat: 4.2105, lng: 108.9758, zoom: 4, icon: "🌺", desc: "ASEAN nations and neighbors." },
-                    { id: 13, name: "Scandinavia", lat: 64.0, lng: 18.0, zoom: 4, icon: "❄️", desc: "Norway, Sweden, Finland, Denmark, Iceland." },
-                    { id: 14, name: "Balkans", lat: 42.0, lng: 21.0, zoom: 6, icon: "⛰️", desc: "Balkan Peninsula countries." },
-                    { id: 15, name: "Baltic States", lat: 56.8796, lng: 24.6032, zoom: 6, icon: "🌊", desc: "Estonia, Latvia, Lithuania." }
-                ]
-            },
-            "countries": {
-                name: "Country Maps",
-                icon: "🚩",
-                maps: [
-                    { id: 16, name: "India", lat: 20.5937, lng: 78.9629, zoom: 5, icon: "🇮🇳", desc: "28 states and 8 union territories." },
-                    { id: 17, name: "United States", lat: 37.0902, lng: -95.7129, zoom: 4, icon: "🇺🇸", desc: "50 states of the USA." },
-                    { id: 18, name: "China", lat: 35.8617, lng: 104.1954, zoom: 4, icon: "🇨🇳", desc: "23 provinces and autonomous regions." },
-                    { id: 19, name: "Russia", lat: 61.524, lng: 105.3188, zoom: 3, icon: "🇷🇺", desc: "World's largest country by area." },
-                    { id: 20, name: "Brazil", lat: -14.235, lng: -51.9253, zoom: 4, icon: "🇧🇷", desc: "26 states and Federal District." },
-                    { id: 21, name: "United Kingdom", lat: 55.3781, lng: -3.436, zoom: 5, icon: "🇬🇧", desc: "England, Scotland, Wales, N. Ireland." },
-                    { id: 22, name: "Germany", lat: 51.1657, lng: 10.4515, zoom: 6, icon: "🇩🇪", desc: "16 federal states of Germany." },
-                    { id: 23, name: "France", lat: 46.2276, lng: 2.2137, zoom: 6, icon: "🇫🇷", desc: "Metropolitan France and territories." },
-                    { id: 24, name: "Japan", lat: 36.2048, lng: 138.2529, zoom: 5, icon: "🇯🇵", desc: "47 prefectures of Japan." },
-                    { id: 25, name: "Australia", lat: -25.2744, lng: 133.7751, zoom: 4, icon: "🇦🇺", desc: "6 states and 2 territories." },
-                    { id: 26, name: "Canada", lat: 56.1304, lng: -106.3468, zoom: 3, icon: "🇨🇦", desc: "10 provinces and 3 territories." },
-                    { id: 27, name: "Mexico", lat: 23.6345, lng: -102.5528, zoom: 5, icon: "🇲🇽", desc: "31 states and Mexico City." },
-                    { id: 28, name: "Indonesia", lat: -0.7893, lng: 113.9213, zoom: 4, icon: "🇮🇩", desc: "World's largest archipelago nation." },
-                    { id: 29, name: "Pakistan", lat: 30.3753, lng: 69.3451, zoom: 5, icon: "🇵🇰", desc: "4 provinces and territories." },
-                    { id: 30, name: "South Africa", lat: -30.5595, lng: 22.9375, zoom: 5, icon: "🇿🇦", desc: "9 provinces of South Africa." }
-                ]
-            },
-            "physical": {
-                name: "Physical Maps",
-                icon: "⛰️",
-                maps: [
-                    { id: 31, name: "World Terrain", lat: 20, lng: 0, zoom: 2, icon: "🌍", desc: "Global terrain and elevation." },
-                    { id: 32, name: "Himalayas", lat: 27.9881, lng: 86.925, zoom: 7, icon: "🏔️", desc: "World's highest mountain range." },
-                    { id: 33, name: "Alps", lat: 46.8182, lng: 8.2275, zoom: 7, icon: "⛷️", desc: "Europe's major mountain system." },
-                    { id: 34, name: "Andes Mountains", lat: -13.1631, lng: -72.545, zoom: 5, icon: "🦙", desc: "World's longest mountain range." },
-                    { id: 35, name: "Rocky Mountains", lat: 39.1911, lng: -106.8175, zoom: 5, icon: "🏞️", desc: "Major North American range." },
-                    { id: 36, name: "Amazon Rainforest", lat: -3.4653, lng: -62.2159, zoom: 5, icon: "🌳", desc: "World's largest tropical rainforest." },
-                    { id: 37, name: "Sahara Desert", lat: 23.4162, lng: 25.6628, zoom: 4, icon: "🏜️", desc: "World's largest hot desert." },
-                    { id: 38, name: "Gobi Desert", lat: 42.5896, lng: 103.4879, zoom: 5, icon: "🐪", desc: "Asia's largest desert." },
-                    { id: 39, name: "Great Barrier Reef", lat: -18.2871, lng: 147.6992, zoom: 6, icon: "🐠", desc: "World's largest coral reef system." },
-                    { id: 40, name: "Grand Canyon", lat: 36.0544, lng: -112.1401, zoom: 10, icon: "🏜️", desc: "Iconic American geological wonder." },
-                    { id: 41, name: "Nile River", lat: 26.8206, lng: 30.8025, zoom: 5, icon: "🏛️", desc: "World's longest river." },
-                    { id: 42, name: "Amazon River", lat: -3.1, lng: -60.025, zoom: 6, icon: "🐊", desc: "World's largest river by volume." },
-                    { id: 43, name: "Mount Everest", lat: 27.9881, lng: 86.925, zoom: 12, icon: "🗻", desc: "Earth's highest peak at 8,849m." },
-                    { id: 44, name: "Mariana Trench", lat: 11.3493, lng: 142.1996, zoom: 6, icon: "🌊", desc: "Deepest oceanic trench." },
-                    { id: 45, name: "Victoria Falls", lat: -17.9243, lng: 25.8572, zoom: 14, icon: "💧", desc: "One of world's largest waterfalls." }
-                ]
-            },
-            "climate": {
-                name: "Climate Maps",
-                icon: "🌡️",
-                maps: [
-                    { id: 46, name: "Climate Zones", lat: 20, lng: 0, zoom: 2, icon: "🌡️", desc: "Köppen climate classification." },
-                    { id: 47, name: "Tropical Regions", lat: 0, lng: 0, zoom: 2, icon: "🌴", desc: "Tropical climate zones near equator." },
-                    { id: 48, name: "Arctic Circle", lat: 71.7069, lng: -42.6043, zoom: 3, icon: "❄️", desc: "Polar climate region." },
-                    { id: 49, name: "Antarctic Region", lat: -75, lng: 0, zoom: 3, icon: "🧊", desc: "Coldest place on Earth." },
-                    { id: 50, name: "Monsoon Regions", lat: 20, lng: 80, zoom: 4, icon: "🌧️", desc: "Areas affected by monsoons." },
-                    { id: 51, name: "Hurricane Belt", lat: 20, lng: -60, zoom: 3, icon: "🌪️", desc: "Atlantic hurricane prone areas." },
-                    { id: 52, name: "Typhoon Regions", lat: 20, lng: 130, zoom: 4, icon: "🌀", desc: "Pacific typhoon areas." },
-                    { id: 53, name: "Tornado Alley", lat: 35.4676, lng: -97.5164, zoom: 5, icon: "🌪️", desc: "US tornado-prone region." },
-                    { id: 54, name: "Mediterranean Climate", lat: 38, lng: 5, zoom: 4, icon: "☀️", desc: "Mediterranean climate zones." },
-                    { id: 55, name: "Tundra Regions", lat: 68, lng: 100, zoom: 3, icon: "🦌", desc: "Arctic tundra biome." }
-                ]
-            },
-            "conflict": {
-                name: "Conflict Zones",
-                icon: "⚠️",
-                maps: [
-                    { id: 56, name: "Ukraine Conflict", lat: 48.3794, lng: 31.1656, zoom: 6, icon: "🇺🇦", desc: "Russia-Ukraine war zone (2022-present)." },
-                    { id: 57, name: "Israel-Palestine", lat: 31.5, lng: 35, zoom: 8, icon: "⚔️", desc: "Gaza Strip and West Bank." },
-                    { id: 58, name: "Kashmir Region", lat: 34.0837, lng: 74.7973, zoom: 7, icon: "🏔️", desc: "Disputed between India, Pakistan, China." },
-                    { id: 59, name: "South China Sea", lat: 12, lng: 114, zoom: 5, icon: "🚢", desc: "Maritime territorial disputes." },
-                    { id: 60, name: "Taiwan Strait", lat: 24, lng: 120, zoom: 6, icon: "🇹🇼", desc: "China-Taiwan tensions." },
-                    { id: 61, name: "Korean DMZ", lat: 37.95, lng: 127, zoom: 8, icon: "🇰🇷", desc: "North-South Korea border." },
-                    { id: 62, name: "Syria", lat: 34.8021, lng: 38.9968, zoom: 6, icon: "⚠️", desc: "Syrian civil war regions." },
-                    { id: 63, name: "Yemen", lat: 15.5527, lng: 48.5164, zoom: 6, icon: "⚠️", desc: "Yemeni civil conflict." },
-                    { id: 64, name: "Crimea", lat: 44.9521, lng: 34.1024, zoom: 7, icon: "🔥", desc: "Annexed peninsula." },
-                    { id: 65, name: "Nagorno-Karabakh", lat: 39.8, lng: 46.8, zoom: 8, icon: "⚔️", desc: "Armenia-Azerbaijan dispute." }
-                ]
-            },
-            "cities": {
-                name: "Major Cities",
-                icon: "🏙️",
-                maps: [
-                    { id: 66, name: "New York City", lat: 40.7128, lng: -74.006, zoom: 11, icon: "🗽", desc: "The Big Apple - USA's largest city." },
-                    { id: 67, name: "Tokyo", lat: 35.6762, lng: 139.6503, zoom: 10, icon: "🗼", desc: "World's largest metropolitan area." },
-                    { id: 68, name: "London", lat: 51.5074, lng: -0.1278, zoom: 11, icon: "🎡", desc: "Capital of the United Kingdom." },
-                    { id: 69, name: "Paris", lat: 48.8566, lng: 2.3522, zoom: 12, icon: "🗼", desc: "The City of Light." },
-                    { id: 70, name: "Dubai", lat: 25.2048, lng: 55.2708, zoom: 11, icon: "🏗️", desc: "Modern marvel of UAE." },
-                    { id: 71, name: "Singapore", lat: 1.3521, lng: 103.8198, zoom: 11, icon: "🦁", desc: "City-state of Southeast Asia." },
-                    { id: 72, name: "Sydney", lat: -33.8688, lng: 151.2093, zoom: 11, icon: "🌉", desc: "Australia's largest city." },
-                    { id: 73, name: "Mumbai", lat: 19.076, lng: 72.8777, zoom: 11, icon: "🎬", desc: "India's financial capital." },
-                    { id: 74, name: "Beijing", lat: 39.9042, lng: 116.4074, zoom: 10, icon: "🏯", desc: "Capital of China." },
-                    { id: 75, name: "Moscow", lat: 55.7558, lng: 37.6173, zoom: 10, icon: "🏰", desc: "Capital of Russia." },
-                    { id: 76, name: "Cairo", lat: 30.0444, lng: 31.2357, zoom: 10, icon: "🏛️", desc: "City of the Pharaohs." },
-                    { id: 77, name: "Rio de Janeiro", lat: -22.9068, lng: -43.1729, zoom: 11, icon: "🎭", desc: "Brazil's iconic city." },
-                    { id: 78, name: "Hong Kong", lat: 22.3193, lng: 114.1694, zoom: 11, icon: "🌃", desc: "Special Administrative Region." },
-                    { id: 79, name: "Istanbul", lat: 41.0082, lng: 28.9784, zoom: 11, icon: "🕌", desc: "Connecting Europe and Asia." },
-                    { id: 80, name: "Los Angeles", lat: 34.0522, lng: -118.2437, zoom: 10, icon: "🎬", desc: "Entertainment capital." }
-                ]
-            },
-            "historical": {
-                name: "Historical Maps",
-                icon: "📜",
-                maps: [
-                    { id: 81, name: "Roman Empire Extent", lat: 41.9028, lng: 12.4964, zoom: 4, icon: "🏛️", desc: "Rome at its peak (117 AD)." },
-                    { id: 82, name: "Silk Road Routes", lat: 39.9, lng: 70, zoom: 4, icon: "🐫", desc: "Ancient trade routes." },
-                    { id: 83, name: "Ancient Egypt", lat: 26.8206, lng: 30.8025, zoom: 6, icon: "🏺", desc: "Land of the Pharaohs." },
-                    { id: 84, name: "Ancient Greece", lat: 37.9838, lng: 23.7275, zoom: 6, icon: "🏛️", desc: "Birthplace of democracy." },
-                    { id: 85, name: "Mongol Empire", lat: 46.8625, lng: 103.8467, zoom: 3, icon: "🐎", desc: "Largest land empire ever." },
-                    { id: 86, name: "Ottoman Empire", lat: 39.9334, lng: 32.8597, zoom: 4, icon: "🕌", desc: "6 century empire." },
-                    { id: 87, name: "British Empire", lat: 51.5074, lng: -0.1278, zoom: 2, icon: "👑", desc: "Empire where sun never set." },
-                    { id: 88, name: "D-Day Beaches", lat: 49.3675, lng: -0.873, zoom: 10, icon: "⚔️", desc: "WWII Normandy landings." },
-                    { id: 89, name: "Berlin Wall", lat: 52.52, lng: 13.405, zoom: 11, icon: "🧱", desc: "Cold War division." },
-                    { id: 90, name: "Pearl Harbor", lat: 21.3649, lng: -157.9507, zoom: 13, icon: "⚓", desc: "1941 attack site." }
-                ]
-            },
-            "natural-wonders": {
-                name: "Natural Wonders",
-                icon: "🌋",
-                maps: [
-                    { id: 91, name: "Mount Fuji", lat: 35.3606, lng: 138.7274, zoom: 11, icon: "🗻", desc: "Japan's iconic volcano." },
-                    { id: 92, name: "Yellowstone", lat: 44.428, lng: -110.5885, zoom: 8, icon: "🦬", desc: "World's first national park." },
-                    { id: 93, name: "Niagara Falls", lat: 43.0896, lng: -79.0849, zoom: 13, icon: "💧", desc: "US-Canada border falls." },
-                    { id: 94, name: "Northern Lights Zone", lat: 64.1466, lng: -21.9426, zoom: 4, icon: "🌌", desc: "Aurora Borealis viewing." },
-                    { id: 95, name: "Galápagos Islands", lat: -0.9538, lng: -90.9656, zoom: 8, icon: "🐢", desc: "Darwin's evolution laboratory." },
-                    { id: 96, name: "Serengeti", lat: -2.3333, lng: 34.8333, zoom: 8, icon: "🦁", desc: "Great migration plains." },
-                    { id: 97, name: "Antarctica Ice Shelf", lat: -77.8419, lng: 166.6863, zoom: 5, icon: "🧊", desc: "Polar ice formations." },
-                    { id: 98, name: "Dead Sea", lat: 31.5, lng: 35.5, zoom: 9, icon: "💀", desc: "Lowest point on Earth." },
-                    { id: 99, name: "Mount Kilimanjaro", lat: -3.0674, lng: 37.3556, zoom: 10, icon: "🏔️", desc: "Africa's highest peak." },
-                    { id: 100, name: "Ha Long Bay", lat: 20.9101, lng: 107.1839, zoom: 10, icon: "⛵", desc: "Vietnam's limestone karsts." }
-                ]
-            },
-            "infrastructure": {
-                name: "Infrastructure",
-                icon: "🏗️",
-                maps: [
-                    { id: 101, name: "Panama Canal", lat: 9.08, lng: -79.68, zoom: 11, icon: "🚢", desc: "Atlantic-Pacific waterway." },
-                    { id: 102, name: "Suez Canal", lat: 30.4278, lng: 32.3443, zoom: 9, icon: "⚓", desc: "Mediterranean-Red Sea link." },
-                    { id: 103, name: "Great Wall of China", lat: 40.4319, lng: 116.5704, zoom: 8, icon: "🧱", desc: "World's longest wall." },
-                    { id: 104, name: "Trans-Siberian Railway", lat: 55.7558, lng: 105, zoom: 3, icon: "🚂", desc: "World's longest railway." },
-                    { id: 105, name: "Three Gorges Dam", lat: 30.8233, lng: 111.0033, zoom: 12, icon: "💧", desc: "World's largest power station." },
-                    { id: 106, name: "Channel Tunnel", lat: 51.0125, lng: 1.5, zoom: 9, icon: "🚄", desc: "UK-France undersea rail." },
-                    { id: 107, name: "Palm Jumeirah", lat: 25.1124, lng: 55.139, zoom: 13, icon: "🏝️", desc: "Dubai's artificial island." },
-                    { id: 108, name: "International Space Station Track", lat: 0, lng: 0, zoom: 2, icon: "🛰️", desc: "ISS orbital path." },
-                    { id: 109, name: "Burj Khalifa", lat: 25.1972, lng: 55.2744, zoom: 16, icon: "🏗️", desc: "World's tallest building." },
-                    { id: 110, name: "CERN", lat: 46.2335, lng: 6.0461, zoom: 14, icon: "⚛️", desc: "Large Hadron Collider." }
-                ]
-            },
-            "economic": {
-                name: "Economic Zones",
-                icon: "💰",
-                maps: [
-                    { id: 111, name: "Silicon Valley", lat: 37.3875, lng: -122.0575, zoom: 10, icon: "💻", desc: "Tech industry hub." },
-                    { id: 112, name: "Wall Street", lat: 40.7074, lng: -74.0113, zoom: 15, icon: "📈", desc: "Global financial center." },
-                    { id: 113, name: "Shanghai Financial", lat: 31.2304, lng: 121.4737, zoom: 12, icon: "🏦", desc: "China's economic hub." },
-                    { id: 114, name: "Shenzhen Tech Hub", lat: 22.5431, lng: 114.0579, zoom: 11, icon: "📱", desc: "China's Silicon Valley." },
-                    { id: 115, name: "Frankfurt Finance", lat: 50.1109, lng: 8.6821, zoom: 12, icon: "💶", desc: "European banking center." },
-                    { id: 116, name: "Oil Fields - Saudi", lat: 25.3548, lng: 49.1625, zoom: 7, icon: "🛢️", desc: "World's oil reserves." },
-                    { id: 117, name: "Amazon HQ", lat: 47.6062, lng: -122.3321, zoom: 12, icon: "📦", desc: "Seattle tech campus." },
-                    { id: 118, name: "Bollywood Mumbai", lat: 19.1136, lng: 72.8697, zoom: 13, icon: "🎬", desc: "India's film industry." },
-                    { id: 119, name: "Las Vegas Strip", lat: 36.1147, lng: -115.1728, zoom: 14, icon: "🎰", desc: "Entertainment capital." },
-                    { id: 120, name: "Monaco", lat: 43.7384, lng: 7.4246, zoom: 14, icon: "🎲", desc: "Billionaire playground." }
-                ]
-            },
-            "ocean": {
-                name: "Oceans & Seas",
-                icon: "🌊",
-                maps: [
-                    { id: 121, name: "Pacific Ocean", lat: 0, lng: -160, zoom: 2, icon: "🌊", desc: "World's largest ocean." },
-                    { id: 122, name: "Atlantic Ocean", lat: 0, lng: -30, zoom: 2, icon: "🌊", desc: "Second largest ocean." },
-                    { id: 123, name: "Indian Ocean", lat: -20, lng: 80, zoom: 3, icon: "🌊", desc: "Third largest ocean." },
-                    { id: 124, name: "Arctic Ocean", lat: 85, lng: 0, zoom: 3, icon: "❄️", desc: "Smallest ocean." },
-                    { id: 125, name: "Mediterranean Sea", lat: 35, lng: 18, zoom: 5, icon: "⛵", desc: "Sea between continents." },
-                    { id: 126, name: "Caribbean Sea", lat: 15, lng: -75, zoom: 5, icon: "🏝️", desc: "Tropical paradise waters." },
-                    { id: 127, name: "Red Sea", lat: 20, lng: 38, zoom: 5, icon: "🐠", desc: "Coral reef haven." },
-                    { id: 128, name: "Black Sea", lat: 43, lng: 35, zoom: 5, icon: "🌊", desc: "Between Europe and Asia." },
-                    { id: 129, name: "Baltic Sea", lat: 58, lng: 20, zoom: 5, icon: "⚓", desc: "Northern European sea." },
-                    { id: 130, name: "Caspian Sea", lat: 41, lng: 51, zoom: 5, icon: "🌊", desc: "World's largest lake." }
-                ]
-            },
-            "islands": {
-                name: "Island Nations",
-                icon: "🏝️",
-                maps: [
-                    { id: 131, name: "Hawaii", lat: 19.8968, lng: -155.5828, zoom: 7, icon: "🌺", desc: "Pacific island paradise." },
-                    { id: 132, name: "Maldives", lat: 3.2028, lng: 73.2207, zoom: 6, icon: "🏝️", desc: "Indian Ocean atolls." },
-                    { id: 133, name: "Fiji", lat: -17.7134, lng: 178.065, zoom: 7, icon: "🌴", desc: "South Pacific islands." },
-                    { id: 134, name: "Iceland", lat: 64.9631, lng: -19.0208, zoom: 6, icon: "🌋", desc: "Land of fire and ice." },
-                    { id: 135, name: "New Zealand", lat: -40.9006, lng: 174.886, zoom: 5, icon: "🥝", desc: "Middle-earth islands." },
-                    { id: 136, name: "Philippines", lat: 12.8797, lng: 121.774, zoom: 5, icon: "🇵🇭", desc: "7,000+ islands." },
-                    { id: 137, name: "Madagascar", lat: -18.7669, lng: 46.8691, zoom: 5, icon: "🦎", desc: "Unique wildlife island." },
-                    { id: 138, name: "Sri Lanka", lat: 7.8731, lng: 80.7718, zoom: 7, icon: "🐘", desc: "Pearl of Indian Ocean." },
-                    { id: 139, name: "Cuba", lat: 21.5218, lng: -77.7812, zoom: 6, icon: "🇨🇺", desc: "Caribbean's largest island." },
-                    { id: 140, name: "Bali", lat: -8.3405, lng: 115.092, zoom: 9, icon: "🛕", desc: "Island of the Gods." }
-                ]
-            },
-            "religion": {
-                name: "Religious Sites",
-                icon: "🕌",
-                maps: [
-                    { id: 141, name: "Vatican City", lat: 41.9029, lng: 12.4534, zoom: 16, icon: "⛪", desc: "Center of Catholicism." },
-                    { id: 142, name: "Mecca", lat: 21.3891, lng: 39.8579, zoom: 14, icon: "🕋", desc: "Holiest city in Islam." },
-                    { id: 143, name: "Jerusalem", lat: 31.7683, lng: 35.2137, zoom: 13, icon: "✡️", desc: "Holy to three religions." },
-                    { id: 144, name: "Varanasi", lat: 25.3176, lng: 82.9739, zoom: 13, icon: "🕉️", desc: "Holiest Hindu city." },
-                    { id: 145, name: "Bodh Gaya", lat: 24.6961, lng: 84.9869, zoom: 14, icon: "☸️", desc: "Buddha's enlightenment site." },
-                    { id: 146, name: "Golden Temple", lat: 31.62, lng: 74.8765, zoom: 16, icon: "🛕", desc: "Sikh holiest shrine." },
-                    { id: 147, name: "Lourdes", lat: 43.0948, lng: -0.0464, zoom: 14, icon: "⛪", desc: "Catholic pilgrimage site." },
-                    { id: 148, name: "Angkor Wat", lat: 13.4125, lng: 103.867, zoom: 14, icon: "🛕", desc: "Largest religious monument." },
-                    { id: 149, name: "Mount Sinai", lat: 28.5394, lng: 33.9756, zoom: 12, icon: "⛰️", desc: "Biblical mountain." },
-                    { id: 150, name: "Lhasa, Tibet", lat: 29.65, lng: 91.1, zoom: 12, icon: "🏔️", desc: "Roof of the world." }
-                ]
-            },
-            "sports": {
-                name: "Sports Venues",
-                icon: "🏟️",
-                maps: [
-                    { id: 151, name: "Olympic Park London", lat: 51.5383, lng: -0.0165, zoom: 15, icon: "🏅", desc: "2012 Olympics venue." },
-                    { id: 152, name: "FIFA World Cup Qatar", lat: 25.3103, lng: 51.4407, zoom: 10, icon: "⚽", desc: "2022 World Cup stadiums." },
-                    { id: 153, name: "Wimbledon", lat: 51.4341, lng: -0.2143, zoom: 15, icon: "🎾", desc: "Tennis grand slam." },
-                    { id: 154, name: "Camp Nou", lat: 41.3809, lng: 2.1228, zoom: 16, icon: "⚽", desc: "FC Barcelona stadium." },
-                    { id: 155, name: "Melbourne Cricket Ground", lat: -37.82, lng: 144.9834, zoom: 16, icon: "🏏", desc: "Iconic cricket venue." },
-                    { id: 156, name: "Monaco F1 Circuit", lat: 43.7347, lng: 7.4206, zoom: 15, icon: "🏎️", desc: "Formula 1 street circuit." },
-                    { id: 157, name: "Augusta National", lat: 33.503, lng: -82.0229, zoom: 15, icon: "⛳", desc: "The Masters golf." },
-                    { id: 158, name: "Madison Square Garden", lat: 40.7505, lng: -73.9934, zoom: 16, icon: "🏀", desc: "World's most famous arena." },
-                    { id: 159, name: "Maracanã Stadium", lat: -22.9121, lng: -43.2302, zoom: 16, icon: "⚽", desc: "Brazil's iconic stadium." },
-                    { id: 160, name: "Old Trafford", lat: 53.4631, lng: -2.2913, zoom: 16, icon: "⚽", desc: "Theatre of Dreams." }
-                ]
-            },
-            "airports": {
-                name: "Major Airports",
-                icon: "✈️",
-                maps: [
-                    { id: 161, name: "Dubai International", lat: 25.2528, lng: 55.3644, zoom: 13, icon: "✈️", desc: "World's busiest international." },
-                    { id: 162, name: "Heathrow London", lat: 51.47, lng: -0.4543, zoom: 13, icon: "✈️", desc: "Europe's busiest airport." },
-                    { id: 163, name: "JFK New York", lat: 40.6413, lng: -73.7781, zoom: 13, icon: "✈️", desc: "Major US gateway." },
-                    { id: 164, name: "Singapore Changi", lat: 1.3644, lng: 103.9915, zoom: 13, icon: "✈️", desc: "World's best airport." },
-                    { id: 165, name: "Hong Kong Int'l", lat: 22.308, lng: 113.9185, zoom: 13, icon: "✈️", desc: "Asian aviation hub." },
-                    { id: 166, name: "Tokyo Haneda", lat: 35.5494, lng: 139.7798, zoom: 13, icon: "✈️", desc: "Japan's busiest airport." },
-                    { id: 167, name: "Paris CDG", lat: 49.0097, lng: 2.5479, zoom: 12, icon: "✈️", desc: "France's main airport." },
-                    { id: 168, name: "Los Angeles LAX", lat: 33.9416, lng: -118.4085, zoom: 13, icon: "✈️", desc: "West coast hub." },
-                    { id: 169, name: "Beijing Capital", lat: 40.0799, lng: 116.6031, zoom: 12, icon: "✈️", desc: "China's main gateway." },
-                    { id: 170, name: "Sydney Airport", lat: -33.9399, lng: 151.1753, zoom: 13, icon: "✈️", desc: "Australia's busiest." }
-                ]
-            },
-            "volcanoes": {
-                name: "Volcanoes",
-                icon: "🌋",
-                maps: [
-                    { id: 171, name: "Mount Vesuvius", lat: 40.821, lng: 14.4289, zoom: 12, icon: "🌋", desc: "Destroyed Pompeii." },
-                    { id: 172, name: "Mount Etna", lat: 37.751, lng: 14.9934, zoom: 11, icon: "🌋", desc: "Europe's largest active." },
-                    { id: 173, name: "Krakatoa", lat: -6.102, lng: 105.423, zoom: 10, icon: "🌋", desc: "1883 catastrophic eruption." },
-                    { id: 174, name: "Mount St. Helens", lat: 46.1914, lng: -122.1956, zoom: 11, icon: "🌋", desc: "1980 US eruption." },
-                    { id: 175, name: "Mauna Loa", lat: 19.4756, lng: -155.608, zoom: 10, icon: "🌋", desc: "World's largest volcano." },
-                    { id: 176, name: "Mount Pinatubo", lat: 15.143, lng: 120.35, zoom: 11, icon: "🌋", desc: "1991 major eruption." },
-                    { id: 177, name: "Eyjafjallajökull", lat: 63.63, lng: -19.62, zoom: 10, icon: "🌋", desc: "2010 aviation chaos." },
-                    { id: 178, name: "Mount Tambora", lat: -8.25, lng: 118.0, zoom: 10, icon: "🌋", desc: "Largest historic eruption." },
-                    { id: 179, name: "Kilauea", lat: 19.4068, lng: -155.2834, zoom: 11, icon: "🌋", desc: "Continuously active." },
-                    { id: 180, name: "Stromboli", lat: 38.789, lng: 15.213, zoom: 13, icon: "🌋", desc: "Lighthouse of Mediterranean." }
-                ]
-            },
-            "unesco": {
-                name: "UNESCO Sites",
-                icon: "🏛️",
-                maps: [
-                    { id: 181, name: "Machu Picchu", lat: -13.1631, lng: -72.545, zoom: 14, icon: "🏔️", desc: "Incan citadel." },
-                    { id: 182, name: "Taj Mahal", lat: 27.1751, lng: 78.0421, zoom: 16, icon: "🕌", desc: "Monument of love." },
-                    { id: 183, name: "Pyramids of Giza", lat: 29.9792, lng: 31.1342, zoom: 15, icon: "🔺", desc: "Ancient wonders." },
-                    { id: 184, name: "Colosseum Rome", lat: 41.8902, lng: 12.4922, zoom: 16, icon: "🏛️", desc: "Roman amphitheater." },
-                    { id: 185, name: "Petra Jordan", lat: 30.3285, lng: 35.4444, zoom: 14, icon: "🏛️", desc: "Rose-red city." },
-                    { id: 186, name: "Stonehenge", lat: 51.1789, lng: -1.8262, zoom: 15, icon: "🪨", desc: "Prehistoric monument." },
-                    { id: 187, name: "Acropolis Athens", lat: 37.9715, lng: 23.7267, zoom: 16, icon: "🏛️", desc: "Greek citadel." },
-                    { id: 188, name: "Chichen Itza", lat: 20.6843, lng: -88.5678, zoom: 15, icon: "🏛️", desc: "Mayan pyramid." },
-                    { id: 189, name: "Great Wall", lat: 40.4319, lng: 116.5704, zoom: 14, icon: "🧱", desc: "Chinese wonder." },
-                    { id: 190, name: "Christ the Redeemer", lat: -22.9519, lng: -43.2105, zoom: 16, icon: "✝️", desc: "Rio's icon." }
-                ]
-            },
-            "borders": {
-                name: "Famous Borders",
-                icon: "🚧",
-                maps: [
-                    { id: 191, name: "US-Mexico Border", lat: 31.3333, lng: -110.9, zoom: 6, icon: "🚧", desc: "3,145 km border." },
-                    { id: 192, name: "India-Pakistan Border", lat: 29.5, lng: 73, zoom: 6, icon: "🚧", desc: "Wagah border ceremony." },
-                    { id: 193, name: "North-South Korea", lat: 37.95, lng: 126.68, zoom: 9, icon: "🚧", desc: "Most militarized border." },
-                    { id: 194, name: "US-Canada Border", lat: 49, lng: -100, zoom: 4, icon: "🚧", desc: "Longest undefended." },
-                    { id: 195, name: "Spain-Gibraltar", lat: 36.14, lng: -5.35, zoom: 13, icon: "🚧", desc: "UK territory in Spain." },
-                    { id: 196, name: "China-North Korea", lat: 42, lng: 129, zoom: 6, icon: "🚧", desc: "Hermit kingdom border." },
-                    { id: 197, name: "Russia-Norway", lat: 69.5, lng: 30, zoom: 7, icon: "🚧", desc: "NATO-Russia boundary." },
-                    { id: 198, name: "Argentina-Chile", lat: -40, lng: -71, zoom: 5, icon: "🚧", desc: "Andes mountain border." },
-                    { id: 199, name: "Bangladesh-India", lat: 24, lng: 89, zoom: 6, icon: "🚧", desc: "Complex enclaves." },
-                    { id: 200, name: "Egypt-Israel", lat: 30, lng: 34.5, zoom: 7, icon: "🚧", desc: "Peace treaty border." }
-                ]
-            }
-        };
-
-        // ==================== MAP INITIALIZATION ====================
-        let map;
-        let currentLayer;
-        let markers = [];
-
-        // Tile Layers
-        const tileLayers = {
-            street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
-            }),
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: '© Esri',
-                maxZoom: 19
-            }),
-            terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenTopoMap',
-                maxZoom: 17
-            }),
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© CartoDB',
-                maxZoom: 19
-            }),
-            topo: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: '© Esri',
-                maxZoom: 19
-            })
-        };
-
-        // Initialize Map
-        function initMap() {
-            map = L.map('map', {
-                center: [20, 0],
-                zoom: 2,
-                zoomControl: false,
-                minZoom: 2,
-                maxZoom: 19,
-                worldCopyJump: true
-            });
-
-            // Add default layer
-            currentLayer = tileLayers.street;
-            currentLayer.addTo(map);
-
-            // Add zoom control to bottom right
-            L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-            // Update coordinates on mouse move
-            map.on('mousemove', function(e) {
-                updateCoords(e.latlng.lat, e.latlng.lng, map.getZoom());
-            });
-
-            map.on('zoomend', function() {
-                const center = map.getCenter();
-                updateCoords(center.lat, center.lng, map.getZoom());
-            });
-
-            // Hide loading
-            document.getElementById('loadingOverlay').classList.add('hidden');
-
-            // Load categories
-            loadCategories();
-        }
-
-        // Update Coordinates Display
-        function updateCoords(lat, lng, zoom) {
-            document.getElementById('coordsDisplay').textContent = 
-                `Lat: ${lat.toFixed(4)} | Lng: ${lng.toFixed(4)} | Zoom: ${zoom}`;
-        }
-
-        // ==================== CATEGORY LOADING ====================
-        function loadCategories() {
-            const container = document.getElementById('categoriesContainer');
-            container.innerHTML = '';
-
-            for (const [key, category] of Object.entries(mapsDatabase)) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
-                categoryDiv.innerHTML = `
-                    <div class="category-header" onclick="toggleCategory(this)">
-                        <span><span class="icon">${category.icon}</span> ${category.name}</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="category-content">
-                        ${category.maps.map(m => `
-                            <div class="map-item" onclick="loadMap(${m.id}, '${key}')">
-                                <span class="emoji">${m.icon}</span>
-                                <span>${m.name}</span>
+        <!-- ============================================
+             HUMAN GEOGRAPHY CONTENT
+             ============================================ -->
+        <div id="human" class="category-content">
+            <div class="mind-map-container">
+                <div class="mind-map">
+                    
+                    <!-- Central Node -->
+                    <div class="central-node">👥 ASIA HUMAN GEOGRAPHY</div>
+                    
+                    <!-- First Row -->
+                    <div class="branch-row">
+                        
+                        <!-- Population -->
+                        <div class="branch" style="border-color: #FF6B6B;">
+                            <div class="branch-header">
+                                <span class="branch-icon">👨‍👩‍👧‍👦</span>
+                                <span class="branch-title">POPULATION</span>
                             </div>
-                        `).join('')}
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Total Population</span>
+                                        <span class="highlight">4.7 Billion (60%)</span>
+                                    </li>
+                                    <li>
+                                        <span>Most Populous</span>
+                                        <span class="highlight">China (1.4B), India (1.4B)</span>
+                                    </li>
+                                    <li>
+                                        <span>Density Highest</span>
+                                        <span class="highlight">Bangladesh, Singapore</span>
+                                    </li>
+                                    <li>
+                                        <span>Least Dense</span>
+                                        <span class="highlight">Mongolia</span>
+                                    </li>
+                                    <li>
+                                        <span>Urbanization</span>
+                                        <span class="highlight">51% Urban</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">6 of 10 largest countries by population</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Religions -->
+                        <div class="branch" style="border-color: #A855F7;">
+                            <div class="branch-header">
+                                <span class="branch-icon">🕌</span>
+                                <span class="branch-title">MAJOR RELIGIONS</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Hinduism</span>
+                                        <span class="highlight">India, Nepal</span>
+                                    </li>
+                                    <li>
+                                        <span>Islam</span>
+                                        <span class="highlight">Middle East, SE Asia, Central Asia</span>
+                                    </li>
+                                    <li>
+                                        <span>Buddhism</span>
+                                        <span class="highlight">East & SE Asia</span>
+                                    </li>
+                                    <li>
+                                        <span>Christianity</span>
+                                        <span class="highlight">Philippines, S. Korea</span>
+                                    </li>
+                                    <li>
+                                        <span>Sikhism</span>
+                                        <span class="highlight">Punjab, India</span>
+                                    </li>
+                                    <li>
+                                        <span>Shinto</span>
+                                        <span class="highlight">Japan</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Birthplace of Major Religions</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Languages -->
+                        <div class="branch" style="border-color: #EC4899;">
+                            <div class="branch-header">
+                                <span class="branch-icon">🗣️</span>
+                                <span class="branch-title">LANGUAGE FAMILIES</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Sino-Tibetan</span>
+                                        <span class="highlight">Chinese, Tibetan</span>
+                                    </li>
+                                    <li>
+                                        <span>Indo-European</span>
+                                        <span class="highlight">Hindi, Persian, Bengali</span>
+                                    </li>
+                                    <li>
+                                        <span>Afro-Asiatic</span>
+                                        <span class="highlight">Arabic, Hebrew</span>
+                                    </li>
+                                    <li>
+                                        <span>Austronesian</span>
+                                        <span class="highlight">Malay, Indonesian, Filipino</span>
+                                    </li>
+                                    <li>
+                                        <span>Dravidian</span>
+                                        <span class="highlight">Tamil, Telugu, Kannada</span>
+                                    </li>
+                                    <li>
+                                        <span>Japonic</span>
+                                        <span class="highlight">Japanese</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">2,300+ Languages</span>
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
-                `;
-                container.appendChild(categoryDiv);
-            }
-        }
+                    
+                    <!-- Second Row -->
+                    <div class="branch-row">
+                        
+                        <!-- Economy -->
+                        <div class="branch" style="border-color: #4ECDC4;">
+                            <div class="branch-header">
+                                <span class="branch-icon">💰</span>
+                                <span class="branch-title">ECONOMY</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Largest Economy</span>
+                                        <span class="highlight">China ($18T GDP)</span>
+                                    </li>
+                                    <li>
+                                        <span>Richest per capita</span>
+                                        <span class="highlight">Singapore, Qatar, UAE</span>
+                                    </li>
+                                    <li>
+                                        <span>Oil Producers</span>
+                                        <span class="highlight">Saudi Arabia, UAE, Iraq</span>
+                                    </li>
+                                    <li>
+                                        <span>Manufacturing</span>
+                                        <span class="highlight">China, Japan, S. Korea</span>
+                                    </li>
+                                    <li>
+                                        <span>IT Services</span>
+                                        <span class="highlight">India, Philippines</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">World's Factory</span>
+                                    <span class="sub-branch">Emerging Markets</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Megacities -->
+                        <div class="branch" style="border-color: #FFD700;">
+                            <div class="branch-header">
+                                <span class="branch-icon">🏙️</span>
+                                <span class="branch-title">MEGACITIES (10M+)</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Tokyo, Japan</span>
+                                        <span class="highlight">37.4M (Largest)</span>
+                                    </li>
+                                    <li>
+                                        <span>Delhi, India</span>
+                                        <span class="highlight">32.9M</span>
+                                    </li>
+                                    <li>
+                                        <span>Shanghai, China</span>
+                                        <span class="highlight">28.5M</span>
+                                    </li>
+                                    <li>
+                                        <span>Beijing, China</span>
+                                        <span class="highlight">21.5M</span>
+                                    </li>
+                                    <li>
+                                        <span>Mumbai, India</span>
+                                        <span class="highlight">21.3M</span>
+                                    </li>
+                                    <li>
+                                        <span>Dhaka, Bangladesh</span>
+                                        <span class="highlight">22.5M</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">17 of world's 33 megacities</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Agriculture -->
+                        <div class="branch" style="border-color: #22C55E;">
+                            <div class="branch-header">
+                                <span class="branch-icon">🌾</span>
+                                <span class="branch-title">AGRICULTURE</span>
+                            </div>
+                            <div class="branch-content">
+                                <ul>
+                                    <li>
+                                        <span>Rice Production</span>
+                                        <span class="highlight">90% of World (China, India)</span>
+                                    </li>
+                                    <li>
+                                        <span>Tea</span>
+                                        <span class="highlight">China, India, Sri Lanka</span>
+                                    </li>
+                                    <li>
+                                        <span>Wheat</span>
+                                        <span class="highlight">China, India, Pakistan</span>
+                                    </li>
+                                    <li>
+                                        <span>Spices</span>
+                                        <span class="highlight">India (Largest)</span>
+                                    </li>
+                                    <li>
+                                        <span>Palm Oil</span>
+                                        <span class="highlight">Indonesia, Malaysia</span>
+                                    </li>
+                                </ul>
+                                <div class="sub-branches">
+                                    <span class="sub-branch">Monsoon Agriculture</span>
+                                    <span class="sub-branch">Green Revolution</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+    </section>
 
-        function toggleCategory(header) {
-            const category = header.parentElement;
-            category.classList.toggle('open');
-        }
-
-        // ==================== MAP LOADING ====================
-        function loadMap(mapId, categoryKey) {
-            const category = mapsDatabase[categoryKey];
-            const mapData = category.maps.find(m => m.id === mapId);
-
-            if (!mapData) return;
-
-            // Show loading
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-
-            // Clear existing markers
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-
-            // Fly to location
-            map.flyTo([mapData.lat, mapData.lng], mapData.zoom, {
-                duration: 1.5
-            });
-
-            // Add marker
-            const marker = L.marker([mapData.lat, mapData.lng])
-                .addTo(map)
-                .bindPopup(`<h4>${mapData.icon} ${mapData.name}</h4><p>${mapData.desc}</p>`)
-                .openPopup();
-            markers.push(marker);
-
-            // Update info panel
-            document.getElementById('infoPanelTitle').textContent = `${mapData.icon} ${mapData.name}`;
-            document.getElementById('infoPanelDesc').textContent = mapData.desc;
-
-            // Update active state in sidebar
-            document.querySelectorAll('.map-item').forEach(item => item.classList.remove('active'));
-            event.target.closest('.map-item').classList.add('active');
-
-            // Hide loading after animation
-            setTimeout(() => {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-            }, 1500);
-
-            // Close sidebar on mobile
-            if (window.innerWidth <= 900) {
-                document.getElementById('sidebar').classList.remove('open');
-            }
-        }
-
-        // ==================== LAYER SWITCHING ====================
-        function changeLayer(layerName) {
-            map.removeLayer(currentLayer);
-            currentLayer = tileLayers[layerName];
-            currentLayer.addTo(map);
-
-            // Update active button
-            document.querySelectorAll('.layer-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-        }
-
-        // ==================== CONTROLS ====================
-        function zoomIn() {
-            map.zoomIn();
-        }
-
-        function zoomOut() {
-            map.zoomOut();
-        }
-
-        function resetMap() {
-            map.setView([20, 0], 2);
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-            document.getElementById('infoPanelTitle').textContent = '🌍 World Atlas';
-            document.getElementById('infoPanelDesc').textContent = 'Welcome to Geotopia\'s Interactive World Atlas! Select any map from the sidebar to explore.';
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        function locateUser() {
-            if (navigator.geolocation) {
-                document.getElementById('loadingOverlay').classList.remove('hidden');
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        map.flyTo([lat, lng], 14);
-
-                        const marker = L.marker([lat, lng])
-                            .addTo(map)
-                            .bindPopup('<h4>📍 You are here!</h4>')
-                            .openPopup();
-                        markers.push(marker);
-
-                        document.getElementById('loadingOverlay').classList.add('hidden');
-                    },
-                    function(error) {
-                        alert('Could not get your location. Please enable GPS.');
-                        document.getElementById('loadingOverlay').classList.add('hidden');
-                    }
-                );
-            } else {
-                alert('Geolocation is not supported by your browser.');
-            }
-        }
-
-        function takeScreenshot() {
-            alert('📷 Screenshot feature: Press Ctrl+Shift+S (Windows) or Cmd+Shift+4 (Mac) to capture the screen.');
-        }
-
-        function closeInfoPanel() {
-            document.getElementById('infoPanel').style.display = 'none';
-        }
-
-        // ==================== SEARCH ====================
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
+    <!-- ============================================
+         KEY FACTS SECTION
+         ============================================ -->
+    <section class="key-facts-section">
+        <h2 class="section-title">📊 KEY FACTS ABOUT ASIA</h2>
+        
+        <div class="facts-grid">
+            <div class="fact-card">
+                <div class="fact-icon">📏</div>
+                <div class="fact-title">AREA</div>
+                <div class="fact-text">Largest continent covering 30% of Earth's land</div>
+                <div class="fact-value">44.58 Million km²</div>
+            </div>
             
-            document.querySelectorAll('.category').forEach(category => {
-                let hasMatch = false;
-                category.querySelectorAll('.map-item').forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        item.style.display = 'flex';
-                        hasMatch = true;
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
+            <div class="fact-card">
+                <div class="fact-icon">👥</div>
+                <div class="fact-title">POPULATION</div>
+                <div class="fact-text">60% of world's population lives in Asia</div>
+                <div class="fact-value">4.7 Billion</div>
+            </div>
+            
+            <div class="fact-card">
+                <div class="fact-icon">🏔️</div>
+                <div class="fact-title">HIGHEST POINT</div>
+                <div class="fact-text">Mount Everest - Nepal/China border</div>
+                <div class="fact-value">8,848.86 m</div>
+            </div>
+            
+            <div class="fact-card">
+                <div class="fact-icon">⬇️</div>
+                <div class="fact-title">LOWEST POINT</div>
+                <div class="fact-text">Dead Sea - Israel/Jordan border</div>
+                <div class="fact-value">-430 m</div>
+            </div>
+            
+            <div class="fact-card">
+                <div class="fact-icon">🌊</div>
+                <div class="fact-title">LONGEST RIVER</div>
+                <div class="fact-text">Yangtze River - China</div>
+                <div class="fact-value">6,300 km</div>
+            </div>
+            
+            <div class="fact-card">
+                <div class="fact-icon">💧</div>
+                <div class="fact-title">LARGEST LAKE</div>
+                <div class="fact-text">Caspian Sea (technically a lake)</div>
+                <div class="fact-value">371,000 km²</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         MAJOR GROUPS SECTION
+         ============================================ -->
+    <section class="groups-section">
+        <div class="groups-container">
+            <h2 class="section-title">🌍 ASIAN REGIONS & GROUPINGS</h2>
+            
+            <div class="groups-grid">
+                <div class="group-card">
+                    <div class="group-icon">🏯</div>
+                    <div class="group-name">East Asia</div>
+                    <div class="group-info">China, Japan, Korea, Mongolia, Taiwan</div>
+                </div>
                 
-                if (hasMatch) {
-                    category.classList.add('open');
-                    category.style.display = 'block';
-                } else if (searchTerm) {
-                    category.style.display = 'none';
-                } else {
-                    category.style.display = 'block';
-                    category.classList.remove('open');
-                }
+                <div class="group-card">
+                    <div class="group-icon">🕌</div>
+                    <div class="group-name">Middle East</div>
+                    <div class="group-info">Saudi Arabia, UAE, Iran, Iraq, Israel</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-icon">🛕</div>
+                    <div class="group-name">South Asia</div>
+                    <div class="group-info">India, Pakistan, Bangladesh, Sri Lanka, Nepal</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-icon">🏝️</div>
+                    <div class="group-name">Southeast Asia</div>
+                    <div class="group-info">Indonesia, Thailand, Vietnam, Philippines, Malaysia</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-icon">🏔️</div>
+                    <div class="group-name">Central Asia</div>
+                    <div class="group-info">Kazakhstan, Uzbekistan, Turkmenistan, Kyrgyzstan, Tajikistan</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-icon">❄️</div>
+                    <div class="group-name">North Asia (Siberia)</div>
+                    <div class="group-info">Russian Asian Territory</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         DATA TABLE
+         ============================================ -->
+    <section class="key-facts-section">
+        <h2 class="section-title">📈 ASIA BY THE NUMBERS</h2>
+        
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Record Holder</th>
+                        <th>Value</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Largest Country</td>
+                        <td>🇷🇺 Russia (Asian part)</td>
+                        <td>13.1 M km²</td>
+                        <td>77% of Russia is in Asia</td>
+                    </tr>
+                    <tr>
+                        <td>Most Populous</td>
+                        <td>🇮🇳 India</td>
+                        <td>1.42 Billion</td>
+                        <td>Surpassed China in 2023</td>
+                    </tr>
+                    <tr>
+                        <td>Smallest Country</td>
+                        <td>🇲🇻 Maldives</td>
+                        <td>298 km²</td>
+                        <td>Also lowest-lying nation</td>
+                    </tr>
+                    <tr>
+                        <td>Highest GDP</td>
+                        <td>🇨🇳 China</td>
+                        <td>$18 Trillion</td>
+                        <td>World's 2nd largest economy</td>
+                    </tr>
+                    <tr>
+                        <td>Highest GDP per Capita</td>
+                        <td>🇸🇬 Singapore</td>
+                        <td>$65,000+</td>
+                        <td>One of world's richest</td>
+                    </tr>
+                    <tr>
+                        <td>Most Islands</td>
+                        <td>🇮🇩 Indonesia</td>
+                        <td>17,508</td>
+                        <td>World's largest archipelago</td>
+                    </tr>
+                    <tr>
+                        <td>Longest Coastline</td>
+                        <td>🇮🇩 Indonesia</td>
+                        <td>54,716 km</td>
+                        <td>2nd longest in world</td>
+                    </tr>
+                    <tr>
+                        <td>Landlocked Countries</td>
+                        <td>Multiple</td>
+                        <td>12 Countries</td>
+                        <td>Including Kazakhstan, Mongolia</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         FOOTER
+         ============================================ -->
+    <footer class="continent-footer">
+        <p class="footer-text">
+            🌏 GEOTOPIA - Explore Earth | 
+            <a href="../index.html">Back to Home</a> | 
+            <a href="africa.html">Next: Africa →</a>
+        </p>
+    </footer>
+
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
+    <script>
+        function showCategory(category) {
+            // Hide all content
+            document.querySelectorAll('.category-content').forEach(content => {
+                content.classList.remove('active');
             });
-        });
-
-        // ==================== SIDEBAR TOGGLE ====================
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content
+            document.getElementById(category).classList.add('active');
+            
+            // Add active to clicked tab
+            event.currentTarget.classList.add('active');
         }
-
-        // ==================== INITIALIZE ====================
-        document.addEventListener('DOMContentLoaded', initMap);
-
-        // Handle resize
-        window.addEventListener('resize', function() {
-            map.invalidateSize();
-        });
     </script>
 
 </body>
