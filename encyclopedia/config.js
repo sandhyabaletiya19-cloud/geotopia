@@ -1,18 +1,17 @@
 // ============================================
-// GEOTOPIA ENCYCLOPEDIA - COMPLETE CONFIGURATION
+// GEOTOPIA ENCYCLOPEDIA CONFIGURATION
 // ============================================
-// ALL 195 UN RECOGNIZED COUNTRIES INCLUDED
+// ALL 195 UN RECOGNIZED COUNTRIES
 // ============================================
 
 const ENCYCLOPEDIA_CONFIG = {
     categories: [
-        // ==================== ALL 195 COUNTRIES ====================
         {
             id: "countries",
             name: "Countries",
             icon: "🌍",
             items: [
-                // ===== ASIA (49 Countries) =====
+                // ===== ASIA (50 Countries) =====
                 { id: "afghanistan", name: "Afghanistan", icon: "🇦🇫", continent: "asia" },
                 { id: "armenia", name: "Armenia", icon: "🇦🇲", continent: "asia" },
                 { id: "azerbaijan", name: "Azerbaijan", icon: "🇦🇿", continent: "asia" },
@@ -59,7 +58,7 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "timor-leste", name: "Timor-Leste", icon: "🇹🇱", continent: "asia" },
                 { id: "turkey", name: "Turkey", icon: "🇹🇷", continent: "asia" },
                 { id: "turkmenistan", name: "Turkmenistan", icon: "🇹🇲", continent: "asia" },
-                { id: "uae", name: "United Arab Emirates", icon: "🇦🇪", continent: "asia" },
+                { id: "uae", name: "UAE", icon: "🇦🇪", continent: "asia" },
                 { id: "uzbekistan", name: "Uzbekistan", icon: "🇺🇿", continent: "asia" },
                 { id: "vietnam", name: "Vietnam", icon: "🇻🇳", continent: "asia" },
                 { id: "yemen", name: "Yemen", icon: "🇾🇪", continent: "asia" },
@@ -187,7 +186,7 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "panama", name: "Panama", icon: "🇵🇦", continent: "north-america" },
                 { id: "saint-kitts-nevis", name: "Saint Kitts & Nevis", icon: "🇰🇳", continent: "north-america" },
                 { id: "saint-lucia", name: "Saint Lucia", icon: "🇱🇨", continent: "north-america" },
-                { id: "saint-vincent-grenadines", name: "Saint Vincent & Grenadines", icon: "🇻🇨", continent: "north-america" },
+                { id: "saint-vincent", name: "Saint Vincent", icon: "🇻🇨", continent: "north-america" },
                 { id: "trinidad-tobago", name: "Trinidad & Tobago", icon: "🇹🇹", continent: "north-america" },
                 { id: "usa", name: "United States", icon: "🇺🇸", continent: "north-america" },
 
@@ -220,141 +219,6 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "tonga", name: "Tonga", icon: "🇹🇴", continent: "oceania" },
                 { id: "tuvalu", name: "Tuvalu", icon: "🇹🇻", continent: "oceania" },
                 { id: "vanuatu", name: "Vanuatu", icon: "🇻🇺", continent: "oceania" },
-            ]
-        },
-
-        // ==================== CONTINENTS ====================
-        {
-            id: "continents",
-            name: "Continents",
-            icon: "🌏",
-            items: [
-                { id: "asia", name: "Asia", icon: "🌏" },
-                { id: "europe", name: "Europe", icon: "🌍" },
-                { id: "africa", name: "Africa", icon: "🌍" },
-                { id: "north-america", name: "North America", icon: "🌎" },
-                { id: "south-america", name: "South America", icon: "🌎" },
-                { id: "oceania", name: "Oceania/Australia", icon: "🌏" },
-                { id: "antarctica", name: "Antarctica", icon: "🧊" },
-            ]
-        },
-
-        // ==================== OCEANS ====================
-        {
-            id: "oceans",
-            name: "Oceans & Seas",
-            icon: "🌊",
-            items: [
-                { id: "pacific-ocean", name: "Pacific Ocean", icon: "🌊" },
-                { id: "atlantic-ocean", name: "Atlantic Ocean", icon: "🌊" },
-                { id: "indian-ocean", name: "Indian Ocean", icon: "🌊" },
-                { id: "arctic-ocean", name: "Arctic Ocean", icon: "❄️" },
-                { id: "southern-ocean", name: "Southern Ocean", icon: "🧊" },
-                { id: "mediterranean-sea", name: "Mediterranean Sea", icon: "🏛️" },
-                { id: "caribbean-sea", name: "Caribbean Sea", icon: "🏝️" },
-                { id: "south-china-sea", name: "South China Sea", icon: "⚓" },
-                { id: "red-sea", name: "Red Sea", icon: "🔴" },
-                { id: "black-sea", name: "Black Sea", icon: "⬛" },
-                { id: "caspian-sea", name: "Caspian Sea", icon: "🌊" },
-                { id: "arabian-sea", name: "Arabian Sea", icon: "🌊" },
-                { id: "bay-of-bengal", name: "Bay of Bengal", icon: "🌊" },
-            ]
-        },
-
-        // ==================== MOUNTAINS ====================
-        {
-            id: "mountains",
-            name: "Mountain Ranges",
-            icon: "🏔️",
-            items: [
-                { id: "himalayas", name: "Himalayas", icon: "🏔️" },
-                { id: "alps", name: "Alps", icon: "⛰️" },
-                { id: "andes", name: "Andes", icon: "🏔️" },
-                { id: "rockies", name: "Rocky Mountains", icon: "⛰️" },
-                { id: "appalachians", name: "Appalachians", icon: "🏞️" },
-                { id: "karakoram", name: "Karakoram", icon: "🏔️" },
-                { id: "hindu-kush", name: "Hindu Kush", icon: "⛰️" },
-                { id: "atlas", name: "Atlas Mountains", icon: "🏜️" },
-                { id: "ural", name: "Ural Mountains", icon: "⛰️" },
-                { id: "caucasus", name: "Caucasus", icon: "🏔️" },
-                { id: "pyrenees", name: "Pyrenees", icon: "⛰️" },
-                { id: "carpathians", name: "Carpathians", icon: "🏔️" },
-            ]
-        },
-
-        // ==================== RIVERS ====================
-        {
-            id: "rivers",
-            name: "Major Rivers",
-            icon: "🏞️",
-            items: [
-                { id: "nile", name: "Nile River", icon: "🏛️" },
-                { id: "amazon", name: "Amazon River", icon: "🌴" },
-                { id: "yangtze", name: "Yangtze River", icon: "🐲" },
-                { id: "mississippi", name: "Mississippi River", icon: "🦅" },
-                { id: "ganges", name: "Ganges River", icon: "🙏" },
-                { id: "mekong", name: "Mekong River", icon: "🌾" },
-                { id: "danube", name: "Danube River", icon: "🏰" },
-                { id: "congo-river", name: "Congo River", icon: "🌿" },
-                { id: "brahmaputra", name: "Brahmaputra River", icon: "🏔️" },
-                { id: "indus", name: "Indus River", icon: "🏛️" },
-                { id: "yellow-river", name: "Yellow River", icon: "🌾" },
-                { id: "volga", name: "Volga River", icon: "🇷🇺" },
-            ]
-        },
-
-        // ==================== DESERTS ====================
-        {
-            id: "deserts",
-            name: "Deserts",
-            icon: "🏜️",
-            items: [
-                { id: "sahara", name: "Sahara Desert", icon: "🏜️" },
-                { id: "arabian", name: "Arabian Desert", icon: "🐪" },
-                { id: "gobi", name: "Gobi Desert", icon: "🏜️" },
-                { id: "kalahari", name: "Kalahari Desert", icon: "🦁" },
-                { id: "atacama", name: "Atacama Desert", icon: "🌵" },
-                { id: "thar", name: "Thar Desert", icon: "🐫" },
-                { id: "mojave", name: "Mojave Desert", icon: "🌵" },
-                { id: "sonoran", name: "Sonoran Desert", icon: "🌵" },
-                { id: "antarctic", name: "Antarctic Desert", icon: "🧊" },
-                { id: "arctic-desert", name: "Arctic Desert", icon: "❄️" },
-            ]
-        },
-
-        // ==================== STRAITS ====================
-        {
-            id: "straits",
-            name: "Important Straits",
-            icon: "🚢",
-            items: [
-                { id: "strait-of-gibraltar", name: "Strait of Gibraltar", icon: "🚢" },
-                { id: "strait-of-hormuz", name: "Strait of Hormuz", icon: "⛽" },
-                { id: "strait-of-malacca", name: "Strait of Malacca", icon: "🚢" },
-                { id: "bosphorus", name: "Bosphorus Strait", icon: "🌉" },
-                { id: "english-channel", name: "English Channel", icon: "🇬🇧" },
-                { id: "palk-strait", name: "Palk Strait", icon: "🇮🇳" },
-                { id: "bering-strait", name: "Bering Strait", icon: "❄️" },
-                { id: "strait-of-magellan", name: "Strait of Magellan", icon: "🌊" },
-                { id: "dardanelles", name: "Dardanelles", icon: "🏛️" },
-                { id: "taiwan-strait", name: "Taiwan Strait", icon: "🇹🇼" },
-            ]
-        },
-
-        // ==================== PASSES ====================
-        {
-            id: "passes",
-            name: "Mountain Passes",
-            icon: "🛤️",
-            items: [
-                { id: "khyber-pass", name: "Khyber Pass", icon: "🏔️" },
-                { id: "karakoram-pass", name: "Karakoram Pass", icon: "🏔️" },
-                { id: "nathu-la", name: "Nathu La", icon: "🏔️" },
-                { id: "rohtang-pass", name: "Rohtang Pass", icon: "🏔️" },
-                { id: "brenner-pass", name: "Brenner Pass", icon: "⛰️" },
-                { id: "khardung-la", name: "Khardung La", icon: "🏔️" },
-                { id: "gotthard-pass", name: "Gotthard Pass", icon: "⛰️" },
-                { id: "simplon-pass", name: "Simplon Pass", icon: "🚂" },
             ]
         }
     ]
