@@ -1,17 +1,15 @@
-# 🌍 Complete Spin the Globe Feature for GEOTOPIA
-
-I'll create a comprehensive spinning globe feature with ALL 195 countries. This is a large file with everything included.
-
-## Create: `spin-globe.html`
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌍 Spin the Globe - GEOTOPIA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Spin the Globe - Geotopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Three.js and Globe.gl -->
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -19,2667 +17,1413 @@ I'll create a comprehensive spinning globe feature with ALL 195 countries. This 
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #0d0d20;
+            --bg-card: #12122a;
+            --border-color: rgba(255,255,255,0.08);
+            --earth-blue: #4A90D9;
+            --earth-green: #2D9B4E;
+            --accent-purple: #8B5CF6;
+            --accent-orange: #F59E0B;
+            --accent-pink: #EC4899;
+            --accent-cyan: #06B6D4;
+            --text-white: #FFFFFF;
+            --text-light: #E6EDF3;
+            --text-muted: #8B949E;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #e8f4fc;
+            --bg-secondary: #d4e8f5;
+            --bg-card: #FFFFFF;
+            --border-color: rgba(0,0,0,0.1);
+            --text-white: #1a202c;
+            --text-light: #2d3748;
+            --text-muted: #718096;
+        }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0d1b2a 100%);
-            min-height: 100vh;
-            color: #fff;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-white);
+            line-height: 1.5;
             overflow-x: hidden;
+            transition: background 0.5s, color 0.5s;
+            min-height: 100vh;
+        }
+
+        /* Space Background */
+        .space-background {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .galaxy-layer {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(88, 28, 135, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 30%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse 70% 50% at 70% 80%, rgba(236, 72, 153, 0.25) 0%, transparent 50%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, #0a0a1a 0%, #050510 100%);
+            transition: opacity 0.5s;
+        }
+
+        [data-theme="light"] .galaxy-layer { opacity: 0; }
+
+        .solar-layer {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, #87CEEB 0%, #b8e0f7 30%, #d4e8f5 60%, #e8f4fc 100%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        [data-theme="light"] .solar-layer { opacity: 1; }
+
+        .stars-container {
+            position: absolute;
+            inset: 0;
+            transition: opacity 0.5s;
+        }
+
+        [data-theme="light"] .stars-container { opacity: 0.1; }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
         }
 
         /* Header */
-        .header {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 15px 30px;
+        header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
+            padding: 12px 24px;
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        [data-theme="light"] header {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
         }
 
         .logo {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .home-btn {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            padding: 10px 25px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .home-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
-        }
-
-        /* Streak Bar */
-        .streak-bar {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 165, 0, 0.2));
-            padding: 15px 30px;
-            margin-top: 70px;
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-        }
-
-        .streak-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 18px;
+            text-decoration: none;
         }
 
-        .streak-icon {
-            font-size: 28px;
-            animation: pulse 2s infinite;
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        .logo-globe {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--earth-blue), var(--earth-green));
+            box-shadow: 0 0 15px rgba(74, 144, 217, 0.5);
         }
 
-        .streak-number {
-            font-size: 28px;
-            font-weight: 700;
-            color: #FFD700;
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-white);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(-3px);
+        }
+
+        .theme-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .theme-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-purple);
         }
 
         /* Main Container */
         .main-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 30px 20px;
-            min-height: calc(100vh - 130px);
-        }
-
-        .page-title {
-            font-size: 42px;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #FFD700, #FFA500, #FF6B6B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .page-subtitle {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
-            margin-bottom: 30px;
+            min-height: 100vh;
+            padding-top: 70px;
         }
 
         /* Globe Container */
         .globe-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: calc(100vh - 70px);
+        }
+
+        #globeViz {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .globe-controls {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
         }
 
-        .globe-container {
-            width: 400px;
-            height: 400px;
-            position: relative;
-            cursor: grab;
-        }
-
-        .globe-container:active {
-            cursor: grabbing;
-        }
-
-        #globe-canvas {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-        }
-
-        /* Globe Glow Effect */
-        .globe-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 420px;
-            height: 420px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(135, 206, 235, 0.3) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Spin Button */
         .spin-btn {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            font-size: 24px;
-            font-weight: 700;
-            padding: 20px 50px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.4);
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
+            padding: 20px 50px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.5);
+            font-family: 'Inter', sans-serif;
         }
 
         .spin-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 15px 50px rgba(255, 215, 0, 0.6);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.6);
+        }
+
+        .spin-btn:active {
+            transform: scale(0.98);
         }
 
         .spin-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
-        .spin-btn .globe-icon {
-            font-size: 30px;
-            animation: rotate 3s linear infinite;
+        .spin-btn .globe-emoji {
+            font-size: 26px;
+            animation: emojiSpin 4s linear infinite;
         }
 
-        .spin-btn:hover .globe-icon {
-            animation-duration: 1s;
+        .spin-btn.spinning .globe-emoji {
+            animation: emojiSpinFast 0.3s linear infinite;
         }
 
-        @keyframes rotate {
+        @keyframes emojiSpin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        /* Country Card */
-        .country-card {
-            display: none;
-            background: linear-gradient(135deg, rgba(26, 26, 62, 0.9), rgba(10, 10, 26, 0.95));
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            border-radius: 30px;
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            margin-top: 30px;
-            animation: slideUp 0.5s ease;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        @keyframes emojiSpinFast {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .country-card.show {
-            display: block;
+        .globe-stats {
+            display: flex;
+            gap: 40px;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 16px 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        [data-theme="light"] .globe-stats {
+            background: rgba(255, 255, 255, 0.9);
         }
 
-        .landed-text {
+        .globe-stat {
             text-align: center;
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
         }
 
-        .country-flag {
-            font-size: 80px;
-            text-align: center;
-            margin-bottom: 10px;
-            animation: bounceIn 0.6s ease;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .country-name {
-            font-size: 36px;
+        .globe-stat-value {
+            font-size: 28px;
             font-weight: 800;
-            text-align: center;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
-        .country-description {
-            font-size: 17px;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .country-info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .info-item {
-            background: rgba(255, 215, 0, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-        }
-
-        .info-icon {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .info-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
+        .globe-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .info-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #FFD700;
+        /* Country Card Panel */
+        .country-panel {
+            width: 420px;
+            min-width: 420px;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 100;
         }
 
-        /* Facts Section */
-        .facts-section {
-            background: rgba(135, 206, 235, 0.1);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(135, 206, 235, 0.2);
+        .country-panel.active {
+            transform: translateX(0);
         }
 
-        .facts-title {
-            font-size: 18px;
+        .panel-placeholder {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .placeholder-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .placeholder-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .placeholder-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 280px;
+            line-height: 1.6;
+        }
+
+        .country-card {
+            display: none;
+        }
+
+        .country-card.active {
+            display: block;
+        }
+
+        .card-header {
+            padding: 35px 25px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.15) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .close-panel-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-panel-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .landed-text {
+            font-size: 13px;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .fact-item {
+        .country-flag {
+            font-size: 90px;
+            margin-bottom: 15px;
+            animation: flagWave 2.5s ease-in-out infinite;
+            display: block;
+            line-height: 1;
+        }
+
+        @keyframes flagWave {
+            0%, 100% { transform: rotate(-3deg) scale(1); }
+            50% { transform: rotate(3deg) scale(1.05); }
+        }
+
+        .country-name {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--text-white), var(--earth-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        [data-theme="light"] .country-name {
+            background: linear-gradient(135deg, #1a202c, var(--earth-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .country-tagline {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 14px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .info-row:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateX(5px);
+        }
+
+        .info-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .info-icon.capital { background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); }
+        .info-icon.region { background: linear-gradient(135deg, var(--earth-blue), var(--accent-cyan)); }
+        .info-icon.population { background: linear-gradient(135deg, var(--earth-green), var(--accent-cyan)); }
+        .info-icon.area { background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink)); }
+        .info-icon.language { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .info-icon.currency { background: linear-gradient(135deg, #10b981, #059669); }
+
+        .info-content { flex: 1; }
+
+        .info-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .facts-box {
+            margin-top: 22px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(236, 72, 153, 0.08));
+            border-radius: 16px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .facts-box h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-orange);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .facts-list {
+            list-style: none;
+        }
+
+        .facts-list li {
+            font-size: 14px;
+            color: var(--text-light);
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            margin-bottom: 12px;
-            font-size: 15px;
             line-height: 1.5;
         }
 
-        .fact-bullet {
-            color: #FFD700;
-            font-size: 18px;
+        .facts-list li:last-child { border-bottom: none; }
+
+        .facts-list li::before {
+            content: '✦';
+            color: var(--accent-orange);
+            font-size: 10px;
+            margin-top: 4px;
+            flex-shrink: 0;
         }
 
-        /* Quiz Section */
-        .quiz-section {
-            background: rgba(255, 107, 107, 0.1);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(255, 107, 107, 0.2);
+        .quiz-box {
+            margin-top: 22px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.08));
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
-        .quiz-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
+        .quiz-box h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-purple);
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .quiz-question {
-            font-size: 17px;
-            margin-bottom: 20px;
+            font-size: 15px;
+            color: var(--text-light);
+            margin-bottom: 16px;
             line-height: 1.5;
         }
 
         .quiz-options {
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
         }
 
         .quiz-option {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 20px;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.03);
+            border: 2px solid rgba(255,255,255,0.08);
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: var(--text-light);
             display: flex;
             align-items: center;
-            gap: 15px;
-            font-size: 16px;
+            gap: 12px;
         }
 
-        .quiz-option:hover {
-            background: rgba(255, 215, 0, 0.2);
-            border-color: rgba(255, 215, 0, 0.5);
+        .quiz-option:hover:not(.disabled) {
+            border-color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.1);
             transform: translateX(5px);
         }
 
         .quiz-option.correct {
-            background: rgba(76, 175, 80, 0.3);
-            border-color: #4CAF50;
+            border-color: var(--earth-green) !important;
+            background: rgba(45, 155, 78, 0.2) !important;
+            transform: translateX(0) !important;
         }
 
-        .quiz-option.incorrect {
-            background: rgba(244, 67, 54, 0.3);
-            border-color: #F44336;
+        .quiz-option.correct::after {
+            content: '✓ Correct!';
+            margin-left: auto;
+            color: var(--earth-green);
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .quiz-option.wrong {
+            border-color: #ef4444 !important;
+            background: rgba(239, 68, 68, 0.2) !important;
+            transform: translateX(0) !important;
+        }
+
+        .quiz-option.wrong::after {
+            content: '✗ Wrong';
+            margin-left: auto;
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 12px;
         }
 
         .quiz-option.disabled {
-            pointer-events: none;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
-        .option-letter {
-            width: 30px;
-            height: 30px;
-            background: rgba(255, 215, 0, 0.2);
-            border-radius: 50%;
+        .quiz-option span {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            color: #FFD700;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
         }
 
-        .quiz-result {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 18px;
-            display: none;
-        }
-
-        .quiz-result.correct {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
-            display: block;
-        }
-
-        .quiz-result.incorrect {
-            background: rgba(244, 67, 54, 0.2);
-            color: #F44336;
-            display: block;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-            justify-content: center;
-        }
-
-        .action-btn {
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: none;
+        .card-actions {
+            padding: 20px 25px 30px;
         }
 
         .spin-again-btn {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
         }
 
         .spin-again-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
         }
 
-        /* Stats Panel */
-        .stats-panel {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            padding: 20px 30px;
-            margin-top: 30px;
+        /* Streak Tracker Footer */
+        .streak-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 420px;
+            padding: 15px 30px;
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border-color);
             display: flex;
-            gap: 40px;
-            flex-wrap: wrap;
             justify-content: center;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            gap: 50px;
+            z-index: 50;
+            transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .stat-item {
-            text-align: center;
+        .streak-footer.panel-closed {
+            right: 0;
         }
 
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: #FFD700;
+        [data-theme="light"] .streak-footer {
+            background: rgba(255, 255, 255, 0.95);
         }
 
-        .stat-label {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Spinning Animation */
-        .globe-spinning {
-            animation: spinGlobe 2s ease-in-out;
-        }
-
-        @keyframes spinGlobe {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(1440deg); }
-        }
-
-        /* Discovery Animation */
-        .discovery-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
-            pointer-events: none;
-            opacity: 0;
-            z-index: 999;
-        }
-
-        .discovery-animation.show {
-            animation: discoveryFlash 0.5s ease;
-        }
-
-        @keyframes discoveryFlash {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        /* Progress Bar */
-        .progress-section {
-            width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
-        }
-
-        .progress-header {
+        .streak-item {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .progress-bar {
-            height: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #FFD700, #FFA500, #FF6B6B);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .globe-container {
-                width: 300px;
-                height: 300px;
-            }
-
-            .globe-glow {
-                width: 320px;
-                height: 320px;
-            }
-
-            .page-title {
-                font-size: 32px;
-            }
-
-            .country-card {
-                padding: 25px;
-                margin: 20px;
-            }
-
-            .country-name {
-                font-size: 28px;
-            }
-
-            .country-flag {
-                font-size: 60px;
-            }
-
-            .streak-bar {
-                gap: 20px;
-            }
-
-            .stats-panel {
-                gap: 20px;
-            }
-        }
-
-        /* Countries List Modal */
-        .countries-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .countries-modal.show {
-            display: block;
-        }
-
-        .modal-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            gap: 12px;
         }
 
-        .modal-title {
-            font-size: 30px;
-            font-weight: 700;
-        }
-
-        .close-modal {
-            font-size: 40px;
-            cursor: pointer;
-            color: #FFD700;
-        }
-
-        .countries-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .country-mini-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
+        .streak-icon {
+            width: 45px;
+            height: 45px;
             border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid transparent;
+            justify-content: center;
+            font-size: 22px;
         }
 
-        .country-mini-card:hover {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: rgba(255, 215, 0, 0.3);
+        .streak-icon.discover { background: linear-gradient(135deg, var(--earth-blue), var(--accent-cyan)); }
+        .streak-icon.fire { background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink)); }
+
+        .streak-info {
+            text-align: left;
         }
 
-        .country-mini-card.discovered {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
+        .streak-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-white);
         }
 
-        .mini-flag {
-            font-size: 30px;
+        .streak-label {
+            font-size: 12px;
+            color: var(--text-muted);
         }
 
-        .mini-name {
-            font-size: 14px;
-            font-weight: 500;
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .country-panel {
+                position: fixed;
+                top: 70px;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                min-width: unset;
+                max-width: 420px;
+            }
+
+            .streak-footer {
+                right: 0;
+            }
         }
 
-        .view-all-btn {
-            background: rgba(135, 206, 235, 0.2);
-            border: 1px solid rgba(135, 206, 235, 0.3);
-            color: #87CEEB;
-            padding: 12px 25px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 20px;
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .country-panel {
+                max-width: 100%;
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 70vh;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                border-radius: 24px 24px 0 0;
+                transform: translateY(100%);
+            }
+
+            .country-panel.active {
+                transform: translateY(0);
+            }
+
+            .globe-controls {
+                bottom: 100px;
+            }
+
+            .globe-stats {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 25px;
+            }
+
+            .spin-btn {
+                padding: 16px 35px;
+                font-size: 16px;
+            }
+
+            .streak-footer {
+                display: none;
+            }
+
+            .back-btn span {
+                display: none;
+            }
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s, visibility 0.5s;
         }
 
-        .view-all-btn:hover {
-            background: rgba(135, 206, 235, 0.3);
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-globe {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--earth-blue), var(--earth-green));
+            animation: loadingPulse 1.5s ease-in-out infinite;
+            margin-bottom: 20px;
+            box-shadow: 0 0 50px rgba(74, 144, 217, 0.5);
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: var(--text-muted);
+            animation: loadingDots 1.5s infinite;
+        }
+
+        @keyframes loadingDots {
+            0%, 20% { content: 'Loading globe.'; }
+            40% { content: 'Loading globe..'; }
+            60%, 100% { content: 'Loading globe...'; }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--accent-purple), var(--accent-pink)); 
+            border-radius: 4px; 
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">🌍 GEOTOPIA</div>
-        <a href="index.html" class="home-btn">🏠 Home</a>
-    </header>
+<body data-theme="dark">
 
-    <!-- Streak Bar -->
-    <div class="streak-bar">
-        <div class="streak-item">
-            <span class="streak-icon">🌍</span>
-            <span>Countries discovered today:</span>
-            <span class="streak-number" id="today-count">0</span>
-        </div>
-        <div class="streak-item">
-            <span class="streak-icon">🔥</span>
-            <span>Discovery streak:</span>
-            <span class="streak-number" id="streak-days">0</span>
-            <span>days</span>
-        </div>
-        <div class="streak-item">
-            <span class="streak-icon">🏆</span>
-            <span>Total discovered:</span>
-            <span class="streak-number" id="total-discovered">0</span>
-            <span>/ 195</span>
-        </div>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-globe"></div>
+        <p class="loading-text">Loading 3D Globe...</p>
     </div>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <h1 class="page-title">🌍 Spin the Globe</h1>
-        <p class="page-subtitle">Discover a random country and learn amazing geography facts!</p>
+    <!-- Space Background -->
+    <div class="space-background">
+        <div class="galaxy-layer"></div>
+        <div class="solar-layer"></div>
+        <div class="stars-container" id="starsContainer"></div>
+    </div>
 
-        <!-- Globe Section -->
-        <div class="globe-section">
-            <div class="globe-container" id="globe-container">
-                <div class="globe-glow"></div>
-                <canvas id="globe-canvas"></canvas>
-            </div>
-
-            <button class="spin-btn" id="spin-btn" onclick="spinGlobe()">
-                <span class="globe-icon">🌍</span>
-                <span>Spin the Globe</span>
-            </button>
-
-            <button class="view-all-btn" onclick="openCountriesModal()">
-                📋 View All 195 Countries
-            </button>
-        </div>
-
-        <!-- Progress Section -->
-        <div class="progress-section">
-            <div class="progress-header">
-                <span>World Exploration Progress</span>
-                <span id="progress-percent">0%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <!-- Country Card -->
-        <div class="country-card" id="country-card">
-            <div class="landed-text">🌍 You Landed In</div>
-            <div class="country-flag" id="country-flag"></div>
-            <h2 class="country-name" id="country-name"></h2>
-            <p class="country-description" id="country-description"></p>
-
-            <div class="country-info">
-                <div class="info-item">
-                    <div class="info-icon">📍</div>
-                    <div class="info-label">Capital</div>
-                    <div class="info-value" id="country-capital"></div>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <div class="logo-globe"></div>
                 </div>
-                <div class="info-item">
-                    <div class="info-icon">🌎</div>
-                    <div class="info-label">Continent</div>
-                    <div class="info-value" id="country-continent"></div>
-                </div>
-            </div>
-
-            <!-- Facts Section -->
-            <div class="facts-section">
-                <div class="facts-title">🧠 Did you know?</div>
-                <div class="fact-item">
-                    <span class="fact-bullet">•</span>
-                    <span id="fact-1"></span>
-                </div>
-                <div class="fact-item">
-                    <span class="fact-bullet">•</span>
-                    <span id="fact-2"></span>
-                </div>
-                <div class="fact-item">
-                    <span class="fact-bullet">•</span>
-                    <span id="fact-3"></span>
-                </div>
-            </div>
-
-            <!-- Quiz Section -->
-            <div class="quiz-section">
-                <div class="quiz-title">🎮 Quick Quiz</div>
-                <p class="quiz-question" id="quiz-question"></p>
-                <div class="quiz-options" id="quiz-options"></div>
-                <div class="quiz-result" id="quiz-result"></div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="action-btn spin-again-btn" onclick="spinGlobe()">
-                    🔄 Spin Again
+                <span class="logo-text">GEOTOPIA</span>
+            </a>
+            
+            <div class="header-right">
+                <a href="index.html" class="back-btn">
+                    ← <span>Back to Home</span>
+                </a>
+                <button class="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+                    <span id="themeIcon">🌙</span>
                 </button>
             </div>
         </div>
+    </header>
 
-        <!-- Stats Panel -->
-        <div class="stats-panel">
-            <div class="stat-item">
-                <div class="stat-value" id="correct-answers">0</div>
-                <div class="stat-label">Correct Answers</div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Globe Section -->
+        <section class="globe-section">
+            <div id="globeViz"></div>
+            
+            <div class="globe-controls">
+                <button class="spin-btn" id="spinBtn" onclick="spinGlobe()">
+                    <span class="globe-emoji">🌍</span> Spin the Globe
+                </button>
+                <div class="globe-stats">
+                    <div class="globe-stat">
+                        <div class="globe-stat-value" id="totalCountries">0</div>
+                        <div class="globe-stat-label">Countries Discovered</div>
+                    </div>
+                    <div class="globe-stat">
+                        <div class="globe-stat-value" id="currentStreak">0</div>
+                        <div class="globe-stat-label">Spin Streak 🔥</div>
+                    </div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="total-spins">0</div>
-                <div class="stat-label">Total Spins</div>
+        </section>
+
+        <!-- Country Panel -->
+        <aside class="country-panel" id="countryPanel">
+            <div class="panel-placeholder" id="panelPlaceholder">
+                <div class="placeholder-icon">🌍</div>
+                <h3 class="placeholder-title">Spin the Globe!</h3>
+                <p class="placeholder-text">Click the button to spin the globe and discover a random country from around the world.</p>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="accuracy">0%</div>
-                <div class="stat-label">Quiz Accuracy</div>
+            
+            <div class="country-card" id="countryCard">
+                <div class="card-header">
+                    <button class="close-panel-btn" onclick="closePanel()">×</button>
+                    <div class="landed-text">🌍 You Landed In</div>
+                    <span class="country-flag" id="cardFlag">🇺🇸</span>
+                    <h2 class="country-name" id="cardName">United States</h2>
+                    <p class="country-tagline" id="cardTagline">Land of the free</p>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-icon capital">📍</div>
+                        <div class="info-content">
+                            <div class="info-label">Capital</div>
+                            <div class="info-value" id="cardCapital">Washington D.C.</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon region">🗺️</div>
+                        <div class="info-content">
+                            <div class="info-label">Region</div>
+                            <div class="info-value" id="cardRegion">North America</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon population">👥</div>
+                        <div class="info-content">
+                            <div class="info-label">Population</div>
+                            <div class="info-value" id="cardPopulation">331 million</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon language">🗣️</div>
+                        <div class="info-content">
+                            <div class="info-label">Language</div>
+                            <div class="info-value" id="cardLanguage">English</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon currency">💰</div>
+                        <div class="info-content">
+                            <div class="info-label">Currency</div>
+                            <div class="info-value" id="cardCurrency">US Dollar (USD)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="facts-box">
+                        <h4>🧠 Did You Know?</h4>
+                        <ul class="facts-list" id="cardFacts">
+                            <li>Fact 1</li>
+                            <li>Fact 2</li>
+                            <li>Fact 3</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="quiz-box">
+                        <h4>🎮 Quick Quiz</h4>
+                        <p class="quiz-question" id="quizQuestion">What is the capital?</p>
+                        <div class="quiz-options" id="quizOptions"></div>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="spin-again-btn" onclick="spinGlobe()">
+                        🌍 Spin Again
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Streak Footer -->
+    <div class="streak-footer panel-closed" id="streakFooter">
+        <div class="streak-item">
+            <div class="streak-icon discover">🌍</div>
+            <div class="streak-info">
+                <div class="streak-value" id="footerCountries">0</div>
+                <div class="streak-label">Countries discovered today</div>
+            </div>
+        </div>
+        <div class="streak-item">
+            <div class="streak-icon fire">🔥</div>
+            <div class="streak-info">
+                <div class="streak-value" id="footerStreak">0</div>
+                <div class="streak-label">Discovery streak (days)</div>
             </div>
         </div>
     </div>
 
-    <!-- Discovery Animation -->
-    <div class="discovery-animation" id="discovery-animation"></div>
-
-    <!-- Countries Modal -->
-    <div class="countries-modal" id="countries-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">🌍 All 195 Countries</h2>
-                <span class="close-modal" onclick="closeCountriesModal()">×</span>
-            </div>
-            <div class="countries-grid" id="countries-grid"></div>
-        </div>
-    </div>
-
-    <!-- Three.js for 3D Globe -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
+    <!-- Countries Data -->
+    <script src="countries-data.js"></script>
+    
     <script>
-        // ==========================================
-        // COMPLETE DATASET: ALL 195 COUNTRIES
-        // ==========================================
-        const countriesData = [
-            // ========== AFRICA (54 Countries) ==========
-            {
-                "country_name": "Algeria",
-                "flag_emoji": "🇩🇿",
-                "capital": "Algiers",
-                "continent": "Africa",
-                "short_description": "The largest country in Africa, known for its Sahara Desert landscapes.",
-                "fact_1": "Algeria is the largest country in Africa by area.",
-                "fact_2": "About 80% of the country is covered by the Sahara Desert.",
-                "fact_3": "It has the longest coastline on the Mediterranean Sea.",
-                "quiz_question": "What percentage of Algeria is covered by the Sahara Desert?",
-                "quiz_options": ["40%", "60%", "80%", "95%"],
-                "correct_answer": "80%",
-                "map_coordinates": [28.0339, 1.6596]
-            },
-            {
-                "country_name": "Angola",
-                "flag_emoji": "🇦🇴",
-                "capital": "Luanda",
-                "continent": "Africa",
-                "short_description": "A Southern African nation with vast mineral and petroleum reserves.",
-                "fact_1": "Angola is Africa's second-largest oil producer.",
-                "fact_2": "The country has over 1,650 km of Atlantic coastline.",
-                "fact_3": "Kalandula Falls is one of Africa's largest waterfalls.",
-                "quiz_question": "What is Angola's primary natural resource export?",
-                "quiz_options": ["Gold", "Oil", "Diamonds", "Coffee"],
-                "correct_answer": "Oil",
-                "map_coordinates": [-11.2027, 17.8739]
-            },
-            {
-                "country_name": "Benin",
-                "flag_emoji": "🇧🇯",
-                "capital": "Porto-Novo",
-                "continent": "Africa",
-                "short_description": "A West African nation and birthplace of the Vodun religion.",
-                "fact_1": "Benin was once the powerful Kingdom of Dahomey.",
-                "fact_2": "It's the birthplace of the Vodun (Voodoo) religion.",
-                "fact_3": "Porto-Novo is the capital, but Cotonou is the largest city.",
-                "quiz_question": "What is the capital of Benin?",
-                "quiz_options": ["Cotonou", "Porto-Novo", "Parakou", "Djougou"],
-                "correct_answer": "Porto-Novo",
-                "map_coordinates": [9.3077, 2.3158]
-            },
-            {
-                "country_name": "Botswana",
-                "flag_emoji": "🇧🇼",
-                "capital": "Gaborone",
-                "continent": "Africa",
-                "short_description": "A landlocked country known for the Okavango Delta and diamond mines.",
-                "fact_1": "The Okavango Delta is the world's largest inland delta.",
-                "fact_2": "Botswana is the world's largest producer of diamonds by value.",
-                "fact_3": "About 70% of the country is covered by the Kalahari Desert.",
-                "quiz_question": "What famous delta is located in Botswana?",
-                "quiz_options": ["Nile Delta", "Okavango Delta", "Niger Delta", "Mekong Delta"],
-                "correct_answer": "Okavango Delta",
-                "map_coordinates": [-22.3285, 24.6849]
-            },
-            {
-                "country_name": "Burkina Faso",
-                "flag_emoji": "🇧🇫",
-                "capital": "Ouagadougou",
-                "continent": "Africa",
-                "short_description": "A landlocked Sahel nation whose name means 'Land of Honest People'.",
-                "fact_1": "The country's name means 'Land of Incorruptible/Honest People'.",
-                "fact_2": "It was formerly known as Upper Volta until 1984.",
-                "fact_3": "The Nakambé (White Volta) River flows through the country.",
-                "quiz_question": "What was Burkina Faso's former name?",
-                "quiz_options": ["Gold Coast", "Upper Volta", "French Sudan", "Dahomey"],
-                "correct_answer": "Upper Volta",
-                "map_coordinates": [12.2383, -1.5616]
-            },
-            {
-                "country_name": "Burundi",
-                "flag_emoji": "🇧🇮",
-                "capital": "Gitega",
-                "continent": "Africa",
-                "short_description": "A small, landlocked nation near the African Great Lakes.",
-                "fact_1": "Burundi is one of the smallest countries in Africa.",
-                "fact_2": "Lake Tanganyika forms its southwestern border.",
-                "fact_3": "The capital was moved from Bujumbura to Gitega in 2019.",
-                "quiz_question": "Which lake borders Burundi?",
-                "quiz_options": ["Lake Victoria", "Lake Tanganyika", "Lake Malawi", "Lake Chad"],
-                "correct_answer": "Lake Tanganyika",
-                "map_coordinates": [-3.3731, 29.9189]
-            },
-            {
-                "country_name": "Cabo Verde",
-                "flag_emoji": "🇨🇻",
-                "capital": "Praia",
-                "continent": "Africa",
-                "short_description": "An island archipelago nation off the coast of West Africa.",
-                "fact_1": "Cabo Verde consists of 10 volcanic islands.",
-                "fact_2": "It was uninhabited until Portuguese discovery in 1456.",
-                "fact_3": "The country has no rivers and relies on desalination.",
-                "quiz_question": "How many islands make up Cabo Verde?",
-                "quiz_options": ["5", "10", "15", "20"],
-                "correct_answer": "10",
-                "map_coordinates": [16.5388, -23.0418]
-            },
-            {
-                "country_name": "Cameroon",
-                "flag_emoji": "🇨🇲",
-                "capital": "Yaoundé",
-                "continent": "Africa",
-                "short_description": "Called 'Africa in Miniature' for its geological and cultural diversity.",
-                "fact_1": "Cameroon is called 'Africa in Miniature' due to its diversity.",
-                "fact_2": "Mount Cameroon is the highest peak in West Africa (4,095m).",
-                "fact_3": "Both English and French are official languages.",
-                "quiz_question": "What is the highest mountain in West Africa located in Cameroon?",
-                "quiz_options": ["Mount Kenya", "Mount Cameroon", "Mount Kilimanjaro", "Mount Elgon"],
-                "correct_answer": "Mount Cameroon",
-                "map_coordinates": [7.3697, 12.3547]
-            },
-            {
-                "country_name": "Central African Republic",
-                "flag_emoji": "🇨🇫",
-                "capital": "Bangui",
-                "continent": "Africa",
-                "short_description": "A landlocked country in Central Africa known for its rainforests.",
-                "fact_1": "The Ubangi River forms its southern border with DR Congo.",
-                "fact_2": "It's home to lowland gorillas and forest elephants.",
-                "fact_3": "The country has significant diamond and gold deposits.",
-                "quiz_question": "What river forms the southern border of Central African Republic?",
-                "quiz_options": ["Congo River", "Ubangi River", "Niger River", "Nile River"],
-                "correct_answer": "Ubangi River",
-                "map_coordinates": [6.6111, 20.9394]
-            },
-            {
-                "country_name": "Chad",
-                "flag_emoji": "🇹🇩",
-                "capital": "N'Djamena",
-                "continent": "Africa",
-                "short_description": "A landlocked Saharan nation named after Lake Chad.",
-                "fact_1": "Lake Chad has shrunk by 90% since the 1960s.",
-                "fact_2": "Chad is the fifth-largest country in Africa.",
-                "fact_3": "The Tibesti Mountains contain the highest peak in the Sahara.",
-                "quiz_question": "What natural feature is Chad named after?",
-                "quiz_options": ["A mountain", "A lake", "A river", "A desert"],
-                "correct_answer": "A lake",
-                "map_coordinates": [15.4542, 18.7322]
-            },
-            {
-                "country_name": "Comoros",
-                "flag_emoji": "🇰🇲",
-                "capital": "Moroni",
-                "continent": "Africa",
-                "short_description": "A volcanic archipelago between Madagascar and Mozambique.",
-                "fact_1": "Comoros consists of three main volcanic islands.",
-                "fact_2": "Mount Karthala is one of the world's largest active volcanoes.",
-                "fact_3": "It's one of the world's largest producers of ylang-ylang.",
-                "quiz_question": "Where is Comoros located?",
-                "quiz_options": ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Mediterranean Sea"],
-                "correct_answer": "Indian Ocean",
-                "map_coordinates": [-11.6455, 43.3333]
-            },
-            {
-                "country_name": "Democratic Republic of the Congo",
-                "flag_emoji": "🇨🇩",
-                "capital": "Kinshasa",
-                "continent": "Africa",
-                "short_description": "Africa's second-largest country, home to the Congo rainforest.",
-                "fact_1": "The Congo River is the world's deepest river (220m).",
-                "fact_2": "DRC contains over half of Africa's rainforest.",
-                "fact_3": "It has massive deposits of cobalt, coltan, and diamonds.",
-                "quiz_question": "What is the world's deepest river?",
-                "quiz_options": ["Amazon", "Nile", "Congo", "Mississippi"],
-                "correct_answer": "Congo",
-                "map_coordinates": [-4.0383, 21.7587]
-            },
-            {
-                "country_name": "Republic of the Congo",
-                "flag_emoji": "🇨🇬",
-                "capital": "Brazzaville",
-                "continent": "Africa",
-                "short_description": "A Central African nation with significant oil reserves and rainforests.",
-                "fact_1": "Brazzaville is directly across from Kinshasa on the Congo River.",
-                "fact_2": "About 65% of the country is covered by rainforest.",
-                "fact_3": "It's one of Africa's largest oil producers.",
-                "quiz_question": "Which two capitals face each other across the Congo River?",
-                "quiz_options": ["Lagos & Accra", "Brazzaville & Kinshasa", "Cairo & Tunis", "Nairobi & Kampala"],
-                "correct_answer": "Brazzaville & Kinshasa",
-                "map_coordinates": [-0.228, 15.8277]
-            },
-            {
-                "country_name": "Côte d'Ivoire",
-                "flag_emoji": "🇨🇮",
-                "capital": "Yamoussoukro",
-                "continent": "Africa",
-                "short_description": "The world's largest cocoa producer in West Africa.",
-                "fact_1": "Côte d'Ivoire produces about 40% of the world's cocoa.",
-                "fact_2": "Yamoussoukro has the world's largest church (Basilica of Our Lady of Peace).",
-                "fact_3": "The name means 'Ivory Coast' in French.",
-                "quiz_question": "What is Côte d'Ivoire the world's largest producer of?",
-                "quiz_options": ["Coffee", "Cocoa", "Palm Oil", "Rubber"],
-                "correct_answer": "Cocoa",
-                "map_coordinates": [7.54, -5.5471]
-            },
-            {
-                "country_name": "Djibouti",
-                "flag_emoji": "🇩🇯",
-                "capital": "Djibouti",
-                "continent": "Africa",
-                "short_description": "A strategic nation at the southern entrance to the Red Sea.",
-                "fact_1": "Djibouti is located at the Bab el-Mandeb strait.",
-                "fact_2": "Lake Assal is Africa's lowest point (-155m).",
-                "fact_3": "Multiple countries have military bases here due to its strategic location.",
-                "quiz_question": "What is the lowest point in Africa located in Djibouti?",
-                "quiz_options": ["Lake Chad", "Lake Assal", "Lake Turkana", "Dead Sea"],
-                "correct_answer": "Lake Assal",
-                "map_coordinates": [11.8251, 42.5903]
-            },
-            {
-                "country_name": "Egypt",
-                "flag_emoji": "🇪🇬",
-                "capital": "Cairo",
-                "continent": "Africa",
-                "short_description": "Home to ancient pyramids and the Nile River civilization.",
-                "fact_1": "The Nile is the longest river in the world (6,650 km).",
-                "fact_2": "Egypt controls the Suez Canal, a crucial global shipping route.",
-                "fact_3": "The Great Pyramid of Giza is the oldest of the Seven Wonders.",
-                "quiz_question": "Which canal connects the Mediterranean and Red Sea?",
-                "quiz_options": ["Panama Canal", "Suez Canal", "Kiel Canal", "Corinth Canal"],
-                "correct_answer": "Suez Canal",
-                "map_coordinates": [26.8206, 30.8025]
-            },
-            {
-                "country_name": "Equatorial Guinea",
-                "flag_emoji": "🇬🇶",
-                "capital": "Malabo",
-                "continent": "Africa",
-                "short_description": "The only African country with Spanish as an official language.",
-                "fact_1": "It's the only African nation with Spanish as an official language.",
-                "fact_2": "The capital Malabo is on the island of Bioko.",
-                "fact_3": "Oil discovery made it one of Africa's wealthiest nations per capita.",
-                "quiz_question": "What is unique about Equatorial Guinea's official language?",
-                "quiz_options": ["Only Portuguese", "Only Spanish", "Only French", "Only Arabic"],
-                "correct_answer": "Only Spanish",
-                "map_coordinates": [1.6508, 10.2679]
-            },
-            {
-                "country_name": "Eritrea",
-                "flag_emoji": "🇪🇷",
-                "capital": "Asmara",
-                "continent": "Africa",
-                "short_description": "A Red Sea nation known for its Italian colonial architecture.",
-                "fact_1": "Asmara is a UNESCO World Heritage Site for its modernist architecture.",
-                "fact_2": "Eritrea has over 350 islands in the Red Sea.",
-                "fact_3": "The Danakil Depression is one of the hottest places on Earth.",
-                "quiz_question": "Which sea does Eritrea border?",
-                "quiz_options": ["Mediterranean Sea", "Red Sea", "Arabian Sea", "Black Sea"],
-                "correct_answer": "Red Sea",
-                "map_coordinates": [15.1794, 39.7823]
-            },
-            {
-                "country_name": "Eswatini",
-                "flag_emoji": "🇸🇿",
-                "capital": "Mbabane",
-                "continent": "Africa",
-                "short_description": "A small landlocked kingdom, formerly known as Swaziland.",
-                "fact_1": "Eswatini changed its name from Swaziland in 2018.",
-                "fact_2": "It's one of the world's last absolute monarchies.",
-                "fact_3": "The country is almost completely surrounded by South Africa.",
-                "quiz_question": "What was Eswatini formerly known as?",
-                "quiz_options": ["Lesotho", "Swaziland", "Rhodesia", "Nyasaland"],
-                "correct_answer": "Swaziland",
-                "map_coordinates": [-26.5225, 31.4659]
-            },
-            {
-                "country_name": "Ethiopia",
-                "flag_emoji": "🇪🇹",
-                "capital": "Addis Ababa",
-                "continent": "Africa",
-                "short_description": "The only African country never colonized and birthplace of coffee.",
-                "fact_1": "Ethiopia is the birthplace of coffee.",
-                "fact_2": "It uses its own calendar, 7-8 years behind the Gregorian calendar.",
-                "fact_3": "The Blue Nile originates from Lake Tana in Ethiopia.",
-                "quiz_question": "What beverage originated in Ethiopia?",
-                "quiz_options": ["Tea", "Coffee", "Cocoa", "Wine"],
-                "correct_answer": "Coffee",
-                "map_coordinates": [9.145, 40.4897]
-            },
-            {
-                "country_name": "Gabon",
-                "flag_emoji": "🇬🇦",
-                "capital": "Libreville",
-                "continent": "Africa",
-                "short_description": "A Central African nation with 85% rainforest coverage.",
-                "fact_1": "About 85% of Gabon is covered by rainforest.",
-                "fact_2": "It has one of Africa's highest GDP per capita due to oil.",
-                "fact_3": "Loango National Park has surfing hippos on beaches.",
-                "quiz_question": "What percentage of Gabon is covered by rainforest?",
-                "quiz_options": ["45%", "65%", "85%", "95%"],
-                "correct_answer": "85%",
-                "map_coordinates": [-0.8037, 11.6094]
-            },
-            {
-                "country_name": "Gambia",
-                "flag_emoji": "🇬🇲",
-                "capital": "Banjul",
-                "continent": "Africa",
-                "short_description": "Africa's smallest mainland country, surrounded by Senegal.",
-                "fact_1": "Gambia is the smallest country on mainland Africa.",
-                "fact_2": "The entire country follows the Gambia River.",
-                "fact_3": "It's completely surrounded by Senegal except for its Atlantic coast.",
-                "quiz_question": "Which country completely surrounds Gambia?",
-                "quiz_options": ["Guinea-Bissau", "Mauritania", "Senegal", "Mali"],
-                "correct_answer": "Senegal",
-                "map_coordinates": [13.4432, -15.3101]
-            },
-            {
-                "country_name": "Ghana",
-                "flag_emoji": "🇬🇭",
-                "capital": "Accra",
-                "continent": "Africa",
-                "short_description": "The first sub-Saharan African country to gain independence.",
-                "fact_1": "Ghana was the first sub-Saharan African country to gain independence (1957).",
-                "fact_2": "Lake Volta is one of the world's largest artificial lakes.",
-                "fact_3": "Ghana is named after the ancient Ghana Empire.",
-                "quiz_question": "When did Ghana gain independence?",
-                "quiz_options": ["1947", "1957", "1960", "1963"],
-                "correct_answer": "1957",
-                "map_coordinates": [7.9465, -1.0232]
-            },
-            {
-                "country_name": "Guinea",
-                "flag_emoji": "🇬🇳",
-                "capital": "Conakry",
-                "continent": "Africa",
-                "short_description": "A West African nation with the world's largest bauxite reserves.",
-                "fact_1": "Guinea has the world's largest bauxite reserves.",
-                "fact_2": "The Niger, Senegal, and Gambia rivers all originate here.",
-                "fact_3": "Mount Nimba is a UNESCO World Heritage Site.",
-                "quiz_question": "What mineral is Guinea the world's largest reserve holder of?",
-                "quiz_options": ["Gold", "Iron", "Bauxite", "Copper"],
-                "correct_answer": "Bauxite",
-                "map_coordinates": [9.9456, -9.6966]
-            },
-            {
-                "country_name": "Guinea-Bissau",
-                "flag_emoji": "🇬🇼",
-                "capital": "Bissau",
-                "continent": "Africa",
-                "short_description": "A small West African nation with an archipelago of islands.",
-                "fact_1": "The Bijagós Archipelago has 88 islands, only 20 inhabited.",
-                "fact_2": "Cashew nuts are the country's main export.",
-                "fact_3": "It was a Portuguese colony until 1974.",
-                "quiz_question": "What is Guinea-Bissau's main export crop?",
-                "quiz_options": ["Coffee", "Cashew nuts", "Cocoa", "Cotton"],
-                "correct_answer": "Cashew nuts",
-                "map_coordinates": [11.8037, -15.1804]
-            },
-            {
-                "country_name": "Kenya",
-                "flag_emoji": "🇰🇪",
-                "capital": "Nairobi",
-                "continent": "Africa",
-                "short_description": "An East African nation known for safaris and the Great Rift Valley.",
-                "fact_1": "Mount Kenya is Africa's second-highest peak (5,199m).",
-                "fact_2": "The Great Rift Valley runs through the country.",
-                "fact_3": "Kenya is famous for the annual wildebeest migration in Maasai Mara.",
-                "quiz_question": "What is Africa's second-highest mountain?",
-                "quiz_options": ["Mount Kilimanjaro", "Mount Kenya", "Mount Elgon", "Mount Meru"],
-                "correct_answer": "Mount Kenya",
-                "map_coordinates": [-0.0236, 37.9062]
-            },
-            {
-                "country_name": "Lesotho",
-                "flag_emoji": "🇱🇸",
-                "capital": "Maseru",
-                "continent": "Africa",
-                "short_description": "A mountainous kingdom completely surrounded by South Africa.",
-                "fact_1": "Lesotho is the only country entirely above 1,000 meters.",
-                "fact_2": "It's completely surrounded by South Africa.",
-                "fact_3": "Known as the 'Kingdom in the Sky' due to its elevation.",
-                "quiz_question": "What is unique about Lesotho's geography?",
-                "quiz_options": ["Island nation", "Surrounded by one country", "Has no rivers", "Desert country"],
-                "correct_answer": "Surrounded by one country",
-                "map_coordinates": [-29.61, 28.2336]
-            },
-            {
-                "country_name": "Liberia",
-                "flag_emoji": "🇱🇷",
-                "capital": "Monrovia",
-                "continent": "Africa",
-                "short_description": "Africa's oldest republic, founded by freed American slaves.",
-                "fact_1": "Liberia was founded by freed American slaves in 1822.",
-                "fact_2": "Monrovia is named after U.S. President James Monroe.",
-                "fact_3": "It's Africa's oldest republic.",
-                "quiz_question": "Who was Monrovia, Liberia named after?",
-                "quiz_options": ["Abraham Lincoln", "James Monroe", "George Washington", "Thomas Jefferson"],
-                "correct_answer": "James Monroe",
-                "map_coordinates": [6.4281, -9.4295]
-            },
-            {
-                "country_name": "Libya",
-                "flag_emoji": "🇱🇾",
-                "capital": "Tripoli",
-                "continent": "Africa",
-                "short_description": "A North African nation with large oil reserves and Sahara Desert.",
-                "fact_1": "Libya has Africa's largest proven oil reserves.",
-                "fact_2": "About 90% of the country is desert.",
-                "fact_3": "The ancient Roman city of Leptis Magna is a UNESCO site here.",
-                "quiz_question": "What percentage of Libya is desert?",
-                "quiz_options": ["50%", "70%", "90%", "99%"],
-                "correct_answer": "90%",
-                "map_coordinates": [26.3351, 17.2283]
-            },
-            {
-                "country_name": "Madagascar",
-                "flag_emoji": "🇲🇬",
-                "capital": "Antananarivo",
-                "continent": "Africa",
-                "short_description": "The world's fourth-largest island with unique wildlife.",
-                "fact_1": "Madagascar is the world's 4th largest island.",
-                "fact_2": "Over 90% of its wildlife is found nowhere else on Earth.",
-                "fact_3": "It separated from India about 88 million years ago.",
-                "quiz_question": "What makes Madagascar's wildlife unique?",
-                "quiz_options": ["No mammals", "90% endemic species", "Only reptiles", "No birds"],
-                "correct_answer": "90% endemic species",
-                "map_coordinates": [-18.7669, 46.8691]
-            },
-            {
-                "country_name": "Malawi",
-                "flag_emoji": "🇲🇼",
-                "capital": "Lilongwe",
-                "continent": "Africa",
-                "short_description": "Known as the 'Warm Heart of Africa' with Lake Malawi.",
-                "fact_1": "Lake Malawi contains more fish species than any other lake.",
-                "fact_2": "The lake covers about one-fifth of the country's area.",
-                "fact_3": "Malawi is called the 'Warm Heart of Africa'.",
-                "quiz_question": "What is Lake Malawi famous for?",
-                "quiz_options": ["Deepest lake", "Most fish species", "Largest lake", "Saltiest lake"],
-                "correct_answer": "Most fish species",
-                "map_coordinates": [-13.2543, 34.3015]
-            },
-            {
-                "country_name": "Mali",
-                "flag_emoji": "🇲🇱",
-                "capital": "Bamako",
-                "continent": "Africa",
-                "short_description": "A landlocked Saharan nation home to the ancient city of Timbuktu.",
-                "fact_1": "Timbuktu was a major center of Islamic learning.",
-                "fact_2": "The Niger River forms a large inland delta here.",
-                "fact_3": "Mali was part of the wealthy Mali Empire (1235-1600).",
-                "quiz_question": "Which historic city of learning is in Mali?",
-                "quiz_options": ["Cairo", "Fez", "Timbuktu", "Marrakech"],
-                "correct_answer": "Timbuktu",
-                "map_coordinates": [17.5707, -3.9962]
-            },
-            {
-                "country_name": "Mauritania",
-                "flag_emoji": "🇲🇷",
-                "capital": "Nouakchott",
-                "continent": "Africa",
-                "short_description": "A Saharan nation where the desert meets the Atlantic Ocean.",
-                "fact_1": "The Richat Structure (Eye of the Sahara) is located here.",
-                "fact_2": "Mauritania is one of the most sparsely populated countries.",
-                "fact_3": "The capital Nouakchott is one of the largest cities built on sand.",
-                "quiz_question": "What geological feature is called the 'Eye of the Sahara'?",
-                "quiz_options": ["A volcano", "An oasis", "The Richat Structure", "A lake"],
-                "correct_answer": "The Richat Structure",
-                "map_coordinates": [21.0079, -10.9408]
-            },
-            {
-                "country_name": "Mauritius",
-                "flag_emoji": "🇲🇺",
-                "capital": "Port Louis",
-                "continent": "Africa",
-                "short_description": "An island nation in the Indian Ocean known for its beaches.",
-                "fact_1": "The dodo bird was native to Mauritius before extinction.",
-                "fact_2": "It's one of Africa's most developed economies.",
-                "fact_3": "The underwater waterfall illusion is a famous attraction.",
-                "quiz_question": "Which extinct bird was native to Mauritius?",
-                "quiz_options": ["Moa", "Dodo", "Great Auk", "Passenger Pigeon"],
-                "correct_answer": "Dodo",
-                "map_coordinates": [-20.3484, 57.5522]
-            },
-            {
-                "country_name": "Morocco",
-                "flag_emoji": "🇲🇦",
-                "capital": "Rabat",
-                "continent": "Africa",
-                "short_description": "A North African kingdom with Atlas Mountains and Sahara Desert.",
-                "fact_1": "Morocco has coastlines on both the Atlantic and Mediterranean.",
-                "fact_2": "The Atlas Mountains reach over 4,000 meters.",
-                "fact_3": "Fes has the world's oldest continuously operating university.",
-                "quiz_question": "Which mountain range runs through Morocco?",
-                "quiz_options": ["Andes", "Alps", "Atlas", "Himalayas"],
-                "correct_answer": "Atlas",
-                "map_coordinates": [31.7917, -7.0926]
-            },
-            {
-                "country_name": "Mozambique",
-                "flag_emoji": "🇲🇿",
-                "capital": "Maputo",
-                "continent": "Africa",
-                "short_description": "A Southeast African nation with a long Indian Ocean coastline.",
-                "fact_1": "Mozambique has a 2,500 km coastline on the Indian Ocean.",
-                "fact_2": "The Zambezi River delta is one of Africa's largest.",
-                "fact_3": "The flag features an AK-47, unique for national flags.",
-                "quiz_question": "What unique item appears on Mozambique's flag?",
-                "quiz_options": ["A lion", "An AK-47", "A ship", "An elephant"],
-                "correct_answer": "An AK-47",
-                "map_coordinates": [-18.6657, 35.5296]
-            },
-            {
-                "country_name": "Namibia",
-                "flag_emoji": "🇳🇦",
-                "capital": "Windhoek",
-                "continent": "Africa",
-                "short_description": "Home to the oldest desert in the world, the Namib Desert.",
-                "fact_1": "The Namib Desert is the oldest desert in the world (55 million years).",
-                "fact_2": "Namibia has one of the lowest population densities in the world.",
-                "fact_3": "The Skeleton Coast is named for whale and seal bones.",
-                "quiz_question": "What is the oldest desert in the world?",
-                "quiz_options": ["Sahara", "Atacama", "Namib", "Gobi"],
-                "correct_answer": "Namib",
-                "map_coordinates": [-22.9576, 18.4904]
-            },
-            {
-                "country_name": "Niger",
-                "flag_emoji": "🇳🇪",
-                "capital": "Niamey",
-                "continent": "Africa",
-                "short_description": "A landlocked Saharan nation named after the Niger River.",
-                "fact_1": "Niger is named after the Niger River.",
-                "fact_2": "Over 80% of the country is covered by the Sahara Desert.",
-                "fact_3": "The Aïr Mountains are a UNESCO World Heritage Site.",
-                "quiz_question": "What river is Niger named after?",
-                "quiz_options": ["Nile", "Niger", "Congo", "Zambezi"],
-                "correct_answer": "Niger",
-                "map_coordinates": [17.6078, 8.0817]
-            },
-            {
-                "country_name": "Nigeria",
-                "flag_emoji": "🇳🇬",
-                "capital": "Abuja",
-                "continent": "Africa",
-                "short_description": "Africa's most populous country and largest economy.",
-                "fact_1": "Nigeria is Africa's most populous country (200+ million).",
-                "fact_2": "It's Africa's largest oil producer.",
-                "fact_3": "Lagos is one of the world's fastest-growing megacities.",
-                "quiz_question": "What is Africa's most populous country?",
-                "quiz_options": ["Egypt", "Ethiopia", "Nigeria", "South Africa"],
-                "correct_answer": "Nigeria",
-                "map_coordinates": [9.082, 8.6753]
-            },
-            {
-                "country_name": "Rwanda",
-                "flag_emoji": "🇷🇼",
-                "capital": "Kigali",
-                "continent": "Africa",
-                "short_description": "The 'Land of a Thousand Hills' known for mountain gorillas.",
-                "fact_1": "Rwanda is called the 'Land of a Thousand Hills'.",
-                "fact_2": "Home to mountain gorillas in Volcanoes National Park.",
-                "fact_3": "Kigali is considered Africa's cleanest city.",
-                "quiz_question": "What is Rwanda's nickname?",
-                "quiz_options": ["Pearl of Africa", "Land of a Thousand Hills", "Heart of Africa", "Rainbow Nation"],
-                "correct_answer": "Land of a Thousand Hills",
-                "map_coordinates": [-1.9403, 29.8739]
-            },
-            {
-                "country_name": "São Tomé and Príncipe",
-                "flag_emoji": "🇸🇹",
-                "capital": "São Tomé",
-                "continent": "Africa",
-                "short_description": "Africa's smallest country, a volcanic island nation.",
-                "fact_1": "It's Africa's second-smallest country after Seychelles.",
-                "fact_2": "The islands straddle the Equator.",
-                "fact_3": "Once the world's largest cocoa producer.",
-                "quiz_question": "What is Africa's smallest country?",
-                "quiz_options": ["Gambia", "Seychelles", "São Tomé and Príncipe", "Eswatini"],
-                "correct_answer": "Seychelles",
-                "map_coordinates": [0.1864, 6.6131]
-            },
-            {
-                "country_name": "Senegal",
-                "flag_emoji": "🇸🇳",
-                "capital": "Dakar",
-                "continent": "Africa",
-                "short_description": "A West African nation known for its vibrant culture and music.",
-                "fact_1": "Dakar is the westernmost point of mainland Africa.",
-                "fact_2": "Lake Retba (Pink Lake) has high salt content turning it pink.",
-                "fact_3": "Senegal almost completely surrounds Gambia.",
-                "quiz_question": "What is the westernmost point of mainland Africa?",
-                "quiz_options": ["Lagos", "Dakar", "Casablanca", "Accra"],
-                "correct_answer": "Dakar",
-                "map_coordinates": [14.4974, -14.4524]
-            },
-            {
-                "country_name": "Seychelles",
-                "flag_emoji": "🇸🇨",
-                "capital": "Victoria",
-                "continent": "Africa",
-                "short_description": "An archipelago of 115 islands, Africa's smallest country.",
-                "fact_1": "Seychelles is Africa's smallest country by area and population.",
-                "fact_2": "The coco de mer palm has the world's largest seed.",
-                "fact_3": "It consists of 115 islands in the Indian Ocean.",
-                "quiz_question": "How many islands make up Seychelles?",
-                "quiz_options": ["45", "75", "115", "150"],
-                "correct_answer": "115",
-                "map_coordinates": [-4.6796, 55.492]
-            },
-            {
-                "country_name": "Sierra Leone",
-                "flag_emoji": "🇸🇱",
-                "capital": "Freetown",
-                "continent": "Africa",
-                "short_description": "A West African nation known for its diamonds and beaches.",
-                "fact_1": "Freetown was founded as a home for freed slaves.",
-                "fact_2": "The name means 'Lion Mountains' in Portuguese.",
-                "fact_3": "Rich in diamonds, gold, and titanium.",
-                "quiz_question": "What does 'Sierra Leone' mean?",
-                "quiz_options": ["Golden Coast", "Lion Mountains", "Free Land", "Green Hills"],
-                "correct_answer": "Lion Mountains",
-                "map_coordinates": [8.4606, -11.7799]
-            },
-            {
-                "country_name": "Somalia",
-                "flag_emoji": "🇸🇴",
-                "capital": "Mogadishu",
-                "continent": "Africa",
-                "short_description": "Located at the Horn of Africa with the longest African coastline.",
-                "fact_1": "Somalia has the longest coastline in mainland Africa (3,025 km).",
-                "fact_2": "It's located at the Horn of Africa.",
-                "fact_3": "Frankincense and myrrh have been exported here for millennia.",
-                "quiz_question": "What is the Horn of Africa region named after?",
-                "quiz_options": ["A mountain", "Its shape", "A river", "An animal"],
-                "correct_answer": "Its shape",
-                "map_coordinates": [5.1521, 46.1996]
-            },
-            {
-                "country_name": "South Africa",
-                "flag_emoji": "🇿🇦",
-                "capital": "Pretoria",
-                "continent": "Africa",
-                "short_description": "The 'Rainbow Nation' at Africa's southern tip with 3 capitals.",
-                "fact_1": "South Africa has three capital cities (Pretoria, Cape Town, Bloemfontein).",
-                "fact_2": "Table Mountain is one of the oldest mountains in the world.",
-                "fact_3": "It has 11 official languages.",
-                "quiz_question": "How many capital cities does South Africa have?",
-                "quiz_options": ["1", "2", "3", "4"],
-                "correct_answer": "3",
-                "map_coordinates": [-30.5595, 22.9375]
-            },
-            {
-                "country_name": "South Sudan",
-                "flag_emoji": "🇸🇸",
-                "capital": "Juba",
-                "continent": "Africa",
-                "short_description": "The world's youngest country, gaining independence in 2011.",
-                "fact_1": "South Sudan is the world's youngest country (2011).",
-                "fact_2": "The White Nile flows through the country.",
-                "fact_3": "The Sudd is one of the world's largest wetlands.",
-                "quiz_question": "When did South Sudan gain independence?",
-                "quiz_options": ["2005", "2008", "2011", "2015"],
-                "correct_answer": "2011",
-                "map_coordinates": [6.877, 31.307]
-            },
-            {
-                "country_name": "Sudan",
-                "flag_emoji": "🇸🇩",
-                "capital": "Khartoum",
-                "continent": "Africa",
-                "short_description": "Where the Blue and White Nile rivers meet at Khartoum.",
-                "fact_1": "The Blue and White Nile meet at Khartoum.",
-                "fact_2": "Sudan has more pyramids than Egypt (about 200).",
-                "fact_3": "It was Africa's largest country before South Sudan's independence.",
-                "quiz_question": "Which city is located at the confluence of the Blue and White Nile?",
-                "quiz_options": ["Cairo", "Khartoum", "Addis Ababa", "Kampala"],
-                "correct_answer": "Khartoum",
-                "map_coordinates": [12.8628, 30.2176]
-            },
-            {
-                "country_name": "Tanzania",
-                "flag_emoji": "🇹🇿",
-                "capital": "Dodoma",
-                "continent": "Africa",
-                "short_description": "Home to Mount Kilimanjaro, Africa's highest peak.",
-                "fact_1": "Mount Kilimanjaro (5,895m) is Africa's highest peak.",
-                "fact_2": "Serengeti hosts the world's largest wildlife migration.",
-                "fact_3": "Zanzibar is a semi-autonomous archipelago of Tanzania.",
-                "quiz_question": "What is Africa's highest mountain?",
-                "quiz_options": ["Mount Kenya", "Mount Kilimanjaro", "Mount Elgon", "Mount Meru"],
-                "correct_answer": "Mount Kilimanjaro",
-                "map_coordinates": [-6.369, 34.8888]
-            },
-            {
-                "country_name": "Togo",
-                "flag_emoji": "🇹🇬",
-                "capital": "Lomé",
-                "continent": "Africa",
-                "short_description": "A narrow West African nation between Ghana and Benin.",
-                "fact_1": "Togo is one of the narrowest countries in the world.",
-                "fact_2": "It stretches about 550 km north-south but only 100 km wide.",
-                "fact_3": "Lomé has West Africa's only deep-water port.",
-                "quiz_question": "What is unique about Togo's shape?",
-                "quiz_options": ["Perfectly square", "Very narrow", "Completely round", "Island chain"],
-                "correct_answer": "Very narrow",
-                "map_coordinates": [8.6195, 0.8248]
-            },
-            {
-                "country_name": "Tunisia",
-                "flag_emoji": "🇹🇳",
-                "capital": "Tunis",
-                "continent": "Africa",
-                "short_description": "The northernmost African country with ancient Carthage ruins.",
-                "fact_1": "Tunisia is Africa's northernmost country.",
-                "fact_2": "Ancient Carthage was located near modern Tunis.",
-                "fact_3": "The Sahara Desert covers about 40% of the country.",
-                "quiz_question": "Which ancient civilization was based near Tunis?",
-                "quiz_options": ["Roman", "Greek", "Carthaginian", "Egyptian"],
-                "correct_answer": "Carthaginian",
-                "map_coordinates": [33.8869, 9.5375]
-            },
-            {
-                "country_name": "Uganda",
-                "flag_emoji": "🇺🇬",
-                "capital": "Kampala",
-                "continent": "Africa",
-                "short_description": "The 'Pearl of Africa' with Lake Victoria and mountain gorillas.",
-                "fact_1": "Uganda was called the 'Pearl of Africa' by Winston Churchill.",
-                "fact_2": "The source of the Nile is at Lake Victoria in Uganda.",
-                "fact_3": "Home to half of the world's mountain gorillas.",
-                "quiz_question": "Who called Uganda the 'Pearl of Africa'?",
-                "quiz_options": ["Queen Victoria", "Winston Churchill", "David Livingstone", "Henry Stanley"],
-                "correct_answer": "Winston Churchill",
-                "map_coordinates": [1.3733, 32.2903]
-            },
-            {
-                "country_name": "Zambia",
-                "flag_emoji": "🇿🇲",
-                "capital": "Lusaka",
-                "continent": "Africa",
-                "short_description": "Home to Victoria Falls, one of the world's largest waterfalls.",
-                "fact_1": "Victoria Falls is shared between Zambia and Zimbabwe.",
-                "fact_2": "Zambia has 19 national parks.",
-                "fact_3": "It's one of the world's largest copper producers.",
-                "quiz_question": "Victoria Falls is shared between Zambia and which country?",
-                "quiz_options": ["Botswana", "Mozambique", "Zimbabwe", "Malawi"],
-                "correct_answer": "Zimbabwe",
-                "map_coordinates": [-13.1339, 27.8493]
-            },
-            {
-                "country_name": "Zimbabwe",
-                "flag_emoji": "🇿🇼",
-                "capital": "Harare",
-                "continent": "Africa",
-                "short_description": "Named after the Great Zimbabwe ruins, a UNESCO World Heritage Site.",
-                "fact_1": "Zimbabwe means 'House of Stone' in Shona.",
-                "fact_2": "Great Zimbabwe ruins date back to the 11th century.",
-                "fact_3": "Victoria Falls is called 'Mosi-oa-Tunya' (Smoke that Thunders).",
-                "quiz_question": "What does 'Zimbabwe' mean?",
-                "quiz_options": ["Great River", "House of Stone", "Land of Gold", "Mountain Home"],
-                "correct_answer": "House of Stone",
-                "map_coordinates": [-19.0154, 29.1549]
-            },
+        // ==================== GLOBE INITIALIZATION ====================
+        
+        let globe;
+        let isSpinning = false;
+        let autoRotate = true;
+        
+        // Game State
+        const gameState = {
+            discovered: JSON.parse(localStorage.getItem('globeDiscovered') || '[]'),
+            streak: parseInt(localStorage.getItem('globeStreak') || '0'),
+            lastVisit: localStorage.getItem('globeLastVisit') || '',
+            todayCount: parseInt(localStorage.getItem('globeTodayCount') || '0'),
+            quizCorrect: parseInt(localStorage.getItem('globeQuizCorrect') || '0')
+        };
 
-            // ========== ASIA (49 Countries) ==========
-            {
-                "country_name": "Afghanistan",
-                "flag_emoji": "🇦🇫",
-                "capital": "Kabul",
-                "continent": "Asia",
-                "short_description": "A landlocked country at the crossroads of Central and South Asia.",
-                "fact_1": "The Hindu Kush mountain range runs through Afghanistan.",
-                "fact_2": "Afghanistan has been called the 'Graveyard of Empires'.",
-                "fact_3": "Lapis lazuli has been mined here for over 6,000 years.",
-                "quiz_question": "Which mountain range runs through Afghanistan?",
-                "quiz_options": ["Himalayas", "Hindu Kush", "Karakoram", "Tian Shan"],
-                "correct_answer": "Hindu Kush",
-                "map_coordinates": [33.9391, 67.71]
-            },
-            {
-                "country_name": "Armenia",
-                "flag_emoji": "🇦🇲",
-                "capital": "Yerevan",
-                "continent": "Asia",
-                "short_description": "An ancient nation at the crossroads of Europe and Asia.",
-                "fact_1": "Armenia was the first country to adopt Christianity (301 AD).",
-                "fact_2": "Mount Ararat, where Noah's Ark reportedly landed, is visible from Armenia.",
-                "fact_3": "Yerevan is one of the world's oldest continuously inhabited cities.",
-                "quiz_question": "What was Armenia the first country to adopt?",
-                "quiz_options": ["Islam", "Buddhism", "Christianity", "Judaism"],
-                "correct_answer": "Christianity",
-                "map_coordinates": [40.0691, 45.0382]
-            },
-            {
-                "country_name": "Azerbaijan",
-                "flag_emoji": "🇦🇿",
-                "capital": "Baku",
-                "continent": "Asia",
-                "short_description": "A Caspian Sea nation known as the 'Land of Fire'.",
-                "fact_1": "Azerbaijan is known as the 'Land of Fire' due to natural gas flames.",
-                "fact_2": "Baku was one of the first oil boom cities in the world.",
-                "fact_3": "Mud volcanoes: Azerbaijan has about half of the world's total.",
-                "quiz_question": "Why is Azerbaijan called the 'Land of Fire'?",
-                "quiz_options": ["Hot climate", "Natural gas flames", "Volcanic activity", "Desert heat"],
-                "correct_answer": "Natural gas flames",
-                "map_coordinates": [40.1431, 47.5769]
-            },
-            {
-                "country_name": "Bahrain",
-                "flag_emoji": "🇧🇭",
-                "capital": "Manama",
-                "continent": "Asia",
-                "short_description": "An island nation in the Persian Gulf known for pearling.",
-                "fact_1": "Bahrain was historically famous for pearl diving.",
-                "fact_2": "The Tree of Life has survived in the desert for 400+ years.",
-                "fact_3": "It's connected to Saudi Arabia by the King Fahd Causeway.",
-                "quiz_question": "What was Bahrain historically famous for?",
-                "quiz_options": ["Gold mining", "Pearl diving", "Spice trade", "Silk production"],
-                "correct_answer": "Pearl diving",
-                "map_coordinates": [26.0667, 50.5577]
-            },
-            {
-                "country_name": "Bangladesh",
-                "flag_emoji": "🇧🇩",
-                "capital": "Dhaka",
-                "continent": "Asia",
-                "short_description": "The world's largest river delta formed by the Ganges and Brahmaputra.",
-                "fact_1": "Bangladesh has the world's largest river delta.",
-                "fact_2": "The Sundarbans is the world's largest mangrove forest.",
-                "fact_3": "One of the world's most densely populated countries.",
-                "quiz_question": "What is the world's largest mangrove forest?",
-                "quiz_options": ["Amazon", "Sundarbans", "Congo", "Mekong"],
-                "correct_answer": "Sundarbans",
-                "map_coordinates": [23.685, 90.3563]
-            },
-            {
-                "country_name": "Bhutan",
-                "flag_emoji": "🇧🇹",
-                "capital": "Thimphu",
-                "continent": "Asia",
-                "short_description": "The 'Land of the Thunder Dragon' measuring Gross National Happiness.",
-                "fact_1": "Bhutan measures Gross National Happiness instead of GDP.",
-                "fact_2": "It's the only carbon-negative country in the world.",
-                "fact_3": "Television was only introduced in 1999.",
-                "quiz_question": "What unique metric does Bhutan measure?",
-                "quiz_options": ["GDP", "Gross National Happiness", "HDI", "Carbon footprint"],
-                "correct_answer": "Gross National Happiness",
-                "map_coordinates": [27.5142, 90.4336]
-            },
-            {
-                "country_name": "Brunei",
-                "flag_emoji": "🇧🇳",
-                "capital": "Bandar Seri Begawan",
-                "continent": "Asia",
-                "short_description": "A small oil-rich sultanate on the island of Borneo.",
-                "fact_1": "Brunei has no income tax due to oil and gas revenues.",
-                "fact_2": "The Sultan of Brunei's palace has 1,788 rooms.",
-                "fact_3": "About 70% of the country is covered by rainforest.",
-                "quiz_question": "On which island is Brunei located?",
-                "quiz_options": ["Java", "Sumatra", "Borneo", "Sulawesi"],
-                "correct_answer": "Borneo",
-                "map_coordinates": [4.5353, 114.7277]
-            },
-            {
-                "country_name": "Cambodia",
-                "flag_emoji": "🇰🇭",
-                "capital": "Phnom Penh",
-                "continent": "Asia",
-                "short_description": "Home to Angkor Wat, the world's largest religious monument.",
-                "fact_1": "Angkor Wat is the world's largest religious monument.",
-                "fact_2": "The Tonlé Sap is the largest freshwater lake in Southeast Asia.",
-                "fact_3": "Angkor Wat appears on Cambodia's national flag.",
-                "quiz_question": "What is the world's largest religious monument?",
-                "quiz_options": ["Borobudur", "Angkor Wat", "Vatican", "Hagia Sophia"],
-                "correct_answer": "Angkor Wat",
-                "map_coordinates": [12.5657, 104.991]
-            },
-            {
-                "country_name": "China",
-                "flag_emoji": "🇨🇳",
-                "capital": "Beijing",
-                "continent": "Asia",
-                "short_description": "The world's most populous country with the Great Wall.",
-                "fact_1": "The Great Wall stretches over 21,000 kilometers.",
-                "fact_2": "China has the third-largest land area in the world.",
-                "fact_3": "The Yangtze is Asia's longest river (6,300 km).",
-                "quiz_question": "What is Asia's longest river?",
-                "quiz_options": ["Ganges", "Mekong", "Yangtze", "Yellow River"],
-                "correct_answer": "Yangtze",
-                "map_coordinates": [35.8617, 104.1954]
-            },
-            {
-                "country_name": "Cyprus",
-                "flag_emoji": "🇨🇾",
-                "capital": "Nicosia",
-                "continent": "Asia",
-                "short_description": "The third-largest Mediterranean island, geographically in Asia.",
-                "fact_1": "Cyprus is the third-largest island in the Mediterranean.",
-                "fact_2": "Nicosia is the world's last divided capital city.",
-                "fact_3": "Aphrodite, Greek goddess of love, was said to be born here.",
-                "quiz_question": "What is unique about Nicosia?",
-                "quiz_options": ["Oldest capital", "Smallest capital", "Last divided capital", "Highest capital"],
-                "correct_answer": "Last divided capital",
-                "map_coordinates": [35.1264, 33.4299]
-            },
-            {
-                "country_name": "Georgia",
-                "flag_emoji": "🇬🇪",
-                "capital": "Tbilisi",
-                "continent": "Asia",
-                "short_description": "An ancient nation in the Caucasus known for winemaking.",
-                "fact_1": "Georgia is considered the birthplace of wine (8,000 years).",
-                "fact_2": "It has its own unique alphabet dating back to the 5th century.",
-                "fact_3": "The Caucasus Mountains form its northern border.",
-                "quiz_question": "What is Georgia considered the birthplace of?",
-                "quiz_options": ["Beer", "Wine", "Whiskey", "Vodka"],
-                "correct_answer": "Wine",
-                "map_coordinates": [42.3154, 43.3569]
-            },
-            {
-                "country_name": "India",
-                "flag_emoji": "🇮🇳",
-                "capital": "New Delhi",
-                "continent": "Asia",
-                "short_description": "The world's largest democracy with diverse geography.",
-                "fact_1": "India has the highest mountain range (Himalayas) in the north.",
-                "fact_2": "The Ganges is considered sacred by Hindus.",
-                "fact_3": "India is the seventh-largest country by area.",
-                "quiz_question": "Which is the highest mountain range in India?",
-                "quiz_options": ["Western Ghats", "Eastern Ghats", "Himalayas", "Aravalli"],
-                "correct_answer": "Himalayas",
-                "map_coordinates": [20.5937, 78.9629]
-            },
-            {
-                "country_name": "Indonesia",
-                "flag_emoji": "🇮🇩",
-                "capital": "Jakarta",
-                "continent": "Asia",
-                "short_description": "The world's largest archipelago with over 17,000 islands.",
-                "fact_1": "Indonesia has over 17,000 islands (6,000 inhabited).",
-                "fact_2": "It's the world's fourth most populous country.",
-                "fact_3": "Krakatoa's 1883 eruption was one of history's deadliest.",
-                "quiz_question": "How many islands does Indonesia have?",
-                "quiz_options": ["5,000", "10,000", "17,000+", "25,000"],
-                "correct_answer": "17,000+",
-                "map_coordinates": [-0.7893, 113.9213]
-            },
-            {
-                "country_name": "Iran",
-                "flag_emoji": "🇮🇷",
-                "capital": "Tehran",
-                "continent": "Asia",
-                "short_description": "An ancient civilization, formerly known as Persia.",
-                "fact_1": "Iran was historically known as Persia until 1935.",
-                "fact_2": "It has the second-largest natural gas reserves in the world.",
-                "fact_3": "The Persian Gulf is named after the Persian Empire.",
-                "quiz_question": "What was Iran historically known as?",
-                "quiz_options": ["Mesopotamia", "Persia", "Babylon", "Arabia"],
-                "correct_answer": "Persia",
-                "map_coordinates": [32.4279, 53.688]
-            },
-            {
-                "country_name": "Iraq",
-                "flag_emoji": "🇮🇶",
-                "capital": "Baghdad",
-                "continent": "Asia",
-                "short_description": "Ancient Mesopotamia between the Tigris and Euphrates rivers.",
-                "fact_1": "Iraq is located in ancient Mesopotamia, 'cradle of civilization'.",
-                "fact_2": "The Tigris and Euphrates rivers flow through Iraq.",
-                "fact_3": "The city of Ur was the birthplace of Abraham.",
-                "quiz_question": "Which two rivers flow through Iraq?",
-                "quiz_options": ["Nile & Congo", "Tigris & Euphrates", "Ganges & Indus", "Jordan & Litani"],
-                "correct_answer": "Tigris & Euphrates",
-                "map_coordinates": [33.2232, 43.6793]
-            },
-            {
-                "country_name": "Israel",
-                "flag_emoji": "🇮🇱",
-                "capital": "Jerusalem",
-                "continent": "Asia",
-                "short_description": "A Middle Eastern nation with the Dead Sea, Earth's lowest point.",
-                "fact_1": "The Dead Sea is the lowest point on Earth's surface (-430m).",
-                "fact_2": "Israel has made the desert bloom with drip irrigation.",
-                "fact_3": "Tel Aviv has the largest collection of Bauhaus buildings.",
-                "quiz_question": "What is the lowest point on Earth's surface?",
-                "quiz_options": ["Death Valley", "Dead Sea", "Mariana Trench", "Lake Assal"],
-                "correct_answer": "Dead Sea",
-                "map_coordinates": [31.0461, 34.8516]
-            },
-            {
-                "country_name": "Japan",
-                "flag_emoji": "🇯🇵",
-                "capital": "Tokyo",
-                "continent": "Asia",
-                "short_description": "An island nation with Mount Fuji and frequent earthquakes.",
-                "fact_1": "Japan consists of 6,852 islands.",
-                "fact_2": "Mount Fuji is Japan's highest peak at 3,776 meters.",
-                "fact_3": "Japan experiences about 1,500 earthquakes annually.",
-                "quiz_question": "How many earthquakes does Japan experience yearly?",
-                "quiz_options": ["100", "500", "1,500", "5,000"],
-                "correct_answer": "1,500",
-                "map_coordinates": [36.2048, 138.2529]
-            },
-            {
-                "country_name": "Jordan",
-                "flag_emoji": "🇯🇴",
-                "capital": "Amman",
-                "continent": "Asia",
-                "short_description": "Home to Petra, the ancient rock-carved city.",
-                "fact_1": "Petra was carved into rose-red cliffs over 2,000 years ago.",
-                "fact_2": "The Dead Sea forms Jordan's western border with Israel.",
-                "fact_3": "About 80% of Jordan is desert.",
-                "quiz_question": "What ancient city was carved into rock in Jordan?",
-                "quiz_options": ["Palmyra", "Petra", "Persepolis", "Pompeii"],
-                "correct_answer": "Petra",
-                "map_coordinates": [30.5852, 36.2384]
-            },
-            {
-                "country_name": "Kazakhstan",
-                "flag_emoji": "🇰🇿",
-                "capital": "Astana",
-                "continent": "Asia",
-                "short_description": "The world's largest landlocked country in Central Asia.",
-                "fact_1": "Kazakhstan is the largest landlocked country in the world.",
-                "fact_2": "The Baikonur Cosmodrome, the world's first spaceport, is here.",
-                "fact_3": "It shares borders with Russia, China, Kyrgyzstan, Uzbekistan, and Turkmenistan.",
-                "quiz_question": "Which country shares the longest border with Kazakhstan?",
-                "quiz_options": ["China", "Russia", "Uzbekistan", "Kyrgyzstan"],
-                "correct_answer": "Russia",
-                "map_coordinates": [48.0196, 66.9237]
-            },
-            {
-                "country_name": "Kuwait",
-                "flag_emoji": "🇰🇼",
-                "capital": "Kuwait City",
-                "continent": "Asia",
-                "short_description": "A small oil-rich nation at the head of the Persian Gulf.",
-                "fact_1": "Kuwait has about 6% of the world's oil reserves.",
-                "fact_2": "The Kuwait Towers are iconic landmarks.",
-                "fact_3": "Summer temperatures can exceed 50°C (122°F).",
-                "quiz_question": "What natural resource is Kuwait rich in?",
-                "quiz_options": ["Gold", "Oil", "Diamonds", "Natural Gas"],
-                "correct_answer": "Oil",
-                "map_coordinates": [29.3117, 47.4818]
-            },
-            {
-                "country_name": "Kyrgyzstan",
-                "flag_emoji": "🇰🇬",
-                "capital": "Bishkek",
-                "continent": "Asia",
-                "short_description": "A mountainous Central Asian nation with over 90% mountains.",
-                "fact_1": "Over 90% of Kyrgyzstan is covered by mountains.",
-                "fact_2": "Lake Issyk-Kul is one of the largest alpine lakes.",
-                "fact_3": "The country has a strong nomadic heritage.",
-                "quiz_question": "What percentage of Kyrgyzstan is mountainous?",
-                "quiz_options": ["50%", "70%", "90%+", "100%"],
-                "correct_answer": "90%+",
-                "map_coordinates": [41.2044, 74.7661]
-            },
-            {
-                "country_name": "Laos",
-                "flag_emoji": "🇱🇦",
-                "capital": "Vientiane",
-                "continent": "Asia",
-                "short_description": "A landlocked Southeast Asian nation along the Mekong River.",
-                "fact_1": "Laos is the most heavily bombed country per capita in history.",
-                "fact_2": "The Mekong River forms much of the border with Thailand.",
-                "fact_3": "It's the only landlocked country in Southeast Asia.",
-                "quiz_question": "Which river forms the border between Laos and Thailand?",
-                "quiz_options": ["Irrawaddy", "Mekong", "Chao Phraya", "Salween"],
-                "correct_answer": "Mekong",
-                "map_coordinates": [19.8563, 102.4955]
-            },
-            {
-                "country_name": "Lebanon",
-                "flag_emoji": "🇱🇧",
-                "capital": "Beirut",
-                "continent": "Asia",
-                "short_description": "A Mediterranean nation known for its cedar trees.",
-                "fact_1": "The Cedar of Lebanon is the national emblem and appears on the flag.",
-                "fact_2": "Beirut is known as the 'Paris of the Middle East'.",
-                "fact_3": "Lebanon has both beach resorts and ski slopes.",
-                "quiz_question": "What tree is on Lebanon's flag?",
-                "quiz_options": ["Palm", "Cedar", "Oak", "Olive"],
-                "correct_answer": "Cedar",
-                "map_coordinates": [33.8547, 35.8623]
-            },
-            {
-                "country_name": "Malaysia",
-                "flag_emoji": "🇲🇾",
-                "capital": "Kuala Lumpur",
-                "continent": "Asia",
-                "short_description": "A Southeast Asian nation split between a peninsula and Borneo.",
-                "fact_1": "Malaysia is divided into Peninsular and East Malaysia (Borneo).",
-                "fact_2": "The Petronas Towers were the world's tallest buildings (1998-2004).",
-                "fact_3": "It's home to some of the oldest rainforests (130 million years).",
-                "quiz_question": "Malaysia is split between the peninsula and which island?",
-                "quiz_options": ["Java", "Sumatra", "Borneo", "Sulawesi"],
-                "correct_answer": "Borneo",
-                "map_coordinates": [4.2105, 101.9758]
-            },
-            {
-                "country_name": "Maldives",
-                "flag_emoji": "🇲🇻",
-                "capital": "Malé",
-                "continent": "Asia",
-                "short_description": "The world's lowest country, an archipelago of 1,200 coral islands.",
-                "fact_1": "Maldives is the world's lowest country, averaging 1.5m above sea level.",
-                "fact_2": "It consists of about 1,200 coral islands.",
-                "fact_3": "The country could be submerged by rising sea levels.",
-                "quiz_question": "What is Maldives' average elevation?",
-                "quiz_options": ["1.5 meters", "5 meters", "10 meters", "50 meters"],
-                "correct_answer": "1.5 meters",
-                "map_coordinates": [3.2028, 73.2207]
-            },
-            {
-                "country_name": "Mongolia",
-                "flag_emoji": "🇲🇳",
-                "capital": "Ulaanbaatar",
-                "continent": "Asia",
-                "short_description": "A vast, sparsely populated land between Russia and China.",
-                "fact_1": "Mongolia is the most sparsely populated country in the world.",
-                "fact_2": "The Gobi Desert covers southern Mongolia.",
-                "fact_3": "It was the center of Genghis Khan's Mongol Empire.",
-                "quiz_question": "Which desert is in Mongolia?",
-                "quiz_options": ["Sahara", "Gobi", "Kalahari", "Atacama"],
-                "correct_answer": "Gobi",
-                "map_coordinates": [46.8625, 103.8467]
-            },
-            {
-                "country_name": "Myanmar",
-                "flag_emoji": "🇲🇲",
-                "capital": "Naypyidaw",
-                "continent": "Asia",
-                "short_description": "Southeast Asia's largest country, formerly known as Burma.",
-                "fact_1": "Myanmar is the largest country in mainland Southeast Asia.",
-                "fact_2": "The Irrawaddy River is the country's lifeline.",
-                "fact_3": "The capital moved from Yangon to Naypyidaw in 2006.",
-                "quiz_question": "What was Myanmar formerly known as?",
-                "quiz_options": ["Siam", "Burma", "Ceylon", "Indochina"],
-                "correct_answer": "Burma",
-                "map_coordinates": [21.9162, 95.956]
-            },
-            {
-                "country_name": "Nepal",
-                "flag_emoji": "🇳🇵",
-                "capital": "Kathmandu",
-                "continent": "Asia",
-                "short_description": "Home to Mount Everest, the world's highest peak.",
-                "fact_1": "Nepal has 8 of the world's 14 peaks above 8,000 meters.",
-                "fact_2": "Mount Everest (8,849m) is the world's highest point.",
-                "fact_3": "Nepal's flag is the only non-rectangular national flag.",
-                "quiz_question": "How many 8,000m+ peaks are in Nepal?",
-                "quiz_options": ["4", "6", "8", "10"],
-                "correct_answer": "8",
-                "map_coordinates": [28.3949, 84.124]
-            },
-            {
-                "country_name": "North Korea",
-                "flag_emoji": "🇰🇵",
-                "capital": "Pyongyang",
-                "continent": "Asia",
-                "short_description": "A secretive nation on the Korean Peninsula.",
-                "fact_1": "North Korea borders China and Russia in the north.",
-                "fact_2": "Mount Paektu is a sacred volcano on the Chinese border.",
-                "fact_3": "The DMZ separates North and South Korea.",
-                "quiz_question": "What separates North and South Korea?",
-                "quiz_options": ["A river", "The DMZ", "A wall", "Mountains"],
-                "correct_answer": "The DMZ",
-                "map_coordinates": [40.3399, 127.5101]
-            },
-            {
-                "country_name": "Oman",
-                "flag_emoji": "🇴🇲",
-                "capital": "Muscat",
-                "continent": "Asia",
-                "short_description": "An Arabian Peninsula nation with diverse landscapes.",
-                "fact_1": "Oman controls the strategic Strait of Hormuz.",
-                "fact_2": "The Empty Quarter (Rub' al Khali) extends into Oman.",
-                "fact_3": "Frankincense has been traded from Oman for thousands of years.",
-                "quiz_question": "Which strategic strait does Oman border?",
-                "quiz_options": ["Bab el-Mandeb", "Strait of Hormuz", "Suez", "Strait of Malacca"],
-                "correct_answer": "Strait of Hormuz",
-                "map_coordinates": [21.4735, 55.9754]
-            },
-            {
-                "country_name": "Pakistan",
-                "flag_emoji": "🇵🇰",
-                "capital": "Islamabad",
-                "continent": "Asia",
-                "short_description": "Home to K2, the world's second-highest mountain.",
-                "fact_1": "K2 (8,611m) is the world's second-highest and deadliest peak.",
-                "fact_2": "The Indus River civilization was one of the oldest.",
-                "fact_3": "Pakistan has the world's highest paved road (Karakoram Highway).",
-                "quiz_question": "What is the world's second-highest mountain?",
-                "quiz_options": ["Kangchenjunga", "K2", "Lhotse", "Makalu"],
-                "correct_answer": "K2",
-                "map_coordinates": [30.3753, 69.3451]
-            },
-            {
-                "country_name": "Palestine",
-                "flag_emoji": "🇵🇸",
-                "capital": "Ramallah (de facto)",
-                "continent": "Asia",
-                "short_description": "A territory comprising the West Bank and Gaza Strip.",
-                "fact_1": "Palestine includes the West Bank and Gaza Strip.",
-                "fact_2": "The Dead Sea's western shore is in Palestinian territory.",
-                "fact_3": "Bethlehem, Jesus's birthplace, is in Palestine.",
-                "quiz_question": "Which two territories make up Palestine?",
-                "quiz_options": ["Gaza & Sinai", "West Bank & Gaza", "Jordan & Gaza", "Lebanon & West Bank"],
-                "correct_answer": "West Bank & Gaza",
-                "map_coordinates": [31.9522, 35.2332]
-            },
-            {
-                "country_name": "Philippines",
-                "flag_emoji": "🇵🇭",
-                "capital": "Manila",
-                "continent": "Asia",
-                "short_description": "An archipelago of 7,641 islands in the Pacific Ring of Fire.",
-                "fact_1": "The Philippines has 7,641 islands.",
-                "fact_2": "It's part of the Pacific Ring of Fire with many volcanoes.",
-                "fact_3": "The Puerto Princesa Underground River is one of the longest.",
-                "quiz_question": "How many islands make up the Philippines?",
-                "quiz_options": ["3,000", "5,000", "7,641", "10,000"],
-                "correct_answer": "7,641",
-                "map_coordinates": [12.8797, 121.774]
-            },
-            {
-                "country_name": "Qatar",
-                "flag_emoji": "🇶🇦",
-                "capital": "Doha",
-                "continent": "Asia",
-                "short_description": "A wealthy peninsula nation with vast natural gas reserves.",
-                "fact_1": "Qatar has the world's third-largest natural gas reserves.",
-                "fact_2": "It has one of the highest GDPs per capita in the world.",
-                "fact_3": "Qatar is a peninsula extending into the Persian Gulf.",
-                "quiz_question": "What natural resource is Qatar rich in?",
-                "quiz_options": ["Oil", "Natural Gas", "Gold", "Diamonds"],
-                "correct_answer": "Natural Gas",
-                "map_coordinates": [25.3548, 51.1839]
-            },
-            {
-                "country_name": "Saudi Arabia",
-                "flag_emoji": "🇸🇦",
-                "capital": "Riyadh",
-                "continent": "Asia",
-                "short_description": "The largest Middle Eastern country with Islam's holiest sites.",
-                "fact_1": "Saudi Arabia has the world's largest continuous sand desert (Rub' al Khali).",
-                "fact_2": "Mecca and Medina are Islam's two holiest cities.",
-                "fact_3": "It has the world's second-largest oil reserves.",
-                "quiz_question": "What is the world's largest continuous sand desert?",
-                "quiz_options": ["Sahara", "Gobi", "Rub' al Khali", "Kalahari"],
-                "correct_answer": "Rub' al Khali",
-                "map_coordinates": [23.8859, 45.0792]
-            },
-            {
-                "country_name": "Singapore",
-                "flag_emoji": "🇸🇬",
-                "capital": "Singapore",
-                "continent": "Asia",
-                "short_description": "A city-state island nation and global financial hub.",
-                "fact_1": "Singapore is both a city and a country.",
-                "fact_2": "It has one of the world's busiest ports.",
-                "fact_3": "The country consists of 63 islands.",
-                "quiz_question": "How many islands make up Singapore?",
-                "quiz_options": ["1", "23", "63", "100"],
-                "correct_answer": "63",
-                "map_coordinates": [1.3521, 103.8198]
-            },
-            {
-                "country_name": "South Korea",
-                "flag_emoji": "🇰🇷",
-                "capital": "Seoul",
-                "continent": "Asia",
-                "short_description": "A technologically advanced nation on the Korean Peninsula.",
-                "fact_1": "South Korea has the world's fastest average internet speed.",
-                "fact_2": "About 70% of the country is mountainous.",
-                "fact_3": "The Han River flows through Seoul.",
-                "quiz_question": "What percentage of South Korea is mountainous?",
-                "quiz_options": ["30%", "50%", "70%", "90%"],
-                "correct_answer": "70%",
-                "map_coordinates": [35.9078, 127.7669]
-            },
-            {
-                "country_name": "Sri Lanka",
-                "flag_emoji": "🇱🇰",
-                "capital": "Sri Jayawardenepura Kotte",
-                "continent": "Asia",
-                "short_description": "An island nation known as the 'Pearl of the Indian Ocean'.",
-                "fact_1": "Sri Lanka was formerly known as Ceylon.",
-                "fact_2": "It's one of the world's largest tea exporters.",
-                "fact_3": "Adam's Peak has footprints sacred to multiple religions.",
-                "quiz_question": "What was Sri Lanka formerly known as?",
-                "quiz_options": ["Burma", "Ceylon", "Siam", "Formosa"],
-                "correct_answer": "Ceylon",
-                "map_coordinates": [7.8731, 80.7718]
-            },
-            {
-                "country_name": "Syria",
-                "flag_emoji": "🇸🇾",
-                "capital": "Damascus",
-                "continent": "Asia",
-                "short_description": "Home to Damascus, one of the oldest continuously inhabited cities.",
-                "fact_1": "Damascus is one of the oldest continuously inhabited cities.",
-                "fact_2": "The Euphrates River flows through eastern Syria.",
-                "fact_3": "Palmyra was an ancient oasis city on the Silk Road.",
-                "quiz_question": "Which ancient city in Syria was on the Silk Road?",
-                "quiz_options": ["Aleppo", "Palmyra", "Homs", "Latakia"],
-                "correct_answer": "Palmyra",
-                "map_coordinates": [34.8021, 38.9968]
-            },
-            {
-                "country_name": "Tajikistan",
-                "flag_emoji": "🇹🇯",
-                "capital": "Dushanbe",
-                "continent": "Asia",
-                "short_description": "A mountainous Central Asian nation with Pamir peaks.",
-                "fact_1": "Over 90% of Tajikistan is mountainous.",
-                "fact_2": "Ismoil Somoni Peak at 7,495m is the highest point.",
-                "fact_3": "The Pamir Mountains are called the 'Roof of the World'.",
-                "quiz_question": "What are the Pamir Mountains called?",
-                "quiz_options": ["Top of Asia", "Roof of the World", "Heaven's Peak", "Sky Mountains"],
-                "correct_answer": "Roof of the World",
-                "map_coordinates": [38.861, 71.2761]
-            },
-            {
-                "country_name": "Thailand",
-                "flag_emoji": "🇹🇭",
-                "capital": "Bangkok",
-                "continent": "Asia",
-                "short_description": "The 'Land of Smiles' never colonized by European powers.",
-                "fact_1": "Thailand is the only Southeast Asian country never colonized.",
-                "fact_2": "Bangkok's full ceremonial name is 168 letters long.",
-                "fact_3": "The Chao Phraya River flows through Bangkok.",
-                "quiz_question": "What makes Thailand unique in Southeast Asian history?",
-                "quiz_options": ["Oldest kingdom", "Never colonized", "Most islands", "Largest population"],
-                "correct_answer": "Never colonized",
-                "map_coordinates": [15.87, 100.9925]
-            },
-            {
-                "country_name": "Timor-Leste",
-                "flag_emoji": "🇹🇱",
-                "capital": "Dili",
-                "continent": "Asia",
-                "short_description": "Southeast Asia's youngest nation, independent since 2002.",
-                "fact_1": "Timor-Leste gained independence in 2002.",
-                "fact_2": "It occupies the eastern half of Timor island.",
-                "fact_3": "Mount Ramelau is the highest peak at 2,963 meters.",
-                "quiz_question": "When did Timor-Leste gain independence?",
-                "quiz_options": ["1999", "2002", "2005", "2008"],
-                "correct_answer": "2002",
-                "map_coordinates": [-8.8742, 125.7275]
-            },
-            {
-                "country_name": "Turkey",
-                "flag_emoji": "🇹🇷",
-                "capital": "Ankara",
-                "continent": "Asia",
-                "short_description": "A transcontinental nation bridging Europe and Asia.",
-                "fact_1": "Turkey straddles two continents: Europe and Asia.",
-                "fact_2": "Istanbul was Constantinople, capital of the Byzantine Empire.",
-                "fact_3": "Turkey has the ancient site of Troy.",
-                "quiz_question": "Which strait separates European and Asian Turkey?",
-                "quiz_options": ["Gibraltar", "Bosphorus", "Dardanelles", "Both B and C"],
-                "correct_answer": "Both B and C",
-                "map_coordinates": [38.9637, 35.2433]
-            },
-            {
-                "country_name": "Turkmenistan",
-                "flag_emoji": "🇹🇲",
-                "capital": "Ashgabat",
-                "continent": "Asia",
-                "short_description": "A Central Asian nation with the 'Gates of Hell' gas crater.",
-                "fact_1": "The Darvaza gas crater has been burning since 1971.",
-                "fact_2": "About 80% of the country is covered by the Karakum Desert.",
-                "fact_3": "Turkmenistan has the world's fourth-largest natural gas reserves.",
-                "quiz_question": "What is the Darvaza crater nicknamed?",
-                "quiz_options": ["Hell's Kitchen", "Gates of Hell", "Fire Pit", "Burning Eye"],
-                "correct_answer": "Gates of Hell",
-                "map_coordinates": [38.9697, 59.5563]
-            },
-            {
-                "country_name": "United Arab Emirates",
-                "flag_emoji": "🇦🇪",
-                "capital": "Abu Dhabi",
-                "continent": "Asia",
-                "short_description": "A federation of seven emirates known for Dubai and oil wealth.",
-                "fact_1": "The UAE consists of 7 emirates including Dubai and Abu Dhabi.",
-                "fact_2": "The Burj Khalifa is the world's tallest building (828m).",
-                "fact_3": "About 80% of the UAE is desert.",
-                "quiz_question": "How many emirates make up the UAE?",
-                "quiz_options": ["5", "6", "7", "8"],
-                "correct_answer": "7",
-                "map_coordinates": [23.4241, 53.8478]
-            },
-            {
-                "country_name": "Uzbekistan",
-                "flag_emoji": "🇺🇿",
-                "capital": "Tashkent",
-                "continent": "Asia",
-                "short_description": "A Central Asian nation on the ancient Silk Road.",
-                "fact_1": "Uzbekistan is one of only two doubly landlocked countries.",
-                "fact_2": "Samarkand was a key city on the Silk Road.",
-                "fact_3": "The Aral Sea has shrunk dramatically due to irrigation.",
-                "quiz_question": "What is unique about Uzbekistan's geography?",
-                "quiz_options": ["Island nation", "Doubly landlocked", "Has no deserts", "Has volcanoes"],
-                "correct_answer": "Doubly landlocked",
-                "map_coordinates": [41.3775, 64.5853]
-            },
-            {
-                "country_name": "Vietnam",
-                "flag_emoji": "🇻🇳",
-                "capital": "Hanoi",
-                "continent": "Asia",
-                "short_description": "A Southeast Asian nation with Ha Long Bay's limestone islands.",
-                "fact_1": "Ha Long Bay has about 1,600 limestone islands.",
-                "fact_2": "The Mekong Delta is one of the world's most fertile regions.",
-                "fact_3": "Vietnam is the second-largest coffee exporter globally.",
-                "quiz_question": "What is Vietnam the second-largest exporter of?",
-                "quiz_options": ["Rice", "Coffee", "Fish", "Rubber"],
-                "correct_answer": "Coffee",
-                "map_coordinates": [14.0583, 108.2772]
-            },
-            {
-                "country_name": "Yemen",
-                "flag_emoji": "🇾🇪",
-                "capital": "Sanaa",
-                "continent": "Asia",
-                "short_description": "An Arabian Peninsula nation with ancient skyscraper cities.",
-                "fact_1": "Sanaa has been inhabited for over 2,500 years.",
-                "fact_2": "Socotra Island has alien-looking dragon blood trees.",
-                "fact_3": "Yemen controls the strategic Bab el-Mandeb strait.",
-                "quiz_question": "Which unique island belongs to Yemen?",
-                "quiz_options": ["Socotra", "Zanzibar", "Mauritius", "Bahrain"],
-                "correct_answer": "Socotra",
-                "map_coordinates": [15.5527, 48.5164]
-            },
+        // Check if new day
+        const today = new Date().toDateString();
+        if (gameState.lastVisit !== today) {
+            if (gameState.lastVisit && new Date(gameState.lastVisit).toDateString() === new Date(Date.now() - 86400000).toDateString()) {
+                gameState.streak++;
+            } else if (gameState.lastVisit) {
+                gameState.streak = 1;
+            } else {
+                gameState.streak = 1;
+            }
+            gameState.todayCount = 0;
+            gameState.lastVisit = today;
+            saveGameState();
+        }
 
-            // ========== EUROPE (44 Countries) ==========
-            {
-                "country_name": "Albania",
-                "flag_emoji": "🇦🇱",
-                "capital": "Tirana",
-                "continent": "Europe",
-                "short_description": "A Balkan nation with a dramatic Adriatic coastline.",
-                "fact_1": "Albania has over 750,000 bunkers built during communist rule.",
-                "fact_2": "The Albanian language is unique and not related to other European languages.",
-                "fact_3": "It borders the Adriatic and Ionian Seas.",
-                "quiz_question": "What unusual structures are found throughout Albania?",
-                "quiz_options": ["Pyramids", "Bunkers", "Windmills", "Lighthouses"],
-                "correct_answer": "Bunkers",
-                "map_coordinates": [41.1533, 20.1683]
-            },
-            {
-                "country_name": "Andorra",
-                "flag_emoji": "🇦🇩",
-                "capital": "Andorra la Vella",
-                "continent": "Europe",
-                "short_description": "A tiny Pyrenees microstate between France and Spain.",
-                "fact_1": "Andorra la Vella is Europe's highest capital city (1,023m).",
-                "fact_2": "It's a popular ski destination with no airport.",
-                "fact_3": "Andorra has no military and is protected by France and Spain.",
-                "quiz_question": "Where is Europe's highest capital city?",
-                "quiz_options": ["Switzerland", "Austria", "Andorra", "Monaco"],
-                "correct_answer": "Andorra",
-                "map_coordinates": [42.5063, 1.5218]
-            },
-            {
-                "country_name": "Austria",
-                "flag_emoji": "🇦🇹",
-                "capital": "Vienna",
-                "continent": "Europe",
-                "short_description": "An Alpine nation famous for classical music and skiing.",
-                "fact_1": "The Alps cover about 62% of Austria.",
-                "fact_2": "Vienna was the capital of the Habsburg Empire.",
-                "fact_3": "The Danube River flows through Vienna.",
-                "quiz_question": "What percentage of Austria is covered by the Alps?",
-                "quiz_options": ["32%", "42%", "62%", "82%"],
-                "correct_answer": "62%",
-                "map_coordinates": [47.5162, 14.5501]
-            },
-            {
-                "country_name": "Belarus",
-                "flag_emoji": "🇧🇾",
-                "capital": "Minsk",
-                "continent": "Europe",
-                "short_description": "A landlocked Eastern European country with vast forests.",
-                "fact_1": "Belarus is known as the 'lungs of Europe' for its forests.",
-                "fact_2": "The Białowieża Forest is one of Europe's last primeval forests.",
-                "fact_3": "Belarus has over 11,000 lakes.",
-                "quiz_question": "What is Belarus called due to its forests?",
-                "quiz_options": ["Heart of Europe", "Lungs of Europe", "Green Giant", "Forest Kingdom"],
-                "correct_answer": "Lungs of Europe",
-                "map_coordinates": [53.7098, 27.9534]
-            },
-            {
-                "country_name": "Belgium",
-                "flag_emoji": "🇧🇪",
-                "capital": "Brussels",
-                "continent": "Europe",
-                "short_description": "The headquarters of the European Union with three languages.",
-                "fact_1": "Belgium has three official languages: Dutch, French, and German.",
-                "fact_2": "Brussels is the de facto capital of the European Union.",
-                "fact_3": "Belgium is famous for chocolate, waffles, and beer.",
-                "quiz_question": "How many official languages does Belgium have?",
-                "quiz_options": ["1", "2", "3", "4"],
-                "correct_answer": "3",
-                "map_coordinates": [50.5039, 4.4699]
-            },
-            {
-                "country_name": "Bosnia and Herzegovina",
-                "flag_emoji": "🇧🇦",
-                "capital": "Sarajevo",
-                "continent": "Europe",
-                "short_description": "A Balkan nation with a diverse landscape and history.",
-                "fact_1": "The country has only 20 km of Adriatic coastline.",
-                "fact_2": "Sarajevo hosted the 1984 Winter Olympics.",
-                "fact_3": "The Stari Most bridge in Mostar is a UNESCO site.",
-                "quiz_question": "How much coastline does Bosnia and Herzegovina have?",
-                "quiz_options": ["0 km", "20 km", "100 km", "500 km"],
-                "correct_answer": "20 km",
-                "map_coordinates": [43.9159, 17.6791]
-            },
-            {
-                "country_name": "Bulgaria",
-                "flag_emoji": "🇧🇬",
-                "capital": "Sofia",
-                "continent": "Europe",
-                "short_description": "A Black Sea nation with ancient Thracian heritage.",
-                "fact_1": "Bulgaria is one of Europe's oldest countries (681 AD).",
-                "fact_2": "The Cyrillic alphabet was developed in Bulgaria.",
-                "fact_3": "Rose oil production is a major industry.",
-                "quiz_question": "Which alphabet was developed in Bulgaria?",
-                "quiz_options": ["Greek", "Latin", "Cyrillic", "Gothic"],
-                "correct_answer": "Cyrillic",
-                "map_coordinates": [42.7339, 25.4858]
-            },
-            {
-                "country_name": "Croatia",
-                "flag_emoji": "🇭🇷",
-                "capital": "Zagreb",
-                "continent": "Europe",
-                "short_description": "An Adriatic nation with over 1,000 islands.",
-                "fact_1": "Croatia has over 1,200 islands, but only 48 are inhabited.",
-                "fact_2": "Dubrovnik was a filming location for Game of Thrones.",
-                "fact_3": "The necktie originated in Croatia.",
-                "quiz_question": "How many islands does Croatia have?",
-                "quiz_options": ["500", "800", "1,200+", "2,000"],
-                "correct_answer": "1,200+",
-                "map_coordinates": [45.1, 15.2]
-            },
-            {
-                "country_name": "Czech Republic",
-                "flag_emoji": "🇨🇿",
-                "capital": "Prague",
-                "continent": "Europe",
-                "short_description": "A landlocked Central European nation with medieval castles.",
-                "fact_1": "Czechs consume more beer per capita than any other nation.",
-                "fact_2": "Prague Castle is the largest ancient castle in the world.",
-                "fact_3": "The country has over 2,000 castles and chateaux.",
-                "quiz_question": "What do Czechs consume more per capita than anyone else?",
-                "quiz_options": ["Wine", "Beer", "Coffee", "Tea"],
-                "correct_answer": "Beer",
-                "map_coordinates": [49.8175, 15.473]
-            },
-            {
-                "country_name": "Denmark",
-                "flag_emoji": "🇩🇰",
-                "capital": "Copenhagen",
-                "continent": "Europe",
-                "short_description": "A Scandinavian kingdom with Greenland as a territory.",
-                "fact_1": "Denmark includes Greenland, the world's largest island.",
-                "fact_2": "The Danish flag is the world's oldest national flag still in use.",
-                "fact_3": "No location in Denmark is more than 52 km from the sea.",
-                "quiz_question": "Which is the world's oldest national flag still in use?",
-                "quiz_options": ["UK", "France", "Denmark", "Japan"],
-                "correct_answer": "Denmark",
-                "map_coordinates": [56.2639, 9.5018]
-            },
-            {
-                "country_name": "Estonia",
-                "flag_emoji": "🇪🇪",
-                "capital": "Tallinn",
-                "continent": "Europe",
-                "short_description": "A Baltic nation and one of the world's most digital societies.",
-                "fact_1": "Estonia is one of the world's most digitally advanced nations.",
-                "fact_2": "Over 50% of the country is covered by forest.",
-                "fact_3": "Estonia has over 2,000 islands.",
-                "quiz_question": "What is Estonia known for being?",
-                "quiz_options": ["Most forested", "Most digital", "Most islands", "Oldest nation"],
-                "correct_answer": "Most digital",
-                "map_coordinates": [58.5953, 25.0136]
-            },
-            {
-                "country_name": "Finland",
-                "flag_emoji": "🇫🇮",
-                "capital": "Helsinki",
-                "continent": "Europe",
-                "short_description": "The 'Land of a Thousand Lakes' with 188,000 lakes.",
-                "fact_1": "Finland has about 188,000 lakes.",
-                "fact_2": "The Northern Lights are visible 200 nights per year.",
-                "fact_3": "Finland has more saunas than cars.",
-                "quiz_question": "Approximately how many lakes does Finland have?",
-                "quiz_options": ["50,000", "100,000", "188,000", "250,000"],
-                "correct_answer": "188,000",
-                "map_coordinates": [61.9241, 25.7482]
-            },
-            {
-                "country_name": "France",
-                "flag_emoji": "🇫🇷",
-                "capital": "Paris",
-                "continent": "Europe",
-                "short_description": "The world's most visited country with iconic landmarks.",
-                "fact_1": "France is the most visited country in the world.",
-                "fact_2": "Mont Blanc is Western Europe's highest peak (4,808m).",
-                "fact_3": "France spans multiple time zones due to overseas territories.",
-                "quiz_question": "What is Western Europe's highest mountain?",
-                "quiz_options": ["Matterhorn", "Mont Blanc", "Eiger", "Jungfrau"],
-                "correct_answer": "Mont Blanc",
-                "map_coordinates": [46.2276, 2.2137]
-            },
-            {
-                "country_name": "Germany",
-                "flag_emoji": "🇩🇪",
-                "capital": "Berlin",
-                "continent": "Europe",
-                "short_description": "Europe's largest economy with the Rhine River valley.",
-                "fact_1": "Germany has the largest economy in Europe.",
-                "fact_2": "The Black Forest (Schwarzwald) inspired Grimm fairy tales.",
-                "fact_3": "The Rhine River flows through western Germany.",
-                "quiz_question": "Which is Europe's largest economy?",
-                "quiz_options": ["UK", "France", "Germany", "Italy"],
-                "correct_answer": "Germany",
-                "map_coordinates": [51.1657, 10.4515]
-            },
-            {
-                "country_name": "Greece",
-                "flag_emoji": "🇬🇷",
-                "capital": "Athens",
-                "continent": "Europe",
-                "short_description": "The birthplace of democracy with thousands of islands.",
-                "fact_1": "Greece has about 6,000 islands, 227 inhabited.",
-                "fact_2": "Athens is named after the goddess Athena.",
-                "fact_3": "Greece has more archaeological museums than any other country.",
-                "quiz_question": "How many islands does Greece have?",
-                "quiz_options": ["2,000", "4,000", "6,000", "8,000"],
-                "correct_answer": "6,000",
-                "map_coordinates": [39.0742, 21.8243]
-            },
-            {
-                "country_name": "Hungary",
-                "flag_emoji": "🇭🇺",
-                "capital": "Budapest",
-                "continent": "Europe",
-                "short_description": "A landlocked nation with the Danube River and thermal baths.",
-                "fact_1": "Budapest is actually two cities: Buda and Pest.",
-                "fact_2": "Hungary has over 1,000 thermal springs.",
-                "fact_3": "Lake Balaton is Central Europe's largest lake.",
-                "quiz_question": "What are the two parts of Budapest?",
-                "quiz_options": ["North and South", "Buda and Pest", "Old and New", "Upper and Lower"],
-                "correct_answer": "Buda and Pest",
-                "map_coordinates": [47.1625, 19.5033]
-            },
-            {
-                "country_name": "Iceland",
-                "flag_emoji": "🇮🇸",
-                "capital": "Reykjavik",
-                "continent": "Europe",
-                "short_description": "A volcanic island nation with geysers and glaciers.",
-                "fact_1": "Iceland has no army, navy, or air force.",
-                "fact_2": "Vatnajökull is Europe's largest glacier.",
-                "fact_3": "Iceland sits on the Mid-Atlantic Ridge between two tectonic plates.",
-                "quiz_question": "What is Europe's largest glacier?",
-                "quiz_options": ["Jostedalsbreen", "Vatnajökull", "Aletsch", "Mer de Glace"],
-                "correct_answer": "Vatnajökull",
-                "map_coordinates": [64.9631, -19.0208]
-            },
-            {
-                "country_name": "Ireland",
-                "flag_emoji": "🇮🇪",
-                "capital": "Dublin",
-                "continent": "Europe",
-                "short_description": "The 'Emerald Isle' known for its green landscapes.",
-                "fact_1": "Ireland is called the 'Emerald Isle' for its green countryside.",
-                "fact_2": "The Cliffs of Moher rise 214 meters above the Atlantic.",
-                "fact_3": "Ireland has no snakes, allegedly banished by St. Patrick.",
-                "quiz_question": "Why is Ireland called the 'Emerald Isle'?",
-                "quiz_options": ["Emerald mines", "Green landscapes", "Emerald exports", "Green flag"],
-                "correct_answer": "Green landscapes",
-                "map_coordinates": [53.1424, -7.6921]
-            },
-            {
-                "country_name": "Italy",
-                "flag_emoji": "🇮🇹",
-                "capital": "Rome",
-                "continent": "Europe",
-                "short_description": "Home to the Roman Empire, Renaissance art, and active volcanoes.",
-                "fact_1": "Italy has the most UNESCO World Heritage Sites.",
-                "fact_2": "Mount Etna is Europe's tallest active volcano.",
-                "fact_3": "San Marino and Vatican City are enclaved within Italy.",
-                "quiz_question": "Which country has the most UNESCO World Heritage Sites?",
-                "quiz_options": ["China", "Spain", "Italy", "France"],
-                "correct_answer": "Italy",
-                "map_coordinates": [41.8719, 12.5674]
-            },
-            {
-                "country_name": "Latvia",
-                "flag_emoji": "🇱🇻",
-                "capital": "Riga",
-                "continent": "Europe",
-                "short_description": "A Baltic nation with Art Nouveau architecture.",
-                "fact_1": "Riga has the largest collection of Art Nouveau buildings in Europe.",
-                "fact_2": "Latvia is one of the most forested countries in Europe (50%).",
-                "fact_3": "The first Christmas tree was reportedly in Riga (1510).",
-                "quiz_question": "Which city has the largest Art Nouveau collection?",
-                "quiz_options": ["Paris", "Vienna", "Riga", "Prague"],
-                "correct_answer": "Riga",
-                "map_coordinates": [56.8796, 24.6032]
-            },
-            {
-                "country_name": "Liechtenstein",
-                "flag_emoji": "🇱🇮",
-                "capital": "Vaduz",
-                "continent": "Europe",
-                "short_description": "A tiny Alpine principality between Switzerland and Austria.",
-                "fact_1": "Liechtenstein is the world's largest producer of false teeth.",
-                "fact_2": "It's doubly landlocked, bordered only by landlocked countries.",
-                "fact_3": "The entire country can be rented for $70,000 per night.",
-                "quiz_question": "What makes Liechtenstein geographically unique?",
-                "quiz_options": ["Island nation", "Doubly landlocked", "No mountains", "Has volcanoes"],
-                "correct_answer": "Doubly landlocked",
-                "map_coordinates": [47.166, 9.5554]
-            },
-            {
-                "country_name": "Lithuania",
-                "flag_emoji": "🇱🇹",
-                "capital": "Vilnius",
-                "continent": "Europe",
-                "short_description": "The largest Baltic state with medieval Old Towns.",
-                "fact_1": "Lithuania is the largest of the three Baltic states.",
-                "fact_2": "The geographic center of Europe is near Vilnius.",
-                "fact_3": "Lithuania was the last European country to adopt Christianity.",
-                "quiz_question": "Which is the largest Baltic state?",
-                "quiz_options": ["Estonia", "Latvia", "Lithuania", "Poland"],
-                "correct_answer": "Lithuania",
-                "map_coordinates": [55.1694, 23.8813]
-            },
-            {
-                "country_name": "Luxembourg",
-                "flag_emoji": "🇱🇺",
-                "capital": "Luxembourg City",
-                "continent": "Europe",
-                "short_description": "A small wealthy nation and EU financial center.",
-                "fact_1": "Luxembourg has three official languages: Luxembourgish, French, German.",
-                "fact_2": "It's one of the world's smallest but wealthiest countries.",
-                "fact_3": "Luxembourg City's old quarters are a UNESCO World Heritage Site.",
-                "quiz_question": "How many official languages does Luxembourg have?",
-                "quiz_options": ["1", "2", "3", "4"],
-                "correct_answer": "3",
-                "map_coordinates": [49.8153, 6.1296]
-            },
-            {
-                "country_name": "Malta",
-                "flag_emoji": "🇲🇹",
-                "capital": "Valletta",
-                "continent": "Europe",
-                "short_description": "A Mediterranean archipelago with ancient temples.",
-                "fact_1": "Malta has some of the world's oldest free-standing structures.",
-                "fact_2": "Valletta is one of Europe's smallest capital cities.",
-                "fact_3": "Malta was a British colony until 1964.",
-                "quiz_question": "What is Malta known for having some of the oldest?",
-                "quiz_options": ["Ships", "Free-standing structures", "Books", "Paintings"],
-                "correct_answer": "Free-standing structures",
-                "map_coordinates": [35.9375, 14.3754]
-            },
-            {
-                "country_name": "Moldova",
-                "flag_emoji": "🇲🇩",
-                "capital": "Chișinău",
-                "continent": "Europe",
-                "short_description": "A landlocked Eastern European nation known for wine.",
-                "fact_1": "Moldova has the world's largest wine cellar (Mileștii Mici).",
-                "fact_2": "It's one of Europe's least visited countries.",
-                "fact_3": "Transnistria is a breakaway region with its own currency.",
-                "quiz_question": "What does Moldova have the world's largest of?",
-                "quiz_options": ["Library", "Wine cellar", "Museum", "Church"],
-                "correct_answer": "Wine cellar",
-                "map_coordinates": [47.4116, 28.3699]
-            },
-            {
-                "country_name": "Monaco",
-                "flag_emoji": "🇲🇨",
-                "capital": "Monaco",
-                "continent": "Europe",
-                "short_description": "The world's second-smallest country and most densely populated.",
-                "fact_1": "Monaco is the world's most densely populated country.",
-                "fact_2": "It's smaller than New York's Central Park.",
-                "fact_3": "The Monaco Grand Prix is one of Formula 1's most prestigious races.",
-                "quiz_question": "What is Monaco the world's most?",
-                "quiz_options": ["Wealthy", "Densely populated", "Smallest", "Visited"],
-                "correct_answer": "Densely populated",
-                "map_coordinates": [43.7384, 7.4246]
-            },
-            {
-                "country_name": "Montenegro",
-                "flag_emoji": "🇲🇪",
-                "capital": "Podgorica",
-                "continent": "Europe",
-                "short_description": "An Adriatic Balkan nation with dramatic mountains and coast.",
-                "fact_1": "Montenegro means 'Black Mountain' in Italian.",
-                "fact_2": "The Bay of Kotor is Southern Europe's deepest fjord-like bay.",
-                "fact_3": "Tara River Canyon is Europe's deepest (1,300m).",
-                "quiz_question": "What is the deepest canyon in Europe?",
-                "quiz_options": ["Grand Canyon", "Tara Canyon", "Verdon Gorge", "Samaria Gorge"],
-                "correct_answer": "Tara Canyon",
-                "map_coordinates": [42.7087, 19.3744]
-            },
-            {
-                "country_name": "Netherlands",
-                "flag_emoji": "🇳🇱",
-                "capital": "Amsterdam",
-                "continent": "Europe",
-                "short_description": "A low-lying nation famous for windmills and tulips.",
-                "fact_1": "About 26% of the Netherlands is below sea level.",
-                "fact_2": "The Netherlands has more bicycles than people.",
-                "fact_3": "Amsterdam is built on about 11 million wooden poles.",
-                "quiz_question": "What percentage of the Netherlands is below sea level?",
-                "quiz_options": ["10%", "18%", "26%", "35%"],
-                "correct_answer": "26%",
-                "map_coordinates": [52.1326, 5.2913]
-            },
-            {
-                "country_name": "North Macedonia",
-                "flag_emoji": "🇲🇰",
-                "capital": "Skopje",
-                "continent": "Europe",
-                "short_description": "A Balkan nation with Lake Ohrid, one of Europe's oldest lakes.",
-                "fact_1": "Lake Ohrid is one of Europe's oldest and deepest lakes.",
-                "fact_2": "North Macedonia changed its name from Macedonia in 2019.",
-                "fact_3": "
+        function saveGameState() {
+            localStorage.setItem('globeDiscovered', JSON.stringify(gameState.discovered));
+            localStorage.setItem('globeStreak', gameState.streak);
+            localStorage.setItem('globeLastVisit', gameState.lastVisit);
+            localStorage.setItem('globeTodayCount', gameState.todayCount);
+            localStorage.setItem('globeQuizCorrect', gameState.quizCorrect);
+        }
+
+        // Create stars
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            const starCount = window.innerWidth < 768 ? 80 : 150;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = (Math.random() * 2.5 + 0.5) + 'px';
+                star.style.setProperty('--duration', (Math.random() * 4 + 2) + 's');
+                star.style.setProperty('--delay', Math.random() * 5 + 's');
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        // Initialize Globe
+        function initGlobe() {
+            const container = document.getElementById('globeViz');
+            
+            globe = Globe()
+                .globeImageUrl('https://unpkg.com/three-globe@2.30.0/example/img/earth-blue-marble.jpg')
+                .bumpImageUrl('https://unpkg.com/three-globe@2.30.0/example/img/earth-topology.png')
+                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+                .showAtmosphere(true)
+                .atmosphereColor('#4A90D9')
+                .atmosphereAltitude(0.25)
+                .width(container.offsetWidth)
+                .height(container.offsetHeight)
+                (container);
+
+            // Set initial view
+            globe.pointOfView({ lat: 20, lng: 0, altitude: 2.5 });
+            
+            // Auto-rotate
+            globe.controls().autoRotate = true;
+            globe.controls().autoRotateSpeed = 0.5;
+            globe.controls().enableZoom = true;
+            globe.controls().minDistance = 150;
+            globe.controls().maxDistance = 500;
+
+            // Load country polygons for borders
+            fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+                .then(res => res.json())
+                .then(countries => {
+                    globe
+                        .polygonsData(countries.features)
+                        .polygonCapColor(() => 'rgba(74, 144, 217, 0.1)')
+                        .polygonSideColor(() => 'rgba(74, 144, 217, 0.05)')
+                        .polygonStrokeColor(() => 'rgba(255, 255, 255, 0.3)')
+                        .polygonAltitude(0.006)
+                        .polygonsTransitionDuration(300);
+                });
+
+            // Hide loading
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }, 1500);
+
+            // Handle resize
+            window.addEventListener('resize', () => {
+                globe.width(container.offsetWidth);
+                globe.height(container.offsetHeight);
+            });
+        }
+
+        // Wait for countries data then init
+        function waitForData() {
+            if (typeof countries !== 'undefined') {
+                initGlobe();
+                updateStats();
+            } else {
+                setTimeout(waitForData, 100);
+            }
+        }
+        waitForData();
+
+        // ==================== SPIN FUNCTIONALITY ====================
+        
+        function spinGlobe() {
+            if (isSpinning || typeof countries === 'undefined') return;
+            
+            isSpinning = true;
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            spinBtn.classList.add('spinning');
+            
+            // Stop auto-rotate during spin
+            globe.controls().autoRotate = false;
+            
+            // Close panel if open
+            closePanel();
+            
+            // Spin animation
+            let spinDuration = 2000;
+            let startTime = Date.now();
+            let startLat = globe.pointOfView().lat;
+            let startLng = globe.pointOfView().lng;
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                
+                // Easing function for smooth slow-down
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                
+                // Spin the globe
+                const newLng = startLng + (720 * easeOut); // 2 full rotations
+                const newLat = startLat + (Math.sin(progress * Math.PI) * 40); // Slight wobble
+                
+                globe.pointOfView({
+                    lat: newLat,
+                    lng: newLng % 360,
+                    altitude: 2.5 - (0.5 * Math.sin(progress * Math.PI)) // Zoom effect
+                });
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // Spin complete - select random country
+                    selectRandomCountry();
+                }
+            }
+            
+            animate();
+        }
+
+        function selectRandomCountry() {
+            const country = countries[Math.floor(Math.random() * countries.length)];
+            
+            // Animate to country location
+            globe.pointOfView({
+                lat: country.lat,
+                lng: country.lng,
+                altitude: 1.8
+            }, 1500);
+
+            // Highlight the country
+            highlightCountry(country);
+            
+            // Show country card after animation
+            setTimeout(() => {
+                showCountryCard(country);
+                
+                // Update game state
+                if (!gameState.discovered.includes(country.name)) {
+                    gameState.discovered.push(country.name);
+                }
+                gameState.todayCount++;
+                saveGameState();
+                updateStats();
+                
+                // Create confetti
+                createConfetti();
+                
+                // Reset spin button
+                const spinBtn = document.getElementById('spinBtn');
+                spinBtn.disabled = false;
+                spinBtn.classList.remove('spinning');
+                isSpinning = false;
+                
+                // Resume auto-rotate slowly
+                setTimeout(() => {
+                    globe.controls().autoRotate = true;
+                    globe.controls().autoRotateSpeed = 0.2;
+                }, 3000);
+                
+            }, 1500);
+        }
+
+        function highlightCountry(country) {
+            // Add a ring/marker at country location
+            const ringData = [{
+                lat: country.lat,
+                lng: country.lng,
+                maxR: 5,
+                propagationSpeed: 2,
+                repeatPeriod: 1000
+            }];
+            
+            globe
+                .ringsData(ringData)
+                .ringColor(() => '#8B5CF6')
+                .ringMaxRadius('maxR')
+                .ringPropagationSpeed('propagationSpeed')
+                .ringRepeatPeriod('repeatPeriod');
+
+            // Add label
+            globe
+                .labelsData([{
+                    lat: country.lat,
+                    lng: country.lng,
+                    text: country.flag + ' ' + country.name,
+                    color: '#ffffff',
+                    size: 1.5
+                }])
+                .labelText('text')
+                .labelSize('size')
+                .labelColor('color')
+                .labelDotRadius(0.5)
+                .labelAltitude(0.01);
+        }
+
+        // ==================== COUNTRY CARD ====================
+        
+        function showCountryCard(country) {
+            const panel = document.getElementById('countryPanel');
+            const placeholder = document.getElementById('panelPlaceholder');
+            const card = document.getElementById('countryCard');
+            const footer = document.getElementById('streakFooter');
+            
+            // Update card content
+            document.getElementById('cardFlag').textContent = country.flag;
+            document.getElementById('cardName').textContent = country.name;
+            document.getElementById('cardTagline').textContent = country.tagline;
+            document.getElementById('cardCapital').textContent = country.capital;
+            document.getElementById('cardRegion').textContent = country.region;
+            document.getElementById('cardPopulation').textContent = country.population;
+            document.getElementById('cardLanguage').textContent = country.language;
+            document.getElementById('cardCurrency').textContent = country.currency;
+            
+            // Facts
+            const factsList = document.getElementById('cardFacts');
+            factsList.innerHTML = country.facts.map(f => `<li>${f}</li>`).join('');
+            
+            // Quiz
+            document.getElementById('quizQuestion').textContent = country.quiz.question;
+            const optsContainer = document.getElementById('quizOptions');
+            optsContainer.innerHTML = country.quiz.options.map((opt, i) => 
+                `<div class="quiz-option" onclick="checkAnswer(this, ${i}, ${country.quiz.answer})">
+                    <span>${String.fromCharCode(65 + i)}</span> ${opt}
+                </div>`
+            ).join('');
+            
+            // Show card
+            placeholder.style.display = 'none';
+            card.classList.add('active');
+            panel.classList.add('active');
+            footer.classList.remove('panel-closed');
+        }
+
+        function closePanel() {
+            const panel = document.getElementById('countryPanel');
+            const placeholder = document.getElementById('panelPlaceholder');
+            const card = document.getElementById('countryCard');
+            const footer = document.getElementById('streakFooter');
+            
+            panel.classList.remove('active');
+            footer.classList.add('panel-closed');
+            
+            setTimeout(() => {
+                card.classList.remove('active');
+                placeholder.style.display = 'flex';
+            }, 500);
+            
+            // Clear highlights
+            globe.ringsData([]);
+            globe.labelsData([]);
+        }
+
+        // ==================== QUIZ ====================
+        
+        function checkAnswer(element, selected, correct) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach((opt, i) => {
+                opt.onclick = null;
+                opt.classList.add('disabled');
+                if (i === correct) {
+                    opt.classList.add('correct');
+                } else if (i === selected && i !== correct) {
+                    opt.classList.add('wrong');
+                }
+            });
+            
+            if (selected === correct) {
+                gameState.quizCorrect++;
+                saveGameState();
+                
+                // Small celebration
+                createConfetti(10);
+            }
+        }
+
+        // ==================== STATS ====================
+        
+        function updateStats() {
+            document.getElementById('totalCountries').textContent = gameState.discovered.length;
+            document.getElementById('currentStreak').textContent = gameState.streak;
+            document.getElementById('footerCountries').textContent = gameState.todayCount;
+            document.getElementById('footerStreak').textContent = gameState.streak;
+        }
+
+        // ==================== CONFETTI ====================
+        
+        function createConfetti(count = 30) {
+            const colors = ['#8B5CF6', '#EC4899', '#F59E0B', '#06B6D4', '#4A90D9', '#2D9B4E'];
+            
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.cssText = `
+                    left: ${Math.random() * 100}vw;
+                    top: -20px;
+                    width: ${Math.random() * 10 + 5}px;
+                    height: ${Math.random() * 10 + 5}px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+                    animation: confettiFall ${Math.random() * 2 + 2}s linear forwards;
+                `;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        // Add confetti animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes confettiFall {
+                0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ==================== THEME ====================
+        
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                icon.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('themeIcon').textContent = '☀️';
+        }
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isSpinning) {
+                e.preventDefault();
+                spinGlobe();
+            }
+            if (e.code === 'Escape') {
+                closePanel();
+            }
+        });
+    </script>
+</body>
+</html>
