@@ -1,123 +1,228 @@
 // ============================================
-// GEOTOPIA ENCYCLOPEDIA CONFIGURATION
+// GEOTOPIA ENCYCLOPEDIA - COMPLETE CONFIGURATION
 // ============================================
-// To add new content:
-// 1. Add entry to the appropriate category below
-// 2. Create the HTML file in the corresponding folder
-// That's it! The main page auto-updates!
+// ALL 195 UN RECOGNIZED COUNTRIES INCLUDED
 // ============================================
 
 const ENCYCLOPEDIA_CONFIG = {
     categories: [
-        // ==================== COUNTRIES ====================
+        // ==================== ALL 195 COUNTRIES ====================
         {
             id: "countries",
             name: "Countries",
             icon: "🌍",
             items: [
-                // ===== ASIA =====
-                { id: "india", name: "India", icon: "🇮🇳", continent: "asia" },
-                { id: "china", name: "China", icon: "🇨🇳", continent: "asia" },
-                { id: "japan", name: "Japan", icon: "🇯🇵", continent: "asia" },
-                { id: "south-korea", name: "South Korea", icon: "🇰🇷", continent: "asia" },
-                { id: "north-korea", name: "North Korea", icon: "🇰🇵", continent: "asia" },
-                { id: "pakistan", name: "Pakistan", icon: "🇵🇰", continent: "asia" },
-                { id: "bangladesh", name: "Bangladesh", icon: "🇧🇩", continent: "asia" },
-                { id: "sri-lanka", name: "Sri Lanka", icon: "🇱🇰", continent: "asia" },
-                { id: "nepal", name: "Nepal", icon: "🇳🇵", continent: "asia" },
-                { id: "bhutan", name: "Bhutan", icon: "🇧🇹", continent: "asia" },
-                { id: "myanmar", name: "Myanmar", icon: "🇲🇲", continent: "asia" },
-                { id: "thailand", name: "Thailand", icon: "🇹🇭", continent: "asia" },
-                { id: "vietnam", name: "Vietnam", icon: "🇻🇳", continent: "asia" },
-                { id: "malaysia", name: "Malaysia", icon: "🇲🇾", continent: "asia" },
-                { id: "singapore", name: "Singapore", icon: "🇸🇬", continent: "asia" },
-                { id: "indonesia", name: "Indonesia", icon: "🇮🇩", continent: "asia" },
-                { id: "philippines", name: "Philippines", icon: "🇵🇭", continent: "asia" },
+                // ===== ASIA (49 Countries) =====
                 { id: "afghanistan", name: "Afghanistan", icon: "🇦🇫", continent: "asia" },
+                { id: "armenia", name: "Armenia", icon: "🇦🇲", continent: "asia" },
+                { id: "azerbaijan", name: "Azerbaijan", icon: "🇦🇿", continent: "asia" },
+                { id: "bahrain", name: "Bahrain", icon: "🇧🇭", continent: "asia" },
+                { id: "bangladesh", name: "Bangladesh", icon: "🇧🇩", continent: "asia" },
+                { id: "bhutan", name: "Bhutan", icon: "🇧🇹", continent: "asia" },
+                { id: "brunei", name: "Brunei", icon: "🇧🇳", continent: "asia" },
+                { id: "cambodia", name: "Cambodia", icon: "🇰🇭", continent: "asia" },
+                { id: "china", name: "China", icon: "🇨🇳", continent: "asia" },
+                { id: "cyprus", name: "Cyprus", icon: "🇨🇾", continent: "asia" },
+                { id: "georgia", name: "Georgia", icon: "🇬🇪", continent: "asia" },
+                { id: "india", name: "India", icon: "🇮🇳", continent: "asia" },
+                { id: "indonesia", name: "Indonesia", icon: "🇮🇩", continent: "asia" },
                 { id: "iran", name: "Iran", icon: "🇮🇷", continent: "asia" },
                 { id: "iraq", name: "Iraq", icon: "🇮🇶", continent: "asia" },
-                { id: "saudi-arabia", name: "Saudi Arabia", icon: "🇸🇦", continent: "asia" },
-                { id: "uae", name: "UAE", icon: "🇦🇪", continent: "asia" },
                 { id: "israel", name: "Israel", icon: "🇮🇱", continent: "asia" },
-                { id: "turkey", name: "Turkey", icon: "🇹🇷", continent: "asia" },
-                { id: "russia", name: "Russia", icon: "🇷🇺", continent: "asia" },
+                { id: "japan", name: "Japan", icon: "🇯🇵", continent: "asia" },
+                { id: "jordan", name: "Jordan", icon: "🇯🇴", continent: "asia" },
                 { id: "kazakhstan", name: "Kazakhstan", icon: "🇰🇿", continent: "asia" },
+                { id: "kuwait", name: "Kuwait", icon: "🇰🇼", continent: "asia" },
+                { id: "kyrgyzstan", name: "Kyrgyzstan", icon: "🇰🇬", continent: "asia" },
+                { id: "laos", name: "Laos", icon: "🇱🇦", continent: "asia" },
+                { id: "lebanon", name: "Lebanon", icon: "🇱🇧", continent: "asia" },
+                { id: "malaysia", name: "Malaysia", icon: "🇲🇾", continent: "asia" },
+                { id: "maldives", name: "Maldives", icon: "🇲🇻", continent: "asia" },
                 { id: "mongolia", name: "Mongolia", icon: "🇲🇳", continent: "asia" },
-                
-                // ===== EUROPE =====
-                { id: "united-kingdom", name: "United Kingdom", icon: "🇬🇧", continent: "europe" },
+                { id: "myanmar", name: "Myanmar", icon: "🇲🇲", continent: "asia" },
+                { id: "nepal", name: "Nepal", icon: "🇳🇵", continent: "asia" },
+                { id: "north-korea", name: "North Korea", icon: "🇰🇵", continent: "asia" },
+                { id: "oman", name: "Oman", icon: "🇴🇲", continent: "asia" },
+                { id: "pakistan", name: "Pakistan", icon: "🇵🇰", continent: "asia" },
+                { id: "palestine", name: "Palestine", icon: "🇵🇸", continent: "asia" },
+                { id: "philippines", name: "Philippines", icon: "🇵🇭", continent: "asia" },
+                { id: "qatar", name: "Qatar", icon: "🇶🇦", continent: "asia" },
+                { id: "russia", name: "Russia", icon: "🇷🇺", continent: "asia" },
+                { id: "saudi-arabia", name: "Saudi Arabia", icon: "🇸🇦", continent: "asia" },
+                { id: "singapore", name: "Singapore", icon: "🇸🇬", continent: "asia" },
+                { id: "south-korea", name: "South Korea", icon: "🇰🇷", continent: "asia" },
+                { id: "sri-lanka", name: "Sri Lanka", icon: "🇱🇰", continent: "asia" },
+                { id: "syria", name: "Syria", icon: "🇸🇾", continent: "asia" },
+                { id: "taiwan", name: "Taiwan", icon: "🇹🇼", continent: "asia" },
+                { id: "tajikistan", name: "Tajikistan", icon: "🇹🇯", continent: "asia" },
+                { id: "thailand", name: "Thailand", icon: "🇹🇭", continent: "asia" },
+                { id: "timor-leste", name: "Timor-Leste", icon: "🇹🇱", continent: "asia" },
+                { id: "turkey", name: "Turkey", icon: "🇹🇷", continent: "asia" },
+                { id: "turkmenistan", name: "Turkmenistan", icon: "🇹🇲", continent: "asia" },
+                { id: "uae", name: "United Arab Emirates", icon: "🇦🇪", continent: "asia" },
+                { id: "uzbekistan", name: "Uzbekistan", icon: "🇺🇿", continent: "asia" },
+                { id: "vietnam", name: "Vietnam", icon: "🇻🇳", continent: "asia" },
+                { id: "yemen", name: "Yemen", icon: "🇾🇪", continent: "asia" },
+
+                // ===== EUROPE (44 Countries) =====
+                { id: "albania", name: "Albania", icon: "🇦🇱", continent: "europe" },
+                { id: "andorra", name: "Andorra", icon: "🇦🇩", continent: "europe" },
+                { id: "austria", name: "Austria", icon: "🇦🇹", continent: "europe" },
+                { id: "belarus", name: "Belarus", icon: "🇧🇾", continent: "europe" },
+                { id: "belgium", name: "Belgium", icon: "🇧🇪", continent: "europe" },
+                { id: "bosnia-herzegovina", name: "Bosnia & Herzegovina", icon: "🇧🇦", continent: "europe" },
+                { id: "bulgaria", name: "Bulgaria", icon: "🇧🇬", continent: "europe" },
+                { id: "croatia", name: "Croatia", icon: "🇭🇷", continent: "europe" },
+                { id: "czech-republic", name: "Czech Republic", icon: "🇨🇿", continent: "europe" },
+                { id: "denmark", name: "Denmark", icon: "🇩🇰", continent: "europe" },
+                { id: "estonia", name: "Estonia", icon: "🇪🇪", continent: "europe" },
+                { id: "finland", name: "Finland", icon: "🇫🇮", continent: "europe" },
                 { id: "france", name: "France", icon: "🇫🇷", continent: "europe" },
                 { id: "germany", name: "Germany", icon: "🇩🇪", continent: "europe" },
-                { id: "italy", name: "Italy", icon: "🇮🇹", continent: "europe" },
-                { id: "spain", name: "Spain", icon: "🇪🇸", continent: "europe" },
-                { id: "portugal", name: "Portugal", icon: "🇵🇹", continent: "europe" },
-                { id: "netherlands", name: "Netherlands", icon: "🇳🇱", continent: "europe" },
-                { id: "belgium", name: "Belgium", icon: "🇧🇪", continent: "europe" },
-                { id: "switzerland", name: "Switzerland", icon: "🇨🇭", continent: "europe" },
-                { id: "austria", name: "Austria", icon: "🇦🇹", continent: "europe" },
-                { id: "poland", name: "Poland", icon: "🇵🇱", continent: "europe" },
-                { id: "ukraine", name: "Ukraine", icon: "🇺🇦", continent: "europe" },
                 { id: "greece", name: "Greece", icon: "🇬🇷", continent: "europe" },
-                { id: "sweden", name: "Sweden", icon: "🇸🇪", continent: "europe" },
-                { id: "norway", name: "Norway", icon: "🇳🇴", continent: "europe" },
-                { id: "finland", name: "Finland", icon: "🇫🇮", continent: "europe" },
-                { id: "denmark", name: "Denmark", icon: "🇩🇰", continent: "europe" },
-                { id: "ireland", name: "Ireland", icon: "🇮🇪", continent: "europe" },
-                { id: "iceland", name: "Iceland", icon: "🇮🇸", continent: "europe" },
-                { id: "czech-republic", name: "Czech Republic", icon: "🇨🇿", continent: "europe" },
                 { id: "hungary", name: "Hungary", icon: "🇭🇺", continent: "europe" },
+                { id: "iceland", name: "Iceland", icon: "🇮🇸", continent: "europe" },
+                { id: "ireland", name: "Ireland", icon: "🇮🇪", continent: "europe" },
+                { id: "italy", name: "Italy", icon: "🇮🇹", continent: "europe" },
+                { id: "kosovo", name: "Kosovo", icon: "🇽🇰", continent: "europe" },
+                { id: "latvia", name: "Latvia", icon: "🇱🇻", continent: "europe" },
+                { id: "liechtenstein", name: "Liechtenstein", icon: "🇱🇮", continent: "europe" },
+                { id: "lithuania", name: "Lithuania", icon: "🇱🇹", continent: "europe" },
+                { id: "luxembourg", name: "Luxembourg", icon: "🇱🇺", continent: "europe" },
+                { id: "malta", name: "Malta", icon: "🇲🇹", continent: "europe" },
+                { id: "moldova", name: "Moldova", icon: "🇲🇩", continent: "europe" },
+                { id: "monaco", name: "Monaco", icon: "🇲🇨", continent: "europe" },
+                { id: "montenegro", name: "Montenegro", icon: "🇲🇪", continent: "europe" },
+                { id: "netherlands", name: "Netherlands", icon: "🇳🇱", continent: "europe" },
+                { id: "north-macedonia", name: "North Macedonia", icon: "🇲🇰", continent: "europe" },
+                { id: "norway", name: "Norway", icon: "🇳🇴", continent: "europe" },
+                { id: "poland", name: "Poland", icon: "🇵🇱", continent: "europe" },
+                { id: "portugal", name: "Portugal", icon: "🇵🇹", continent: "europe" },
                 { id: "romania", name: "Romania", icon: "🇷🇴", continent: "europe" },
-                
-                // ===== NORTH AMERICA =====
-                { id: "usa", name: "United States", icon: "🇺🇸", continent: "north-america" },
-                { id: "canada", name: "Canada", icon: "🇨🇦", continent: "north-america" },
-                { id: "mexico", name: "Mexico", icon: "🇲🇽", continent: "north-america" },
-                { id: "cuba", name: "Cuba", icon: "🇨🇺", continent: "north-america" },
-                { id: "jamaica", name: "Jamaica", icon: "🇯🇲", continent: "north-america" },
-                { id: "haiti", name: "Haiti", icon: "🇭🇹", continent: "north-america" },
-                { id: "dominican-republic", name: "Dominican Republic", icon: "🇩🇴", continent: "north-america" },
-                { id: "guatemala", name: "Guatemala", icon: "🇬🇹", continent: "north-america" },
-                { id: "panama", name: "Panama", icon: "🇵🇦", continent: "north-america" },
-                { id: "costa-rica", name: "Costa Rica", icon: "🇨🇷", continent: "north-america" },
-                
-                // ===== SOUTH AMERICA =====
-                { id: "brazil", name: "Brazil", icon: "🇧🇷", continent: "south-america" },
-                { id: "argentina", name: "Argentina", icon: "🇦🇷", continent: "south-america" },
-                { id: "chile", name: "Chile", icon: "🇨🇱", continent: "south-america" },
-                { id: "peru", name: "Peru", icon: "🇵🇪", continent: "south-america" },
-                { id: "colombia", name: "Colombia", icon: "🇨🇴", continent: "south-america" },
-                { id: "venezuela", name: "Venezuela", icon: "🇻🇪", continent: "south-america" },
-                { id: "ecuador", name: "Ecuador", icon: "🇪🇨", continent: "south-america" },
-                { id: "bolivia", name: "Bolivia", icon: "🇧🇴", continent: "south-america" },
-                { id: "paraguay", name: "Paraguay", icon: "🇵🇾", continent: "south-america" },
-                { id: "uruguay", name: "Uruguay", icon: "🇺🇾", continent: "south-america" },
-                
-                // ===== AFRICA =====
-                { id: "egypt", name: "Egypt", icon: "🇪🇬", continent: "africa" },
-                { id: "south-africa", name: "South Africa", icon: "🇿🇦", continent: "africa" },
-                { id: "nigeria", name: "Nigeria", icon: "🇳🇬", continent: "africa" },
-                { id: "kenya", name: "Kenya", icon: "🇰🇪", continent: "africa" },
-                { id: "ethiopia", name: "Ethiopia", icon: "🇪🇹", continent: "africa" },
-                { id: "morocco", name: "Morocco", icon: "🇲🇦", continent: "africa" },
+                { id: "san-marino", name: "San Marino", icon: "🇸🇲", continent: "europe" },
+                { id: "serbia", name: "Serbia", icon: "🇷🇸", continent: "europe" },
+                { id: "slovakia", name: "Slovakia", icon: "🇸🇰", continent: "europe" },
+                { id: "slovenia", name: "Slovenia", icon: "🇸🇮", continent: "europe" },
+                { id: "spain", name: "Spain", icon: "🇪🇸", continent: "europe" },
+                { id: "sweden", name: "Sweden", icon: "🇸🇪", continent: "europe" },
+                { id: "switzerland", name: "Switzerland", icon: "🇨🇭", continent: "europe" },
+                { id: "ukraine", name: "Ukraine", icon: "🇺🇦", continent: "europe" },
+                { id: "united-kingdom", name: "United Kingdom", icon: "🇬🇧", continent: "europe" },
+                { id: "vatican-city", name: "Vatican City", icon: "🇻🇦", continent: "europe" },
+
+                // ===== AFRICA (54 Countries) =====
                 { id: "algeria", name: "Algeria", icon: "🇩🇿", continent: "africa" },
-                { id: "tunisia", name: "Tunisia", icon: "🇹🇳", continent: "africa" },
-                { id: "libya", name: "Libya", icon: "🇱🇾", continent: "africa" },
-                { id: "sudan", name: "Sudan", icon: "🇸🇩", continent: "africa" },
+                { id: "angola", name: "Angola", icon: "🇦🇴", continent: "africa" },
+                { id: "benin", name: "Benin", icon: "🇧🇯", continent: "africa" },
+                { id: "botswana", name: "Botswana", icon: "🇧🇼", continent: "africa" },
+                { id: "burkina-faso", name: "Burkina Faso", icon: "🇧🇫", continent: "africa" },
+                { id: "burundi", name: "Burundi", icon: "🇧🇮", continent: "africa" },
+                { id: "cameroon", name: "Cameroon", icon: "🇨🇲", continent: "africa" },
+                { id: "cape-verde", name: "Cape Verde", icon: "🇨🇻", continent: "africa" },
+                { id: "central-african-republic", name: "Central African Republic", icon: "🇨🇫", continent: "africa" },
+                { id: "chad", name: "Chad", icon: "🇹🇩", continent: "africa" },
+                { id: "comoros", name: "Comoros", icon: "🇰🇲", continent: "africa" },
+                { id: "congo-brazzaville", name: "Congo (Brazzaville)", icon: "🇨🇬", continent: "africa" },
+                { id: "congo-kinshasa", name: "DR Congo", icon: "🇨🇩", continent: "africa" },
+                { id: "djibouti", name: "Djibouti", icon: "🇩🇯", continent: "africa" },
+                { id: "egypt", name: "Egypt", icon: "🇪🇬", continent: "africa" },
+                { id: "equatorial-guinea", name: "Equatorial Guinea", icon: "🇬🇶", continent: "africa" },
+                { id: "eritrea", name: "Eritrea", icon: "🇪🇷", continent: "africa" },
+                { id: "eswatini", name: "Eswatini", icon: "🇸🇿", continent: "africa" },
+                { id: "ethiopia", name: "Ethiopia", icon: "🇪🇹", continent: "africa" },
+                { id: "gabon", name: "Gabon", icon: "🇬🇦", continent: "africa" },
+                { id: "gambia", name: "Gambia", icon: "🇬🇲", continent: "africa" },
                 { id: "ghana", name: "Ghana", icon: "🇬🇭", continent: "africa" },
-                { id: "tanzania", name: "Tanzania", icon: "🇹🇿", continent: "africa" },
-                { id: "uganda", name: "Uganda", icon: "🇺🇬", continent: "africa" },
+                { id: "guinea", name: "Guinea", icon: "🇬🇳", continent: "africa" },
+                { id: "guinea-bissau", name: "Guinea-Bissau", icon: "🇬🇼", continent: "africa" },
+                { id: "ivory-coast", name: "Ivory Coast", icon: "🇨🇮", continent: "africa" },
+                { id: "kenya", name: "Kenya", icon: "🇰🇪", continent: "africa" },
+                { id: "lesotho", name: "Lesotho", icon: "🇱🇸", continent: "africa" },
+                { id: "liberia", name: "Liberia", icon: "🇱🇷", continent: "africa" },
+                { id: "libya", name: "Libya", icon: "🇱🇾", continent: "africa" },
+                { id: "madagascar", name: "Madagascar", icon: "🇲🇬", continent: "africa" },
+                { id: "malawi", name: "Malawi", icon: "🇲🇼", continent: "africa" },
+                { id: "mali", name: "Mali", icon: "🇲🇱", continent: "africa" },
+                { id: "mauritania", name: "Mauritania", icon: "🇲🇷", continent: "africa" },
+                { id: "mauritius", name: "Mauritius", icon: "🇲🇺", continent: "africa" },
+                { id: "morocco", name: "Morocco", icon: "🇲🇦", continent: "africa" },
+                { id: "mozambique", name: "Mozambique", icon: "🇲🇿", continent: "africa" },
+                { id: "namibia", name: "Namibia", icon: "🇳🇦", continent: "africa" },
+                { id: "niger", name: "Niger", icon: "🇳🇪", continent: "africa" },
+                { id: "nigeria", name: "Nigeria", icon: "🇳🇬", continent: "africa" },
                 { id: "rwanda", name: "Rwanda", icon: "🇷🇼", continent: "africa" },
+                { id: "sao-tome-principe", name: "São Tomé & Príncipe", icon: "🇸🇹", continent: "africa" },
+                { id: "senegal", name: "Senegal", icon: "🇸🇳", continent: "africa" },
+                { id: "seychelles", name: "Seychelles", icon: "🇸🇨", continent: "africa" },
+                { id: "sierra-leone", name: "Sierra Leone", icon: "🇸🇱", continent: "africa" },
+                { id: "somalia", name: "Somalia", icon: "🇸🇴", continent: "africa" },
+                { id: "south-africa", name: "South Africa", icon: "🇿🇦", continent: "africa" },
+                { id: "south-sudan", name: "South Sudan", icon: "🇸🇸", continent: "africa" },
+                { id: "sudan", name: "Sudan", icon: "🇸🇩", continent: "africa" },
+                { id: "tanzania", name: "Tanzania", icon: "🇹🇿", continent: "africa" },
+                { id: "togo", name: "Togo", icon: "🇹🇬", continent: "africa" },
+                { id: "tunisia", name: "Tunisia", icon: "🇹🇳", continent: "africa" },
+                { id: "uganda", name: "Uganda", icon: "🇺🇬", continent: "africa" },
+                { id: "zambia", name: "Zambia", icon: "🇿🇲", continent: "africa" },
                 { id: "zimbabwe", name: "Zimbabwe", icon: "🇿🇼", continent: "africa" },
-                { id: "congo", name: "DR Congo", icon: "🇨🇩", continent: "africa" },
-                
-                // ===== OCEANIA =====
+
+                // ===== NORTH AMERICA (23 Countries) =====
+                { id: "antigua-barbuda", name: "Antigua & Barbuda", icon: "🇦🇬", continent: "north-america" },
+                { id: "bahamas", name: "Bahamas", icon: "🇧🇸", continent: "north-america" },
+                { id: "barbados", name: "Barbados", icon: "🇧🇧", continent: "north-america" },
+                { id: "belize", name: "Belize", icon: "🇧🇿", continent: "north-america" },
+                { id: "canada", name: "Canada", icon: "🇨🇦", continent: "north-america" },
+                { id: "costa-rica", name: "Costa Rica", icon: "🇨🇷", continent: "north-america" },
+                { id: "cuba", name: "Cuba", icon: "🇨🇺", continent: "north-america" },
+                { id: "dominica", name: "Dominica", icon: "🇩🇲", continent: "north-america" },
+                { id: "dominican-republic", name: "Dominican Republic", icon: "🇩🇴", continent: "north-america" },
+                { id: "el-salvador", name: "El Salvador", icon: "🇸🇻", continent: "north-america" },
+                { id: "grenada", name: "Grenada", icon: "🇬🇩", continent: "north-america" },
+                { id: "guatemala", name: "Guatemala", icon: "🇬🇹", continent: "north-america" },
+                { id: "haiti", name: "Haiti", icon: "🇭🇹", continent: "north-america" },
+                { id: "honduras", name: "Honduras", icon: "🇭🇳", continent: "north-america" },
+                { id: "jamaica", name: "Jamaica", icon: "🇯🇲", continent: "north-america" },
+                { id: "mexico", name: "Mexico", icon: "🇲🇽", continent: "north-america" },
+                { id: "nicaragua", name: "Nicaragua", icon: "🇳🇮", continent: "north-america" },
+                { id: "panama", name: "Panama", icon: "🇵🇦", continent: "north-america" },
+                { id: "saint-kitts-nevis", name: "Saint Kitts & Nevis", icon: "🇰🇳", continent: "north-america" },
+                { id: "saint-lucia", name: "Saint Lucia", icon: "🇱🇨", continent: "north-america" },
+                { id: "saint-vincent-grenadines", name: "Saint Vincent & Grenadines", icon: "🇻🇨", continent: "north-america" },
+                { id: "trinidad-tobago", name: "Trinidad & Tobago", icon: "🇹🇹", continent: "north-america" },
+                { id: "usa", name: "United States", icon: "🇺🇸", continent: "north-america" },
+
+                // ===== SOUTH AMERICA (12 Countries) =====
+                { id: "argentina", name: "Argentina", icon: "🇦🇷", continent: "south-america" },
+                { id: "bolivia", name: "Bolivia", icon: "🇧🇴", continent: "south-america" },
+                { id: "brazil", name: "Brazil", icon: "🇧🇷", continent: "south-america" },
+                { id: "chile", name: "Chile", icon: "🇨🇱", continent: "south-america" },
+                { id: "colombia", name: "Colombia", icon: "🇨🇴", continent: "south-america" },
+                { id: "ecuador", name: "Ecuador", icon: "🇪🇨", continent: "south-america" },
+                { id: "guyana", name: "Guyana", icon: "🇬🇾", continent: "south-america" },
+                { id: "paraguay", name: "Paraguay", icon: "🇵🇾", continent: "south-america" },
+                { id: "peru", name: "Peru", icon: "🇵🇪", continent: "south-america" },
+                { id: "suriname", name: "Suriname", icon: "🇸🇷", continent: "south-america" },
+                { id: "uruguay", name: "Uruguay", icon: "🇺🇾", continent: "south-america" },
+                { id: "venezuela", name: "Venezuela", icon: "🇻🇪", continent: "south-america" },
+
+                // ===== OCEANIA (14 Countries) =====
                 { id: "australia", name: "Australia", icon: "🇦🇺", continent: "oceania" },
-                { id: "new-zealand", name: "New Zealand", icon: "🇳🇿", continent: "oceania" },
                 { id: "fiji", name: "Fiji", icon: "🇫🇯", continent: "oceania" },
+                { id: "kiribati", name: "Kiribati", icon: "🇰🇮", continent: "oceania" },
+                { id: "marshall-islands", name: "Marshall Islands", icon: "🇲🇭", continent: "oceania" },
+                { id: "micronesia", name: "Micronesia", icon: "🇫🇲", continent: "oceania" },
+                { id: "nauru", name: "Nauru", icon: "🇳🇷", continent: "oceania" },
+                { id: "new-zealand", name: "New Zealand", icon: "🇳🇿", continent: "oceania" },
+                { id: "palau", name: "Palau", icon: "🇵🇼", continent: "oceania" },
                 { id: "papua-new-guinea", name: "Papua New Guinea", icon: "🇵🇬", continent: "oceania" },
+                { id: "samoa", name: "Samoa", icon: "🇼🇸", continent: "oceania" },
+                { id: "solomon-islands", name: "Solomon Islands", icon: "🇸🇧", continent: "oceania" },
+                { id: "tonga", name: "Tonga", icon: "🇹🇴", continent: "oceania" },
+                { id: "tuvalu", name: "Tuvalu", icon: "🇹🇻", continent: "oceania" },
+                { id: "vanuatu", name: "Vanuatu", icon: "🇻🇺", continent: "oceania" },
             ]
         },
-        
+
         // ==================== CONTINENTS ====================
         {
             id: "continents",
@@ -129,11 +234,11 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "africa", name: "Africa", icon: "🌍" },
                 { id: "north-america", name: "North America", icon: "🌎" },
                 { id: "south-america", name: "South America", icon: "🌎" },
-                { id: "oceania", name: "Oceania", icon: "🌏" },
+                { id: "oceania", name: "Oceania/Australia", icon: "🌏" },
                 { id: "antarctica", name: "Antarctica", icon: "🧊" },
             ]
         },
-        
+
         // ==================== OCEANS ====================
         {
             id: "oceans",
@@ -148,9 +253,14 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "mediterranean-sea", name: "Mediterranean Sea", icon: "🏛️" },
                 { id: "caribbean-sea", name: "Caribbean Sea", icon: "🏝️" },
                 { id: "south-china-sea", name: "South China Sea", icon: "⚓" },
+                { id: "red-sea", name: "Red Sea", icon: "🔴" },
+                { id: "black-sea", name: "Black Sea", icon: "⬛" },
+                { id: "caspian-sea", name: "Caspian Sea", icon: "🌊" },
+                { id: "arabian-sea", name: "Arabian Sea", icon: "🌊" },
+                { id: "bay-of-bengal", name: "Bay of Bengal", icon: "🌊" },
             ]
         },
-        
+
         // ==================== MOUNTAINS ====================
         {
             id: "mountains",
@@ -165,9 +275,13 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "karakoram", name: "Karakoram", icon: "🏔️" },
                 { id: "hindu-kush", name: "Hindu Kush", icon: "⛰️" },
                 { id: "atlas", name: "Atlas Mountains", icon: "🏜️" },
+                { id: "ural", name: "Ural Mountains", icon: "⛰️" },
+                { id: "caucasus", name: "Caucasus", icon: "🏔️" },
+                { id: "pyrenees", name: "Pyrenees", icon: "⛰️" },
+                { id: "carpathians", name: "Carpathians", icon: "🏔️" },
             ]
         },
-        
+
         // ==================== RIVERS ====================
         {
             id: "rivers",
@@ -182,9 +296,13 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "mekong", name: "Mekong River", icon: "🌾" },
                 { id: "danube", name: "Danube River", icon: "🏰" },
                 { id: "congo-river", name: "Congo River", icon: "🌿" },
+                { id: "brahmaputra", name: "Brahmaputra River", icon: "🏔️" },
+                { id: "indus", name: "Indus River", icon: "🏛️" },
+                { id: "yellow-river", name: "Yellow River", icon: "🌾" },
+                { id: "volga", name: "Volga River", icon: "🇷🇺" },
             ]
         },
-        
+
         // ==================== DESERTS ====================
         {
             id: "deserts",
@@ -198,10 +316,13 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "atacama", name: "Atacama Desert", icon: "🌵" },
                 { id: "thar", name: "Thar Desert", icon: "🐫" },
                 { id: "mojave", name: "Mojave Desert", icon: "🌵" },
+                { id: "sonoran", name: "Sonoran Desert", icon: "🌵" },
+                { id: "antarctic", name: "Antarctic Desert", icon: "🧊" },
+                { id: "arctic-desert", name: "Arctic Desert", icon: "❄️" },
             ]
         },
 
-        // ==================== IMPORTANT STRAITS ====================
+        // ==================== STRAITS ====================
         {
             id: "straits",
             name: "Important Straits",
@@ -210,26 +331,31 @@ const ENCYCLOPEDIA_CONFIG = {
                 { id: "strait-of-gibraltar", name: "Strait of Gibraltar", icon: "🚢" },
                 { id: "strait-of-hormuz", name: "Strait of Hormuz", icon: "⛽" },
                 { id: "strait-of-malacca", name: "Strait of Malacca", icon: "🚢" },
-                { id: "bosphorus", name: "Bosphorus", icon: "🌉" },
+                { id: "bosphorus", name: "Bosphorus Strait", icon: "🌉" },
                 { id: "english-channel", name: "English Channel", icon: "🇬🇧" },
                 { id: "palk-strait", name: "Palk Strait", icon: "🇮🇳" },
+                { id: "bering-strait", name: "Bering Strait", icon: "❄️" },
+                { id: "strait-of-magellan", name: "Strait of Magellan", icon: "🌊" },
+                { id: "dardanelles", name: "Dardanelles", icon: "🏛️" },
+                { id: "taiwan-strait", name: "Taiwan Strait", icon: "🇹🇼" },
+            ]
+        },
+
+        // ==================== PASSES ====================
+        {
+            id: "passes",
+            name: "Mountain Passes",
+            icon: "🛤️",
+            items: [
+                { id: "khyber-pass", name: "Khyber Pass", icon: "🏔️" },
+                { id: "karakoram-pass", name: "Karakoram Pass", icon: "🏔️" },
+                { id: "nathu-la", name: "Nathu La", icon: "🏔️" },
+                { id: "rohtang-pass", name: "Rohtang Pass", icon: "🏔️" },
+                { id: "brenner-pass", name: "Brenner Pass", icon: "⛰️" },
+                { id: "khardung-la", name: "Khardung La", icon: "🏔️" },
+                { id: "gotthard-pass", name: "Gotthard Pass", icon: "⛰️" },
+                { id: "simplon-pass", name: "Simplon Pass", icon: "🚂" },
             ]
         }
     ]
 };
-
-// ============================================
-// TO ADD A NEW CATEGORY IN FUTURE:
-// ============================================
-// 1. Copy this template and add to categories array:
-// {
-//     id: "your-category-id",
-//     name: "Category Display Name",
-//     icon: "🔥",
-//     items: [
-//         { id: "item-id", name: "Item Name", icon: "⭐" },
-//     ]
-// }
-// 2. Create folder: encyclopedia/your-category-id/
-// 3. Add HTML files: encyclopedia/your-category-id/item-id.html
-// ============================================
