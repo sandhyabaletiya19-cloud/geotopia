@@ -1796,8 +1796,1064 @@
     <!-- SCRIPTS WILL BE IN PARTS 2-10 -->
     <script>
         // ============================================================
-        // PART 2-10 SCRIPTS GO HERE - SEE NEXT PARTS
-        // ============================================================
+// PART 2: CORE JAVASCRIPT - INITIALIZATION & MAP ENGINE
+// ============================================================
+
+// ==================== GLOBAL VARIABLES ====================
+let currentRiver = null;
+let mainMap = null;
+let flyMap = null;
+let flyAnimationId = null;
+let planeMarker = null;
+let currentFlyIndex = 0;
+let smoothedCoordinates = [];
+
+// ==================== INITIALIZATION ====================
+document.addEventListener('DOMContentLoaded', function() {
+    // Create floating particles
+    createParticles();
+    
+    // Get river ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const riverId = parseInt(urlParams.get('id')) || 1;
+    
+    // Load river data
+    if (typeof riverDatabase !== 'undefined' && riverDatabase[riverId]) {
+        currentRiver = riverDatabase[riverId];
+        initializeRiverProfile();
+    } else {
+        // Redirect if river not found
+        console.error('River not found:', riverId);
+        setTimeout(() => {
+            window.location.href = 'rivers.html';
+        }, 2000);
+    }
+    
+    // Navbar scroll effect
+    window.addEventListener('scroll', handleNavbarScroll);
+});
+
+// ==================== PARTICLE SYSTEM ====================
+function createParticles() {
+    const container = document.getElementById('particles');
+    const particleCount = 30;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        particle.style.opacity = 0.2 + Math.random() * 0.3;
+        particle.style.width = (3 + Math.random() * 4) + 'px';
+        particle.style.height = particle.style.width;
+        container.appendChild(particle);
+    }
+}
+
+// ==================== NAVBAR SCROLL ====================
+function handleNavbarScroll() {
+    const navbar = document.getElementById('navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+}
+
+// ==================== INITIALIZE RIVER PROFILE ====================
+function initializeRiverProfile() {
+    const river = currentRiver;
+    
+    // Set page title
+    document.title = `${river.name} River - GEOTOPIA`;
+    
+    // Set background image
+    setHeroBackground(river);
+    
+    // Update navigation
+    document.getElementById('navRiverName').textContent = river.name + ' River';
+    
+    // Update hero section
+    updateHeroSection(river);
+    
+    // Initialize map with curved path
+    initializeMainMap(river);
+    
+    // Build mind map
+    buildMindMap(river);
+    
+    // Hide loading screen
+    setTimeout(() => {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+    }, 1200);
+}
+
+// ==================== HERO BACKGROUND ====================
+function setHeroBackground(river) {
+    const bgElement = document.getElementById('riverHeroBg');
+    
+    // River-specific background images from Unsplash
+    const riverImages = {
+        'Nile': 'https://images.unsplash.com/photo-1553913861-c0a602e5cc5f?w=1920',
+        'Amazon': 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1920',
+        'Yangtze': 'https://images.unsplash.com/photo-1537531383496-f4749b99b9c0?w=1920',
+        'Mississippi': 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=1920',
+        'Ganges': 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1920',
+        'Danube': 'https://images.unsplash.com/photo-1516550893923-42d28e5677af?w=1920',
+        'Mekong': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1920',
+        'default': 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=1920'
+    };
+    
+    const imageUrl = riverImages[river.name] || riverImages['default'];
+    bgElement.style.backgroundImage = `url(${imageUrl})`;
+}
+
+// ==================== UPDATE HERO SECTION ====================
+function updateHeroSection(river) {
+    // Rank badge
+    document.getElementById('rankText').textContent = `#${river.rank} World's Longest River`;
+    
+    // River title
+    document.getElementById('riverTitle').textContent = river.name;
+    document.getElementById('riverNameShort').textContent = river.name;
+    
+    // Native name
+    document.getElementById('riverNativeName').textContent = river.nativeName || '';
+    
+    // Country badges
+    const countryContainer = document.getElementById('countryBadges');
+    countryContainer.innerHTML = river.countries.map((country, idx) => {
+        const code = river.countryCodes[idx] || 'un';
+        return `
+            <div class="country-badge">
+                <img src="https://flagcdn.com/w40/${code.toLowerCase()}.png" 
+                     alt="${country}" 
+                     onerror="this.src='https://flagcdn.com/w40/un.png'">
+                <span>${country}</span>
+            </div>
+        `;
+    }).join('');
+    
+    // Stats circles
+    const statsContainer = document.getElementById('statsContainer');
+    statsContainer.innerHTML = `
+        <div class="stat-circle">
+            <div class="stat-circle-inner">
+                <span class="stat-icon">📏</span>
+                <div class="stat-value">${river.length.toLocaleString()}</div>
+                <div class="stat-label">Length (km)</div>
+            </div>
+        </div>
+        <div class="stat-circle">
+            <div class="stat-circle-inner">
+                <span class="stat-icon">💧</span>
+                <div class="stat-value">${formatNumber(river.discharge)}</div>
+                <div class="stat-label">Discharge (m³/s)</div>
+            </div>
+        </div>
+        <div class="stat-circle">
+            <div class="stat-circle-inner">
+                <span class="stat-icon">🗺️</span>
+                <div class="stat-value">${formatNumber(river.basinArea)}</div>
+                <div class="stat-label">Basin (km²)</div>
+            </div>
+        </div>
+        <div class="stat-circle">
+            <div class="stat-circle-inner">
+                <span class="stat-icon">🌍</span>
+                <div class="stat-value">${river.countries.length}</div>
+                <div class="stat-label">Countries</div>
+            </div>
+        </div>
+    `;
+}
+
+// ==================== NUMBER FORMATTING ====================
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(0) + 'K';
+    }
+    return num.toLocaleString();
+}
+
+// ==================== CURVED PATH GENERATION ====================
+// Creates smooth curved river path using Catmull-Rom spline interpolation
+function generateCurvedPath(coordinates, tension = 0.5, numPoints = 100) {
+    if (coordinates.length < 2) return coordinates;
+    
+    const points = [];
+    
+    // Convert to proper format
+    const pts = coordinates.map(c => ({ lat: c[0], lng: c[1] }));
+    
+    // Generate interpolated points using Catmull-Rom spline
+    for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[Math.max(0, i - 1)];
+        const p1 = pts[i];
+        const p2 = pts[i + 1];
+        const p3 = pts[Math.min(pts.length - 1, i + 2)];
+        
+        const segments = Math.floor(numPoints / (pts.length - 1));
+        
+        for (let t = 0; t < segments; t++) {
+            const s = t / segments;
+            const point = catmullRomInterpolate(p0, p1, p2, p3, s, tension);
+            points.push([point.lat, point.lng]);
+        }
+    }
+    
+    // Add final point
+    points.push([pts[pts.length - 1].lat, pts[pts.length - 1].lng]);
+    
+    return points;
+}
+
+// Catmull-Rom spline interpolation
+function catmullRomInterpolate(p0, p1, p2, p3, t, tension) {
+    const t2 = t * t;
+    const t3 = t2 * t;
+    
+    const v0 = (p2.lat - p0.lat) * tension;
+    const v1 = (p3.lat - p1.lat) * tension;
+    const lat = (2 * p1.lat - 2 * p2.lat + v0 + v1) * t3 + 
+                (-3 * p1.lat + 3 * p2.lat - 2 * v0 - v1) * t2 + 
+                v0 * t + p1.lat;
+    
+    const w0 = (p2.lng - p0.lng) * tension;
+    const w1 = (p3.lng - p1.lng) * tension;
+    const lng = (2 * p1.lng - 2 * p2.lng + w0 + w1) * t3 + 
+                (-3 * p1.lng + 3 * p2.lng - 2 * w0 - w1) * t2 + 
+                w0 * t + p1.lng;
+    
+    return { lat, lng };
+}
+
+// ==================== INITIALIZE MAIN MAP ====================
+function initializeMainMap(river) {
+    // Remove existing map
+    if (mainMap) {
+        mainMap.remove();
+    }
+    
+    // Create map
+    mainMap = L.map('riverMap', {
+        zoomControl: true,
+        attributionControl: false,
+        scrollWheelZoom: true
+    });
+    
+    // Add dark tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd'
+    }).addTo(mainMap);
+    
+    // Generate curved path
+    const curvedPath = generateCurvedPath(river.coordinates, 0.5, 150);
+    smoothedCoordinates = curvedPath;
+    
+    // Draw river with glow effect (multiple layers)
+    // Outer glow
+    L.polyline(curvedPath, {
+        color: '#00CED1',
+        weight: 20,
+        opacity: 0.1,
+        lineCap: 'round',
+        lineJoin: 'round'
+    }).addTo(mainMap);
+    
+    // Middle glow
+    L.polyline(curvedPath, {
+        color: '#00CED1',
+        weight: 12,
+        opacity: 0.2,
+        lineCap: 'round',
+        lineJoin: 'round'
+    }).addTo(mainMap);
+    
+    // Inner glow
+    L.polyline(curvedPath, {
+        color: '#00CED1',
+        weight: 6,
+        opacity: 0.4,
+        lineCap: 'round',
+        lineJoin: 'round'
+    }).addTo(mainMap);
+    
+    // Main river line
+    L.polyline(curvedPath, {
+        color: '#87CEEB',
+        weight: 3,
+        opacity: 0.9,
+        lineCap: 'round',
+        lineJoin: 'round'
+    }).addTo(mainMap);
+    
+    // Center line (brightest)
+    L.polyline(curvedPath, {
+        color: '#FFFFFF',
+        weight: 1,
+        opacity: 0.5,
+        lineCap: 'round',
+        lineJoin: 'round'
+    }).addTo(mainMap);
+    
+    // Add source marker
+    const sourceIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `
+            <div style="
+                width: 30px;
+                height: 30px;
+                background: linear-gradient(135deg, #22C55E, #16A34A);
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            ">🏔️</div>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+    
+    L.marker(curvedPath[0], { icon: sourceIcon })
+        .bindPopup(`
+            <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 8px;">🏔️</div>
+                <div style="font-size: 11px; color: #22C55E; text-transform: uppercase; letter-spacing: 2px;">Source</div>
+                <div style="font-size: 16px; font-weight: 700; margin: 5px 0;">${river.source.name}</div>
+                <div style="font-size: 13px; color: rgba(255,255,255,0.7);">${river.source.location}</div>
+                <div style="font-size: 12px; color: #00CED1; margin-top: 5px;">Elevation: ${river.source.elevation}</div>
+            </div>
+        `)
+        .addTo(mainMap);
+    
+    // Add mouth marker
+    const mouthIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `
+            <div style="
+                width: 30px;
+                height: 30px;
+                background: linear-gradient(135deg, #EF4444, #DC2626);
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            ">🌊</div>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+    
+    L.marker(curvedPath[curvedPath.length - 1], { icon: mouthIcon })
+        .bindPopup(`
+            <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 8px;">🌊</div>
+                <div style="font-size: 11px; color: #EF4444; text-transform: uppercase; letter-spacing: 2px;">Mouth</div>
+                <div style="font-size: 16px; font-weight: 700; margin: 5px 0;">${river.mouth.name}</div>
+                <div style="font-size: 13px; color: rgba(255,255,255,0.7);">${river.mouth.location}</div>
+            </div>
+        `)
+        .addTo(mainMap);
+    
+    // Add city markers (if cities have coordinates, or place along river)
+    if (river.cities && river.cities.length > 0) {
+        const cityPositions = distributeCitiesAlongRiver(curvedPath, river.cities.length);
+        
+        river.cities.slice(0, 6).forEach((city, index) => {
+            const cityIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `
+                    <div style="
+                        width: 24px;
+                        height: 24px;
+                        background: linear-gradient(135deg, #FFD700, #FFA500);
+                        border-radius: 50%;
+                        border: 2px solid white;
+                        box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 11px;
+                    ">🏙️</div>
+                `,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            
+            L.marker(cityPositions[index], { icon: cityIcon })
+                .bindPopup(`
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; margin-bottom: 5px;">🏙️</div>
+                        <div style="font-size: 11px; color: #FFD700; text-transform: uppercase; letter-spacing: 1px;">Major City</div>
+                        <div style="font-size: 15px; font-weight: 700;">${city}</div>
+                    </div>
+                `)
+                .addTo(mainMap);
+        });
+    }
+    
+    // Fit map to river bounds
+    mainMap.fitBounds(curvedPath, {
+        padding: [60, 60],
+        maxZoom: 6
+    });
+}
+
+// Distribute cities along river path
+function distributeCitiesAlongRiver(path, numCities) {
+    const positions = [];
+    const step = Math.floor(path.length / (numCities + 1));
+    
+    for (let i = 1; i <= numCities; i++) {
+        const index = Math.min(i * step, path.length - 1);
+        // Add slight random offset so cities don't sit exactly on river
+        const offset = (Math.random() - 0.5) * 0.5;
+        positions.push([path[index][0] + offset, path[index][1] + offset]);
+    }
+    
+    return positions;
+}
+
+// ==================== SCROLL TO MIND MAP ====================
+function scrollToMindMap() {
+    document.getElementById('mindmapSection').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+// ==================== FLY ALONG FEATURE ====================
+function startFlyAlong() {
+    if (!currentRiver) return;
+    
+    const modal = document.getElementById('flyModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    document.getElementById('flyRiverName').textContent = currentRiver.name;
+    
+    // Reset UI
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressText').textContent = '0% — Starting at Source';
+    document.getElementById('waypointCard').classList.remove('visible');
+    document.getElementById('journeyComplete').classList.remove('visible');
+    
+    // Initialize fly map after modal is visible
+    setTimeout(() => {
+        initializeFlyMap();
+    }, 100);
+}
+
+function initializeFlyMap() {
+    // Remove existing map
+    if (flyMap) {
+        flyMap.remove();
+    }
+    
+    // Create map with satellite view
+    flyMap = L.map('flyMap', {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false
+    });
+    
+    // Add satellite tile layer
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19
+    }).addTo(flyMap);
+    
+    // Generate smooth path
+    const flyPath = generateCurvedPath(currentRiver.coordinates, 0.5, 200);
+    
+    // Draw river path
+    L.polyline(flyPath, {
+        color: '#00CED1',
+        weight: 8,
+        opacity: 0.6,
+        lineCap: 'round',
+        lineJoin: 'round'
+    }).addTo(flyMap);
+    
+    L.polyline(flyPath, {
+        color: '#87CEEB',
+        weight: 4,
+        opacity: 0.9,
+        lineCap: 'round',
+        lineJoin: 'round'
+    }).addTo(flyMap);
+    
+    // Create plane marker
+    const planeIcon = L.divIcon({
+        className: 'plane-marker',
+        html: `
+            <div style="
+                font-size: 36px;
+                filter: drop-shadow(0 0 10px rgba(0, 206, 209, 0.8));
+                transform: rotate(90deg);
+                transition: transform 0.3s ease;
+            ">✈️</div>
+        `,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+    
+    planeMarker = L.marker(flyPath[0], { icon: planeIcon }).addTo(flyMap);
+    
+    // Center on start
+    flyMap.setView(flyPath[0], 7);
+    
+    // Define waypoints
+    const waypoints = createWaypoints(flyPath);
+    
+    // Start animation
+    currentFlyIndex = 0;
+    animateFlight(flyPath, waypoints);
+}
+
+function createWaypoints(path) {
+    const river = currentRiver;
+    const waypoints = [];
+    const totalPoints = path.length;
+    
+    // Source (start)
+    waypoints.push({
+        index: 0,
+        emoji: '🏔️',
+        type: 'SOURCE',
+        name: river.source.name,
+        desc: river.source.location
+    });
+    
+    // Add cities as waypoints
+    if (river.cities && river.cities.length > 0) {
+        const cityStep = Math.floor(totalPoints / (Math.min(river.cities.length, 4) + 2));
+        river.cities.slice(0, 4).forEach((city, i) => {
+            waypoints.push({
+                index: cityStep * (i + 1),
+                emoji: '🏙️',
+                type: 'MAJOR CITY',
+                name: city,
+                desc: 'Along the ' + river.name
+            });
+        });
+    }
+    
+    // Add dam if exists
+    if (river.dams && river.dams.length > 0) {
+        waypoints.push({
+            index: Math.floor(totalPoints * 0.6),
+            emoji: '🚧',
+            type: 'DAM',
+            name: river.dams[0].name,
+            desc: river.dams[0].info.split(',')[0]
+        });
+    }
+    
+    // Add tributary junction
+    if (river.tributaries && river.tributaries.left.length > 0) {
+        waypoints.push({
+            index: Math.floor(totalPoints * 0.4),
+            emoji: '🌿',
+            type: 'CONFLUENCE',
+            name: river.tributaries.left[0] + ' joins',
+            desc: 'Major tributary junction'
+        });
+    }
+    
+    // Mouth (end)
+    waypoints.push({
+        index: totalPoints - 1,
+        emoji: '🌊',
+        type: 'MOUTH',
+        name: river.mouth.name,
+        desc: river.mouth.location
+    });
+    
+    // Sort by index
+    waypoints.sort((a, b) => a.index - b.index);
+    
+    return waypoints;
+}
+
+function animateFlight(path, waypoints) {
+    const totalPoints = path.length;
+    const animationSpeed = 80; // milliseconds per point
+    
+    let lastWaypointIndex = -1;
+    
+    function animate() {
+        if (currentFlyIndex >= totalPoints) {
+            // Journey complete
+            showJourneyComplete();
+            return;
+        }
+        
+        // Update plane position
+        const currentPos = path[currentFlyIndex];
+        planeMarker.setLatLng(currentPos);
+        
+        // Calculate bearing and rotate plane
+        if (currentFlyIndex < totalPoints - 1) {
+            const nextPos = path[currentFlyIndex + 1];
+            const bearing = calculateBearing(currentPos, nextPos);
+            updatePlaneRotation(bearing);
+        }
+        
+        // Pan map to follow plane
+        flyMap.panTo(currentPos, { animate: true, duration: 0.05 });
+        
+        // Update progress
+        const progress = (currentFlyIndex / (totalPoints - 1)) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        
+        let statusText = 'Flying downstream';
+        if (progress < 5) statusText = 'Departing from source';
+        else if (progress > 95) statusText = 'Approaching mouth';
+        
+        document.getElementById('progressText').textContent = 
+            `${Math.round(progress)}% — ${statusText}`;
+        
+        // Check for waypoints
+        const waypoint = waypoints.find(w => 
+            w.index === currentFlyIndex && w.index !== lastWaypointIndex
+        );
+        
+        if (waypoint) {
+            lastWaypointIndex = waypoint.index;
+            showWaypoint(waypoint);
+        }
+        
+        currentFlyIndex++;
+        flyAnimationId = setTimeout(animate, animationSpeed);
+    }
+    
+    // Start animation
+    animate();
+}
+
+function calculateBearing(start, end) {
+    const startLat = start[0] * Math.PI / 180;
+    const startLng = start[1] * Math.PI / 180;
+    const endLat = end[0] * Math.PI / 180;
+    const endLng = end[1] * Math.PI / 180;
+    
+    const dLng = endLng - startLng;
+    
+    const y = Math.sin(dLng) * Math.cos(endLat);
+    const x = Math.cos(startLat) * Math.sin(endLat) - 
+              Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+    
+    let bearing = Math.atan2(y, x) * 180 / Math.PI;
+    bearing = (bearing + 360) % 360;
+    
+    return bearing;
+}
+
+function updatePlaneRotation(bearing) {
+    const planeElement = document.querySelector('.plane-marker div');
+    if (planeElement) {
+        planeElement.style.transform = `rotate(${bearing + 90}deg)`;
+    }
+}
+
+function showWaypoint(waypoint) {
+    const card = document.getElementById('waypointCard');
+    
+    document.getElementById('waypointEmoji').textContent = waypoint.emoji;
+    document.getElementById('waypointType').textContent = waypoint.type;
+    document.getElementById('waypointName').textContent = waypoint.name;
+    document.getElementById('waypointDesc').textContent = waypoint.desc;
+    
+    card.classList.add('visible');
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        card.classList.remove('visible');
+    }, 3000);
+}
+
+function showJourneyComplete() {
+    const river = currentRiver;
+    
+    document.getElementById('completeSubtitle').textContent = 
+        `You've traveled ${river.length.toLocaleString()} km along the ${river.name} River`;
+    
+    document.getElementById('completeStats').innerHTML = `
+        <div class="complete-stat">
+            <div class="complete-stat-value">${river.length.toLocaleString()}</div>
+            <div class="complete-stat-label">Kilometers</div>
+        </div>
+        <div class="complete-stat">
+            <div class="complete-stat-value">${river.countries.length}</div>
+            <div class="complete-stat-label">Countries</div>
+        </div>
+        <div class="complete-stat">
+            <div class="complete-stat-value">${(river.tributaries.left.length + river.tributaries.right.length)}</div>
+            <div class="complete-stat-label">Tributaries</div>
+        </div>
+        <div class="complete-stat">
+            <div class="complete-stat-value">${river.cities.length}</div>
+            <div class="complete-stat-label">Major Cities</div>
+        </div>
+    `;
+    
+    document.getElementById('journeyComplete').classList.add('visible');
+}
+
+function closeFlyAlong() {
+    // Stop animation
+    if (flyAnimationId) {
+        clearTimeout(flyAnimationId);
+        flyAnimationId = null;
+    }
+    
+    // Remove map
+    if (flyMap) {
+        flyMap.remove();
+        flyMap = null;
+    }
+    
+    // Reset state
+    currentFlyIndex = 0;
+    planeMarker = null;
+    
+    // Hide modal
+    document.getElementById('flyModal').classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Reset UI elements
+    document.getElementById('waypointCard').classList.remove('visible');
+    document.getElementById('journeyComplete').classList.remove('visible');
+}
+
+// ==================== MIND MAP BUILDING ====================
+function buildMindMap(river) {
+    const container = document.getElementById('mindmapBranches');
+    
+    const branches = [
+        {
+            type: 'source',
+            icon: '🏔️',
+            title: 'Source',
+            subtitle: river.source.name,
+            content: buildSourceContent(river)
+        },
+        {
+            type: 'mouth',
+            icon: '🌊',
+            title: 'Mouth',
+            subtitle: river.mouth.name,
+            content: buildMouthContent(river)
+        },
+        {
+            type: 'countries',
+            icon: '🌍',
+            title: 'Countries',
+            subtitle: `${river.countries.length} nations`,
+            content: buildCountriesContent(river)
+        },
+        {
+            type: 'tributaries',
+            icon: '🌿',
+            title: 'Tributaries',
+            subtitle: `${river.tributaries.left.length + river.tributaries.right.length} rivers`,
+            content: buildTributariesContent(river)
+        },
+        {
+            type: 'cities',
+            icon: '🏙️',
+            title: 'Major Cities',
+            subtitle: `${river.cities.length} cities`,
+            content: buildCitiesContent(river)
+        },
+        {
+            type: 'dams',
+            icon: '🚧',
+            title: 'Dams & Projects',
+            subtitle: `${river.dams.length} structures`,
+            content: buildDamsContent(river)
+        },
+        {
+            type: 'economic',
+            icon: '💰',
+            title: 'Economic Importance',
+            subtitle: `${river.economic.length} key factors`,
+            content: buildEconomicContent(river)
+        },
+        {
+            type: 'environmental',
+            icon: '🌱',
+            title: 'Environmental Issues',
+            subtitle: `${river.environmental.length} concerns`,
+            content: buildEnvironmentalContent(river)
+        },
+        {
+            type: 'disputes',
+            icon: '⚖️',
+            title: 'Water Disputes',
+            subtitle: `${river.disputes.length} conflicts`,
+            content: buildDisputesContent(river)
+        },
+        {
+            type: 'history',
+            icon: '📜',
+            title: 'History',
+            subtitle: 'Historical significance',
+            content: buildHistoryContent(river)
+        }
+    ];
+    
+    container.innerHTML = branches.map(branch => `
+        <div class="branch-node" data-type="${branch.type}" onclick="toggleBranch(this)">
+            <div class="branch-header">
+                <div class="branch-icon">${branch.icon}</div>
+                <div class="branch-info">
+                    <h3>${branch.title}</h3>
+                    <span>${branch.subtitle}</span>
+                </div>
+                <div class="branch-toggle">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="branch-content">
+                <div class="branch-inner">
+                    ${branch.content}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleBranch(element) {
+    const wasActive = element.classList.contains('active');
+    
+    // Close all branches
+    document.querySelectorAll('.branch-node').forEach(node => {
+        node.classList.remove('active');
+    });
+    
+    // Open clicked branch if it wasn't active
+    if (!wasActive) {
+        element.classList.add('active');
+        
+        // Scroll to branch after animation
+        setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 300);
+    }
+}
+
+// ==================== CONTENT BUILDERS ====================
+function buildSourceContent(river) {
+    return `
+        <div class="flow-chart">
+            <div class="flow-item">
+                <div class="flow-icon">📍</div>
+                <div class="flow-text">
+                    <h4>Location</h4>
+                    <p>${river.source.name}</p>
+                </div>
+            </div>
+            <div class="flow-item">
+                <div class="flow-icon">🗺️</div>
+                <div class="flow-text">
+                    <h4>Region</h4>
+                    <p>${river.source.location}</p>
+                </div>
+            </div>
+            <div class="flow-item">
+                <div class="flow-icon">⬆️</div>
+                <div class="flow-text">
+                    <h4>Elevation</h4>
+                    <p>${river.source.elevation}</p>
+                </div>
+            </div>
+            <div class="flow-item">
+                <div class="flow-icon">🧭</div>
+                <div class="flow-text">
+                    <h4>Coordinates</h4>
+                    <p>${river.source.coordinates[0].toFixed(4)}°, ${river.source.coordinates[1].toFixed(4)}°</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function buildMouthContent(river) {
+    return `
+        <div class="flow-chart">
+            <div class="flow-item">
+                <div class="flow-icon">🌊</div>
+                <div class="flow-text">
+                    <h4>Empties Into</h4>
+                    <p>${river.mouth.name}</p>
+                </div>
+            </div>
+            <div class="flow-item">
+                <div class="flow-icon">📍</div>
+                <div class="flow-text">
+                    <h4>Location</h4>
+                    <p>${river.mouth.location}</p>
+                </div>
+            </div>
+            <div class="flow-item">
+                <div class="flow-icon">🧭</div>
+                <div class="flow-text">
+                    <h4>Coordinates</h4>
+                    <p>${river.mouth.coordinates[0].toFixed(4)}°, ${river.mouth.coordinates[1].toFixed(4)}°</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function buildCountriesContent(river) {
+    return `
+        <div class="city-grid">
+            ${river.countries.map((country, idx) => {
+                const code = river.countryCodes[idx] || 'un';
+                return `
+                    <div class="city-chip" style="background: rgba(155, 89, 182, 0.15); border-color: rgba(155, 89, 182, 0.3);">
+                        <img src="https://flagcdn.com/w40/${code.toLowerCase()}.png" 
+                             alt="${country}"
+                             style="width: 24px; height: 16px; border-radius: 2px;"
+                             onerror="this.src='https://flagcdn.com/w40/un.png'">
+                        <span>${country}</span>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+function buildTributariesContent(river) {
+    return `
+        <div class="tributary-tree">
+            <div class="tributary-branch">
+                <h4>
+                    <i class="fas fa-arrow-left"></i>
+                    Left Bank Tributaries
+                </h4>
+                <div class="tributary-list">
+                    ${river.tributaries.left.map(t => `
+                        <div class="tributary-item">
+                            <i class="fas fa-water"></i>
+                            <span>${t}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="tributary-branch">
+                <h4>
+                    <i class="fas fa-arrow-right"></i>
+                    Right Bank Tributaries
+                </h4>
+                <div class="tributary-list">
+                    ${river.tributaries.right.map(t => `
+                        <div class="tributary-item">
+                            <i class="fas fa-water"></i>
+                            <span>${t}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function buildCitiesContent(river) {
+    return `
+        <div class="city-grid">
+            ${river.cities.map(city => `
+                <div class="city-chip">
+                    <i class="fas fa-city"></i>
+                    <span>${city}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function buildDamsContent(river) {
+    if (!river.dams || river.dams.length === 0) {
+        return '<p style="color: var(--text-muted); padding: 20px; text-align: center;">No major dams on this river.</p>';
+    }
+    
+    return `
+        <div class="dam-cards">
+            ${river.dams.map(dam => `
+                <div class="dam-card">
+                    <div class="dam-icon-wrapper">🚧</div>
+                    <div class="dam-details">
+                        <h4>${dam.name}</h4>
+                        <p>${dam.info}</p>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function buildEconomicContent(river) {
+    return `
+        <div class="point-cards">
+            ${river.economic.map((point, i) => `
+                <div class="point-card">
+                    <div class="point-number">${i + 1}</div>
+                    <div class="point-text">${point}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function buildEnvironmentalContent(river) {
+    return `
+        <div class="point-cards">
+            ${river.environmental.map((point, i) => `
+                <div class="point-card">
+                    <div class="point-number">${i + 1}</div>
+                    <div class="point-text">${point}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function buildDisputesContent(river) {
+    return `
+        <div class="point-cards">
+            ${river.disputes.map((point, i) => `
+                <div class="point-card">
+                    <div class="point-number">${i + 1}</div>
+                    <div class="point-text">${point}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function buildHistoryContent(river) {
+    return `
+        <div class="history-content">
+            ${river.history}
+        </div>
+    `;
+}
     </script>
 </body>
 </html>
