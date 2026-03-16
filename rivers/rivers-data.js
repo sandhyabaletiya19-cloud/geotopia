@@ -1,1764 +1,1695 @@
-// ============================================
-// RIVERS DATA - Geography Learning App
-// 100 Rivers: Longest to Shortest
-// ============================================
+// ========================================
+// RIVERS DATA - COMPLETE DATABASE
+// Part 1: Rivers #1-10
+// ========================================
 
 const riversData = [
 
-    // ==========================================
-    // #1 NILE - 6,650 km
-    // ==========================================
+    // ========================================
+    // #1 - NILE RIVER
+    // ========================================
     {
         id: 1,
-        name: "Nile",
-        nativeName: "النيل (An-Nīl)",
-        continent: "africa",
-        countries: ["Egypt", "Sudan", "South Sudan", "Uganda", "Ethiopia", "Kenya", "Tanzania", "Rwanda", "Burundi", "DR Congo"],
+        name: "Nile River",
+        alternateNames: ["An-Nīl", "Bahr el-Nil"],
         length: 6650,
-        discharge: 2830,
-        basinArea: 3349000,
+        lengthMiles: 4132,
+        rank: 1,
+        
+        // Location
+        countries: ["Uganda", "South Sudan", "Sudan", "Egypt", "Ethiopia", "Eritrea", "Kenya", "Tanzania", "DR Congo", "Rwanda", "Burundi"],
+        continent: "Africa",
+        regions: ["East Africa", "Northeast Africa", "Nile Valley"],
+        
+        // Coordinates
         source: {
-            name: "Kagera River / Lake Victoria",
-            location: "Burundi Highlands",
-            coordinates: [-2.5, 29.5],
-            elevation: 1134
+            name: "Nyungwe Forest, Rwanda (Ultimate source)",
+            coordinates: [-2.3167, 29.3500],
+            elevation: 2400,
+            description: "The ultimate source is in Nyungwe Forest, feeding into Lake Victoria"
         },
         mouth: {
-            name: "Mediterranean Sea",
-            location: "Nile Delta, Egypt",
-            coordinates: [31.5, 30.4]
+            name: "Mediterranean Sea (Nile Delta)",
+            coordinates: [31.5000, 31.0000],
+            elevation: 0,
+            description: "Massive delta on Egyptian Mediterranean coast"
         },
+        
+        // River course (key points from source to mouth)
         course: [
-            [-2.5, 29.5],
-            [-0.5, 33.0],
-            [4.0, 31.5],
-            [15.6, 32.5],
-            [22.0, 31.2],
-            [26.0, 31.5],
-            [30.0, 31.2],
-            [31.5, 30.4]
+            [-2.3167, 29.3500],   // Source - Rwanda
+            [-1.0000, 33.0000],   // Lake Victoria region
+            [2.0000, 32.5000],    // Uganda
+            [6.0000, 31.5000],    // South Sudan
+            [9.5000, 31.6000],    // Sudan - Khartoum area
+            [15.5000, 32.5000],   // Northern Sudan
+            [18.0000, 31.0000],   // Sudan-Egypt border
+            [22.0000, 31.5000],   // Southern Egypt
+            [24.0000, 32.9000],   // Luxor area
+            [26.5000, 31.5000],   // Central Egypt
+            [30.0000, 31.2000],   // Cairo area
+            [31.5000, 31.0000]    // Delta - Mediterranean
         ],
+        
+        // Basin info
+        basin: {
+            area: 3349000,
+            areaSqMi: 1293000,
+            countries: 11,
+            population: 300000000
+        },
+        
+        discharge: {
+            average: 2830,
+            unit: "m³/s",
+            max: 8500,
+            min: 500
+        },
+        
+        // Tributaries (arrows pointing IN to river)
         tributaries: [
-            {
-                name: "Blue Nile",
-                length: 1450,
-                source: "Lake Tana, Ethiopia",
-                confluence: "Khartoum, Sudan",
-                coordinates: [[11.5, 37.5], [15.6, 32.5]],
-                flowDirection: "in"
-            },
             {
                 name: "White Nile",
                 length: 3700,
-                source: "Lake Victoria",
-                confluence: "Khartoum, Sudan",
-                coordinates: [[-2.5, 29.5], [15.6, 32.5]],
-                flowDirection: "in"
+                meetingPoint: [15.6000, 32.5500],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Sudan"
+            },
+            {
+                name: "Blue Nile",
+                length: 1450,
+                meetingPoint: [15.6000, 32.5500],
+                direction: "southeast",
+                arrowDirection: "in",
+                country: "Sudan/Ethiopia"
             },
             {
                 name: "Atbara River",
-                length: 800,
-                source: "Ethiopian Highlands",
-                confluence: "Atbara, Sudan",
-                coordinates: [[12.5, 38.0], [17.7, 34.0]],
-                flowDirection: "in"
+                length: 1120,
+                meetingPoint: [17.7000, 34.0000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Ethiopia/Sudan"
+            },
+            {
+                name: "Sobat River",
+                length: 730,
+                meetingPoint: [9.3000, 31.5000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "South Sudan/Ethiopia"
+            },
+            {
+                name: "Bahr el Ghazal",
+                length: 720,
+                meetingPoint: [9.5000, 30.0000],
+                direction: "west",
+                arrowDirection: "in",
+                country: "South Sudan"
             }
         ],
+        
+        // Distributaries (arrows pointing OUT from river)
         distributaries: [
             {
                 name: "Rosetta Branch",
-                length: 220,
-                mouth: "Mediterranean Sea",
-                coordinates: [[30.5, 31.0], [31.4, 30.4]],
-                flowDirection: "out"
+                length: 235,
+                startPoint: [30.1000, 31.1000],
+                direction: "northwest",
+                arrowDirection: "out",
+                destination: "Mediterranean Sea"
             },
             {
                 name: "Damietta Branch",
-                length: 245,
-                mouth: "Mediterranean Sea",
-                coordinates: [[30.5, 31.5], [31.8, 30.8]],
-                flowDirection: "out"
+                length: 240,
+                startPoint: [30.1000, 31.1000],
+                direction: "northeast",
+                arrowDirection: "out",
+                destination: "Mediterranean Sea"
             }
         ],
+        
+        // Major cities along river
         majorCities: [
-            { name: "Cairo", country: "Egypt", population: 21000000, coordinates: [30.04, 31.24] },
-            { name: "Alexandria", country: "Egypt", population: 5200000, coordinates: [31.2, 29.9] },
-            { name: "Khartoum", country: "Sudan", population: 5200000, coordinates: [15.55, 32.53] },
-            { name: "Aswan", country: "Egypt", population: 1500000, coordinates: [24.09, 32.90] },
-            { name: "Luxor", country: "Egypt", population: 500000, coordinates: [25.69, 32.64] }
+            { name: "Cairo", coordinates: [30.0444, 31.2357], population: 20000000 },
+            { name: "Alexandria", coordinates: [31.2001, 29.9187], population: 5200000 },
+            { name: "Khartoum", coordinates: [15.5007, 32.5599], population: 5800000 },
+            { name: "Luxor", coordinates: [25.6872, 32.6396], population: 500000 },
+            { name: "Aswan", coordinates: [24.0889, 32.8998], population: 350000 },
+            { name: "Juba", coordinates: [4.8594, 31.5713], population: 525000 }
         ],
-        facts: {
-            historical: "🏛️ Cradle of Ancient Egyptian civilization for 5000+ years",
-            ecological: "🌿 Supports 95% of Egypt's population in narrow valley",
-            economic: "💰 Aswan High Dam generates 2,100 MW hydroelectric power",
-            cultural: "⭐ Worshipped as god Hapi - bringer of floods & fertility",
-            funFact: "🎭 Cleopatra sailed golden barges down this river!"
+        
+        // Key features
+        features: [
+            { name: "Nile Delta", type: "delta", coordinates: [31.0000, 30.9000] },
+            { name: "Lake Victoria", type: "lake", coordinates: [-1.0440, 32.8500] },
+            { name: "Lake Nasser", type: "reservoir", coordinates: [22.5000, 32.0000] },
+            { name: "Aswan High Dam", type: "dam", coordinates: [23.9708, 32.8781] },
+            { name: "Sudd Wetlands", type: "wetland", coordinates: [7.5000, 30.5000] },
+            { name: "Cataracts", type: "rapids", coordinates: [24.0000, 32.9000] }
+        ],
+        
+        // Classification
+        type: "Perennial",
+        flowDirection: "South to North",
+        gradient: "Low",
+        waterColor: "Brown/Tan",
+        
+        // Significance
+        significance: {
+            ecological: "Supports vast wetland ecosystems in the Sudd region; critical habitat for migratory birds and aquatic species",
+            economic: "Irrigates 99% of Egypt's cultivated land; supports 300 million people; vital for agriculture and fishing",
+            cultural: "Cradle of ancient Egyptian civilization; sacred in Egyptian mythology; source of life for millennia",
+            historical: "Enabled rise of Egyptian pharaohs; ancient trade route; Napoleon's expeditions; colonial-era conflicts"
         },
-        image: "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=800",
-        description: "World's longest river, lifeline of Egypt, ancient pyramids' neighbor"
+        
+        // Additional info
+        annualFlood: "June to September",
+        majorDams: ["Aswan High Dam", "Aswan Low Dam", "Merowe Dam", "Roseires Dam", "Sennar Dam"],
+        wildlife: ["Nile Crocodile", "Nile Perch", "Hippopotamus", "African Softshell Turtle", "Papyrus"],
+        
+        // Media
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Nile_River_and_delta_from_orbit.jpg/800px-Nile_River_and_delta_from_orbit.jpg",
+            gallery: [
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Nile_River_-_panoramio.jpg/800px-Nile_River_-_panoramio.jpg"
+            ]
+        },
+        
+        facts: [
+            "Longest river in Africa and arguably the world",
+            "Ancient Egyptians called it 'Iteru' meaning 'great river'",
+            "Flows through 11 different countries",
+            "The Nile Delta is one of the world's oldest intensely cultivated areas",
+            "Only 22% of the Nile's water reaches the Mediterranean"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #2 AMAZON - 6,400 km
-    // ==========================================
+    // ========================================
+    // #2 - AMAZON RIVER
+    // ========================================
     {
         id: 2,
-        name: "Amazon",
-        nativeName: "Rio Amazonas",
-        continent: "south-america",
-        countries: ["Brazil", "Peru", "Colombia", "Ecuador", "Venezuela", "Bolivia", "Guyana"],
+        name: "Amazon River",
+        alternateNames: ["Rio Amazonas", "Solimões"],
         length: 6400,
-        discharge: 209000,
-        basinArea: 7050000,
+        lengthMiles: 3976,
+        rank: 2,
+        
+        countries: ["Brazil", "Peru", "Colombia", "Ecuador", "Bolivia", "Venezuela", "Guyana"],
+        continent: "South America",
+        regions: ["Amazon Basin", "South America"],
+        
         source: {
-            name: "Nevado Mismi",
-            location: "Arequipa Region, Peru",
-            coordinates: [-15.52, -71.69],
-            elevation: 5170
+            name: "Nevado Mismi, Peru",
+            coordinates: [-15.5178, -71.6897],
+            elevation: 5220,
+            description: "Glacial streams on Mount Mismi in the Andes"
         },
         mouth: {
             name: "Atlantic Ocean",
-            location: "Marajó Bay, Brazil",
-            coordinates: [-0.5, -49.0]
+            coordinates: [-0.1667, -49.0000],
+            elevation: 0,
+            description: "Massive estuary in northern Brazil, including Marajó Island"
         },
+        
         course: [
-            [-15.52, -71.69],
-            [-10.5, -73.5],
-            [-5.0, -73.0],
-            [-4.0, -70.0],
-            [-3.1, -60.0],
-            [-2.0, -55.0],
-            [-1.5, -52.0],
-            [-0.5, -49.0]
+            [-15.5178, -71.6897],  // Source - Peru
+            [-14.5000, -70.5000],  // Upper Amazon
+            [-10.0000, -67.5000],  // Peru-Brazil border
+            [-5.0000, -65.0000],   // Manaus region
+            [-3.1000, -60.0000],   // Near Manaus
+            [-2.0000, -55.0000],   // Middle Amazon
+            [-1.5000, -52.0000],   // Lower Amazon
+            [-0.5000, -50.0000],   // Near mouth
+            [-0.1667, -49.0000]    // Atlantic
         ],
+        
+        basin: {
+            area: 7050000,
+            areaSqMi: 2722000,
+            countries: 7,
+            population: 40000000
+        },
+        
+        discharge: {
+            average: 209000,
+            unit: "m³/s",
+            max: 340000,
+            min: 100000
+        },
+        
         tributaries: [
             {
                 name: "Rio Negro",
                 length: 2250,
-                source: "Colombian Highlands",
-                confluence: "Manaus, Brazil",
-                coordinates: [[1.0, -67.0], [-3.1, -60.0]],
-                flowDirection: "in"
+                meetingPoint: [-3.1300, -59.9000],
+                direction: "north",
+                arrowDirection: "in",
+                country: "Brazil"
             },
             {
                 name: "Madeira River",
                 length: 3380,
-                source: "Bolivian Andes",
-                confluence: "Itacoatiara, Brazil",
-                coordinates: [[-15.0, -65.0], [-3.5, -58.8]],
-                flowDirection: "in"
+                meetingPoint: [-3.4000, -58.8000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Brazil/Bolivia"
+            },
+            {
+                name: "Japurá River",
+                length: 2820,
+                meetingPoint: [-3.0000, -64.5000],
+                direction: "northwest",
+                arrowDirection: "in",
+                country: "Colombia/Brazil"
+            },
+            {
+                name: "Purus River",
+                length: 3211,
+                meetingPoint: [-3.7000, -61.4000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Brazil"
             },
             {
                 name: "Tapajós River",
                 length: 1992,
-                source: "Mato Grosso, Brazil",
-                confluence: "Santarém, Brazil",
-                coordinates: [[-13.0, -56.0], [-2.4, -54.7]],
-                flowDirection: "in"
+                meetingPoint: [-2.4000, -54.9000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Brazil"
             },
             {
                 name: "Xingu River",
-                length: 2100,
-                source: "Central Brazil",
-                confluence: "Porto de Moz",
-                coordinates: [[-13.5, -53.5], [-1.8, -52.2]],
-                flowDirection: "in"
+                length: 1980,
+                meetingPoint: [-1.8000, -52.2000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Brazil"
             }
         ],
+        
         distributaries: [
             {
                 name: "Canal do Norte",
                 length: 200,
-                mouth: "Atlantic Ocean",
-                coordinates: [[-0.5, -50.5], [0.5, -49.5]],
-                flowDirection: "out"
+                startPoint: [-0.5000, -50.0000],
+                direction: "north",
+                arrowDirection: "out",
+                destination: "Atlantic Ocean"
             },
             {
-                name: "Pará River",
-                length: 320,
-                mouth: "Marajó Bay",
-                coordinates: [[-1.5, -49.5], [-1.3, -48.5]],
-                flowDirection: "out"
+                name: "Canal do Sul",
+                length: 180,
+                startPoint: [-0.5000, -50.0000],
+                direction: "south",
+                arrowDirection: "out",
+                destination: "Atlantic Ocean"
+            },
+            {
+                name: "Para River",
+                length: 350,
+                startPoint: [-1.0000, -49.5000],
+                direction: "southeast",
+                arrowDirection: "out",
+                destination: "Atlantic Ocean"
             }
         ],
+        
         majorCities: [
-            { name: "Manaus", country: "Brazil", population: 2200000, coordinates: [-3.1, -60.0] },
-            { name: "Belém", country: "Brazil", population: 1500000, coordinates: [-1.46, -48.5] },
-            { name: "Santarém", country: "Brazil", population: 300000, coordinates: [-2.44, -54.71] },
-            { name: "Iquitos", country: "Peru", population: 470000, coordinates: [-3.75, -73.25] },
-            { name: "Macapá", country: "Brazil", population: 500000, coordinates: [0.03, -51.05] }
+            { name: "Manaus", coordinates: [-3.1190, -60.0217], population: 2200000 },
+            { name: "Belém", coordinates: [-1.4558, -48.4902], population: 2500000 },
+            { name: "Iquitos", coordinates: [-3.7437, -73.2516], population: 480000 },
+            { name: "Santarém", coordinates: [-2.4307, -54.7072], population: 300000 },
+            { name: "Macapá", coordinates: [0.0356, -51.0705], population: 500000 }
         ],
-        facts: {
-            historical: "🏛️ First explored by Francisco de Orellana in 1542",
-            ecological: "🌿 Contains 10% of ALL species on Earth!",
-            economic: "💰 Carries 20% of world's fresh water to ocean",
-            cultural: "⭐ Home to 400+ indigenous tribes, 300 languages",
-            funFact: "🎭 Pink dolphins swim here - yes, actually PINK!"
+        
+        features: [
+            { name: "Meeting of Waters", type: "confluence", coordinates: [-3.1300, -59.9000] },
+            { name: "Marajó Island", type: "island", coordinates: [-0.9900, -49.5900] },
+            { name: "Amazon Rainforest", type: "forest", coordinates: [-3.0000, -60.0000] },
+            { name: "Anavilhanas Archipelago", type: "archipelago", coordinates: [-2.7000, -60.8000] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "West to East",
+        gradient: "Very Low",
+        waterColor: "Brown (sediment-rich)",
+        
+        significance: {
+            ecological: "Contains 10% of all species on Earth; largest tropical rainforest; produces 20% of world's oxygen",
+            economic: "Major shipping route; fishing industry; timber; hydroelectric potential",
+            cultural: "Home to 400+ indigenous tribes; rich mythology; symbol of Brazil",
+            historical: "Spanish explorer Francisco de Orellana first navigation in 1542; rubber boom; ongoing conservation battles"
         },
-        image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800",
-        description: "Largest river by discharge, mega biodiversity, rainforest king"
+        
+        annualFlood: "November to June",
+        majorDams: ["Belo Monte Dam", "Tucuruí Dam", "Santo Antônio Dam", "Jirau Dam"],
+        wildlife: ["Amazon River Dolphin", "Piranha", "Anaconda", "Arapaima", "Black Caiman", "Manatee"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Amazon_River_-_near_Manaus_-_Brazil.jpg/800px-Amazon_River_-_near_Manaus_-_Brazil.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "Largest river by discharge volume - 20% of all freshwater flowing into oceans",
+            "Has over 1,100 tributaries",
+            "The 'Meeting of Waters' where black Rio Negro meets tan Amazon is visible for 6 km",
+            "No bridges cross the entire Amazon River",
+            "Pororoca tidal bore can reach 4 meters high"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #3 YANGTZE - 6,300 km
-    // ==========================================
+    // ========================================
+    // #3 - YANGTZE RIVER
+    // ========================================
     {
         id: 3,
-        name: "Yangtze",
-        nativeName: "长江 (Cháng Jiāng)",
-        continent: "asia",
-        countries: ["China"],
+        name: "Yangtze River",
+        alternateNames: ["Chang Jiang", "长江", "Long River"],
         length: 6300,
-        discharge: 30000,
-        basinArea: 1800000,
+        lengthMiles: 3917,
+        rank: 3,
+        
+        countries: ["China"],
+        continent: "Asia",
+        regions: ["East Asia", "Central China", "Tibet"],
+        
         source: {
-            name: "Tanggula Mountains",
-            location: "Qinghai Province, Tibet",
-            coordinates: [33.42, 91.17],
-            elevation: 5042
+            name: "Jari Hill, Tanggula Mountains",
+            coordinates: [33.4300, 91.1800],
+            elevation: 5170,
+            description: "Glacial meltwater on Qinghai-Tibet Plateau"
         },
         mouth: {
             name: "East China Sea",
-            location: "Shanghai, China",
-            coordinates: [31.38, 121.97]
+            coordinates: [31.3833, 121.9167],
+            elevation: 0,
+            description: "Shanghai area, massive delta region"
         },
+        
         course: [
-            [33.42, 91.17],
-            [31.0, 97.0],
-            [29.5, 106.5],
-            [30.6, 114.3],
-            [32.0, 118.8],
-            [31.38, 121.97]
+            [33.4300, 91.1800],   // Source - Tibet
+            [33.0000, 97.0000],   // Upper Yangtze
+            [28.0000, 99.0000],   // Yunnan
+            [29.5000, 106.5000],  // Chongqing
+            [30.5000, 111.0000],  // Three Gorges
+            [30.5000, 114.3000],  // Wuhan
+            [30.6000, 117.0000],  // Anqing
+            [32.0000, 119.0000],  // Nanjing
+            [31.3833, 121.9167]   // Shanghai - Sea
         ],
+        
+        basin: {
+            area: 1808500,
+            areaSqMi: 698265,
+            countries: 1,
+            population: 480000000
+        },
+        
+        discharge: {
+            average: 30000,
+            unit: "m³/s",
+            max: 110000,
+            min: 8000
+        },
+        
         tributaries: [
             {
-                name: "Jialing River",
-                length: 1119,
-                source: "Shaanxi Province",
-                confluence: "Chongqing",
-                coordinates: [[34.0, 106.5], [29.5, 106.5]],
-                flowDirection: "in"
-            },
-            {
-                name: "Han River",
-                length: 1577,
-                source: "Shaanxi Mountains",
-                confluence: "Wuhan",
-                coordinates: [[33.0, 107.0], [30.6, 114.3]],
-                flowDirection: "in"
+                name: "Yalong River",
+                length: 1571,
+                meetingPoint: [26.9000, 101.8000],
+                direction: "northwest",
+                arrowDirection: "in",
+                country: "China"
             },
             {
                 name: "Min River",
-                length: 1046,
-                source: "Sichuan Mountains",
-                confluence: "Yibin",
-                coordinates: [[32.0, 103.5], [28.8, 104.6]],
-                flowDirection: "in"
+                length: 735,
+                meetingPoint: [28.7600, 104.6000],
+                direction: "north",
+                arrowDirection: "in",
+                country: "China"
+            },
+            {
+                name: "Jialing River",
+                length: 1119,
+                meetingPoint: [29.5600, 106.5800],
+                direction: "north",
+                arrowDirection: "in",
+                country: "China"
+            },
+            {
+                name: "Han River",
+                length: 1532,
+                meetingPoint: [30.5800, 114.2800],
+                direction: "northwest",
+                arrowDirection: "in",
+                country: "China"
+            },
+            {
+                name: "Wu River",
+                length: 1037,
+                meetingPoint: [29.6000, 107.4000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "China"
+            },
+            {
+                name: "Xiang River",
+                length: 856,
+                meetingPoint: [29.4000, 113.1000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "China"
             }
         ],
-        distributaries: [],
-        majorCities: [
-            { name: "Shanghai", country: "China", population: 24870000, coordinates: [31.23, 121.47] },
-            { name: "Chongqing", country: "China", population: 31000000, coordinates: [29.56, 106.55] },
-            { name: "Wuhan", country: "China", population: 11000000, coordinates: [30.58, 114.27] },
-            { name: "Nanjing", country: "China", population: 8500000, coordinates: [32.06, 118.79] },
-            { name: "Hangzhou", country: "China", population: 10000000, coordinates: [30.25, 120.17] }
+        
+        distributaries: [
+            {
+                name: "Huangpu River",
+                length: 113,
+                startPoint: [31.2000, 121.5000],
+                direction: "north",
+                arrowDirection: "out",
+                destination: "Yangtze Delta"
+            }
         ],
-        facts: {
-            historical: "🏛️ Cradle of Chinese civilization - dynasties rose here",
-            ecological: "🌿 Home to extinct Baiji dolphin (river goddess)",
-            economic: "💰 Three Gorges Dam = World's largest power station!",
-            cultural: "⭐ Inspired thousands of Chinese poems & paintings",
-            funFact: "🎭 Three Gorges Dam visible from SPACE!"
+        
+        majorCities: [
+            { name: "Shanghai", coordinates: [31.2304, 121.4737], population: 26000000 },
+            { name: "Wuhan", coordinates: [30.5928, 114.3055], population: 11000000 },
+            { name: "Chongqing", coordinates: [29.4316, 106.9123], population: 32000000 },
+            { name: "Nanjing", coordinates: [32.0603, 118.7969], population: 9500000 },
+            { name: "Chengdu", coordinates: [30.5728, 104.0668], population: 21000000 }
+        ],
+        
+        features: [
+            { name: "Three Gorges Dam", type: "dam", coordinates: [30.8231, 111.0034] },
+            { name: "Three Gorges", type: "gorge", coordinates: [30.7500, 110.5000] },
+            { name: "Tiger Leaping Gorge", type: "gorge", coordinates: [27.1900, 100.1100] },
+            { name: "Dongting Lake", type: "lake", coordinates: [29.3000, 112.8000] },
+            { name: "Poyang Lake", type: "lake", coordinates: [29.1500, 116.2700] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "West to East",
+        gradient: "Variable",
+        waterColor: "Brown/Yellow",
+        
+        significance: {
+            ecological: "Habitat for Yangtze finless porpoise and giant salamander; critical wetland ecosystems",
+            economic: "Third-busiest shipping route; Three Gorges produces 100 TWh/year; irrigates vast farmlands",
+            cultural: "Divides North and South China; cradle of Chinese civilization; countless poems and legends",
+            historical: "Ancient trade route; WWII battles; 1954 and 1998 floods killed thousands"
         },
-        image: "https://images.unsplash.com/photo-1537531383496-f4749b2e4a74?w=800",
-        description: "Asia's longest river, Three Gorges Dam, busiest waterway on Earth"
+        
+        annualFlood: "June to September",
+        majorDams: ["Three Gorges Dam", "Gezhouba Dam", "Xiluodu Dam", "Xiangjiaba Dam"],
+        wildlife: ["Yangtze Finless Porpoise", "Chinese Paddlefish (extinct)", "Chinese Alligator", "Giant Salamander"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Yangtze_River_-_Three_Gorges.jpg/800px-Yangtze_River_-_Three_Gorges.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "Longest river in Asia and third longest in the world",
+            "Three Gorges Dam is the world's largest power station by capacity",
+            "The river divides China culturally into North and South",
+            "Over 400 million people depend on its waters",
+            "Baiji (Yangtze River Dolphin) was declared functionally extinct in 2006"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #4 MISSISSIPPI-MISSOURI - 6,275 km
-    // ==========================================
+    // ========================================
+    // #4 - MISSISSIPPI RIVER
+    // ========================================
     {
         id: 4,
-        name: "Mississippi-Missouri",
-        nativeName: "Great River (Ojibwe: Misi-ziibi)",
-        continent: "north-america",
+        name: "Mississippi River",
+        alternateNames: ["Old Man River", "Father of Waters", "Misi-ziibi"],
+        length: 3778,
+        lengthMiles: 2348,
+        rank: 4,
+        
         countries: ["United States"],
-        length: 6275,
-        discharge: 16800,
-        basinArea: 2980000,
+        continent: "North America",
+        regions: ["Midwest USA", "Southern USA", "Great Plains"],
+        
         source: {
-            name: "Brower's Spring",
-            location: "Montana, USA",
-            coordinates: [44.94, -111.00],
-            elevation: 2756
+            name: "Lake Itasca, Minnesota",
+            coordinates: [47.2389, -95.2058],
+            elevation: 450,
+            description: "Small glacial lake in northern Minnesota"
         },
         mouth: {
             name: "Gulf of Mexico",
-            location: "Louisiana Delta",
-            coordinates: [29.15, -89.25]
+            coordinates: [29.1530, -89.2527],
+            elevation: 0,
+            description: "Bird's Foot Delta in Louisiana"
         },
+        
         course: [
-            [44.94, -111.00],
-            [47.24, -95.21],
-            [44.95, -93.10],
-            [38.63, -90.20],
-            [35.15, -90.05],
-            [32.30, -91.05],
-            [29.95, -90.07],
-            [29.15, -89.25]
+            [47.2389, -95.2058],  // Lake Itasca
+            [45.0000, -93.2700],  // Minneapolis
+            [44.0500, -91.6400],  // Wisconsin border
+            [41.5000, -90.5700],  // Quad Cities
+            [38.6200, -90.2000],  // St. Louis
+            [37.0000, -89.1300],  // Cairo, IL
+            [35.1500, -90.0500],  // Memphis
+            [32.3000, -91.0000],  // Vicksburg
+            [30.0000, -91.0000],  // Baton Rouge
+            [29.9500, -90.0700],  // New Orleans
+            [29.1530, -89.2527]   // Gulf of Mexico
         ],
+        
+        basin: {
+            area: 2980000,
+            areaSqMi: 1151000,
+            countries: 1,
+            population: 120000000
+        },
+        
+        discharge: {
+            average: 16800,
+            unit: "m³/s",
+            max: 58000,
+            min: 4000
+        },
+        
         tributaries: [
             {
                 name: "Missouri River",
-                length: 3767,
-                source: "Montana Rockies",
-                confluence: "St. Louis, MO",
-                coordinates: [[45.93, -111.50], [38.80, -90.12]],
-                flowDirection: "in"
+                length: 3768,
+                meetingPoint: [38.8114, -90.1181],
+                direction: "west",
+                arrowDirection: "in",
+                country: "USA"
             },
             {
                 name: "Ohio River",
                 length: 1579,
-                source: "Pittsburgh, PA",
-                confluence: "Cairo, IL",
-                coordinates: [[40.44, -80.01], [37.00, -89.18]],
-                flowDirection: "in"
+                meetingPoint: [37.0000, -89.1333],
+                direction: "east",
+                arrowDirection: "in",
+                country: "USA"
             },
             {
                 name: "Arkansas River",
-                length: 2322,
-                source: "Colorado Rockies",
-                confluence: "Napoleon, AR",
-                coordinates: [[39.30, -106.19], [33.95, -91.07]],
-                flowDirection: "in"
+                length: 2364,
+                meetingPoint: [33.7667, -91.0500],
+                direction: "west",
+                arrowDirection: "in",
+                country: "USA"
             },
             {
                 name: "Red River",
                 length: 2189,
-                source: "New Mexico",
-                confluence: "Marksville, LA",
-                coordinates: [[35.00, -103.00], [31.12, -91.83]],
-                flowDirection: "in"
+                meetingPoint: [31.0000, -91.7000],
+                direction: "west",
+                arrowDirection: "in",
+                country: "USA"
+            },
+            {
+                name: "Minnesota River",
+                length: 534,
+                meetingPoint: [44.8920, -93.1790],
+                direction: "west",
+                arrowDirection: "in",
+                country: "USA"
+            },
+            {
+                name: "Illinois River",
+                length: 439,
+                meetingPoint: [38.9667, -90.4667],
+                direction: "northeast",
+                arrowDirection: "in",
+                country: "USA"
             }
         ],
+        
         distributaries: [
             {
                 name: "Atchafalaya River",
-                length: 225,
-                mouth: "Atchafalaya Bay",
-                coordinates: [[31.0, -91.6], [29.5, -91.4]],
-                flowDirection: "out"
+                length: 220,
+                startPoint: [31.0000, -91.7000],
+                direction: "southwest",
+                arrowDirection: "out",
+                destination: "Gulf of Mexico"
+            },
+            {
+                name: "Pass a Loutre",
+                length: 40,
+                startPoint: [29.3000, -89.3000],
+                direction: "southeast",
+                arrowDirection: "out",
+                destination: "Gulf of Mexico"
+            },
+            {
+                name: "South Pass",
+                length: 35,
+                startPoint: [29.2000, -89.4000],
+                direction: "south",
+                arrowDirection: "out",
+                destination: "Gulf of Mexico"
             }
         ],
+        
         majorCities: [
-            { name: "New Orleans", country: "USA", population: 390000, coordinates: [29.95, -90.07] },
-            { name: "Memphis", country: "USA", population: 650000, coordinates: [35.15, -90.05] },
-            { name: "St. Louis", country: "USA", population: 300000, coordinates: [38.63, -90.20] },
-            { name: "Minneapolis", country: "USA", population: 430000, coordinates: [44.98, -93.27] },
-            { name: "Baton Rouge", country: "USA", population: 220000, coordinates: [30.45, -91.15] }
+            { name: "Minneapolis", coordinates: [44.9778, -93.2650], population: 430000 },
+            { name: "St. Louis", coordinates: [38.6270, -90.1994], population: 300000 },
+            { name: "Memphis", coordinates: [35.1495, -90.0490], population: 650000 },
+            { name: "New Orleans", coordinates: [29.9511, -90.0715], population: 390000 },
+            { name: "Baton Rouge", coordinates: [30.4515, -91.1871], population: 225000 }
         ],
-        facts: {
-            historical: "🏛️ Native Americans called it 'Father of Waters'",
-            ecological: "🌿 40% of North American birds migrate along it",
-            economic: "💰 Carries 92% of US agricultural exports",
-            cultural: "⭐ Birthplace of Jazz & Blues music!",
-            funFact: "🎭 In 1811 earthquake, river flowed BACKWARDS!"
+        
+        features: [
+            { name: "Bird's Foot Delta", type: "delta", coordinates: [29.2000, -89.2500] },
+            { name: "Lake Itasca", type: "lake", coordinates: [47.2389, -95.2058] },
+            { name: "Old River Control Structure", type: "dam", coordinates: [31.0600, -91.5900] },
+            { name: "Lock and Dam No. 19", type: "dam", coordinates: [40.3900, -91.3700] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "North to South",
+        gradient: "Low",
+        waterColor: "Brown",
+        
+        significance: {
+            ecological: "Mississippi Flyway for 325 bird species; critical wetland habitat; diverse fish populations",
+            economic: "Transports 500 million tons of cargo annually; $130 billion economic impact; major port system",
+            cultural: "Mark Twain's novels; Blues music; symbol of American frontier; Native American heritage",
+            historical: "Louisiana Purchase; Civil War battles; steamboat era; Great Flood of 1927"
         },
-        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
-        description: "America's mighty river, Mark Twain's muse, jazz heartland"
+        
+        annualFlood: "March to June",
+        majorDams: ["Lock and Dam No. 1-27", "Old River Control Structure", "Bonnet Carré Spillway"],
+        wildlife: ["American Paddlefish", "Blue Catfish", "Alligator", "Bald Eagle", "White Pelican"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mississippi_River_at_Memphis.jpg/800px-Mississippi_River_at_Memphis.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "With Missouri-Jefferson system, totals 6,275 km (3,902 mi)",
+            "Mark Twain worked as riverboat pilot and wrote about it extensively",
+            "The river has shifted course many times; New Orleans fights to keep it in place",
+            "Carries 40% of all US agricultural exports",
+            "Native Americans called it 'Misi-ziibi' meaning 'Great River'"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #5 YENISEI-ANGARA - 5,539 km
-    // ==========================================
+    // ========================================
+    // #5 - YENISEI RIVER
+    // ========================================
     {
         id: 5,
-        name: "Yenisei-Angara",
-        nativeName: "Енисей (Yenisey)",
-        continent: "asia",
-        countries: ["Russia", "Mongolia"],
+        name: "Yenisei River",
+        alternateNames: ["Yenisey", "Енисей", "Ionessi"],
         length: 5539,
-        discharge: 19600,
-        basinArea: 2580000,
+        lengthMiles: 3442,
+        rank: 5,
+        
+        countries: ["Russia", "Mongolia"],
+        continent: "Asia",
+        regions: ["Siberia", "Central Asia", "Arctic"],
+        
         source: {
-            name: "Mungaragiyn-Gol",
-            location: "Eastern Sayan Mountains, Mongolia",
-            coordinates: [50.5, 97.5],
-            elevation: 3351
+            name: "Confluence of Bii-Khem and Kaa-Khem",
+            coordinates: [51.7200, 94.4500],
+            elevation: 619,
+            description: "Near Kyzyl, capital of Tuva Republic"
         },
         mouth: {
-            name: "Kara Sea",
-            location: "Arctic Ocean, Siberia",
-            coordinates: [72.0, 82.5]
+            name: "Kara Sea (Arctic Ocean)",
+            coordinates: [71.8333, 82.6667],
+            elevation: 0,
+            description: "Yenisei Gulf in the Arctic Ocean"
         },
+        
         course: [
-            [50.5, 97.5],
-            [52.0, 103.5],
-            [55.0, 92.0],
-            [60.0, 89.5],
-            [66.0, 86.5],
-            [72.0, 82.5]
+            [51.7200, 94.4500],   // Source - Kyzyl
+            [53.5000, 91.5000],   // Sayanogorsk
+            [55.0000, 89.0000],   // Abakan area
+            [56.0100, 92.8700],   // Krasnoyarsk
+            [58.5000, 92.0000],   // Yeniseysk
+            [61.0000, 90.0000],   // Central Siberia
+            [66.6000, 86.5000],   // Igarka
+            [69.4000, 84.0000],   // Dudinka
+            [71.8333, 82.6667]    // Kara Sea
         ],
+        
+        basin: {
+            area: 2580000,
+            areaSqMi: 996000,
+            countries: 2,
+            population: 4000000
+        },
+        
+        discharge: {
+            average: 19800,
+            unit: "m³/s",
+            max: 154000,
+            min: 3500
+        },
+        
         tributaries: [
             {
                 name: "Angara River",
                 length: 1779,
-                source: "Lake Baikal (only outlet!)",
-                confluence: "Yeniseisk",
-                coordinates: [[51.8, 104.8], [58.5, 92.2]],
-                flowDirection: "in"
+                meetingPoint: [58.1000, 93.0000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Russia"
             },
             {
                 name: "Lower Tunguska",
                 length: 2989,
-                source: "Central Siberian Plateau",
-                confluence: "Turukhansk",
-                coordinates: [[60.0, 102.0], [65.8, 87.9]],
-                flowDirection: "in"
+                meetingPoint: [65.8000, 88.0000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Russia"
             },
             {
                 name: "Stony Tunguska",
                 length: 1865,
-                source: "Siberian Plateau",
-                confluence: "Near Yeniseisk",
-                coordinates: [[58.0, 100.0], [61.6, 89.9]],
-                flowDirection: "in"
+                meetingPoint: [61.9000, 90.0000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Russia"
+            },
+            {
+                name: "Upper Tunguska (Angara)",
+                length: 1779,
+                meetingPoint: [58.1000, 93.0000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Russia"
+            },
+            {
+                name: "Abakan River",
+                length: 514,
+                meetingPoint: [53.7000, 91.4000],
+                direction: "west",
+                arrowDirection: "in",
+                country: "Russia"
             }
         ],
-        distributaries: [],
-        majorCities: [
-            { name: "Krasnoyarsk", country: "Russia", population: 1090000, coordinates: [56.01, 92.85] },
-            { name: "Irkutsk", country: "Russia", population: 620000, coordinates: [52.29, 104.28] },
-            { name: "Kyzyl", country: "Russia", population: 115000, coordinates: [51.71, 94.45] },
-            { name: "Abakan", country: "Russia", population: 182000, coordinates: [53.72, 91.43] }
+        
+        distributaries: [
+            {
+                name: "Bolshoy Yenisei",
+                length: 120,
+                startPoint: [71.5000, 82.5000],
+                direction: "north",
+                arrowDirection: "out",
+                destination: "Yenisei Gulf"
+            },
+            {
+                name: "Maly Yenisei",
+                length: 85,
+                startPoint: [71.5000, 83.0000],
+                direction: "northeast",
+                arrowDirection: "out",
+                destination: "Yenisei Gulf"
+            }
         ],
-        facts: {
-            historical: "🏛️ Gateway for 17th century Siberian expansion",
-            ecological: "🌿 Drains Lake Baikal - world's deepest lake!",
-            economic: "💰 Multiple hydroelectric dams power Siberia",
-            cultural: "⭐ Trans-Siberian Railway crosses at Krasnoyarsk",
-            funFact: "🎭 Frozen solid 5 months/year - ice 2+ meters thick!"
+        
+        majorCities: [
+            { name: "Krasnoyarsk", coordinates: [56.0097, 92.8520], population: 1100000 },
+            { name: "Kyzyl", coordinates: [51.7090, 94.4378], population: 120000 },
+            { name: "Norilsk", coordinates: [69.3535, 88.2027], population: 180000 },
+            { name: "Abakan", coordinates: [53.7150, 91.4290], population: 190000 },
+            { name: "Dudinka", coordinates: [69.4000, 86.2000], population: 22000 }
+        ],
+        
+        features: [
+            { name: "Sayano-Shushenskaya Dam", type: "dam", coordinates: [52.8256, 91.3714] },
+            { name: "Lake Baikal connection", type: "lake", coordinates: [53.5587, 108.1650] },
+            { name: "Yenisei Gulf", type: "gulf", coordinates: [72.0000, 82.0000] },
+            { name: "Krasnoyarsk Dam", type: "dam", coordinates: [55.9200, 92.3000] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "South to North",
+        gradient: "Moderate",
+        waterColor: "Gray-Blue",
+        
+        significance: {
+            ecological: "Arctic ecosystem; major bird migration route; supports Siberian wildlife; permafrost region",
+            economic: "Largest hydroelectric stations in Russia; timber transport; mining industry support",
+            cultural: "Home to indigenous Ket people; Russian frontier history; Siberian identity",
+            historical: "Russian expansion into Siberia; exile route; Trans-Siberian Railway crossing"
         },
-        image: "https://images.unsplash.com/photo-1514984879728-be0aff75a6e8?w=800",
-        description: "Siberia's frozen giant, drains Lake Baikal, flows to Arctic"
+        
+        annualFlood: "May to June (snowmelt)",
+        majorDams: ["Sayano-Shushenskaya Dam", "Krasnoyarsk Dam", "Mainskaya Dam"],
+        wildlife: ["Siberian Sturgeon", "Arctic Cisco", "Ringed Seal", "Beluga", "Reindeer"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Yenisei_River_at_Kyzyl.jpg/800px-Yenisei_River_at_Kyzyl.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "Fifth longest river system in the world",
+            "Divides Western and Eastern Siberia",
+            "Sayano-Shushenskaya is Russia's largest power plant",
+            "Frozen for 5+ months each year",
+            "Kyzyl claims to be the exact center of Asia"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #6 YELLOW RIVER - 5,464 km
-    // ==========================================
+    // ========================================
+    // #6 - YELLOW RIVER (HUANG HE)
+    // ========================================
     {
         id: 6,
         name: "Yellow River",
-        nativeName: "黄河 (Huáng Hé)",
-        continent: "asia",
-        countries: ["China"],
+        alternateNames: ["Huang He", "黄河", "Mother River of China"],
         length: 5464,
-        discharge: 2571,
-        basinArea: 752000,
+        lengthMiles: 3395,
+        rank: 6,
+        
+        countries: ["China"],
+        continent: "Asia",
+        regions: ["North China", "Loess Plateau", "Inner Mongolia"],
+        
         source: {
-            name: "Bayan Har Mountains",
-            location: "Qinghai Province, China",
-            coordinates: [34.5, 96.3],
-            elevation: 4500
+            name: "Bayan Har Mountains, Qinghai",
+            coordinates: [34.4833, 96.5000],
+            elevation: 4500,
+            description: "High plateau springs in Qinghai Province"
         },
         mouth: {
             name: "Bohai Sea",
-            location: "Shandong Province, China",
-            coordinates: [37.8, 119.1]
+            coordinates: [37.7833, 119.1667],
+            elevation: 0,
+            description: "Shandong Province delta"
         },
+        
         course: [
-            [34.5, 96.3],
-            [36.0, 103.0],
-            [40.0, 107.0],
-            [38.0, 110.5],
-            [35.0, 113.5],
-            [37.8, 119.1]
+            [34.4833, 96.5000],   // Source
+            [35.0000, 100.0000],  // Upper Yellow River
+            [36.0000, 103.8000],  // Lanzhou
+            [40.8000, 111.6500],  // Baotou loop
+            [38.0000, 110.5000],  // Great Bend south
+            [35.5000, 110.0000],  // Loess Plateau
+            [34.8000, 113.6500],  // Zhengzhou
+            [36.0000, 116.5000],  // Lower Yellow River
+            [37.7833, 119.1667]   // Bohai Sea
         ],
+        
+        basin: {
+            area: 752000,
+            areaSqMi: 290000,
+            countries: 1,
+            population: 107000000
+        },
+        
+        discharge: {
+            average: 2571,
+            unit: "m³/s",
+            max: 10000,
+            min: 0
+        },
+        
         tributaries: [
             {
                 name: "Wei River",
                 length: 818,
-                source: "Gansu Province",
-                confluence: "Tongguan",
-                coordinates: [[34.5, 104.5], [34.6, 110.3]],
-                flowDirection: "in"
+                meetingPoint: [34.5000, 110.2000],
+                direction: "west",
+                arrowDirection: "in",
+                country: "China"
             },
             {
                 name: "Fen River",
                 length: 716,
-                source: "Shanxi Mountains",
-                confluence: "Hejin",
-                coordinates: [[38.5, 112.5], [35.6, 110.7]],
-                flowDirection: "in"
+                meetingPoint: [35.6000, 110.4000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "China"
             },
             {
-                name: "Luo River",
-                length: 447,
-                source: "Shaanxi Province",
-                confluence: "Luoyang area",
-                coordinates: [[34.0, 110.0], [34.8, 112.4]],
-                flowDirection: "in"
+                name: "Tao River",
+                length: 673,
+                meetingPoint: [35.9000, 103.3000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "China"
+            },
+            {
+                name: "Beiluo River",
+                length: 680,
+                meetingPoint: [34.8000, 110.0000],
+                direction: "north",
+                arrowDirection: "in",
+                country: "China"
+            },
+            {
+                name: "Jing River",
+                length: 455,
+                meetingPoint: [34.4000, 108.8000],
+                direction: "north",
+                arrowDirection: "in",
+                country: "China"
             }
         ],
-        distributaries: [],
-        majorCities: [
-            { name: "Lanzhou", country: "China", population: 3600000, coordinates: [36.06, 103.79] },
-            { name: "Zhengzhou", country: "China", population: 10000000, coordinates: [34.76, 113.65] },
-            { name: "Jinan", country: "China", population: 8700000, coordinates: [36.65, 117.00] },
-            { name: "Yinchuan", country: "China", population: 2290000, coordinates: [38.47, 106.27] },
-            { name: "Baotou", country: "China", population: 2700000, coordinates: [40.66, 109.84] }
+        
+        distributaries: [
+            {
+                name: "Northern Channel",
+                length: 50,
+                startPoint: [37.7000, 118.8000],
+                direction: "north",
+                arrowDirection: "out",
+                destination: "Bohai Sea"
+            },
+            {
+                name: "Main Channel",
+                length: 45,
+                startPoint: [37.7000, 118.8000],
+                direction: "east",
+                arrowDirection: "out",
+                destination: "Bohai Sea"
+            }
         ],
-        facts: {
-            historical: "🏛️ 'Mother River' - Chinese civilization began here 7000 years ago",
-            ecological: "🌿 Carries 1.6 BILLION tons of yellow loess sediment/year",
-            economic: "💰 Irrigates 15% of China's farmland",
-            cultural: "⭐ Called 'China's Sorrow' - catastrophic floods killed millions",
-            funFact: "🎭 Riverbed is HIGHER than surrounding land - held by levees!"
+        
+        majorCities: [
+            { name: "Lanzhou", coordinates: [36.0611, 103.8343], population: 4000000 },
+            { name: "Zhengzhou", coordinates: [34.7472, 113.6249], population: 12600000 },
+            { name: "Jinan", coordinates: [36.6512, 117.1201], population: 9000000 },
+            { name: "Baotou", coordinates: [40.6571, 109.8400], population: 3000000 },
+            { name: "Kaifeng", coordinates: [34.7971, 114.3073], population: 5200000 }
+        ],
+        
+        features: [
+            { name: "Loess Plateau", type: "plateau", coordinates: [36.0000, 109.0000] },
+            { name: "Hukou Waterfall", type: "waterfall", coordinates: [36.1500, 110.4500] },
+            { name: "Xiaolangdi Dam", type: "dam", coordinates: [34.9200, 112.3600] },
+            { name: "Great Bend", type: "bend", coordinates: [40.0000, 110.0000] }
+        ],
+        
+        type: "Perennial (with dry periods)",
+        flowDirection: "West to East (with Great Bend)",
+        gradient: "Variable",
+        waterColor: "Yellow (massive sediment)",
+        
+        significance: {
+            ecological: "Loess deposits create unique ecosystem; wetland bird habitat; threatened by pollution",
+            economic: "Irrigates 15% of China's farmland; major industrial corridor; water scarcity issues",
+            cultural: "Cradle of Chinese civilization; 'Mother River'; source of Chinese identity",
+            historical: "Dynasties rose and fell with floods; 1931 flood killed 4 million; frequent course changes"
         },
-        image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800",
-        description: "China's cradle of civilization, golden water, unpredictable floods"
+        
+        annualFlood: "July to October",
+        majorDams: ["Xiaolangdi Dam", "Sanmenxia Dam", "Longyangxia Dam", "Liujiaxia Dam"],
+        wildlife: ["Chinese Sturgeon", "Soft-shell Turtle", "Yellow River Carp", "White Crane"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Yellow_River_Hukou_Waterfall.jpg/800px-Yellow_River_Hukou_Waterfall.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "Called 'Yellow' due to massive loess silt content",
+            "Carries 1.6 billion tons of sediment annually",
+            "Has changed its mouth location 26 times in recorded history",
+            "Known as 'China's Sorrow' due to devastating floods",
+            "Dried up completely in 1997 for 226 days"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #7 OB-IRTYSH - 5,410 km
-    // ==========================================
+    // ========================================
+    // #7 - OB RIVER
+    // ========================================
     {
         id: 7,
-        name: "Ob-Irtysh",
-        nativeName: "Обь-Иртыш",
-        continent: "asia",
-        countries: ["Russia", "Kazakhstan", "China", "Mongolia"],
+        name: "Ob River",
+        alternateNames: ["Обь", "Ob-Irtysh"],
         length: 5410,
-        discharge: 12800,
-        basinArea: 2990000,
+        lengthMiles: 3362,
+        rank: 7,
+        
+        countries: ["Russia", "Kazakhstan", "China", "Mongolia"],
+        continent: "Asia",
+        regions: ["Western Siberia", "Central Asia"],
+        
         source: {
-            name: "Altai Mountains",
-            location: "Xinjiang, China",
-            coordinates: [47.0, 87.0],
-            elevation: 3000
+            name: "Confluence of Biya and Katun Rivers",
+            coordinates: [52.4300, 84.9800],
+            elevation: 160,
+            description: "Near Biysk, Altai Krai"
         },
         mouth: {
-            name: "Gulf of Ob",
-            location: "Kara Sea, Arctic Ocean",
-            coordinates: [66.5, 69.5]
+            name: "Gulf of Ob (Kara Sea)",
+            coordinates: [66.7500, 69.5000],
+            elevation: 0,
+            description: "800 km long estuary into Arctic Ocean"
         },
+        
         course: [
-            [47.0, 87.0],
-            [50.0, 70.0],
-            [55.0, 73.0],
-            [58.0, 68.0],
-            [61.0, 69.0],
-            [66.5, 69.5]
+            [52.4300, 84.9800],   // Source
+            [53.3500, 83.7600],   // Barnaul
+            [55.0300, 82.9200],   // Novosibirsk
+            [56.5000, 78.0000],   // Central Ob
+            [61.2500, 73.4200],   // Khanty-Mansiysk
+            [63.0000, 72.0000],   // Lower Ob
+            [66.5300, 66.6000],   // Salekhard
+            [66.7500, 69.5000]    // Gulf of Ob
         ],
+        
+        basin: {
+            area: 2990000,
+            areaSqMi: 1154000,
+            countries: 4,
+            population: 30000000
+        },
+        
+        discharge: {
+            average: 12800,
+            unit: "m³/s",
+            max: 43000,
+            min: 1500
+        },
+        
         tributaries: [
             {
                 name: "Irtysh River",
                 length: 4248,
-                source: "Altai Mountains, China",
-                confluence: "Khanty-Mansiysk",
-                coordinates: [[47.0, 87.0], [61.0, 69.0]],
-                flowDirection: "in"
+                meetingPoint: [61.0800, 68.8000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Russia/Kazakhstan"
             },
             {
                 name: "Tom River",
                 length: 827,
-                source: "Abakan Mountains",
-                confluence: "Tomsk",
-                coordinates: [[52.0, 87.0], [56.5, 84.9]],
-                flowDirection: "in"
+                meetingPoint: [56.5000, 84.9000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Russia"
             },
             {
                 name: "Chulym River",
                 length: 1799,
-                source: "Eastern Sayan",
-                confluence: "Asino area",
-                coordinates: [[53.0, 91.0], [57.0, 86.0]],
-                flowDirection: "in"
+                meetingPoint: [57.0000, 83.0000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Russia"
+            },
+            {
+                name: "Ket River",
+                length: 1621,
+                meetingPoint: [58.7000, 81.5000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Russia"
+            },
+            {
+                name: "Vasyugan River",
+                length: 1082,
+                meetingPoint: [59.0000, 76.5000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Russia"
             }
         ],
-        distributaries: [],
-        majorCities: [
-            { name: "Novosibirsk", country: "Russia", population: 1620000, coordinates: [55.03, 82.92] },
-            { name: "Omsk", country: "Russia", population: 1160000, coordinates: [54.99, 73.37] },
-            { name: "Tomsk", country: "Russia", population: 575000, coordinates: [56.50, 84.97] },
-            { name: "Barnaul", country: "Russia", population: 632000, coordinates: [53.36, 83.76] }
+        
+        distributaries: [
+            {
+                name: "Nadym Ob",
+                length: 100,
+                startPoint: [66.5000, 69.0000],
+                direction: "north",
+                arrowDirection: "out",
+                destination: "Gulf of Ob"
+            },
+            {
+                name: "Khalmer-Sedye Channel",
+                length: 80,
+                startPoint: [66.5000, 70.0000],
+                direction: "northeast",
+                arrowDirection: "out",
+                destination: "Kara Sea"
+            }
         ],
-        facts: {
-            historical: "🏛️ Opened Siberia to Russian expansion",
-            ecological: "🌿 Giant sturgeon here weigh over 1000 kg!",
-            economic: "💰 Flows through massive oil & gas fields",
-            cultural: "⭐ Name means 'Snow River' in local languages",
-            funFact: "🎭 Spring ice breakup creates MASSIVE flooding!"
+        
+        majorCities: [
+            { name: "Novosibirsk", coordinates: [55.0084, 82.9357], population: 1600000 },
+            { name: "Barnaul", coordinates: [53.3548, 83.7698], population: 630000 },
+            { name: "Surgut", coordinates: [61.2500, 73.4167], population: 380000 },
+            { name: "Nizhnevartovsk", coordinates: [60.9344, 76.5531], population: 280000 },
+            { name: "Salekhard", coordinates: [66.5300, 66.6000], population: 50000 }
+        ],
+        
+        features: [
+            { name: "Novosibirsk Reservoir", type: "reservoir", coordinates: [54.6000, 82.5000] },
+            { name: "Gulf of Ob", type: "gulf", coordinates: [69.0000, 73.0000] },
+            { name: "Vasyugan Swamp", type: "wetland", coordinates: [57.5000, 77.0000] },
+            { name: "Ob Plateau", type: "plateau", coordinates: [55.0000, 75.0000] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "South to North",
+        gradient: "Very Low",
+        waterColor: "Brown",
+        
+        significance: {
+            ecological: "Vasyugan Swamp is world's largest; Arctic fish migration; peatland carbon storage",
+            economic: "Major oil and gas transport; Novosibirsk industrial hub; timber floating",
+            cultural: "Khanty and Mansi indigenous peoples; Russian frontier; Siberian identity",
+            historical: "Russian conquest of Siberia; exile destination; Soviet industrialization"
         },
-        image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800",
-        description: "Western Siberia's artery, oil region, Arctic-bound giant"
+        
+        annualFlood: "May to June",
+        majorDams: ["Novosibirsk Dam"],
+        wildlife: ["Siberian Sturgeon", "Sterlet", "Nelma", "Muksun", "Siberian Crane"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Ob_River_Gorny_Altai.jpg/800px-Ob_River_Gorny_Altai.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "With Irtysh, forms seventh-longest river system (5,410 km)",
+            "Gulf of Ob is world's longest estuary (800 km)",
+            "Basin contains massive oil and gas reserves",
+            "Frozen 6 months per year",
+            "Drains the world's largest swamp (Vasyugan)"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #8 PARANÁ - 4,880 km
-    // ==========================================
+    // ========================================
+    // #8 - PARANÁ RIVER
+    // ========================================
     {
         id: 8,
-        name: "Paraná",
-        nativeName: "Río Paraná",
-        continent: "south-america",
-        countries: ["Brazil", "Paraguay", "Argentina"],
+        name: "Paraná River",
+        alternateNames: ["Rio Paraná", "Paranã"],
         length: 4880,
-        discharge: 17290,
-        basinArea: 2582672,
+        lengthMiles: 3032,
+        rank: 8,
+        
+        countries: ["Brazil", "Paraguay", "Argentina"],
+        continent: "South America",
+        regions: ["La Plata Basin", "South America"],
+        
         source: {
-            name: "Paranaíba & Grande Rivers",
-            location: "Brazilian Highlands",
-            coordinates: [-20.0, -50.0],
-            elevation: 1100
+            name: "Confluence of Paranaíba and Grande Rivers",
+            coordinates: [-20.0833, -51.0333],
+            elevation: 446,
+            description: "Border of São Paulo, Minas Gerais, and Mato Grosso do Sul"
         },
         mouth: {
             name: "Río de la Plata",
-            location: "Argentina/Uruguay border",
-            coordinates: [-34.0, -58.5]
+            coordinates: [-34.0000, -58.4000],
+            elevation: 0,
+            description: "Joins with Uruguay River to form Río de la Plata"
         },
+        
         course: [
-            [-20.0, -50.0],
-            [-22.5, -53.0],
-            [-25.5, -54.6],
-            [-27.3, -58.6],
-            [-32.0, -60.5],
-            [-34.0, -58.5]
+            [-20.0833, -51.0333],  // Source
+            [-22.5000, -53.0000],  // Upper Paraná
+            [-24.0500, -54.5900],  // Itaipu Dam area
+            [-25.5000, -54.6000],  // Triple Frontier
+            [-27.4000, -58.8000],  // Corrientes
+            [-30.0000, -59.5000],  // Middle Paraná
+            [-32.0000, -60.6000],  // Rosario area
+            [-34.0000, -58.4000]   // Río de la Plata
         ],
+        
+        basin: {
+            area: 2582672,
+            areaSqMi: 997175,
+            countries: 4,
+            population: 100000000
+        },
+        
+        discharge: {
+            average: 17290,
+            unit: "m³/s",
+            max: 65000,
+            min: 6000
+        },
+        
         tributaries: [
             {
                 name: "Paraguay River",
-                length: 2621,
-                source: "Mato Grosso, Brazil",
-                confluence: "Corrientes, Argentina",
-                coordinates: [[-15.0, -56.0], [-27.3, -58.6]],
-                flowDirection: "in"
+                length: 2549,
+                meetingPoint: [-27.2833, -58.6333],
+                direction: "north",
+                arrowDirection: "in",
+                country: "Paraguay/Argentina"
             },
             {
-                name: "Iguazú River",
+                name: "Iguazu River",
                 length: 1320,
-                source: "Serra do Mar, Brazil",
-                confluence: "Puerto Iguazú",
-                coordinates: [[-25.5, -49.0], [-25.6, -54.6]],
-                flowDirection: "in"
+                meetingPoint: [-25.5833, -54.5833],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Brazil/Argentina"
             },
             {
-                name: "Uruguay River",
-                length: 1838,
-                source: "Serra Geral, Brazil",
-                confluence: "Río de la Plata",
-                coordinates: [[-27.5, -49.5], [-34.0, -58.3]],
-                flowDirection: "in"
+                name: "Tietê River",
+                length: 1136,
+                meetingPoint: [-22.5200, -51.4000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Brazil"
+            },
+            {
+                name: "Paranapanema River",
+                length: 929,
+                meetingPoint: [-22.8000, -52.9000],
+                direction: "east",
+                arrowDirection: "in",
+                country: "Brazil"
+            },
+            {
+                name: "Salado River",
+                length: 1500,
+                meetingPoint: [-31.6500, -60.7000],
+                direction: "west",
+                arrowDirection: "in",
+                country: "Argentina"
             }
         ],
-        distributaries: [],
-        majorCities: [
-            { name: "Buenos Aires", country: "Argentina", population: 15000000, coordinates: [-34.61, -58.38] },
-            { name: "Rosario", country: "Argentina", population: 1300000, coordinates: [-32.95, -60.64] },
-            { name: "Asunción", country: "Paraguay", population: 525000, coordinates: [-25.26, -57.58] },
-            { name: "Santa Fe", country: "Argentina", population: 525000, coordinates: [-31.64, -60.70] }
+        
+        distributaries: [
+            {
+                name: "Paraná Guazú",
+                length: 120,
+                startPoint: [-33.9000, -58.6000],
+                direction: "southeast",
+                arrowDirection: "out",
+                destination: "Río de la Plata"
+            },
+            {
+                name: "Paraná de las Palmas",
+                length: 110,
+                startPoint: [-33.9000, -58.8000],
+                direction: "south",
+                arrowDirection: "out",
+                destination: "Río de la Plata"
+            },
+            {
+                name: "Paraná Bravo",
+                length: 85,
+                startPoint: [-34.0000, -58.5000],
+                direction: "east",
+                arrowDirection: "out",
+                destination: "Río de la Plata"
+            }
         ],
-        facts: {
-            historical: "🏛️ Major Spanish & Portuguese colonization route",
-            ecological: "🌿 Iguazú Falls = 275 waterfalls, UNESCO site!",
-            economic: "💰 Itaipu Dam = 2nd largest hydroelectric plant (14,000 MW)",
-            cultural: "⭐ Borders Pantanal - world's largest wetland",
-            funFact: "🎭 Río de la Plata estuary is 220 km wide - looks like ocean!"
+        
+        majorCities: [
+            { name: "Buenos Aires", coordinates: [-34.6037, -58.3816], population: 15000000 },
+            { name: "Rosario", coordinates: [-32.9442, -60.6505], population: 1300000 },
+            { name: "Asunción", coordinates: [-25.2637, -57.5759], population: 2500000 },
+            { name: "Corrientes", coordinates: [-27.4806, -58.8341], population: 350000 },
+            { name: "Santa Fe", coordinates: [-31.6107, -60.6973], population: 530000 }
+        ],
+        
+        features: [
+            { name: "Itaipu Dam", type: "dam", coordinates: [-25.4083, -54.5886] },
+            { name: "Iguazu Falls", type: "waterfall", coordinates: [-25.6953, -54.4367] },
+            { name: "Paraná Delta", type: "delta", coordinates: [-34.1500, -58.5000] },
+            { name: "Yacyretá Dam", type: "dam", coordinates: [-27.4833, -56.7167] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "North to South",
+        gradient: "Variable",
+        waterColor: "Brown",
+        
+        significance: {
+            ecological: "Atlantic Forest remnants; wetland ecosystems; migratory fish; Paraná Delta biodiversity",
+            economic: "Itaipu produces 75% of Paraguay's electricity; major grain export route; fishing industry",
+            cultural: "Guaraní indigenous heritage; colonial history; tango and folklore",
+            historical: "Spanish colonization; Jesuit missions; War of Triple Alliance; modern hydropower"
         },
-        image: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800",
-        description: "South America's second-longest, Iguazú Falls, massive hydropower"
+        
+        annualFlood: "February to April",
+        majorDams: ["Itaipu Dam", "Yacyretá Dam", "Salto Grande Dam"],
+        wildlife: ["Dorado", "Surubí", "Capybara", "Yacaré", "River Otter"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Foz_de_Iguazu_27_02_2007_09.jpg/800px-Foz_de_Iguazu_27_02_2007_09.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "Itaipu Dam was world's largest until Three Gorges",
+            "The name means 'like the sea' in Guaraní",
+            "Iguazu Falls is one of the world's largest waterfall systems",
+            "Forms natural borders between three countries",
+            "Second-largest river system in South America"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #9 CONGO - 4,700 km
-    // ==========================================
+    // ========================================
+    // #9 - CONGO RIVER
+    // ========================================
     {
         id: 9,
-        name: "Congo",
-        nativeName: "Nzadi Kongo",
-        continent: "africa",
-        countries: ["DR Congo", "Republic of Congo", "Angola", "Zambia", "Tanzania", "Cameroon", "CAR"],
+        name: "Congo River",
+        alternateNames: ["Zaire River", "Fleuve Congo", "Nzadi"],
         length: 4700,
-        discharge: 41800,
-        basinArea: 3680000,
+        lengthMiles: 2920,
+        rank: 9,
+        
+        countries: ["DR Congo", "Republic of Congo", "Central African Republic", "Angola", "Zambia", "Tanzania", "Cameroon", "Rwanda", "Burundi"],
+        continent: "Africa",
+        regions: ["Central Africa", "Congo Basin"],
+        
         source: {
-            name: "Lualaba River",
-            location: "Katanga Highlands, DR Congo",
-            coordinates: [-11.5, 26.0],
-            elevation: 1760
+            name: "Chambeshi River headwaters",
+            coordinates: [-9.6333, 29.7833],
+            elevation: 1760,
+            description: "Mweru-Luapula highlands in Zambia"
         },
         mouth: {
             name: "Atlantic Ocean",
-            location: "Congo River Estuary",
-            coordinates: [-6.0, 12.5]
+            coordinates: [-6.0667, 12.4333],
+            elevation: 0,
+            description: "Near Banana, DR Congo"
         },
+        
         course: [
-            [-11.5, 26.0],
-            [-5.0, 23.0],
-            [0.5, 25.2],
-            [-4.3, 15.3],
-            [-5.5, 13.5],
-            [-6.0, 12.5]
+            [-9.6333, 29.7833],   // Source
+            [-6.0000, 28.0000],   // Lubumbashi area
+            [-4.0000, 22.0000],   // Kisangani
+            [0.5200, 25.1900],    // Near equator crossing
+            [-0.1000, 18.3000],   // Mbandaka
+            [-4.3000, 15.3100],   // Kinshasa/Brazzaville
+            [-5.5000, 13.5000],   // Matadi area
+            [-6.0667, 12.4333]    // Atlantic
         ],
+        
+        basin: {
+            area: 4014500,
+            areaSqMi: 1550000,
+            countries: 9,
+            population: 90000000
+        },
+        
+        discharge: {
+            average: 41000,
+            unit: "m³/s",
+            max: 80000,
+            min: 23000
+        },
+        
         tributaries: [
             {
                 name: "Ubangi River",
-                length: 2270,
-                source: "CAR/DRC border",
-                confluence: "Liranga",
-                coordinates: [[5.0, 24.0], [1.1, 18.0]],
-                flowDirection: "in"
+                length: 2272,
+                meetingPoint: [0.0500, 17.7000],
+                direction: "north",
+                arrowDirection: "in",
+                country: "CAR/Congo"
             },
             {
                 name: "Kasai River",
                 length: 2153,
-                source: "Central Angola",
-                confluence: "Kwamouth",
-                coordinates: [[-12.0, 16.0], [-3.8, 16.5]],
-                flowDirection: "in"
+                meetingPoint: [-3.3000, 16.5000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "DR Congo/Angola"
+            },
+            {
+                name: "Sangha River",
+                length: 1400,
+                meetingPoint: [1.2000, 17.0000],
+                direction: "north",
+                arrowDirection: "in",
+                country: "Cameroon/CAR/Congo"
             },
             {
                 name: "Lomami River",
-                length: 1280,
-                source: "Katanga Province",
-                confluence: "Isangi",
-                coordinates: [[-8.0, 25.0], [-0.8, 24.3]],
-                flowDirection: "in"
+                length: 1500,
+                meetingPoint: [0.3000, 24.2000],
+                direction: "southeast",
+                arrowDirection: "in",
+                country: "DR Congo"
+            },
+            {
+                name: "Lulonga River",
+                length: 980,
+                meetingPoint: [-0.1000, 18.5000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "DR Congo"
             }
         ],
-        distributaries: [],
-        majorCities: [
-            { name: "Kinshasa", country: "DR Congo", population: 15000000, coordinates: [-4.32, 15.31] },
-            { name: "Brazzaville", country: "Rep. Congo", population: 1900000, coordinates: [-4.26, 15.28] },
-            { name: "Kisangani", country: "DR Congo", population: 1600000, coordinates: [-0.52, 25.19] },
-            { name: "Mbandaka", country: "DR Congo", population: 350000, coordinates: [0.05, 18.26] }
+        
+        distributaries: [
+            {
+                name: "Main Channel",
+                length: 30,
+                startPoint: [-6.0000, 12.6000],
+                direction: "west",
+                arrowDirection: "out",
+                destination: "Atlantic Ocean"
+            }
         ],
-        facts: {
-            historical: "🏛️ Henry Stanley explored it in 1876-77",
-            ecological: "🌿 2nd largest rainforest - 'Africa's lungs'",
-            economic: "💰 Inga Falls could power entire Africa!",
-            cultural: "⭐ Home to Pygmy tribes - oldest cultures",
-            funFact: "🎭 Only major river crossing equator TWICE!"
+        
+        majorCities: [
+            { name: "Kinshasa", coordinates: [-4.4419, 15.2663], population: 17000000 },
+            { name: "Brazzaville", coordinates: [-4.2634, 15.2429], population: 2400000 },
+            { name: "Kisangani", coordinates: [0.5200, 25.1900], population: 1600000 },
+            { name: "Mbandaka", coordinates: [0.0478, 18.2603], population: 480000 },
+            { name: "Matadi", coordinates: [-5.8167, 13.4500], population: 350000 }
+        ],
+        
+        features: [
+            { name: "Livingstone Falls", type: "waterfall", coordinates: [-5.5000, 14.0000] },
+            { name: "Boyoma Falls", type: "waterfall", coordinates: [0.5000, 25.2000] },
+            { name: "Pool Malebo", type: "lake", coordinates: [-4.3000, 15.3000] },
+            { name: "Inga Dam", type: "dam", coordinates: [-5.5186, 13.5972] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "North then West/Southwest",
+        gradient: "Variable with major cataracts",
+        waterColor: "Dark Brown/Black",
+        
+        significance: {
+            ecological: "Second-largest rainforest; 700+ fish species; endemic species; Congo Basin carbon sink",
+            economic: "Vast hydropower potential (Inga); mining transport; forest products",
+            cultural: "Hundreds of ethnic groups; rich oral traditions; colonial trauma",
+            historical: "Belgian colonial exploitation; Joseph Conrad's 'Heart of Darkness'; independence movements"
         },
-        image: "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800",
-        description: "Deepest river on Earth (220m), crosses equator twice, untamed power"
+        
+        annualFlood: "October to December",
+        majorDams: ["Inga I", "Inga II", "Grand Inga (proposed)"],
+        wildlife: ["Congo River Dolphin", "Goliath Tigerfish", "Bonobo", "Forest Elephant", "Okapi"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Congo_river_at_matadi.jpg/800px-Congo_river_at_matadi.jpg",
+            gallery: []
+        },
+        
+        facts: [
+            "Second-largest river by discharge after Amazon",
+            "Only major river to cross the equator twice",
+            "Contains over 700 fish species",
+            "Grand Inga could be world's largest hydroelectric project",
+            "Deepest river in the world (up to 220m)"
+        ],
+        
+        lastUpdated: "2024"
     },
 
-    // ==========================================
-    // #10 AMUR-ARGUN - 4,444 km
-    // ==========================================
+    // ========================================
+    // #10 - AMUR RIVER
+    // ========================================
     {
         id: 10,
-        name: "Amur-Argun",
-        nativeName: "黑龙江 (Heilong Jiang) / Амур",
-        continent: "asia",
-        countries: ["Russia", "China", "Mongolia"],
+        name: "Amur River",
+        alternateNames: ["Heilong Jiang", "黑龙江", "Хэйлунцзян"],
         length: 4444,
-        discharge: 11400,
-        basinArea: 1855000,
+        lengthMiles: 2761,
+        rank: 10,
+        
+        countries: ["Russia", "China", "Mongolia"],
+        continent: "Asia",
+        regions: ["East Asia", "Russian Far East", "Manchuria"],
+        
         source: {
-            name: "Argun River",
-            location: "Greater Khingan Range, China",
-            coordinates: [51.5, 116.5],
-            elevation: 1520
+            name: "Confluence of Shilka and Argun Rivers",
+            coordinates: [53.3333, 121.5000],
+            elevation: 304,
+            description: "Near Pokrovka, Russia"
         },
         mouth: {
-            name: "Sea of Okhotsk",
-            location: "Tatar Strait, Pacific",
-            coordinates: [53.0, 141.0]
+            name: "Sea of Okhotsk (Pacific Ocean)",
+            coordinates: [52.9333, 141.1333],
+            elevation: 0,
+            description: "Amur Liman strait"
         },
+        
         course: [
-            [51.5, 116.5],
-            [50.0, 119.0],
-            [53.5, 127.5],
-            [48.5, 135.0],
-            [53.0, 141.0]
+            [53.3333, 121.5000],  // Source
+            [50.2500, 127.5500],  // Blagoveshchensk
+            [48.5000, 135.0000],  // Khabarovsk area
+            [48.4800, 134.9300],  // Khabarovsk
+            [51.0000, 138.0000],  // Lower Amur
+            [52.5000, 140.5000],  // Near mouth
+            [52.9333, 141.1333]   // Sea of Okhotsk
         ],
+        
+        basin: {
+            area: 1855000,
+            areaSqMi: 716200,
+            countries: 3,
+            population: 75000000
+        },
+        
+        discharge: {
+            average: 11400,
+            unit: "m³/s",
+            max: 40000,
+            min: 700
+        },
+        
         tributaries: [
-            {
-                name: "Shilka River",
-                length: 560,
-                source: "Stanovoy Range",
-                confluence: "Pokrovka",
-                coordinates: [[52.0, 118.0], [53.0, 121.5]],
-                flowDirection: "in"
-            },
-            {
-                name: "Zeya River",
-                length: 1242,
-                source: "Stanovoy Range",
-                confluence: "Blagoveshchensk",
-                coordinates: [[53.5, 127.0], [50.3, 127.5]],
-                flowDirection: "in"
-            },
             {
                 name: "Songhua River",
                 length: 1927,
-                source: "Changbai Mountains",
-                confluence: "Tongjiang",
-                coordinates: [[42.0, 128.0], [47.6, 132.5]],
-                flowDirection: "in"
+                meetingPoint: [47.6500, 132.5000],
+                direction: "south",
+                arrowDirection: "in",
+                country: "China"
             },
             {
                 name: "Ussuri River",
                 length: 897,
-                source: "Sikhote-Alin Mountains",
-                confluence: "Khabarovsk",
-                coordinates: [[44.0, 134.0], [48.5, 135.1]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [],
-        majorCities: [
-            { name: "Harbin", country: "China", population: 10600000, coordinates: [45.75, 126.65] },
-            { name: "Khabarovsk", country: "Russia", population: 618000, coordinates: [48.48, 135.08] },
-            { name: "Blagoveshchensk", country: "Russia", population: 225000, coordinates: [50.27, 127.54] },
-            { name: "Heihe", country: "China", population: 1660000, coordinates: [50.24, 127.49] }
-        ],
-        facts: {
-            historical: "🏛️ Forms natural Russia-China border",
-            ecological: "🌿 Amur tiger & leopard territory - critically endangered!",
-            economic: "💰 Trans-Siberian Railway crosses at Khabarovsk",
-            cultural: "⭐ Chinese call it 'Black Dragon River'",
-            funFact: "🎭 Frozen Nov-April, ice 2 meters thick - trucks drive on it!"
-        },
-        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
-        description: "Russia-China border river, Amur tiger habitat, Black Dragon River"
-    }
-        // ==========================================
-    // #11 LENA - 4,400 km
-    // ==========================================
-    {
-        id: 11,
-        name: "Lena",
-        nativeName: "Лена",
-        continent: "asia",
-        countries: ["Russia"],
-        length: 4400,
-        discharge: 16871,
-        basinArea: 2490000,
-        source: {
-            name: "Baikal Mountains",
-            location: "Near Lake Baikal, Siberia",
-            coordinates: [53.9, 108.0],
-            elevation: 1640
-        },
-        mouth: {
-            name: "Laptev Sea",
-            location: "Arctic Ocean, Siberia",
-            coordinates: [72.0, 127.0]
-        },
-        course: [
-            [53.9, 108.0],
-            [58.0, 113.0],
-            [62.0, 125.0],
-            [64.5, 126.5],
-            [68.0, 127.0],
-            [72.0, 127.0]
-        ],
-        tributaries: [
-            {
-                name: "Aldan River",
-                length: 2273,
-                source: "Stanovoy Range",
-                confluence: "Near Yakutsk",
-                coordinates: [[56.5, 130.0], [63.4, 129.5]],
-                flowDirection: "in"
+                meetingPoint: [48.2800, 134.2300],
+                direction: "south",
+                arrowDirection: "in",
+                country: "Russia/China"
             },
             {
-                name: "Vilyuy River",
-                length: 2650,
-                source: "Central Siberian Plateau",
-                confluence: "Sangar",
-                coordinates: [[64.0, 107.0], [63.9, 126.5]],
-                flowDirection: "in"
+                name: "Zeya River",
+                length: 1242,
+                meetingPoint: [50.2500, 127.5500],
+                direction: "north",
+                arrowDirection: "in",
+                country: "Russia"
             },
             {
-                name: "Vitim River",
-                length: 1978,
-                source: "Transbaikal Mountains",
-                confluence: "Vitim town",
-                coordinates: [[52.5, 113.5], [59.4, 112.6]],
-                flowDirection: "in"
+                name: "Bureya River",
+                length: 716,
+                meetingPoint: [49.5000, 129.5000],
+                direction: "north",
+                arrowDirection: "in",
+                country: "Russia"
+            },
+            {
+                name: "Argun River",
+                length: 1620,
+                meetingPoint: [53.3200, 121.4700],
+                direction: "west",
+                arrowDirection: "in",
+                country: "China/Russia"
             }
         ],
+        
         distributaries: [
             {
-                name: "Lena Delta Channels",
-                length: 150,
-                mouth: "Laptev Sea",
-                coordinates: [[71.0, 126.0], [72.5, 127.5]],
-                flowDirection: "out"
-            }
-        ],
-        majorCities: [
-            { name: "Yakutsk", country: "Russia", population: 320000, coordinates: [62.03, 129.73] },
-            { name: "Lensk", country: "Russia", population: 23000, coordinates: [60.73, 114.95] },
-            { name: "Ust-Kut", country: "Russia", population: 43000, coordinates: [56.79, 105.75] },
-            { name: "Kirensk", country: "Russia", population: 11000, coordinates: [57.78, 108.11] }
-        ],
-        facts: {
-            historical: "🏛️ Named after original Even word 'Elyu-Ene' meaning 'Large River'",
-            ecological: "🌿 Delta is UNESCO World Heritage site - 30,000 km² wetland!",
-            economic: "💰 Major diamond mining region along its banks",
-            cultural: "⭐ Yakutsk is coldest major city on Earth (-50°C winters!)",
-            funFact: "🎭 Lena Pillars rock formations are 150 million years old!"
-        },
-        image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800",
-        description: "Siberia's remote giant, diamond country, extreme cold, UNESCO delta"
-    },
-
-    // ==========================================
-    // #12 MEKONG - 4,350 km
-    // ==========================================
-    {
-        id: 12,
-        name: "Mekong",
-        nativeName: "แม่น้ำโขง / Sông Mê Kông / 湄公河",
-        continent: "asia",
-        countries: ["China", "Myanmar", "Laos", "Thailand", "Cambodia", "Vietnam"],
-        length: 4350,
-        discharge: 16000,
-        basinArea: 795000,
-        source: {
-            name: "Lasagongma Spring",
-            location: "Tibetan Plateau, China",
-            coordinates: [33.16, 94.67],
-            elevation: 5224
-        },
-        mouth: {
-            name: "South China Sea",
-            location: "Mekong Delta, Vietnam",
-            coordinates: [9.8, 106.5]
-        },
-        course: [
-            [33.16, 94.67],
-            [28.0, 99.0],
-            [21.0, 100.5],
-            [17.5, 104.8],
-            [15.0, 105.8],
-            [11.5, 105.0],
-            [9.8, 106.5]
-        ],
-        tributaries: [
-            {
-                name: "Tonlé Sap River",
-                length: 120,
-                source: "Tonlé Sap Lake",
-                confluence: "Phnom Penh",
-                coordinates: [[12.9, 104.1], [11.55, 104.93]],
-                flowDirection: "in"
-            },
-            {
-                name: "Mun River",
-                length: 750,
-                source: "Nakhon Ratchasima, Thailand",
-                confluence: "Ubon Ratchathani",
-                coordinates: [[14.9, 102.1], [15.3, 105.4]],
-                flowDirection: "in"
-            },
-            {
-                name: "Nam Ou River",
-                length: 448,
-                source: "Northern Laos",
-                confluence: "Luang Prabang",
-                coordinates: [[21.5, 102.5], [19.9, 102.1]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [
-            {
-                name: "Bassac River",
-                length: 160,
-                mouth: "South China Sea",
-                coordinates: [[11.5, 105.0], [9.5, 106.2]],
-                flowDirection: "out"
-            },
-            {
-                name: "Tiền River",
-                length: 120,
-                mouth: "South China Sea",
-                coordinates: [[11.5, 105.0], [10.0, 106.6]],
-                flowDirection: "out"
-            },
-            {
-                name: "Hậu River",
-                length: 180,
-                mouth: "South China Sea",
-                coordinates: [[11.5, 105.0], [9.3, 106.0]],
-                flowDirection: "out"
-            }
-        ],
-        majorCities: [
-            { name: "Phnom Penh", country: "Cambodia", population: 2130000, coordinates: [11.55, 104.93] },
-            { name: "Ho Chi Minh City", country: "Vietnam", population: 9000000, coordinates: [10.82, 106.63] },
-            { name: "Vientiane", country: "Laos", population: 820000, coordinates: [17.97, 102.63] },
-            { name: "Can Tho", country: "Vietnam", population: 1235000, coordinates: [10.03, 105.78] }
-        ],
-        facts: {
-            historical: "🏛️ Ancient Khmer Empire flourished along its banks",
-            ecological: "🌿 2nd most biodiverse river after Amazon - 1,200 fish species!",
-            economic: "💰 Feeds 60 million people - 'Rice Bowl of Asia'",
-            cultural: "⭐ Tonlé Sap reverses flow direction during monsoon!",
-            funFact: "🎭 Giant Mekong catfish can weigh 300 kg - size of a bear!"
-        },
-        image: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800",
-        description: "Southeast Asia's lifeline, 6 countries, mega biodiversity, rice bowl"
-    },
-
-    // ==========================================
-    // #13 MACKENZIE - 4,241 km
-    // ==========================================
-    {
-        id: 13,
-        name: "Mackenzie",
-        nativeName: "Deh-Cho (Dene: 'Big River')",
-        continent: "north-america",
-        countries: ["Canada"],
-        length: 4241,
-        discharge: 9910,
-        basinArea: 1805000,
-        source: {
-            name: "Thutade Lake (Finlay River)",
-            location: "British Columbia, Canada",
-            coordinates: [57.2, -127.5],
-            elevation: 1310
-        },
-        mouth: {
-            name: "Beaufort Sea",
-            location: "Arctic Ocean, NWT",
-            coordinates: [69.3, -134.0]
-        },
-        course: [
-            [57.2, -127.5],
-            [59.0, -122.5],
-            [61.5, -117.5],
-            [64.0, -124.0],
-            [66.5, -130.0],
-            [69.3, -134.0]
-        ],
-        tributaries: [
-            {
-                name: "Liard River",
-                length: 1115,
-                source: "Pelly Mountains, Yukon",
-                confluence: "Fort Simpson",
-                coordinates: [[60.5, -129.5], [61.86, -121.35]],
-                flowDirection: "in"
-            },
-            {
-                name: "Peace River",
-                length: 1923,
-                source: "Rocky Mountains, BC",
-                confluence: "Peace-Athabasca Delta",
-                coordinates: [[55.5, -120.0], [59.0, -111.5]],
-                flowDirection: "in"
-            },
-            {
-                name: "Great Bear River",
-                length: 113,
-                source: "Great Bear Lake",
-                confluence: "Tulita",
-                coordinates: [[65.2, -123.0], [64.9, -125.6]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [
-            {
-                name: "Mackenzie Delta Channels",
-                length: 210,
-                mouth: "Beaufort Sea",
-                coordinates: [[68.5, -134.0], [69.5, -135.5]],
-                flowDirection: "out"
-            }
-        ],
-        majorCities: [
-            { name: "Yellowknife", country: "Canada", population: 20000, coordinates: [62.45, -114.35] },
-            { name: "Fort McMurray", country: "Canada", population: 75000, coordinates: [56.73, -111.38] },
-            { name: "Inuvik", country: "Canada", population: 3200, coordinates: [68.36, -133.72] },
-            { name: "Hay River", country: "Canada", population: 3500, coordinates: [60.82, -115.73] }
-        ],
-        facts: {
-            historical: "🏛️ Named after explorer Alexander Mackenzie (1789 journey)",
-            ecological: "🌿 Largest North American river flowing to Arctic Ocean",
-            economic: "💰 Massive oil sands deposits in basin (Alberta)",
-            cultural: "⭐ Dene First Nations lived here for 10,000+ years",
-            funFact: "🎭 Mackenzie spotted it 14 years BEFORE Lewis & Clark expedition!"
-        },
-        image: "https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?w=800",
-        description: "Canada's longest river, flows to Arctic, oil sands region, wilderness"
-    },
-
-    // ==========================================
-    // #14 NIGER - 4,180 km
-    // ==========================================
-    {
-        id: 14,
-        name: "Niger",
-        nativeName: "Jeliba / Orimiri / Egerew n-Igerewen",
-        continent: "africa",
-        countries: ["Guinea", "Mali", "Niger", "Benin", "Nigeria"],
-        length: 4180,
-        discharge: 6000,
-        basinArea: 2117700,
-        source: {
-            name: "Guinea Highlands",
-            location: "Loma Mountains, Guinea",
-            coordinates: [9.05, -10.47],
-            elevation: 1450
-        },
-        mouth: {
-            name: "Gulf of Guinea",
-            location: "Niger Delta, Nigeria",
-            coordinates: [4.5, 6.0]
-        },
-        course: [
-            [9.05, -10.47],
-            [12.0, -5.0],
-            [17.0, -4.0],
-            [16.3, 3.0],
-            [13.5, 5.5],
-            [6.5, 6.5],
-            [4.5, 6.0]
-        ],
-        tributaries: [
-            {
-                name: "Benue River",
-                length: 1400,
-                source: "Adamawa Plateau, Cameroon",
-                confluence: "Lokoja, Nigeria",
-                coordinates: [[7.5, 13.5], [7.8, 6.75]],
-                flowDirection: "in"
-            },
-            {
-                name: "Sokoto River",
-                length: 400,
-                source: "Northwestern Nigeria",
-                confluence: "Jebba",
-                coordinates: [[13.0, 5.3], [9.1, 4.8]],
-                flowDirection: "in"
-            },
-            {
-                name: "Kaduna River",
-                length: 550,
-                source: "Jos Plateau",
-                confluence: "Near Mureji",
-                coordinates: [[10.5, 8.0], [9.0, 5.5]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [
-            {
-                name: "Forcados River",
-                length: 200,
-                mouth: "Gulf of Guinea",
-                coordinates: [[5.5, 5.5], [5.0, 5.4]],
-                flowDirection: "out"
-            },
-            {
-                name: "Nun River",
-                length: 180,
-                mouth: "Gulf of Guinea",
-                coordinates: [[5.5, 6.0], [4.5, 6.1]],
-                flowDirection: "out"
-            },
-            {
-                name: "Bonny River",
-                length: 150,
-                mouth: "Gulf of Guinea",
-                coordinates: [[5.0, 7.0], [4.4, 7.2]],
-                flowDirection: "out"
-            }
-        ],
-        majorCities: [
-            { name: "Lagos", country: "Nigeria", population: 15400000, coordinates: [6.52, 3.38] },
-            { name: "Bamako", country: "Mali", population: 2700000, coordinates: [12.64, -8.0] },
-            { name: "Niamey", country: "Niger", population: 1300000, coordinates: [13.51, 2.11] },
-            { name: "Port Harcourt", country: "Nigeria", population: 3000000, coordinates: [4.78, 7.01] }
-        ],
-        facts: {
-            historical: "🏛️ Timbuktu was legendary trading city on its banks",
-            ecological: "🌿 Niger Delta = largest wetland in Africa!",
-            economic: "💰 Nigeria's oil comes from Niger Delta - Africa's largest producer",
-            cultural: "⭐ Ancient Mali & Songhai Empires ruled from here",
-            funFact: "🎭 River flows AWAY from the sea, then U-turns back!"
-        },
-        image: "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800",
-        description: "West Africa's lifeline, Timbuktu river, oil delta, boomerang shape"
-    },
-
-    // ==========================================
-    // #15 BRAHMAPUTRA - 3,848 km
-    // ==========================================
-    {
-        id: 15,
-        name: "Brahmaputra",
-        nativeName: "ब्रह्मपुत्र / Yarlung Tsangpo / যমুনা",
-        continent: "asia",
-        countries: ["China (Tibet)", "India", "Bangladesh"],
-        length: 3848,
-        discharge: 19800,
-        basinArea: 651000,
-        source: {
-            name: "Angsi Glacier",
-            location: "Himalayas, Tibet",
-            coordinates: [30.38, 82.1],
-            elevation: 5210
-        },
-        mouth: {
-            name: "Bay of Bengal",
-            location: "Ganges-Brahmaputra Delta",
-            coordinates: [22.0, 90.5]
-        },
-        course: [
-            [30.38, 82.1],
-            [29.5, 90.0],
-            [29.0, 95.0],
-            [27.5, 92.0],
-            [26.2, 91.7],
-            [24.0, 90.0],
-            [22.0, 90.5]
-        ],
-        tributaries: [
-            {
-                name: "Lhasa River",
-                length: 551,
-                source: "Nyenchen Tanglha Mountains",
-                confluence: "Near Lhasa",
-                coordinates: [[30.5, 91.0], [29.6, 91.1]],
-                flowDirection: "in"
-            },
-            {
-                name: "Subansiri River",
-                length: 442,
-                source: "Himalayas, Tibet",
-                confluence: "Near Lakhimpur",
-                coordinates: [[28.0, 94.0], [27.0, 94.0]],
-                flowDirection: "in"
-            },
-            {
-                name: "Teesta River",
-                length: 414,
-                source: "Sikkim Himalayas",
-                confluence: "Near Fulchhari",
-                coordinates: [[27.9, 88.6], [25.5, 89.7]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [
-            {
-                name: "Jamuna River",
-                length: 205,
-                mouth: "Ganges-Brahmaputra Delta",
-                coordinates: [[24.0, 90.0], [22.5, 90.5]],
-                flowDirection: "out"
-            }
-        ],
-        majorCities: [
-            { name: "Dhaka", country: "Bangladesh", population: 22000000, coordinates: [23.81, 90.41] },
-            { name: "Guwahati", country: "India", population: 1100000, coordinates: [26.14, 91.74] },
-            { name: "Dibrugarh", country: "India", population: 170000, coordinates: [27.47, 94.91] },
-            { name: "Lhasa", country: "China", population: 900000, coordinates: [29.65, 91.10] }
-        ],
-        facts: {
-            historical: "🏛️ Name means 'Son of Brahma' - sacred to Hindus",
-            ecological: "🌿 World's highest river - starts at 5,210m in Tibet!",
-            economic: "💰 Provides water to 130 million people",
-            cultural: "⭐ Changes name 3 times: Tsangpo → Brahmaputra → Jamuna",
-            funFact: "🎭 Makes sharpest turn on Earth - 180° around Namcha Barwa!"
-        },
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-        description: "Himalayan giant, 3 names, world's highest river, sacred waters"
-    },
-
-    // ==========================================
-    // #16 MURRAY-DARLING - 3,672 km
-    // ==========================================
-    {
-        id: 16,
-        name: "Murray-Darling",
-        nativeName: "Millewa (Wiradjuri) / Tongala",
-        continent: "australia",
-        countries: ["Australia"],
-        length: 3672,
-        discharge: 767,
-        basinArea: 1061000,
-        source: {
-            name: "Australian Alps (Murray Source)",
-            location: "Kosciuszko National Park, NSW",
-            coordinates: [-36.8, 148.1],
-            elevation: 1800
-        },
-        mouth: {
-            name: "Southern Ocean",
-            location: "Lake Alexandrina, SA",
-            coordinates: [-35.55, 138.88]
-        },
-        course: [
-            [-36.8, 148.1],
-            [-35.5, 146.5],
-            [-34.0, 142.0],
-            [-33.8, 140.5],
-            [-34.5, 139.0],
-            [-35.55, 138.88]
-        ],
-        tributaries: [
-            {
-                name: "Darling River",
-                length: 2740,
-                source: "Queensland Highlands",
-                confluence: "Wentworth",
-                coordinates: [[-28.0, 148.5], [-34.1, 142.0]],
-                flowDirection: "in"
-            },
-            {
-                name: "Murrumbidgee River",
-                length: 1485,
-                source: "Snowy Mountains",
-                confluence: "Near Balranald",
-                coordinates: [[-35.5, 148.8], [-34.6, 143.5]],
-                flowDirection: "in"
-            },
-            {
-                name: "Goulburn River",
-                length: 566,
-                source: "Victorian Alps",
-                confluence: "Near Echuca",
-                coordinates: [[-37.2, 146.3], [-36.1, 144.75]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [
-            {
-                name: "Murray Mouth",
+                name: "Main Channel",
                 length: 50,
-                mouth: "Southern Ocean via Lake Alexandrina",
-                coordinates: [[-35.5, 139.0], [-35.55, 138.88]],
-                flowDirection: "out"
+                startPoint: [52.8000, 140.8000],
+                direction: "east",
+                arrowDirection: "out",
+                destination: "Amur Liman"
+            },
+            {
+                name: "Northern Channel",
+                length: 40,
+                startPoint: [52.9000, 140.9000],
+                direction: "northeast",
+                arrowDirection: "out",
+                destination: "Sea of Okhotsk"
             }
         ],
+        
         majorCities: [
-            { name: "Adelaide", country: "Australia", population: 1360000, coordinates: [-34.93, 138.60] },
-            { name: "Canberra", country: "Australia", population: 450000, coordinates: [-35.28, 149.13] },
-            { name: "Albury-Wodonga", country: "Australia", population: 95000, coordinates: [-36.07, 146.92] },
-            { name: "Mildura", country: "Australia", population: 35000, coordinates: [-34.19, 142.16] }
+            { name: "Harbin", coordinates: [45.8038, 126.5350], population: 10000000 },
+            { name: "Khabarovsk", coordinates: [48.4827, 135.0837], population: 620000 },
+            { name: "Blagoveshchensk", coordinates: [50.2785, 127.5272], population: 230000 },
+            { name: "Jiamusi", coordinates: [46.8023, 130.3610], population: 2500000 },
+            { name: "Komsomolsk-on-Amur", coordinates: [50.5500, 137.0070], population: 250000 }
         ],
-        facts: {
-            historical: "🏛️ Indigenous Australians fished here for 40,000+ years",
-            ecological: "🌿 Provides 40% of Australia's agricultural production",
-            economic: "💰 $22 billion annual economic value",
-            cultural: "⭐ Paddle steamers were main transport in 1800s",
-            funFact: "🎭 During drought, mouth sometimes CLOSES completely!"
+        
+        features: [
+            { name: "Zeya Dam", type: "dam", coordinates: [53.7400, 127.2700] },
+            { name: "Lake Khanka", type: "lake", coordinates: [44.9500, 132.4000] },
+            { name: "Lesser Khingan Range", type: "mountain", coordinates: [49.0000, 131.0000] },
+            { name: "Amur Liman", type: "estuary", coordinates: [53.0000, 141.0000] }
+        ],
+        
+        type: "Perennial",
+        flowDirection: "West to East",
+        gradient: "Low",
+        waterColor: "Gray-Brown",
+        
+        significance: {
+            ecological: "Siberian tiger habitat; major wetlands; Kaluga sturgeon; migratory birds",
+            economic: "Border trade; fishing industry; agriculture; timber transport",
+            cultural: "Indigenous Nanai and Ulch peoples; border between civilizations",
+            historical: "Treaty of Aigun (1858); Sino-Soviet border conflicts; ongoing territorial importance"
         },
-        image: "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=800",
-        description: "Australia's food bowl, often runs dry, paddle steamer history"
-    },
-
-    // ==========================================
-    // #17 TOCANTINS - 3,650 km
-    // ==========================================
-    {
-        id: 17,
-        name: "Tocantins",
-        nativeName: "Rio Tocantins",
-        continent: "south-america",
-        countries: ["Brazil"],
-        length: 3650,
-        discharge: 13598,
-        basinArea: 767000,
-        source: {
-            name: "Serra Dourada",
-            location: "Goiás State, Brazil",
-            coordinates: [-15.5, -47.5],
-            elevation: 1100
+        
+        annualFlood: "July to September (monsoon)",
+        majorDams: ["Zeya Dam", "Bureya Dam"],
+        wildlife: ["Kaluga Sturgeon", "Siberian Tiger", "Red-crowned Crane", "Amur Leopard", "Mandarin Duck"],
+        
+        images: {
+            main: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Amur_River_-_Russia.jpg/800px-Amur_River_-_Russia.jpg",
+            gallery: []
         },
-        mouth: {
-            name: "Amazon River Delta",
-            location: "Pará State, Brazil",
-            coordinates: [-1.5, -49.0]
-        },
-        course: [
-            [-15.5, -47.5],
-            [-12.0, -49.0],
-            [-8.0, -48.5],
-            [-5.5, -49.0],
-            [-3.0, -49.5],
-            [-1.5, -49.0]
+        
+        facts: [
+            "Forms much of the Russia-China border",
+            "Name means 'Black Dragon River' in Chinese",
+            "Home to endangered Kaluga (world's largest freshwater fish)",
+            "One of few rivers not heavily dammed",
+            "2013 floods displaced 100,000 people"
         ],
-        tributaries: [
-            {
-                name: "Araguaia River",
-                length: 2627,
-                source: "Mato Grosso, Brazil",
-                confluence: "São João do Araguaia",
-                coordinates: [[-17.5, -53.0], [-5.4, -48.5]],
-                flowDirection: "in"
-            },
-            {
-                name: "Itacaiúnas River",
-                length: 360,
-                source: "Serra dos Carajás",
-                confluence: "Marabá",
-                coordinates: [[-6.0, -50.5], [-5.4, -49.1]],
-                flowDirection: "in"
-            },
-            {
-                name: "Mearim River",
-                length: 800,
-                source: "Maranhão Highlands",
-                confluence: "São Luís Bay",
-                coordinates: [[-6.5, -45.0], [-2.5, -44.3]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [],
-        majorCities: [
-            { name: "Belém", country: "Brazil", population: 1500000, coordinates: [-1.46, -48.5] },
-            { name: "Marabá", country: "Brazil", population: 280000, coordinates: [-5.37, -49.12] },
-            { name: "Palmas", country: "Brazil", population: 300000, coordinates: [-10.17, -48.33] },
-            { name: "Imperatriz", country: "Brazil", population: 260000, coordinates: [-5.52, -47.47] }
-        ],
-        facts: {
-            historical: "🏛️ Indigenous Tupi named it 'Toucan Beak River'",
-            ecological: "🌿 Araguaia tributary has world's largest river island (Bananal)",
-            economic: "💰 Tucuruí Dam = one of world's largest hydroelectric plants",
-            cultural: "⭐ Carajás mining region - largest iron ore deposits on Earth",
-            funFact: "🎭 Bananal Island is bigger than Belgium - and it's in a RIVER!"
-        },
-        image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800",
-        description: "Brazilian giant, Tucuruí Dam, world's largest river island"
-    },
-
-    // ==========================================
-    // #18 VOLGA - 3,645 km
-    // ==========================================
-    {
-        id: 18,
-        name: "Volga",
-        nativeName: "Во́лга",
-        continent: "europe",
-        countries: ["Russia"],
-        length: 3645,
-        discharge: 8060,
-        basinArea: 1380000,
-        source: {
-            name: "Valdai Hills",
-            location: "Tver Oblast, Russia",
-            coordinates: [57.15, 32.47],
-            elevation: 228
-        },
-        mouth: {
-            name: "Caspian Sea",
-            location: "Astrakhan, Russia",
-            coordinates: [45.8, 47.8]
-        },
-        course: [
-            [57.15, 32.47],
-            [58.5, 40.0],
-            [56.3, 44.0],
-            [55.8, 49.1],
-            [53.5, 49.5],
-            [48.7, 44.5],
-            [45.8, 47.8]
-        ],
-        tributaries: [
-            {
-                name: "Kama River",
-                length: 1805,
-                source: "Ural Mountains",
-                confluence: "Kazan area",
-                coordinates: [[58.0, 54.0], [55.5, 49.5]],
-                flowDirection: "in"
-            },
-            {
-                name: "Oka River",
-                length: 1500,
-                source: "Central Russia",
-                confluence: "Nizhny Novgorod",
-                coordinates: [[52.5, 36.0], [56.3, 44.0]],
-                flowDirection: "in"
-            },
-            {
-                name: "Vetluga River",
-                length: 889,
-                source: "Kirov Oblast",
-                confluence: "Near Kozmodemyansk",
-                coordinates: [[58.0, 46.5], [56.3, 46.5]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [
-            {
-                name: "Akhtuba River",
-                length: 537,
-                mouth: "Caspian Sea",
-                coordinates: [[48.7, 44.5], [46.5, 47.5]],
-                flowDirection: "out"
-            },
-            {
-                name: "Volga Delta Channels",
-                length: 200,
-                mouth: "Caspian Sea",
-                coordinates: [[46.0, 47.5], [45.8, 47.8]],
-                flowDirection: "out"
-            }
-        ],
-        majorCities: [
-            { name: "Moscow", country: "Russia", population: 12500000, coordinates: [55.75, 37.62] },
-            { name: "Nizhny Novgorod", country: "Russia", population: 1260000, coordinates: [56.3, 44.0] },
-            { name: "Kazan", country: "Russia", population: 1250000, coordinates: [55.8, 49.1] },
-            { name: "Samara", country: "Russia", population: 1160000, coordinates: [53.2, 50.15] },
-            { name: "Volgograd", country: "Russia", population: 1010000, coordinates: [48.7, 44.5] }
-        ],
-        facts: {
-            historical: "🏛️ Russians call it 'Volga-Matushka' (Mother Volga)",
-            ecological: "🌿 Europe's longest river - larger than 11 EU countries!",
-            economic: "💰 Carries 50% of Russia's river freight",
-            cultural: "⭐ Stalingrad battle (WWII) fought on its banks",
-            funFact: "🎭 Empties into Caspian Sea - which is BELOW sea level!"
-        },
-        image: "https://images.unsplash.com/photo-1513326738677-b964603b136d?w=800",
-        description: "Europe's longest, Mother Russia's river, Caspian-bound giant"
-    },
-
-    // ==========================================
-    // #19 MADEIRA - 3,380 km
-    // ==========================================
-    {
-        id: 19,
-        name: "Madeira",
-        nativeName: "Rio Madeira",
-        continent: "south-america",
-        countries: ["Brazil", "Bolivia"],
-        length: 3380,
-        discharge: 31200,
-        basinArea: 1485000,
-        source: {
-            name: "Confluence of Mamoré & Beni Rivers",
-            location: "Bolivian Lowlands",
-            coordinates: [-10.4, -65.4],
-            elevation: 140
-        },
-        mouth: {
-            name: "Amazon River",
-            location: "Near Itacoatiara, Brazil",
-            coordinates: [-3.5, -58.8]
-        },
-        course: [
-            [-10.4, -65.4],
-            [-9.0, -64.0],
-            [-7.5, -63.0],
-            [-5.5, -60.5],
-            [-3.5, -58.8]
-        ],
-        tributaries: [
-            {
-                name: "Mamoré River",
-                length: 2000,
-                source: "Bolivian Andes",
-                confluence: "Villa Bella",
-                coordinates: [[-17.0, -65.0], [-10.4, -65.4]],
-                flowDirection: "in"
-            },
-            {
-                name: "Beni River",
-                length: 1599,
-                source: "Cordillera Real, Bolivia",
-                confluence: "Villa Bella",
-                coordinates: [[-15.5, -68.5], [-10.4, -65.4]],
-                flowDirection: "in"
-            },
-            {
-                name: "Aripuanã River",
-                length: 900,
-                source: "Mato Grosso, Brazil",
-                confluence: "Near Novo Aripuanã",
-                coordinates: [[-10.0, -59.5], [-5.1, -60.4]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [],
-        majorCities: [
-            { name: "Porto Velho", country: "Brazil", population: 540000, coordinates: [-8.76, -63.9] },
-            { name: "Manaus", country: "Brazil", population: 2200000, coordinates: [-3.1, -60.0] },
-            { name: "Humaitá", country: "Brazil", population: 55000, coordinates: [-7.5, -63.0] },
-            { name: "Guajará-Mirim", country: "Brazil", population: 45000, coordinates: [-10.78, -65.35] }
-        ],
-        facts: {
-            historical: "🏛️ Name means 'Timber River' - wood floated downstream",
-            ecological: "🌿 Amazon's largest tributary by volume!",
-            economic: "💰 Santo Antônio & Jirau dams = major hydropower",
-            cultural: "⭐ Madeira-Mamoré Railway was 'Devil's Railroad'",
-            funFact: "🎭 Railroad killed 6,000+ workers - 1 death per railroad tie!"
-        },
-        image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800",
-        description: "Amazon's biggest tributary, Bolivia's outlet, Devil's Railroad"
-    },
-
-    // ==========================================
-    // #20 PURÚS - 3,211 km
-    // ==========================================
-    {
-        id: 20,
-        name: "Purús",
-        nativeName: "Rio Purus",
-        continent: "south-america",
-        countries: ["Brazil", "Peru"],
-        length: 3211,
-        discharge: 11000,
-        basinArea: 371000,
-        source: {
-            name: "Peruvian Lowlands",
-            location: "Ucayali Region, Peru",
-            coordinates: [-9.8, -71.0],
-            elevation: 500
-        },
-        mouth: {
-            name: "Amazon River",
-            location: "Near Manaus, Brazil",
-            coordinates: [-3.7, -61.5]
-        },
-        course: [
-            [-9.8, -71.0],
-            [-9.0, -68.5],
-            [-7.5, -66.5],
-            [-5.5, -63.5],
-            [-3.7, -61.5]
-        ],
-        tributaries: [
-            {
-                name: "Acre River",
-                length: 680,
-                source: "Peru/Brazil border",
-                confluence: "Boca do Acre",
-                coordinates: [[-11.0, -70.5], [-8.75, -67.4]],
-                flowDirection: "in"
-            },
-            {
-                name: "Iaco River",
-                length: 345,
-                source: "Acre State, Brazil",
-                confluence: "Sena Madureira",
-                coordinates: [[-10.0, -69.5], [-9.05, -68.65]],
-                flowDirection: "in"
-            },
-            {
-                name: "Chandless River",
-                length: 250,
-                source: "Acre State, Brazil",
-                confluence: "Manoel Urbano area",
-                coordinates: [[-9.5, -70.0], [-8.9, -69.2]],
-                flowDirection: "in"
-            }
-        ],
-        distributaries: [],
-        majorCities: [
-            { name: "Rio Branco", country: "Brazil", population: 400000, coordinates: [-9.97, -67.81] },
-            { name: "Lábrea", country: "Brazil", population: 45000, coordinates: [-7.26, -64.8] },
-            { name: "Sena Madureira", country: "Brazil", population: 45000, coordinates: [-9.05, -68.65] },
-            { name: "Boca do Acre", country: "Brazil", population: 35000, coordinates: [-8.75, -67.4] }
-        ],
-        facts: {
-            historical: "🏛️ Rubber boom (1880s-1920s) transformed this region",
-            ecological: "🌿 Extremely winding - travels 3x distance of straight line!",
-            economic: "💰 Brazil nut harvesting is major economic activity",
-            cultural: "⭐ Isolated indigenous tribes still live in basin",
-            funFact: "🎭 So twisty that some bends are just 50m from each other!"
-        },
-        image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800",
-        description: "World's most winding river, rubber boom history, remote Amazon"
+        
+        lastUpdated: "2024"
     }
 
 ];
 
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-
-/**
- * Get river by ID
- * @param {number|string} id - River ID
- * @returns {object|undefined} River object
- */
-function getRiverById(id) {
-    return riversData.find(river => river.id === parseInt(id));
-}
-
-/**
- * Get rivers by continent
- * @param {string} continent - Continent name or 'all'
- * @returns {array} Filtered rivers
- */
-function getRiversByContinent(continent) {
-    if (continent === 'all') return riversData;
-    return riversData.filter(river => river.continent === continent);
-}
-
-/**
- * Search rivers by name, country, or continent
- * @param {string} query - Search query
- * @returns {array} Matching rivers
- */
-function searchRivers(query) {
-    const searchTerm = query.toLowerCase().trim();
-    if (!searchTerm) return riversData;
-    
-    return riversData.filter(river => 
-        river.name.toLowerCase().includes(searchTerm) ||
-        river.nativeName?.toLowerCase().includes(searchTerm) ||
-        river.countries.some(c => c.toLowerCase().includes(searchTerm)) ||
-        river.continent.toLowerCase().includes(searchTerm) ||
-        river.source.name.toLowerCase().includes(searchTerm) ||
-        river.mouth.name.toLowerCase().includes(searchTerm)
-    );
-}
-
-/**
- * Sort rivers by specified field
- * @param {array} rivers - Rivers array
- * @param {string} sortBy - Sort field
- * @returns {array} Sorted rivers
- */
-function sortRivers(rivers, sortBy) {
-    const sorted = [...rivers];
-    
-    switch(sortBy) {
-        case 'name':
-            return sorted.sort((a, b) => a.name.localeCompare(b.name));
-        case 'length':
-            return sorted.sort((a, b) => b.length - a.length);
-        case 'discharge':
-            return sorted.sort((a, b) => b.discharge - a.discharge);
-        case 'basin':
-            return sorted.sort((a, b) => b.basinArea - a.basinArea);
-        case 'countries':
-            return sorted.sort((a, b) => b.countries.length - a.countries.length);
-        default:
-            return sorted;
-    }
-}
-
-/**
- * Get total statistics
- * @returns {object} Stats object
- */
-function getRiversStats() {
-    return {
-        totalRivers: riversData.length,
-        totalLength: riversData.reduce((sum, r) => sum + r.length, 0),
-        totalDischarge: riversData.reduce((sum, r) => sum + r.discharge, 0),
-        continents: [...new Set(riversData.map(r => r.continent))].length,
-        countries: [...new Set(riversData.flatMap(r => r.countries))].length
-    };
-}
-
-/**
- * Format large numbers with commas
- * @param {number} num - Number to format
- * @returns {string} Formatted number
- */
-function formatNumber(num) {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+// ========================================
+// EXPORT DATA
+// ========================================
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { riversData };
 }
