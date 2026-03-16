@@ -1,0 +1,918 @@
+import { useState, useEffect } from 'react';
+import {
+  Mountain, Waves, TreePine, Compass, Sun,
+  Map, Castle, Pyramid, Skull, Search,
+  Filter, Bookmark, BookmarkCheck, X,
+  ChevronLeft, MapPin, Calendar,
+  Eye, Sparkles, Gift, Globe, Lock, HelpCircle,
+  Flame, Droplets, Moon, Zap, Star
+} from 'lucide-react';
+
+interface Mystery {
+  id: string;
+  title: string;
+  location: string;
+  country: string;
+  region: string;
+  category: string;
+  categoryId: string;
+  summary: string;
+  fullExplanation: string;
+  imageUrl: string;
+  status: 'Unsolved' | 'Partially Solved' | 'Debunked' | 'Still Investigated';
+  coordinates: { lat: number; lng: number };
+  dateDiscovered?: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  type: 'geography' | 'history' | 'location';
+  mysteries: Mystery[];
+}
+
+const mysteriesData: Mystery[] = [
+  {
+    id: 'mount-kailash',
+    title: 'Mount Kailash Mystery',
+    location: 'Tibet Autonomous Region',
+    country: 'China',
+    region: 'Asia',
+    category: 'Mountains',
+    categoryId: 'mountains',
+    summary: 'A sacred mountain that has never been climbed, surrounded by unexplained phenomena.',
+    fullExplanation: 'Mount Kailash stands at 6,638 meters and is considered sacred by four religions: Buddhism, Hinduism, Jainism, and Bon. Despite being lower than many conquered peaks, no one has ever reached its summit. Climbers report strange time dilations, rapid aging, and compasses malfunctioning near the peak. Local legends speak of a gateway to another dimension at its summit. Scientists have detected unusual electromagnetic readings from the mountain, and satellite imagery has revealed geometric patterns in the rock formations that seem too precise to be natural.',
+    imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800',
+    status: 'Unsolved',
+    coordinates: { lat: 31.0675, lng: 81.3119 },
+    dateDiscovered: 'Ancient'
+  },
+  {
+    id: 'himalayan-monks',
+    title: 'Himalayan Monk Legends',
+    location: 'Himalayan Mountain Range',
+    country: 'Nepal/Tibet',
+    region: 'Asia',
+    category: 'Mountains',
+    categoryId: 'mountains',
+    summary: 'Monks reportedly demonstrating supernatural abilities in extreme conditions.',
+    fullExplanation: 'For centuries, Tibetan monks in the Himalayas have been documented performing seemingly impossible feats. Harvard researchers in the 1980s recorded monks raising their body temperature through meditation to dry wet sheets in freezing conditions. Other accounts describe monks levitating, going without food for months, and surviving at extreme altitudes without oxygen. The practice of Tummo meditation allows practitioners to generate intense internal heat.',
+    imageUrl: 'https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=800',
+    status: 'Partially Solved',
+    coordinates: { lat: 27.9881, lng: 86.9250 },
+    dateDiscovered: 'Ancient'
+  },
+  {
+    id: 'bermuda-triangle',
+    title: 'Bermuda Triangle Mystery',
+    location: 'North Atlantic Ocean',
+    country: 'International Waters',
+    region: 'Atlantic',
+    category: 'Oceans',
+    categoryId: 'oceans',
+    summary: 'A region where ships and aircraft have mysteriously vanished without trace.',
+    fullExplanation: 'The Bermuda Triangle, spanning roughly 500,000 square miles between Miami, Bermuda, and Puerto Rico, has been the site of numerous unexplained disappearances. Flight 19, a squadron of five torpedo bombers, vanished in 1945 along with the rescue plane sent to find them. Theories range from methane gas eruptions that reduce water density, to unusual magnetic anomalies affecting navigation, to more exotic explanations involving time warps.',
+    imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+    status: 'Still Investigated',
+    coordinates: { lat: 25.0000, lng: -71.0000 },
+    dateDiscovered: '1964'
+  },
+  {
+    id: 'atlantis',
+    title: 'Lost City of Atlantis',
+    location: 'Unknown - Various Theories',
+    country: 'Unknown',
+    region: 'Atlantic Ocean',
+    category: 'Oceans',
+    categoryId: 'oceans',
+    summary: 'An advanced ancient civilization that allegedly sank beneath the ocean.',
+    fullExplanation: 'First described by Plato around 360 BCE, Atlantis was portrayed as a powerful naval empire that existed 9,000 years before his time. The island nation supposedly possessed advanced technology and architecture before being swallowed by the sea in a single day and night. Theories about its location range from the Mediterranean to Antarctica and the Caribbean.',
+    imageUrl: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
+    status: 'Unsolved',
+    coordinates: { lat: 36.4167, lng: -25.5167 },
+    dateDiscovered: '360 BCE'
+  },
+  {
+    id: 'bloop',
+    title: 'The Bloop Sound Mystery',
+    location: 'South Pacific Ocean',
+    country: 'International Waters',
+    region: 'Pacific',
+    category: 'Oceans',
+    categoryId: 'oceans',
+    summary: 'An ultra-low frequency underwater sound of unknown origin detected in 1997.',
+    fullExplanation: 'In 1997, NOAA detected one of the loudest sounds ever recorded in the ocean - a powerful ultra-low frequency sound that rose rapidly over about one minute. The sound was detected by sensors over 5,000 kilometers apart. Initially, its profile suggested a biological origin, leading to speculation about an unknown massive sea creature.',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+    status: 'Partially Solved',
+    coordinates: { lat: -50.0000, lng: -100.0000 },
+    dateDiscovered: '1997'
+  },
+  {
+    id: 'pyramids-giza',
+    title: 'Great Pyramid Construction',
+    location: 'Giza Plateau',
+    country: 'Egypt',
+    region: 'Africa',
+    category: 'Ancient Civilizations',
+    categoryId: 'ancient-civilizations',
+    summary: 'How ancient Egyptians built massive pyramids with primitive tools remains debated.',
+    fullExplanation: 'The Great Pyramid of Giza, built around 2560 BCE, contains approximately 2.3 million stone blocks weighing 2.5 to 15 tons each. The precision of its construction - aligned to true north within 0.05 degrees - seems impossible for the technology of the time.',
+    imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+    status: 'Partially Solved',
+    coordinates: { lat: 29.9792, lng: 31.1342 },
+    dateDiscovered: 'Ancient'
+  },
+  {
+    id: 'nazca-lines',
+    title: 'Nazca Lines',
+    location: 'Nazca Desert',
+    country: 'Peru',
+    region: 'South America',
+    category: 'Ancient Civilizations',
+    categoryId: 'ancient-civilizations',
+    summary: 'Massive geoglyphs visible only from the air, created by an ancient culture.',
+    fullExplanation: 'The Nazca Lines are a group of over 800 straight lines, 300 geometric figures, and 70 animal and plant designs etched into the Peruvian desert between 500 BCE and 500 CE. Some figures span up to 370 meters. The lines can only be fully appreciated from the air.',
+    imageUrl: 'https://images.unsplash.com/photo-1580619305218-8423a7ef79b4?w=800',
+    status: 'Partially Solved',
+    coordinates: { lat: -14.7350, lng: -75.1300 },
+    dateDiscovered: '1927'
+  },
+  {
+    id: 'el-dorado',
+    title: 'El Dorado - City of Gold',
+    location: 'South American Jungle',
+    country: 'Colombia/Ecuador',
+    region: 'South America',
+    category: 'Lost Cities',
+    categoryId: 'lost-cities',
+    summary: 'A legendary city of immense wealth that drove centuries of exploration.',
+    fullExplanation: 'El Dorado originated as a legend about a Muisca chieftain who covered himself in gold dust during ceremonies. Spanish conquistadors transformed this into a myth about an entire city of gold hidden in the South American jungle. Recent LIDAR scans of the Amazon have revealed vast urban networks hidden beneath the canopy.',
+    imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+    status: 'Unsolved',
+    coordinates: { lat: 4.9333, lng: -73.9833 },
+    dateDiscovered: '1531'
+  },
+  {
+    id: 'movile-cave',
+    title: 'Movile Cave Ecosystem',
+    location: 'Constanța County',
+    country: 'Romania',
+    region: 'Europe',
+    category: 'Caves',
+    categoryId: 'caves',
+    summary: 'A sealed cave with unique life forms evolved in complete isolation for millions of years.',
+    fullExplanation: 'Discovered in 1986, Movile Cave had been sealed from the outside world for 5.5 million years. Scientists discovered 48 species living inside, 33 of which exist nowhere else on Earth. These organisms evolved to survive without sunlight or fresh air.',
+    imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+    status: 'Still Investigated',
+    coordinates: { lat: 43.8256, lng: 28.5678 },
+    dateDiscovered: '1986'
+  },
+  {
+    id: 'hoia-baciu',
+    title: 'Hoia Baciu Forest',
+    location: 'Transylvania',
+    country: 'Romania',
+    region: 'Europe',
+    category: 'Forests',
+    categoryId: 'forests',
+    summary: 'A forest known for paranormal activity and unexplained phenomena.',
+    fullExplanation: 'Known as the "Bermuda Triangle of Transylvania," Hoia Baciu Forest has earned a reputation as one of the world\'s most haunted locations. Visitors report UFO sightings, ghost apparitions, and intense feelings of anxiety. The trees grow in bizarre spiral patterns with no scientific explanation.',
+    imageUrl: 'https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=800',
+    status: 'Unsolved',
+    coordinates: { lat: 46.7800, lng: 23.5400 },
+    dateDiscovered: '1960s'
+  },
+  {
+    id: 'richat-structure',
+    title: 'Eye of the Sahara',
+    location: 'Mauritanian Desert',
+    country: 'Mauritania',
+    region: 'Africa',
+    category: 'Deserts',
+    categoryId: 'deserts',
+    summary: 'A massive circular formation visible from space with an unexplained origin.',
+    fullExplanation: 'The Richat Structure is a 50-kilometer diameter geological formation in the Sahara Desert. Some researchers believe it could be the remains of Atlantis, matching Plato\'s description of concentric rings of water and land.',
+    imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+    status: 'Partially Solved',
+    coordinates: { lat: 21.1244, lng: -11.4014 },
+    dateDiscovered: '1965'
+  },
+  {
+    id: 'yellowstone',
+    title: 'Yellowstone Supervolcano',
+    location: 'Wyoming',
+    country: 'USA',
+    region: 'North America',
+    category: 'Volcanoes',
+    categoryId: 'volcanoes',
+    summary: 'A massive volcanic system showing unexplained recent activity increases.',
+    fullExplanation: 'Yellowstone sits atop one of the world\'s largest volcanic systems. Recent years have seen unexplained increases in earthquake swarms, ground deformation, and thermal activity. A major eruption could affect global climate for decades.',
+    imageUrl: 'https://images.unsplash.com/photo-1499029655555-3635ed028d53?w=800',
+    status: 'Still Investigated',
+    coordinates: { lat: 44.4280, lng: -110.5885 },
+    dateDiscovered: '1871'
+  },
+  {
+    id: 'boiling-river',
+    title: 'The Boiling River',
+    location: 'Amazon Rainforest',
+    country: 'Peru',
+    region: 'South America',
+    category: 'Rivers',
+    categoryId: 'rivers',
+    summary: 'A river hot enough to boil animals alive, far from any volcanic source.',
+    fullExplanation: 'Deep in the Peruvian Amazon lies Shanay-timpishka, a four-mile stretch of river reaching temperatures of 86°C. Scientists expected to find a volcanic source but found none - the nearest volcano is 400 miles away.',
+    imageUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800',
+    status: 'Partially Solved',
+    coordinates: { lat: -8.8450, lng: -75.0500 },
+    dateDiscovered: '2011'
+  },
+  {
+    id: 'easter-island',
+    title: 'Easter Island Moai',
+    location: 'Easter Island',
+    country: 'Chile',
+    region: 'Pacific Ocean',
+    category: 'Islands',
+    categoryId: 'islands',
+    summary: 'Massive stone statues carved and transported by a small island population.',
+    fullExplanation: 'Easter Island contains 887 moai - monolithic human figures averaging 13 feet tall and 14 tons. The Rapa Nui people carved them from volcanic rock and somehow transported them miles across the island between 1250-1500 CE.',
+    imageUrl: 'https://images.unsplash.com/photo-1550501788-1c8b96bef47e?w=800',
+    status: 'Partially Solved',
+    coordinates: { lat: -27.1127, lng: -109.3497 },
+    dateDiscovered: '1722'
+  },
+  {
+    id: 'loch-ness',
+    title: 'Loch Ness Monster',
+    location: 'Scottish Highlands',
+    country: 'Scotland',
+    region: 'Europe',
+    category: 'Lakes',
+    categoryId: 'lakes',
+    summary: 'A legendary creature reportedly living in Scotland\'s deepest lake.',
+    fullExplanation: 'Loch Ness is a 23-mile long, 755-foot deep lake. Reports of a monster date back to 565 CE. Sonar scans have detected large moving objects, and environmental DNA studies found significant eel DNA, suggesting a giant eel could explain sightings.',
+    imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+    status: 'Unsolved',
+    coordinates: { lat: 57.3229, lng: -4.4244 },
+    dateDiscovered: '565 CE'
+  }
+];
+
+const categoriesData: Category[] = [
+  { id: 'mountains', name: 'Mountains', icon: <Mountain className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'mountains') },
+  { id: 'oceans', name: 'Oceans', icon: <Waves className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'oceans') },
+  { id: 'rivers', name: 'Rivers', icon: <Droplets className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'rivers') },
+  { id: 'forests', name: 'Forests', icon: <TreePine className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'forests') },
+  { id: 'deserts', name: 'Deserts', icon: <Sun className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'deserts') },
+  { id: 'islands', name: 'Islands', icon: <Compass className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'islands') },
+  { id: 'caves', name: 'Caves', icon: <Moon className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'caves') },
+  { id: 'lakes', name: 'Lakes', icon: <Droplets className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'lakes') },
+  { id: 'volcanoes', name: 'Volcanoes', icon: <Flame className="w-6 h-6" />, type: 'geography', mysteries: mysteriesData.filter(m => m.categoryId === 'volcanoes') },
+  { id: 'ancient-civilizations', name: 'Ancient Civilizations', icon: <Pyramid className="w-6 h-6" />, type: 'history', mysteries: mysteriesData.filter(m => m.categoryId === 'ancient-civilizations') },
+  { id: 'lost-cities', name: 'Lost Cities', icon: <Castle className="w-6 h-6" />, type: 'history', mysteries: mysteriesData.filter(m => m.categoryId === 'lost-cities') },
+  { id: 'archaeological', name: 'Archaeological Mysteries', icon: <Skull className="w-6 h-6" />, type: 'history', mysteries: [] },
+  { id: 'unsolved-events', name: 'Unsolved Events', icon: <HelpCircle className="w-6 h-6" />, type: 'history', mysteries: [] },
+  { id: 'ancient-tech', name: 'Ancient Technologies', icon: <Zap className="w-6 h-6" />, type: 'history', mysteries: [] },
+  { id: 'countries', name: 'Countries', icon: <Map className="w-6 h-6" />, type: 'location', mysteries: [] },
+  { id: 'continents', name: 'Continents', icon: <Globe className="w-6 h-6" />, type: 'location', mysteries: [] },
+  { id: 'regions', name: 'Specific Regions', icon: <MapPin className="w-6 h-6" />, type: 'location', mysteries: [] }
+];
+
+function StatusBadge({ status, small = false }: { status: string; small?: boolean }) {
+  const colors: Record<string, string> = {
+    'Unsolved': 'bg-red-900/80 border-red-500/50 text-red-300',
+    'Partially Solved': 'bg-amber-900/80 border-amber-500/50 text-amber-300',
+    'Still Investigated': 'bg-blue-900/80 border-blue-500/50 text-blue-300',
+    'Debunked': 'bg-gray-800/80 border-gray-500/50 text-gray-300'
+  };
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${colors[status]} ${small ? 'text-xs' : 'text-sm'}`}>
+      <span className={`w-2 h-2 rounded-full ${status === 'Unsolved' || status === 'Still Investigated' ? 'animate-pulse' : ''} bg-current`} />
+      {status}
+    </span>
+  );
+}
+
+function CategoryCard({ category, onClick }: { category: Category; onClick: () => void }) {
+  const bgColors: Record<string, string> = {
+    geography: 'from-purple-900/80 to-indigo-900/80 border-purple-500/30 hover:border-purple-400/50 hover:shadow-purple-500/30',
+    history: 'from-amber-900/80 to-orange-900/80 border-amber-500/30 hover:border-amber-400/50 hover:shadow-amber-500/30',
+    location: 'from-emerald-900/80 to-teal-900/80 border-emerald-500/30 hover:border-emerald-400/50 hover:shadow-emerald-500/30'
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative p-6 bg-gradient-to-br ${bgColors[category.type]} border rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl`}
+    >
+      <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="relative flex flex-col items-center gap-3">
+        <div className="p-3 bg-white/10 rounded-xl group-hover:scale-110 transition-transform">
+          {category.icon}
+        </div>
+        <span className="font-medium text-sm text-center">{category.name}</span>
+        <span className="text-xs text-gray-500">{category.mysteries.length} mysteries</span>
+      </div>
+    </button>
+  );
+}
+
+function MysteryCard({
+  mystery,
+  isBookmarked,
+  onToggleBookmark,
+  onClick
+}: {
+  mystery: Mystery;
+  isBookmarked: boolean;
+  onToggleBookmark: () => void;
+  onClick: () => void;
+}) {
+  return (
+    <div className="group relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-xl overflow-hidden border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-purple-500/20">
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={mystery.imageUrl}
+          alt={mystery.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleBookmark();
+          }}
+          className="absolute top-3 right-3 p-2 bg-gray-900/80 backdrop-blur-sm rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          {isBookmarked ? (
+            <BookmarkCheck className="w-5 h-5 text-amber-400" />
+          ) : (
+            <Bookmark className="w-5 h-5 text-gray-400" />
+          )}
+        </button>
+        <div className="absolute bottom-3 left-3">
+          <StatusBadge status={mystery.status} small />
+        </div>
+      </div>
+      <div className="p-4 cursor-pointer" onClick={onClick}>
+        <h3 className="font-semibold text-lg mb-2 text-white group-hover:text-purple-300 transition-colors">
+          {mystery.title}
+        </h3>
+        <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+          {mystery.summary}
+        </p>
+        <div className="flex items-center gap-2 text-gray-500 text-sm">
+          <MapPin className="w-4 h-4" />
+          <span>{mystery.country}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function MysteryApp() {
+  const [currentPage, setCurrentPage] = useState<'home' | 'categories' | 'category-detail' | 'mystery-detail'>('home');
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedMystery, setSelectedMystery] = useState<Mystery | null>(null);
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [countryFilter, setCountryFilter] = useState<string>('all');
+  const [boxOpen, setBoxOpen] = useState(false);
+  const [dailyMystery] = useState<Mystery>(() => mysteriesData[Math.floor(Math.random() * mysteriesData.length)]);
+  const [showDailyReveal, setShowDailyReveal] = useState(false);
+  const [particles] = useState(() =>
+    Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 5
+    }))
+  );
+
+  const handleBoxClick = () => {
+    setBoxOpen(true);
+    setTimeout(() => {
+      setCurrentPage('categories');
+    }, 1500);
+  };
+
+  const handleCategoryClick = (category: Category) => {
+    setSelectedCategory(category);
+    setCurrentPage('category-detail');
+  };
+
+  const handleMysteryClick = (mystery: Mystery) => {
+    setSelectedMystery(mystery);
+    setCurrentPage('mystery-detail');
+  };
+
+  const toggleBookmark = (mysteryId: string) => {
+    setBookmarks(prev =>
+      prev.includes(mysteryId)
+        ? prev.filter(id => id !== mysteryId)
+        : [...prev, mysteryId]
+    );
+  };
+
+  const goBack = () => {
+    if (currentPage === 'mystery-detail') {
+      setCurrentPage('category-detail');
+    } else if (currentPage === 'category-detail') {
+      setCurrentPage('categories');
+    } else if (currentPage === 'categories') {
+      setBoxOpen(false);
+      setCurrentPage('home');
+    }
+  };
+
+  const getRandomMystery = () => {
+    const mystery = mysteriesData[Math.floor(Math.random() * mysteriesData.length)];
+    setSelectedMystery(mystery);
+    setCurrentPage('mystery-detail');
+  };
+
+  const handleDailyReveal = () => {
+    setShowDailyReveal(true);
+    setTimeout(() => {
+      if (dailyMystery) {
+        setSelectedMystery(dailyMystery);
+        setCurrentPage('mystery-detail');
+        setShowDailyReveal(false);
+      }
+    }, 2000);
+  };
+
+  const countries = [...new Set(mysteriesData.map(m => m.country))].sort();
+
+  const filteredMysteries = selectedCategory?.mysteries.filter(mystery => {
+    const matchesSearch = mystery.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mystery.summary.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || mystery.status === statusFilter;
+    const matchesCountry = countryFilter === 'all' || mystery.country === countryFilter;
+    return matchesSearch && matchesStatus && matchesCountry;
+  }) || [];
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white overflow-hidden relative">
+      {/* Background Image */}
+      <div
+        className="fixed inset-0 bg-cover bg-center opacity-30"
+        style={{
+          backgroundImage: 'url(https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=1920)'
+        }}
+      />
+
+      {/* Fog Overlay */}
+      <div className="fixed inset-0 bg-gradient-to-t from-gray-950 via-transparent to-gray-950/80 pointer-events-none" />
+
+      {/* Animated Particles */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {particles.map(particle => (
+          <div
+            key={particle.id}
+            className="absolute w-1 h-1 bg-purple-500/30 rounded-full"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+              animationDelay: `${particle.delay}s`
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Stars */}
+      <div className="fixed inset-0 pointer-events-none">
+        {Array.from({ length: 100 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute w-0.5 h-0.5 bg-white rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `twinkle 3s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 3}s`,
+              opacity: Math.random() * 0.7 + 0.3
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10">
+        {/* Homepage */}
+        {currentPage === 'home' && (
+          <div className="min-h-screen flex flex-col items-center justify-center px-4">
+            <h1 className="text-4xl md:text-6xl font-bold text-center mb-4 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-transparent font-serif"
+              style={{ animation: 'pulse-slow 3s ease-in-out infinite' }}>
+              Mystery Box
+            </h1>
+            <p className="text-gray-400 text-center mb-12 text-lg">Unlock the secrets of the unknown</p>
+
+            {/* Mystery Box */}
+            <div
+              onClick={handleBoxClick}
+              className={`relative cursor-pointer transition-all duration-1000 ${boxOpen ? 'scale-150 opacity-0' : 'hover:scale-110'}`}
+            >
+              <div className="absolute -inset-8 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 rounded-3xl blur-2xl opacity-50"
+                style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+              <div className="absolute -inset-4 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-2xl blur-xl opacity-60"
+                style={{ animation: 'glow 2s ease-in-out infinite' }} />
+
+              <div className="relative w-48 h-48 md:w-64 md:h-64 bg-gradient-to-br from-gray-900 via-purple-900/50 to-gray-900 rounded-2xl border-2 border-purple-500/50 flex items-center justify-center overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/50 to-transparent" />
+                <div className="absolute inset-0 rounded-2xl border-2 border-purple-400/30"
+                  style={{ animation: 'border-glow 2s ease-in-out infinite' }} />
+
+                <div className="relative">
+                  <span className="text-8xl md:text-9xl font-bold bg-gradient-to-br from-purple-300 via-pink-400 to-purple-500 bg-clip-text text-transparent"
+                    style={{ animation: 'float 3s ease-in-out infinite' }}>
+                    ?
+                  </span>
+                  <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400"
+                    style={{ animation: 'spin-slow 8s linear infinite' }} />
+                </div>
+
+                {Array.from({ length: 20 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-1 h-1 bg-purple-400/50 rounded-full"
+                    style={{
+                      left: `${20 + Math.random() * 60}%`,
+                      top: `${20 + Math.random() * 60}%`,
+                      animation: `float-random 4s ease-in-out infinite`,
+                      animationDelay: `${Math.random() * 2}s`
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <p className="mt-8 text-gray-500 animate-bounce">Click to reveal mysteries</p>
+
+            {/* Quick Actions */}
+            <div className="mt-16 flex flex-wrap gap-4 justify-center">
+              <button
+                onClick={handleDailyReveal}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 rounded-xl hover:from-amber-500 hover:to-orange-500 transition-all shadow-lg shadow-amber-500/20"
+              >
+                <Gift className="w-5 h-5" />
+                Daily Mystery
+              </button>
+              <button
+                onClick={getRandomMystery}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg shadow-purple-500/20"
+              >
+                <Lock className="w-5 h-5" />
+                Random Mystery
+              </button>
+              <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg shadow-emerald-500/20">
+                <Globe className="w-5 h-5" />
+                World Map
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Categories Page */}
+        {currentPage === 'categories' && (
+          <div className="min-h-screen p-4 md:p-8" style={{ animation: 'fade-in 0.5s ease-out' }}>
+            <div className="flex items-center justify-between mb-8">
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6" />
+                Back
+              </button>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent font-serif">
+                Mystery Categories
+              </h1>
+              <div className="w-20" />
+            </div>
+
+            <div className="max-w-2xl mx-auto mb-12">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search mysteries..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-gray-900/80 border border-purple-500/30 rounded-xl focus:outline-none focus:border-purple-500 text-white placeholder-gray-500 backdrop-blur-sm"
+                />
+              </div>
+            </div>
+
+            {/* Geography */}
+            <div className="mb-12">
+              <h2 className="text-xl md:text-2xl font-semibold mb-6 text-purple-300 flex items-center gap-2">
+                <Compass className="w-6 h-6" />
+                Geography
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {categoriesData.filter(c => c.type === 'geography').map(category => (
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    onClick={() => handleCategoryClick(category)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* History */}
+            <div className="mb-12">
+              <h2 className="text-xl md:text-2xl font-semibold mb-6 text-amber-300 flex items-center gap-2">
+                <Castle className="w-6 h-6" />
+                History
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {categoriesData.filter(c => c.type === 'history').map(category => (
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    onClick={() => handleCategoryClick(category)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Locations */}
+            <div className="mb-12">
+              <h2 className="text-xl md:text-2xl font-semibold mb-6 text-emerald-300 flex items-center gap-2">
+                <Globe className="w-6 h-6" />
+                World Locations
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {categoriesData.filter(c => c.type === 'location').map(category => (
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    onClick={() => handleCategoryClick(category)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Category Detail */}
+        {currentPage === 'category-detail' && selectedCategory && (
+          <div className="min-h-screen p-4 md:p-8" style={{ animation: 'fade-in 0.5s ease-out' }}>
+            <div className="flex items-center justify-between mb-8">
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6" />
+                Categories
+              </button>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent font-serif flex items-center gap-3">
+                {selectedCategory.icon}
+                {selectedCategory.name}
+              </h1>
+              <div className="w-20" />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 mb-8">
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-gray-900/80 border border-purple-500/30 rounded-lg focus:outline-none focus:border-purple-500 text-white appearance-none cursor-pointer"
+                >
+                  <option value="all">All Status</option>
+                  <option value="Unsolved">Unsolved</option>
+                  <option value="Partially Solved">Partially Solved</option>
+                  <option value="Still Investigated">Still Investigated</option>
+                  <option value="Debunked">Debunked</option>
+                </select>
+              </div>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <select
+                  value={countryFilter}
+                  onChange={(e) => setCountryFilter(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-gray-900/80 border border-purple-500/30 rounded-lg focus:outline-none focus:border-purple-500 text-white appearance-none cursor-pointer"
+                >
+                  <option value="all">All Countries</option>
+                  {countries.map(country => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="relative flex-1 min-w-48">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search in category..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-900/80 border border-purple-500/30 rounded-lg focus:outline-none focus:border-purple-500 text-white placeholder-gray-500"
+                />
+              </div>
+            </div>
+
+            {filteredMysteries.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredMysteries.map(mystery => (
+                  <MysteryCard
+                    key={mystery.id}
+                    mystery={mystery}
+                    isBookmarked={bookmarks.includes(mystery.id)}
+                    onToggleBookmark={() => toggleBookmark(mystery.id)}
+                    onClick={() => handleMysteryClick(mystery)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <Skull className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                <p className="text-gray-500 text-lg">No mysteries found in this category yet.</p>
+                <p className="text-gray-600 text-sm mt-2">More mysteries coming soon...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mystery Detail */}
+        {currentPage === 'mystery-detail' && selectedMystery && (
+          <div className="min-h-screen" style={{ animation: 'fade-in 0.5s ease-out' }}>
+            <div className="relative h-64 md:h-96">
+              <img
+                src={selectedMystery.imageUrl}
+                alt={selectedMystery.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/50 to-transparent" />
+
+              <button
+                onClick={goBack}
+                className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 bg-gray-900/80 backdrop-blur-sm rounded-lg text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                Back
+              </button>
+
+              <button
+                onClick={() => toggleBookmark(selectedMystery.id)}
+                className="absolute top-4 right-4 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                {bookmarks.includes(selectedMystery.id) ? (
+                  <BookmarkCheck className="w-6 h-6 text-amber-400" />
+                ) : (
+                  <Bookmark className="w-6 h-6" />
+                )}
+              </button>
+
+              <div className="absolute bottom-4 right-4">
+                <StatusBadge status={selectedMystery.status} />
+              </div>
+            </div>
+
+            <div className="p-4 md:p-8 max-w-4xl mx-auto">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-transparent font-serif">
+                {selectedMystery.title}
+              </h1>
+
+              <div className="flex flex-wrap gap-4 mb-6">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <MapPin className="w-4 h-4" />
+                  <span>{selectedMystery.location}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Globe className="w-4 h-4" />
+                  <span>{selectedMystery.country}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Calendar className="w-4 h-4" />
+                  <span>Discovered: {selectedMystery.dateDiscovered}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mb-8">
+                <span className="px-4 py-2 bg-purple-900/50 border border-purple-500/30 rounded-lg text-purple-300">
+                  {selectedMystery.category}
+                </span>
+                <span className="px-4 py-2 bg-gray-900/50 border border-gray-500/30 rounded-lg text-gray-300">
+                  {selectedMystery.region}
+                </span>
+              </div>
+
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-3 text-purple-300">Summary</h2>
+                <p className="text-gray-300 text-lg leading-relaxed bg-gray-900/50 p-4 rounded-xl border border-purple-500/20">
+                  {selectedMystery.summary}
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-3 text-purple-300">The Full Mystery</h2>
+                <div className="text-gray-300 leading-relaxed bg-gray-900/30 p-6 rounded-xl border border-purple-500/10">
+                  <p>{selectedMystery.fullExplanation}</p>
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-3 text-purple-300">Location</h2>
+                <div className="relative h-64 bg-gray-900/50 rounded-xl border border-purple-500/20 overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800"
+                    alt="Map"
+                    className="w-full h-full object-cover opacity-30"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <MapPin className="w-12 h-12 text-red-500 mx-auto animate-bounce" />
+                      <p className="mt-2 text-gray-300">
+                        {selectedMystery.coordinates.lat.toFixed(4)}°, {selectedMystery.coordinates.lng.toFixed(4)}°
+                      </p>
+                      <p className="text-gray-500 text-sm">{selectedMystery.location}, {selectedMystery.country}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <button
+                  onClick={getRandomMystery}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Discover Another Mystery
+                </button>
+                <button className="flex items-center gap-2 px-6 py-3 bg-gray-800 border border-purple-500/30 rounded-xl hover:bg-gray-700 transition-all">
+                  <Eye className="w-5 h-5" />
+                  View on Map
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Daily Reveal */}
+      {showDailyReveal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90" style={{ animation: 'fade-in 0.5s ease-out' }}>
+          <div className="text-center">
+            <Gift className="w-24 h-24 mx-auto text-amber-400 animate-bounce" />
+            <h2 className="mt-6 text-3xl font-bold text-amber-400">Daily Mystery</h2>
+            <p className="mt-2 text-gray-400">Revealing today's mystery...</p>
+            <div className="mt-6 w-48 h-2 bg-gray-800 rounded-full overflow-hidden mx-auto">
+              <div className="h-full bg-gradient-to-r from-amber-500 to-orange-500" style={{ animation: 'loading-bar 2s ease-out forwards' }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        @keyframes float-random {
+          0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+          25% { transform: translate(10px, -10px); opacity: 0.6; }
+          50% { transform: translate(-5px, -20px); opacity: 0.4; }
+          75% { transform: translate(-10px, -10px); opacity: 0.7; }
+        }
+        @keyframes glow {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        @keyframes border-glow {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.8; }
+        }
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.5); }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes loading-bar {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+        .font-serif { font-family: 'Georgia', serif; }
+      `}</style>
+    </div>
+  );
+}
