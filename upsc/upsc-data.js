@@ -3725,7 +3725,2074 @@ const UPSC_GEOGRAPHY_DATA_PART_B = {
         }
     ]
 };
+/* ═══════════════════════════════════════════════════════════════
+   🌍 UPSC GEOGRAPHY DATA - PART 3C
+   India Geography, Economic, Human, Models & Environment
+   ADD THIS AFTER INDIAN RIVERS TOPIC IN upsc-data.js
+   ═══════════════════════════════════════════════════════════════ */
 
+        // ═══════════════════════════════════════════════════════════════
+        // 🇮🇳 II. GEOGRAPHY OF INDIA - CONTINUED
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 🏔️ PHYSIOGRAPHIC DIVISIONS OF INDIA
+        // ─────────────────────────────────────────
+        {
+            id: "physiographic-divisions",
+            name: "Physiographic Divisions of India",
+            category: "india",
+            subcategory: "physical-india",
+            theme: "mountain",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "60 min",
+
+            mindMap: {
+                center: "🇮🇳 India's Physiography",
+                branches: [
+                    {
+                        name: "🏔️ NORTHERN MOUNTAINS",
+                        color: "#3498db",
+                        subs: [
+                            "Himalayas (3 ranges)",
+                            "Trans-Himalayas",
+                            "Purvanchal Hills",
+                            "Youngest mountains"
+                        ]
+                    },
+                    {
+                        name: "🌾 NORTHERN PLAINS",
+                        color: "#27ae60",
+                        subs: [
+                            "Indo-Gangetic Plain",
+                            "Bhabar, Terai, Bhangar, Khadar",
+                            "Most fertile region",
+                            "Alluvial deposits"
+                        ]
+                    },
+                    {
+                        name: "🏜️ PENINSULAR PLATEAU",
+                        color: "#e74c3c",
+                        subs: [
+                            "Deccan Plateau",
+                            "Central Highlands",
+                            "Oldest landmass (Gondwana)",
+                            "Mineral rich"
+                        ]
+                    },
+                    {
+                        name: "🏖️ COASTAL PLAINS",
+                        color: "#f39c12",
+                        subs: [
+                            "Western Coastal Plain",
+                            "Eastern Coastal Plain",
+                            "Konkan, Malabar, Coromandel"
+                        ]
+                    },
+                    {
+                        name: "🏝️ ISLANDS",
+                        color: "#9b59b6",
+                        subs: [
+                            "Andaman & Nicobar",
+                            "Lakshadweep",
+                            "Coral vs Volcanic origin"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "5 Divisions: 'MaPPCI' (Map + PCI)",
+                    trick: "M-P-P-C-I",
+                    meaning: [
+                        { letter: "M", word: "Mountains (Northern)", hint: "Himalayas & Trans-Himalayas" },
+                        { letter: "P", word: "Plains (Northern)", hint: "Indo-Gangetic alluvial" },
+                        { letter: "P", word: "Plateau (Peninsular)", hint: "Deccan & Central Highlands" },
+                        { letter: "C", word: "Coastal Plains", hint: "Eastern & Western coasts" },
+                        { letter: "I", word: "Islands", hint: "A&N + Lakshadweep" }
+                    ],
+                    visual: "🗺️ MaPPCI = Making a MAP of India's Physical Configuration!"
+                },
+                {
+                    title: "Northern Plains Zones (N to S): 'BTBK'",
+                    trick: "B-T-B-K",
+                    meaning: [
+                        { letter: "B", word: "Bhabar", hint: "Pebble zone at foothill, porous" },
+                        { letter: "T", word: "Terai", hint: "Marshy, forested, streams resurface" },
+                        { letter: "B", word: "Bhangar", hint: "Old alluvium, higher, has kankar" },
+                        { letter: "K", word: "Khadar", hint: "New alluvium, floodplain, fertile" }
+                    ],
+                    visual: "🍳 BTBK = 'Bring That Breakfast Kitchen' - zones from mountains to river!"
+                },
+                {
+                    title: "Western Coast (N to S): 'KKGKM'",
+                    trick: "K-K-G-K-M",
+                    meaning: [
+                        { letter: "K", word: "Kutch", hint: "Gujarat, Rann" },
+                        { letter: "K", word: "Kathiawar", hint: "Gujarat peninsula" },
+                        { letter: "G", word: "Gujarat Plain", hint: "North of Konkan" },
+                        { letter: "K", word: "Konkan", hint: "Maharashtra coast" },
+                        { letter: "M", word: "Malabar", hint: "Kerala coast" }
+                    ],
+                    visual: "🌊 KKGKM = 'King King Goes to Kerala's Malabar' - down the west coast!"
+                },
+                {
+                    title: "Eastern Coast (N to S): 'UNCC'",
+                    trick: "U-N-C-C",
+                    meaning: [
+                        { letter: "U", word: "Utkal", hint: "Odisha coast" },
+                        { letter: "N", word: "Northern Circars", hint: "Andhra coast" },
+                        { letter: "C", word: "Coromandel", hint: "Tamil Nadu coast" },
+                        { letter: "C", word: "Chennai to Kanyakumari", hint: "Southern portion" }
+                    ],
+                    visual: "🏖️ UNCC = 'UN Climate Conference' held along East coast!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🏔️ Northern Mountains",
+                    icon: "⛰️",
+                    points: [
+                        "• YOUNGEST mountains - formed 50-60 million years ago",
+                        "• Himalayas: Shiwalik → Lesser → Greater (height increases N)",
+                        "• Trans-Himalayas: Karakoram, Ladakh, Zaskar - NORTH of Greater Himalayas",
+                        "• Purvanchal: NE hills - Patkai, Naga, Mizo, Garo, Khasi, Jaintia"
+                    ]
+                },
+                {
+                    title: "🌾 Northern Plains",
+                    icon: "🌿",
+                    points: [
+                        "• Formed by alluvial deposits of Indus, Ganga, Brahmaputra",
+                        "• BHABAR: 8-16 km wide pebble zone, streams disappear underground",
+                        "• TERAI: Marshy zone, streams re-emerge, forested, wildlife",
+                        "• BHANGAR: Old alluvium, higher ground, contains kankar (calcium nodules)",
+                        "• KHADAR: New alluvium, flooded annually, MOST FERTILE"
+                    ]
+                },
+                {
+                    title: "🏜️ Peninsular Plateau",
+                    icon: "🪨",
+                    points: [
+                        "• OLDEST landmass - part of ancient Gondwana continent",
+                        "• Two parts: CENTRAL HIGHLANDS (north of Narmada) + DECCAN PLATEAU (south)",
+                        "• Central Highlands: Aravalli, Vindhya, Satpura, Malwa, Bundelkhand",
+                        "• Deccan Plateau: Triangular, slopes east, black soil from basalt",
+                        "• Rich in MINERALS: Iron, coal, manganese, mica, bauxite"
+                    ]
+                },
+                {
+                    title: "🏖️ Coastal Plains",
+                    icon: "🌊",
+                    points: [
+                        "• WESTERN Coast: Narrow (50-80 km), steep drop, estuaries (no delta)",
+                        "• Konkan (Maharashtra), Kanara (Karnataka), Malabar (Kerala)",
+                        "• EASTERN Coast: Wider (100-130 km), gentle slope, DELTAS form",
+                        "• Mahanadi, Godavari, Krishna, Cauvery deltas = rice bowls",
+                        "• Eastern coast has lagoons (Chilika, Pulicat)"
+                    ]
+                },
+                {
+                    title: "🏝️ Islands",
+                    icon: "🌴",
+                    points: [
+                        "• ANDAMAN & NICOBAR: 572 islands, VOLCANIC origin, Bay of Bengal",
+                        "• Barren Island = only active volcano in India",
+                        "• LAKSHADWEEP: 36 islands, CORAL origin, Arabian Sea",
+                        "• Lakshadweep means '100,000 islands' - actually only 11 inhabited",
+                        "• A&N larger area; Lakshadweep smaller but strategically important"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "map",
+                    title: "Physiographic Divisions Map",
+                    icon: "🗺️",
+                    description: "India map showing 5 divisions with boundaries and major features"
+                },
+                {
+                    type: "cross-section",
+                    title: "Northern Plains Profile",
+                    icon: "📐",
+                    description: "N-S section showing Bhabar → Terai → Bhangar → Khadar zones"
+                },
+                {
+                    type: "comparison",
+                    title: "Western vs Eastern Coastal Plains",
+                    icon: "⚖️",
+                    description: "Table comparing width, slope, delta formation, features"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📏", fact: "Northern Plains cover 7 lakh sq km - most densely populated" },
+                { icon: "🏔️", fact: "Peninsular Plateau is 16 lakh sq km - oldest and largest division" },
+                { icon: "🌋", fact: "Barren Island (Andaman) - India's ONLY active volcano" },
+                { icon: "🏝️", fact: "Lakshadweep - smallest UT, only 32 sq km total area" },
+                { icon: "⛰️", fact: "Aravalli - OLDEST fold mountain in India (Precambrian, 1500+ million years)" },
+                { icon: "🌊", fact: "Chilika Lake - largest coastal lagoon in India (Odisha)" },
+                { icon: "📍", fact: "Kanyakumari - southernmost point of Indian mainland" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Aravalli is part of Himalayas",
+                    correct: "Aravalli is India's OLDEST mountain (Precambrian), Himalayas are YOUNGEST",
+                    explanation: "Aravalli is a remnant of ancient mountains, highly eroded now"
+                },
+                {
+                    wrong: "Deccan Plateau lies north of Narmada",
+                    correct: "Deccan Plateau is SOUTH of Narmada; Central Highlands is north",
+                    explanation: "Narmada-Son rift valley divides these two parts"
+                },
+                {
+                    wrong: "Western coast has major deltas",
+                    correct: "Western coast has ESTUARIES; Eastern coast has DELTAS",
+                    explanation: "Western coast is narrow, steep - rivers reach sea quickly"
+                },
+                {
+                    wrong: "Lakshadweep islands are volcanic",
+                    correct: "Lakshadweep is CORAL origin; Andaman & Nicobar is volcanic",
+                    explanation: "Lakshadweep are coral atolls; A&N sits on tectonic plate boundary"
+                }
+            ],
+
+            revision: {
+                oneLiner: "5 Divisions (MaPPCI): Mountains (youngest), Plains (alluvial: BTBK), Plateau (oldest, mineral-rich), Coastal (West=narrow/estuaries, East=wide/deltas), Islands (A&N=volcanic, Lakshadweep=coral).",
+                keyPoints: [
+                    "Northern Plains: Bhabar → Terai → Bhangar → Khadar (N to S)",
+                    "Peninsular Plateau: Central Highlands + Deccan (divided by Narmada)",
+                    "West Coast: KKGKM (narrow), East Coast: UNCC (wider, deltas)",
+                    "A&N: 572 islands, volcanic. Lakshadweep: 36 islands, coral"
+                ],
+                examTip: "Remember: Aravalli = oldest mountain, Himalayas = youngest. Deccan slopes EAST (hence east-flowing rivers). Chilika = largest lagoon."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🌲 FOREST TYPES OF INDIA
+        // ─────────────────────────────────────────
+        {
+            id: "forest-types-india",
+            name: "Forest Types of India",
+            category: "india",
+            subcategory: "vegetation-india",
+            theme: "forest",
+            difficulty: "medium",
+            importance: "very-high",
+            studyTime: "50 min",
+
+            mindMap: {
+                center: "🌲 Indian Forests",
+                branches: [
+                    {
+                        name: "🌳 TROPICAL EVERGREEN",
+                        color: "#27ae60",
+                        subs: [
+                            "Rainfall: >200 cm",
+                            "Western Ghats, NE India, A&N",
+                            "Dense, no shedding",
+                            "Mahogany, Ebony, Rosewood"
+                        ]
+                    },
+                    {
+                        name: "🍂 TROPICAL DECIDUOUS",
+                        color: "#f39c12",
+                        subs: [
+                            "Rainfall: 70-200 cm",
+                            "LARGEST forest type in India",
+                            "Moist & Dry Deciduous",
+                            "Teak, Sal, Bamboo"
+                        ]
+                    },
+                    {
+                        name: "🌵 THORN & SCRUB",
+                        color: "#e74c3c",
+                        subs: [
+                            "Rainfall: <70 cm",
+                            "Rajasthan, Gujarat, MP",
+                            "Xerophytic plants",
+                            "Babul, Acacia, Cactus"
+                        ]
+                    },
+                    {
+                        name: "🏔️ MONTANE FORESTS",
+                        color: "#3498db",
+                        subs: [
+                            "Altitude-based zonation",
+                            "Wet Temperate",
+                            "Alpine meadows",
+                            "Oak, Pine, Deodar, Rhododendron"
+                        ]
+                    },
+                    {
+                        name: "🌴 LITTORAL & SWAMP",
+                        color: "#9b59b6",
+                        subs: [
+                            "Mangroves (Sundari)",
+                            "Sundarbans largest",
+                            "Tidal forests",
+                            "Salt-tolerant species"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Forest Types by Rainfall: 'Every Day The Sun Rises'",
+                    trick: "E-D-T-S (decreasing rainfall)",
+                    meaning: [
+                        { letter: "E", word: "Evergreen (>200 cm)", hint: "Maximum rain, no shedding" },
+                        { letter: "D", word: "Deciduous (70-200 cm)", hint: "Largest area, sheds leaves" },
+                        { letter: "T", word: "Thorn (50-70 cm)", hint: "Semi-arid, thorny" },
+                        { letter: "S", word: "Scrub/Desert (<50 cm)", hint: "Minimum rain, sparse" }
+                    ],
+                    visual: "🌧️ As rainfall decreases: Evergreen → Deciduous → Thorn → Scrub"
+                },
+                {
+                    title: "Evergreen Trees: 'MER' = Monsoon Ensures Rain",
+                    trick: "M-E-R",
+                    meaning: [
+                        { letter: "M", word: "Mahogany", hint: "Valuable timber" },
+                        { letter: "E", word: "Ebony", hint: "Black wood" },
+                        { letter: "R", word: "Rosewood", hint: "Fragrant wood" }
+                    ],
+                    visual: "🌳 MER trees get MEER (more) rain - evergreen!"
+                },
+                {
+                    title: "Deciduous Trees: 'TASS BN'",
+                    trick: "T-A-S-S B-N",
+                    meaning: [
+                        { letter: "T", word: "Teak", hint: "Most valuable, shipbuilding" },
+                        { letter: "A", word: "Arjun", hint: "Medicinal" },
+                        { letter: "S", word: "Sal", hint: "Railway sleepers" },
+                        { letter: "S", word: "Shisham", hint: "Furniture wood" },
+                        { letter: "B", word: "Bamboo", hint: "Fast growing" },
+                        { letter: "N", word: "Neem", hint: "Medicinal" }
+                    ],
+                    visual: "🎒 TASS BN sounds like 'TASSBAN' - deciduous forest band!"
+                },
+                {
+                    title: "Montane Zones (Low to High): 'TOCAT'",
+                    trick: "T-O-C-A-T",
+                    meaning: [
+                        { letter: "T", word: "Tropical (foothills)", hint: "Below 1000m" },
+                        { letter: "O", word: "Oak zone", hint: "1000-2000m" },
+                        { letter: "C", word: "Coniferous", hint: "2000-3000m, Pine, Deodar" },
+                        { letter: "A", word: "Alpine meadows", hint: "3000-4000m, Bugyal" },
+                        { letter: "T", word: "Tundra (snow)", hint: "Above 4000m" }
+                    ],
+                    visual: "🏔️ TOCAT = 'TO CAT' mountain, vegetation changes as you climb!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🌳 Tropical Evergreen Forests",
+                    icon: "🌧️",
+                    points: [
+                        "• Rainfall: MORE than 200 cm annually",
+                        "• Location: Western Ghats, NE India (Assam), Andaman & Nicobar",
+                        "• Trees: NO seasonal shedding, dense canopy, multi-layered",
+                        "• Species: Mahogany, Ebony, Rosewood, Rubber, Cinchona",
+                        "• Called 'Rainforests' - little commercial use (inaccessible)"
+                    ]
+                },
+                {
+                    title: "🍂 Tropical Deciduous Forests",
+                    icon: "🍁",
+                    points: [
+                        "• Rainfall: 70-200 cm, shed leaves in DRY season (6-8 weeks)",
+                        "• LARGEST forest type in India (~65% of forest area)",
+                        "• MOIST Deciduous: 100-200 cm (Teak, Sal, Bamboo)",
+                        "• DRY Deciduous: 70-100 cm (Tendu, Palash, Mahua)",
+                        "• Most COMMERCIALLY exploited forests - Teak for furniture"
+                    ]
+                },
+                {
+                    title: "🌵 Thorn & Scrub Forests",
+                    icon: "🏜️",
+                    points: [
+                        "• Rainfall: Less than 70 cm - semi-arid regions",
+                        "• Location: Rajasthan, Gujarat, MP, UP (rain shadow areas)",
+                        "• Adaptations: Deep roots, thick bark, waxy leaves, thorns",
+                        "• Species: Babul, Kikar, Acacia, Khair, Cactus, Euphorbia",
+                        "• Used for fuel wood, gum, tannin"
+                    ]
+                },
+                {
+                    title: "🏔️ Montane/Himalayan Forests",
+                    icon: "⛰️",
+                    points: [
+                        "• Zonation by ALTITUDE, not rainfall",
+                        "• 1000-2000m: Oak, Chestnut (temperate broadleaf)",
+                        "• 2000-3000m: Pine, Deodar, Cedar (coniferous)",
+                        "• 3000-4000m: Alpine meadows (Bugyal), Rhododendron",
+                        "• Above 4000m: Tundra vegetation, mosses, lichens"
+                    ]
+                },
+                {
+                    title: "🌴 Mangrove/Littoral Forests",
+                    icon: "🌊",
+                    points: [
+                        "• Found in tidal zones, deltas, estuaries",
+                        "• SUNDARBANS (WB): Largest mangrove in India & world",
+                        "• Adaptations: Stilt roots (for oxygen), salt tolerance",
+                        "• Species: Sundari, Rhizophora, Avicennia",
+                        "• Importance: Coastal protection, fish breeding, carbon sink"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "map",
+                    title: "Forest Types Distribution Map",
+                    icon: "🗺️",
+                    description: "India map showing different forest types colored by region"
+                },
+                {
+                    type: "altitude-profile",
+                    title: "Montane Forest Zonation",
+                    icon: "🏔️",
+                    description: "Vertical profile showing vegetation change with altitude"
+                },
+                {
+                    type: "rainfall-chart",
+                    title: "Rainfall vs Forest Type",
+                    icon: "📊",
+                    description: "Bar chart showing forest type by rainfall amount"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📊", fact: "India's forest cover: 21.71% (2021), target is 33%" },
+                { icon: "🌳", fact: "Tropical Deciduous = largest forest type (~65% of forest area)" },
+                { icon: "🌊", fact: "Sundarbans = world's largest mangrove (10,000 sq km)" },
+                { icon: "🏆", fact: "MP has highest forest cover by area; Mizoram highest by %" },
+                { icon: "🌲", fact: "Teak is most valuable timber; grows best in moist deciduous" },
+                { icon: "❄️", fact: "Bugyal = Alpine meadows in Himalayas (grazing grounds)" },
+                { icon: "🔴", fact: "India has 4 biodiversity hotspots: Himalayas, Western Ghats, NE India, Andaman" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Evergreen forests are most widespread in India",
+                    correct: "DECIDUOUS forests are most widespread (~65%)",
+                    explanation: "Evergreen needs >200 cm rain, limited to Western Ghats, NE"
+                },
+                {
+                    wrong: "Sal is found only in evergreen forests",
+                    correct: "Sal is found in MOIST DECIDUOUS forests",
+                    explanation: "Sal needs 100-200 cm rain, sheds leaves in dry season"
+                },
+                {
+                    wrong: "Mangroves are found only in Sundarbans",
+                    correct: "Mangroves also in Gujarat (Kutch), A&N, Maharashtra, Odisha",
+                    explanation: "Sundarbans is LARGEST but not only mangrove region"
+                },
+                {
+                    wrong: "All Himalayan forests are coniferous",
+                    correct: "Lower Himalayas have deciduous; coniferous only at 2000-3000m",
+                    explanation: "Vegetation zonation changes with altitude"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Evergreen (>200cm, NE/WG), Deciduous (70-200cm, LARGEST, Teak/Sal), Thorn (<70cm, Rajasthan), Montane (altitude zones: Oak→Pine→Alpine), Mangrove (tidal, Sundarbans largest).",
+                keyPoints: [
+                    "Deciduous = 65% of forests, moist (Teak) + dry (Tendu)",
+                    "Evergreen: Western Ghats, NE India, A&N - no leaf shedding",
+                    "Montane: 1000m (Oak) → 2000m (Pine) → 3000m (Alpine) → 4000m (Tundra)",
+                    "Mangroves: Sundarbans > Gujarat > A&N - salt tolerant, stilt roots"
+                ],
+                examTip: "Forest cover targets: 33% total, 66% for hill areas. MP = most forested state by area. Champion & Seth classification (1936) divided into 16 types."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // ❄️ WESTERN DISTURBANCES
+        // ─────────────────────────────────────────
+        {
+            id: "western-disturbances",
+            name: "Western Disturbances",
+            category: "india",
+            subcategory: "climate-india",
+            theme: "climate",
+            difficulty: "medium",
+            importance: "high",
+            studyTime: "35 min",
+
+            mindMap: {
+                center: "❄️ Western Disturbances",
+                branches: [
+                    {
+                        name: "📍 ORIGIN",
+                        color: "#3498db",
+                        subs: [
+                            "Mediterranean Sea",
+                            "Caspian Sea region",
+                            "Extratropical cyclones",
+                            "Westerly jet stream guides"
+                        ]
+                    },
+                    {
+                        name: "📅 SEASON",
+                        color: "#9b59b6",
+                        subs: [
+                            "December to February (peak)",
+                            "Can occur Oct-May",
+                            "Winter rainfall source",
+                            "4-5 WDs per month in winter"
+                        ]
+                    },
+                    {
+                        name: "🌧️ IMPACT",
+                        color: "#27ae60",
+                        subs: [
+                            "Rabi crop (wheat) irrigation",
+                            "Snowfall in Himalayas",
+                            "Cold waves after passage",
+                            "NW India mainly affected"
+                        ]
+                    },
+                    {
+                        name: "📍 AFFECTED AREAS",
+                        color: "#e74c3c",
+                        subs: [
+                            "J&K, HP, Uttarakhand",
+                            "Punjab, Haryana, Delhi",
+                            "Sometimes up to Bihar",
+                            "Decreases eastward"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "WD Origin: 'MeCSea Sends Winter'",
+                    trick: "M-C-S",
+                    meaning: [
+                        { letter: "M", word: "Mediterranean Sea", hint: "Primary moisture source" },
+                        { letter: "C", word: "Caspian Sea", hint: "Secondary source" },
+                        { letter: "S", word: "Subtropical Jet Stream", hint: "Guides WD to India" }
+                    ],
+                    visual: "🌊 Mediterranean → Caspian → Subtropical Jet → North India = Winter rain!"
+                },
+                {
+                    title: "Affected States: 'JHU PHD'",
+                    trick: "J-H-U P-H-D",
+                    meaning: [
+                        { letter: "J", word: "Jammu & Kashmir", hint: "Heavy snowfall" },
+                        { letter: "H", word: "Himachal Pradesh", hint: "Snow + rain" },
+                        { letter: "U", word: "Uttarakhand", hint: "Snow in high areas" },
+                        { letter: "P", word: "Punjab", hint: "Rain for wheat" },
+                        { letter: "H", word: "Haryana", hint: "Winter showers" },
+                        { letter: "D", word: "Delhi", hint: "Cold rain, fog" }
+                    ],
+                    visual: "🎓 JHU PHD = Someone doing PhD in Jammu needs sweater!"
+                },
+                {
+                    title: "WD Benefits: 'SNOW WHEAT COLD'",
+                    trick: "S-W-C",
+                    meaning: [
+                        { letter: "S", word: "Snow for glaciers", hint: "Himalayan water storage" },
+                        { letter: "W", word: "Wheat irrigation", hint: "Rabi crop depends on it" },
+                        { letter: "C", word: "Cold wave follows", hint: "Temperature drops after WD" }
+                    ],
+                    visual: "❄️ WD brings SNOW for mountains, WHEAT gets rain, COLD follows!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "❄️ What are Western Disturbances?",
+                    icon: "🌀",
+                    points: [
+                        "• EXTRATROPICAL cyclones (temperate, not tropical)",
+                        "• Originate over Mediterranean & Caspian Sea region",
+                        "• Carried eastward by SUBTROPICAL WESTERLY JET STREAM",
+                        "• Enter India from NW (Pakistan-Afghanistan border)",
+                        "• Bring winter rainfall & snowfall to North India"
+                    ]
+                },
+                {
+                    title: "📅 When Do They Occur?",
+                    icon: "🗓️",
+                    points: [
+                        "• PEAK season: December to February",
+                        "• Can occur from October to May",
+                        "• On average: 4-5 WDs per month in winter",
+                        "• Each WD lasts 2-4 days typically",
+                        "• Not related to monsoon (completely different system)"
+                    ]
+                },
+                {
+                    title: "🌧️ Impact on India",
+                    icon: "💧",
+                    points: [
+                        "• SNOWFALL: J&K, HP, Uttarakhand high regions",
+                        "• RAINFALL: Punjab, Haryana, Delhi, UP (west)",
+                        "• RABI CROPS: Critical moisture for wheat, gram, mustard",
+                        "• COLD WAVE: Temperature drops after WD passes",
+                        "• HAILSTORM: Sometimes causes crop damage"
+                    ]
+                },
+                {
+                    title: "🔄 Mechanism",
+                    icon: "⚙️",
+                    points: [
+                        "• Subtropical Jet Stream lies SOUTH of Himalayas in winter",
+                        "• WDs embedded in westerly flow move along jet",
+                        "• Himalayas force uplift → condensation → precipitation",
+                        "• WD brings warm moist air; collision with cold local air = rain/snow",
+                        "• After WD passes: cold dry air follows = cold wave"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "track-map",
+                    title: "WD Path to India",
+                    icon: "🗺️",
+                    description: "Shows path from Mediterranean → Afghanistan → NW India with jet stream"
+                },
+                {
+                    type: "mechanism",
+                    title: "WD Rainfall Mechanism",
+                    icon: "🔄",
+                    description: "Shows warm moist air meeting Himalayas causing precipitation"
+                },
+                {
+                    type: "seasonal",
+                    title: "WD Frequency by Month",
+                    icon: "📊",
+                    description: "Bar chart showing WD frequency highest in Dec-Feb"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "🌧️", fact: "WDs bring 30-50% of winter rainfall in NW India" },
+                { icon: "🌾", fact: "Wheat production in Punjab depends heavily on WD moisture" },
+                { icon: "❄️", fact: "4-5 Western Disturbances occur per month in peak winter" },
+                { icon: "📍", fact: "WD intensity decreases as they move eastward" },
+                { icon: "🌡️", fact: "Cold wave conditions develop AFTER WD passes" },
+                { icon: "⚡", fact: "Intense WDs can cause flooding, hailstorms, crop damage" },
+                { icon: "🏔️", fact: "WD snowfall feeds Himalayan glaciers - water source for summer" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Western Disturbances are tropical cyclones",
+                    correct: "WDs are EXTRATROPICAL (temperate) cyclones",
+                    explanation: "They originate in mid-latitudes, not tropics"
+                },
+                {
+                    wrong: "WDs occur during monsoon season",
+                    correct: "WDs are a WINTER phenomenon (Oct-May, peak Dec-Feb)",
+                    explanation: "In summer, subtropical jet shifts north - no WDs reach India"
+                },
+                {
+                    wrong: "WDs originate in Atlantic Ocean",
+                    correct: "WDs originate in MEDITERRANEAN and CASPIAN Sea region",
+                    explanation: "They travel from west but not from Atlantic"
+                },
+                {
+                    wrong: "WDs cause cold waves",
+                    correct: "Cold waves occur AFTER WD passes (WD itself brings warmer air)",
+                    explanation: "WD brings moist warm air; cold dry air follows behind"
+                }
+            ],
+
+            revision: {
+                oneLiner: "WDs = Extratropical cyclones from Mediterranean/Caspian, guided by Subtropical Jet in winter (Dec-Feb). Brings rain to Punjab/Haryana/Delhi, snow to Himalayas. Critical for Rabi (wheat). Cold wave follows after passage.",
+                keyPoints: [
+                    "Origin: Mediterranean + Caspian Sea → Westerly Jet → NW India",
+                    "Season: Winter (Dec-Feb peak), 4-5 WDs per month",
+                    "Impact: Snow (J&K, HP, UK), Rain (Punjab, Haryana, Delhi)",
+                    "Importance: 30-50% winter rain, Rabi crops, glacier feeding"
+                ],
+                examTip: "In summer, Subtropical Jet moves NORTH of Himalayas → no WDs reach India. Return of jet to south in Sept-Oct = WDs resume. WDs are NOT related to monsoon!"
+            }
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // 👥 HUMAN GEOGRAPHY
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 👥 POPULATION DISTRIBUTION & DENSITY
+        // ─────────────────────────────────────────
+        {
+            id: "population-distribution",
+            name: "Population Distribution & Density",
+            category: "india",
+            subcategory: "human-geo",
+            theme: "population",
+            difficulty: "medium",
+            importance: "very-high",
+            studyTime: "45 min",
+
+            mindMap: {
+                center: "👥 Population Distribution",
+                branches: [
+                    {
+                        name: "📊 INDIA STATS",
+                        color: "#3498db",
+                        subs: [
+                            "1.4+ billion (2023)",
+                            "17.7% of world population",
+                            "Density: 382/sq km",
+                            "2nd most populous"
+                        ]
+                    },
+                    {
+                        name: "📍 HIGH DENSITY AREAS",
+                        color: "#e74c3c",
+                        subs: [
+                            "Indo-Gangetic Plain",
+                            "Coastal plains",
+                            "Bihar, WB, UP, Kerala",
+                            "Fertile land, water, jobs"
+                        ]
+                    },
+                    {
+                        name: "📍 LOW DENSITY AREAS",
+                        color: "#27ae60",
+                        subs: [
+                            "Himalayan region",
+                            "Thar Desert (Rajasthan)",
+                            "NE hill states",
+                            "A&N, Ladakh"
+                        ]
+                    },
+                    {
+                        name: "⚡ FACTORS",
+                        color: "#f39c12",
+                        subs: [
+                            "Physical (relief, climate)",
+                            "Economic (jobs, resources)",
+                            "Social (history, culture)",
+                            "Political (policies)"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Most Populous States: 'UP Bhaiya Maharashtra Mein'",
+                    trick: "U-B-M-M-R",
+                    meaning: [
+                        { letter: "U", word: "Uttar Pradesh", hint: "200+ million, most populous" },
+                        { letter: "B", word: "Bihar", hint: "~130 million" },
+                        { letter: "M", word: "Maharashtra", hint: "~125 million" },
+                        { letter: "M", word: "Madhya Pradesh", hint: "~85 million" },
+                        { letter: "R", word: "Rajasthan", hint: "~80 million" }
+                    ],
+                    visual: "🧳 'UP Bhaiya Maharashtra Mein gaya' - top 5 populous states!"
+                },
+                {
+                    title: "Highest Density States: 'BIG WUK'",
+                    trick: "B-I-G W-U-K",
+                    meaning: [
+                        { letter: "B", word: "Bihar", hint: "1106/sq km" },
+                        { letter: "I", word: "Indian average", hint: "382/sq km" },
+                        { letter: "G", word: "Goa (excluded)", hint: "Different context" },
+                        { letter: "W", word: "West Bengal", hint: "1029/sq km" },
+                        { letter: "U", word: "UP", hint: "829/sq km" },
+                        { letter: "K", word: "Kerala", hint: "860/sq km" }
+                    ],
+                    visual: "💪 BIG WUK = Bihar, WB, UP, Kerala are densely packed!"
+                },
+                {
+                    title: "Lowest Density: 'A MANS Land'",
+                    trick: "A-M-A-N-S",
+                    meaning: [
+                        { letter: "A", word: "Arunachal Pradesh", hint: "17/sq km" },
+                        { letter: "M", word: "Mizoram", hint: "52/sq km" },
+                        { letter: "A", word: "Andaman & Nicobar", hint: "46/sq km" },
+                        { letter: "N", word: "Nagaland", hint: "119/sq km" },
+                        { letter: "S", word: "Sikkim", hint: "86/sq km" }
+                    ],
+                    visual: "🏔️ 'A MANS Land' = sparse population in hilly/island areas!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "📊 India's Population Overview",
+                    icon: "🇮🇳",
+                    points: [
+                        "• Population: 1.4+ billion (2023) - will likely surpass China",
+                        "• 17.7% of world's population on 2.4% of world's land",
+                        "• Density: 382 persons/sq km (Census 2011: 363)",
+                        "• Sex ratio: 943 females per 1000 males (2011)",
+                        "• Decadal growth: 17.64% (2001-2011)"
+                    ]
+                },
+                {
+                    title: "📍 High Population Density Areas",
+                    icon: "🏙️",
+                    points: [
+                        "• INDO-GANGETIC PLAIN: Flat, fertile, water availability - UP, Bihar, WB",
+                        "• COASTAL PLAINS: Trade, fishing, port cities - Kerala, TN, Gujarat",
+                        "• INDUSTRIAL ZONES: Employment opportunities - Mumbai, Delhi, Bangalore",
+                        "• Bihar (1106/sq km), WB (1029), Kerala (860), UP (829)",
+                        "• Common factors: Fertile soil, water, flat terrain, jobs"
+                    ]
+                },
+                {
+                    title: "📍 Low Population Density Areas",
+                    icon: "🏔️",
+                    points: [
+                        "• MOUNTAINS: Himalayas, NE hills - harsh terrain, cold climate",
+                        "• DESERTS: Thar (Rajasthan) - water scarcity, extreme heat",
+                        "• ISLANDS: Andaman & Nicobar - isolation, limited resources",
+                        "• Arunachal Pradesh (17/sq km) - lowest in India",
+                        "• Ladakh UT: ~3/sq km - extreme cold, high altitude"
+                    ]
+                },
+                {
+                    title: "⚡ Factors Affecting Distribution",
+                    icon: "🔍",
+                    points: [
+                        "• PHYSICAL: Relief (flat=more), climate (moderate=more), water, soil",
+                        "• ECONOMIC: Employment, industry, trade, agriculture potential",
+                        "• SOCIAL: Historical settlement, migration patterns, culture",
+                        "• POLITICAL: Administrative capitals, policies, development focus"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "choropleth",
+                    title: "State-wise Population Density Map",
+                    icon: "🗺️",
+                    description: "India map with states colored by population density"
+                },
+                {
+                    type: "bar-chart",
+                    title: "Top 10 Populous States",
+                    icon: "📊",
+                    description: "Horizontal bars showing state populations"
+                },
+                {
+                    type: "infographic",
+                    title: "High vs Low Density Factors",
+                    icon: "⚖️",
+                    description: "Visual showing factors causing high/low population areas"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "👥", fact: "UP population (~200 million) > Brazil's total population" },
+                { icon: "📏", fact: "Bihar has highest density: 1,106 persons/sq km" },
+                { icon: "🏔️", fact: "Arunachal Pradesh has lowest density: 17 persons/sq km" },
+                { icon: "🏙️", fact: "Delhi has highest density among states/UTs: 11,320/sq km" },
+                { icon: "📊", fact: "Rural population: 68.84%; Urban: 31.16% (Census 2011)" },
+                { icon: "👫", fact: "Sex ratio: 943/1000 (Kerala best: 1084, Haryana worst: 879)" },
+                { icon: "📖", fact: "Literacy: 74.04% (Kerala: 93.91%, Bihar: 63.82%)" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Kerala has highest population",
+                    correct: "Kerala has HIGH DENSITY but LOWER total population than UP, Bihar, MH",
+                    explanation: "Population vs Density are different measures"
+                },
+                {
+                    wrong: "Rajasthan has low population because of desert",
+                    correct: "Rajasthan has HIGH total population (~80M) but LOW DENSITY due to large area",
+                    explanation: "Largest state by area → spread out population = low density"
+                },
+                {
+                    wrong: "India's population growth rate is increasing",
+                    correct: "Growth rate is DECREASING (21.5% in 1991-2001 → 17.6% in 2001-11)",
+                    explanation: "Population is still growing but at a slower rate"
+                },
+                {
+                    wrong: "Delhi is most populous state",
+                    correct: "Delhi is a UT (Union Territory), not a state. UP is most populous state",
+                    explanation: "Among states, UP has highest population and Bihar highest density"
+                }
+            ],
+
+            revision: {
+                oneLiner: "India: 1.4B people, 382/sq km, 17.7% of world on 2.4% land. High density: Plains (Bihar, WB, UP, Kerala) - flat, fertile, water, jobs. Low density: Mountains (Arunachal), Desert (Thar), Islands - harsh conditions.",
+                keyPoints: [
+                    "Most populous: UP (200M) > Bihar > Maharashtra > MP > Rajasthan",
+                    "Highest density: Bihar (1106) > WB (1029) > Kerala (860)",
+                    "Lowest density: Arunachal (17), Mizoram (52), Sikkim (86)",
+                    "Factors: Physical (terrain, climate) + Economic (jobs) + Social + Political"
+                ],
+                examTip: "Census 2011 is base for UPSC. Know: UP = most populous, Bihar = most dense, Arunachal = least dense, Delhi = highest density UT, Kerala = best sex ratio (1084)."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🏙️ URBANIZATION IN INDIA
+        // ─────────────────────────────────────────
+        {
+            id: "urbanization",
+            name: "Urbanization in India",
+            category: "india",
+            subcategory: "human-geo",
+            theme: "population",
+            difficulty: "medium",
+            importance: "high",
+            studyTime: "45 min",
+
+            mindMap: {
+                center: "🏙️ Urbanization",
+                branches: [
+                    {
+                        name: "📊 STATISTICS",
+                        color: "#3498db",
+                        subs: [
+                            "31.16% urban (2011)",
+                            "~35% urban (2023 estimate)",
+                            "377 million urban population",
+                            "Increasing rapidly"
+                        ]
+                    },
+                    {
+                        name: "🏢 URBAN CENTERS",
+                        color: "#e74c3c",
+                        subs: [
+                            "Mega cities (>10 million)",
+                            "Million-plus cities (53)",
+                            "Class I towns (100k+)",
+                            "Census towns"
+                        ]
+                    },
+                    {
+                        name: "⚡ CAUSES",
+                        color: "#27ae60",
+                        subs: [
+                            "Rural-urban migration",
+                            "Industrial growth",
+                            "Service sector expansion",
+                            "Natural increase"
+                        ]
+                    },
+                    {
+                        name: "⚠️ PROBLEMS",
+                        color: "#f39c12",
+                        subs: [
+                            "Slums & housing",
+                            "Traffic & pollution",
+                            "Water & sanitation",
+                            "Unemployment"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Mega Cities (>10M): 'DMK BC'",
+                    trick: "D-M-K B-C",
+                    meaning: [
+                        { letter: "D", word: "Delhi", hint: "NCT, ~19 million" },
+                        { letter: "M", word: "Mumbai", hint: "Financial capital, ~18 million" },
+                        { letter: "K", word: "Kolkata", hint: "Eastern hub, ~14 million" },
+                        { letter: "B", word: "Bangalore", hint: "IT capital, ~12 million" },
+                        { letter: "C", word: "Chennai", hint: "Auto hub, ~11 million" }
+                    ],
+                    visual: "🏙️ DMK BC = India's BIG CITY club!"
+                },
+                {
+                    title: "Urban Problems: 'SPHUT'",
+                    trick: "S-P-H-U-T",
+                    meaning: [
+                        { letter: "S", word: "Slums & squatter settlements", hint: "Housing crisis" },
+                        { letter: "P", word: "Pollution (air, water, noise)", hint: "Health issues" },
+                        { letter: "H", word: "Housing shortage", hint: "High rents" },
+                        { letter: "U", word: "Unemployment & poverty", hint: "Informal sector" },
+                        { letter: "T", word: "Traffic & transport", hint: "Congestion" }
+                    ],
+                    visual: "💨 Cities go 'SPHUT' (burst) with too many problems!"
+                },
+                {
+                    title: "Causes of Urbanization: 'MINE'",
+                    trick: "M-I-N-E",
+                    meaning: [
+                        { letter: "M", word: "Migration from rural", hint: "Push-pull factors" },
+                        { letter: "I", word: "Industrialization", hint: "Factory jobs" },
+                        { letter: "N", word: "Natural increase", hint: "Births > deaths in cities" },
+                        { letter: "E", word: "Economic opportunities", hint: "Services, trade" }
+                    ],
+                    visual: "⛏️ People MINE for opportunities in cities!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "📊 Urbanization Trends in India",
+                    icon: "📈",
+                    points: [
+                        "• 1951: 17.3% urban → 2011: 31.16% → 2023: ~35% (estimate)",
+                        "• Urban population: 377 million (2011), now ~500 million",
+                        "• 53 million-plus cities (2011), now more",
+                        "• Rapid growth especially in tier-2 cities",
+                        "• By 2050: India projected to be ~50% urban"
+                    ]
+                },
+                {
+                    title: "🏢 Classification of Urban Centers",
+                    icon: "🏙️",
+                    points: [
+                        "• MEGA CITY: >10 million (Delhi, Mumbai, Kolkata, Bangalore, Chennai)",
+                        "• MILLION-PLUS: 1-10 million (53 cities as of 2011)",
+                        "• CLASS I TOWNS: 100,000+ population",
+                        "• CLASS II to VI: Decreasing population thresholds",
+                        "• CENSUS TOWN: Urban characteristics but not statutory town"
+                    ]
+                },
+                {
+                    title: "⚡ Causes/Drivers of Urbanization",
+                    icon: "🔄",
+                    points: [
+                        "• PUSH (from rural): Poverty, unemployment, lack of services, disasters",
+                        "• PULL (to urban): Jobs, education, healthcare, lifestyle, social mobility",
+                        "• INDUSTRIAL growth creates employment hubs",
+                        "• SERVICE SECTOR expansion (IT, finance, trade)",
+                        "• INFRASTRUCTURE development attracts investment"
+                    ]
+                },
+                {
+                    title: "⚠️ Problems of Urbanization",
+                    icon: "🚧",
+                    points: [
+                        "• HOUSING: Slums, homelessness, high rents (~22% live in slums)",
+                        "• INFRASTRUCTURE: Water supply, sewage, electricity overload",
+                        "• ENVIRONMENT: Air pollution, water pollution, heat islands",
+                        "• SOCIAL: Crime, alienation, inequity, health issues",
+                        "• TRAFFIC: Congestion, accidents, time loss, fuel waste"
+                    ]
+                },
+                {
+                    title: "🏗️ Smart Cities & Solutions",
+                    icon: "💡",
+                    points: [
+                        "• Smart Cities Mission (2015): 100 cities selected for development",
+                        "• AMRUT: Atal Mission for Rejuvenation & Urban Transformation",
+                        "• Swachh Bharat: Sanitation and cleanliness",
+                        "• Metro rail expansion in 20+ cities",
+                        "• Sustainable urbanization: Mixed-use planning, green spaces"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "line-graph",
+                    title: "Urban Population Growth (1901-2011)",
+                    icon: "📈",
+                    description: "Shows increasing urbanization trend over 11 decades"
+                },
+                {
+                    type: "map",
+                    title: "Million-Plus Cities of India",
+                    icon: "🗺️",
+                    description: "India map marking 53 million-plus cities"
+                },
+                {
+                    type: "pie-chart",
+                    title: "Rural vs Urban Population",
+                    icon: "🥧",
+                    description: "Shows 69% rural, 31% urban (2011)"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "🏙️", fact: "Delhi-NCR is India's largest urban agglomeration (~19 million)" },
+                { icon: "📊", fact: "Maharashtra is most urbanized major state (45.2%)" },
+                { icon: "🏘️", fact: "~65 million people live in slums (17% of urban population)" },
+                { icon: "🚇", fact: "Delhi Metro carries 6+ million passengers daily" },
+                { icon: "🌱", fact: "Himachal Pradesh is least urbanized state (10%)" },
+                { icon: "💼", fact: "Urban India contributes ~63% of GDP" },
+                { icon: "📍", fact: "100 Smart Cities selected under Smart Cities Mission" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Mumbai is India's most populous city",
+                    correct: "DELHI NCT is most populous urban agglomeration (~19M vs Mumbai's ~18M)",
+                    explanation: "Mumbai was largest earlier but Delhi surpassed it"
+                },
+                {
+                    wrong: "Urbanization rate in India is declining",
+                    correct: "Urbanization is INCREASING - from 28% (2001) to 31% (2011) to ~35% (2023)",
+                    explanation: "Rate of increase has varied but trend is consistently upward"
+                },
+                {
+                    wrong: "All urban growth is due to migration",
+                    correct: "Natural increase (births-deaths) also contributes to urban growth",
+                    explanation: "Migration is major factor but not the only one"
+                },
+                {
+                    wrong: "Small towns are declining",
+                    correct: "Small and medium towns are growing FASTER than mega cities",
+                    explanation: "Tier-2, Tier-3 cities showing rapid growth (dispersed urbanization)"
+                }
+            ],
+
+            revision: {
+                oneLiner: "India 31.16% urban (2011), ~35% now. Mega cities: DMK BC (Delhi, Mumbai, Kolkata, Bangalore, Chennai). Problems: SPHUT (Slums, Pollution, Housing, Unemployment, Traffic). Smart Cities Mission: 100 cities.",
+                keyPoints: [
+                    "Urban: 17% (1951) → 31% (2011) → ~35% (2023) → projected 50% by 2050",
+                    "5 Mega cities (>10M): Delhi, Mumbai, Kolkata, Bangalore, Chennai",
+                    "Causes: MINE (Migration, Industrialization, Natural increase, Economic)",
+                    "Solutions: Smart Cities (100), AMRUT, Metro rail, Swachh Bharat"
+                ],
+                examTip: "Census definition of urban: (1) Town population >5000, (2) Density >400/sq km, (3) 75%+ male workforce in non-agriculture. Know the difference between 'Statutory Town' and 'Census Town'."
+            }
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // 💹 III. ECONOMIC GEOGRAPHY
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 🌾 AGRICULTURE IN INDIA
+        // ─────────────────────────────────────────
+        {
+            id: "agriculture-india",
+            name: "Agriculture in India",
+            category: "economic",
+            subcategory: "economic-activities",
+            theme: "forest",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "60 min",
+
+            mindMap: {
+                center: "🌾 Indian Agriculture",
+                branches: [
+                    {
+                        name: "📅 CROPPING SEASONS",
+                        color: "#27ae60",
+                        subs: [
+                            "Kharif (June-Oct): Rice, Maize",
+                            "Rabi (Oct-March): Wheat, Barley",
+                            "Zaid (March-June): Vegetables"
+                        ]
+                    },
+                    {
+                        name: "🌱 MAJOR CROPS",
+                        color: "#f39c12",
+                        subs: [
+                            "Food grains (Rice, Wheat)",
+                            "Cash crops (Cotton, Sugarcane)",
+                            "Plantation (Tea, Coffee)",
+                            "Oilseeds (Groundnut, Soybean)"
+                        ]
+                    },
+                    {
+                        name: "🚜 REVOLUTIONS",
+                        color: "#e74c3c",
+                        subs: [
+                            "Green (Food grains)",
+                            "White (Milk/Dairy)",
+                            "Yellow (Oilseeds)",
+                            "Blue (Fish)"
+                        ]
+                    },
+                    {
+                        name: "💧 IRRIGATION",
+                        color: "#3498db",
+                        subs: [
+                            "Canal irrigation",
+                            "Tube wells",
+                            "Tanks",
+                            "Drip & Sprinkler"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Cropping Seasons: 'KRZ' = Kids Running in Zoo",
+                    trick: "K-R-Z",
+                    meaning: [
+                        { letter: "K", word: "Kharif (June-Oct)", hint: "Southwest monsoon crops: Rice, Maize, Cotton" },
+                        { letter: "R", word: "Rabi (Oct-March)", hint: "Winter crops: Wheat, Barley, Gram" },
+                        { letter: "Z", word: "Zaid (March-June)", hint: "Summer crops: Watermelon, Cucumber" }
+                    ],
+                    visual: "🏃 KRZ = Kids Run in Zoo - 3 seasons round the year!"
+                },
+                {
+                    title: "Kharif Crops: 'RIM-JC'",
+                    trick: "R-I-M J-C",
+                    meaning: [
+                        { letter: "R", word: "Rice", hint: "Largest kharif crop" },
+                        { letter: "I", word: "Isodon (Jowar, Bajra)", hint: "Millets" },
+                        { letter: "M", word: "Maize", hint: "Corn" },
+                        { letter: "J", word: "Jute", hint: "Golden fiber" },
+                        { letter: "C", word: "Cotton", hint: "Cash crop" }
+                    ],
+                    visual: "🌧️ 'RIM JC' = Rainy season crops on the RIM!"
+                },
+                {
+                    title: "Rabi Crops: 'WBG-PM'",
+                    trick: "W-B-G P-M",
+                    meaning: [
+                        { letter: "W", word: "Wheat", hint: "Main rabi crop" },
+                        { letter: "B", word: "Barley", hint: "Winter grain" },
+                        { letter: "G", word: "Gram", hint: "Chana, pulse" },
+                        { letter: "P", word: "Peas", hint: "Winter vegetable" },
+                        { letter: "M", word: "Mustard", hint: "Oilseed" }
+                    ],
+                    visual: "❄️ 'WBG-PM' like 'Big PM' - Rabi makes India food secure!"
+                },
+                {
+                    title: "Agricultural Revolutions: 'GWYB-PS'",
+                    trick: "G-W-Y-B P-S",
+                    meaning: [
+                        { letter: "G", word: "Green (1960s)", hint: "Food grains - M.S. Swaminathan" },
+                        { letter: "W", word: "White (1970)", hint: "Milk - Verghese Kurien" },
+                        { letter: "Y", word: "Yellow (1990s)", hint: "Oilseeds" },
+                        { letter: "B", word: "Blue (1990s)", hint: "Fish/Aquaculture" },
+                        { letter: "P", word: "Pink (2000s)", hint: "Meat/Poultry" },
+                        { letter: "S", word: "Silver (Eggs)", hint: "Poultry eggs" }
+                    ],
+                    visual: "🌈 GWYB-PS = Rainbow of agricultural revolutions!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "📅 Cropping Seasons",
+                    icon: "🗓️",
+                    points: [
+                        "• KHARIF (June-Oct): Sown with SW monsoon onset, harvested in autumn",
+                        "• Kharif crops: Rice, Maize, Jowar, Bajra, Cotton, Jute, Groundnut",
+                        "• RABI (Oct-March): Sown in winter, harvested in spring",
+                        "• Rabi crops: Wheat, Barley, Gram, Peas, Mustard, Linseed",
+                        "• ZAID (March-June): Short duration, irrigated summer crops"
+                    ]
+                },
+                {
+                    title: "🌾 Rice & Wheat Production",
+                    icon: "🍚",
+                    points: [
+                        "• RICE: Kharif crop, needs 100+ cm rain, 25°C temp, standing water",
+                        "• Top producers: WB, UP, Punjab, Odisha, Andhra Pradesh",
+                        "• WHEAT: Rabi crop, needs 50-75 cm rain, cool climate, frost-free",
+                        "• Top producers: UP, Punjab, Haryana, MP, Rajasthan",
+                        "• India: 2nd largest producer of both (after China)"
+                    ]
+                },
+                {
+                    title: "💰 Cash Crops",
+                    icon: "💵",
+                    points: [
+                        "• COTTON: Kharif, black soil, 210 frost-free days, 50-100 cm rain",
+                        "• States: Gujarat, Maharashtra, Telangana, MP, Punjab",
+                        "• SUGARCANE: 12-18 months growth, tropical, high water needs",
+                        "• States: UP (#1), Maharashtra, Karnataka, Tamil Nadu",
+                        "• TEA: Hillslopes, acidic soil, 150-200 cm rain (Assam, WB, TN)"
+                    ]
+                },
+                {
+                    title: "🚜 Green Revolution",
+                    icon: "🌱",
+                    points: [
+                        "• Started 1960s under M.S. Swaminathan (Father of Green Revolution)",
+                        "• HYV seeds + irrigation + fertilizers + pesticides = high yield",
+                        "• Focused on wheat & rice in Punjab, Haryana, UP",
+                        "• Made India food self-sufficient by 1970s",
+                        "• Issues: Regional disparity, groundwater depletion, soil degradation"
+                    ]
+                },
+                {
+                    title: "🥛 White Revolution (Operation Flood)",
+                    icon: "🐄",
+                    points: [
+                        "• Led by Dr. Verghese Kurien (Milkman of India)",
+                        "• Started 1970 by NDDB (National Dairy Development Board)",
+                        "• Made India world's largest milk producer",
+                        "• AMUL model: Cooperative dairies owned by farmers",
+                        "• Gujarat, Rajasthan, UP are top milk producers"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "calendar",
+                    title: "Cropping Calendar",
+                    icon: "📅",
+                    description: "12-month visual showing Kharif, Rabi, Zaid timing"
+                },
+                {
+                    type: "map",
+                    title: "Major Crop Distribution",
+                    icon: "🗺️",
+                    description: "India map showing rice belt, wheat belt, cotton belt"
+                },
+                {
+                    type: "timeline",
+                    title: "Agricultural Revolutions Timeline",
+                    icon: "📈",
+                    description: "1960s-2000s showing different color revolutions"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "👨‍🌾", fact: "Agriculture employs ~42% of India's workforce" },
+                { icon: "📊", fact: "Agriculture contributes ~15% to India's GDP (declining share)" },
+                { icon: "🌾", fact: "India is world's largest producer of pulses, milk, jute, spices" },
+                { icon: "🍚", fact: "Rice is most produced food grain (~120 million tonnes)" },
+                { icon: "📍", fact: "Punjab: 'Granary of India' - highest wheat productivity" },
+                { icon: "🥛", fact: "India = #1 milk producer (22% of world, 200+ million tonnes)" },
+                { icon: "🌴", fact: "Coconut: Kerala, Karnataka, Tamil Nadu (Kerala = #1)" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Rice is a Rabi crop",
+                    correct: "Rice is primarily a KHARIF crop (monsoon season)",
+                    explanation: "Rice needs standing water and heat - monsoon conditions"
+                },
+                {
+                    wrong: "Green Revolution benefited all states equally",
+                    correct: "Green Revolution mainly benefited Punjab, Haryana, Western UP",
+                    explanation: "Areas with good irrigation benefited; rain-fed areas left behind"
+                },
+                {
+                    wrong: "India is largest producer of wheat",
+                    correct: "CHINA is largest producer; India is 2nd largest",
+                    explanation: "India leads in milk, pulses, jute, spices - not wheat"
+                },
+                {
+                    wrong: "Jute is a Rabi crop",
+                    correct: "Jute is a KHARIF crop - needs hot humid conditions",
+                    explanation: "Jute = 'Golden fiber', grown in Ganga-Brahmaputra delta (WB)"
+                }
+            ],
+
+            revision: {
+                oneLiner: "KRZ seasons: Kharif (Jun-Oct: Rice, Cotton), Rabi (Oct-Mar: Wheat, Gram), Zaid (Mar-Jun: Vegetables). Revolutions: Green (grains, Swaminathan), White (milk, Kurien), Yellow (oilseeds), Blue (fish). India #1 in milk, pulses, spices.",
+                keyPoints: [
+                    "Kharif = RIM-JC (Rice, millets, Maize, Jute, Cotton)",
+                    "Rabi = WBG-PM (Wheat, Barley, Gram, Peas, Mustard)",
+                    "Green Revolution: HYV seeds + irrigation + chemicals (1960s)",
+                    "White Revolution: AMUL model, Verghese Kurien, India #1 milk"
+                ],
+                examTip: "MSP (Minimum Support Price) given for 23 crops by CACP. Agricultural census every 5 years. Know: UP = #1 in wheat, sugarcane; WB = #1 in rice; Gujarat = #1 in cotton, groundnut."
+            }
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📐 IV. GEOGRAPHICAL MODELS & THEORIES
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 📊 DEMOGRAPHIC TRANSITION MODEL
+        // ─────────────────────────────────────────
+        {
+            id: "demographic-transition",
+            name: "Demographic Transition Model",
+            category: "environment",
+            subcategory: "models",
+            theme: "population",
+            difficulty: "medium",
+            importance: "very-high",
+            studyTime: "40 min",
+
+            mindMap: {
+                center: "📊 Demographic Transition",
+                branches: [
+                    {
+                        name: "1️⃣ STAGE 1",
+                        color: "#e74c3c",
+                        subs: [
+                            "High BR, High DR",
+                            "Low population growth",
+                            "Pre-industrial",
+                            "Traditional society"
+                        ]
+                    },
+                    {
+                        name: "2️⃣ STAGE 2",
+                        color: "#f39c12",
+                        subs: [
+                            "High BR, Declining DR",
+                            "Population explosion",
+                            "Better healthcare",
+                            "Developing countries"
+                        ]
+                    },
+                    {
+                        name: "3️⃣ STAGE 3",
+                        color: "#27ae60",
+                        subs: [
+                            "Declining BR, Low DR",
+                            "Slower growth",
+                            "Urbanization",
+                            "Education impact"
+                        ]
+                    },
+                    {
+                        name: "4️⃣ STAGE 4",
+                        color: "#3498db",
+                        subs: [
+                            "Low BR, Low DR",
+                            "Stable population",
+                            "Post-industrial",
+                            "Developed countries"
+                        ]
+                    },
+                    {
+                        name: "5️⃣ STAGE 5",
+                        color: "#9b59b6",
+                        subs: [
+                            "Very low BR, Low DR",
+                            "Population decline",
+                            "Aging population",
+                            "Japan, Germany"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "5 Stages: 'High High, High Low, Low Low, Low Low, Very Low'",
+                    trick: "BR-DR pattern",
+                    meaning: [
+                        { letter: "1", word: "High BR, High DR", hint: "No growth (births=deaths)" },
+                        { letter: "2", word: "High BR, LOW DR", hint: "Explosion (many births, few deaths)" },
+                        { letter: "3", word: "LOW BR, Low DR", hint: "Slowing (fewer births)" },
+                        { letter: "4", word: "Low BR, Low DR", hint: "Stable (both low)" },
+                        { letter: "5", word: "VERY Low BR, Low DR", hint: "Decline (deaths > births)" }
+                    ],
+                    visual: "📈 Death rate FALLS first (medicine), Birth rate falls LATER (development)"
+                },
+                {
+                    title: "Stage Examples: 'TBIC-JG'",
+                    trick: "T-B-I-C J-G",
+                    meaning: [
+                        { letter: "T", word: "Tribal/remote (Stage 1)", hint: "Amazon tribes" },
+                        { letter: "B", word: "Bangladesh, Nigeria (Stage 2)", hint: "Population boom" },
+                        { letter: "I", word: "India, Brazil (Stage 3)", hint: "Transitioning" },
+                        { letter: "C", word: "China, USA (Stage 4)", hint: "Stable" },
+                        { letter: "J", word: "Japan", hint: "Stage 5, declining" },
+                        { letter: "G", word: "Germany", hint: "Stage 5, aging" }
+                    ],
+                    visual: "🌍 TBIC-JG = World moving through demographic stages!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "📊 What is Demographic Transition?",
+                    icon: "❓",
+                    points: [
+                        "• Model explaining population change through development stages",
+                        "• Proposed by Warren Thompson (1929), refined by Frank Notestein",
+                        "• Shows transition from high birth/death rates to low rates",
+                        "• Links population change to economic development",
+                        "• Based on experience of European countries during industrialization"
+                    ]
+                },
+                {
+                    title: "1️⃣ Stage 1: Pre-Transition",
+                    icon: "🏚️",
+                    points: [
+                        "• HIGH birth rate + HIGH death rate = stable/slow growth",
+                        "• No modern medicine, poor sanitation, famines, diseases",
+                        "• Children needed for labor; high infant mortality",
+                        "• Examples: Pre-industrial societies, some isolated tribes",
+                        "• Virtually no countries remain in Stage 1 today"
+                    ]
+                },
+                {
+                    title: "2️⃣ Stage 2: Early Transition",
+                    icon: "💉",
+                    points: [
+                        "• HIGH birth rate + DECLINING death rate = RAPID growth",
+                        "• Medicine, vaccines, sanitation improve → fewer deaths",
+                        "• Birth rate stays high (traditional values, child labor)",
+                        "• POPULATION EXPLOSION occurs",
+                        "• Examples: Many African nations, parts of South Asia"
+                    ]
+                },
+                {
+                    title: "3️⃣ Stage 3: Late Transition",
+                    icon: "🎓",
+                    points: [
+                        "• DECLINING birth rate + LOW death rate = slowing growth",
+                        "• Urbanization, education (especially women), family planning",
+                        "• Children become economic burden not asset",
+                        "• India is currently in late Stage 3",
+                        "• Examples: India, Brazil, Mexico, Thailand"
+                    ]
+                },
+                {
+                    title: "4️⃣ Stage 4: Post-Transition",
+                    icon: "🏙️",
+                    points: [
+                        "• LOW birth rate + LOW death rate = stable population",
+                        "• Zero or very low population growth",
+                        "• High standard of living, women's empowerment",
+                        "• Examples: USA, UK, France, Australia",
+                        "• Challenge: Aging population, dependency ratio"
+                    ]
+                },
+                {
+                    title: "5️⃣ Stage 5: Decline (Proposed)",
+                    icon: "👴",
+                    points: [
+                        "• VERY LOW birth rate + Low death rate = population DECLINE",
+                        "• Deaths exceed births; natural decrease",
+                        "• Severe aging, labor shortages, pension burden",
+                        "• Examples: Japan, Germany, Italy, Russia",
+                        "• Solutions: Immigration, pro-natalist policies"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "graph",
+                    title: "DTM Classic Graph",
+                    icon: "📈",
+                    description: "X-axis: Time/Development. Two lines: Birth rate (falls late) and Death rate (falls early). Area between = growth"
+                },
+                {
+                    type: "stage-comparison",
+                    title: "5 Stages Comparison Table",
+                    icon: "📊",
+                    description: "Table showing BR, DR, growth rate, characteristics for each stage"
+                },
+                {
+                    type: "world-map",
+                    title: "Countries by DTM Stage",
+                    icon: "🗺️",
+                    description: "World map colored by which DTM stage each country is in"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📊", fact: "Death rate declines BEFORE birth rate in all countries" },
+                { icon: "🇮🇳", fact: "India is in late Stage 3 - birth rate declining" },
+                { icon: "🇯🇵", fact: "Japan (Stage 5) population is shrinking by ~500,000/year" },
+                { icon: "📉", fact: "Replacement fertility rate is 2.1 children per woman" },
+                { icon: "👶", fact: "India's TFR fell from 6 (1960) to 2.0 (2022) - below replacement!" },
+                { icon: "👴", fact: "Stage 5 countries face pension crisis, labor shortage" },
+                { icon: "🌍", fact: "Africa has most countries in Stage 2 - rapid growth" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Birth rate falls before death rate",
+                    correct: "DEATH rate falls first (medicine/sanitation), birth rate falls LATER",
+                    explanation: "Medical improvements are faster; cultural change for birth control is slow"
+                },
+                {
+                    wrong: "India is in Stage 2",
+                    correct: "India is in late STAGE 3 (TFR = 2.0, declining births)",
+                    explanation: "Stage 2 was India's 1950s-1980s; now births declining"
+                },
+                {
+                    wrong: "Stage 5 was part of original DTM",
+                    correct: "Original DTM had 4 stages; Stage 5 was added LATER to explain declining countries",
+                    explanation: "Japan, Germany showed patterns not predicted by original model"
+                },
+                {
+                    wrong: "All countries follow DTM exactly",
+                    correct: "DTM is a MODEL, not exact prediction - many variations exist",
+                    explanation: "Some countries skipped stages; others stalled (HIV impact in Africa)"
+                }
+            ],
+
+            revision: {
+                oneLiner: "DTM: 5 stages. 1(HighBR,HighDR=stable), 2(HighBR,LowDR=explosion), 3(LowBR,LowDR=slowing), 4(Low,Low=stable), 5(VeryLow=decline). Death rate falls FIRST. India = Stage 3, Japan = Stage 5.",
+                keyPoints: [
+                    "Death rate falls first (medicine), birth rate later (development)",
+                    "Stage 2 = population explosion (Africa today)",
+                    "Stage 3 = urbanization + education reduce births (India now)",
+                    "Stage 5 = aging crisis, labor shortage (Japan, Germany)"
+                ],
+                examTip: "India's TFR = 2.0 (2022), below replacement (2.1). States vary: Bihar (3.0), Kerala (1.5). Fertility declines with: education, urbanization, women's empowerment, healthcare."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🏭 VON THUNEN & WEBER MODELS
+        // ─────────────────────────────────────────
+        {
+            id: "location-theories",
+            name: "Von Thunen & Weber Models",
+            category: "environment",
+            subcategory: "models",
+            theme: "economic",
+            difficulty: "high",
+            importance: "high",
+            studyTime: "50 min",
+
+            mindMap: {
+                center: "📐 Location Theories",
+                branches: [
+                    {
+                        name: "🌾 VON THUNEN",
+                        color: "#27ae60",
+                        subs: [
+                            "Agricultural land use",
+                            "Concentric rings",
+                            "Transport cost key",
+                            "1826, Germany"
+                        ]
+                    },
+                    {
+                        name: "🏭 WEBER",
+                        color: "#e74c3c",
+                        subs: [
+                            "Industrial location",
+                            "Least cost theory",
+                            "Transport, Labor, Agglomeration",
+                            "1909, Germany"
+                        ]
+                    },
+                    {
+                        name: "📍 CHRISTALLER",
+                        color: "#3498db",
+                        subs: [
+                            "Central Place Theory",
+                            "Hexagonal market areas",
+                            "Settlement hierarchy",
+                            "1933"
+                        ]
+                    },
+                    {
+                        name: "⚖️ ASSUMPTIONS",
+                        color: "#f39c12",
+                        subs: [
+                            "Isotropic plain",
+                            "Rational economic man",
+                            "Single market center",
+                            "Uniform transport cost"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Von Thunen Rings (Center to Outside): 'MIFFED'",
+                    trick: "M-I-F-F-E-D",
+                    meaning: [
+                        { letter: "M", word: "Market (center)", hint: "The city/town" },
+                        { letter: "I", word: "Intensive farming", hint: "Dairy, vegetables (perishable)" },
+                        { letter: "F", word: "Forest", hint: "Timber for fuel/building" },
+                        { letter: "F", word: "Field crops (intensive)", hint: "Grains without fallow" },
+                        { letter: "E", word: "Extensive (with fallow)", hint: "3-field rotation" },
+                        { letter: "D", word: "Distant ranching", hint: "Livestock, pastoral" }
+                    ],
+                    visual: "😤 Farmer is MIFFED traveling from outer ring to market!"
+                },
+                {
+                    title: "Weber's Factors: 'TLA'",
+                    trick: "T-L-A",
+                    meaning: [
+                        { letter: "T", word: "Transport cost", hint: "Most important, raw materials + finished goods" },
+                        { letter: "L", word: "Labor cost", hint: "Cheap labor can pull industry" },
+                        { letter: "A", word: "Agglomeration", hint: "Benefits of clustering industries" }
+                    ],
+                    visual: "🏭 TLA = 'The Least Arrangement' of costs for industry!"
+                },
+                {
+                    title: "Weber's Material Index: 'WLG'",
+                    trick: "W-L-G",
+                    meaning: [
+                        { letter: "W", word: "Weight-losing (MI>1)", hint: "Locate near raw material" },
+                        { letter: "L", word: "Location of industry", hint: "Depends on material index" },
+                        { letter: "G", word: "Gross/Pure (MI<1)", hint: "Locate near market" }
+                    ],
+                    visual: "⚖️ High Material Index = near raw material. Low MI = near market."
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🌾 Von Thunen's Agricultural Model (1826)",
+                    icon: "📐",
+                    points: [
+                        "• Explains agricultural land use patterns around a market city",
+                        "• Based on: Land rent + Transport cost + Perishability",
+                        "• CONCENTRIC RINGS of different land use around city center",
+                        "• Closer to city = intensive, perishable, high-rent crops",
+                        "• Further from city = extensive, durable, low-rent activities"
+                    ]
+                },
+                {
+                    title: "🔵 Von Thunen's Rings (Center Outward)",
+                    icon: "⭕",
+                    points: [
+                        "• RING 1: Intensive farming - dairy, vegetables (perishable, daily transport)",
+                        "• RING 2: Forest - timber, firewood (heavy, costly to transport)",
+                        "• RING 3: Intensive crops - grain without fallow rotation",
+                        "• RING 4: Extensive crops - grain with fallow, 3-field system",
+                        "• RING 5: Livestock ranching - grazing, least intensive",
+                        "• OUTSIDE: Wilderness - too far for economic use"
+                    ]
+                },
+                {
+                    title: "🏭 Weber's Industrial Location Theory (1909)",
+                    icon: "⚙️",
+                    points: [
+                        "• Industries locate at LEAST COST point",
+                        "• Three factors: Transport cost, Labor cost, Agglomeration economies",
+                        "• TRANSPORT COST = most important factor",
+                        "• Material Index (MI) = Weight of raw material / Weight of finished product",
+                        "• High MI (>1): Locate near raw material. Low MI (<1): Near market"
+                    ]
+                },
+                {
+                    title: "⚖️ Weber's Material Index",
+                    icon: "📊",
+                    points: [
+                        "• WEIGHT-LOSING industries (MI>1): Steel, sugar, cement → near raw material",
+                        "• PURE/UBIQUITOUS material industries (MI<1): Bakery, bottling → near market",
+                        "• LABOR: If cheap labor saves more than extra transport cost, shift to labor site",
+                        "• AGGLOMERATION: Industries cluster for shared services, labor pool, innovation"
+                    ]
+                },
+                {
+                    title: "📍 Christaller's Central Place Theory (1933)",
+                    icon: "🔷",
+                    points: [
+                        "• Explains size, number, spacing of settlements",
+                        "• HEXAGONAL market areas - most efficient shape",
+                        "• Settlement HIERARCHY: Hamlet → Village → Town → City → Metropolis",
+                        "• Higher-order places: Larger, fewer, more spread out, more functions",
+                        "• Threshold & Range concepts determine settlement size"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "rings",
+                    title: "Von Thunen's Concentric Rings",
+                    icon: "🎯",
+                    description: "Circular diagram showing 5 rings around market city center"
+                },
+                {
+                    type: "triangle",
+                    title: "Weber's Location Triangle",
+                    icon: "🔺",
+                    description: "Shows optimal location based on 2 raw material sources + 1 market"
+                },
+                {
+                    type: "hexagonal",
+                    title: "Christaller's Hexagons",
+                    icon: "⬡",
+                    description: "Hexagonal pattern showing settlement hierarchy and market areas"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📅", fact: "Von Thunen published 'Der Isolierte Staat' (The Isolated State) in 1826" },
+                { icon: "🏭", fact: "Weber's Material Index >1 = Weight-losing = Near raw material" },
+                { icon: "📐", fact: "Von Thunen assumed 'Isotropic plain' - uniform in all directions" },
+                { icon: "🔷", fact: "Christaller used hexagons as most efficient shape for market areas" },
+                { icon: "🚂", fact: "Weber: If industry uses 3 tons raw material to make 1 ton product, locate near material" },
+                { icon: "👥", fact: "Weber's 'Labor coefficient' = labor cost per unit weight" },
+                { icon: "🏙️", fact: "Agglomeration economies = external benefits of clustering industries" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Von Thunen model is about industrial location",
+                    correct: "Von Thunen is about AGRICULTURAL land use; Weber is for industry",
+                    explanation: "Von Thunen = farm rings around city; Weber = factory location"
+                },
+                {
+                    wrong: "Forest ring is furthest in Von Thunen model",
+                    correct: "Forest is RING 2, relatively close to city (heavy to transport)",
+                    explanation: "Timber is heavy, so forests located close despite not perishable"
+                },
+                {
+                    wrong: "Weber said all industries locate near market",
+                    correct: "WEIGHT-LOSING industries locate near RAW MATERIAL, not market",
+                    explanation: "Material Index >1 means raw material heavier → locate near source"
+                },
+                {
+                    wrong: "Christaller's theory uses circular market areas",
+                    correct: "Christaller used HEXAGONS - most efficient shape (no overlap, no gaps)",
+                    explanation: "Circles leave gaps or overlap; hexagons tessellate perfectly"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Von Thunen (1826): Agricultural rings around city (MIFFED - Market, Intensive, Forest, Field, Extensive, Distant). Weber (1909): Industry at least cost (TLA - Transport, Labor, Agglomeration). Material Index >1 = near raw material.",
+                keyPoints: [
+                    "Von Thunen: Perishable near city, extensive farming far out",
+                    "Weber: Transport cost primary; MI>1=near material, MI<1=near market",
+                    "Christaller: Hexagonal markets, settlement hierarchy",
+                    "All assume 'isotropic plain' - unrealistic but useful baseline"
+                ],
+                examTip: "Steel industry = weight-losing (near iron ore). Bakery = weight-gaining (near market). Sugar mills near sugarcane fields (transport cost of cane > sugar). Agglomeration = IT industry clusters (Bangalore)."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🌿 SUSTAINABLE DEVELOPMENT & CLIMATE CHANGE
+        // ─────────────────────────────────────────
+        {
+            id: "sustainable-development",
+            name: "Sustainable Development & Climate Change",
+            category: "environment",
+            subcategory: "environment",
+            theme: "environment",
+            difficulty: "medium",
+            importance: "very-high",
+            studyTime: "55 min",
+
+            mindMap: {
+                center: "🌿 Sustainability",
+                branches: [
+                    {
+                        name: "📋 DEFINITION",
+                        color: "#27ae60",
+                        subs: [
+                            "Brundtland Report (1987)",
+                            "Meet present needs",
+                            "Without compromising future",
+                            "3 pillars: Social, Economic, Environment"
+                        ]
+                    },
+                    {
+                        name: "🎯 SDGs",
+                        color: "#3498db",
+                        subs: [
+                            "17 Goals by UN (2015)",
+                            "Target: 2030",
+                            "Replace MDGs",
+                            "Universal applicability"
+                        ]
+                    },
+                    {
+                        name: "🌡️ CLIMATE CHANGE",
+                        color: "#e74c3c",
+                        subs: [
+                            "Global warming",
+                            "Greenhouse effect",
+                            "IPCC reports",
+                            "1.5°C Paris target"
+                        ]
+                    },
+                    {
+                        name: "📜 AGREEMENTS",
+                        color: "#f39c12",
+                        subs: [
+                            "UNFCCC (1992)",
+                            "Kyoto Protocol (1997)",
+                            "Paris Agreement (2015)",
+                            "Glasgow (COP26, 2021)"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "3 Pillars of Sustainability: 'SEE'",
+                    trick: "S-E-E",
+                    meaning: [
+                        { letter: "S", word: "Social", hint: "Equity, health, education" },
+                        { letter: "E", word: "Economic", hint: "Growth, jobs, innovation" },
+                        { letter: "E", word: "Environmental", hint: "Resources, climate, biodiversity" }
+                    ],
+                    visual: "👁️ You must SEE all three pillars for true sustainability!"
+                },
+                {
+                    title: "Key Climate Agreements: 'RUKPG'",
+                    trick: "R-U-K-P-G",
+                    meaning: [
+                        { letter: "R", word: "Rio Earth Summit (1992)", hint: "UNFCCC adopted" },
+                        { letter: "U", word: "UNFCCC", hint: "Framework convention" },
+                        { letter: "K", word: "Kyoto Protocol (1997)", hint: "Binding targets for developed" },
+                        { letter: "P", word: "Paris Agreement (2015)", hint: "1.5-2°C target, NDCs" },
+                        { letter: "G", word: "Glasgow COP26 (2021)", hint: "Phase down coal" }
+                    ],
+                    visual: "🌍 RUKPG = 'Run UK to Paris via Glasgow' for climate action!"
+                },
+                {
+                    title: "Greenhouse Gases: 'CROWN'",
+                    trick: "C-R-O-W-N",
+                    meaning: [
+                        { letter: "C", word: "CO₂ (Carbon dioxide)", hint: "76% of emissions" },
+                        { letter: "R", word: "R-gases (HFCs, CFCs)", hint: "Industrial" },
+                        { letter: "O", word: "Ozone (tropospheric)", hint: "From vehicles" },
+                        { letter: "W", word: "Water vapor", hint: "Natural, amplifies warming" },
+                        { letter: "N", word: "N₂O + Methane", hint: "Agriculture, livestock" }
+                    ],
+                    visual: "👑 GHGs form a CROWN (blanket) over Earth trapping heat!"
+                },
+                {
+                    title: "India's Climate Commitments: 'PANCHA'",
+                    trick: "P-A-N-C-H-A",
+                    meaning: [
+                        { letter: "P", word: "Panchamrit (5 pledges)", hint: "PM Modi at COP26" },
+                        { letter: "A", word: "500 GW renewable by 2030", hint: "Energy target" },
+                        { letter: "N", word: "Net Zero by 2070", hint: "Carbon neutrality" },
+                        { letter: "C", word: "Carbon intensity 45% reduction", hint: "By 2030 from 2005" },
+                        { letter: "H", word: "Half energy from renewables", hint: "50% by 2030" },
+                        { letter: "A", word: "1 billion ton CO₂ reduction", hint: "By 2030" }
+                    ],
+                    visual: "🙏 PANCHA = 5 pledges for India's climate action!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "📋 What is Sustainable Development?",
+                    icon: "🌱",
+                    points: [
+                        "• Defined in BRUNDTLAND REPORT (1987): 'Our Common Future'",
+                        "• 'Development that meets present needs without compromising future generations'",
+                        "• THREE PILLARS: Social + Economic + Environmental",
+                        "• Balance between growth and conservation",
+                        "• Inter-generational and intra-generational equity"
+                    ]
+                },
+                {
+                    title: "🎯 Sustainable Development Goals (SDGs)",
+                    icon: "🏆",
+                    points: [
+                        "• 17 Goals adopted by UN in 2015 (replaced MDGs)",
+                        "• Target: Achieve by 2030 (Agenda 2030)",
+                        "• Goals: No poverty, Zero hunger, Good health, Quality education...",
+                        "• Also: Clean energy, Climate action, Life below water, Life on land",
+                        "• Universal - apply to ALL countries (unlike MDGs)"
+                    ]
+                },
+                {
+                    title: "🌡️ Climate Change Basics",
+                    icon: "🔥",
+                    points: [
+                        "• GREENHOUSE EFFECT: GHGs trap heat in atmosphere",
+                        "• Main GHGs: CO₂ (76%), Methane (16%), N₂O (6%)",
+                        "• Global temp rise: ~1.1°C above pre-industrial levels",
+                        "• Impacts: Sea rise, extreme weather, biodiversity loss, food insecurity",
+                        "• IPCC: Intergovernmental Panel on Climate Change (scientific body)"
+                    ]
+                },
+                {
+                    title: "📜 Key Climate Agreements",
+                    icon: "📝",
+                    points: [
+                        "• UNFCCC (1992): Framework convention, 'common but differentiated responsibilities'",
+                        "• KYOTO (1997): Binding targets for developed (Annex-I) countries",
+                        "• PARIS (2015): All countries submit NDCs, limit to 1.5-2°C",
+                        "• Glasgow COP26 (2021): Phase down coal, climate finance $100B",
+                        "• India: Net Zero by 2070, 50% energy from renewables by 2030"
+                    ]
+                },
+                {
+                    title: "🇮🇳 India's Climate Action",
+                    icon: "🌏",
+                    points: [
+                        "• National Action Plan on Climate Change (NAPCC): 8 missions",
+                        "• Missions: Solar, Enhanced Energy Efficiency, Green India, Sustainable Habitat...",
+                        "• International Solar Alliance (ISA): HQ in India, 120+ countries",
+                        "• PANCHAMRIT (5 pledges at COP26): Net zero 2070, 500GW renewable, etc.",
+                        "• Lifestyle for Environment (LiFE): Individual action promoted"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "venn",
+                    title: "3 Pillars of Sustainability",
+                    icon: "⚖️",
+                    description: "Venn diagram showing Social, Economic, Environmental intersection"
+                },
+                {
+                    type: "icons",
+                    title: "17 SDGs Visual",
+                    icon: "🎯",
+                    description: "Grid of 17 colored icons representing each SDG"
+                },
+                {
+                    type: "graph",
+                    title: "Global Temperature Rise",
+                    icon: "📈",
+                    description: "Line graph showing temperature anomaly from 1850-present"
+                },
+                {
+                    type: "timeline",
+                    title: "Climate Agreements Timeline",
+                    icon: "📅",
+                    description: "1992 Rio → 1997 Kyoto → 2015 Paris → 2021 Glasgow"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📋", fact: "Brundtland Report (1987) coined 'Sustainable Development'" },
+                { icon: "🎯", fact: "17 SDGs to be achieved by 2030 (Agenda 2030)" },
+                { icon: "🌡️", fact: "Paris Agreement: Limit warming to 1.5-2°C above pre-industrial" },
+                { icon: "🇮🇳", fact: "India's Net Zero target: 2070 (announced at COP26)" },
+                { icon: "☀️", fact: "International Solar Alliance: HQ in Gurugram, India" },
+                { icon: "📊", fact: "CO₂ causes 76% of global warming; Methane = 16%" },
+                { icon: "🌊", fact: "Sea level risen ~20 cm since 1900; accelerating" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Paris Agreement has binding emission targets",
+                    correct: "Paris Agreement has VOLUNTARY NDCs (Nationally Determined Contributions)",
+                    explanation: "Unlike Kyoto, Paris is bottom-up; each country sets own targets"
+                },
+                {
+                    wrong: "India committed to Net Zero by 2050",
+                    correct: "India's Net Zero target is 2070, not 2050",
+                    explanation: "India argued for 'common but differentiated responsibilities' - more time needed"
+                },
+                {
+                    wrong: "SDGs replaced Millennium Development Goals in 2020",
+                    correct: "SDGs replaced MDGs in 2015 (MDGs were 2000-2015)",
+                    explanation: "SDGs (2015-2030) are universal; MDGs were mainly for developing countries"
+                },
+                {
+                    wrong: "IPCC is a research organization",
+                    correct: "IPCC ASSESSES existing research; doesn't conduct own research",
+                    explanation: "IPCC synthesizes scientific literature and provides policy guidance"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Sustainable Development = meet present needs without harming future (Brundtland 1987). 3 Pillars: SEE (Social, Economic, Environmental). 17 SDGs by 2030. Paris: 1.5-2°C limit, NDCs. India: Net Zero 2070, PANCHAMRIT pledges.",
+                keyPoints: [
+                    "SDGs: 17 goals, universal, Agenda 2030 (replaced MDGs)",
+                    "GHGs: CO₂ (76%), Methane (16%), N₂O (6%)",
+                    "Paris Agreement: NDCs, below 2°C (prefer 1.5°C)",
+                    "India: NAPCC (8 missions), ISA, Net Zero 2070, 500GW renewable by 2030"
+                ],
+                examTip: "Know India's NAPCC 8 missions. SDG 13 = Climate Action. IPCC 6th Assessment (2021-22) warns of 1.5°C breach by 2030s. COP = Conference of Parties to UNFCCC. India is 3rd largest emitter but low per capita."
+            }
+        }
+
+// ═══════════════════════════════════════════════════════════════
+// END OF PART 3C - ADD CLOSING BRACKET/COMMA APPROPRIATELY
+// ═══════════════════════════════════════════════════════════════
 // Merge with main data
 if (typeof UPSC_GEOGRAPHY_DATA !== 'undefined') {
     UPSC_GEOGRAPHY_DATA.topics = UPSC_GEOGRAPHY_DATA.topics.concat(UPSC_GEOGRAPHY_DATA_PART_B.topics);
