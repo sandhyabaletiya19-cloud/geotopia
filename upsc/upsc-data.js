@@ -1679,6 +1679,2057 @@ const UPSC_GEOGRAPHY_DATA = {
         }
     ]
 };
+/* ═══════════════════════════════════════════════════════════════
+   🌍 UPSC GEOGRAPHY DATA - PART 3B
+   Climatology, Oceanography, Biogeography & India Geography
+   ═══════════════════════════════════════════════════════════════ */
+
+// Continue adding to UPSC_GEOGRAPHY_DATA.topics array:
+
+const UPSC_GEOGRAPHY_DATA_PART_B = {
+
+    topics: [
+
+        // ═══════════════════════════════════════════════════════════════
+        // ☁️ CLIMATOLOGY - CONTINUED
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 🌬️ PRESSURE BELTS & WIND SYSTEMS
+        // ─────────────────────────────────────────
+        {
+            id: "pressure-belts",
+            name: "Pressure Belts & Wind Systems",
+            category: "physical",
+            subcategory: "climatology",
+            theme: "climate",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "60 min",
+
+            mindMap: {
+                center: "🌬️ Pressure Belts",
+                branches: [
+                    {
+                        name: "⬇️ LOW PRESSURE",
+                        color: "#e74c3c",
+                        subs: [
+                            "Equatorial Low (0° - ITCZ)",
+                            "Subpolar Low (60°N & 60°S)",
+                            "Rising air, clouds, rain"
+                        ]
+                    },
+                    {
+                        name: "⬆️ HIGH PRESSURE",
+                        color: "#3498db",
+                        subs: [
+                            "Subtropical High (30°N & 30°S)",
+                            "Polar High (90°N & 90°S)",
+                            "Sinking air, clear, dry"
+                        ]
+                    },
+                    {
+                        name: "💨 PLANETARY WINDS",
+                        color: "#27ae60",
+                        subs: [
+                            "Trade Winds (0°-30°)",
+                            "Westerlies (30°-60°)",
+                            "Polar Easterlies (60°-90°)"
+                        ]
+                    },
+                    {
+                        name: "🔄 CIRCULATION",
+                        color: "#f39c12",
+                        subs: [
+                            "Hadley Cell (0°-30°)",
+                            "Ferrel Cell (30°-60°)",
+                            "Polar Cell (60°-90°)"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Pressure Belts from Equator: 'LHLS HP'",
+                    trick: "L-H-L-H (Low-High-Low-High)",
+                    meaning: [
+                        { letter: "L", word: "Low (0° Equatorial)", hint: "ITCZ, rising air, rain" },
+                        { letter: "H", word: "High (30° Subtropical)", hint: "Horse latitudes, deserts" },
+                        { letter: "L", word: "Low (60° Subpolar)", hint: "Stormy, westerlies meet" },
+                        { letter: "H", word: "High (90° Polar)", hint: "Cold, sinking air" }
+                    ],
+                    visual: "🎢 Like a wave: Low-High-Low-High from equator to pole!"
+                },
+                {
+                    title: "Wind Directions: 'NEWTON' Rule",
+                    trick: "NE-W-E (North hemisphere)",
+                    meaning: [
+                        { letter: "NE", word: "Trade Winds", hint: "NE Trades (0-30°N)" },
+                        { letter: "W", word: "Westerlies", hint: "SW winds (30-60°N)" },
+                        { letter: "E", word: "Polar Easterlies", hint: "NE winds (60-90°N)" }
+                    ],
+                    visual: "🧭 Flip for Southern hemisphere: SE Trades, NW Westerlies, SE Polar"
+                },
+                {
+                    title: "Cells Memory: 'HaFePo'",
+                    trick: "Ha-Fe-Po",
+                    meaning: [
+                        { letter: "Ha", word: "Hadley Cell", hint: "0°-30°, strongest, thermally direct" },
+                        { letter: "Fe", word: "Ferrel Cell", hint: "30°-60°, weak, thermally indirect" },
+                        { letter: "Po", word: "Polar Cell", hint: "60°-90°, cold, small" }
+                    ],
+                    visual: "☕ HaFePo sounds like 'Half a Po(t)' - 3 cells make half the circulation!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🌡️ Why Pressure Belts Form?",
+                    icon: "💡",
+                    points: [
+                        "• EQUATOR (0°): Intense heating → air rises → LOW pressure (ITCZ)",
+                        "• 30° LATITUDE: Rising air cools, descends → HIGH pressure (deserts!)",
+                        "• 60° LATITUDE: Warm & cold air meet → air rises → LOW pressure (storms)",
+                        "• POLES (90°): Extreme cold → air sinks → HIGH pressure"
+                    ]
+                },
+                {
+                    title: "💨 Trade Winds (0°-30°)",
+                    icon: "⛵",
+                    points: [
+                        "• Blow from subtropical HIGH to equatorial LOW",
+                        "• Deflected by Coriolis: NE Trades (N.Hem), SE Trades (S.Hem)",
+                        "• Most RELIABLE winds - sailors used for trade voyages",
+                        "• Bring moisture to eastern coasts, dry western coasts"
+                    ]
+                },
+                {
+                    title: "🌀 Westerlies (30°-60°)",
+                    icon: "🌪️",
+                    points: [
+                        "• Blow from subtropical HIGH to subpolar LOW",
+                        "• SW winds in N.Hemisphere, NW winds in S.Hemisphere",
+                        "• Carry warm air poleward - responsible for European mild climate",
+                        "• Variable, stormy - 'Roaring Forties' (40°S) famous for strong westerlies"
+                    ]
+                },
+                {
+                    title: "❄️ Polar Easterlies (60°-90°)",
+                    icon: "🧊",
+                    points: [
+                        "• Blow from polar HIGH toward subpolar LOW",
+                        "• Cold, dry winds from NE (N.Hem), SE (S.Hem)",
+                        "• Meet warm westerlies at POLAR FRONT → storms, cyclones",
+                        "• Weak and inconsistent compared to other winds"
+                    ]
+                },
+                {
+                    title: "🔄 Three-Cell Model",
+                    icon: "📊",
+                    points: [
+                        "• HADLEY CELL: Largest, thermally direct, drives trade winds",
+                        "• FERREL CELL: Middle, thermally indirect (mechanically driven)",
+                        "• POLAR CELL: Smallest, thermally direct, cold and dense air",
+                        "• Together they distribute heat from equator to poles"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "cross-section",
+                    title: "Global Pressure Belts Profile",
+                    icon: "🌍",
+                    description: "Earth cross-section showing L-H-L-H pattern from equator to pole with rising/sinking arrows"
+                },
+                {
+                    type: "circulation",
+                    title: "Three-Cell Circulation Model",
+                    icon: "🔄",
+                    description: "Shows Hadley, Ferrel, Polar cells with air movement arrows and wind directions"
+                },
+                {
+                    type: "world-map",
+                    title: "Global Wind Patterns Map",
+                    icon: "🗺️",
+                    description: "World map with trade winds, westerlies, polar easterlies arrows + ITCZ line"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "🌡️", fact: "ITCZ shifts: 5°N in July (summer), 5°S in January (winter)" },
+                { icon: "🏜️", fact: "World's major deserts lie at 30° latitude - sinking air from Hadley Cell" },
+                { icon: "🐴", fact: "Horse Latitudes (30°) - calm winds, ships threw horses overboard (lack of water)" },
+                { icon: "⛵", fact: "Doldrums (ITCZ) - calm zone, sailing ships got stuck for weeks" },
+                { icon: "💨", fact: "Roaring Forties, Furious Fifties, Screaming Sixties - southern westerlies" },
+                { icon: "🔄", fact: "Coriolis deflects winds RIGHT in N.Hemisphere, LEFT in South" },
+                { icon: "📏", fact: "Trade winds cover 50% of Earth's surface" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Trade winds blow from east to west everywhere",
+                    correct: "Trade winds blow toward EQUATOR: NE in N.Hemisphere, SE in S.Hemisphere",
+                    explanation: "They're deflected by Coriolis from their original N/S direction"
+                },
+                {
+                    wrong: "Westerlies blow from west in both hemispheres",
+                    correct: "Westerlies blow FROM the west - SW in North, NW in South hemisphere",
+                    explanation: "Named for direction they come FROM, not where they go"
+                },
+                {
+                    wrong: "ITCZ stays at equator throughout the year",
+                    correct: "ITCZ shifts with the sun - to 20°N in July, near equator/5°S in January",
+                    explanation: "This shift causes monsoons in India!"
+                },
+                {
+                    wrong: "High pressure means stormy weather",
+                    correct: "HIGH pressure = sinking air = CLEAR, DRY weather",
+                    explanation: "LOW pressure = rising air = clouds, rain, storms"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Belts: L(0°)-H(30°)-L(60°)-H(90°). Winds: Trade (NE/SE), Westerlies (SW/NW), Polar Easterlies. Cells: Hadley-Ferrel-Polar. ITCZ shifts with sun = monsoon.",
+                keyPoints: [
+                    "Equatorial Low (ITCZ) + Subpolar Low = rain/storms",
+                    "Subtropical High (30°) + Polar High = deserts/clear",
+                    "Trade winds: NE (N.Hem), SE (S.Hem) toward equator",
+                    "Westerlies: SW (N.Hem), NW (S.Hem) toward poles"
+                ],
+                examTip: "ITCZ shifting to India (20°N in summer) brings SW Monsoon. Horse Latitudes & Doldrums are CALM zones."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // ✈️ JET STREAMS
+        // ─────────────────────────────────────────
+        {
+            id: "jet-streams",
+            name: "Jet Streams",
+            category: "physical",
+            subcategory: "climatology",
+            theme: "climate",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "45 min",
+
+            mindMap: {
+                center: "✈️ Jet Streams",
+                branches: [
+                    {
+                        name: "📍 WHAT ARE THEY",
+                        color: "#3498db",
+                        subs: [
+                            "Narrow bands of fast winds",
+                            "9-12 km altitude (tropopause)",
+                            "Speed: 180-400+ km/h",
+                            "Flow west to east"
+                        ]
+                    },
+                    {
+                        name: "🌊 TYPES",
+                        color: "#e74c3c",
+                        subs: [
+                            "Polar Jet Stream (60°N/S)",
+                            "Subtropical Jet Stream (30°N/S)",
+                            "Tropical Easterly Jet (India summer)"
+                        ]
+                    },
+                    {
+                        name: "⚡ CAUSES",
+                        color: "#f39c12",
+                        subs: [
+                            "Temperature gradient",
+                            "Earth's rotation (Coriolis)",
+                            "Pressure differences"
+                        ]
+                    },
+                    {
+                        name: "🇮🇳 INDIA IMPACT",
+                        color: "#27ae60",
+                        subs: [
+                            "Subtropical Jet = Winter rain",
+                            "Easterly Jet = SW Monsoon onset",
+                            "Western Disturbances guided"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Types of Jets: 'PST - PostScript Text'",
+                    trick: "P-S-T",
+                    meaning: [
+                        { letter: "P", word: "Polar Jet", hint: "60°, strongest, variable" },
+                        { letter: "S", word: "Subtropical Jet", hint: "30°, steadier, brings WD to India" },
+                        { letter: "T", word: "Tropical Easterly Jet", hint: "15°N, ONLY in summer, E to W" }
+                    ],
+                    visual: "📮 PST like a fast postal delivery - jets deliver weather!"
+                },
+                {
+                    title: "India Monsoon Jets: 'EXIT = Easterly Jet Indicates Summer (Tropical)'",
+                    trick: "EXIT",
+                    meaning: [
+                        { letter: "E", word: "Easterly", hint: "Blows from east to west (opposite!)" },
+                        { letter: "X", word: "Xtra fast", hint: "150 km/h average" },
+                        { letter: "I", word: "Indian", hint: "Only over India/SE Asia" },
+                        { letter: "T", word: "Tropical Summer", hint: "June-September, brings monsoon" }
+                    ],
+                    visual: "🚪 EXIT sign appears in summer = Monsoon EXIT (arrival)!"
+                },
+                {
+                    title: "Jet Stream Rule: 'Jets West, Monsoon Best'",
+                    trick: "W-B relationship",
+                    meaning: [
+                        { letter: "W", word: "West to East flow", hint: "Normal polar/subtropical jets" },
+                        { letter: "B", word: "Best monsoon", hint: "When Easterly Jet establishes" }
+                    ],
+                    visual: "✈️ When Subtropical Jet shifts NORTH of Himalayas in June, monsoon bursts!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "✈️ What is a Jet Stream?",
+                    icon: "💨",
+                    points: [
+                        "• NARROW bands of VERY FAST wind (200-400 km/h)",
+                        "• Located at TROPOPAUSE level (9-12 km altitude)",
+                        "• Typically 100-200 km wide, 1-2 km thick",
+                        "• Flow from WEST to EAST (except Tropical Easterly Jet)"
+                    ]
+                },
+                {
+                    title: "🌀 Polar Jet Stream",
+                    icon: "❄️",
+                    points: [
+                        "• Located around 60° latitude (both hemispheres)",
+                        "• STRONGEST jet - speeds can exceed 400 km/h",
+                        "• Highly WAVY (Rossby waves) - brings cold/warm spells",
+                        "• Separates cold polar air from warm tropical air"
+                    ]
+                },
+                {
+                    title: "🌡️ Subtropical Jet Stream",
+                    icon: "☀️",
+                    points: [
+                        "• Located around 30° latitude (both hemispheres)",
+                        "• Forms at boundary of Hadley and Ferrel cells",
+                        "• CRITICAL for India - guides Western Disturbances in winter",
+                        "• Position shifts: South of Himalayas (winter), North (summer)"
+                    ]
+                },
+                {
+                    title: "🇮🇳 Tropical Easterly Jet (TEJ)",
+                    icon: "🌧️",
+                    points: [
+                        "• ONLY exists in SUMMER (June-September)",
+                        "• Flows EAST to WEST (opposite to other jets!)",
+                        "• Located over India/SE Asia at 15°N, 14 km height",
+                        "• Strong TEJ = GOOD monsoon; Weak TEJ = poor monsoon"
+                    ]
+                },
+                {
+                    title: "🔄 Jets & Indian Monsoon",
+                    icon: "⚡",
+                    points: [
+                        "• WINTER: Subtropical Jet SOUTH of Himalayas = Western Disturbances bring rain",
+                        "• JUNE: Subtropical Jet shifts NORTH of Himalayas = Monsoon onset!",
+                        "• SUMMER: Tropical Easterly Jet strengthens = sustains SW Monsoon",
+                        "• SEPTEMBER: TEJ weakens, Subtropical Jet returns south = monsoon withdrawal"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "profile",
+                    title: "Jet Stream Altitude & Location",
+                    icon: "📊",
+                    description: "Cross-section showing jets at tropopause, polar jet at 60°, subtropical at 30°"
+                },
+                {
+                    type: "seasonal-map",
+                    title: "Jet Stream Shift Over India",
+                    icon: "🗺️",
+                    description: "Two maps: Winter (Subtropical Jet south of Himalayas) vs Summer (North + TEJ appears)"
+                },
+                {
+                    type: "mechanism",
+                    title: "Monsoon Jet Stream Mechanism",
+                    icon: "🔄",
+                    description: "Shows how jet shift triggers monsoon onset and TEJ sustains rain"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "💨", fact: "Jet stream speeds can exceed 400 km/h - faster than bullet trains!" },
+                { icon: "✈️", fact: "Flights FROM west to east are faster (jetstream tail wind)" },
+                { icon: "📏", fact: "Jets are 100-200 km wide but only 1-2 km thick" },
+                { icon: "🏔️", fact: "Himalayas 'split' the jet stream - unique global phenomenon" },
+                { icon: "🇮🇳", fact: "Subtropical Jet position determines Indian monsoon timing" },
+                { icon: "☀️", fact: "TEJ exists ONLY in summer over India/SE Asia - nowhere else!" },
+                { icon: "❄️", fact: "Polar jet waviness causes extreme weather (polar vortex events)" }
+            ],
+
+            traps: [
+                {
+                    wrong: "All jet streams flow west to east",
+                    correct: "Tropical Easterly Jet flows EAST to WEST (opposite)",
+                    explanation: "TEJ is unique - driven by temperature gradient over Tibet plateau"
+                },
+                {
+                    wrong: "Jet streams exist at ground level",
+                    correct: "Jets exist at TROPOPAUSE (9-12 km altitude)",
+                    explanation: "They're upper atmospheric phenomena, not surface winds"
+                },
+                {
+                    wrong: "Subtropical jet stays at same position year-round",
+                    correct: "Subtropical jet SHIFTS - south of Himalayas (winter), north (summer)",
+                    explanation: "This seasonal shift is KEY to Indian monsoon mechanism"
+                },
+                {
+                    wrong: "Western Disturbances are driven by Tropical Easterly Jet",
+                    correct: "Western Disturbances are guided by SUBTROPICAL Jet Stream in WINTER",
+                    explanation: "TEJ exists only in summer and brings monsoon, not WDs"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Polar Jet (60°, strongest), Subtropical Jet (30°, guides WDs), TEJ (15°N, summer, E→W, monsoon). Jets at tropopause 9-12km, 200-400 km/h. Subtropical Jet shifts north in June = monsoon onset.",
+                keyPoints: [
+                    "All jets flow W→E except TEJ (E→W)",
+                    "Polar Jet: Variable, causes cold waves when dips south",
+                    "Subtropical Jet: Winter south of Himalayas, Summer north",
+                    "TEJ: Summer only, over India, strong TEJ = good monsoon"
+                ],
+                examTip: "Himalayas BIFURCATE (split) the subtropical jet - this is why India has unique monsoon system!"
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🌀 CYCLONES
+        // ─────────────────────────────────────────
+        {
+            id: "cyclones",
+            name: "Cyclones & Anticyclones",
+            category: "physical",
+            subcategory: "climatology",
+            theme: "climate",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "55 min",
+
+            mindMap: {
+                center: "🌀 Cyclones",
+                branches: [
+                    {
+                        name: "🌊 TROPICAL CYCLONES",
+                        color: "#e74c3c",
+                        subs: [
+                            "Hurricanes (Atlantic)",
+                            "Typhoons (Pacific)",
+                            "Cyclones (Indian Ocean)",
+                            "Need warm ocean (26°C+)"
+                        ]
+                    },
+                    {
+                        name: "❄️ TEMPERATE CYCLONES",
+                        color: "#3498db",
+                        subs: [
+                            "Extratropical cyclones",
+                            "Form at polar front",
+                            "Western Disturbances",
+                            "Less intense, larger area"
+                        ]
+                    },
+                    {
+                        name: "📍 STRUCTURE",
+                        color: "#f39c12",
+                        subs: [
+                            "Eye (calm center)",
+                            "Eye wall (strongest winds)",
+                            "Spiral rain bands",
+                            "Anticlockwise (N.Hem)"
+                        ]
+                    },
+                    {
+                        name: "🇮🇳 INDIA CYCLONES",
+                        color: "#27ae60",
+                        subs: [
+                            "Bay of Bengal (Oct-Nov)",
+                            "Arabian Sea (May-Jun)",
+                            "IMD naming since 2004",
+                            "Amphan, Tauktae, Biparjoy"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Tropical Cyclone Names: 'HTC = Hot Tropical Cyclone'",
+                    trick: "H-T-C",
+                    meaning: [
+                        { letter: "H", word: "Hurricane", hint: "Atlantic Ocean, Caribbean" },
+                        { letter: "T", word: "Typhoon", hint: "Pacific Ocean, Japan/Philippines" },
+                        { letter: "C", word: "Cyclone", hint: "Indian Ocean, Bay of Bengal" }
+                    ],
+                    visual: "📱 HTC phone logo - all same storm, different names by location!"
+                },
+                {
+                    title: "Cyclone Conditions: 'COWL'",
+                    trick: "C-O-W-L",
+                    meaning: [
+                        { letter: "C", word: "Coriolis effect", hint: "Must be away from equator (5°+)" },
+                        { letter: "O", word: "Ocean temperature", hint: "26°C or more" },
+                        { letter: "W", word: "Wind shear low", hint: "Uniform winds needed" },
+                        { letter: "L", word: "Low pressure", hint: "Central low pressure system" }
+                    ],
+                    visual: "🐄 COWL like a cow's collar - cyclone needs all these conditions to 'collar' the energy!"
+                },
+                {
+                    title: "Rotation Direction: 'Right-Anti, Left-Clock'",
+                    trick: "N.Hemisphere = Anticlockwise, S.Hemisphere = Clockwise",
+                    meaning: [
+                        { letter: "N", word: "Northern", hint: "Anticlockwise (counterclockwise)" },
+                        { letter: "S", word: "Southern", hint: "Clockwise rotation" }
+                    ],
+                    visual: "🌀 In Northern hemisphere, flush water spirals left - so do cyclones!"
+                },
+                {
+                    title: "India Cyclone Seasons: 'BONDS'",
+                    trick: "B-O-N-D-S",
+                    meaning: [
+                        { letter: "B", word: "Bay of Bengal", hint: "More cyclones (4× Arabian)" },
+                        { letter: "O", word: "October-November", hint: "Post-monsoon peak" },
+                        { letter: "N", word: "North Andhra, Odisha", hint: "Most vulnerable" },
+                        { letter: "D", word: "December low", hint: "Winter few cyclones" },
+                        { letter: "S", word: "Second peak May-June", hint: "Pre-monsoon" }
+                    ],
+                    visual: "🎬 James BOND movies - Indian cyclones have dramatic seasons!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🌊 Tropical Cyclone Formation",
+                    icon: "🌀",
+                    points: [
+                        "• Need WARM OCEAN (26°C+, deep warm layer 60m+)",
+                        "• Form 8°-20° latitude (need Coriolis, not at equator)",
+                        "• Low wind shear (uniform wind speed at all heights)",
+                        "• Evaporation creates low pressure → air spirals inward → rises"
+                    ]
+                },
+                {
+                    title: "👁️ Cyclone Structure",
+                    icon: "🎯",
+                    points: [
+                        "• EYE: 20-40 km diameter, calm, clear, low pressure center",
+                        "• EYE WALL: Ring of thunderstorms, STRONGEST winds & rain",
+                        "• SPIRAL BANDS: Curved rain bands extending 500 km+",
+                        "• Rotates: Anticlockwise (N.Hem), Clockwise (S.Hem)"
+                    ]
+                },
+                {
+                    title: "📏 Saffir-Simpson Scale",
+                    icon: "📊",
+                    points: [
+                        "• Category 1: 119-153 km/h (minimal damage)",
+                        "• Category 2: 154-177 km/h (moderate damage)",
+                        "• Category 3: 178-208 km/h (extensive damage) - MAJOR",
+                        "• Category 4: 209-251 km/h, Category 5: 252+ km/h (catastrophic)"
+                    ]
+                },
+                {
+                    title: "❄️ Temperate (Extratropical) Cyclones",
+                    icon: "🌧️",
+                    points: [
+                        "• Form at POLAR FRONT (60°) - warm & cold air meet",
+                        "• NOT powered by warm ocean - powered by temperature difference",
+                        "• LARGER area but LESS intense than tropical cyclones",
+                        "• Western Disturbances affecting India are temperate cyclones!"
+                    ]
+                },
+                {
+                    title: "🇮🇳 Cyclones in India",
+                    icon: "🏴",
+                    points: [
+                        "• Bay of Bengal: 4× more cyclones than Arabian Sea",
+                        "• Peak seasons: Oct-Nov (post-monsoon), May-Jun (pre-monsoon)",
+                        "• Odisha, Andhra, West Bengal, Tamil Nadu most affected",
+                        "• Recent severe: Amphan (2020), Yaas (2021), Biparjoy (2023)"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "cross-section",
+                    title: "Cyclone Structure",
+                    icon: "🌀",
+                    description: "Cut-away showing eye (calm), eye wall (strongest), spiral bands, wind direction arrows"
+                },
+                {
+                    type: "world-map",
+                    title: "Global Cyclone Tracks",
+                    icon: "🗺️",
+                    description: "World map showing typical cyclone paths, peak seasons, and names by region"
+                },
+                {
+                    type: "comparison",
+                    title: "Tropical vs Temperate Cyclones",
+                    icon: "⚖️",
+                    description: "Table comparing energy source, location, size, intensity, structure"
+                },
+                {
+                    type: "india-map",
+                    title: "India Cyclone Tracks",
+                    icon: "🇮🇳",
+                    description: "Bay of Bengal and Arabian Sea tracks, vulnerable states highlighted"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "🌡️", fact: "Cyclones need 26°C+ ocean temperature to form" },
+                { icon: "📍", fact: "Cyclones CANNOT form at equator - no Coriolis effect there" },
+                { icon: "👁️", fact: "Eye can be 20-40 km wide, calm with clear skies" },
+                { icon: "💨", fact: "Eye wall has strongest winds - can exceed 300 km/h" },
+                { icon: "🇮🇳", fact: "Odisha Super Cyclone (1999) killed 10,000+ - India's worst in century" },
+                { icon: "🌊", fact: "Bay of Bengal cyclones intensify rapidly due to warm water" },
+                { icon: "📅", fact: "Atlantic hurricanes have human names since 1953, India since 2004" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Cyclones form directly at the equator where it's hottest",
+                    correct: "Cyclones form 8°-20° away from equator - need Coriolis effect",
+                    explanation: "At equator Coriolis = 0, air can't spiral to form organized cyclone"
+                },
+                {
+                    wrong: "Eye of cyclone is most dangerous",
+                    correct: "EYE WALL is most dangerous - strongest winds and rain",
+                    explanation: "Eye is actually calm with clear skies"
+                },
+                {
+                    wrong: "Western Disturbances are tropical cyclones",
+                    correct: "Western Disturbances are TEMPERATE (extratropical) cyclones",
+                    explanation: "They form at polar front over Mediterranean, move to India"
+                },
+                {
+                    wrong: "Cyclones rotate same direction in both hemispheres",
+                    correct: "ANTICLOCKWISE in Northern, CLOCKWISE in Southern hemisphere",
+                    explanation: "Coriolis effect deflects in opposite directions"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Tropical cyclones need 26°C+ ocean, 8-20° latitude, low wind shear. Eye (calm) < Eye Wall (strongest) < Spiral bands. Anticlockwise (N.Hem). India: Bay of Bengal Oct-Nov, Odisha/Andhra most hit.",
+                keyPoints: [
+                    "Same storm: Hurricane (Atlantic), Typhoon (Pacific), Cyclone (Indian Ocean)",
+                    "Structure: Eye (calm) → Eye Wall (worst) → Spiral Bands",
+                    "Conditions: COWL (Coriolis, Ocean 26°C+, Wind shear low, Low pressure)",
+                    "India: Bay > Arabian (4×), Post-monsoon peak, Temperate WDs in winter"
+                ],
+                examTip: "Why Bay of Bengal has more cyclones? Warmer water, higher moisture, weaker winds. Amphan (2020) was 'Super Cyclone' - Category 5 equivalent."
+            }
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🌊 OCEANOGRAPHY - CONTINUED
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 🌊 TIDES
+        // ─────────────────────────────────────────
+        {
+            id: "tides",
+            name: "Tides",
+            category: "physical",
+            subcategory: "oceanography",
+            theme: "ocean",
+            difficulty: "medium",
+            importance: "high",
+            studyTime: "40 min",
+
+            mindMap: {
+                center: "🌊 Tides",
+                branches: [
+                    {
+                        name: "⚡ CAUSES",
+                        color: "#3498db",
+                        subs: [
+                            "Moon's gravitational pull (main)",
+                            "Sun's gravitational pull",
+                            "Earth's rotation",
+                            "Centrifugal force"
+                        ]
+                    },
+                    {
+                        name: "📊 TYPES",
+                        color: "#e74c3c",
+                        subs: [
+                            "Spring Tide (Sun+Moon aligned)",
+                            "Neap Tide (Sun-Moon 90°)",
+                            "High Tide & Low Tide"
+                        ]
+                    },
+                    {
+                        name: "🔄 FREQUENCY",
+                        color: "#27ae60",
+                        subs: [
+                            "Semi-diurnal (2 high, 2 low daily)",
+                            "Diurnal (1 high, 1 low daily)",
+                            "Mixed tides"
+                        ]
+                    },
+                    {
+                        name: "📍 IMPORTANCE",
+                        color: "#f39c12",
+                        subs: [
+                            "Navigation (harbors)",
+                            "Fishing schedules",
+                            "Tidal energy",
+                            "Coastal ecosystems"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Tidal Forces: 'MooSun' (Moon + Sun)",
+                    trick: "M-S",
+                    meaning: [
+                        { letter: "M", word: "Moon", hint: "PRIMARY force (68% of tidal effect)" },
+                        { letter: "S", word: "Sun", hint: "Secondary force (32% of tidal effect)" }
+                    ],
+                    visual: "🐄 MooSun - like a cow mooing at both Moon AND Sun!"
+                },
+                {
+                    title: "Spring vs Neap: 'SPRING = Strong, NEAP = Not Extreme'",
+                    trick: "S-N",
+                    meaning: [
+                        { letter: "S", word: "Spring Tide", hint: "Sun-Moon ALIGNED (new/full moon) = HIGH tides" },
+                        { letter: "N", word: "Neap Tide", hint: "Sun-Moon at 90° (quarter moon) = LOW tides" }
+                    ],
+                    visual: "🌕🌙 Full/New Moon = Spring (strong). Half Moon = Neap (weak)."
+                },
+                {
+                    title: "Why Moon Dominates: 'Closer is Stronger'",
+                    trick: "C-S",
+                    meaning: [
+                        { letter: "C", word: "Closer distance", hint: "Moon is 400× closer than Sun" },
+                        { letter: "S", word: "Stronger pull", hint: "Despite Sun being much larger" }
+                    ],
+                    visual: "📏 Gravitational tidal force depends on distance³ - Moon wins!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🌙 Why Do Tides Occur?",
+                    icon: "❓",
+                    points: [
+                        "• Moon's gravity PULLS water toward it = bulge (high tide)",
+                        "• Opposite side: centrifugal force creates SECOND bulge",
+                        "• Earth rotates under bulges = 2 high tides daily per location",
+                        "• Sun adds to effect but Moon is DOMINANT (closer = stronger tidal force)"
+                    ]
+                },
+                {
+                    title: "🌕 Spring Tides (Maximum)",
+                    icon: "⬆️",
+                    points: [
+                        "• Sun and Moon ALIGNED (same or opposite sides of Earth)",
+                        "• Occur during FULL MOON and NEW MOON",
+                        "• Combined gravitational pull = HIGHEST high tides, LOWEST low tides",
+                        "• Happen every ~14 days (twice per lunar month)"
+                    ]
+                },
+                {
+                    title: "🌗 Neap Tides (Minimum)",
+                    icon: "⬇️",
+                    points: [
+                        "• Sun and Moon at RIGHT ANGLES (90°)",
+                        "• Occur during FIRST QUARTER and THIRD QUARTER moon",
+                        "• Gravitational pulls CANCEL partially = moderate tides",
+                        "• Tidal range (difference high-low) is MINIMUM"
+                    ]
+                },
+                {
+                    title: "🔄 Tidal Patterns",
+                    icon: "📊",
+                    points: [
+                        "• SEMI-DIURNAL: Most common, 2 high + 2 low tides daily (Atlantic)",
+                        "• DIURNAL: 1 high + 1 low tide daily (Gulf of Mexico, some Pacific)",
+                        "• MIXED: Unequal highs/lows (Pacific coast of Americas)",
+                        "• Tidal cycle = 24 hrs 50 min (Moon rises ~50 min later each day)"
+                    ]
+                },
+                {
+                    title: "🇮🇳 Tides in India & Importance",
+                    icon: "⚓",
+                    points: [
+                        "• Highest tides: Gulf of Khambhat (up to 12m range!)",
+                        "• Tidal energy potential: Gulf of Kutch, Khambhat, Sundarbans",
+                        "• Navigation: Ports plan ship entry/exit by tides",
+                        "• Mumbai's natural harbor aided by tidal patterns"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "orbital",
+                    title: "Spring & Neap Tides",
+                    icon: "🌙",
+                    description: "Earth-Moon-Sun positions showing aligned (spring) vs 90° (neap)"
+                },
+                {
+                    type: "bulge",
+                    title: "Tidal Bulges",
+                    icon: "🌍",
+                    description: "Earth with two ocean bulges - one toward Moon, one opposite"
+                },
+                {
+                    type: "graph",
+                    title: "Tidal Height Cycle",
+                    icon: "📈",
+                    description: "Graph showing water level over ~25 hours with 2 highs and 2 lows"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "🌙", fact: "Moon causes 68% of tides, Sun causes 32%" },
+                { icon: "📏", fact: "Bay of Fundy (Canada) has highest tides - up to 16 meters!" },
+                { icon: "🇮🇳", fact: "Gulf of Khambhat has India's highest tides - up to 12 meters" },
+                { icon: "⏰", fact: "Tidal day = 24 hours 50 minutes (Moon rises 50 min later daily)" },
+                { icon: "🔄", fact: "Spring tides occur every ~14 days (new and full moon)" },
+                { icon: "⚡", fact: "First tidal power plant: La Rance, France (1966)" },
+                { icon: "🌊", fact: "Tidal bore = tidal wave traveling up rivers (Severn, Amazon)" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Sun causes stronger tides than Moon because Sun is bigger",
+                    correct: "MOON causes stronger tides despite being smaller - it's much CLOSER",
+                    explanation: "Tidal force depends on distance³, not just mass"
+                },
+                {
+                    wrong: "Spring tides happen in spring season",
+                    correct: "Spring tides happen twice per MONTH (new & full moon) - all year",
+                    explanation: "'Spring' means 'to spring forth' (strong), not the season"
+                },
+                {
+                    wrong: "Only one tidal bulge exists on Earth",
+                    correct: "TWO bulges exist - one toward Moon, one on opposite side",
+                    explanation: "Opposite bulge due to centrifugal force of Earth-Moon system"
+                },
+                {
+                    wrong: "High tide means more water arrives from ocean",
+                    correct: "High tide is water BULGE passing that location as Earth rotates",
+                    explanation: "Water doesn't flow in - Earth rotates under the bulge"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Moon (68%) + Sun (32%) cause tides. Spring Tide = aligned (Full/New Moon) = max. Neap Tide = 90° (Quarter Moon) = min. 2 high + 2 low daily (semi-diurnal). Gulf of Khambhat = India's highest.",
+                keyPoints: [
+                    "Moon dominates because CLOSER (tidal force ∝ 1/distance³)",
+                    "Spring: Full/New Moon, Sun-Moon aligned, maximum tides",
+                    "Neap: Quarter Moon, Sun-Moon 90°, minimum tides",
+                    "Tidal energy potential: Khambhat, Kutch, Sundarbans"
+                ],
+                examTip: "Bay of Fundy (Canada) = world's highest tides (16m). Gulf of Khambhat = India's highest (~12m). India's first tidal plant planned at Gulf of Kutch."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🧂 OCEAN SALINITY
+        // ─────────────────────────────────────────
+        {
+            id: "ocean-salinity",
+            name: "Ocean Salinity",
+            category: "physical",
+            subcategory: "oceanography",
+            theme: "ocean",
+            difficulty: "medium",
+            importance: "high",
+            studyTime: "35 min",
+
+            mindMap: {
+                center: "🧂 Ocean Salinity",
+                branches: [
+                    {
+                        name: "📊 MEASUREMENT",
+                        color: "#3498db",
+                        subs: [
+                            "Average: 35 ppt (parts per thousand)",
+                            "35 grams salt per 1 kg water",
+                            "Also written as 35‰",
+                            "Varies 33-37 ppt globally"
+                        ]
+                    },
+                    {
+                        name: "⬆️ HIGH SALINITY",
+                        color: "#e74c3c",
+                        subs: [
+                            "High evaporation (tropics)",
+                            "Enclosed seas (Red Sea 40‰)",
+                            "Low rainfall areas",
+                            "Subtropics (20°-30°)"
+                        ]
+                    },
+                    {
+                        name: "⬇️ LOW SALINITY",
+                        color: "#27ae60",
+                        subs: [
+                            "High rainfall (equator)",
+                            "River inflow areas",
+                            "Melting ice (poles)",
+                            "Baltic Sea (7‰)"
+                        ]
+                    },
+                    {
+                        name: "🔬 COMPOSITION",
+                        color: "#f39c12",
+                        subs: [
+                            "Sodium Chloride (NaCl) 78%",
+                            "Magnesium Chloride 11%",
+                            "Other salts 11%"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Salinity Pattern: 'HIGH at Horse, LOW at Lips'",
+                    trick: "H-L pattern",
+                    meaning: [
+                        { letter: "H", word: "High at Horse Latitudes", hint: "30° = high evaporation, deserts" },
+                        { letter: "L", word: "Low at 'Lips'", hint: "Equator (0°) & Poles (90°) = low salinity" }
+                    ],
+                    visual: "🐴👄 Horse latitudes have HIGH salinity. Lips (top/bottom = poles & middle = equator) have LOW!"
+                },
+                {
+                    title: "High Salinity Seas: 'MRS Dead'",
+                    trick: "M-R-S-D",
+                    meaning: [
+                        { letter: "M", word: "Mediterranean Sea", hint: "38-39‰" },
+                        { letter: "R", word: "Red Sea", hint: "40‰ - highest enclosed sea" },
+                        { letter: "S", word: "Salty enclosed seas", hint: "Limited freshwater input" },
+                        { letter: "D", word: "Dead Sea", hint: "340‰! - not really a sea, a lake" }
+                    ],
+                    visual: "💀 MRS is DEAD from too much salt!"
+                },
+                {
+                    title: "Factors: 'REIT' affects salinity",
+                    trick: "R-E-I-T",
+                    meaning: [
+                        { letter: "R", word: "Rainfall", hint: "More rain = lower salinity" },
+                        { letter: "E", word: "Evaporation", hint: "More evaporation = higher salinity" },
+                        { letter: "I", word: "Inflow (rivers)", hint: "More rivers = lower salinity" },
+                        { letter: "T", word: "Temperature", hint: "Affects evaporation rate" }
+                    ],
+                    visual: "🏠 REIT like real estate - location factors determine salinity 'value'!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "📊 What is Salinity?",
+                    icon: "🧂",
+                    points: [
+                        "• Amount of dissolved salts in seawater",
+                        "• Measured in PPT (parts per thousand) or ‰",
+                        "• Average ocean salinity = 35 ppt (35 grams salt per kg water)",
+                        "• Main component: Sodium Chloride (NaCl) = 78% of sea salt"
+                    ]
+                },
+                {
+                    title: "📍 Horizontal Distribution",
+                    icon: "🗺️",
+                    points: [
+                        "• EQUATOR (0°): LOW salinity - high rainfall dilutes salt",
+                        "• SUBTROPICS (20-30°): HIGHEST salinity - high evaporation, low rainfall",
+                        "• POLES: LOW salinity - ice melting adds freshwater",
+                        "• Pattern: Low → High → Low → High → Low (0° to 90°)"
+                    ]
+                },
+                {
+                    title: "📈 Vertical Distribution",
+                    icon: "⬇️",
+                    points: [
+                        "• SURFACE: Variable (affected by sun, rain, rivers)",
+                        "• HALOCLINE: Layer where salinity changes rapidly (200-1000m)",
+                        "• DEEP OCEAN: Uniform ~35 ppt (no external factors)",
+                        "• Salinity affects water density → drives deep ocean circulation"
+                    ]
+                },
+                {
+                    title: "🌡️ Factors Affecting Salinity",
+                    icon: "⚡",
+                    points: [
+                        "• EVAPORATION: High = more salinity (water leaves, salt stays)",
+                        "• PRECIPITATION: High = less salinity (dilution)",
+                        "• RIVER INFLOW: Near estuaries = low salinity",
+                        "• ICE MELTING: Polar regions = low salinity seasonally"
+                    ]
+                },
+                {
+                    title: "🌍 Notable Salinity Extremes",
+                    icon: "📌",
+                    points: [
+                        "• HIGHEST: Red Sea (40‰), Mediterranean (38-39‰)",
+                        "• LOWEST: Baltic Sea (7‰), Bay of Bengal (lower than Arabian Sea)",
+                        "• Dead Sea: 340‰ (technically a lake, hypersaline)",
+                        "• Bay of Bengal lower than Arabian Sea due to river discharge (Ganga, Brahmaputra)"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "latitude-graph",
+                    title: "Salinity vs Latitude",
+                    icon: "📈",
+                    description: "Graph showing salinity pattern: low at equator, high at 20-30°, low at poles"
+                },
+                {
+                    type: "vertical-profile",
+                    title: "Depth vs Salinity",
+                    icon: "📊",
+                    description: "Shows surface variation, halocline zone, uniform deep water"
+                },
+                {
+                    type: "world-map",
+                    title: "Global Sea Surface Salinity",
+                    icon: "🗺️",
+                    description: "Color-coded map showing salinity variations across oceans"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "🧂", fact: "78% of sea salt is Sodium Chloride (table salt)" },
+                { icon: "📊", fact: "Average ocean salinity = 35 ppt (35 grams per kg)" },
+                { icon: "🔴", fact: "Red Sea has highest salinity among major seas (~40‰)" },
+                { icon: "🔵", fact: "Baltic Sea has lowest salinity (~7‰) - almost freshwater!" },
+                { icon: "🇮🇳", fact: "Bay of Bengal is less salty than Arabian Sea - river discharge" },
+                { icon: "💀", fact: "Dead Sea = 340‰ (10× normal) - you float automatically!" },
+                { icon: "🌊", fact: "Salinity differences drive thermohaline circulation (global conveyor)" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Equator has highest salinity because it's hottest",
+                    correct: "SUBTROPICS (20-30°) have highest salinity, not equator",
+                    explanation: "Equator has high RAINFALL that dilutes the salt"
+                },
+                {
+                    wrong: "Polar regions have high salinity due to ice",
+                    correct: "Polar regions have LOW salinity - ice melting adds freshwater",
+                    explanation: "However, ice formation INCREASES salinity (salt rejected)"
+                },
+                {
+                    wrong: "Dead Sea is the world's saltiest sea",
+                    correct: "Dead Sea is a LAKE, not a sea. Among true seas, Red Sea is saltiest",
+                    explanation: "Red Sea ~40‰, Dead Sea ~340‰ but it's landlocked"
+                },
+                {
+                    wrong: "Salinity is uniform throughout ocean depth",
+                    correct: "Salinity varies at surface, has HALOCLINE zone, then uniform at depth",
+                    explanation: "Surface affected by rain/evaporation, deep ocean is stable"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Average 35 ppt (NaCl 78%). Pattern: Low (equator, rain) → High (20-30°, evaporation) → Low (poles, ice melt). Red Sea highest (40‰), Baltic lowest (7‰). Bay of Bengal < Arabian Sea (rivers).",
+                keyPoints: [
+                    "Salinity = dissolved salts, measured in ppt (parts per thousand)",
+                    "Highest at subtropics (20-30°) due to evaporation > precipitation",
+                    "Lowest at equator (rain), poles (ice melt), river mouths",
+                    "Vertical: Variable surface → Halocline → Uniform deep"
+                ],
+                examTip: "Why Bay of Bengal lower than Arabian Sea? Ganga, Brahmaputra discharge huge freshwater. Arabian Sea is enclosed, higher evaporation."
+            }
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🌱 BIOGEOGRAPHY & SOIL
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 🌱 SOIL FORMATION & TYPES
+        // ─────────────────────────────────────────
+        {
+            id: "soil-formation",
+            name: "Soil Formation & Types",
+            category: "physical",
+            subcategory: "biogeography",
+            theme: "soil",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "60 min",
+
+            mindMap: {
+                center: "🌱 Soil",
+                branches: [
+                    {
+                        name: "⚡ FORMATION FACTORS",
+                        color: "#8b4513",
+                        subs: [
+                            "Parent Rock (bedrock)",
+                            "Climate (temp, rainfall)",
+                            "Organisms (bio activity)",
+                            "Relief/Topography",
+                            "Time"
+                        ]
+                    },
+                    {
+                        name: "📊 SOIL PROFILE",
+                        color: "#27ae60",
+                        subs: [
+                            "O Horizon (organic)",
+                            "A Horizon (topsoil)",
+                            "B Horizon (subsoil)",
+                            "C Horizon (regolith)",
+                            "R Horizon (bedrock)"
+                        ]
+                    },
+                    {
+                        name: "🇮🇳 INDIAN SOILS",
+                        color: "#e74c3c",
+                        subs: [
+                            "Alluvial (largest)",
+                            "Black/Regur",
+                            "Red & Yellow",
+                            "Laterite",
+                            "Desert (Arid)",
+                            "Mountain/Forest"
+                        ]
+                    },
+                    {
+                        name: "🌍 WORLD SOILS",
+                        color: "#3498db",
+                        subs: [
+                            "Podzol (cold regions)",
+                            "Chernozem (grasslands)",
+                            "Laterite (tropics)",
+                            "Desert soils"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Soil Formation Factors: 'CLORPT'",
+                    trick: "C-L-O-R-P-T",
+                    meaning: [
+                        { letter: "C", word: "Climate", hint: "Temperature & moisture" },
+                        { letter: "L", word: "Living organisms", hint: "Plants, animals, microbes" },
+                        { letter: "O", word: "Organic matter", hint: "Humus accumulation" },
+                        { letter: "R", word: "Relief/Topography", hint: "Slope, drainage" },
+                        { letter: "P", word: "Parent material", hint: "Bedrock type" },
+                        { letter: "T", word: "Time", hint: "Age of soil formation" }
+                    ],
+                    visual: "🪴 CLORPT sounds like 'CHLOR-POT' - a pot where soil grows!"
+                },
+                {
+                    title: "Soil Horizons: 'OAB-CR' = O Above Bedrock, Creating Root-zone",
+                    trick: "O-A-B-C-R",
+                    meaning: [
+                        { letter: "O", word: "Organic layer", hint: "Leaf litter, humus" },
+                        { letter: "A", word: "Topsoil", hint: "Dark, nutrients, roots" },
+                        { letter: "B", word: "Subsoil", hint: "Accumulation zone (illuviation)" },
+                        { letter: "C", word: "Weathered rock (Regolith)", hint: "Broken bedrock" },
+                        { letter: "R", word: "Bedrock", hint: "Solid rock base" }
+                    ],
+                    visual: "📚 O-A-B-C-R like reading downward into Earth!"
+                },
+                {
+                    title: "Indian Soils: 'A BLACK RED LAtE DESErt FOREST Morning'",
+                    trick: "Major soil types",
+                    meaning: [
+                        { letter: "A", word: "Alluvial", hint: "Ganga plains, largest" },
+                        { letter: "BLACK", word: "Black/Regur", hint: "Deccan, cotton soil" },
+                        { letter: "RED", word: "Red & Yellow", hint: "Crystalline rocks" },
+                        { letter: "LATE", word: "Laterite", hint: "Heavy rain, leached" },
+                        { letter: "DESERT", word: "Desert/Arid", hint: "Rajasthan" },
+                        { letter: "FOREST", word: "Forest/Mountain", hint: "Himalayan, acidic" }
+                    ],
+                    visual: "☀️ A BLACK RED sunrise LATE in DESERT FOREST morning!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "⚗️ Soil Formation (Pedogenesis)",
+                    icon: "🔬",
+                    points: [
+                        "• WEATHERING: Physical + Chemical breakdown of parent rock",
+                        "• HUMIFICATION: Organic matter decomposition adds nutrients",
+                        "• LEACHING: Water carries minerals downward (eluviation)",
+                        "• ACCUMULATION: Minerals deposit in lower layers (illuviation)"
+                    ]
+                },
+                {
+                    title: "📊 Soil Profile Layers",
+                    icon: "📐",
+                    points: [
+                        "• O HORIZON: Surface organic matter (leaf litter, humus)",
+                        "• A HORIZON: Topsoil - dark, nutrient-rich, most roots here",
+                        "• B HORIZON: Subsoil - accumulation of leached minerals (iron, clay)",
+                        "• C HORIZON: Regolith - weathered parent rock fragments",
+                        "• R HORIZON: Bedrock - unweathered solid rock"
+                    ]
+                },
+                {
+                    title: "🏞️ Alluvial Soil (India)",
+                    icon: "🌾",
+                    points: [
+                        "• LARGEST coverage in India - entire Indo-Gangetic plain",
+                        "• Deposited by rivers (Ganga, Indus, Brahmaputra)",
+                        "• KHADAR: New alluvium, floods annually, more fertile",
+                        "• BHANGAR: Old alluvium, higher ground, contains kankar (calcium nodules)",
+                        "• Best for: Rice, wheat, sugarcane, jute"
+                    ]
+                },
+                {
+                    title: "⬛ Black/Regur Soil",
+                    icon: "🖤",
+                    points: [
+                        "• Derived from BASALT (Deccan Traps volcanic rock)",
+                        "• High MOISTURE RETENTION - swells wet, cracks dry (self-plowing)",
+                        "• Rich in: Calcium, Magnesium, Potash; Poor in: Nitrogen, Phosphorus",
+                        "• Black color from iron-titanium compounds",
+                        "• Best for: COTTON (hence 'Black Cotton Soil'), also oilseeds"
+                    ]
+                },
+                {
+                    title: "🔴 Red & Laterite Soils",
+                    icon: "🟤",
+                    points: [
+                        "• RED SOIL: From crystalline igneous rocks, iron oxide gives color",
+                        "• Found in: Odisha, Jharkhand, Tamil Nadu, Karnataka",
+                        "• LATERITE: Heavy leaching in high rainfall tropics",
+                        "• Hard when dry (used for building bricks!), soft when wet",
+                        "• Laterite needs fertilizers - nutrients leached away"
+                    ]
+                },
+                {
+                    title: "🏜️ Desert & Mountain Soils",
+                    icon: "🏔️",
+                    points: [
+                        "• DESERT: Sandy, saline, low humus, found in Rajasthan, Gujarat",
+                        "• High evaporation = salt accumulation (alkaline)",
+                        "• MOUNTAIN: Thin, immature, acidic (conifers add acid)",
+                        "• Found in Himalayas, Western Ghats peaks",
+                        "• Rich in humus at higher elevations but poorly developed"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "profile",
+                    title: "Soil Profile Layers",
+                    icon: "📊",
+                    description: "Vertical cross-section showing O, A, B, C, R horizons with labels"
+                },
+                {
+                    type: "india-map",
+                    title: "Soil Types of India",
+                    icon: "🗺️",
+                    description: "Color-coded map showing distribution of 6 major soil types"
+                },
+                {
+                    type: "comparison",
+                    title: "Khadar vs Bhangar",
+                    icon: "⚖️",
+                    description: "Table comparing new vs old alluvium characteristics"
+                },
+                {
+                    type: "process",
+                    title: "Laterization Process",
+                    icon: "🔄",
+                    description: "Shows heavy rainfall leaching silica, leaving iron/aluminum oxides"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📏", fact: "1 cm of topsoil takes 200-1000 years to form" },
+                { icon: "🌾", fact: "Alluvial soil covers 40% of India's land area" },
+                { icon: "⬛", fact: "Black soil can crack up to 50 cm deep when dry (self-plowing)" },
+                { icon: "🧱", fact: "Laterite means 'brick' in Latin - used for building (Konkan coast)" },
+                { icon: "🏜️", fact: "Desert soils have 90% sand and very low organic matter" },
+                { icon: "❄️", fact: "Mountain soils above 3000m have pH < 6 (acidic)" },
+                { icon: "🔴", fact: "Red soil color = hematite (Fe₂O₃), Yellow = limonite (hydrated iron)" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Black soil is formed from organic matter (humus)",
+                    correct: "Black color is from IRON-TITANIUM compounds, not humus",
+                    explanation: "Black soil actually has LOW organic matter"
+                },
+                {
+                    wrong: "Khadar is less fertile than Bhangar",
+                    correct: "KHADAR (new alluvium) is MORE fertile than Bhangar (old)",
+                    explanation: "Khadar gets fresh nutrient deposits from annual floods"
+                },
+                {
+                    wrong: "Laterite is highly fertile due to heavy rainfall",
+                    correct: "Laterite is POOR in nutrients - heavy rain leaches them away",
+                    explanation: "Only iron & aluminum oxides remain, nutrients washed out"
+                },
+                {
+                    wrong: "Red soil is red due to blood-like organic matter",
+                    correct: "Red color is due to IRON OXIDE (hematite/Fe₂O₃)",
+                    explanation: "Iron minerals oxidize (rust) giving red-yellow colors"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Factors: CLORPT. Profile: O-A-B-C-R (down). India: Alluvial (largest, rivers), Black (Deccan, cotton), Red (iron), Laterite (leached, bricks), Desert (sandy), Mountain (acidic). Khadar (new) > Bhangar (old) fertility.",
+                keyPoints: [
+                    "Alluvial: 40% of India, Khadar (new/fertile) vs Bhangar (old/kankar)",
+                    "Black/Regur: Basalt origin, self-plowing, cotton, moisture retention",
+                    "Laterite: Heavy rain leaches nutrients, hardpan, needs fertilizers",
+                    "Red: Iron oxide color, crystalline rock parent material"
+                ],
+                examTip: "Black soil is POOR in Nitrogen & Phosphorus but RICH in Calcium, Potash, Magnesium. Laterite used for BRICKS (Karnataka, Kerala houses)."
+            }
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🇮🇳 II. GEOGRAPHY OF INDIA
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─────────────────────────────────────────
+        // 🏔️ HIMALAYAS
+        // ─────────────────────────────────────────
+        {
+            id: "himalayas",
+            name: "The Himalayas",
+            category: "india",
+            subcategory: "physical-india",
+            theme: "mountain",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "60 min",
+
+            mindMap: {
+                center: "🏔️ Himalayas",
+                branches: [
+                    {
+                        name: "📍 THREE RANGES",
+                        color: "#3498db",
+                        subs: [
+                            "Greater Himalayas (Himadri)",
+                            "Lesser Himalayas (Himachal)",
+                            "Outer Himalayas (Shiwalik)"
+                        ]
+                    },
+                    {
+                        name: "📏 DIVISIONS (W to E)",
+                        color: "#e74c3c",
+                        subs: [
+                            "Kashmir Himalayas",
+                            "Himachal Himalayas",
+                            "Kumaon Himalayas",
+                            "Nepal Himalayas",
+                            "Assam Himalayas"
+                        ]
+                    },
+                    {
+                        name: "⛰️ KEY PEAKS",
+                        color: "#f39c12",
+                        subs: [
+                            "Everest (8848m) - Nepal",
+                            "K2 (8611m) - India/Pak",
+                            "Kanchenjunga (8586m) - Sikkim",
+                            "Nanda Devi (7816m) - India"
+                        ]
+                    },
+                    {
+                        name: "🚪 PASSES",
+                        color: "#27ae60",
+                        subs: [
+                            "Khyber, Bolan (W)",
+                            "Shipki La, Bara-Lacha",
+                            "Nathu La, Jelep La (E)",
+                            "Karakoram Pass"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Three Ranges: 'Great Lessons in Outer Space'",
+                    trick: "G-L-O (North to South)",
+                    meaning: [
+                        { letter: "G", word: "Greater Himalayas (Himadri)", hint: "Highest, all 8000m peaks" },
+                        { letter: "L", word: "Lesser Himalayas (Himachal)", hint: "Hill stations, Pir Panjal" },
+                        { letter: "O", word: "Outer Himalayas (Shiwalik)", hint: "Lowest, foothills, Duns" }
+                    ],
+                    visual: "🏔️ GLO like GLOW - Himalayas glow with snow from Great to Outer!"
+                },
+                {
+                    title: "Himalayan Divisions W to E: 'KKNNA'",
+                    trick: "K-K-N-N-A",
+                    meaning: [
+                        { letter: "K", word: "Kashmir", hint: "Zanskar, Ladakh, Karakoram" },
+                        { letter: "K", word: "Kumaon-Garhwal", hint: "Uttarakhand, Nanda Devi" },
+                        { letter: "N", word: "Nepal", hint: "Everest, Annapurna" },
+                        { letter: "N", word: "Sikkim-Darjeeling", hint: "Kanchenjunga" },
+                        { letter: "A", word: "Assam-Arunachal", hint: "Purvanchal hills" }
+                    ],
+                    visual: "🗺️ KKNNA - like 'KHANNA' surname - travel W to E across Himalayas!"
+                },
+                {
+                    title: "Highest Peaks: 'Every Kid Knows Mountains'",
+                    trick: "E-K-K-M",
+                    meaning: [
+                        { letter: "E", word: "Everest", hint: "8848m, Nepal, highest on Earth" },
+                        { letter: "K", word: "K2", hint: "8611m, Karakoram, 2nd highest" },
+                        { letter: "K", word: "Kanchenjunga", hint: "8586m, Sikkim, 3rd highest" },
+                        { letter: "M", word: "Makalu", hint: "8463m, Nepal, 5th highest" }
+                    ],
+                    visual: "👧 EVERY KID KNOWS MOUNTAINS - world's highest in order!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🏔️ Greater Himalayas (Himadri)",
+                    icon: "❄️",
+                    points: [
+                        "• HIGHEST range - average 6000m, all peaks above 8000m here",
+                        "• Perpetual snow, glaciers (Siachen, Gangotri, Zemu)",
+                        "• Includes: Everest, K2, Kanchenjunga, Nanga Parbat",
+                        "• Core of folded mountains, granite & metamorphic rocks"
+                    ]
+                },
+                {
+                    title: "⛰️ Lesser Himalayas (Himachal)",
+                    icon: "🌲",
+                    points: [
+                        "• Average height: 3700-4500m",
+                        "• Contains: Pir Panjal, Dhaula Dhar, Mahabharat, Mussoorie ranges",
+                        "• ALL MAJOR HILL STATIONS: Shimla, Mussoorie, Nainital, Darjeeling",
+                        "• Kashmir Valley and Kullu Valley are here"
+                    ]
+                },
+                {
+                    title: "🏕️ Outer Himalayas (Shiwalik)",
+                    icon: "🌿",
+                    points: [
+                        "• LOWEST range - 900-1200m average",
+                        "• Composed of unconsolidated sediments (easily erodes)",
+                        "• Contains DUNS: Dehradun, Haridwar, Kotli Dun",
+                        "• Terai region at foothills - marshy, forested"
+                    ]
+                },
+                {
+                    title: "🌊 Trans-Himalayas",
+                    icon: "🏜️",
+                    points: [
+                        "• NORTH of Greater Himalayas - Karakoram, Ladakh, Zaskar ranges",
+                        "• K2 (8611m) is in Karakoram, NOT Himalayas proper",
+                        "• Cold desert climate - Ladakh, Spiti",
+                        "• Important passes: Khardung La, Karakoram Pass"
+                    ]
+                },
+                {
+                    title: "🚗 Important Passes",
+                    icon: "🚪",
+                    points: [
+                        "• WEST: Khyber, Bolan (Pakistan), historical invasion routes",
+                        "• J&K: Zoji La (Srinagar-Leh), Banihal (Jammu-Srinagar)",
+                        "• HP: Shipki La, Rohtang, Bara-Lacha La (Manali-Leh)",
+                        "• Sikkim: Nathu La, Jelep La (India-China trade)"
+                    ]
+                },
+                {
+                    title: "🌏 Formation & Significance",
+                    icon: "⚡",
+                    points: [
+                        "• Formed by India-Eurasia collision (50 million years ago), still rising!",
+                        "• Blocks cold Central Asian winds → keeps India warm",
+                        "• Stops monsoon winds → causes heavy rainfall in India",
+                        "• Source of major rivers: Ganga, Indus, Brahmaputra"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "cross-section",
+                    title: "Himalayan Ranges Profile",
+                    icon: "📐",
+                    description: "North to South: Trans-Himalayas → Greater → Lesser → Shiwalik → Plains"
+                },
+                {
+                    type: "map",
+                    title: "Himalayan Divisions Map",
+                    icon: "🗺️",
+                    description: "W to E divisions with major peaks and passes marked"
+                },
+                {
+                    type: "3d-view",
+                    title: "Three Parallel Ranges",
+                    icon: "🏔️",
+                    description: "3D view showing three ranges with relative heights and features"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📏", fact: "Himalayas stretch 2,400 km from Nanga Parbat to Namcha Barwa" },
+                { icon: "⬆️", fact: "Himalayas rise ~1 cm per year - still growing!" },
+                { icon: "🏔️", fact: "9 of world's 10 highest peaks are in Himalayas (including K2 in Karakoram)" },
+                { icon: "🧊", fact: "Siachen Glacier (76 km) is world's 2nd longest non-polar glacier" },
+                { icon: "🚗", fact: "Khardung La (5,359m) claims to be world's highest motorable road" },
+                { icon: "🇮🇳", fact: "Kanchenjunga (8,586m) is highest peak entirely in India" },
+                { icon: "🌧️", fact: "Mawsynram/Cherrapunji get extreme rain due to Himalayan barrier effect" }
+            ],
+
+            traps: [
+                {
+                    wrong: "K2 is in the Himalayas",
+                    correct: "K2 is in KARAKORAM range (Trans-Himalayas), not Himalayas proper",
+                    explanation: "Karakoram is separate range north of Himalayas"
+                },
+                {
+                    wrong: "Everest is in India",
+                    correct: "Everest is on Nepal-China (Tibet) border, NOT India",
+                    explanation: "India's highest is Kanchenjunga on Sikkim-Nepal border"
+                },
+                {
+                    wrong: "Shiwalik is the highest range",
+                    correct: "SHIWALIK is the LOWEST range; Greater Himalayas is HIGHEST",
+                    explanation: "Height increases northward: Shiwalik < Lesser < Greater"
+                },
+                {
+                    wrong: "Duns are found in Greater Himalayas",
+                    correct: "Duns (longitudinal valleys) are in SHIWALIK (Outer Himalayas)",
+                    explanation: "Dehradun, Patli Dun, Kotli Dun are between Shiwalik hills"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Three ranges (N→S): Greater (highest, 8000m peaks) → Lesser (hill stations, valleys) → Shiwalik (lowest, Duns). W→E: Kashmir-Kumaon-Nepal-Sikkim-Assam. K2 in Karakoram (Trans-Himalaya), not Himalaya. Rising 1cm/year.",
+                keyPoints: [
+                    "Greater: Everest, Kanchenjunga, glaciers (Siachen, Gangotri)",
+                    "Lesser: Hill stations (Shimla, Mussoorie), Pir Panjal, Kashmir Valley",
+                    "Shiwalik: Duns (Dehradun), Terai forests, sedimentary",
+                    "Trans-Himalayas: Karakoram (K2), Ladakh, cold desert"
+                ],
+                examTip: "Nanda Devi (7816m) = highest peak entirely within India. Kanchenjunga is on India-Nepal border. Aravalli is OLDEST mountain, Himalaya is YOUNGEST (fold mountain)."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🌊 INDIAN MONSOON
+        // ─────────────────────────────────────────
+        {
+            id: "indian-monsoon",
+            name: "Indian Monsoon",
+            category: "india",
+            subcategory: "climate-india",
+            theme: "climate",
+            difficulty: "very-high",
+            importance: "very-high",
+            studyTime: "75 min",
+
+            mindMap: {
+                center: "🌧️ Indian Monsoon",
+                branches: [
+                    {
+                        name: "⚡ MECHANISM",
+                        color: "#3498db",
+                        subs: [
+                            "Differential heating",
+                            "ITCZ shift northward",
+                            "Subtropical Jet withdrawal",
+                            "Tropical Easterly Jet onset",
+                            "Somali Jet (Low Level)"
+                        ]
+                    },
+                    {
+                        name: "🌬️ SW MONSOON",
+                        color: "#27ae60",
+                        subs: [
+                            "June to September",
+                            "Arabian Sea branch",
+                            "Bay of Bengal branch",
+                            "75% of annual rain"
+                        ]
+                    },
+                    {
+                        name: "🌬️ NE MONSOON",
+                        color: "#e74c3c",
+                        subs: [
+                            "October to December",
+                            "Retreating monsoon",
+                            "Tamil Nadu gets rain",
+                            "Cyclonic activity"
+                        ]
+                    },
+                    {
+                        name: "📊 VARIATIONS",
+                        color: "#f39c12",
+                        subs: [
+                            "El Niño (weak monsoon)",
+                            "La Niña (strong monsoon)",
+                            "IOD (Indian Ocean Dipole)",
+                            "Break monsoon periods"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Monsoon Mechanism: 'STIFF' Factors",
+                    trick: "S-T-I-F-F",
+                    meaning: [
+                        { letter: "S", word: "Sun's apparent movement", hint: "Sun over Tropic of Cancer in June" },
+                        { letter: "T", word: "Thermal contrast", hint: "Land heats faster than ocean" },
+                        { letter: "I", word: "ITCZ shift", hint: "Moves to 20-25°N over Ganga plain" },
+                        { letter: "F", word: "Ferrel & Coriolis", hint: "Deflect winds to SW direction" },
+                        { letter: "F", word: "Flux (Jet streams)", hint: "Subtropical Jet leaves, TEJ arrives" }
+                    ],
+                    visual: "💪 Monsoon is STIFF and strong - all factors work together!"
+                },
+                {
+                    title: "Two Branches: 'BABA - Bay Arabian Bring All'",
+                    trick: "B-A-B-A",
+                    meaning: [
+                        { letter: "B", word: "Bay of Bengal branch", hint: "NE India, Bengal, Bihar" },
+                        { letter: "A", word: "Arrives earlier (June 1)", hint: "Hits Kerala first" },
+                        { letter: "B", word: "Arabian Sea branch", hint: "Western Ghats, Mumbai" },
+                        { letter: "A", word: "Also June but slower", hint: "Parallel advance" }
+                    ],
+                    visual: "👴 BABA (grandfather) brings rain every June like clockwork!"
+                },
+                {
+                    title: "Monsoon Dates: 'June 1st Kerala, July 15 All India'",
+                    trick: "J-1-K → J-15-A",
+                    meaning: [
+                        { letter: "J1K", word: "June 1st Kerala", hint: "Onset date (±7 days)" },
+                        { letter: "J15A", word: "July 15 all India", hint: "Covers entire country" }
+                    ],
+                    visual: "📅 June 1 = START (Kerala), July 15 = FULL (all India)"
+                },
+                {
+                    title: "El Niño Effect: 'EL = Extreme Loss'",
+                    trick: "E-L",
+                    meaning: [
+                        { letter: "E", word: "El Niño", hint: "Warm Pacific = weak Indian monsoon" },
+                        { letter: "L", word: "Loss of rain", hint: "Droughts in India during El Niño years" }
+                    ],
+                    visual: "🌊 EL Niño = Extra warm Pacific = Less rain in India!"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "☀️ Why Does Monsoon Happen?",
+                    icon: "❓",
+                    points: [
+                        "• DIFFERENTIAL HEATING: Land heats faster than ocean in summer",
+                        "• Creates LOW PRESSURE over Indian landmass (Thar Desert)",
+                        "• High pressure over Indian Ocean → winds blow from sea to land",
+                        "• Coriolis deflects SE Trade Winds → become SW Monsoon winds"
+                    ]
+                },
+                {
+                    title: "✈️ Jet Stream Role",
+                    icon: "💨",
+                    points: [
+                        "• WINTER: Subtropical Jet SOUTH of Himalayas → blocks monsoon",
+                        "• JUNE: Jet shifts NORTH of Himalayas → monsoon bursts!",
+                        "• SUMMER: Tropical Easterly Jet (TEJ) appears at 15°N",
+                        "• Strong TEJ = GOOD monsoon; Weak TEJ = poor monsoon"
+                    ]
+                },
+                {
+                    title: "🌊 Arabian Sea Branch",
+                    icon: "⬅️",
+                    points: [
+                        "• Hits Kerala coast first (June 1) → 'Monsoon burst'",
+                        "• Moves north along Western Ghats → heavy rain on windward side",
+                        "• Mumbai, Konkan, Western Ghats get intense rain",
+                        "• Rain shadow: Deccan interior stays dry"
+                    ]
+                },
+                {
+                    title: "🌊 Bay of Bengal Branch",
+                    icon: "➡️",
+                    points: [
+                        "• Enters through Myanmar, splits into TWO branches",
+                        "• NE Branch: Meghalaya plateau → HIGHEST rainfall (Mawsynram, Cherrapunji)",
+                        "• NW Branch: Moves up Ganga plain → July 15 reaches Punjab",
+                        "• Gives maximum rain to NE India, Bengal, Bihar"
+                    ]
+                },
+                {
+                    title: "📅 Monsoon Calendar",
+                    icon: "🗓️",
+                    points: [
+                        "• ONSET: June 1 (Kerala) → June 10 (Mumbai) → July 15 (all India)",
+                        "• PEAK: July-August (heaviest rain)",
+                        "• WITHDRAWAL: Sept 1 (Rajasthan) → Oct 15 (Tamil Nadu)",
+                        "• RETREAT: October-November brings cyclones to Bay of Bengal"
+                    ]
+                },
+                {
+                    title: "🌡️ El Niño & La Niña",
+                    icon: "🌊",
+                    points: [
+                        "• EL NIÑO: Pacific warms → Indian monsoon WEAKENS → droughts",
+                        "• LA NIÑA: Pacific cools → Indian monsoon STRENGTHENS → floods",
+                        "• IOD Positive: Warm western Indian Ocean → good monsoon",
+                        "• IOD + La Niña = excellent monsoon years"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "mechanism",
+                    title: "Monsoon Mechanism",
+                    icon: "⚡",
+                    description: "Shows pressure systems, ITCZ position, jet stream shift, wind direction"
+                },
+                {
+                    type: "map",
+                    title: "Two Branches Path",
+                    icon: "🗺️",
+                    description: "India map showing Arabian Sea & Bay of Bengal branch paths with dates"
+                },
+                {
+                    type: "timeline",
+                    title: "Monsoon Onset Calendar",
+                    icon: "📅",
+                    description: "Month-wise progression: June 1 Kerala → July 15 Punjab/Rajasthan"
+                },
+                {
+                    type: "enso",
+                    title: "El Niño Effect on Monsoon",
+                    icon: "🌊",
+                    description: "Pacific temperature map + India rainfall correlation"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "💧", fact: "SW Monsoon brings 75% of India's annual rainfall" },
+                { icon: "📅", fact: "Normal onset: June 1 (Kerala), July 15 (entire India)" },
+                { icon: "🌧️", fact: "Mawsynram & Cherrapunji: 11,000+ mm rain/year (world's wettest)" },
+                { icon: "🏜️", fact: "Thar Desert gets <25 cm rain - monsoon doesn't reach effectively" },
+                { icon: "🌡️", fact: "Pre-monsoon: 'Loo' hot winds in North India (May-June)" },
+                { icon: "⛈️", fact: "Monsoon trough position determines rainfall distribution" },
+                { icon: "📊", fact: "Break monsoon: 1-2 week pause, trough shifts to Himalayas" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Monsoon comes from Indian Ocean",
+                    correct: "SW Monsoon is SE Trade Winds that CROSS equator and get deflected",
+                    explanation: "They originate in Southern Hemisphere, not Indian Ocean directly"
+                },
+                {
+                    wrong: "Kerala gets monsoon first because it's southernmost",
+                    correct: "Kerala gets first because moisture-laden winds first encounter LAND there",
+                    explanation: "Sri Lanka doesn't block - winds curve around and hit Kerala"
+                },
+                {
+                    wrong: "NE Monsoon brings rain to all of India",
+                    correct: "NE Monsoon mainly benefits TAMIL NADU (50% of its rain)",
+                    explanation: "Rest of India has dry winter; only TN gets Oct-Nov rain"
+                },
+                {
+                    wrong: "El Niño always causes drought in India",
+                    correct: "El Niño USUALLY weakens monsoon, but positive IOD can compensate",
+                    explanation: "2019 had El Niño but positive IOD gave normal monsoon"
+                }
+            ],
+
+            revision: {
+                oneLiner: "SW Monsoon (June-Sept, 75% rain): ITCZ shifts north, Subtropical Jet leaves, TEJ arrives. Two branches: Arabian (Western Ghats) + Bay of Bengal (NE India, Ganga plain). NE Monsoon (Oct-Dec) gives rain to Tamil Nadu. El Niño = weak, La Niña = strong monsoon.",
+                keyPoints: [
+                    "Mechanism: Differential heating + ITCZ shift + Jet stream change",
+                    "Onset: June 1 Kerala → July 15 all India → Sept 1 withdrawal starts",
+                    "Arabian branch: Western coast; Bay branch: NE India, Ganga plain",
+                    "Highest rain: Mawsynram (11,000mm); Lowest: W. Rajasthan (<25cm)"
+                ],
+                examTip: "Monsoon trough (low pressure) lies along Ganga plain. If it shifts to Himalayas = Break monsoon (dry spell in plains, floods in Himalayan foothills)."
+            }
+        },
+
+        // ─────────────────────────────────────────
+        // 🌊 INDIAN RIVERS - DRAINAGE SYSTEM
+        // ─────────────────────────────────────────
+        {
+            id: "indian-rivers",
+            name: "Indian Rivers & Drainage",
+            category: "india",
+            subcategory: "drainage",
+            theme: "river",
+            difficulty: "high",
+            importance: "very-high",
+            studyTime: "70 min",
+
+            mindMap: {
+                center: "🌊 Indian Drainage",
+                branches: [
+                    {
+                        name: "🏔️ HIMALAYAN RIVERS",
+                        color: "#3498db",
+                        subs: [
+                            "Perennial (snow-fed)",
+                            "Ganga System",
+                            "Indus System",
+                            "Brahmaputra System",
+                            "Young, deep valleys"
+                        ]
+                    },
+                    {
+                        name: "🏜️ PENINSULAR RIVERS",
+                        color: "#e74c3c",
+                        subs: [
+                            "Seasonal (rain-fed)",
+                            "East-flowing (Godavari, Krishna)",
+                            "West-flowing (Narmada, Tapi)",
+                            "Mature, shallow valleys"
+                        ]
+                    },
+                    {
+                        name: "🌊 DRAINAGE PATTERNS",
+                        color: "#27ae60",
+                        subs: [
+                            "Dendritic (Ganga)",
+                            "Trellis (Himalayan)",
+                            "Radial (Amarkantak)",
+                            "Centripetal (inland)"
+                        ]
+                    },
+                    {
+                        name: "⚡ KEY CONCEPTS",
+                        color: "#f39c12",
+                        subs: [
+                            "Antecedent rivers",
+                            "River capture/piracy",
+                            "Water divide",
+                            "Doabs & Basins"
+                        ]
+                    }
+                ]
+            },
+
+            mnemonics: [
+                {
+                    title: "Himalayan Rivers: 'GIB' - Three Major Systems",
+                    trick: "G-I-B",
+                    meaning: [
+                        { letter: "G", word: "Ganga", hint: "Largest basin in India, Bay of Bengal" },
+                        { letter: "I", word: "Indus", hint: "Originates in Tibet, flows to Pakistan" },
+                        { letter: "B", word: "Brahmaputra", hint: "From Tibet (Tsangpo), NE India, Bangladesh" }
+                    ],
+                    visual: "🎁 GIB like 'GIVE' - Himalayan rivers GIVE water year-round!"
+                },
+                {
+                    title: "East-Flowing Peninsular: 'MGK CKP'",
+                    trick: "M-G-K C-K-P (North to South)",
+                    meaning: [
+                        { letter: "M", word: "Mahanadi", hint: "Odisha, Hirakud Dam" },
+                        { letter: "G", word: "Godavari", hint: "Longest peninsular, 'Dakshin Ganga'" },
+                        { letter: "K", word: "Krishna", hint: "Maharashtra, Karnataka, AP" },
+                        { letter: "C", word: "Cauvery", hint: "Karnataka, Tamil Nadu" },
+                        { letter: "K", word: "Kaveri (alt. spelling)", hint: "Dispute between KA-TN" },
+                        { letter: "P", word: "Pennar, Palar", hint: "Smaller rivers" }
+                    ],
+                    visual: "📱 MGK CKP like 'MEGA QUICK PICKUP' of rain → Bay of Bengal!"
+                },
+                {
+                    title: "West-Flowing: 'NaTaSaLu Ma'",
+                    trick: "Na-Ta-Sa-Lu-Ma",
+                    meaning: [
+                        { letter: "Na", word: "Narmada", hint: "Longest west-flowing, rift valley" },
+                        { letter: "Ta", word: "Tapi/Tapti", hint: "2nd longest west-flowing" },
+                        { letter: "Sa", word: "Sabarmati", hint: "Gujarat, Ahmedabad" },
+                        { letter: "Lu", word: "Luni", hint: "Only significant river in Rajasthan" },
+                        { letter: "Ma", word: "Mahi", hint: "Gujarat" }
+                    ],
+                    visual: "🌅 NATASA LUMA sounds exotic - sunset over Arabian Sea where they flow!"
+                },
+                {
+                    title: "Ganga Tributaries: 'GYRS GKS'",
+                    trick: "Left Bank (North): GYRS, Right Bank (South): GKS",
+                    meaning: [
+                        { letter: "G", word: "Ghaghara/Ghagra", hint: "Left, from Tibet via Nepal" },
+                        { letter: "Y", word: "Yamuna", hint: "Biggest tributary, Delhi" },
+                        { letter: "R", word: "Ramganga", hint: "Left bank" },
+                        { letter: "S", word: "Sharda/Kali", hint: "Left, India-Nepal border" },
+                        { letter: "G", word: "Gomti", hint: "Left bank, Lucknow" },
+                        { letter: "K", word: "Kosi", hint: "Left, 'Sorrow of Bihar' - floods" },
+                        { letter: "S", word: "Son", hint: "Right bank, from Amarkantak" }
+                    ],
+                    visual: "📝 Left: GYRS = Ghaghara, Yamuna, Ramganga, Sharda/Gomti, Kosi. Right: Son"
+                }
+            ],
+
+            concepts: [
+                {
+                    title: "🏔️ Himalayan vs Peninsular Rivers",
+                    icon: "⚖️",
+                    points: [
+                        "• HIMALAYAN: Perennial (snow + rain), young, deep gorges, waterfalls",
+                        "• PENINSULAR: Seasonal (only rain), old, shallow valleys, graded profile",
+                        "• Himalayan: Antecedent (older than mountains!), meander in plains",
+                        "• Peninsular: Follow rift valleys (Narmada, Tapi) or slope of plateau"
+                    ]
+                },
+                {
+                    title: "🌊 The Ganga System",
+                    icon: "💧",
+                    points: [
+                        "• Origin: Gangotri Glacier (Bhagirathi) + Alaknanda → meet at Devprayag",
+                        "• Length: 2,525 km, Basin: Largest in India (26% area)",
+                        "• Major tributaries: Yamuna, Ghaghara, Gandak, Kosi, Son",
+                        "• Ends: Sundarbans delta (world's largest) → Bay of Bengal"
+                    ]
+                },
+                {
+                    title: "🌊 The Indus System",
+                    icon: "🏔️",
+                    points: [
+                        "• Origin: Mansarovar region (Tibet), near Kailash",
+                        "• Indian tributaries: Jhelum, Chenab, Ravi, Beas, Sutlej (Punjab rivers)",
+                        "• Indus Waters Treaty (1960): India gets 3 eastern rivers (Ravi, Beas, Sutlej)",
+                        "• Total length: 2,880 km (longest among the three)"
+                    ]
+                },
+                {
+                    title: "🌊 The Brahmaputra System",
+                    icon: "🌀",
+                    points: [
+                        "• Origin: Chemayungdung Glacier (Tibet), known as Tsangpo in Tibet",
+                        "• Enters India at Namcha Barwa (sharp U-turn, world's largest river canyon)",
+                        "• Called Dihang → Brahmaputra (Assam) → Jamuna (Bangladesh)",
+                        "• Highly braided, floods annually, Majuli - world's largest river island"
+                    ]
+                },
+                {
+                    title: "🌊 East-Flowing Peninsular Rivers",
+                    icon: "➡️",
+                    points: [
+                        "• Why east? Western Ghats = water divide, slopes east to Bay",
+                        "• GODAVARI: Longest peninsular (1,465 km), 'Dakshin Ganga'",
+                        "• KRISHNA: 2nd longest, Tungabhadra major tributary",
+                        "• MAHANADI: Hirakud Dam, Odisha", 
+                        "• CAUVERY: Karnataka-TN dispute, less water"
+                    ]
+                },
+                {
+                    title: "🌊 West-Flowing Rivers",
+                    icon: "⬅️",
+                    points: [
+                        "• Flow through RIFT VALLEYS (fault origin), not over plateau",
+                        "• NARMADA: Longest west-flowing (1,312 km), Sardar Sarovar Dam",
+                        "• TAPI: Parallel to Narmada, 2nd longest west-flowing",
+                        "• NO DELTA: Steep gradient, flow fast → estuaries, not deltas",
+                        "• Luni: Only river in W. Rajasthan (ends in Rann of Kutch)"
+                    ]
+                }
+            ],
+
+            diagrams: [
+                {
+                    type: "map",
+                    title: "Indian River Systems Map",
+                    icon: "🗺️",
+                    description: "Complete map showing all major rivers, basins, and drainage divide"
+                },
+                {
+                    type: "comparison",
+                    title: "Himalayan vs Peninsular Rivers",
+                    icon: "⚖️",
+                    description: "Table comparing origin, flow type, valley shape, age, delta formation"
+                },
+                {
+                    type: "basin",
+                    title: "Ganga Basin & Tributaries",
+                    icon: "🌊",
+                    description: "Detailed view of Ganga system with all tributaries marked"
+                },
+                {
+                    type: "profile",
+                    title: "River Long Profile",
+                    icon: "📈",
+                    description: "Himalayan (steep, waterfalls) vs Peninsular (graded, mature) profiles"
+                }
+            ],
+
+            quickFacts: [
+                { icon: "📏", fact: "Ganga basin covers 26% of India's total area" },
+                { icon: "🏆", fact: "Godavari = longest peninsular river (1,465 km)" },
+                { icon: "🌊", fact: "Brahmaputra carries most water (has highest discharge)" },
+                { icon: "🏝️", fact: "Majuli (Brahmaputra) = world's largest river island" },
+                { icon: "⚡", fact: "Indus originates in Tibet, flows 2,880 km to Arabian Sea" },
+                { icon: "🌿", fact: "Sundarbans delta = world's largest mangrove forest" },
+                { icon: "😢", fact: "Kosi = 'Sorrow of Bihar', Damodar = 'Sorrow of Bengal' - floods" }
+            ],
+
+            traps: [
+                {
+                    wrong: "Indus is entirely in India",
+                    correct: "Indus originates in TIBET, mostly flows through PAKISTAN",
+                    explanation: "Only tributaries (Punjab rivers) and upper course in India"
+                },
+                {
+                    wrong: "West-flowing rivers form deltas",
+                    correct: "Narmada & Tapi form ESTUARIES, not deltas (steep gradient, fast flow)",
+                    explanation: "Only east-flowing rivers form deltas (gentle slope)"
+                },
+                {
+                    wrong: "Brahmaputra is longest river in India",
+                    correct: "GANGA is longest river entirely in India. Brahmaputra/Indus are longer but trans-boundary",
+                    explanation: "Brahmaputra in India is ~725 km; in total system ~2,900 km"
+                },
+                {
+                    wrong: "Godavari is called 'Sorrow of South'",
+                    correct: "Godavari is called 'DAKSHIN GANGA' (Ganga of South) - a positive term",
+                    explanation: "'Sorrow' terms are for flood-prone rivers like Kosi, Damodar"
+                }
+            ],
+
+            revision: {
+                oneLiner: "Himalayan (perennial, snow-fed): GIB (Ganga, Indus, Brahmaputra). Peninsular: East-flowing (Godavari longest), West-flowing (Narmada, Tapi - rift valleys, estuaries). Ganga = largest basin, Brahmaputra = highest discharge, Godavari = longest peninsular.",
+                keyPoints: [
+                    "Himalayan: Antecedent, perennial, young valleys, large deltas",
+                    "Peninsular: Rain-fed, seasonal, mature valleys, rift origin (west)",
+                    "East-flowing: Godavari > Krishna > Mahanadi > Cauvery → Bay of Bengal",
+                    "West-flowing: Narmada > Tapi (estuaries) → Arabian Sea"
+                ],
+                examTip: "Indus Waters Treaty (1960): India gets Ravi, Beas, Sutlej (eastern). Pakistan gets Indus, Jhelum, Chenab (western). Water divide at Western Ghats makes most rivers flow east."
+            }
+        }
+    ]
+};
+
+// Merge with main data
+if (typeof UPSC_GEOGRAPHY_DATA !== 'undefined') {
+    UPSC_GEOGRAPHY_DATA.topics = UPSC_GEOGRAPHY_DATA.topics.concat(UPSC_GEOGRAPHY_DATA_PART_B.topics);
+}
 
 // Export for module use
 if (typeof module !== 'undefined' && module.exports) {
