@@ -1051,6 +1051,212 @@
                 height: 40vh;
             }
         }
+        /* World Map Styles */
+.map-container {
+    display: flex;
+    height: calc(100vh - 80px);
+    padding: 20px;
+    gap: 20px;
+}
+
+.map-wrapper {
+    flex: 1;
+    position: relative;
+    background: #1a1a2e;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(147, 51, 234, 0.3);
+}
+
+.world-map-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+}
+
+.map-markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.map-marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #ef4444;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    pointer-events: all;
+    transition: all 0.3s;
+    animation: markerPulse 2s ease-in-out infinite;
+}
+
+.map-marker:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    z-index: 100;
+}
+
+.map-marker.unsolved { background: #ef4444; }
+.map-marker.partial { background: #f59e0b; }
+.map-marker.investigated { background: #3b82f6; }
+
+@keyframes markerPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+}
+
+.map-marker-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 10, 15, 0.95);
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    border: 1px solid rgba(147, 51, 234, 0.5);
+}
+
+.map-marker:hover .map-marker-tooltip {
+    opacity: 1;
+}
+
+.map-sidebar {
+    width: 350px;
+    background: rgba(17, 17, 27, 0.9);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.map-sidebar h3 {
+    color: #c084fc;
+    font-size: 1.1rem;
+}
+
+.map-filters select {
+    width: 100%;
+    padding: 12px;
+    background: rgba(30, 27, 45, 0.8);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.map-mystery-preview {
+    flex: 1;
+    background: rgba(30, 27, 45, 0.5);
+    border-radius: 12px;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.map-mystery-preview .placeholder-text {
+    color: #6b7280;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.map-preview-card {
+    text-align: center;
+}
+
+.map-preview-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.map-preview-card h4 {
+    color: #c084fc;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.map-preview-card p {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.map-preview-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #9333ea, #db2777);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.map-preview-btn:hover {
+    transform: translateY(-2px);
+}
+
+.map-legend {
+    background: rgba(30, 27, 45, 0.5);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.map-legend h4 {
+    color: #c084fc;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.legend-dot.unsolved { background: #ef4444; }
+.legend-dot.partial { background: #f59e0b; }
+.legend-dot.investigated { background: #3b82f6; }
+
+@media (max-width: 768px) {
+    .map-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .map-wrapper {
+        height: 300px;
+    }
+
+    .map-sidebar {
+        width: 100%;
+    }
+}
     </style>
 </head>
 <body>
@@ -1095,7 +1301,7 @@
                 <button class="action-btn random" onclick="showRandomMystery()">
                     🔓 Random Mystery
                 </button>
-                <button class="action-btn map">
+                <button class="action-btn map" onclick="openWorldMap()">
                     🌍 World Map
                 </button>
             </div>
@@ -1225,159 +1431,1754 @@
 
     <script>
         // Mystery Data
-        const mysteries = [
-            {
-                id: 'mount-kailash',
-                title: 'Mount Kailash Mystery',
-                location: 'Tibet Autonomous Region',
-                country: 'China',
-                region: 'Asia',
-                category: 'Mountains',
-                categoryId: 'mountains',
-                summary: 'A sacred mountain that has never been climbed, surrounded by unexplained phenomena.',
-                fullExplanation: 'Mount Kailash stands at 6,638 meters and is considered sacred by four religions: Buddhism, Hinduism, Jainism, and Bon. Despite being lower than many conquered peaks, no one has ever reached its summit. Climbers report strange time dilations, rapid aging, and compasses malfunctioning near the peak. Local legends speak of a gateway to another dimension at its summit. Scientists have detected unusual electromagnetic readings from the mountain.',
-                imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800',
-                status: 'Unsolved',
-                coordinates: { lat: 31.0675, lng: 81.3119 },
-                dateDiscovered: 'Ancient'
-            },
-            {
-                id: 'himalayan-monks',
-                title: 'Himalayan Monk Legends',
-                location: 'Himalayan Mountain Range',
-                country: 'Nepal',
-                region: 'Asia',
-                category: 'Mountains',
-                categoryId: 'mountains',
-                summary: 'Monks reportedly demonstrating supernatural abilities in extreme conditions.',
-                fullExplanation: 'For centuries, Tibetan monks in the Himalayas have been documented performing seemingly impossible feats. Harvard researchers in the 1980s recorded monks raising their body temperature through meditation to dry wet sheets in freezing conditions.',
-                imageUrl: 'https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=800',
-                status: 'Partially Solved',
-                coordinates: { lat: 27.9881, lng: 86.9250 },
-                dateDiscovered: 'Ancient'
-            },
-            {
-                id: 'bermuda-triangle',
-                title: 'Bermuda Triangle Mystery',
-                location: 'North Atlantic Ocean',
-                country: 'International Waters',
-                region: 'Atlantic',
-                category: 'Oceans',
-                categoryId: 'oceans',
-                summary: 'A region where ships and aircraft have mysteriously vanished without trace.',
-                fullExplanation: 'The Bermuda Triangle, spanning roughly 500,000 square miles between Miami, Bermuda, and Puerto Rico, has been the site of numerous unexplained disappearances. Flight 19, a squadron of five torpedo bombers, vanished in 1945 along with the rescue plane sent to find them.',
-                imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
-                status: 'Still Investigated',
-                coordinates: { lat: 25.0000, lng: -71.0000 },
-                dateDiscovered: '1964'
-            },
-            {
-                id: 'atlantis',
-                title: 'Lost City of Atlantis',
-                location: 'Unknown - Various Theories',
-                country: 'Unknown',
-                region: 'Atlantic Ocean',
-                category: 'Oceans',
-                categoryId: 'oceans',
-                summary: 'An advanced ancient civilization that allegedly sank beneath the ocean.',
-                fullExplanation: 'First described by Plato around 360 BCE, Atlantis was portrayed as a powerful naval empire that existed 9,000 years before his time. The island nation supposedly possessed advanced technology before being swallowed by the sea.',
-                imageUrl: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
-                status: 'Unsolved',
-                coordinates: { lat: 36.4167, lng: -25.5167 },
-                dateDiscovered: '360 BCE'
-            },
-            {
-                id: 'pyramids-giza',
-                title: 'Great Pyramid Construction',
-                location: 'Giza Plateau',
-                country: 'Egypt',
-                region: 'Africa',
-                category: 'Ancient Civilizations',
-                categoryId: 'ancient-civilizations',
-                summary: 'How ancient Egyptians built massive pyramids with primitive tools remains debated.',
-                fullExplanation: 'The Great Pyramid of Giza, built around 2560 BCE, contains approximately 2.3 million stone blocks weighing 2.5 to 15 tons each. The precision of its construction - aligned to true north within 0.05 degrees - seems impossible for the technology of the time.',
-                imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
-                status: 'Partially Solved',
-                coordinates: { lat: 29.9792, lng: 31.1342 },
-                dateDiscovered: 'Ancient'
-            },
-            {
-                id: 'nazca-lines',
-                title: 'Nazca Lines',
-                location: 'Nazca Desert',
-                country: 'Peru',
-                region: 'South America',
-                category: 'Ancient Civilizations',
-                categoryId: 'ancient-civilizations',
-                summary: 'Massive geoglyphs visible only from the air, created by an ancient culture.',
-                fullExplanation: 'The Nazca Lines are a group of over 800 straight lines, 300 geometric figures, and 70 animal and plant designs etched into the Peruvian desert between 500 BCE and 500 CE.',
-                imageUrl: 'https://images.unsplash.com/photo-1580619305218-8423a7ef79b4?w=800',
-                status: 'Partially Solved',
-                coordinates: { lat: -14.7350, lng: -75.1300 },
-                dateDiscovered: '1927'
-            },
-            {
-                id: 'el-dorado',
-                title: 'El Dorado - City of Gold',
-                location: 'South American Jungle',
-                country: 'Colombia',
-                region: 'South America',
-                category: 'Lost Cities',
-                categoryId: 'lost-cities',
-                summary: 'A legendary city of immense wealth that drove centuries of exploration.',
-                fullExplanation: 'El Dorado originated as a legend about a Muisca chieftain who covered himself in gold dust during ceremonies. Spanish conquistadors transformed this into a myth about an entire city of gold.',
-                imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
-                status: 'Unsolved',
-                coordinates: { lat: 4.9333, lng: -73.9833 },
-                dateDiscovered: '1531'
-            },
-            {
-                id: 'hoia-baciu',
-                title: 'Hoia Baciu Forest',
-                location: 'Transylvania',
-                country: 'Romania',
-                region: 'Europe',
-                category: 'Forests',
-                categoryId: 'forests',
-                summary: 'A forest known for paranormal activity and unexplained phenomena.',
-                fullExplanation: 'Known as the "Bermuda Triangle of Transylvania," Hoia Baciu Forest has earned a reputation as one of the world\'s most haunted locations. Visitors report UFO sightings, ghost apparitions, and the trees grow in bizarre spiral patterns.',
-                imageUrl: 'https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=800',
-                status: 'Unsolved',
-                coordinates: { lat: 46.7800, lng: 23.5400 },
-                dateDiscovered: '1960s'
-            },
-            {
-                id: 'easter-island',
-                title: 'Easter Island Moai',
-                location: 'Easter Island',
-                country: 'Chile',
-                region: 'Pacific Ocean',
-                category: 'Islands',
-                categoryId: 'islands',
-                summary: 'Massive stone statues carved and transported by a small island population.',
-                fullExplanation: 'Easter Island contains 887 moai - monolithic human figures averaging 13 feet tall and 14 tons. The Rapa Nui people carved them from volcanic rock and somehow transported them miles across the island.',
-                imageUrl: 'https://images.unsplash.com/photo-1550501788-1c8b96bef47e?w=800',
-                status: 'Partially Solved',
-                coordinates: { lat: -27.1127, lng: -109.3497 },
-                dateDiscovered: '1722'
-            },
-            {
-                id: 'loch-ness',
-                title: 'Loch Ness Monster',
-                location: 'Scottish Highlands',
-                country: 'Scotland',
-                region: 'Europe',
-                category: 'Lakes',
-                categoryId: 'lakes',
-                summary: 'A legendary creature reportedly living in Scotland\'s deepest lake.',
-                fullExplanation: 'Loch Ness is a 23-mile long, 755-foot deep lake. Reports of a monster date back to 565 CE. Sonar scans have detected large moving objects, and environmental DNA studies found significant eel DNA.',
-                imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
-                status: 'Unsolved',
-                coordinates: { lat: 57.3229, lng: -4.4244 },
-                dateDiscovered: '565 CE'
-            }
-        ];
+       const mysteries = [
+    // ========== MOUNTAINS (15 mysteries) ==========
+    {
+        id: 'mount-kailash',
+        title: 'Mount Kailash Mystery',
+        location: 'Tibet Autonomous Region',
+        country: 'China',
+        region: 'Asia',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'A sacred mountain that has never been climbed, surrounded by unexplained phenomena.',
+        fullExplanation: 'Mount Kailash stands at 6,638 meters and is considered sacred by four religions: Buddhism, Hinduism, Jainism, and Bon. Despite being lower than many conquered peaks, no one has ever reached its summit. Climbers report strange time dilations, rapid aging, and compasses malfunctioning near the peak. Local legends speak of a gateway to another dimension at its summit. Scientists have detected unusual electromagnetic readings from the mountain.',
+        imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 31.0675, lng: 81.3119 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'himalayan-monks',
+        title: 'Himalayan Monk Legends',
+        location: 'Himalayan Mountain Range',
+        country: 'Nepal',
+        region: 'Asia',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Monks reportedly demonstrating supernatural abilities in extreme conditions.',
+        fullExplanation: 'For centuries, Tibetan monks in the Himalayas have been documented performing seemingly impossible feats. Harvard researchers in the 1980s recorded monks raising their body temperature through meditation to dry wet sheets in freezing conditions. Other accounts describe monks levitating, going without food for months, and surviving at extreme altitudes without oxygen.',
+        imageUrl: 'https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 27.9881, lng: 86.9250 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'brown-mountain-lights',
+        title: 'Brown Mountain Lights',
+        location: 'North Carolina',
+        country: 'USA',
+        region: 'North America',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Mysterious glowing orbs appearing above the mountain for centuries.',
+        fullExplanation: 'The Brown Mountain Lights have been reported since at least 1913. Witnesses describe glowing orbs of various colors rising above the ridge, hovering, and then disappearing. Cherokee legends mention the lights dating back hundreds of years. Scientific explanations range from train lights to swamp gas, but none fully explain the phenomenon.',
+        imageUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 35.9601, lng: -81.7076 },
+        dateDiscovered: '1913'
+    },
+    {
+        id: 'mountain-of-dead',
+        title: 'Dyatlov Pass Incident',
+        location: 'Ural Mountains',
+        country: 'Russia',
+        region: 'Europe',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Nine hikers died under bizarre and unexplained circumstances in 1959.',
+        fullExplanation: 'In February 1959, nine experienced hikers died on Kholat Syakhl mountain. They fled their tent half-dressed in -30°C weather. Some had fatal injuries with no external wounds. One was missing her tongue. Theories include avalanche, military testing, infrasound-induced panic, and even yeti attacks. The case was reopened in 2019 but remains largely unexplained.',
+        imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 61.7544, lng: 59.4553 },
+        dateDiscovered: '1959'
+    },
+    {
+        id: 'roraima-tepui',
+        title: 'Mount Roraima Lost World',
+        location: 'Triple Border Region',
+        country: 'Venezuela',
+        region: 'South America',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'An ancient tabletop mountain with unique species found nowhere else on Earth.',
+        fullExplanation: 'Mount Roraima is a 2-billion-year-old flat-topped mountain that inspired Arthur Conan Doyle\'s "The Lost World." Its summit hosts species that evolved in complete isolation, including carnivorous plants and unique frogs. Strange quartz crystals and unexplained formations cover the top. Local Pemon people consider it the stump of a mighty tree that once held all the fruits and vegetables in the world.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 5.1433, lng: -60.7625 },
+        dateDiscovered: '1884'
+    },
+    {
+        id: 'kongka-la-pass',
+        title: 'Kongka La Pass UFO Base',
+        location: 'Ladakh Region',
+        country: 'India/China',
+        region: 'Asia',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Alleged underground UFO base in the disputed Himalayan border region.',
+        fullExplanation: 'Local residents and military personnel have reported frequent UFO sightings in this remote area. Both Indian and Chinese armies reportedly avoid the area. Satellite images show unusual structures. Locals claim to see flying objects emerging from and descending into the ground. The area remains one of the least explored regions on Earth due to political tensions.',
+        imageUrl: 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 33.5167, lng: 79.0333 },
+        dateDiscovered: '1999'
+    },
+    {
+        id: 'superstition-mountains',
+        title: 'Lost Dutchman\'s Gold Mine',
+        location: 'Superstition Mountains',
+        country: 'USA',
+        region: 'North America',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'A legendary lost gold mine that has claimed many treasure hunters\' lives.',
+        fullExplanation: 'German immigrant Jacob Waltz allegedly discovered a rich gold mine in the 1870s and shared its location on his deathbed. Since then, numerous treasure hunters have died searching for it - some from the harsh desert, others from mysterious circumstances. The Apache believe the mountains are guarded by spirits and that thunder gods live within.',
+        imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 33.4556, lng: -111.3436 },
+        dateDiscovered: '1891'
+    },
+    {
+        id: 'rainbow-mountains',
+        title: 'Zhangye Rainbow Mountains',
+        location: 'Gansu Province',
+        country: 'China',
+        region: 'Asia',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Mountains with unexplained rainbow-colored striations defying geological norms.',
+        fullExplanation: 'The Zhangye Danxia landform features mountains in vivid reds, oranges, yellows, and greens. While science attributes this to mineral deposits over 24 million years, the perfect layering and vibrant colors remain remarkable. Ancient Chinese believed these were dragon scales left behind when dragons descended to Earth.',
+        imageUrl: 'https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 38.9177, lng: 100.1477 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'mount-shasta-lemuria',
+        title: 'Mount Shasta & Lemuria',
+        location: 'California',
+        country: 'USA',
+        region: 'North America',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'A mystical mountain believed to contain an ancient Lemurian city.',
+        fullExplanation: 'Mount Shasta has been a spiritual destination for decades. Claims include sightings of tall, robed figures, underground tunnels leading to an ancient city, UFO activity, and strange lights. The mountain allegedly houses survivors of the lost continent of Lemuria. Hikers report encounters with mysterious beings and unexplained phenomena.',
+        imageUrl: 'https://images.unsplash.com/photo-1444849169132-5c5fcd2dc14e?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 41.4092, lng: -122.1949 },
+        dateDiscovered: '1880s'
+    },
+    {
+        id: 'sandia-face',
+        title: 'Sandia Mountain Face',
+        location: 'New Mexico',
+        country: 'USA',
+        region: 'North America',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'A giant face naturally carved into the mountainside with no explanation.',
+        fullExplanation: 'A massive human face appears to be carved into the Sandia Mountains near Albuquerque. While most believe it is a natural rock formation, its precise features - eyes, nose, mouth - have led some to believe it was created by an ancient civilization. Native American tribes have legends about the face dating back thousands of years.',
+        imageUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 35.2100, lng: -106.4467 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'croagh-patrick',
+        title: 'Croagh Patrick Sacred Mountain',
+        location: 'County Mayo',
+        country: 'Ireland',
+        region: 'Europe',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Strange lights and ancient mysteries surround Ireland\'s holiest mountain.',
+        fullExplanation: 'This sacred mountain where St. Patrick allegedly fasted for 40 days has pre-Christian origins. Ancient astronomical alignments, mysterious lights, and prehistoric artifacts suggest it was a major spiritual center for millennia. Pilgrims report visions and unexplained phenomena during the annual climb.',
+        imageUrl: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 53.7600, lng: -9.6619 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'uluru',
+        title: 'Uluru Sacred Rock',
+        location: 'Northern Territory',
+        country: 'Australia',
+        region: 'Oceania',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'A mysterious monolith with strange energy and Aboriginal dreamtime legends.',
+        fullExplanation: 'Uluru (Ayers Rock) rises 348 meters from the flat desert. Aboriginal Australians believe it is hollow and contains an energy source called Tjukurpa. Visitors report cameras malfunctioning, strange feelings, and unexplained phenomena. The rock changes colors dramatically at sunrise and sunset. Many who have taken rocks from the site report terrible luck and return them.',
+        imageUrl: 'https://images.unsplash.com/photo-1494548162494-384bba4ab999?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: -25.3444, lng: 131.0369 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'pillar-of-eliseg',
+        title: 'Mysterious Mountain Carvings',
+        location: 'Various Locations',
+        country: 'Worldwide',
+        region: 'Global',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Ancient carvings found on mountains worldwide with no known origin.',
+        fullExplanation: 'Across every continent, ancient peoples carved symbols, faces, and geometric patterns into mountainsides. From the chalk horses of England to the Buddha carvings of Afghanistan, these works often predate known civilizations. Many align with astronomical events. How ancient peoples achieved such precision at such scales remains unexplained.',
+        imageUrl: 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 52.9875, lng: -3.1543 },
+        dateDiscovered: 'Various'
+    },
+    {
+        id: 'preikestolen',
+        title: 'Preikestolen Pulpit Rock',
+        location: 'Rogaland',
+        country: 'Norway',
+        region: 'Europe',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'A perfectly flat cliff that seems to defy natural erosion patterns.',
+        fullExplanation: 'This 604-meter high cliff features an almost perfectly flat top measuring 25x25 meters. Geologists struggle to explain how such a precise flat surface formed naturally. Ancient Norse legends speak of giants who carved the rock as a meeting place. The crack behind the plateau appears to be widening, yet the rock has remained stable for 10,000 years.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 58.9867, lng: 6.1889 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'ararat-noahs-ark',
+        title: 'Mount Ararat Noah\'s Ark',
+        location: 'Eastern Turkey',
+        country: 'Turkey',
+        region: 'Middle East',
+        category: 'Mountains',
+        categoryId: 'mountains',
+        summary: 'Satellite images show boat-shaped formation where Noah\'s Ark allegedly landed.',
+        fullExplanation: 'Multiple expeditions have reported finding wood samples, anchor stones, and boat-shaped formations on Mount Ararat. Satellite imagery revealed what appears to be a boat-shaped anomaly at 15,000 feet. Several countries claim to have found the ark, but harsh conditions and political tensions prevent thorough investigation.',
+        imageUrl: 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 39.7017, lng: 44.2986 },
+        dateDiscovered: 'Ancient'
+    },
 
+    // ========== OCEANS (15 mysteries) ==========
+    {
+        id: 'bermuda-triangle',
+        title: 'Bermuda Triangle Mystery',
+        location: 'North Atlantic Ocean',
+        country: 'International Waters',
+        region: 'Atlantic',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'A region where ships and aircraft have mysteriously vanished without trace.',
+        fullExplanation: 'The Bermuda Triangle, spanning roughly 500,000 square miles between Miami, Bermuda, and Puerto Rico, has been the site of numerous unexplained disappearances. Flight 19, a squadron of five torpedo bombers, vanished in 1945 along with the rescue plane sent to find them. Theories range from methane gas eruptions to magnetic anomalies.',
+        imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 25.0000, lng: -71.0000 },
+        dateDiscovered: '1964'
+    },
+    {
+        id: 'atlantis',
+        title: 'Lost City of Atlantis',
+        location: 'Unknown - Various Theories',
+        country: 'Unknown',
+        region: 'Atlantic Ocean',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'An advanced ancient civilization that allegedly sank beneath the ocean.',
+        fullExplanation: 'First described by Plato around 360 BCE, Atlantis was portrayed as a powerful naval empire that existed 9,000 years before his time. The island nation supposedly possessed advanced technology before being swallowed by the sea. Candidates for its location include Santorini, the Richat Structure, Antarctica, and the Caribbean.',
+        imageUrl: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 36.4167, lng: -25.5167 },
+        dateDiscovered: '360 BCE'
+    },
+    {
+        id: 'bloop-sound',
+        title: 'The Bloop Sound',
+        location: 'South Pacific Ocean',
+        country: 'International Waters',
+        region: 'Pacific',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'The loudest underwater sound ever recorded came from an unknown source.',
+        fullExplanation: 'In 1997, NOAA detected an ultra-low frequency sound so powerful it was picked up by sensors 5,000 km apart. Initially, its profile suggested a biological origin from a creature far larger than any known whale. NOAA later attributed it to an icequake, but many scientists remain unconvinced. The ocean depths remain 95% unexplored.',
+        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -50.0000, lng: -100.0000 },
+        dateDiscovered: '1997'
+    },
+    {
+        id: 'yonaguni-monument',
+        title: 'Yonaguni Monument',
+        location: 'Yonaguni Island',
+        country: 'Japan',
+        region: 'Asia',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'Massive underwater structures that may be remnants of an ancient civilization.',
+        fullExplanation: 'Discovered in 1987, these underwater formations near Japan appear to feature terraces, steps, and carved walls submerged 25 meters beneath the sea. Some believe it is a 10,000-year-old man-made pyramid complex from a lost civilization. Others argue it is natural sandstone formation. The debate continues.',
+        imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 24.4350, lng: 123.0117 },
+        dateDiscovered: '1987'
+    },
+    {
+        id: 'baltic-sea-anomaly',
+        title: 'Baltic Sea Anomaly',
+        location: 'Gulf of Bothnia',
+        country: 'Sweden',
+        region: 'Europe',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'A mysterious circular object on the seafloor that defies explanation.',
+        fullExplanation: 'In 2011, Swedish divers discovered a 60-meter circular object on the seafloor resembling the Millennium Falcon. Resting on a pillar with a 300-meter "runway" behind it, the object causes electronic equipment to malfunction nearby. Theories include a crashed UFO, glacial deposit, or secret military technology.',
+        imageUrl: 'https://images.unsplash.com/photo-1484291470158-b8f8d608850d?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 64.8833, lng: 19.8167 },
+        dateDiscovered: '2011'
+    },
+    {
+        id: 'underwater-pyramids-cuba',
+        title: 'Cuban Underwater City',
+        location: 'Guanahacabibes Peninsula',
+        country: 'Cuba',
+        region: 'Caribbean',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'Sonar images reveal pyramid structures 600 meters underwater off Cuba.',
+        fullExplanation: 'In 2001, researchers detected geometric stone structures covering 2 square kilometers at a depth of 600-750 meters. The formations appear to be pyramids, roads, and buildings. At that depth, the area would have been above water over 50,000 years ago - long before any known civilization. The Cuban government has restricted further investigation.',
+        imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 21.9650, lng: -84.9517 },
+        dateDiscovered: '2001'
+    },
+    {
+        id: 'mariana-trench-sounds',
+        title: 'Mariana Trench Mystery Sounds',
+        location: 'Mariana Trench',
+        country: 'International Waters',
+        region: 'Pacific',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'Strange metallic sounds recorded in Earth\'s deepest point remain unexplained.',
+        fullExplanation: 'Scientists have recorded bizarre sounds from the Mariana Trench including a 3.5-second "metallic" noise dubbed the "Western Pacific Biotwang." At nearly 11,000 meters deep, the trench is less explored than the Moon. Unknown creatures, geological processes, or something else entirely could be responsible.',
+        imageUrl: 'https://images.unsplash.com/photo-1551244072-5d12893278ab?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 11.3493, lng: 142.1996 },
+        dateDiscovered: '2014'
+    },
+    {
+        id: 'ufo-usos',
+        title: 'USOs - Unidentified Submerged Objects',
+        location: 'Global Oceans',
+        country: 'Various',
+        region: 'Global',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'Navy personnel worldwide report underwater craft moving at impossible speeds.',
+        fullExplanation: 'Military ships and submarines have reported detecting objects moving underwater at speeds exceeding 500 knots - far beyond any known technology. These USOs have been tracked entering and exiting the water without slowing. The USS Nimitz incident in 2004 involved pilots observing a "tic-tac" shaped object that submerged and reappeared.',
+        imageUrl: 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 32.8667, lng: -117.2500 },
+        dateDiscovered: '1950s'
+    },
+    {
+        id: 'sargasso-sea',
+        title: 'Sargasso Sea Ghost Ships',
+        location: 'North Atlantic Ocean',
+        country: 'International Waters',
+        region: 'Atlantic',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'A sea with no shores where ships become trapped in mysterious seaweed.',
+        fullExplanation: 'The Sargasso Sea is the only sea without shores, bounded by ocean currents. Historical accounts describe ships becoming trapped in vast seaweed mats, their crews vanishing. The Ellen Austin reportedly found a derelict ship in 1881, placed a crew aboard, and watched it vanish completely. Numerous ghost ships have been found here.',
+        imageUrl: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 28.0000, lng: -66.0000 },
+        dateDiscovered: '1492'
+    },
+    {
+        id: 'bimini-road',
+        title: 'Bimini Road',
+        location: 'Bimini Islands',
+        country: 'Bahamas',
+        region: 'Caribbean',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'An underwater rock formation that appears to be an ancient paved road.',
+        fullExplanation: 'Discovered in 1968, this 0.8 km arrangement of limestone blocks lies in 5.5 meters of water. The blocks appear precisely cut and fitted together like a road or wall. Edgar Cayce predicted in 1938 that evidence of Atlantis would be found near Bimini in 1968-69. Carbon dating suggests the formation is 10,000-15,000 years old.',
+        imageUrl: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 25.7667, lng: -79.2667 },
+        dateDiscovered: '1968'
+    },
+    {
+        id: 'milky-sea-phenomenon',
+        title: 'Milky Sea Phenomenon',
+        location: 'Indian Ocean',
+        country: 'Various',
+        region: 'Indian Ocean',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'Vast areas of ocean glowing with intense white light at night.',
+        fullExplanation: 'Sailors have reported enormous patches of ocean glowing milky white for centuries. In 2005, satellite imagery confirmed a glowing area the size of Connecticut in the Indian Ocean. Scientists believe bioluminescent bacteria are responsible, but why they gather in such massive numbers and what triggers the synchronized glow remains mysterious.',
+        imageUrl: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -8.0000, lng: 50.0000 },
+        dateDiscovered: '1854'
+    },
+    {
+        id: 'devil-sea-dragon-triangle',
+        title: 'Dragon\'s Triangle',
+        location: 'Philippine Sea',
+        country: 'Japan',
+        region: 'Pacific',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'The Pacific\'s Bermuda Triangle where ships and planes vanish regularly.',
+        fullExplanation: 'The Devil\'s Sea between Japan, Taiwan, and Guam has claimed numerous ships and aircraft. The Japanese government declared it a danger zone in 1950 after losing five military vessels. Legends speak of dragons pulling ships under. Modern theories include volcanic activity, magnetic anomalies, and methane eruptions.',
+        imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 25.0000, lng: 137.0000 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'underwater-falls',
+        title: 'Mauritius Underwater Waterfall',
+        location: 'Le Morne Brabant',
+        country: 'Mauritius',
+        region: 'Indian Ocean',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'An optical illusion or something more? Sand appears to cascade into the abyss.',
+        fullExplanation: 'Off the coast of Mauritius, what appears to be an underwater waterfall is visible from aerial views. While explained as an optical illusion created by sand and silt deposits, the ocean floor drops dramatically from 25 meters to 4,000 meters here. Local legends speak of the spirits of drowned slaves being pulled into the depths.',
+        imageUrl: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -20.4486, lng: 57.3167 },
+        dateDiscovered: '2000s'
+    },
+    {
+        id: 'great-blue-hole',
+        title: 'Great Blue Hole Secrets',
+        location: 'Lighthouse Reef',
+        country: 'Belize',
+        region: 'Central America',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'A massive underwater sinkhole with unexplored depths hiding ancient secrets.',
+        fullExplanation: 'This 300-meter wide, 125-meter deep sinkhole was a dry cave system during the Ice Age. Jacques Cousteau explored it in 1971, finding stalactites proving it was once above water. Recent expeditions discovered two bodies and unknown species at the bottom, but much remains unexplored. The cave system may extend for kilometers.',
+        imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 17.3156, lng: -87.5347 },
+        dateDiscovered: '1971'
+    },
+    {
+        id: 'underwater-river',
+        title: 'Cenote Angelita Underwater River',
+        location: 'Yucatan Peninsula',
+        country: 'Mexico',
+        region: 'Central America',
+        category: 'Oceans',
+        categoryId: 'oceans',
+        summary: 'A river flowing underwater complete with banks, leaves, and flowing current.',
+        fullExplanation: 'At 30 meters depth in Cenote Angelita, divers encounter what appears to be a river flowing along the cave floor, complete with trees and leaves. This "river" is actually a layer of hydrogen sulfide separating freshwater from saltwater, creating an eerie otherworldly landscape that ancient Mayans believed was the entrance to Xibalba, the underworld.',
+        imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 20.1500, lng: -87.4333 },
+        dateDiscovered: '1990s'
+    },
+
+    // ========== RIVERS (10 mysteries) ==========
+    {
+        id: 'boiling-river',
+        title: 'The Boiling River',
+        location: 'Amazon Rainforest',
+        country: 'Peru',
+        region: 'South America',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'A river hot enough to boil animals alive, far from any volcanic source.',
+        fullExplanation: 'Deep in the Peruvian Amazon lies Shanay-timpishka, a four-mile stretch of river reaching temperatures of 86°C. The nearest volcano is 400 miles away. Local shamans consider it sacred. Scientists believe deep fault lines may channel geothermally heated water, but the full explanation remains incomplete.',
+        imageUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -8.8450, lng: -75.0500 },
+        dateDiscovered: '2011'
+    },
+    {
+        id: 'river-of-five-colors',
+        title: 'Caño Cristales - River of Five Colors',
+        location: 'Serrania de la Macarena',
+        country: 'Colombia',
+        region: 'South America',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'A river that turns five different colors due to an unexplained phenomenon.',
+        fullExplanation: 'Called "the most beautiful river in the world," Caño Cristales displays red, yellow, green, blue, and black colors. The red comes from Macarenia clavigera plants, but why they thrive only here remains unknown. The phenomenon occurs only between September and November when conditions are perfect.',
+        imageUrl: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 2.2500, lng: -73.7917 },
+        dateDiscovered: '1969'
+    },
+    {
+        id: 'devils-kettle',
+        title: 'Devil\'s Kettle Waterfall',
+        location: 'Minnesota',
+        country: 'USA',
+        region: 'North America',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'Half the waterfall disappears into a hole and no one knows where it goes.',
+        fullExplanation: 'At Judge C.R. Magney State Park, the Brule River splits in two. One half continues to Lake Superior; the other plunges into a massive pothole and vanishes. Researchers have poured dye, ping pong balls, and GPS trackers into the hole - none ever emerged. Where does half a river go? Recent studies suggest it may rejoin underwater, but this is unconfirmed.',
+        imageUrl: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 47.8292, lng: -90.0492 },
+        dateDiscovered: '1800s'
+    },
+    {
+        id: 'river-ganges-mystery',
+        title: 'Ganges River Self-Purifying Properties',
+        location: 'Northern India',
+        country: 'India',
+        region: 'Asia',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'The Ganges has unexplained antibacterial properties that science cannot fully explain.',
+        fullExplanation: 'Despite extreme pollution, the Ganges exhibits remarkable self-purifying properties. Cholera bacteria die faster in Ganges water than in distilled water. Studies found unique bacteriophages and high oxygen retention. Hindus have considered it sacred for millennia. How it maintains these properties despite pollution baffles scientists.',
+        imageUrl: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 25.2950, lng: 83.0150 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'red-river-blood',
+        title: 'Blood Falls Antarctica',
+        location: 'Taylor Glacier',
+        country: 'Antarctica',
+        region: 'Antarctica',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'A blood-red waterfall pours from a glacier in Antarctica.',
+        fullExplanation: 'Blood Falls releases iron-rich, blood-red water from Taylor Glacier. The source is a subglacial lake sealed off for 2 million years, containing microbes that survive without oxygen or sunlight. These extremophiles provide clues about potential life on Mars and Europa.',
+        imageUrl: 'https://images.unsplash.com/photo-1494564605686-2e931f77a8e2?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -77.7167, lng: 162.2667 },
+        dateDiscovered: '1911'
+    },
+    {
+        id: 'reversing-falls',
+        title: 'Reversing Falls of Saint John',
+        location: 'New Brunswick',
+        country: 'Canada',
+        region: 'North America',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'A river that flows backwards twice a day against all natural laws.',
+        fullExplanation: 'The Saint John River appears to reverse direction twice daily due to extreme tides. At low tide, the river plunges over the falls into the bay. At high tide, the bay\'s water level rises above the river, creating rapids flowing upstream. Ancient Mi\'kmaq people believed this was the breath of a giant sleeping beneath the water.',
+        imageUrl: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 45.2583, lng: -66.0833 },
+        dateDiscovered: '1604'
+    },
+    {
+        id: 'amazon-rings',
+        title: 'Amazon River Geoglyphs',
+        location: 'Amazon Basin',
+        country: 'Brazil',
+        region: 'South America',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'Massive geometric earthworks along the Amazon predate the rainforest itself.',
+        fullExplanation: 'Deforestation revealed over 450 giant geometric earthworks along Amazon tributaries. These ditches, squares, and circles were built 2,000 years ago, some spanning 300 meters. They predate the rainforest, suggesting the Amazon was once more open. Who built them and why remains unknown.',
+        imageUrl: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: -9.7500, lng: -67.8000 },
+        dateDiscovered: '1977'
+    },
+    {
+        id: 'singing-river',
+        title: 'Pascagoula Singing River',
+        location: 'Mississippi',
+        country: 'USA',
+        region: 'North America',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'A river that produces mysterious humming music during summer months.',
+        fullExplanation: 'The Pascagoula River emits a humming, singing sound during late summer evenings. Legend says the Pascagoula tribe walked singing into the river rather than surrender to enemies. Scientists have proposed fish, insects, or gas bubbles as explanations, but none fully account for the musical quality described by witnesses.',
+        imageUrl: 'https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 30.3658, lng: -88.5561 },
+        dateDiscovered: '1699'
+    },
+    {
+        id: 'nile-source-mystery',
+        title: 'Nile River Source Mystery',
+        location: 'Central Africa',
+        country: 'Multiple',
+        region: 'Africa',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'The ultimate source of the world\'s longest river remained hidden for millennia.',
+        fullExplanation: 'For thousands of years, finding the Nile\'s source was considered impossible. Ancient Egyptians believed it flowed from the underworld. The mystery wasn\'t solved until 1858, and debate continues about whether Lake Victoria or remote Rwandan streams are the true source. Underground rivers may feed the system from unknown locations.',
+        imageUrl: 'https://images.unsplash.com/photo-1489493585363-d69421e0edd3?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -2.2828, lng: 29.2750 },
+        dateDiscovered: '1858'
+    },
+    {
+        id: 'petrifying-well',
+        title: 'Petrifying Well of Knaresborough',
+        location: 'North Yorkshire',
+        country: 'England',
+        region: 'Europe',
+        category: 'Rivers',
+        categoryId: 'rivers',
+        summary: 'A spring that turns objects to stone within months.',
+        fullExplanation: 'Objects placed under this spring become coated in stone within 3-5 months. Teddy bears, bicycles, and hats hang calcifying from the rockface. Once believed to be witchcraft, it\'s now known that high mineral content causes petrification. But the speed of the process exceeds what chemistry predicts.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 54.0092, lng: -1.4644 },
+        dateDiscovered: '1538'
+    },
+
+    // ========== FORESTS (10 mysteries) ==========
+    {
+        id: 'hoia-baciu',
+        title: 'Hoia Baciu Forest',
+        location: 'Transylvania',
+        country: 'Romania',
+        region: 'Europe',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'A forest known for paranormal activity and unexplained phenomena.',
+        fullExplanation: 'Known as the "Bermuda Triangle of Transylvania," Hoia Baciu Forest has earned a reputation as one of the world\'s most haunted locations. Visitors report UFO sightings, ghost apparitions, and the trees grow in bizarre spiral patterns. People experience unexplained anxiety, rashes, and missing time.',
+        imageUrl: 'https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 46.7800, lng: 23.5400 },
+        dateDiscovered: '1960s'
+    },
+    {
+        id: 'aokigahara',
+        title: 'Aokigahara Suicide Forest',
+        location: 'Mount Fuji',
+        country: 'Japan',
+        region: 'Asia',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'Japan\'s haunted "Sea of Trees" with an tragic reputation and strange phenomena.',
+        fullExplanation: 'Aokigahara at the base of Mount Fuji is eerily quiet due to wind-blocking density. Compasses malfunction due to iron deposits. Japanese mythology associates it with demons. It has become tragically associated with suicide. Rangers report strange sounds, figures between trees, and an oppressive atmosphere.',
+        imageUrl: 'https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 35.4667, lng: 138.6167 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'crooked-forest',
+        title: 'Crooked Forest of Gryfino',
+        location: 'West Pomerania',
+        country: 'Poland',
+        region: 'Europe',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: '400 pine trees with bizarre 90-degree bends at their bases.',
+        fullExplanation: 'Around 400 pine trees planted in the 1930s bend sharply northward at their bases before curving back upright. Surrounded by normal trees, they remain unexplained. Theories include tanks crushing them during WWII, gravitational anomalies, and deliberate cultivation for boat-building. No explanation fits all evidence.',
+        imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 53.2144, lng: 14.4756 },
+        dateDiscovered: '1930s'
+    },
+    {
+        id: 'black-forest-mystery',
+        title: 'Black Forest Legends',
+        location: 'Baden-Württemberg',
+        country: 'Germany',
+        region: 'Europe',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'The inspiration for countless fairy tales hides real unexplained phenomena.',
+        fullExplanation: 'The Black Forest inspired Brothers Grimm tales for good reason. Visitors report encounters with strange creatures, ghostly figures, and getting lost despite GPS. Ancient Roman writers mentioned the forest\'s supernatural reputation. Unexplained lights, sounds, and disappearances continue to this day.',
+        imageUrl: 'https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 48.0000, lng: 8.0000 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'freetown-fall-river',
+        title: 'Freetown-Fall River State Forest',
+        location: 'Massachusetts',
+        country: 'USA',
+        region: 'North America',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'A forest within the "Bridgewater Triangle" with centuries of strange reports.',
+        fullExplanation: 'Native Americans called this area cursed land and avoided it. Reports include giant snakes, thunderbirds, Bigfoot sightings, UFOs, ghosts, and cult activity. The forest sits in the "Bridgewater Triangle," Massachusetts\' hotbed of unexplained activity. Police have documented numerous bizarre incidents.',
+        imageUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 41.8300, lng: -71.0833 },
+        dateDiscovered: '1600s'
+    },
+    {
+        id: 'amazon-uncontacted-tribes',
+        title: 'Amazon\'s Uncontacted Tribes',
+        location: 'Amazon Rainforest',
+        country: 'Brazil/Peru',
+        region: 'South America',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'Tribes living in isolation with knowledge unknown to modern civilization.',
+        fullExplanation: 'Over 100 uncontacted tribes live in the Amazon, deliberately avoiding modern civilization. Aerial photos show villages of people who have never seen the outside world. What knowledge have they preserved? What do they know about the forest that we don\'t? Brazil protects their isolation by law.',
+        imageUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: -7.0000, lng: -70.0000 },
+        dateDiscovered: 'Ongoing'
+    },
+    {
+        id: 'romanian-screaming-forest',
+        title: 'Baciu Forest Screaming Circle',
+        location: 'Cluj-Napoca',
+        country: 'Romania',
+        region: 'Europe',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'A perfect circular clearing where vegetation refuses to grow.',
+        fullExplanation: 'Within Hoia Baciu exists a perfect circular clearing where nothing grows. Soil samples show no reason for this. Visitors report screams, apparitions, and being touched. Photographs taken here often show unexplained shapes. Electromagnetic equipment registers unusual readings inside the circle.',
+        imageUrl: 'https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 46.7856, lng: 23.5167 },
+        dateDiscovered: '1960s'
+    },
+    {
+        id: 'dering-woods',
+        title: 'Screaming Woods of Kent',
+        location: 'Kent',
+        country: 'England',
+        region: 'Europe',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'Britain\'s most haunted woods where screams are heard at night.',
+        fullExplanation: 'Dering Woods, nicknamed "Screaming Woods," has reported ghostly screams since the 18th century. Stories include a colonel killed for murdering his wife, plague victims buried alive, and highwaymen\'s ghosts. Investigators have recorded unexplained screams, footsteps, and found no living source.',
+        imageUrl: 'https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 51.1553, lng: 0.8178 },
+        dateDiscovered: '1700s'
+    },
+    {
+        id: 'rendlesham-forest',
+        title: 'Rendlesham Forest UFO Incident',
+        location: 'Suffolk',
+        country: 'England',
+        region: 'Europe',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'Britain\'s most famous UFO encounter involving US military personnel.',
+        fullExplanation: 'In December 1980, US military personnel at RAF Woodbridge reported strange lights in Rendlesham Forest. Deputy Commander Lt. Col. Charles Halt led an investigation and recorded a memo describing metallic objects, radiation readings, and lights that he later stood by. Declassified documents support witness accounts.',
+        imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 52.0833, lng: 1.4167 },
+        dateDiscovered: '1980'
+    },
+    {
+        id: 'stull-cemetery-forest',
+        title: 'Stull Cemetery Gateway to Hell',
+        location: 'Kansas',
+        country: 'USA',
+        region: 'North America',
+        category: 'Forests',
+        categoryId: 'forests',
+        summary: 'A small cemetery rumored to be one of seven gateways to Hell.',
+        fullExplanation: 'This small cemetery in Stull, Kansas is said to be one of seven gateways to Hell. Pope John Paul II allegedly ordered his plane to reroute to avoid flying over it. Legends tell of a hidden staircase descending into the earth, the devil himself appearing, and strange fires. The church was mysteriously demolished.',
+        imageUrl: 'https://images.unsplash.com/photo-1509664158661-92e7fa835c9e?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 38.9336, lng: -95.4264 },
+        dateDiscovered: '1970s'
+    },
+
+    // ========== DESERTS (10 mysteries) ==========
+    {
+        id: 'richat-structure',
+        title: 'Eye of the Sahara',
+        location: 'Mauritanian Desert',
+        country: 'Mauritania',
+        region: 'Africa',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'A massive circular formation visible from space with an unexplained origin.',
+        fullExplanation: 'The Richat Structure is a 50-kilometer diameter geological formation in the Sahara Desert. Some researchers believe it could be the remains of Atlantis, matching Plato\'s description of concentric rings. Others believe it\'s an eroded dome. The perfect circles and precise measurements continue to baffle scientists.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 21.1244, lng: -11.4014 },
+        dateDiscovered: '1965'
+    },
+    {
+        id: 'nazca-lines',
+        title: 'Nazca Lines',
+        location: 'Nazca Desert',
+        country: 'Peru',
+        region: 'South America',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'Massive geoglyphs visible only from the air, created by an ancient culture.',
+        fullExplanation: 'The Nazca Lines are over 800 straight lines, 300 geometric figures, and 70 animal and plant designs etched into the Peruvian desert between 500 BCE and 500 CE. Some figures span up to 370 meters. They can only be seen from the air. Who were they made for? Why? New lines are still being discovered.',
+        imageUrl: 'https://images.unsplash.com/photo-1580619305218-8423a7ef79b4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -14.7350, lng: -75.1300 },
+        dateDiscovered: '1927'
+    },
+    {
+        id: 'sailing-stones',
+        title: 'Sailing Stones of Death Valley',
+        location: 'Death Valley',
+        country: 'USA',
+        region: 'North America',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'Heavy stones move across the desert floor leaving trails, with no one pushing them.',
+        fullExplanation: 'For decades, heavy boulders in Death Valley\'s Racetrack Playa were found with long trails behind them, yet no one witnessed them moving. In 2014, scientists captured thin ice sheets pushing the rocks - but some trails don\'t fit this explanation, and similar moving stones worldwide lack ice.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 36.6800, lng: -117.5622 },
+        dateDiscovered: '1915'
+    },
+    {
+        id: 'fairy-circles',
+        title: 'Fairy Circles of Namibia',
+        location: 'Namib Desert',
+        country: 'Namibia',
+        region: 'Africa',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'Millions of mysterious circular barren patches dot the desert landscape.',
+        fullExplanation: 'Millions of circular barren patches ranging from 2-15 meters across cover the Namib Desert, evenly spaced for hundreds of kilometers. Local Himba people attribute them to gods or dragons. Scientists have proposed termites, toxic plants, and gas seepage - none fully explain the phenomenon.',
+        imageUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: -25.0667, lng: 16.0500 },
+        dateDiscovered: '1970s'
+    },
+    {
+        id: 'skeleton-coast',
+        title: 'Skeleton Coast Shipwrecks',
+        location: 'Namib Desert Coast',
+        country: 'Namibia',
+        region: 'Africa',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'A desert coast littered with shipwrecks and whale bones where compasses fail.',
+        fullExplanation: 'This desolate coastline is graveyard to thousands of ships, whale bones, and stranded sailors. Thick fog, unpredictable currents, and compass anomalies have claimed vessels for centuries. Portuguese sailors called it "The Gates of Hell." Ships have wrecked here even with modern navigation.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -19.0000, lng: 12.5000 },
+        dateDiscovered: '1400s'
+    },
+    {
+        id: 'gobi-death-worm',
+        title: 'Mongolian Death Worm',
+        location: 'Gobi Desert',
+        country: 'Mongolia',
+        region: 'Asia',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'A legendary creature said to kill at a distance and spit corrosive acid.',
+        fullExplanation: 'Mongolians describe the "olgoi-khorkhoi" (intestine worm) as a red creature 1-1.5 meters long that can kill from a distance using venom or electric shock. Multiple expeditions have searched for it. Scientists suggest it could be an unknown species of snake or worm. Locals treat it as very real.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 42.0000, lng: 103.0000 },
+        dateDiscovered: '1926'
+    },
+    {
+        id: 'atacama-hand',
+        title: 'Giant Hand of the Atacama',
+        location: 'Atacama Desert',
+        country: 'Chile',
+        region: 'South America',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'A massive concrete hand emerges from the driest desert on Earth.',
+        fullExplanation: 'An 11-meter sculpture of a hand rises from the Atacama Desert, created in 1992 by Mario Irarrázabal. While its origin is known, its effect is mysterious - visitors report overwhelming emotions, some say the hand moves at night, and its placement in Earth\'s driest desert gives it apocalyptic significance.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -24.0161, lng: -70.0419 },
+        dateDiscovered: '1992'
+    },
+    {
+        id: 'white-desert-egypt',
+        title: 'White Desert Rock Formations',
+        location: 'Farafra Depression',
+        country: 'Egypt',
+        region: 'Africa',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'Surreal chalk formations that defy natural erosion patterns.',
+        fullExplanation: 'Egypt\'s White Desert contains chalk formations resembling mushrooms, columns, and even human figures. While wind erosion is credited, the speed and precision of shape formation puzzles geologists. Ancient Egyptians believed these were petrified beings turned to stone by the gods.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 27.3333, lng: 28.0000 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'sonoran-desert-lights',
+        title: 'Marfa Ghost Lights',
+        location: 'Sonoran Desert',
+        country: 'USA',
+        region: 'North America',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'Mysterious orbs of light have appeared in the Texas desert for over 100 years.',
+        fullExplanation: 'Since the 1880s, glowing orbs have been reported floating across the Sonoran Desert near Marfa, Texas. They appear randomly, split apart, merge, and disappear. Theories range from car headlights to atmospheric phenomena to spirits. Scientific studies have failed to definitively explain them.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 30.3100, lng: -104.0206 },
+        dateDiscovered: '1883'
+    },
+    {
+        id: 'taos-hum-desert',
+        title: 'The Taos Hum',
+        location: 'New Mexico Desert',
+        country: 'USA',
+        region: 'North America',
+        category: 'Deserts',
+        categoryId: 'deserts',
+        summary: 'A persistent low-frequency humming sound only some people can hear.',
+        fullExplanation: 'Since the 1990s, residents of Taos have reported a persistent low-frequency hum. Only 2% of residents hear it. Equipment has failed to record it. Theories include secret military installations, geological processes, and even mass hysteria. The source has never been identified.',
+        imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 36.4072, lng: -105.5731 },
+        dateDiscovered: '1991'
+    },
+
+    // ========== ISLANDS (10 mysteries) ==========
+    {
+        id: 'easter-island',
+        title: 'Easter Island Moai',
+        location: 'Easter Island',
+        country: 'Chile',
+        region: 'Pacific Ocean',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'Massive stone statues carved and transported by a small island population.',
+        fullExplanation: 'Easter Island contains 887 moai - monolithic human figures averaging 13 feet tall and 14 tons. The Rapa Nui people carved them from volcanic rock and somehow transported them miles across the island between 1250-1500 CE. Recent theory suggests they were "walked" using ropes.',
+        imageUrl: 'https://images.unsplash.com/photo-1550501788-1c8b96bef47e?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -27.1127, lng: -109.3497 },
+        dateDiscovered: '1722'
+    },
+    {
+        id: 'north-sentinel-island',
+        title: 'North Sentinel Island',
+        location: 'Andaman Islands',
+        country: 'India',
+        region: 'Asia',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'An island whose inhabitants have rejected all contact for 60,000 years.',
+        fullExplanation: 'The Sentinelese people have inhabited their island for an estimated 60,000 years, violently rejecting all outside contact. They fire arrows at aircraft and boats. Their language is unknown. What traditions and knowledge have they preserved from the Stone Age? Contact is now illegal.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 11.5500, lng: 92.2333 },
+        dateDiscovered: '1771'
+    },
+    {
+        id: 'bermuda-sargasso',
+        title: 'Island of Bermuda',
+        location: 'North Atlantic',
+        country: 'Bermuda',
+        region: 'Atlantic',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'The most isolated island where magnetic anomalies cause equipment failures.',
+        fullExplanation: 'Bermuda sits at one vertex of the infamous triangle. The island itself experiences magnetic anomalies - compasses point to true north rather than magnetic north here. The island appeared suddenly from volcanic activity 30 million years ago and hosts species found nowhere else.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 32.3078, lng: -64.7505 },
+        dateDiscovered: '1505'
+    },
+    {
+        id: 'socotra-island',
+        title: 'Socotra - Alien Island',
+        location: 'Arabian Sea',
+        country: 'Yemen',
+        region: 'Middle East',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'An island with plants so bizarre it looks like another planet.',
+        fullExplanation: 'Socotra\'s isolation for millions of years created a landscape unlike anywhere on Earth. Dragon blood trees with umbrella shapes, cucumber trees, and 700+ species found nowhere else give it an alien appearance. Ancient sailors believed magical creatures lived here. Some plants may have medicinal properties unknown to science.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 12.4634, lng: 53.8237 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'oak-island-treasure',
+        title: 'Oak Island Money Pit',
+        location: 'Nova Scotia',
+        country: 'Canada',
+        region: 'North America',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'A mysterious pit that has killed 6 people searching for buried treasure.',
+        fullExplanation: 'Since 1795, treasure hunters have dug into Oak Island\'s "Money Pit," finding coconut fibers, stone tablets with symbols, and booby-trapped flood tunnels. Six people have died searching. Theories suggest Templar treasure, Shakespeare manuscripts, or Marie Antoinette\'s jewels. Despite modern excavation, the mystery deepens.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 44.5133, lng: -64.2917 },
+        dateDiscovered: '1795'
+    },
+    {
+        id: 'poveglia-island',
+        title: 'Poveglia Island of Death',
+        location: 'Venetian Lagoon',
+        country: 'Italy',
+        region: 'Europe',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'Possibly the most haunted island on Earth, closed to visitors.',
+        fullExplanation: 'Poveglia served as a plague quarantine island where 160,000 people died. Later it became an insane asylum where a doctor allegedly tortured patients before throwing himself from the bell tower. The soil is 50% human ash. Italy refuses to sell it. Paranormal investigators report extreme activity.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 45.3831, lng: 12.3286 },
+        dateDiscovered: '421 CE'
+    },
+    {
+        id: 'hashima-island',
+        title: 'Hashima Ghost Island',
+        location: 'Nagasaki Prefecture',
+        country: 'Japan',
+        region: 'Asia',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'An abandoned concrete city in the sea, now completely uninhabited.',
+        fullExplanation: 'Once the most densely populated place on Earth, this coal mining island was abandoned in 1974 when coal was replaced by petroleum. Buildings stand frozen in time, personal belongings left behind. It inspired the villain\'s lair in Skyfall. Visitors report ghostly presence of former residents.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 32.6278, lng: 129.7383 },
+        dateDiscovered: '1810'
+    },
+    {
+        id: 'palm-island-atlantis',
+        title: 'Nan Madol',
+        location: 'Pohnpei',
+        country: 'Micronesia',
+        region: 'Pacific',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'The "Venice of the Pacific" built with massive stones on a coral reef.',
+        fullExplanation: 'Nan Madol consists of 92 artificial islands built on a coral reef using basalt columns weighing up to 50 tons each. The nearest quarry is miles away across open water. How did ancient people transport 750,000 tons of stone? Legends speak of magic and flying.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 6.8442, lng: 158.3356 },
+        dateDiscovered: '1200s CE'
+    },
+    {
+        id: 'bouvet-island',
+        title: 'Bouvet Island Lifeboat Mystery',
+        location: 'South Atlantic Ocean',
+        country: 'Norway',
+        region: 'Atlantic',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'The world\'s most remote island where an abandoned lifeboat appeared with no explanation.',
+        fullExplanation: 'In 1964, an expedition to Earth\'s most isolated island found an abandoned lifeboat with supplies but no identification marks. The island is 1,600 km from anywhere. Where did the boat come from? Who used it? No bodies or clues were ever found. The mystery was never solved.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: -54.4208, lng: 3.3594 },
+        dateDiscovered: '1964'
+    },
+    {
+        id: 'dolmen-island-korea',
+        title: 'Ganghwa Dolmen Sites',
+        location: 'Ganghwa Island',
+        country: 'South Korea',
+        region: 'Asia',
+        category: 'Islands',
+        categoryId: 'islands',
+        summary: 'More ancient dolmens than anywhere on Earth with no known builders.',
+        fullExplanation: 'Korea contains 40% of the world\'s dolmens - over 30,000 stone monuments. Ganghwa Island alone has some of the largest, with capstones weighing 300 tons. Who built them? How did they lift such weights? They predate known Korean civilizations by millennia.',
+        imageUrl: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 37.7500, lng: 126.4333 },
+        dateDiscovered: 'Ancient'
+    },
+
+    // ========== CAVES (10 mysteries) ==========
+    {
+        id: 'movile-cave',
+        title: 'Movile Cave Ecosystem',
+        location: 'Constanța County',
+        country: 'Romania',
+        region: 'Europe',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'A sealed cave with unique life forms evolved in complete isolation for millions of years.',
+        fullExplanation: 'Discovered in 1986, Movile Cave had been sealed from the outside world for 5.5 million years. Scientists discovered 48 species living inside, 33 of which exist nowhere else on Earth. They survive on chemosynthesis, not photosynthesis, with air toxic to humans.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 43.8256, lng: 28.5678 },
+        dateDiscovered: '1986'
+    },
+    {
+        id: 'son-doong',
+        title: 'Son Doong Cave',
+        location: 'Quang Binh Province',
+        country: 'Vietnam',
+        region: 'Asia',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'The world\'s largest cave has its own weather system and unexplored passages.',
+        fullExplanation: 'Son Doong is so large it has its own jungle, river, and cloud system. The main chamber could fit a 40-story building. Discovered in 1991 but not explored until 2009, much remains unexplored. Strange fossils and unexplained formations have been found within.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 17.5432, lng: 106.1431 },
+        dateDiscovered: '1991'
+    },
+    {
+        id: 'crystal-cave-naica',
+        title: 'Naica Crystal Cave',
+        location: 'Chihuahua',
+        country: 'Mexico',
+        region: 'Central America',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'A cave containing the largest crystals on Earth in conditions lethal to humans.',
+        fullExplanation: 'Naica contains selenite crystals up to 12 meters long and 55 tons each - the largest on Earth. The cave reaches 58°C with 99% humidity; humans can only survive 10 minutes without protection. Scientists found 50,000-year-old microbes revived from inside the crystals.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 27.8508, lng: -105.4961 },
+        dateDiscovered: '2000'
+    },
+    {
+        id: 'lascaux-caves',
+        title: 'Lascaux Cave Paintings',
+        location: 'Dordogne',
+        country: 'France',
+        region: 'Europe',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'Stone Age paintings with astronomical precision that defy primitive ability.',
+        fullExplanation: 'Lascaux contains 17,000-year-old paintings of stunning quality. Research suggests star maps, astronomical cycles, and mathematical precision. How did "primitive" humans create art with perspective, shading, and scientific accuracy? The caves were sealed in 1963 to prevent deterioration.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 45.0533, lng: 1.1681 },
+        dateDiscovered: '1940'
+    },
+    {
+        id: 'fingals-cave',
+        title: 'Fingal\'s Cave',
+        location: 'Isle of Staffa',
+        country: 'Scotland',
+        region: 'Europe',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'A sea cave with perfect hexagonal columns that inspired Mendelssohn.',
+        fullExplanation: 'This cave features perfect hexagonal basalt columns matching Giant\'s Causeway across the sea. The cave produces eerie sounds that inspired Mendelssohn\'s "Hebrides Overture." Ancient Celts believed it was carved by giants. The acoustic properties suggest intentional design.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 56.4317, lng: -6.3411 },
+        dateDiscovered: '1772'
+    },
+    {
+        id: 'waitomo-glowworms',
+        title: 'Waitomo Glowworm Caves',
+        location: 'North Island',
+        country: 'New Zealand',
+        region: 'Oceania',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'Caves lit by millions of bioluminescent creatures found nowhere else.',
+        fullExplanation: 'Waitomo caves glow with the light of millions of Arachnocampa luminosa glowworms, found only in New Zealand. Their lights attract prey into sticky threads. Why they evolved only here, how they coordinate their lighting, and their relationship to ancient Maori legends remains fascinating.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -38.2617, lng: 175.1056 },
+        dateDiscovered: '1887'
+    },
+    {
+        id: 'cenotes-yucatan',
+        title: 'Yucatan Cenote System',
+        location: 'Yucatan Peninsula',
+        country: 'Mexico',
+        region: 'Central America',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'Thousands of underwater caves connected to Mayan sacrifice sites.',
+        fullExplanation: 'Over 6,000 cenotes (water-filled sinkholes) dot the Yucatan, many connected by the world\'s longest underwater cave system. Mayans considered them entrances to Xibalba, the underworld, and threw sacrifices into them. Explorers continue to find human remains, artifacts, and undiscovered passages.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 20.5000, lng: -87.4000 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'cave-of-crystals-spain',
+        title: 'Cueva de los Tayos',
+        location: 'Morona-Santiago',
+        country: 'Ecuador',
+        region: 'South America',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'A mysterious cave where a metal library was allegedly discovered.',
+        fullExplanation: 'In 1969, explorer Juan Moricz claimed to find a metal library left by an ancient civilization. An expedition led by Neil Armstrong in 1976 explored the caves. The Shuar people guard the caves and describe underground chambers with strange artifacts. The alleged library has never been produced.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: -3.0833, lng: -78.2000 },
+        dateDiscovered: '1969'
+    },
+    {
+        id: 'ellison-cave',
+        title: 'Ellison\'s Cave Fantastic Pit',
+        location: 'Georgia',
+        country: 'USA',
+        region: 'North America',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'The deepest unobstructed pit in the US with unexplored depths.',
+        fullExplanation: 'Fantastic Pit drops 178 meters straight down - the deepest unobstructed pit in the US. At the bottom, passages continue to unexplored areas. Strange sounds echo from unknown depths. Cave formations suggest the cave was carved differently than geologists expected.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 34.6250, lng: -85.5250 },
+        dateDiscovered: '1969'
+    },
+    {
+        id: 'altamira-cave',
+        title: 'Altamira Cave Paintings',
+        location: 'Cantabria',
+        country: 'Spain',
+        region: 'Europe',
+        category: 'Caves',
+        categoryId: 'caves',
+        summary: 'Prehistoric paintings so advanced they were initially dismissed as forgeries.',
+        fullExplanation: 'When discovered in 1880, these 36,000-year-old paintings were dismissed as too sophisticated to be prehistoric. They use multiple colors, perspective, and even utilize rock contours for 3D effects. Who were these ancient artists? The caves are now sealed to protect them.',
+        imageUrl: 'https://images.unsplash.com/photo-1504699439244-a023e5ae5e4e?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 43.3783, lng: -4.1197 },
+        dateDiscovered: '1880'
+    },
+
+    // ========== LAKES (10 mysteries) ==========
+    {
+        id: 'loch-ness',
+        title: 'Loch Ness Monster',
+        location: 'Scottish Highlands',
+        country: 'Scotland',
+        region: 'Europe',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A legendary creature reportedly living in Scotland\'s deepest lake.',
+        fullExplanation: 'Loch Ness is a 23-mile long, 755-foot deep lake. Reports of a monster date back to 565 CE. Sonar scans have detected large moving objects, and environmental DNA studies found significant eel DNA, suggesting a giant eel could explain sightings.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 57.3229, lng: -4.4244 },
+        dateDiscovered: '565 CE'
+    },
+    {
+        id: 'lake-baikal',
+        title: 'Lake Baikal Mysteries',
+        location: 'Siberia',
+        country: 'Russia',
+        region: 'Asia',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'The world\'s deepest lake with UFO sightings and unique phenomena.',
+        fullExplanation: 'Lake Baikal holds 20% of the world\'s unfrozen fresh water. Soviet military reported encountering underwater humanoids in 1982. Strange lights are frequently seen. Unique species including freshwater seals exist nowhere else. Circles appear in the ice with no explanation.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 53.5000, lng: 108.0000 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'lake-natron',
+        title: 'Lake Natron - The Petrifying Lake',
+        location: 'Arusha Region',
+        country: 'Tanzania',
+        region: 'Africa',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A lake that turns animals to stone with waters reaching 60°C.',
+        fullExplanation: 'Lake Natron\'s alkaline waters (pH 10.5) and temperatures up to 60°C calcify animals that die in it, preserving them as stone statues. Photographer Nick Brandt documented these eerie "statues." Flamingos somehow thrive here, breeding on islands of salt. The lake glows red from bacteria.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -2.4167, lng: 36.0000 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'roopkund-skeleton-lake',
+        title: 'Roopkund Skeleton Lake',
+        location: 'Uttarakhand',
+        country: 'India',
+        region: 'Asia',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A glacial lake containing hundreds of human skeletons from multiple eras.',
+        fullExplanation: 'At 5,029 meters, this lake contains 600-800 skeletons. Initially thought to be from one event, DNA testing revealed people from the Mediterranean, dying across 1,000 years. Many skulls show identical circular fractures. What killed them? Theories include hailstones the size of cricket balls.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 30.2625, lng: 79.7314 },
+        dateDiscovered: '1942'
+    },
+    {
+        id: 'lake-vostok',
+        title: 'Lake Vostok',
+        location: 'Antarctic Ice Sheet',
+        country: 'Antarctica',
+        region: 'Antarctica',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A massive lake buried under 4 km of Antarctic ice for millions of years.',
+        fullExplanation: 'Lake Vostok has been sealed under ice for 15-25 million years. Scientists drilled to reach it in 2012, finding unique microbial life. What else might survive in its waters? The lake is the size of Lake Ontario. Some scientists want to explore; others fear contaminating a pristine ecosystem.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: -77.0000, lng: 105.0000 },
+        dateDiscovered: '1996'
+    },
+    {
+        id: 'flathead-lake-monster',
+        title: 'Flathead Lake Monster',
+        location: 'Montana',
+        country: 'USA',
+        region: 'North America',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A creature reported in the largest freshwater lake west of the Mississippi.',
+        fullExplanation: 'Salish tribes called it "Big Ears" and avoided certain waters. Since 1889, over 100 sightings describe a 20-40 foot creature with dark skin and humps. The lake is 370 feet deep with murky areas. Unlike Loch Ness, no scientific expeditions have investigated.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 47.8500, lng: -114.1000 },
+        dateDiscovered: '1889'
+    },
+    {
+        id: 'lake-tianchi-monster',
+        title: 'Lake Tianchi Monster',
+        location: 'Changbai Mountains',
+        country: 'China/North Korea',
+        region: 'Asia',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A creature in a volcanic crater lake on the China-North Korea border.',
+        fullExplanation: 'Tianchi is a crater lake at 2,189 meters elevation. Hundreds of witnesses, including scientists, have reported large creatures. In 2007, a journalist filmed what appeared to be six creatures swimming together. The lake was formed by volcanic eruption - how could life even exist there?',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 42.0031, lng: 128.0550 },
+        dateDiscovered: '1903'
+    },
+    {
+        id: 'devils-lake-disappearances',
+        title: 'Devil\'s Lake Disappearances',
+        location: 'Wisconsin',
+        country: 'USA',
+        region: 'North America',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A lake with an unusually high number of unsolved disappearances.',
+        fullExplanation: 'Native Americans considered Devil\'s Lake cursed, speaking of an underwater spirit. An unusual number of swimmers and boaters have vanished without trace despite the lake being searched. Bodies are sometimes never recovered. The lake sits in a formation of ancient quartzite with unusual properties.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 43.4242, lng: -89.7292 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'lake-maracaibo-lightning',
+        title: 'Catatumbo Lightning',
+        location: 'Lake Maracaibo',
+        country: 'Venezuela',
+        region: 'South America',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A lake where lightning strikes almost 300 nights per year.',
+        fullExplanation: 'Where the Catatumbo River meets Lake Maracaibo, lightning strikes 28 times per minute, 10 hours per night, 300 days per year. This "everlasting storm" generates enough electricity to power 100 million light bulbs. Why exactly here? The full explanation remains incomplete.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 9.0000, lng: -71.0000 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'spotted-lake',
+        title: 'Spotted Lake',
+        location: 'British Columbia',
+        country: 'Canada',
+        region: 'North America',
+        category: 'Lakes',
+        categoryId: 'lakes',
+        summary: 'A lake that separates into hundreds of colored spots in summer.',
+        fullExplanation: 'As water evaporates in summer, Spotted Lake separates into 365 separate pools of varying colors - yellows, greens, and blues based on mineral content. First Nations people consider it sacred, calling it Kliluk. The minerals were once mined for ammunition. Each spot has different healing properties, they say.',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 49.0786, lng: -119.5681 },
+        dateDiscovered: 'Ancient'
+    },
+
+    // ========== VOLCANOES (5 mysteries) ==========
+    {
+        id: 'yellowstone',
+        title: 'Yellowstone Supervolcano',
+        location: 'Wyoming',
+        country: 'USA',
+        region: 'North America',
+        category: 'Volcanoes',
+        categoryId: 'volcanoes',
+        summary: 'A massive volcanic system showing unexplained recent activity increases.',
+        fullExplanation: 'Yellowstone sits atop one of the world\'s largest volcanic systems. Recent years have seen unexplained increases in earthquake swarms, ground deformation, and thermal activity. An eruption could cover much of North America in ash and trigger a volcanic winter.',
+        imageUrl: 'https://images.unsplash.com/photo-1499029655555-3635ed028d53?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 44.4280, lng: -110.5885 },
+        dateDiscovered: '1871'
+    },
+    {
+        id: 'mount-erebus',
+        title: 'Mount Erebus Lava Lake',
+        location: 'Ross Island',
+        country: 'Antarctica',
+        region: 'Antarctica',
+        category: 'Volcanoes',
+        categoryId: 'volcanoes',
+        summary: 'Earth\'s southernmost active volcano with a permanent lava lake.',
+        fullExplanation: 'Mount Erebus has maintained a lake of molten lava since at least 1972. It\'s one of only a few volcanoes with persistent lava lakes. Ice towers formed by volcanic steam dot the landscape. Strange "Strombolian" eruptions shoot lava bombs. Its existence in Antarctica defies expectations.',
+        imageUrl: 'https://images.unsplash.com/photo-1499029655555-3635ed028d53?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: -77.5283, lng: 167.1531 },
+        dateDiscovered: '1841'
+    },
+    {
+        id: 'kawah-ijen',
+        title: 'Kawah Ijen Blue Fire',
+        location: 'East Java',
+        country: 'Indonesia',
+        region: 'Asia',
+        category: 'Volcanoes',
+        categoryId: 'volcanoes',
+        summary: 'A volcano that produces electric blue flames and a turquoise acid lake.',
+        fullExplanation: 'Kawah Ijen features blue flames reaching 5 meters high, caused by burning sulfuric gases. Its crater lake is the world\'s largest acidic lake with a pH of 0.5. Miners descend into toxic gases to collect sulfur. The blue fire only appears at night.',
+        imageUrl: 'https://images.unsplash.com/photo-1499029655555-3635ed028d53?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -8.0581, lng: 114.2422 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'ol-doinyo-lengai',
+        title: 'Ol Doinyo Lengai Strange Lava',
+        location: 'Gregory Rift',
+        country: 'Tanzania',
+        region: 'Africa',
+        category: 'Volcanoes',
+        categoryId: 'volcanoes',
+        summary: 'The only volcano producing cold, black lava that turns white.',
+        fullExplanation: 'This is Earth\'s only active carbonatite volcano. Its lava erupts at just 500°C (cool for lava), appears black, and turns white when exposed to moisture. Maasai people call it "Mountain of God" and believe their deity lives within. The strange lava chemistry is unique on Earth.',
+        imageUrl: 'https://images.unsplash.com/photo-1499029655555-3635ed028d53?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: -2.7644, lng: 35.9025 },
+        dateDiscovered: '1883'
+    },
+    {
+        id: 'dallol-volcano',
+        title: 'Dallol Volcanic Landscape',
+        location: 'Danakil Depression',
+        country: 'Ethiopia',
+        region: 'Africa',
+        category: 'Volcanoes',
+        categoryId: 'volcanoes',
+        summary: 'The most alien landscape on Earth with toxic pools and no life.',
+        fullExplanation: 'Dallol holds the record for highest average temperature. Neon-colored acid pools, salt formations, and toxic gases create a landscape unlike anywhere on Earth. Scientists use it as a Mars analog. Until recently, it was thought lifeless - then extremophiles were discovered.',
+        imageUrl: 'https://images.unsplash.com/photo-1499029655555-3635ed028d53?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 14.2433, lng: 40.3000 },
+        dateDiscovered: '1926'
+    },
+
+    // ========== ANCIENT CIVILIZATIONS (10 mysteries) ==========
+    {
+        id: 'pyramids-giza',
+        title: 'Great Pyramid Construction',
+        location: 'Giza Plateau',
+        country: 'Egypt',
+        region: 'Africa',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'How ancient Egyptians built massive pyramids with primitive tools remains debated.',
+        fullExplanation: 'The Great Pyramid of Giza, built around 2560 BCE, contains approximately 2.3 million stone blocks weighing 2.5 to 15 tons each. The precision of its construction - aligned to true north within 0.05 degrees - seems impossible for the technology of the time.',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 29.9792, lng: 31.1342 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'gobekli-tepe',
+        title: 'Göbekli Tepe',
+        location: 'Şanlıurfa Province',
+        country: 'Turkey',
+        region: 'Middle East',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'A 12,000-year-old temple complex built before humans developed agriculture.',
+        fullExplanation: 'Göbekli Tepe predates Stonehenge by 6,000 years and the pyramids by 7,000 years. Built by hunter-gatherers, it features massive carved pillars weighing up to 20 tons. It was deliberately buried around 8000 BCE. Only 5% has been excavated. It rewrites human history.',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 37.2233, lng: 38.9224 },
+        dateDiscovered: '1963'
+    },
+    {
+        id: 'puma-punku',
+        title: 'Puma Punku',
+        location: 'Tiwanaku',
+        country: 'Bolivia',
+        region: 'South America',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'Precision-cut stone blocks that seem impossible without modern tools.',
+        fullExplanation: 'Puma Punku features H-shaped blocks cut with such precision they fit together without mortar. The hardest granite was worked with apparent ease. Holes are perfectly round. Surfaces are perfectly flat. The site predates the Inca. How was this achieved at 12,800 feet altitude?',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: -16.5617, lng: -68.6803 },
+        dateDiscovered: '1549'
+    },
+    {
+        id: 'antikythera-mechanism',
+        title: 'Antikythera Mechanism',
+        location: 'Antikythera Shipwreck',
+        country: 'Greece',
+        region: 'Europe',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'A 2,000-year-old computer that predicted eclipses and planetary movements.',
+        fullExplanation: 'Found in a shipwreck, this 2,000-year-old device contains at least 30 bronze gears and could predict astronomical events decades in advance. Nothing comparable appeared for 1,400 years. Who built it? Was it unique or are others lost? It suggests ancient Greeks had knowledge we didn\'t know about.',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 35.8767, lng: 23.3097 },
+        dateDiscovered: '1901'
+    },
+    {
+        id: 'sacsayhuaman',
+        title: 'Sacsayhuamán Fortress',
+        location: 'Cusco',
+        country: 'Peru',
+        region: 'South America',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'Walls built with stones weighing up to 200 tons fitted perfectly together.',
+        fullExplanation: 'Sacsayhuamán features walls of enormous stones, some weighing 200 tons, fitted so precisely that a piece of paper cannot slip between them. The stones were transported from quarries miles away. Spanish conquistadors thought it was built by demons. Modern engineers cannot explain the methods used.',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: -13.5075, lng: -71.9817 },
+        dateDiscovered: '1533'
+    },
+    {
+        id: 'voynich-manuscript',
+        title: 'Voynich Manuscript',
+        location: 'Yale University',
+        country: 'USA',
+        region: 'Originally Europe',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'A 600-year-old book written in an undeciphered language with strange illustrations.',
+        fullExplanation: 'The Voynich Manuscript contains 240 pages of text in an unknown writing system and bizarre botanical illustrations of plants that don\'t exist. Carbon dated to the early 1400s, it has defied all codebreakers including WWII cryptographers and modern AI. Is it an elaborate hoax or lost knowledge?',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 41.3111, lng: -72.9267 },
+        dateDiscovered: '1912'
+    },
+    {
+        id: 'stone-spheres-costa-rica',
+        title: 'Stone Spheres of Costa Rica',
+        location: 'Diquís Delta',
+        country: 'Costa Rica',
+        region: 'Central America',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'Perfectly round stone spheres weighing up to 16 tons with no known purpose.',
+        fullExplanation: 'Over 300 stone spheres ranging from a few centimeters to 2 meters in diameter dot Costa Rica. Some weigh 16 tons and are almost perfectly round. Made from hard granite, they were created by a culture that left no written records. Their purpose remains completely unknown.',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 8.7000, lng: -83.5000 },
+        dateDiscovered: '1930s'
+    },
+    {
+        id: 'longyou-caves',
+        title: 'Longyou Caves',
+        location: 'Zhejiang Province',
+        country: 'China',
+        region: 'Asia',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'Massive underground caverns carved by hand with no historical record.',
+        fullExplanation: 'Discovered in 1992, these 24 hand-carved caverns required removing 1 million cubic meters of rock. Dating to over 2,000 years ago, they don\'t appear in any historical records. The largest cavern is 30 meters high. Chisel marks form mysterious patterns. Who built them and why?',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 29.0333, lng: 119.1667 },
+        dateDiscovered: '1992'
+    },
+    {
+        id: 'baalbek-megaliths',
+        title: 'Baalbek Stone of the Pregnant Woman',
+        location: 'Baalbek',
+        country: 'Lebanon',
+        region: 'Middle East',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'The largest cut stone in the world weighing over 1,000 tons.',
+        fullExplanation: 'The "Stone of the Pregnant Woman" weighs 1,000 tons. Nearby, an even larger stone weighing 1,650 tons was discovered in 2014. These are the largest cut stones in the ancient world. How were they moved? Why were they abandoned? Modern cranes can barely lift such weights.',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 34.0069, lng: 36.2036 },
+        dateDiscovered: 'Ancient'
+    },
+    {
+        id: 'sumerian-kings-list',
+        title: 'Sumerian Kings List',
+        location: 'Various Museums',
+        country: 'Iraq (origin)',
+        region: 'Middle East',
+        category: 'Ancient Civilizations',
+        categoryId: 'ancient-civilizations',
+        summary: 'Ancient records listing kings who ruled for thousands of years before a great flood.',
+        fullExplanation: 'The Sumerian Kings List describes kings ruling for impossibly long periods - one for 43,200 years. It mentions kingship "descending from heaven" and a great flood. After the flood, reign lengths become more realistic. Is this mythology, misunderstood timekeeping, or something else entirely?',
+        imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 31.9566, lng: 44.9411 },
+        dateDiscovered: '1906'
+    },
+
+    // ========== LOST CITIES (10 mysteries) ==========
+    {
+        id: 'el-dorado',
+        title: 'El Dorado - City of Gold',
+        location: 'South American Jungle',
+        country: 'Colombia',
+        region: 'South America',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'A legendary city of immense wealth that drove centuries of exploration.',
+        fullExplanation: 'El Dorado originated as a legend about a Muisca chieftain who covered himself in gold dust during ceremonies. Spanish conquistadors transformed this into a myth about an entire city of gold. LIDAR scans of the Amazon have revealed vast urban networks hidden beneath the canopy.',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 4.9333, lng: -73.9833 },
+        dateDiscovered: '1531'
+    },
+    {
+        id: 'ciudad-blanca',
+        title: 'La Ciudad Blanca (The White City)',
+        location: 'Mosquitia Region',
+        country: 'Honduras',
+        region: 'Central America',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'A legendary city discovered in 2015 deep in the Honduran jungle.',
+        fullExplanation: 'Legends of a "White City" or "City of the Monkey God" in the Honduran rainforest date back to conquistadors. In 2015, LIDAR revealed a lost city with pyramids, plazas, and artifacts. Excavation found a were-jaguar sculpture and evidence of an unknown civilization. The jungle remains largely unexplored.',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 15.2167, lng: -84.9333 },
+        dateDiscovered: '2015'
+    },
+    {
+        id: 'dwarka-underwater',
+        title: 'Dwarka - Krishna\'s Sunken Kingdom',
+        location: 'Gulf of Cambay',
+        country: 'India',
+        region: 'Asia',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'Underwater ruins of a city described in ancient Hindu texts.',
+        fullExplanation: 'Hindu texts describe Dwarka as Lord Krishna\'s magnificent city, swallowed by the sea after his death. In 2001, sonar revealed structures at 40 meters depth in the Gulf of Cambay. Artifacts recovered date to 7500 BCE - millennia older than thought possible for Indian civilization.',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 22.2394, lng: 68.9678 },
+        dateDiscovered: '2001'
+    },
+    {
+        id: 'petra-secrets',
+        title: 'Petra Hidden Chambers',
+        location: 'Ma\'an Governorate',
+        country: 'Jordan',
+        region: 'Middle East',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'The famous rose city may contain undiscovered chambers and treasures.',
+        fullExplanation: 'Only 15% of Petra has been excavated. Satellite imagery suggests massive structures remain buried. Ground-penetrating radar has detected anomalies beneath the Treasury. In 2016, a huge unknown monument was discovered. What else lies hidden in this 2,000-year-old city carved from rock?',
+        imageUrl: 'https://images.unsplash.com/photo-1579606032821-4e6161c81571?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 30.3285, lng: 35.4444 },
+        dateDiscovered: '1812'
+    },
+    {
+        id: 'angkor-hidden-cities',
+        title: 'Greater Angkor',
+        location: 'Siem Reap Province',
+        country: 'Cambodia',
+        region: 'Asia',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'LIDAR reveals Angkor was far larger than previously imagined.',
+        fullExplanation: 'LIDAR scans revealed that medieval Angkor was the world\'s largest city, stretching 1,000 square kilometers with sophisticated water management. Entire hidden cities were discovered. The civilization supported over a million people. Why did it collapse? Climate change and water management failures may hold clues.',
+        imageUrl: 'https://images.unsplash.com/photo-1553524913-efba3f0b533e?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 13.4125, lng: 103.8670 },
+        dateDiscovered: '2012'
+    },
+    {
+        id: 'troy-layers',
+        title: 'Troy - Multiple Cities',
+        location: 'Hisarlik',
+        country: 'Turkey',
+        region: 'Middle East',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'The legendary city of the Trojan War was rebuilt 9 times on the same spot.',
+        fullExplanation: 'Excavations revealed 9 cities built on top of each other over 4,000 years. Which was Homer\'s Troy? Layer VIIa shows signs of war around 1180 BCE. But why was this location rebuilt so many times? Ancient trade routes, spiritual significance, and strategic value all played roles.',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Partially Solved',
+        coordinates: { lat: 39.9575, lng: 26.2389 },
+        dateDiscovered: '1870'
+    },
+    {
+        id: 'heracleion',
+        title: 'Heracleion - Egyptian Atlantis',
+        location: 'Abū Qīr Bay',
+        country: 'Egypt',
+        region: 'Africa',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'A legendary Egyptian port city found underwater after 1,200 years.',
+        fullExplanation: 'Ancient texts described Heracleion as Egypt\'s greatest port, but it was thought mythical until discovered underwater in 2000. Giant statues, temples, ships, and artifacts lay preserved on the seafloor. The city apparently sank due to earthquakes and rising seas around 800 CE.',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 31.3000, lng: 30.1000 },
+        dateDiscovered: '2000'
+    },
+    {
+        id: 'paititi',
+        title: 'Paititi - Last Inca City',
+        location: 'Amazon Rainforest',
+        country: 'Peru',
+        region: 'South America',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'The final refuge of the Inca Empire, possibly containing vast treasures.',
+        fullExplanation: 'When the Spanish conquered Peru, the Inca reportedly fled east into the jungle with their greatest treasures to a city called Paititi. Satellite imagery has revealed potential sites. Several expeditions have found Inca artifacts deep in the Amazon. The search continues.',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: -13.0000, lng: -70.0000 },
+        dateDiscovered: 'Legend'
+    },
+    {
+        id: 'vinland',
+        title: 'Vinland Viking Settlement',
+        location: 'North America',
+        country: 'Canada/USA',
+        region: 'North America',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'Norse sagas describe settlements in North America 500 years before Columbus.',
+        fullExplanation: 'Norse sagas describe Vinland, a land of grapes and wheat. L\'Anse aux Meadows in Newfoundland proved Vikings reached America around 1000 CE. But the sagas describe more settlements. Recent discoveries in Point Rosee suggest more sites exist. How far did the Vikings explore?',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Still Investigated',
+        coordinates: { lat: 51.5964, lng: -55.5333 },
+        dateDiscovered: '1960'
+    },
+    {
+        id: 'shambhala',
+        title: 'Shambhala',
+        location: 'Inner Asia',
+        country: 'Unknown',
+        region: 'Asia',
+        category: 'Lost Cities',
+        categoryId: 'lost-cities',
+        summary: 'A mythical enlightened kingdom hidden somewhere in Inner Asia.',
+        fullExplanation: 'Tibetan Buddhist texts describe Shambhala as a hidden kingdom of enlightened beings, accessible only to the pure of heart. Some believe it exists in a different dimension. Others search for physical locations in the Himalayas, Gobi Desert, or Altai Mountains. The Nazis sent expeditions to find it.',
+        imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800',
+        status: 'Unsolved',
+        coordinates: { lat: 35.0000, lng: 80.0000 },
+        dateDiscovered: 'Ancient legend'
+    }
+];
         const categories = [
             { id: 'mountains', name: 'Mountains', icon: '🏔️', type: 'geography' },
             { id: 'oceans', name: 'Oceans', icon: '🌊', type: 'geography' },
@@ -1671,6 +3472,118 @@
             pageHistory = ['homePage'];
             openMystery(mysteries[randomIndex].id);
         }
+        // World Map Functions
+function openWorldMap() {
+    pageHistory.push('homePage');
+    showPage('worldMapPage');
+    setTimeout(renderMapMarkers, 100);
+}
+
+function goBackFromMap() {
+    showPage('homePage');
+    pageHistory = [];
+}
+
+function renderMapMarkers() {
+    const container = document.getElementById('mapMarkers');
+    const categoryFilter = document.getElementById('mapCategoryFilter').value;
+    
+    container.innerHTML = '';
+    
+    let filteredMysteries = mysteries;
+    if (categoryFilter !== 'all') {
+        filteredMysteries = mysteries.filter(m => m.categoryId === categoryFilter);
+    }
+    
+    filteredMysteries.forEach(function(mystery) {
+        const marker = document.createElement('div');
+        marker.className = 'map-marker ' + getStatusClass(mystery.status);
+        
+        // Convert lat/lng to percentage position on map
+        const left = ((mystery.coordinates.lng + 180) / 360) * 100;
+        const top = ((90 - mystery.coordinates.lat) / 180) * 100;
+        
+        marker.style.left = left + '%';
+        marker.style.top = top + '%';
+        
+        marker.innerHTML = '<div class="map-marker-tooltip">' + mystery.title + '</div>';
+        
+        marker.onclick = function() {
+            showMapPreview(mystery);
+        };
+        
+        container.appendChild(marker);
+    });
+}
+
+function filterMapMarkers() {
+    renderMapMarkers();
+}
+
+function showMapPreview(mystery) {
+    const container = document.getElementById('mapMysteryPreview');
+    container.innerHTML = 
+        '<div class="map-preview-card">' +
+            '<img src="' + mystery.imageUrl + '" alt="' + mystery.title + '">' +
+            '<h4>' + mystery.title + '</h4>' +
+            '<p>' + mystery.summary + '</p>' +
+            '<div class="status-badge ' + getStatusClass(mystery.status) + '" style="display: inline-flex; margin-bottom: 15px;">' +
+                '<span class="status-dot"></span>' + mystery.status +
+            '</div>' +
+            '<br>' +
+            '<button class="map-preview-btn" onclick="openMysteryFromMap(\'' + mystery.id + '\')">View Full Mystery</button>' +
+        '</div>';
+}
+
+function openMysteryFromMap(id) {
+    pageHistory.push('worldMapPage');
+    openMystery(id);
+}
     </script>
+    <!-- World Map Page -->
+<div class="page" id="worldMapPage">
+    <div class="page-header">
+        <button class="back-btn" onclick="goBackFromMap()">
+            ← Back
+        </button>
+        <h1 class="page-title">🗺️ Mystery World Map</h1>
+        <div style="width: 80px;"></div>
+    </div>
+
+    <div class="map-container">
+        <div class="map-wrapper" id="mapWrapper">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/ea/Equirectangular-projection.jpg" alt="World Map" class="world-map-img" id="worldMapImg">
+            <div class="map-markers" id="mapMarkers"></div>
+        </div>
+
+        <div class="map-sidebar" id="mapSidebar">
+            <h3>📍 Click a marker to see mystery</h3>
+            <div class="map-filters">
+                <select id="mapCategoryFilter" onchange="filterMapMarkers()">
+                    <option value="all">All Categories</option>
+                    <option value="mountains">🏔️ Mountains</option>
+                    <option value="oceans">🌊 Oceans</option>
+                    <option value="forests">🌲 Forests</option>
+                    <option value="deserts">🏜️ Deserts</option>
+                    <option value="islands">🏝️ Islands</option>
+                    <option value="caves">🕳️ Caves</option>
+                    <option value="lakes">💧 Lakes</option>
+                    <option value="volcanoes">🌋 Volcanoes</option>
+                    <option value="ancient-civilizations">🏛️ Ancient Civilizations</option>
+                    <option value="lost-cities">🏰 Lost Cities</option>
+                </select>
+            </div>
+            <div class="map-mystery-preview" id="mapMysteryPreview">
+                <p class="placeholder-text">Select a mystery marker on the map</p>
+            </div>
+            <div class="map-legend">
+                <h4>Legend</h4>
+                <div class="legend-item"><span class="legend-dot unsolved"></span> Unsolved</div>
+                <div class="legend-item"><span class="legend-dot partial"></span> Partially Solved</div>
+                <div class="legend-item"><span class="legend-dot investigated"></span> Still Investigated</div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
