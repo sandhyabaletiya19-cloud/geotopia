@@ -1668,7 +1668,7 @@ const riversData = [
         },
         image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800",
         description: "World's most winding river, rubber boom history, remote Amazon"
-    },
+    }
 
 ];
 
