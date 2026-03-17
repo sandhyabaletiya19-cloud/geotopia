@@ -1,663 +1,977 @@
-// =====================================================
-// MOUNTAIN SYSTEMS EXPLORER - APPLICATION LOGIC
-// =====================================================
+// ============================================
+// MOUNTAIN SYSTEMS EXPLORER - MAIN APPLICATION
+// ============================================
 
-// State
-let currentMountain = null;
-let map = null;
-let flyMap = null;
-let flyoverInterval = null;
-let flyoverIndex = 0;
-let isPaused = false;
+(function() {
+    'use strict';
 
-// Utility
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => document.querySelectorAll(selector);
-const getById = (id) => document.getElementById(id);
+    // ========================================
+    // CONFIGURATION
+    // ========================================
+    const CONFIG = {
+        animationDelay: 100,
+        mapDefaultZoom: 6,
+        peakAnimationDelay: 500,
+        loadingDuration: 2500
+    };
 
-// ==================== INITIALIZATION ====================
+    // ========================================
+    // DOM ELEMENTS
+    // ========================================
+    const DOM = {
+        loadingScreen: document.getElementById('loading-screen'),
+        mountainsGrid: document.getElementById('mountains-grid'),
+        searchInput: document.getElementById('mountain-search'),
+        filterBtns: document.querySelectorAll('.filter-btn'),
+        sortSelect: document.getElementById('sort-select'),
+        worldMap: document.getElementById('world-map'),
+        totalMountains: document.getElementById('total-mountains')
+    };
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Determine which page we're on
-    const isProfilePage = document.body.classList.contains('profile-page');
-    
-    if (isProfilePage) {
-        initProfilePage();
-    } else {
-        initMainPage();
+    // ========================================
+    // STATE
+    // ========================================
+    let state = {
+        currentFilter: 'all',
+        currentSort: 'elevation-desc',
+        searchQuery: '',
+        worldMapInstance: null,
+        profileMapInstance: null,
+        currentMountain: null
+    };
+
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    function init() {
+        // Check which page we're on
+        if (document.body.classList.contains('profile-page')) {
+            initProfilePage();
+        } else {
+            initHomePage();
+        }
     }
-});
 
-// ==================== MAIN PAGE (mountain.html) ====================
+    // ========================================
+    // HOME PAGE INITIALIZATION
+    // ========================================
+    function initHomePage() {
+        // Hide loading screen after delay
+        setTimeout(() => {
+            if (DOM.loadingScreen) {
+                DOM.loadingScreen.classList.add('hidden');
+            }
+        }, CONFIG.loadingDuration);
 
-function initMainPage() {
-    // Hide loader after delay
-    setTimeout(() => {
-        const loader = getById('loader');
-        if (loader) loader.classList.add('hidden');
-    }, 2000);
+        // Update stats
+        if (DOM.totalMountains) {
+            DOM.totalMountains.textContent = mountainsDataSorted.length;
+        }
 
-    // Render all cards
-    renderCards(mountainData);
+        // Render mountain cards
+        renderMountainCards(mountainsDataSorted);
 
-    // Setup filters
-    setupFilters();
+        // Initialize world map
+        initWorldMap();
 
-    // Setup search
-    setupSearch();
-}
+        // Setup event listeners
+        setupEventListeners();
+    }
 
-function renderCards(data) {
-    const grid = getById('cardsGrid');
-    if (!grid) return;
+    // ========================================
+    // RENDER MOUNTAIN CARDS
+    // ========================================
+    function renderMountainCards(mountains) {
+        if (!DOM.mountainsGrid) return;
 
-    if (data.length === 0) {
-        grid.innerHTML = `
-            <div class="no-results">
-                <i class="fas fa-mountain"></i>
-                <h3>No mountains found</h3>
-                <p>Try a different search or filter</p>
+        DOM.mountainsGrid.innerHTML = '';
+
+        mountains.forEach((mountain, index) => {
+            const card = createMountainCard(mountain, index + 1);
+            DOM.mountainsGrid.appendChild(card);
+        });
+    }
+
+    function createMountainCard(mountain, rank) {
+        const card = document.createElement('div');
+        card.className = 'mountain-card';
+        card.style.animationDelay = `${rank * CONFIG.animationDelay}ms`;
+        card.dataset.mountainId = mountain.id;
+        card.dataset.continent = mountain.continent.toLowerCase();
+
+        const elevationClass = getElevationClass(mountain.highestPeak.elevation);
+        
+        // Create flag images HTML
+        const flagsHtml = mountain.countries.slice(0, 4).map(country => 
+            `<img src="${getFlagImageUrl(country.code)}" alt="${country.name}" title="${country.name}">`
+        ).join('');
+
+        card.innerHTML = `
+            <div class="card-image-container">
+                <span class="card-rank">#${rank}</span>
+                <img src="${mountain.images.card}" alt="${mountain.name}" loading="lazy" 
+                     onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400'">
+                <span class="card-elevation-badge ${elevationClass}">
+                    ${formatElevation(mountain.highestPeak.elevation)}
+                </span>
             </div>
-        `;
-        return;
-    }
-
-    grid.innerHTML = data.map((mountain, index) => `
-        <a href="mountain-profile.html?id=${mountain.id}" class="mountain-card" style="animation-delay: ${index * 0.05}s">
-            <div class="card-image-wrapper">
-                <span class="card-rank">${index + 1}</span>
-                <div class="card-image">
-                    <img src="${mountain.image}" alt="${mountain.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800'">
-                    <span class="elevation-badge">${mountain.elevation.toLocaleString()}m</span>
-                </div>
+            <h3 class="card-name">${mountain.name}</h3>
+            <div class="card-flags">
+                ${flagsHtml}
             </div>
             <div class="card-info">
-                <div class="card-name">${mountain.name}</div>
-                <div class="card-peak">${mountain.highestPeak}</div>
-                <div class="card-flags">${mountain.flags.join('')}</div>
+                <span>${mountain.highestPeak.name}</span>
+                <span>${mountain.continent}</span>
             </div>
-        </a>
-    `).join('');
-}
+        `;
 
-function setupFilters() {
-    const filterBtns = getById('filterButtons');
-    if (!filterBtns) return;
+        // Click handler
+        card.addEventListener('click', () => {
+            navigateToProfile(mountain.slug);
+        });
 
-    filterBtns.addEventListener('click', (e) => {
-        const btn = e.target.closest('.filter-btn');
-        if (!btn) return;
+        return card;
+    }
 
-        // Update active state
-        $$('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    function navigateToProfile(slug) {
+        window.location.href = `MOUNTAINS-profile.html?mountain=${slug}`;
+    }
 
-        // Filter data
-        const filter = btn.dataset.filter;
-        const filtered = filter === 'all' 
-            ? mountainData 
-            : mountainData.filter(m => m.continent === filter);
+    // ========================================
+    // EVENT LISTENERS
+    // ========================================
+    function setupEventListeners() {
+        // Search
+        if (DOM.searchInput) {
+            DOM.searchInput.addEventListener('input', debounce(handleSearch, 300));
+        }
 
-        renderCards(filtered);
-    });
-}
+        // Filter buttons
+        DOM.filterBtns.forEach(btn => {
+            btn.addEventListener('click', handleFilter);
+        });
 
-function setupSearch() {
-    const searchInput = getById('searchInput');
-    if (!searchInput) return;
+        // Sort select
+        if (DOM.sortSelect) {
+            DOM.sortSelect.addEventListener('change', handleSort);
+        }
 
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
+        // Elevation scale segments
+        document.querySelectorAll('.scale-segment').forEach(segment => {
+            segment.addEventListener('click', () => {
+                const elevation = segment.dataset.elevation;
+                filterByElevation(elevation);
+            });
+        });
+    }
+
+    function handleSearch(e) {
+        state.searchQuery = e.target.value;
+        applyFilters();
+    }
+
+    function handleFilter(e) {
+        const filter = e.currentTarget.dataset.filter;
         
-        if (!query) {
-            renderCards(mountainData);
+        // Update active state
+        DOM.filterBtns.forEach(btn => btn.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        
+        state.currentFilter = filter;
+        applyFilters();
+    }
+
+    function handleSort(e) {
+        state.currentSort = e.target.value;
+        applyFilters();
+    }
+
+    function filterByElevation(elevationRange) {
+        let filtered = mountainsDataSorted;
+        
+        switch(elevationRange) {
+            case '8000+':
+                filtered = filtered.filter(m => m.highestPeak.elevation >= 8000);
+                break;
+            case '6000-8000':
+                filtered = filtered.filter(m => m.highestPeak.elevation >= 6000 && m.highestPeak.elevation < 8000);
+                break;
+            case '4000-6000':
+                filtered = filtered.filter(m => m.highestPeak.elevation >= 4000 && m.highestPeak.elevation < 6000);
+                break;
+            case '2000-4000':
+                filtered = filtered.filter(m => m.highestPeak.elevation >= 2000 && m.highestPeak.elevation < 4000);
+                break;
+            case '0-2000':
+                filtered = filtered.filter(m => m.highestPeak.elevation < 2000);
+                break;
+        }
+        
+        renderMountainCards(filtered);
+    }
+
+    function applyFilters() {
+        let filtered = mountainsDataSorted;
+
+        // Apply continent filter
+        if (state.currentFilter !== 'all') {
+            filtered = filterByContinent(state.currentFilter);
+        }
+
+        // Apply search
+        if (state.searchQuery) {
+            const query = state.searchQuery.toLowerCase();
+            filtered = filtered.filter(m => 
+                m.name.toLowerCase().includes(query) ||
+                m.countries.some(c => c.name.toLowerCase().includes(query)) ||
+                m.highestPeak.name.toLowerCase().includes(query)
+            );
+        }
+
+        // Apply sort
+        filtered = sortMountains(filtered, state.currentSort);
+
+        renderMountainCards(filtered);
+    }
+
+    // ========================================
+    // WORLD MAP
+    // ========================================
+    function initWorldMap() {
+        if (!DOM.worldMap || typeof L === 'undefined') return;
+
+        // Create map
+        state.worldMapInstance = L.map('world-map', {
+            center: [20, 0],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 10,
+            scrollWheelZoom: true
+        });
+
+        // Add tile layer (terrain style)
+        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenTopoMap contributors',
+            maxZoom: 17
+        }).addTo(state.worldMapInstance);
+
+        // Add mountain markers
+        addMountainMarkers(state.worldMapInstance);
+    }
+
+    function addMountainMarkers(map) {
+        mountainsDataSorted.forEach(mountain => {
+            const coords = mountain.highestPeak.coordinates;
+            const elevationClass = getElevationClass(mountain.highestPeak.elevation);
+            
+            // Custom icon based on elevation
+            const markerColor = getMarkerColor(elevationClass);
+            
+            const customIcon = L.divIcon({
+                className: 'custom-mountain-marker',
+                html: `<div style="
+                    background: ${markerColor};
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                    cursor: pointer;
+                "></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            const marker = L.marker([coords.lat, coords.lng], { icon: customIcon })
+                .addTo(map);
+
+            // Popup content
+            const popupContent = `
+                <div class="custom-popup">
+                    <h4>${mountain.name}</h4>
+                    <p><strong>${mountain.highestPeak.name}</strong></p>
+                    <p>Elevation: ${formatElevation(mountain.highestPeak.elevation)}</p>
+                    <p>Countries: ${mountain.countries.map(c => c.name).join(', ')}</p>
+                    <button onclick="window.location.href='MOUNTAINS-profile.html?mountain=${mountain.slug}'" 
+                            style="margin-top: 10px; padding: 5px 15px; background: #1a5f7a; color: white; border: none; border-radius: 15px; cursor: pointer;">
+                        Explore →
+                    </button>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+        });
+    }
+
+    function getMarkerColor(elevationClass) {
+        const colors = {
+            'extreme': '#dc2626',
+            'very-high': '#ea580c',
+            'high': '#ca8a04',
+            'medium': '#16a34a',
+            'low': '#2563eb'
+        };
+        return colors[elevationClass] || colors.medium;
+    }
+
+    // ========================================
+    // PROFILE PAGE
+    // ========================================
+    function initProfilePage() {
+        // Get mountain slug from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const mountainSlug = urlParams.get('mountain');
+
+        if (!mountainSlug) {
+            window.location.href = 'MOUNTAINS.html';
             return;
         }
 
-        const filtered = mountainData.filter(m => 
-            m.name.toLowerCase().includes(query) ||
-            m.highestPeak.toLowerCase().includes(query) ||
-            m.countries.some(c => c.toLowerCase().includes(query)) ||
-            m.continent.toLowerCase().includes(query)
-        );
-
-        renderCards(filtered);
-    });
-}
-
-// ==================== PROFILE PAGE (mountain-profile.html) ====================
-
-function initProfilePage() {
-    // Get mountain ID from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const mountainId = parseInt(urlParams.get('id'));
-
-    if (!mountainId) {
-        window.location.href = 'mountain.html';
-        return;
-    }
-
-    // Find mountain
-    currentMountain = mountainData.find(m => m.id === mountainId);
-
-    if (!currentMountain) {
-        window.location.href = 'mountain.html';
-        return;
-    }
-
-    // Update page title
-    document.title = `${currentMountain.name} - Mountain Explorer`;
-
-    // Render profile
-    renderProfile();
-
-    // Hide loader
-    setTimeout(() => {
-        const loader = getById('loader');
-        if (loader) loader.classList.add('hidden');
-    }, 1500);
-
-    // Initialize map
-    setTimeout(initMap, 500);
-
-    // Setup event listeners
-    setupProfileEvents();
-}
-
-function renderProfile() {
-    const m = currentMountain;
-
-    // Background
-    const bg = getById('profileBg');
-    if (bg) bg.style.backgroundImage = `url(${m.background})`;
-
-    // Title
-    const titleEl = getById('mountainName');
-    if (titleEl) {
-        titleEl.innerHTML = `<i class="fas fa-mountain"></i><span>${m.name}</span>`;
-    }
-
-    // Meta
-    const metaEl = getById('mountainMeta');
-    if (metaEl) {
-        metaEl.innerHTML = `
-            <span><i class="fas fa-globe"></i> ${m.continent.toUpperCase()}</span>
-            <span><i class="fas fa-flag"></i> ${m.countries.length} Countries</span>
-            <span>${m.flags.join(' ')}</span>
-        `;
-    }
-
-    // Stats
-    renderStats();
-
-    // Info Tree
-    renderInfoTree();
-
-    // Peaks Grid
-    renderPeaks();
-}
-
-function renderStats() {
-    const m = currentMountain;
-    const statsGrid = getById('statsGrid');
-    if (!statsGrid) return;
-
-    const stats = [
-        { icon: '⛰️', value: `${m.elevation.toLocaleString()}m`, label: 'Highest Peak' },
-        { icon: '📏', value: m.length, label: 'Total Length' },
-        { icon: '📊', value: m.avgElevation, label: 'Avg Elevation' },
-        { icon: '🏔️', value: m.peaks.length, label: 'Major Peaks' },
-        { icon: '🌍', value: m.countries.length, label: 'Countries' },
-        { icon: '❄️', value: m.glaciers.length, label: 'Glaciers' }
-    ];
-
-    statsGrid.innerHTML = stats.map(stat => `
-        <div class="stat-card">
-            <div class="stat-card-icon">${stat.icon}</div>
-            <div class="stat-card-value">${stat.value}</div>
-            <div class="stat-card-label">${stat.label}</div>
-        </div>
-    `).join('');
-}
-
-function renderInfoTree() {
-    const m = currentMountain;
-    const tree = getById('infoTree');
-    if (!tree) return;
-
-    const branches = [
-        {
-            icon: '📍', title: 'Location',
-            items: [
-                `Continent: <span class="highlight">${m.continent.toUpperCase()}</span>`,
-                `Countries: ${m.countries.join(', ')}`,
-                `Coordinates: ${m.coords.lat.toFixed(2)}°, ${m.coords.lng.toFixed(2)}°`
-            ]
-        },
-        {
-            icon: '⛰️', title: 'Highest Peak',
-            items: [
-                `Name: <span class="highlight">${m.highestPeak}</span>`,
-                `Elevation: <span class="highlight">${m.elevation.toLocaleString()}m</span>`
-            ]
-        },
-        {
-            icon: '🏔️', title: 'Major Peaks',
-            items: m.peaks.slice(0, 8).map(p => `${p.name}: <span class="highlight">${p.elevation.toLocaleString()}m</span>`)
-        },
-        {
-            icon: '🌋', title: 'Formation',
-            items: [
-                `Origin: ${m.formation.origin}`,
-                `Age: <span class="highlight">${m.formation.age}</span>`,
-                `Plates: ${m.formation.plates}`
-            ]
-        },
-        {
-            icon: '❄️', title: 'Glaciers',
-            items: m.glaciers.map(g => g.name)
-        },
-        {
-            icon: '🛤️', title: 'Mountain Passes',
-            items: m.passes.map(p => `${p.name}: <span class="highlight">${p.elevation.toLocaleString()}m</span>`)
-        },
-        {
-            icon: '💧', title: 'Rivers',
-            items: m.rivers
-        },
-        {
-            icon: '🐾', title: 'Wildlife',
-            items: m.wildlife
-        },
-        {
-            icon: '🌿', title: 'Vegetation',
-            items: m.vegetation
-        },
-        {
-            icon: '🌡️', title: 'Climate Zones',
-            items: m.climate
-        },
-        {
-            icon: '💰', title: 'Economy',
-            items: Object.entries(m.economy).map(([key, val]) => `<span class="highlight">${key.charAt(0).toUpperCase() + key.slice(1)}:</span> ${val}`)
-        },
-        {
-            icon: '⚠️', title: 'Environmental Issues',
-            items: m.environment
-        },
-        {
-            icon: '📜', title: 'History & Culture',
-            items: Object.entries(m.history).map(([key, val]) => `<span class="highlight">${key.charAt(0).toUpperCase() + key.slice(1)}:</span> ${val}`)
+        // Find mountain data
+        const mountain = getMountainBySlug(mountainSlug);
+        
+        if (!mountain) {
+            console.error('Mountain not found:', mountainSlug);
+            window.location.href = 'MOUNTAINS.html';
+            return;
         }
-    ];
 
-    tree.innerHTML = branches.map((branch, i) => `
-        <div class="tree-branch">
-            <div class="branch-header" onclick="toggleBranch(${i})">
-                <div class="branch-icon">${branch.icon}</div>
-                <div class="branch-title">${branch.title}</div>
-                <i class="fas fa-chevron-down branch-arrow"></i>
-            </div>
-            <div class="branch-content" id="branch-content-${i}">
-                <ul>
-                    ${branch.items.map(item => `<li>${item}</li>`).join('')}
-                </ul>
-            </div>
-        </div>
-    `).join('');
-}
+        state.currentMountain = mountain;
 
-function toggleBranch(index) {
-    const header = $$('.branch-header')[index];
-    const content = getById(`branch-content-${index}`);
-    
-    if (header && content) {
-        header.classList.toggle('active');
-        content.classList.toggle('active');
-    }
-}
-
-function renderPeaks() {
-    const m = currentMountain;
-    const peaksGrid = getById('peaksGrid');
-    if (!peaksGrid) return;
-
-    peaksGrid.innerHTML = m.peaks.slice(0, 12).map((peak, i) => `
-        <div class="peak-card" style="animation-delay: ${i * 0.1}s">
-            <div class="peak-icon">⛰️</div>
-            <div class="peak-name">${peak.name}</div>
-            <div class="peak-elevation">${peak.elevation.toLocaleString()}m</div>
-        </div>
-    `).join('');
-}
-
-// ==================== MAP ====================
-
-function initMap() {
-    const m = currentMountain;
-    const mapEl = getById('mountainMap');
-    if (!mapEl || !m) return;
-
-    // Clear existing map
-    if (map) {
-        map.remove();
-        map = null;
+        // Render all sections
+        renderProfileBackground(mountain);
+        renderProfileHero(mountain);
+        renderProfileMap(mountain);
+        renderPeaksAnimation(mountain);
+        renderMindMap(mountain);
+        renderFlyoverGallery(mountain);
+        renderRiversSection(mountain);
+        renderBiodiversitySection(mountain);
+        renderTimelineSection(mountain);
+        renderEnvironmentalSection(mountain);
+        renderOtherMountains(mountain);
+        
+        // Setup profile event listeners
+        setupProfileEventListeners();
     }
 
-    // Create map
-    map = L.map('mountainMap').setView([m.coords.lat, m.coords.lng], m.coords.zoom);
+    function renderProfileBackground(mountain) {
+        const bg = document.getElementById('mountain-background');
+        if (bg) {
+            bg.style.backgroundImage = `url('${mountain.images.background}')`;
+        }
+    }
 
-    // Add terrain layer
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: '© OpenTopoMap'
-    }).addTo(map);
+    function renderProfileHero(mountain) {
+        // Update page title
+        document.title = `${mountain.name} | Mountain Systems Explorer`;
+        document.getElementById('page-title').textContent = `${mountain.name} | Mountain Systems Explorer`;
 
-    // Add markers
-    addMapMarkers();
+        // Navigation title
+        const navName = document.getElementById('nav-mountain-name');
+        if (navName) navName.textContent = mountain.name;
 
-    // Setup layer controls
-    setupMapControls();
-}
+        // Mountain name
+        const nameEl = document.getElementById('mountain-name');
+        if (nameEl) nameEl.textContent = mountain.name;
 
-function addMapMarkers() {
-    const m = currentMountain;
+        // Subtitle
+        const subtitle = document.getElementById('mountain-subtitle');
+        if (subtitle) {
+            subtitle.textContent = `${mountain.continent} • ${mountain.countries.map(c => c.name).join(', ')}`;
+        }
 
-    // Peaks
-    m.peaks.forEach(peak => {
-        const icon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div class="marker-pin peak">⛰️</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+        // Elevation badge
+        const badge = document.getElementById('elevation-badge');
+        if (badge) {
+            badge.querySelector('.badge-elevation').textContent = formatElevation(mountain.highestPeak.elevation);
+        }
+
+        // Hero stats
+        const statsContainer = document.getElementById('hero-stats');
+        if (statsContainer) {
+            statsContainer.innerHTML = `
+                <div class="hero-stat">
+                    <span class="hero-stat-value">${formatElevation(mountain.highestPeak.elevation)}</span>
+                    <span class="hero-stat-label">Highest Peak</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">${mountain.length.toLocaleString()} km</span>
+                    <span class="hero-stat-label">Total Length</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">${mountain.majorPeaks.length}</span>
+                    <span class="hero-stat-label">Major Peaks</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">${mountain.countries.length}</span>
+                    <span class="hero-stat-label">Countries</span>
+                </div>
+            `;
+        }
+
+        // Country flags
+        const flagsContainer = document.getElementById('country-flags');
+        if (flagsContainer) {
+            flagsContainer.innerHTML = mountain.countries.map(country => 
+                `<img src="${getFlagImageUrl(country.code)}" alt="${country.name}" title="${country.name}">`
+            ).join('');
+        }
+    }
+
+    function renderProfileMap(mountain) {
+        const mapContainer = document.getElementById('mountain-map');
+        if (!mapContainer || typeof L === 'undefined') return;
+
+        // Create map
+        state.profileMapInstance = L.map('mountain-map', {
+            center: [mountain.mapCenter.lat, mountain.mapCenter.lng],
+            zoom: mountain.mapZoom || 7
         });
 
-        L.marker([peak.lat, peak.lng], { icon })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title">${peak.name}</div>
-                <div class="popup-subtitle">${peak.elevation.toLocaleString()}m</div>
-                <div class="popup-type">Peak</div>
-            `);
-    });
-
-    // Glaciers
-    m.glaciers.forEach(glacier => {
-        const icon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div class="marker-pin glacier">❄️</div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
+        // Terrain layer (default)
+        const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenTopoMap'
         });
 
-        L.marker([glacier.lat, glacier.lng], { icon })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title">${glacier.name}</div>
-                <div class="popup-type">Glacier</div>
-            `);
-    });
-
-    // Passes
-    m.passes.forEach(pass => {
-        const icon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div class="marker-pin pass">🛤️</div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
+        // Satellite layer
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri'
         });
 
-        L.marker([pass.lat, pass.lng], { icon })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title">${pass.name}</div>
-                <div class="popup-subtitle">${pass.elevation.toLocaleString()}m</div>
-                <div class="popup-type">Mountain Pass</div>
-            `);
-    });
-
-    // Cities
-    m.cities.forEach(city => {
-        const icon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div class="marker-pin city">🏙️</div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
+        // Topo layer
+        const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenTopoMap'
         });
 
-        L.marker([city.lat, city.lng], { icon })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title">${city.name}</div>
-                <div class="popup-type">City</div>
-            `);
-    });
-}
+        terrainLayer.addTo(state.profileMapInstance);
 
-function setupMapControls() {
-    const mapBtns = $$('.map-btn');
-    
-    mapBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            mapBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        // Layer control buttons
+        document.querySelectorAll('.map-control-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.map-control-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const layer = btn.dataset.layer;
+                state.profileMapInstance.eachLayer(l => {
+                    if (l instanceof L.TileLayer) {
+                        state.profileMapInstance.removeLayer(l);
+                    }
+                });
+                
+                switch(layer) {
+                    case 'satellite':
+                        satelliteLayer.addTo(state.profileMapInstance);
+                        break;
+                    case 'topo':
+                        topoLayer.addTo(state.profileMapInstance);
+                        break;
+                    default:
+                        terrainLayer.addTo(state.profileMapInstance);
+                }
+            });
+        });
+
+        // Add peak markers
+        addPeakMarkers(state.profileMapInstance, mountain);
+
+        // Add river lines
+        addRiverLines(state.profileMapInstance, mountain);
+    }
+
+    function addPeakMarkers(map, mountain) {
+        // Add marker for highest peak
+        const highestPeak = mountain.highestPeak;
+        
+        const peakIcon = L.divIcon({
+            className: 'peak-marker',
+            html: `<div class="peak-marker-content">
+                🏔️ ${highestPeak.name}<br>
+                <strong>${formatElevation(highestPeak.elevation)}</strong>
+            </div>`,
+            iconSize: [150, 50],
+            iconAnchor: [75, 25]
+        });
+
+        L.marker([highestPeak.coordinates.lat, highestPeak.coordinates.lng], { icon: peakIcon })
+            .addTo(map);
+
+        // Add markers for other major peaks (simulated positions around center)
+        mountain.majorPeaks.forEach((peak, index) => {
+            if (index === 0) return; // Skip highest peak (already added)
             
-            updateMapLayer(btn.dataset.layer);
+            // Generate positions around the center
+            const angle = (index * 45) * (Math.PI / 180);
+            const distance = 0.2 + (index * 0.1);
+            const lat = mountain.mapCenter.lat + (Math.cos(angle) * distance);
+            const lng = mountain.mapCenter.lng + (Math.sin(angle) * distance);
+
+            const icon = L.divIcon({
+                className: 'peak-marker',
+                html: `<div style="
+                    background: rgba(220, 38, 38, 0.9);
+                    color: white;
+                    padding: 3px 8px;
+                    border-radius: 10px;
+                    font-size: 11px;
+                    white-space: nowrap;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                ">⛰️ ${peak.name}: ${formatElevation(peak.elevation)}</div>`,
+                iconSize: [120, 30],
+                iconAnchor: [60, 15]
+            });
+
+            L.marker([lat, lng], { icon: icon }).addTo(map);
         });
-    });
-}
-
-function updateMapLayer(layerType) {
-    if (!map) return;
-
-    // Remove existing tile layers
-    map.eachLayer(layer => {
-        if (layer instanceof L.TileLayer) {
-            map.removeLayer(layer);
-        }
-    });
-
-    // Add new layer
-    const layers = {
-        terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-        satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        topo: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    };
-
-    L.tileLayer(layers[layerType] || layers.terrain, {
-        maxZoom: 17,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-}
-
-// ==================== FLYOVER ====================
-
-function setupProfileEvents() {
-    // Flyover button
-    const flyBtn = getById('flyoverBtn');
-    if (flyBtn) {
-        flyBtn.addEventListener('click', startFlyover);
     }
 
-    // Close flyover
-    const closeBtn = getById('closeFlyover');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeFlyover);
-    }
+    function addRiverLines(map, mountain) {
+        if (!mountain.rivers || mountain.rivers.length === 0) return;
 
-    // Pause button
-    const pauseBtn = getById('pauseBtn');
-    if (pauseBtn) {
-        pauseBtn.addEventListener('click', togglePause);
-    }
+        mountain.rivers.forEach((river, index) => {
+            // Generate a river path from mountain center
+            const startLat = mountain.mapCenter.lat;
+            const startLng = mountain.mapCenter.lng;
+            const angle = (index * 60) * (Math.PI / 180);
+            const endLat = startLat + (Math.cos(angle) * 2);
+            const endLng = startLng + (Math.sin(angle) * 3);
 
-    // Restart button
-    const restartBtn = getById('restartBtn');
-    if (restartBtn) {
-        restartBtn.addEventListener('click', restartFlyover);
-    }
-}
+            const riverPath = [
+                [startLat, startLng],
+                [startLat + (endLat - startLat) * 0.3, startLng + (endLng - startLng) * 0.4],
+                [startLat + (endLat - startLat) * 0.6, startLng + (endLng - startLng) * 0.7],
+                [endLat, endLng]
+            ];
 
-function startFlyover() {
-    const m = currentMountain;
-    if (!m || m.peaks.length < 2) {
-        alert('Not enough peaks for flyover');
-        return;
-    }
+            const polyline = L.polyline(riverPath, {
+                color: '#3b82f6',
+                weight: 3,
+                opacity: 0.8,
+                dashArray: '10, 10',
+                className: 'animated-river'
+            }).addTo(map);
 
-    // Update title
-    const titleEl = getById('flyoverTitle');
-    if (titleEl) titleEl.textContent = `Flying Over ${m.name}`;
-
-    // Render progress markers
-    renderFlyoverProgress();
-
-    // Show modal
-    const modal = getById('flyoverModal');
-    if (modal) modal.classList.add('active');
-
-    // Initialize flyover map
-    setTimeout(() => {
-        initFlyoverMap();
-        startFlyoverAnimation();
-    }, 300);
-}
-
-function renderFlyoverProgress() {
-    const m = currentMountain;
-    const progressEl = getById('flyoverProgress');
-    if (!progressEl) return;
-
-    const peaksToShow = m.peaks.slice(0, 8);
-
-    progressEl.innerHTML = peaksToShow.map((peak, i) => `
-        <div class="progress-marker" id="progress-${i}">
-            <div class="marker-icon">⛰️</div>
-            <div class="marker-name">${peak.name}</div>
-            <div class="marker-elev">${peak.elevation.toLocaleString()}m</div>
-        </div>
-    `).join('');
-}
-
-function initFlyoverMap() {
-    const m = currentMountain;
-    const mapEl = getById('flyoverMap');
-    if (!mapEl || !m) return;
-
-    // Clear existing
-    if (flyMap) {
-        flyMap.remove();
-        flyMap = null;
-    }
-
-    // Create map
-    flyMap = L.map('flyoverMap').setView([m.peaks[0].lat, m.peaks[0].lng], m.coords.zoom + 1);
-
-    // Add satellite layer
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 17
-    }).addTo(flyMap);
-
-    // Add peak markers
-    m.peaks.slice(0, 8).forEach(peak => {
-        const icon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div class="marker-pin peak">⛰️</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            polyline.bindPopup(`<strong>${river.name}</strong><br>Length: ${river.length.toLocaleString()} km`);
         });
+    }
 
-        L.marker([peak.lat, peak.lng], { icon }).addTo(flyMap);
-    });
-}
+    function renderPeaksAnimation(mountain) {
+        const container = document.getElementById('peaks-list');
+        if (!container) return;
 
-function startFlyoverAnimation() {
-    flyoverIndex = 0;
-    isPaused = false;
-    updateFlyoverDisplay();
+        container.innerHTML = '';
 
-    // Clear existing interval
-    if (flyoverInterval) clearInterval(flyoverInterval);
+        mountain.majorPeaks.forEach((peak, index) => {
+            const peakEl = document.createElement('div');
+            peakEl.className = 'peak-item';
+            peakEl.style.animationDelay = `${(index + 1) * CONFIG.peakAnimationDelay}ms`;
+            
+            peakEl.innerHTML = `
+                <span class="peak-name">🏔️ ${peak.name}</span>
+                <span class="peak-elevation">${formatElevation(peak.elevation)}</span>
+            `;
+            
+            container.appendChild(peakEl);
+        });
+    }
 
-    // Start animation
-    flyoverInterval = setInterval(() => {
-        if (!isPaused) {
-            flyoverIndex++;
-            const peaks = currentMountain.peaks.slice(0, 8);
+    function renderMindMap(mountain) {
+        const container = document.getElementById('mindmap-branches');
+        const centerTitle = document.getElementById('mindmap-title');
+        
+        if (!container) return;
+        
+        if (centerTitle) centerTitle.textContent = mountain.name;
 
-            if (flyoverIndex >= peaks.length) {
-                flyoverIndex = 0;
+        // Define branches with positions
+        const branches = [
+            {
+                id: 'location',
+                icon: 'fa-map-marker-alt',
+                title: 'Location',
+                position: { top: '5%', left: '5%' },
+                content: `
+                    <li>Continent: ${mountain.continent}</li>
+                    <li>Countries: ${mountain.countries.map(c => c.name).join(', ')}</li>
+                    <li>Coordinates: ${mountain.mapCenter.lat.toFixed(2)}°, ${mountain.mapCenter.lng.toFixed(2)}°</li>
+                `
+            },
+            {
+                id: 'highest-peak',
+                icon: 'fa-mountain',
+                title: 'Highest Peak',
+                position: { top: '5%', right: '5%' },
+                content: `
+                    <li>Name: ${mountain.highestPeak.name}</li>
+                    <li>Elevation: ${formatElevation(mountain.highestPeak.elevation)}</li>
+                    <li>Coordinates: ${mountain.highestPeak.coordinates.lat.toFixed(4)}°N, ${mountain.highestPeak.coordinates.lng.toFixed(4)}°E</li>
+                `
+            },
+            {
+                id: 'formation',
+                icon: 'fa-layer-group',
+                title: 'Formation',
+                position: { top: '30%', left: '0%' },
+                content: `
+                    <li>Origin: ${mountain.formation.origin}</li>
+                    <li>Age: ${mountain.formation.age}</li>
+                    <li>Tectonics: ${mountain.formation.plates}</li>
+                `
+            },
+            {
+                id: 'dimensions',
+                icon: 'fa-ruler',
+                title: 'Dimensions',
+                position: { top: '30%', right: '0%' },
+                content: `
+                    <li>Length: ${mountain.length.toLocaleString()} km</li>
+                    <li>Average Elevation: ${formatElevation(mountain.averageElevation)}</li>
+                    <li>Major Peaks: ${mountain.majorPeaks.length}</li>
+                `
+            },
+            {
+                id: 'glaciers',
+                icon: 'fa-snowflake',
+                title: 'Glaciers',
+                position: { top: '55%', left: '0%' },
+                content: mountain.glaciers.map(g => `<li>${g}</li>`).join('')
+            },
+            {
+                id: 'rivers',
+                icon: 'fa-water',
+                title: 'Rivers',
+                position: { top: '55%', right: '0%' },
+                content: mountain.rivers.map(r => `<li>${r.name} (${r.length.toLocaleString()} km)</li>`).join('')
+            },
+            {
+                id: 'biodiversity',
+                icon: 'fa-leaf',
+                title: 'Biodiversity',
+                position: { bottom: '25%', left: '5%' },
+                content: `
+                    <li><strong>Wildlife:</strong> ${mountain.biodiversity.wildlife.join(', ')}</li>
+                    <li><strong>Vegetation:</strong> ${mountain.biodiversity.vegetation.join(', ')}</li>
+                `
+            },
+            {
+                id: 'climate',
+                icon: 'fa-cloud-sun',
+                title: 'Climate',
+                position: { bottom: '25%', right: '5%' },
+                content: `<li>${mountain.climate}</li>`
+            },
+            {
+                id: 'settlements',
+                icon: 'fa-city',
+                title: 'Settlements',
+                position: { bottom: '5%', left: '20%' },
+                content: mountain.settlements.map(s => `<li>${s}</li>`).join('')
+            },
+            {
+                id: 'economy',
+                icon: 'fa-coins',
+                title: 'Economy',
+                position: { bottom: '5%', right: '20%' },
+                content: Object.entries(mountain.economy).map(([key, value]) => 
+                    `<li><strong>${key}:</strong> ${value}</li>`
+                ).join('')
             }
+        ];
 
-            updateFlyoverDisplay();
-        }
-    }, 3500);
-}
+        container.innerHTML = '';
 
-function updateFlyoverDisplay() {
-    const peaks = currentMountain.peaks.slice(0, 8);
-    const currentPeak = peaks[flyoverIndex];
+        branches.forEach(branch => {
+            const branchEl = document.createElement('div');
+            branchEl.className = 'mindmap-branch';
+            branchEl.id = `branch-${branch.id}`;
+            
+            // Apply position
+            Object.entries(branch.position).forEach(([key, value]) => {
+                branchEl.style[key] = value;
+            });
 
-    // Update info
-    const peakNameEl = getById('currentPeak');
-    const peakElevEl = getById('currentElev');
+            branchEl.innerHTML = `
+                <div class="branch-header">
+                    <i class="fas ${branch.icon}"></i>
+                    <h4>${branch.title}</h4>
+                </div>
+                <div class="branch-content">
+                    <ul>${branch.content}</ul>
+                </div>
+            `;
 
-    if (peakNameEl) peakNameEl.textContent = currentPeak.name;
-    if (peakElevEl) peakElevEl.textContent = `${currentPeak.elevation.toLocaleString()}m`;
+            // Toggle expand on click
+            branchEl.addEventListener('click', () => {
+                branchEl.classList.toggle('expanded');
+            });
 
-    // Update progress markers
-    $$('.progress-marker').forEach((marker, i) => {
-        marker.classList.remove('current', 'visited');
-        if (i < flyoverIndex) marker.classList.add('visited');
-        if (i === flyoverIndex) marker.classList.add('current');
-    });
-
-    // Pan map
-    if (flyMap) {
-        flyMap.flyTo([currentPeak.lat, currentPeak.lng], flyMap.getZoom(), {
-            duration: 2.5,
-            easeLinearity: 0.25
+            container.appendChild(branchEl);
         });
     }
-}
 
-function togglePause() {
-    isPaused = !isPaused;
-    const pauseBtn = getById('pauseBtn');
-    if (pauseBtn) {
-        pauseBtn.innerHTML = isPaused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
+    function renderFlyoverGallery(mountain) {
+        const gallery = document.getElementById('flyover-gallery');
+        const info = document.getElementById('flyover-info');
+        
+        if (!gallery) return;
+
+        // Use available images or defaults
+        const images = mountain.images.gallery.length > 0 
+            ? mountain.images.gallery 
+            : [
+                mountain.images.background,
+                'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200',
+                'https://images.unsplash.com/photo-1486911278844-a81c5267e227?w=1200',
+                'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200'
+            ];
+
+        let currentIndex = 0;
+
+        // Create images
+        images.forEach((src, index) => {
+            const img = document.createElement('img');
+            img.className = `flyover-image ${index === 0 ? 'active' : ''}`;
+            img.src = src;
+            img.alt = `${mountain.name} aerial view ${index + 1}`;
+            gallery.appendChild(img);
+        });
+
+        // Navigation
+        const prevBtn = document.getElementById('prev-view');
+        const nextBtn = document.getElementById('next-view');
+
+        function updateView() {
+            gallery.querySelectorAll('.flyover-image').forEach((img, i) => {
+                img.classList.toggle('active', i === currentIndex);
+            });
+            
+            if (info) {
+                info.innerHTML = `
+                    <span class="view-name">Aerial View ${currentIndex + 1}</span>
+                    <span class="view-description">${mountain.name} from above</span>
+                `;
+            }
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + images.length) % images.length;
+                updateView();
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % images.length;
+                updateView();
+            });
+        }
+
+        // Auto-rotate
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateView();
+        }, 5000);
     }
-}
 
-function restartFlyover() {
-    flyoverIndex = 0;
-    isPaused = false;
-    const pauseBtn = getById('pauseBtn');
-    if (pauseBtn) pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    updateFlyoverDisplay();
-}
+    function renderRiversSection(mountain) {
+        const container = document.getElementById('rivers-container');
+        if (!container || !mountain.rivers) return;
 
-function closeFlyover() {
-    // Hide modal
-    const modal = getById('flyoverModal');
-    if (modal) modal.classList.remove('active');
-
-    // Stop animation
-    if (flyoverInterval) {
-        clearInterval(flyoverInterval);
-        flyoverInterval = null;
+        container.innerHTML = mountain.rivers.map(river => `
+            <div class="river-card">
+                <div class="river-icon">
+                    <i class="fas fa-water"></i>
+                </div>
+                <h3 class="river-name">${river.name}</h3>
+                <p class="river-info">
+                    <strong>Length:</strong> ${river.length.toLocaleString()} km<br>
+                    <strong>Origin:</strong> ${mountain.name}<br>
+                    This river begins its journey in the ${mountain.name} mountains.
+                </p>
+            </div>
+        `).join('');
     }
 
-    // Remove map
-    if (flyMap) {
-        flyMap.remove();
-        flyMap = null;
+    function renderBiodiversitySection(mountain) {
+        const container = document.getElementById('biodiversity-grid');
+        if (!container) return;
+
+        const bioData = [
+            {
+                icon: '🦁',
+                title: 'Wildlife',
+                content: mountain.biodiversity.wildlife.join(', ')
+            },
+            {
+                icon: '🌲',
+                title: 'Vegetation Zones',
+                content: mountain.biodiversity.vegetation.join(', ')
+            },
+            {
+                icon: '🌡️',
+                title: 'Climate',
+                content: mountain.climate
+            },
+            {
+                icon: '❄️',
+                title: 'Glaciers',
+                content: mountain.glaciers.length > 0 
+                    ? `${mountain.glaciers.length} major glaciers including ${mountain.glaciers[0]}`
+                    : 'No permanent glaciers'
+            }
+        ];
+
+        container.innerHTML = bioData.map(item => `
+            <div class="bio-card">
+                <div class="bio-card-icon">${item.icon}</div>
+                <h4 class="bio-card-title">${item.title}</h4>
+                <p class="bio-card-content">${item.content}</p>
+            </div>
+        `).join('');
     }
 
-    // Reset state
-    flyoverIndex = 0;
-    isPaused = false;
-}
+    function renderTimelineSection(mountain) {
+        const container = document.getElementById('timeline');
+        if (!container) return;
 
-// Make toggleBranch globally available
-window.toggleBranch = toggleBranch;
+        const timelineData = [
+            {
+                date: mountain.formation.age,
+                title: 'Mountain Formation',
+                text: `${mountain.formation.origin}. ${mountain.formation.plates}`
+            },
+            {
+                date: 'Ancient Times',
+                title: 'Historical Significance',
+                text: mountain.history.cultural || 'Important in local traditions and mythology.'
+            },
+            {
+                date: 'Trade Era',
+                title: 'Trade Routes',
+                text: mountain.history.tradeRoutes || 'Part of ancient trade networks.'
+            },
+            {
+                date: 'Modern Era',
+                title: 'Exploration & Expeditions',
+                text: mountain.history.expeditions || 'Subject of numerous scientific expeditions.'
+            },
+            {
+                date: 'Present Day',
+                title: 'Current Status',
+                text: `Home to ${mountain.settlements.join(', ')}. Major destination for ${mountain.economy.tourism || 'tourism'}.`
+            }
+        ];
+
+        container.innerHTML = timelineData.map((item, index) => `
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">${item.date}</span>
+                    <h4 class="timeline-title">${item.title}</h4>
+                    <p class="timeline-text">${item.text}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderEnvironmentalSection(mountain) {
+        const container = document.getElementById('environmental-grid');
+        if (!container || !mountain.environmentalIssues) return;
+
+        const icons = ['🌡️', '🏔️', '🌲', '💧', '🔥', '🌊'];
+
+        container.innerHTML = mountain.environmentalIssues.map((issue, index) => `
+            <div class="env-card">
+                <div class="env-icon">${icons[index % icons.length]}</div>
+                <h4 class="env-title">Environmental Challenge</h4>
+                <p class="env-description">${issue}</p>
+            </div>
+        `).join('');
+    }
+
+    function renderOtherMountains(mountain) {
+        const container = document.getElementById('other-mountains');
+        if (!container) return;
+
+        const others = getRandomMountains(mountain.id, 5);
+
+        container.innerHTML = others.map(m => `
+            <div class="other-mountain-card" onclick="window.location.href='MOUNTAINS-profile.html?mountain=${m.slug}'">
+                <div class="other-mountain-image">
+                    <img src="${m.images.card}" alt="${m.name}" 
+                         onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400'">
+                </div>
+                <span class="other-mountain-name">${m.name}</span>
+            </div>
+        `).join('');
+    }
+
+    function setupProfileEventListeners() {
+        // Fullscreen button
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+        }
+
+        // Share button
+        const shareBtn = document.getElementById('share-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: state.currentMountain.name,
+                        text: `Explore ${state.currentMountain.name} - ${state.currentMountain.highestPeak.name} at ${formatElevation(state.currentMountain.highestPeak.elevation)}`,
+                        url: window.location.href
+                    });
+                } else {
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied to clipboard!');
+                }
+            });
+        }
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    }
+
+    // ========================================
+    // UTILITY FUNCTIONS
+    // ========================================
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // ========================================
+    // START APPLICATION
+    // ========================================
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+})();
