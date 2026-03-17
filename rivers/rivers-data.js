@@ -158,3 +158,19 @@ const riversData = [
 ];
 
 console.log('Rivers Data Loaded:', riversData.length);
+{
+    id: 6,
+    name: "Your River Name",
+    length: 1234,
+    discharge: 5678,
+    continent: "Continent",
+    countries: ["Country1", "Country2"],
+    image: "https://image-url.jpg",
+    source: { name: "Source Name", lat: 12.34, lng: 56.78, elevation: 1000 },
+    mouth: { name: "Mouth Name", lat: 23.45, lng: 67.89 },
+    course: [[12.34, 56.78], [23.45, 67.89]],
+    tributaries: [{ name: "Trib Name", length: 100, lat: 15.0, lng: 60.0 }],
+    distributaries: [],
+    cities: [{ name: "City", population: 1000000, lat: 20.0, lng: 65.0 }],
+    facts: ["Fact 1", "Fact 2", "Fact 3"]
+}
