@@ -1021,7 +1021,7 @@ const RIVERS_DATA_7 = [
                 description: "Maheshwar is believed to be the ancient city of Mahishmati, mentioned in the Mahabharata."
             }
         ]
-    }
+    },
       // ========================================
     // 66. ATHABASCA RIVER
     // ========================================
