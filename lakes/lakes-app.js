@@ -2,6 +2,8 @@
 // LAKES EXPLORER - MAIN APPLICATION
 // ============================================
 
+console.log('Loading lakes-app.js...');
+
 // Global Variables
 let allLakes = [];
 let map = null;
@@ -20,36 +22,38 @@ let isPaused = false;
 // Country Flag API
 const getFlagUrl = (countryCode) => `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
 
-// Unsplash/Pixabay Image URLs (using placeholder for demo)
-const getImageUrl = (lakeName, imageId) => {
-    const unsplashImages = {
-        'caspian-sea': 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800',
-        'lake-superior': 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
-        'lake-victoria': 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
-        'lake-huron': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-        'lake-michigan': 'https://images.unsplash.com/photo-1494783367193-149034c05e8f?w=800',
-        'lake-tanganyika': 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800',
-        'lake-baikal': 'https://images.unsplash.com/photo-1551524164-687a55dd1126?w=800',
-        'great-bear-lake': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
-        'lake-malawi': 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800',
-        'great-slave-lake': 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800',
-        'default': 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800'
-    };
-    
-    const key = lakeName.toLowerCase().replace(/\s+/g, '-');
-    return unsplashImages[key] || unsplashImages['default'];
-};
+// Format numbers with commas
+function formatNumber(num) {
+    if (num === undefined || num === null || num === 'Unknown') return 'Unknown';
+    return new Intl.NumberFormat().format(num);
+}
 
 // Initialize Main Page
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('lakesGrid')) {
-        initLakesPage();
-    }
-});
-
 function initLakesPage() {
-    // Combine all lake data
-    allLakes = getAllLakesData();
+    console.log('initLakesPage called');
+    
+    // Check if we're on the main lakes page
+    const lakesGrid = document.getElementById('lakesGrid');
+    if (!lakesGrid) {
+        console.log('lakesGrid not found - might be on profile page');
+        return;
+    }
+    
+    // Get all lakes data
+    if (typeof getAllLakesData === 'function') {
+        allLakes = getAllLakesData();
+        console.log('Lakes loaded:', allLakes.length);
+    } else {
+        console.error('getAllLakesData function not found!');
+        allLakes = [];
+    }
+    
+    if (allLakes.length === 0) {
+        console.error('No lakes data found!');
+        lakesGrid.innerHTML = '<p style="color: white; text-align: center; padding: 50px;">No lakes data found. Please check console for errors.</p>';
+        hideLoading();
+        return;
+    }
     
     // Sort by surface area (largest first)
     allLakes.sort((a, b) => b.surfaceArea - a.surfaceArea);
@@ -64,29 +68,57 @@ function initLakesPage() {
     setupEventListeners();
     
     // Hide loading
-    setTimeout(() => {
-        document.getElementById('loadingOverlay').classList.add('hidden');
-    }, 1500);
+    hideLoading();
+}
+
+function hideLoading() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+        }, 500);
+    }
 }
 
 function updateStats() {
-    document.getElementById('totalLakes').textContent = allLakes.length;
+    const totalLakesEl = document.getElementById('totalLakes');
+    const totalCountriesEl = document.getElementById('totalCountries');
     
-    const countries = new Set();
-    allLakes.forEach(lake => {
-        lake.countries.forEach(c => countries.add(c.name));
-    });
-    document.getElementById('totalCountries').textContent = countries.size;
+    if (totalLakesEl) {
+        totalLakesEl.textContent = allLakes.length;
+    }
+    
+    if (totalCountriesEl) {
+        const countries = new Set();
+        allLakes.forEach(lake => {
+            if (lake.countries && Array.isArray(lake.countries)) {
+                lake.countries.forEach(c => countries.add(c.name));
+            }
+        });
+        totalCountriesEl.textContent = countries.size;
+    }
 }
 
 function renderLakeCards(lakes) {
     const grid = document.getElementById('lakesGrid');
+    if (!grid) {
+        console.error('lakesGrid element not found!');
+        return;
+    }
+    
     grid.innerHTML = '';
+    
+    if (lakes.length === 0) {
+        grid.innerHTML = '<p style="color: white; text-align: center; padding: 50px;">No lakes found matching your criteria.</p>';
+        return;
+    }
     
     lakes.forEach((lake, index) => {
         const card = createLakeCard(lake, index + 1);
         grid.appendChild(card);
     });
+    
+    console.log('Rendered', lakes.length, 'lake cards');
 }
 
 function createLakeCard(lake, rank) {
@@ -94,17 +126,24 @@ function createLakeCard(lake, rank) {
     card.className = 'lake-card';
     card.onclick = () => openLakeProfile(lake.id);
     
-    const flagsHtml = lake.countries.map(c => 
-        `<img src="${getFlagUrl(c.code)}" alt="${c.name}" class="country-flag" title="${c.name}">`
-    ).join('');
+    // Generate country flags HTML
+    let flagsHtml = '';
+    if (lake.countries && Array.isArray(lake.countries)) {
+        flagsHtml = lake.countries.map(c => 
+            `<img src="${getFlagUrl(c.code)}" alt="${c.name}" class="country-flag" title="${c.name}" onerror="this.style.display='none'">`
+        ).join('');
+    }
+    
+    // Get image URL with fallback
+    const imageUrl = lake.image || 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=400';
     
     card.innerHTML = `
         <div class="lake-image-container">
-            <img src="${lake.image}" alt="${lake.name}" class="lake-image" 
+            <img src="${imageUrl}" alt="${lake.name}" class="lake-image" 
                  onerror="this.src='https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=400'">
             <div class="lake-overlay"></div>
             <span class="lake-rank">#${rank}</span>
-            <span class="water-type-badge ${lake.waterType}">${lake.waterType}</span>
+            <span class="water-type-badge ${lake.waterType || 'freshwater'}">${lake.waterType || 'freshwater'}</span>
         </div>
         <div class="lake-info">
             <h3 class="lake-name">${lake.name}</h3>
@@ -117,10 +156,6 @@ function createLakeCard(lake, rank) {
     `;
     
     return card;
-}
-
-function formatNumber(num) {
-    return new Intl.NumberFormat().format(num);
 }
 
 function setupEventListeners() {
@@ -151,9 +186,13 @@ function setupEventListeners() {
 }
 
 function filterLakes() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-    const continent = document.getElementById('continentFilter').value;
+    const searchInput = document.getElementById('searchInput');
+    const activeFilterBtn = document.querySelector('.filter-btn.active');
+    const continentFilter = document.getElementById('continentFilter');
+    
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const activeFilter = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
+    const continent = continentFilter ? continentFilter.value : 'all';
     
     let filtered = [...allLakes];
     
@@ -161,7 +200,7 @@ function filterLakes() {
     if (searchTerm) {
         filtered = filtered.filter(lake => 
             lake.name.toLowerCase().includes(searchTerm) ||
-            lake.countries.some(c => c.name.toLowerCase().includes(searchTerm))
+            (lake.countries && lake.countries.some(c => c.name.toLowerCase().includes(searchTerm)))
         );
     }
     
@@ -171,9 +210,9 @@ function filterLakes() {
     } else if (activeFilter === 'saltwater') {
         filtered = filtered.filter(lake => lake.waterType === 'saltwater');
     } else if (activeFilter === 'deepest') {
-        filtered.sort((a, b) => b.maxDepth - a.maxDepth);
+        filtered.sort((a, b) => (b.maxDepth || 0) - (a.maxDepth || 0));
     } else if (activeFilter === 'largest') {
-        filtered.sort((a, b) => b.surfaceArea - a.surfaceArea);
+        filtered.sort((a, b) => (b.surfaceArea || 0) - (a.surfaceArea || 0));
     }
     
     // Continent filter
@@ -199,21 +238,33 @@ function goBack() {
 // ============================================
 
 function initProfilePage() {
+    console.log('initProfilePage called');
+    
     const lakeId = localStorage.getItem('currentLakeId');
     
     if (!lakeId) {
+        console.log('No lake ID found, redirecting to lakes page');
         window.location.href = 'lakes.html';
         return;
     }
     
     // Get all lakes data
-    allLakes = getAllLakesData();
+    if (typeof getAllLakesData === 'function') {
+        allLakes = getAllLakesData();
+    } else {
+        console.error('getAllLakesData function not found!');
+        return;
+    }
+    
     currentLake = allLakes.find(l => l.id === lakeId);
     
     if (!currentLake) {
+        console.error('Lake not found:', lakeId);
         window.location.href = 'lakes.html';
         return;
     }
+    
+    console.log('Loaded lake:', currentLake.name);
     
     // Setup background
     setupBackground();
@@ -236,22 +287,38 @@ function initProfilePage() {
 
 function setupBackground() {
     const bg = document.getElementById('profileBackground');
-    bg.style.backgroundImage = `url(${currentLake.backgroundImage || currentLake.image})`;
+    if (bg && currentLake) {
+        bg.style.backgroundImage = `url(${currentLake.backgroundImage || currentLake.image})`;
+    }
 }
 
 function updateProfileHeader() {
-    document.getElementById('lakeName').textContent = currentLake.name;
-    
+    const lakeNameEl = document.getElementById('lakeName');
     const flagsContainer = document.getElementById('countryFlags');
-    flagsContainer.innerHTML = currentLake.countries.map(c => 
-        `<img src="${getFlagUrl(c.code)}" alt="${c.name}" class="country-flag" title="${c.name}">`
-    ).join('');
+    const lakeTypeEl = document.getElementById('lakeType');
     
-    document.getElementById('lakeType').textContent = 
-        `${currentLake.waterType.charAt(0).toUpperCase() + currentLake.waterType.slice(1)} • ${currentLake.lakeType}`;
+    if (lakeNameEl && currentLake) {
+        lakeNameEl.textContent = currentLake.name;
+    }
+    
+    if (flagsContainer && currentLake && currentLake.countries) {
+        flagsContainer.innerHTML = currentLake.countries.map(c => 
+            `<img src="${getFlagUrl(c.code)}" alt="${c.name}" class="country-flag" title="${c.name}">`
+        ).join('');
+    }
+    
+    if (lakeTypeEl && currentLake) {
+        const waterType = currentLake.waterType ? currentLake.waterType.charAt(0).toUpperCase() + currentLake.waterType.slice(1) : 'Unknown';
+        lakeTypeEl.textContent = `${waterType} • ${currentLake.lakeType || 'Unknown'}`;
+    }
 }
 
 function initMap() {
+    if (!currentLake || !currentLake.coordinates) {
+        console.error('No coordinates for lake');
+        return;
+    }
+    
     // Initialize Leaflet map
     map = L.map('lakeMap', {
         center: currentLake.coordinates,
@@ -274,54 +341,31 @@ function initMap() {
     layerGroups.rivers = L.layerGroup().addTo(map);
     layerGroups.cities = L.layerGroup().addTo(map);
     layerGroups.islands = L.layerGroup().addTo(map);
-    layerGroups.depthZones = L.layerGroup();
-    layerGroups.countries = L.layerGroup().addTo(map);
     
-    // Draw lake
+    // Draw lake features
     drawLakePolygon();
-    
-    // Draw rivers
     drawRivers();
-    
-    // Draw cities
     drawCities();
-    
-    // Draw islands
     drawIslands();
     
-    // Draw countries
-    drawCountries();
+    // Add a marker for the lake center
+    L.marker(currentLake.coordinates)
+        .addTo(map)
+        .bindPopup(`<strong>${currentLake.name}</strong><br>Surface Area: ${formatNumber(currentLake.surfaceArea)} km²`);
 }
 
 function drawLakePolygon() {
     if (!currentLake.geoJSON) return;
     
-    // Create water gradient effect using SVG
     const lakeStyle = {
         fillColor: '#0088cc',
         fillOpacity: 0.4,
         color: '#00d4ff',
-        weight: 3,
-        className: 'lake-polygon'
+        weight: 3
     };
     
     const lakeLayer = L.geoJSON(currentLake.geoJSON, {
-        style: lakeStyle,
-        onEachFeature: (feature, layer) => {
-            layer.bindPopup(`
-                <h3>${currentLake.name}</h3>
-                <p>Surface Area: ${formatNumber(currentLake.surfaceArea)} km²</p>
-                <p>Max Depth: ${formatNumber(currentLake.maxDepth)} m</p>
-            `);
-        }
-    });
-    
-    // Add shimmer effect
-    lakeLayer.on('add', () => {
-        const svg = document.querySelector('.lake-polygon');
-        if (svg) {
-            svg.style.filter = 'drop-shadow(0 0 15px rgba(0, 212, 255, 0.6))';
-        }
+        style: lakeStyle
     });
     
     layerGroups.lakePolygon.addLayer(lakeLayer);
@@ -331,24 +375,13 @@ function drawRivers() {
     // Draw inflow rivers
     if (currentLake.inflowRivers) {
         currentLake.inflowRivers.forEach(river => {
-            if (river.coordinates) {
+            if (river.coordinates && river.coordinates.length > 0) {
                 const line = L.polyline(river.coordinates, {
                     color: '#00ff88',
                     weight: 3,
                     opacity: 0.8,
-                    dashArray: '10, 5',
-                    className: 'inflow-river'
+                    dashArray: '10, 5'
                 });
-                
-                // Add arrow marker
-                const arrowIcon = L.divIcon({
-                    html: '<i class="fas fa-arrow-right" style="color: #00ff88; transform: rotate(45deg);"></i>',
-                    className: 'river-arrow',
-                    iconSize: [20, 20]
-                });
-                
-                const lastPoint = river.coordinates[river.coordinates.length - 1];
-                L.marker(lastPoint, { icon: arrowIcon }).addTo(layerGroups.rivers);
                 
                 line.bindPopup(`<strong>${river.name}</strong><br>Inflow River`);
                 layerGroups.rivers.addLayer(line);
@@ -359,65 +392,43 @@ function drawRivers() {
     // Draw outflow rivers
     if (currentLake.outflowRivers) {
         currentLake.outflowRivers.forEach(river => {
-            if (river.coordinates) {
+            if (river.coordinates && river.coordinates.length > 0) {
                 const line = L.polyline(river.coordinates, {
                     color: '#ff6b6b',
                     weight: 3,
                     opacity: 0.8,
-                    dashArray: '10, 5',
-                    className: 'outflow-river'
+                    dashArray: '10, 5'
                 });
-                
-                const arrowIcon = L.divIcon({
-                    html: '<i class="fas fa-arrow-right" style="color: #ff6b6b;"></i>',
-                    className: 'river-arrow',
-                    iconSize: [20, 20]
-                });
-                
-                const lastPoint = river.coordinates[river.coordinates.length - 1];
-                L.marker(lastPoint, { icon: arrowIcon }).addTo(layerGroups.rivers);
                 
                 line.bindPopup(`<strong>${river.name}</strong><br>Outflow River`);
                 layerGroups.rivers.addLayer(line);
             }
         });
     }
-    
-    // Animate rivers
-    animateRivers();
-}
-
-function animateRivers() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .inflow-river {
-            animation: flowToLake 2s linear infinite;
-        }
-        .outflow-river {
-            animation: flowFromLake 2s linear infinite;
-        }
-    `;
-    document.head.appendChild(style);
 }
 
 function drawCities() {
     if (!currentLake.cities) return;
     
     currentLake.cities.forEach(city => {
-        const cityIcon = L.divIcon({
-            html: `<div class="city-marker"></div>`,
-            className: 'city-icon',
-            iconSize: [12, 12]
-        });
-        
-        const marker = L.marker(city.coordinates, { icon: cityIcon });
-        marker.bindPopup(`
-            <h4>${city.name}</h4>
-            <p>Population: ${formatNumber(city.population || 'Unknown')}</p>
-            <p>Country: ${city.country}</p>
-        `);
-        
-        layerGroups.cities.addLayer(marker);
+        if (city.coordinates) {
+            const marker = L.circleMarker(city.coordinates, {
+                radius: 8,
+                fillColor: '#ffd700',
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+            
+            marker.bindPopup(`
+                <h4>${city.name}</h4>
+                <p>Population: ${formatNumber(city.population || 'Unknown')}</p>
+                <p>Country: ${city.country}</p>
+            `);
+            
+            layerGroups.cities.addLayer(marker);
+        }
     });
 }
 
@@ -425,58 +436,30 @@ function drawIslands() {
     if (!currentLake.islands) return;
     
     currentLake.islands.forEach(island => {
-        const islandIcon = L.divIcon({
-            html: `<div class="island-marker"><i class="fas fa-mountain"></i> ${island.name}</div>`,
-            className: 'island-icon',
-            iconSize: [100, 30]
-        });
-        
-        const marker = L.marker(island.coordinates, { icon: islandIcon });
-        marker.bindPopup(`
-            <h4>${island.name}</h4>
-            <p>Area: ${island.area || 'Unknown'} km²</p>
-            ${island.description ? `<p>${island.description}</p>` : ''}
-        `);
-        
-        layerGroups.islands.addLayer(marker);
-    });
-}
-
-function drawCountries() {
-    if (!currentLake.countryBoundaries) return;
-    
-    currentLake.countryBoundaries.forEach(country => {
-        if (country.geoJSON) {
-            const countryLayer = L.geoJSON(country.geoJSON, {
-                style: {
-                    fillColor: 'rgba(255, 255, 255, 0.05)',
-                    fillOpacity: 0.3,
-                    color: 'rgba(255, 255, 255, 0.3)',
-                    weight: 1
-                },
-                onEachFeature: (feature, layer) => {
-                    layer.on('mouseover', () => {
-                        layer.setStyle({
-                            fillColor: 'rgba(0, 212, 255, 0.2)',
-                            color: '#00d4ff'
-                        });
-                    });
-                    layer.on('mouseout', () => {
-                        layer.setStyle({
-                            fillColor: 'rgba(255, 255, 255, 0.05)',
-                            color: 'rgba(255, 255, 255, 0.3)'
-                        });
-                    });
-                    layer.bindPopup(`<strong>${country.name}</strong>`);
-                }
+        if (island.coordinates) {
+            const marker = L.circleMarker(island.coordinates, {
+                radius: 6,
+                fillColor: '#a8e6cf',
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
             });
-            layerGroups.countries.addLayer(countryLayer);
+            
+            marker.bindPopup(`
+                <h4>${island.name}</h4>
+                <p>Area: ${island.area || 'Unknown'} km²</p>
+                ${island.description ? `<p>${island.description}</p>` : ''}
+            `);
+            
+            layerGroups.islands.addLayer(marker);
         }
     });
 }
 
 function buildMindMap() {
     const mindMap = document.getElementById('mindMap');
+    if (!mindMap || !currentLake) return;
     
     const nodes = [
         {
@@ -486,7 +469,7 @@ function buildMindMap() {
             title: 'Location',
             content: [
                 { label: 'Continent', value: currentLake.continent },
-                { label: 'Countries', value: currentLake.countries.map(c => c.name).join(', ') }
+                { label: 'Countries', value: currentLake.countries ? currentLake.countries.map(c => c.name).join(', ') : 'Unknown' }
             ]
         },
         {
@@ -495,8 +478,8 @@ function buildMindMap() {
             iconClass: 'type',
             title: 'Type of Lake',
             content: [
-                { label: 'Water Type', value: currentLake.waterType },
-                { label: 'Formation', value: currentLake.lakeType }
+                { label: 'Water Type', value: currentLake.waterType || 'Unknown' },
+                { label: 'Formation', value: currentLake.lakeType || 'Unknown' }
             ]
         },
         {
@@ -505,8 +488,7 @@ function buildMindMap() {
             iconClass: 'area',
             title: 'Surface Area',
             content: [
-                { label: 'Area', value: `${formatNumber(currentLake.surfaceArea)} km²` },
-                { label: 'Rank', value: `#${allLakes.findIndex(l => l.id === currentLake.id) + 1} in the world` }
+                { label: 'Area', value: `${formatNumber(currentLake.surfaceArea)} km²` }
             ]
         },
         {
@@ -516,7 +498,7 @@ function buildMindMap() {
             title: 'Depth',
             content: [
                 { label: 'Maximum Depth', value: `${formatNumber(currentLake.maxDepth)} m` },
-                { label: 'Average Depth', value: `${formatNumber(currentLake.avgDepth || 'Unknown')} m` }
+                { label: 'Average Depth', value: `${formatNumber(currentLake.avgDepth)} m` }
             ]
         },
         {
@@ -536,80 +518,30 @@ function buildMindMap() {
             content: [
                 { label: 'Elevation', value: `${currentLake.elevation} m ${currentLake.elevation >= 0 ? 'above' : 'below'} sea level` }
             ]
-        },
-        {
+        }
+    ];
+    
+    // Add inflow rivers if available
+    if (currentLake.inflowRivers && currentLake.inflowRivers.length > 0) {
+        nodes.push({
             id: 'inflow',
             icon: 'fa-sign-in-alt',
             iconClass: 'inflow',
             title: 'Inflow Rivers',
-            content: currentLake.inflowRivers?.map(r => ({ label: r.name, value: r.length ? `${r.length} km` : '' })) || [{ label: 'No major inflows', value: '' }]
-        },
-        {
+            content: currentLake.inflowRivers.map(r => ({ label: r.name, value: r.length ? `${r.length} km` : '' }))
+        });
+    }
+    
+    // Add outflow rivers if available
+    if (currentLake.outflowRivers && currentLake.outflowRivers.length > 0) {
+        nodes.push({
             id: 'outflow',
             icon: 'fa-sign-out-alt',
             iconClass: 'outflow',
             title: 'Outflow Rivers',
-            content: currentLake.outflowRivers?.map(r => ({ label: r.name, value: r.length ? `${r.length} km` : '' })) || [{ label: 'Endorheic basin (no outflow)', value: '' }]
-        },
-        {
-            id: 'basin',
-            icon: 'fa-globe',
-            iconClass: 'basin',
-            title: 'Basin Area',
-            content: [
-                { label: 'Catchment Area', value: currentLake.basinArea ? `${formatNumber(currentLake.basinArea)} km²` : 'Unknown' }
-            ]
-        },
-        {
-            id: 'islands',
-            icon: 'fa-tree',
-            iconClass: 'islands',
-            title: 'Islands',
-            content: currentLake.islands?.map(i => ({ label: i.name, value: i.area ? `${i.area} km²` : '' })) || [{ label: 'No major islands', value: '' }]
-        },
-        {
-            id: 'cities',
-            icon: 'fa-city',
-            iconClass: 'cities',
-            title: 'Surrounding Cities',
-            content: currentLake.cities?.map(c => ({ label: c.name, value: c.country })) || [{ label: 'No major cities', value: '' }]
-        },
-        {
-            id: 'biodiversity',
-            icon: 'fa-fish',
-            iconClass: 'biodiversity',
-            title: 'Biodiversity',
-            content: currentLake.biodiversity || [{ label: 'Data unavailable', value: '' }]
-        },
-        {
-            id: 'economy',
-            icon: 'fa-industry',
-            iconClass: 'economy',
-            title: 'Economic Importance',
-            content: currentLake.economicImportance || [{ label: 'Fishing', value: '' }, { label: 'Tourism', value: '' }]
-        },
-        {
-            id: 'environment',
-            icon: 'fa-leaf',
-            iconClass: 'environment',
-            title: 'Environmental Issues',
-            content: currentLake.environmentalIssues || [{ label: 'No major issues reported', value: '' }]
-        },
-        {
-            id: 'disputes',
-            icon: 'fa-gavel',
-            iconClass: 'disputes',
-            title: 'Water Disputes',
-            content: currentLake.waterDisputes || [{ label: 'No major disputes', value: '' }]
-        },
-        {
-            id: 'history',
-            icon: 'fa-landmark',
-            iconClass: 'history',
-            title: 'Historical Importance',
-            content: currentLake.historicalImportance || [{ label: 'Historical data unavailable', value: '' }]
-        }
-    ];
+            content: currentLake.outflowRivers.map(r => ({ label: r.name, value: r.length ? `${r.length} km` : '' }))
+        });
+    }
     
     mindMap.innerHTML = nodes.map(node => `
         <div class="mind-map-node">
@@ -634,56 +566,94 @@ function buildMindMap() {
 
 function toggleNode(nodeId) {
     const content = document.getElementById(`node-${nodeId}`);
-    const header = content.previousElementSibling;
+    const header = content ? content.previousElementSibling : null;
     
-    content.classList.toggle('expanded');
-    header.classList.toggle('expanded');
+    if (content && header) {
+        content.classList.toggle('expanded');
+        header.classList.toggle('expanded');
+    }
 }
 
 function updateQuickFacts() {
-    document.getElementById('factArea').textContent = `${formatNumber(currentLake.surfaceArea)} km²`;
-    document.getElementById('factDepth').textContent = `${formatNumber(currentLake.maxDepth)} m`;
-    document.getElementById('factElevation').textContent = `${currentLake.elevation} m`;
-    document.getElementById('factVolume').textContent = `${formatNumber(currentLake.volume)} km³`;
+    if (!currentLake) return;
+    
+    const factArea = document.getElementById('factArea');
+    const factDepth = document.getElementById('factDepth');
+    const factElevation = document.getElementById('factElevation');
+    const factVolume = document.getElementById('factVolume');
+    
+    if (factArea) factArea.textContent = `${formatNumber(currentLake.surfaceArea)} km²`;
+    if (factDepth) factDepth.textContent = `${formatNumber(currentLake.maxDepth)} m`;
+    if (factElevation) factElevation.textContent = `${currentLake.elevation} m`;
+    if (factVolume) factVolume.textContent = `${formatNumber(currentLake.volume)} km³`;
 }
 
 function setupProfileEventListeners() {
     // Fly over button
-    document.getElementById('flyOverBtn').addEventListener('click', startFlyOver);
-    document.getElementById('closeFlyOver').addEventListener('click', closeFlyOver);
-    document.getElementById('pauseFlight').addEventListener('click', togglePauseFlight);
-    document.getElementById('skipFlight').addEventListener('click', skipFlight);
+    const flyOverBtn = document.getElementById('flyOverBtn');
+    if (flyOverBtn) {
+        flyOverBtn.addEventListener('click', startFlyOver);
+    }
     
-    // Map controls
-    document.getElementById('toggleRivers').addEventListener('click', () => toggleLayer('rivers'));
-    document.getElementById('toggleCities').addEventListener('click', () => toggleLayer('cities'));
-    document.getElementById('toggleIslands').addEventListener('click', () => toggleLayer('islands'));
-    document.getElementById('toggleDepth').addEventListener('click', () => toggleLayer('depthZones'));
-    document.getElementById('resetView').addEventListener('click', resetMapView);
+    const closeFlyOverBtn = document.getElementById('closeFlyOver');
+    if (closeFlyOverBtn) {
+        closeFlyOverBtn.addEventListener('click', closeFlyOver);
+    }
+    
+    // Reset view button
+    const resetViewBtn = document.getElementById('resetView');
+    if (resetViewBtn) {
+        resetViewBtn.addEventListener('click', resetMapView);
+    }
+    
+    // Fullscreen button
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
     
     // Mind map toggle
-    document.getElementById('mindMapToggle').addEventListener('click', () => {
-        document.getElementById('mindMapContainer').classList.toggle('collapsed');
-    });
+    const mindMapToggle = document.getElementById('mindMapToggle');
+    if (mindMapToggle) {
+        mindMapToggle.addEventListener('click', () => {
+            const container = document.getElementById('mindMapContainer');
+            if (container) {
+                container.classList.toggle('collapsed');
+            }
+        });
+    }
     
-    // Fullscreen
-    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+    // Toggle layer buttons
+    const toggleRiversBtn = document.getElementById('toggleRivers');
+    if (toggleRiversBtn) {
+        toggleRiversBtn.addEventListener('click', () => toggleLayer('rivers'));
+    }
+    
+    const toggleCitiesBtn = document.getElementById('toggleCities');
+    if (toggleCitiesBtn) {
+        toggleCitiesBtn.addEventListener('click', () => toggleLayer('cities'));
+    }
+    
+    const toggleIslandsBtn = document.getElementById('toggleIslands');
+    if (toggleIslandsBtn) {
+        toggleIslandsBtn.addEventListener('click', () => toggleLayer('islands'));
+    }
 }
 
 function toggleLayer(layerName) {
-    const btn = document.getElementById(`toggle${layerName.charAt(0).toUpperCase() + layerName.slice(1)}`);
+    if (!map || !layerGroups[layerName]) return;
     
     if (map.hasLayer(layerGroups[layerName])) {
         map.removeLayer(layerGroups[layerName]);
-        btn.classList.remove('active');
     } else {
         map.addLayer(layerGroups[layerName]);
-        btn.classList.add('active');
     }
 }
 
 function resetMapView() {
-    map.setView(currentLake.coordinates, currentLake.defaultZoom || 8);
+    if (map && currentLake && currentLake.coordinates) {
+        map.setView(currentLake.coordinates, currentLake.defaultZoom || 8);
+    }
 }
 
 function toggleFullscreen() {
@@ -694,143 +664,27 @@ function toggleFullscreen() {
     }
 }
 
-// ============================================
-// FLY OVER FEATURE
-// ============================================
-
 function startFlyOver() {
-    document.getElementById('flyOverModal').classList.add('active');
-    document.getElementById('flyOverLakeName').textContent = currentLake.name;
-    
-    const waypoints = generateWaypoints();
-    let currentWaypointIndex = 0;
-    isPaused = false;
-    
-    function flyToNextWaypoint() {
-        if (isPaused || currentWaypointIndex >= waypoints.length) {
-            if (currentWaypointIndex >= waypoints.length) {
-                closeFlyOver();
-            }
-            return;
-        }
-        
-        const waypoint = waypoints[currentWaypointIndex];
-        const progress = ((currentWaypointIndex + 1) / waypoints.length) * 100;
-        
-        document.getElementById('flyOverProgress').style.width = `${progress}%`;
-        document.getElementById('currentLocationText').textContent = waypoint.description;
-        
-        map.flyTo(waypoint.coordinates, waypoint.zoom, {
-            duration: 2,
-            easeLinearity: 0.5
-        });
-        
-        currentWaypointIndex++;
-        
-        flyOverAnimation = setTimeout(flyToNextWaypoint, 2500);
+    const modal = document.getElementById('flyOverModal');
+    if (modal) {
+        modal.classList.add('active');
     }
-    
-    flyToNextWaypoint();
-}
-
-function generateWaypoints() {
-    const waypoints = [];
-    
-    // Start point
-    if (currentLake.geoJSON) {
-        const bounds = L.geoJSON(currentLake.geoJSON).getBounds();
-        waypoints.push({
-            coordinates: bounds.getNorthWest(),
-            zoom: 9,
-            description: `Starting from northern edge of ${currentLake.name}`
-        });
+    // Simplified fly over - just zoom to lake
+    if (map && currentLake) {
+        map.flyTo(currentLake.coordinates, 10, { duration: 3 });
     }
-    
-    // Inflow rivers
-    if (currentLake.inflowRivers) {
-        currentLake.inflowRivers.slice(0, 2).forEach(river => {
-            if (river.coordinates && river.coordinates.length > 0) {
-                waypoints.push({
-                    coordinates: river.coordinates[0],
-                    zoom: 10,
-                    description: `Flying over ${river.name} - Inflow River`
-                });
-            }
-        });
-    }
-    
-    // Center/deepest point
-    waypoints.push({
-        coordinates: currentLake.coordinates,
-        zoom: 9,
-        description: currentLake.deepestPoint ? 
-            `Over deepest point - ${formatNumber(currentLake.maxDepth)}m deep` : 
-            `Flying over central ${currentLake.name}`
-    });
-    
-    // Islands
-    if (currentLake.islands) {
-        currentLake.islands.slice(0, 2).forEach(island => {
-            waypoints.push({
-                coordinates: island.coordinates,
-                zoom: 11,
-                description: `${island.name} - Island in ${currentLake.name}`
-            });
-        });
-    }
-    
-    // Major cities
-    if (currentLake.cities) {
-        currentLake.cities.slice(0, 2).forEach(city => {
-            waypoints.push({
-                coordinates: city.coordinates,
-                zoom: 11,
-                description: `${city.name}, ${city.country}`
-            });
-        });
-    }
-    
-    // Outflow rivers (end point)
-    if (currentLake.outflowRivers && currentLake.outflowRivers.length > 0) {
-        const outflow = currentLake.outflowRivers[0];
-        if (outflow.coordinates && outflow.coordinates.length > 0) {
-            waypoints.push({
-                coordinates: outflow.coordinates[0],
-                zoom: 10,
-                description: `${outflow.name} - Outflow River - Flight Complete`
-            });
-        }
-    } else {
-        waypoints.push({
-            coordinates: currentLake.coordinates,
-            zoom: 8,
-            description: 'Flight Complete - Endorheic Lake (no outflow)'
-        });
-    }
-    
-    return waypoints;
 }
 
 function closeFlyOver() {
-    document.getElementById('flyOverModal').classList.remove('active');
-    clearTimeout(flyOverAnimation);
-    resetMapView();
-}
-
-function togglePauseFlight() {
-    isPaused = !isPaused;
-    const btn = document.getElementById('pauseFlight');
-    btn.innerHTML = isPaused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
-    
-    if (!isPaused) {
-        startFlyOver();
+    const modal = document.getElementById('flyOverModal');
+    if (modal) {
+        modal.classList.remove('active');
     }
-}
-
-function skipFlight() {
-    closeFlyOver();
+    resetMapView();
 }
 
 function goToLakes() {
     window.location.href = 'lakes.html';
 }
+
+console.log('lakes-app.js loaded successfully');
