@@ -1,293 +1,471 @@
-// ============================================
-// RIVERS APP - Geography Learning App
-// ============================================
+/* ═══════════════════════════════════════════════════════════════
+   RIVERS APP - Complete JavaScript
+   Matching Mountains Design Pattern
+   ═══════════════════════════════════════════════════════════════ */
 
-// Global variables
+// ─────────────────────────────────────────────────────────────────
+// GLOBAL VARIABLES
+// ─────────────────────────────────────────────────────────────────
+let allRivers = [];
+let filteredRivers = [];
+let currentRiver = null;
 let mainMap = null;
 let flyoverMap = null;
-let currentRiver = null;
-let flyoverAnimation = null;
-let flyoverSpeed = 1;
-let flyoverPaused = false;
-let flyoverIndex = 0;
+let flyoverInterval = null;
+let currentFlyoverIndex = 0;
+let isPaused = false;
 
-// ============================================
+// ─────────────────────────────────────────────────────────────────
 // INITIALIZATION
-// ============================================
-
+// ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+    // Check which page we're on
     const isProfilePage = document.body.classList.contains('profile-page');
-    const isListingPage = document.body.classList.contains('listing-page');
     
-    if (isListingPage) {
-        initListingPage();
-    } else if (isProfilePage) {
+    if (isProfilePage) {
         initProfilePage();
+    } else {
+        initMainPage();
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────
+// MAIN PAGE FUNCTIONS
+// ─────────────────────────────────────────────────────────────────
+function initMainPage() {
+    // Load rivers data
+    if (typeof riversData !== 'undefined') {
+        allRivers = riversData;
+        filteredRivers = [...allRivers];
+        
+        // Sort by length (longest to shortest)
+        filteredRivers.sort((a, b) => b.length - a.length);
+        
+        renderRivers();
+        updateStats();
+        setupEventListeners();
+        createWaterParticles();
     }
     
     // Hide loader
     setTimeout(() => {
-        document.getElementById('loader')?.classList.add('hidden');
+        const loader = document.getElementById('loader');
+        if (loader) loader.classList.add('hidden');
     }, 1000);
-});
-
-// ============================================
-// LISTING PAGE
-// ============================================
-
-function initListingPage() {
-    renderRiversGrid(riversData);
-    initWorldMap();
-    initFilters();
-    initSearch();
-    initSort();
-    updateStats();
 }
 
-function renderRiversGrid(rivers) {
+function renderRivers() {
     const grid = document.getElementById('riversGrid');
     if (!grid) return;
     
-    grid.innerHTML = rivers.map((river, index) => `
-        <article class="river-card" onclick="window.location.href='rivers-profile.html?id=${river.id}'">
-            <div class="river-card-image" style="background-image: url('${river.image}')">
-                <div class="river-card-overlay"></div>
-                <span class="river-card-rank">#${index + 1}</span>
+    grid.innerHTML = '';
+    
+    if (filteredRivers.length === 0) {
+        grid.innerHTML = `
+            <div class="no-data">
+                <div class="no-data-icon">🌊</div>
+                <h3>No Rivers Found</h3>
+                <p>Try adjusting your search or filters</p>
             </div>
-            <div class="river-card-content">
-                <h3 class="river-card-name">
-                    <i class="fas fa-water"></i>
-                    ${river.name}
-                </h3>
-                <p class="river-card-location">
-                    <i class="fas fa-globe"></i>
-                    ${river.countries.slice(0, 3).join(', ')}${river.countries.length > 3 ? '...' : ''}
-                </p>
-                <div class="river-card-stats">
-                    <div class="river-stat">
-                        <i class="fas fa-ruler-horizontal"></i>
-                        <span class="river-stat-value">${river.length.toLocaleString()}</span>
-                        <span class="river-stat-label">km</span>
-                    </div>
-                    <div class="river-stat">
-                        <i class="fas fa-tint"></i>
-                        <span class="river-stat-value">${river.discharge.toLocaleString()}</span>
-                        <span class="river-stat-label">m³/s</span>
-                    </div>
+        `;
+        return;
+    }
+    
+    filteredRivers.forEach((river, index) => {
+        const card = createRiverCard(river, index + 1);
+        grid.appendChild(card);
+    });
+    
+    // Update count
+    const countEl = document.querySelector('.rivers-count');
+    if (countEl) {
+        countEl.textContent = `Showing ${filteredRivers.length} of ${allRivers.length} rivers`;
+    }
+}
+
+function createRiverCard(river, rank) {
+    const card = document.createElement('div');
+    card.className = 'river-card';
+    card.setAttribute('data-id', river.id);
+    
+    // Get river type badge
+    const typeBadge = river.type || 'River';
+    
+    // Default image if none provided
+    const imageUrl = river.image || `https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=400&h=300&fit=crop`;
+    
+    card.innerHTML = `
+        <div class="card-image">
+            <img src="${imageUrl}" alt="${river.name}" loading="lazy" 
+                 onerror="this.src='https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=400&h=300&fit=crop'">
+            <div class="card-overlay"></div>
+            <div class="card-badges">
+                <span class="rank-badge">
+                    <i class="fas fa-trophy"></i> #${rank}
+                </span>
+                <span class="type-badge">${typeBadge}</span>
+            </div>
+            <div class="length-display">
+                <span class="length-value">${river.length.toLocaleString()}</span>
+                <span class="length-unit">kilometers</span>
+            </div>
+        </div>
+        <div class="card-content">
+            <h3 class="river-name">
+                <i class="fas fa-water"></i>
+                ${river.name}
+            </h3>
+            <p class="river-location">
+                <i class="fas fa-globe-americas"></i>
+                ${river.countries ? river.countries.join(', ') : river.country || 'Unknown'}
+            </p>
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <span class="quick-stat-value">${formatNumber(river.drainageArea)}</span>
+                    <span class="quick-stat-label">km² Basin</span>
+                </div>
+                <div class="quick-stat">
+                    <span class="quick-stat-value">${river.tributaries ? river.tributaries.length : 0}</span>
+                    <span class="quick-stat-label">Tributaries</span>
+                </div>
+                <div class="quick-stat">
+                    <span class="quick-stat-value">${river.majorCities ? river.majorCities.length : 0}</span>
+                    <span class="quick-stat-label">Cities</span>
                 </div>
             </div>
-        </article>
-    `).join('');
-}
-
-function initWorldMap() {
-    const mapContainer = document.getElementById('worldMap');
-    if (!mapContainer) return;
+            <div class="card-actions">
+                <button class="card-btn primary" onclick="viewRiver(${river.id})">
+                    <i class="fas fa-info-circle"></i> Explore
+                </button>
+                <button class="card-btn secondary" onclick="quickView(${river.id})">
+                    <i class="fas fa-map"></i> Map
+                </button>
+            </div>
+        </div>
+    `;
     
-    const worldMap = L.map('worldMap').setView([20, 0], 2);
-    
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap © CARTO'
-    }).addTo(worldMap);
-    
-    riversData.forEach(river => {
-        const midPoint = river.course[Math.floor(river.course.length / 2)];
-        
-        const marker = L.marker([midPoint[0], midPoint[1]], {
-            icon: L.divIcon({
-                className: 'custom-marker',
-                html: '🌊',
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            })
-        }).addTo(worldMap);
-        
-        marker.bindPopup(`
-            <div class="popup-title">${river.name}</div>
-            <div class="popup-subtitle">${river.countries[0]} • ${river.length.toLocaleString()} km</div>
-        `);
-        
-        marker.on('click', () => {
-            window.location.href = `rivers-profile.html?id=${river.id}`;
-        });
-        
-        // Draw river course
-        const courseCoords = river.course.map(coord => [coord[0], coord[1]]);
-        L.polyline(courseCoords, {
-            color: '#3498db',
-            weight: 2,
-            opacity: 0.7
-        }).addTo(worldMap);
+    // Click on card (not buttons) to view river
+    card.addEventListener('click', (e) => {
+        if (!e.target.closest('.card-btn')) {
+            viewRiver(river.id);
+        }
     });
-}
-
-function initFilters() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
     
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            const filter = btn.dataset.filter;
-            const filtered = getRiversByContinent(filter);
-            renderRiversGrid(filtered);
-        });
-    });
-}
-
-function initSearch() {
-    const searchInput = document.getElementById('searchInput');
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', (e) => {
-        const results = searchRivers(e.target.value);
-        renderRiversGrid(results);
-    });
-}
-
-function initSort() {
-    const sortSelect = document.getElementById('sortSelect');
-    if (!sortSelect) return;
-    
-    sortSelect.addEventListener('change', (e) => {
-        const sorted = sortRivers(riversData, e.target.value);
-        renderRiversGrid(sorted);
-    });
+    return card;
 }
 
 function updateStats() {
-    const totalRiversEl = document.getElementById('totalRivers');
-    const totalContinentsEl = document.getElementById('totalContinents');
-    const totalLengthEl = document.getElementById('totalLength');
+    const totalRivers = document.getElementById('totalRivers');
+    const totalLength = document.getElementById('totalLength');
+    const totalCountries = document.getElementById('totalCountries');
     
-    if (totalRiversEl) animateNumber(totalRiversEl, 0, riversData.length, 1000);
-    if (totalContinentsEl) {
-        const continents = new Set(riversData.map(r => r.continent));
-        animateNumber(totalContinentsEl, 0, continents.size, 1000);
+    if (totalRivers) totalRivers.textContent = allRivers.length;
+    
+    if (totalLength) {
+        const total = allRivers.reduce((sum, r) => sum + (r.length || 0), 0);
+        totalLength.textContent = formatNumber(total);
     }
-    if (totalLengthEl) {
-        const totalLength = riversData.reduce((sum, r) => sum + r.length, 0);
-        animateNumber(totalLengthEl, 0, totalLength, 1500);
+    
+    if (totalCountries) {
+        const countries = new Set();
+        allRivers.forEach(r => {
+            if (r.countries) r.countries.forEach(c => countries.add(c));
+            if (r.country) countries.add(r.country);
+        });
+        totalCountries.textContent = countries.size;
     }
 }
 
-function animateNumber(element, start, end, duration) {
-    const startTime = performance.now();
+function setupEventListeners() {
+    // Search
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+    }
     
-    function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const current = Math.floor(start + (end - start) * progress);
-        element.textContent = current.toLocaleString();
+    // Filters
+    const continentFilter = document.getElementById('continentFilter');
+    const lengthFilter = document.getElementById('lengthFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    
+    if (continentFilter) continentFilter.addEventListener('change', applyFilters);
+    if (lengthFilter) lengthFilter.addEventListener('change', applyFilters);
+    if (sortFilter) sortFilter.addEventListener('change', applyFilters);
+    
+    // View toggle
+    const viewBtns = document.querySelectorAll('.view-btn');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const grid = document.getElementById('riversGrid');
+            if (grid) {
+                if (btn.dataset.view === 'list') {
+                    grid.classList.add('list-view');
+                } else {
+                    grid.classList.remove('list-view');
+                }
+            }
+        });
+    });
+}
+
+function handleSearch(e) {
+    const query = e.target.value.toLowerCase().trim();
+    
+    if (!query) {
+        filteredRivers = [...allRivers];
+    } else {
+        filteredRivers = allRivers.filter(river => {
+            return (
+                river.name.toLowerCase().includes(query) ||
+                (river.countries && river.countries.some(c => c.toLowerCase().includes(query))) ||
+                (river.country && river.country.toLowerCase().includes(query)) ||
+                (river.continent && river.continent.toLowerCase().includes(query))
+            );
+        });
+    }
+    
+    applyFilters(false);
+}
+
+function applyFilters(refilter = true) {
+    if (refilter) {
+        const searchInput = document.getElementById('searchInput');
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
         
-        if (progress < 1) requestAnimationFrame(update);
+        if (!query) {
+            filteredRivers = [...allRivers];
+        }
     }
-    requestAnimationFrame(update);
+    
+    const continent = document.getElementById('continentFilter')?.value;
+    const length = document.getElementById('lengthFilter')?.value;
+    const sort = document.getElementById('sortFilter')?.value;
+    
+    // Apply continent filter
+    if (continent) {
+        filteredRivers = filteredRivers.filter(r => r.continent === continent);
+    }
+    
+    // Apply length filter
+    if (length) {
+        const [min, max] = length.split('-').map(Number);
+        filteredRivers = filteredRivers.filter(r => {
+            if (max) {
+                return r.length >= min && r.length < max;
+            }
+            return r.length >= min;
+        });
+    }
+    
+    // Apply sorting
+    switch (sort) {
+        case 'length-desc':
+            filteredRivers.sort((a, b) => b.length - a.length);
+            break;
+        case 'length-asc':
+            filteredRivers.sort((a, b) => a.length - b.length);
+            break;
+        case 'name-asc':
+            filteredRivers.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'name-desc':
+            filteredRivers.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+        case 'discharge-desc':
+            filteredRivers.sort((a, b) => (b.discharge || 0) - (a.discharge || 0));
+            break;
+        default:
+            filteredRivers.sort((a, b) => b.length - a.length);
+    }
+    
+    renderRivers();
 }
 
-// ============================================
-// PROFILE PAGE
-// ============================================
+function viewRiver(id) {
+    window.location.href = `rivers-profile.html?id=${id}`;
+}
 
-function initProfilePage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const riverId = urlParams.get('id');
+function quickView(id) {
+    const river = allRivers.find(r => r.id === id);
+    if (!river) return;
     
-    if (!riverId) {
-        window.location.href = 'rivers.html';
+    // Create quick view modal
+    const modal = document.createElement('div');
+    modal.className = 'flyover-modal active';
+    modal.innerHTML = `
+        <button class="close-modal" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="flyover-content">
+            <h2 class="flyover-title">
+                <i class="fas fa-water"></i>
+                <span>${river.name}</span>
+            </h2>
+            <div class="flyover-map-container">
+                <div id="quickViewMap"></div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Initialize map
+    setTimeout(() => {
+        const map = L.map('quickViewMap').setView(
+            [river.source?.coordinates?.[0] || 0, river.source?.coordinates?.[1] || 0],
+            5
+        );
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        // Add river course if available
+        if (river.course && river.course.length > 0) {
+            const courseCoords = river.course.map(c => [c.coordinates[0], c.coordinates[1]]);
+            L.polyline(courseCoords, {
+                color: '#0ea5e9',
+                weight: 4,
+                opacity: 0.8
+            }).addTo(map);
+            
+            map.fitBounds(L.polyline(courseCoords).getBounds(), { padding: [50, 50] });
+        }
+    }, 100);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PROFILE PAGE FUNCTIONS
+// ─────────────────────────────────────────────────────────────────
+function initProfilePage() {
+    // Get river ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const riverId = parseInt(params.get('id'));
+    
+    if (!riverId || typeof riversData === 'undefined') {
+        showError('River not found');
         return;
     }
     
-    currentRiver = getRiverById(riverId);
+    currentRiver = riversData.find(r => r.id === riverId);
     
     if (!currentRiver) {
-        window.location.href = 'rivers.html';
+        showError('River not found');
         return;
     }
     
-    document.title = `${currentRiver.name} River | Geography Learning App`;
-    
-    const profileBg = document.getElementById('profileBg');
-    if (profileBg) profileBg.style.backgroundImage = `url('${currentRiver.image}')`;
-    
-    renderHeader();
+    // Render all sections
+    renderProfileHeader();
     renderStats();
-    renderMap();
-    renderMindMap();
+    initMap();
     renderInfoTree();
-    renderTributaries();
+    renderTributariesDistributaries();
+    renderCourse();
     renderCities();
-    initFlyoverModal();
-    initMindMapModal();
+    setupFlyover();
+    
+    // Hide loader
+    setTimeout(() => {
+        const loader = document.getElementById('loader');
+        if (loader) loader.classList.add('hidden');
+    }, 800);
 }
 
-function renderHeader() {
-    const nameEl = document.getElementById('riverName');
-    const metaEl = document.getElementById('riverMeta');
+function renderProfileHeader() {
+    // Set background
+    const bg = document.getElementById('profileBg');
+    if (bg && currentRiver.image) {
+        bg.style.backgroundImage = `url(${currentRiver.image})`;
+    }
     
+    // Set title
+    const nameEl = document.getElementById('riverName');
     if (nameEl) {
         nameEl.innerHTML = `
             <i class="fas fa-water"></i>
-            <span>${currentRiver.name} River</span>
+            <span>${currentRiver.name}</span>
         `;
     }
     
+    // Set meta info
+    const metaEl = document.getElementById('riverMeta');
     if (metaEl) {
-        const continentIcon = {
-            'africa': 'africa',
-            'asia': 'asia',
-            'europe': 'europe',
-            'north-america': 'americas',
-            'south-america': 'americas',
-            'australia': 'asia'
-        };
-        
+        const countries = currentRiver.countries ? currentRiver.countries.join(', ') : currentRiver.country || 'Unknown';
         metaEl.innerHTML = `
-            <div class="meta-item">
-                <i class="fas fa-globe-${continentIcon[currentRiver.continent] || 'americas'}"></i>
-                <span>${currentRiver.continent.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-flag"></i>
-                <span>${currentRiver.countries.slice(0, 3).join(', ')}${currentRiver.countries.length > 3 ? '...' : ''}</span>
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-mountain"></i>
-                <span>Source: ${currentRiver.source.name}</span>
-            </div>
+            <span class="meta-item">
+                <i class="fas fa-globe-americas"></i> ${countries}
+            </span>
+            <span class="meta-item">
+                <i class="fas fa-ruler-horizontal"></i> ${currentRiver.length.toLocaleString()} km
+            </span>
+            <span class="meta-item">
+                <i class="fas fa-map"></i> ${currentRiver.continent || 'Unknown'}
+            </span>
         `;
     }
+    
+    // Update page title
+    document.title = `${currentRiver.name} - River Profile`;
 }
 
 function renderStats() {
-    const statsGrid = document.getElementById('statsGrid');
-    if (!statsGrid) return;
+    const grid = document.getElementById('statsGrid');
+    if (!grid) return;
     
     const stats = [
-        { icon: '📏', value: `${currentRiver.length.toLocaleString()} km`, label: 'Length' },
-        { icon: '💧', value: `${currentRiver.discharge.toLocaleString()} m³/s`, label: 'Discharge' },
-        { icon: '🗺️', value: `${(currentRiver.basinArea / 1000000).toFixed(1)}M km²`, label: 'Basin Area' },
-        { icon: '🏔️', value: `${currentRiver.source.elevation}m`, label: 'Source Elevation' },
-        { icon: '🌍', value: currentRiver.countries.length, label: 'Countries' },
-        { icon: '🏙️', value: currentRiver.majorCities.length, label: 'Major Cities' }
+        {
+            icon: 'fa-ruler-horizontal',
+            value: `${currentRiver.length.toLocaleString()}`,
+            label: 'Length (km)'
+        },
+        {
+            icon: 'fa-water',
+            value: formatNumber(currentRiver.discharge || 0),
+            label: 'Discharge (m³/s)'
+        },
+        {
+            icon: 'fa-map',
+            value: formatNumber(currentRiver.drainageArea || 0),
+            label: 'Basin Area (km²)'
+        },
+        {
+            icon: 'fa-mountain',
+            value: `${currentRiver.source?.elevation || 0}`,
+            label: 'Source Elevation (m)'
+        },
+        {
+            icon: 'fa-code-branch',
+            value: currentRiver.tributaries ? currentRiver.tributaries.length : 0,
+            label: 'Tributaries'
+        },
+        {
+            icon: 'fa-city',
+            value: currentRiver.majorCities ? currentRiver.majorCities.length : 0,
+            label: 'Major Cities'
+        }
     ];
     
-    statsGrid.innerHTML = stats.map(stat => `
+    grid.innerHTML = stats.map(stat => `
         <div class="stat-card">
-            <div class="stat-card-icon">${stat.icon}</div>
-            <div class="stat-card-value">${stat.value}</div>
-            <div class="stat-card-label">${stat.label}</div>
+            <i class="fas ${stat.icon}"></i>
+            <span class="value">${stat.value}</span>
+            <span class="label">${stat.label}</span>
         </div>
     `).join('');
 }
 
-function renderMap() {
+function initMap() {
     const mapContainer = document.getElementById('riverMap');
     if (!mapContainer) return;
     
-    const midPoint = currentRiver.course[Math.floor(currentRiver.course.length / 2)];
-    mainMap = L.map('riverMap').setView([midPoint[0], midPoint[1]], 5);
+    // Default coordinates
+    const defaultLat = currentRiver.source?.coordinates?.[0] || 0;
+    const defaultLng = currentRiver.source?.coordinates?.[1] || 0;
+    
+    mainMap = L.map('riverMap').setView([defaultLat, defaultLng], 5);
     
     // Tile layers
     const layers = {
@@ -297,233 +475,259 @@ function renderMap() {
         satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: '© Esri'
         }),
-        topo: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© CARTO'
+        topo: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
         })
     };
     
     layers.terrain.addTo(mainMap);
     
-    // Layer switching
+    // Map layer controls
     document.querySelectorAll('.map-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            Object.values(layers).forEach(layer => mainMap.removeLayer(layer));
-            layers[btn.dataset.layer].addTo(mainMap);
+            
+            const layer = btn.dataset.layer;
+            Object.values(layers).forEach(l => mainMap.removeLayer(l));
+            layers[layer].addTo(mainMap);
         });
     });
     
-    // Draw main river
-    const riverCoords = currentRiver.course.map(coord => [coord[0], coord[1]]);
-    const mainRiver = L.polyline(riverCoords, {
-        color: '#3498db',
-        weight: 5,
+    // Add river course
+    addRiverCourse();
+    
+    // Add markers
+    addMapMarkers();
+}
+
+function addRiverCourse() {
+    if (!currentRiver.course || currentRiver.course.length === 0) return;
+    
+    const courseCoords = currentRiver.course.map(c => [c.coordinates[0], c.coordinates[1]]);
+    
+    // Glow effect
+    L.polyline(courseCoords, {
+        color: '#0ea5e9',
+        weight: 10,
+        opacity: 0.3
+    }).addTo(mainMap);
+    
+    // Main river line
+    const riverLine = L.polyline(courseCoords, {
+        color: '#0ea5e9',
+        weight: 4,
         opacity: 0.9
     }).addTo(mainMap);
     
-    // Draw tributaries
-    currentRiver.tributaries.forEach(trib => {
-        const tribCoords = trib.coordinates.map(coord => [coord[0], coord[1]]);
-        L.polyline(tribCoords, {
-            color: '#2ecc71',
-            weight: 3,
-            opacity: 0.8,
-            dashArray: '10, 5'
-        }).addTo(mainMap).bindPopup(`
-            <div class="popup-title">${trib.name}</div>
-            <div class="popup-subtitle">Tributary • ${trib.length} km</div>
-        `);
-    });
+    // Fit bounds
+    mainMap.fitBounds(riverLine.getBounds(), { padding: [50, 50] });
     
-    // Draw distributaries
-    currentRiver.distributaries.forEach(dist => {
-        const distCoords = dist.coordinates.map(coord => [coord[0], coord[1]]);
-        L.polyline(distCoords, {
-            color: '#e74c3c',
-            weight: 3,
-            opacity: 0.8,
-            dashArray: '10, 5'
-        }).addTo(mainMap).bindPopup(`
-            <div class="popup-title">${dist.name}</div>
-            <div class="popup-subtitle">Distributary • ${dist.length} km</div>
-        `);
-    });
-    
-    // Source marker
-    L.marker([currentRiver.source.coordinates[0], currentRiver.source.coordinates[1]], {
-        icon: L.divIcon({
-            className: 'custom-marker source-marker',
-            html: '🏔️',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        })
-    }).addTo(mainMap).bindPopup(`
-        <div class="popup-title">Source: ${currentRiver.source.name}</div>
-        <div class="popup-subtitle">${currentRiver.source.location} • ${currentRiver.source.elevation}m</div>
-    `);
-    
-    // Mouth marker
-    L.marker([currentRiver.mouth.coordinates[0], currentRiver.mouth.coordinates[1]], {
-        icon: L.divIcon({
-            className: 'custom-marker mouth-marker',
-            html: '🌊',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        })
-    }).addTo(mainMap).bindPopup(`
-        <div class="popup-title">Mouth: ${currentRiver.mouth.name}</div>
-        <div class="popup-subtitle">${currentRiver.mouth.location}</div>
-    `);
-    
-    // City markers
-    currentRiver.majorCities.forEach(city => {
-        L.marker([city.coordinates[0], city.coordinates[1]], {
-            icon: L.divIcon({
-                className: 'custom-marker city-marker',
-                html: '🏙️',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
-            })
-        }).addTo(mainMap).bindPopup(`
-            <div class="popup-title">${city.name}</div>
-            <div class="popup-subtitle">${city.country} • ${(city.population / 1000000).toFixed(1)}M</div>
-        `);
-    });
-    
-    mainMap.fitBounds(mainRiver.getBounds(), { padding: [50, 50] });
+    // Add tributaries to map
+    if (currentRiver.tributaries) {
+        currentRiver.tributaries.forEach(trib => {
+            if (trib.confluence) {
+                // Draw tributary line (dashed)
+                if (trib.sourceCoords && trib.confluence) {
+                    L.polyline([
+                        [trib.sourceCoords[0], trib.sourceCoords[1]],
+                        [trib.confluence[0], trib.confluence[1]]
+                    ], {
+                        color: '#3b82f6',
+                        weight: 2,
+                        opacity: 0.7,
+                        dashArray: '5, 10'
+                    }).addTo(mainMap);
+                }
+                
+                // Add confluence marker
+                const marker = L.circleMarker([trib.confluence[0], trib.confluence[1]], {
+                    radius: 6,
+                    fillColor: '#3b82f6',
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.8
+                }).addTo(mainMap);
+                
+                marker.bindPopup(`
+                    <div class="custom-popup">
+                        <h4><i class="fas fa-code-branch"></i> ${trib.name}</h4>
+                        <p><strong>Bank:</strong> ${trib.bank || 'Unknown'}</p>
+                        <p><strong>Length:</strong> ${trib.length || 'Unknown'} km</p>
+                    </div>
+                `);
+            }
+        });
+    }
 }
 
-function renderMindMap() {
-    const svg = document.getElementById('mindMapSvg');
-    if (!svg) return;
-    
-    const width = 600;
-    const height = 500;
-    const centerX = width / 2;
-    const centerY = height / 2;
-    
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    
-    const branches = [
-        { label: '📏 Length', value: `${currentRiver.length} km` },
-        { label: '💧 Discharge', value: `${currentRiver.discharge} m³/s` },
-        { label: '🏔️ Source', value: currentRiver.source.name.substring(0, 15) },
-        { label: '🌊 Mouth', value: currentRiver.mouth.name.substring(0, 15) },
-        { label: '🌍 Countries', value: `${currentRiver.countries.length} nations` },
-        { label: '🏙️ Cities', value: `${currentRiver.majorCities.length} major` }
-    ];
-    
-    let svgContent = '';
-    
-    // Central node
-    svgContent += `
-        <circle cx="${centerX}" cy="${centerY}" r="50" fill="url(#riverGradient)" stroke="white" stroke-width="3"/>
-        <text x="${centerX}" y="${centerY - 10}" fill="white" text-anchor="middle" font-size="12" font-weight="bold">${currentRiver.name}</text>
-        <text x="${centerX}" y="${centerY + 10}" fill="white" text-anchor="middle" font-size="10">River</text>
-    `;
-    
-    // Gradient definition
-    svgContent = `
-        <defs>
-            <linearGradient id="riverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#0077b6"/>
-                <stop offset="100%" style="stop-color:#48cae4"/>
-            </linearGradient>
-        </defs>
-    ` + svgContent;
-    
-    // Branch nodes
-    const radius = 150;
-    branches.forEach((branch, i) => {
-        const angle = (i * 2 * Math.PI / branches.length) - Math.PI / 2;
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
+function addMapMarkers() {
+    // Source marker
+    if (currentRiver.source?.coordinates) {
+        const sourceIcon = L.divIcon({
+            className: 'custom-marker source-marker',
+            html: '<i class="fas fa-play-circle" style="color:white;font-size:16px;"></i>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
         
-        // Line
-        svgContent += `<line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>`;
-        
-        // Node
-        svgContent += `
-            <circle cx="${x}" cy="${y}" r="35" fill="#00b4d8" stroke="white" stroke-width="2"/>
-            <text x="${x}" y="${y - 8}" fill="white" text-anchor="middle" font-size="10">${branch.label}</text>
-            <text x="${x}" y="${y + 8}" fill="white" text-anchor="middle" font-size="9" font-weight="bold">${branch.value}</text>
-        `;
-    });
+        L.marker(currentRiver.source.coordinates, { icon: sourceIcon })
+            .addTo(mainMap)
+            .bindPopup(`
+                <div class="custom-popup">
+                    <h4><i class="fas fa-play-circle"></i> Source</h4>
+                    <p><strong>${currentRiver.source.name || 'River Source'}</strong></p>
+                    <p>Elevation: ${currentRiver.source.elevation || 'Unknown'} m</p>
+                </div>
+            `);
+    }
     
-    svg.innerHTML = svgContent;
+    // Mouth marker
+    if (currentRiver.mouth?.coordinates) {
+        const mouthIcon = L.divIcon({
+            className: 'custom-marker mouth-marker',
+            html: '<i class="fas fa-stop-circle" style="color:white;font-size:16px;"></i>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        
+        L.marker(currentRiver.mouth.coordinates, { icon: mouthIcon })
+            .addTo(mainMap)
+            .bindPopup(`
+                <div class="custom-popup">
+                    <h4><i class="fas fa-stop-circle"></i> Mouth</h4>
+                    <p><strong>${currentRiver.mouth.name || 'River Mouth'}</strong></p>
+                    <p>Flows into: ${currentRiver.mouth.flowsInto || 'Unknown'}</p>
+                </div>
+            `);
+    }
+    
+    // City markers
+    if (currentRiver.majorCities) {
+        currentRiver.majorCities.forEach(city => {
+            if (city.coordinates) {
+                const cityIcon = L.divIcon({
+                    className: 'custom-marker city-marker',
+                    html: '<i class="fas fa-city" style="color:white;font-size:12px;"></i>',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                
+                L.marker(city.coordinates, { icon: cityIcon })
+                    .addTo(mainMap)
+                    .bindPopup(`
+                        <div class="custom-popup">
+                            <h4><i class="fas fa-city"></i> ${city.name}</h4>
+                            <p>${city.country || ''}</p>
+                        </div>
+                    `);
+            }
+        });
+    }
+    
+    // Dam markers
+    if (currentRiver.dams) {
+        currentRiver.dams.forEach(dam => {
+            if (dam.coordinates) {
+                const damIcon = L.divIcon({
+                    className: 'custom-marker dam-marker',
+                    html: '<i class="fas fa-database" style="color:white;font-size:12px;"></i>',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                
+                L.marker(dam.coordinates, { icon: damIcon })
+                    .addTo(mainMap)
+                    .bindPopup(`
+                        <div class="custom-popup">
+                            <h4><i class="fas fa-database"></i> ${dam.name}</h4>
+                            <p>${dam.purpose || 'Dam'}</p>
+                        </div>
+                    `);
+            }
+        });
+    }
 }
 
 function renderInfoTree() {
-    const infoTree = document.getElementById('infoTree');
-    if (!infoTree) return;
+    const treeContainer = document.getElementById('infoTree');
+    if (!treeContainer) return;
     
     const branches = [
         {
-            icon: '🌍',
-            title: 'Geography',
-            subtitle: 'Physical characteristics',
+            icon: 'fa-info-circle',
+            title: 'Basic Information',
             items: [
+                { label: 'Name', value: currentRiver.name },
+                { label: 'Local Names', value: currentRiver.localNames?.join(', ') || 'N/A' },
                 { label: 'Length', value: `${currentRiver.length.toLocaleString()} km` },
-                { label: 'Basin Area', value: `${currentRiver.basinArea.toLocaleString()} km²` },
-                { label: 'Countries', value: currentRiver.countries.join(', ') },
-                { label: 'Continent', value: currentRiver.continent.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) }
+                { label: 'Continent', value: currentRiver.continent || 'N/A' },
+                { label: 'Countries', value: currentRiver.countries?.join(', ') || currentRiver.country || 'N/A' }
             ]
         },
         {
-            icon: '💧',
+            icon: 'fa-tint',
             title: 'Hydrology',
-            subtitle: 'Water flow data',
             items: [
-                { label: 'Discharge', value: `${currentRiver.discharge.toLocaleString()} m³/s` },
-                { label: 'Tributaries', value: `${currentRiver.tributaries.length} rivers` },
-                { label: 'Distributaries', value: `${currentRiver.distributaries.length} channels` }
+                { label: 'Discharge', value: `${formatNumber(currentRiver.discharge || 0)} m³/s` },
+                { label: 'Basin Area', value: `${formatNumber(currentRiver.drainageArea || 0)} km²` },
+                { label: 'Average Depth', value: currentRiver.avgDepth ? `${currentRiver.avgDepth} m` : 'N/A' },
+                { label: 'Average Width', value: currentRiver.avgWidth ? `${currentRiver.avgWidth} m` : 'N/A' }
             ]
         },
         {
-            icon: '🏔️',
+            icon: 'fa-play-circle',
             title: 'Source',
-            subtitle: currentRiver.source.name,
             items: [
-                { label: 'Location', value: currentRiver.source.location },
-                { label: 'Elevation', value: `${currentRiver.source.elevation} m` }
+                { label: 'Location', value: currentRiver.source?.name || 'N/A' },
+                { label: 'Elevation', value: currentRiver.source?.elevation ? `${currentRiver.source.elevation} m` : 'N/A' },
+                { label: 'Country', value: currentRiver.source?.country || 'N/A' },
+                { label: 'Coordinates', value: currentRiver.source?.coordinates ? `${currentRiver.source.coordinates[0].toFixed(4)}°, ${currentRiver.source.coordinates[1].toFixed(4)}°` : 'N/A' }
             ]
         },
         {
-            icon: '🌊',
+            icon: 'fa-stop-circle',
             title: 'Mouth',
-            subtitle: currentRiver.mouth.name,
             items: [
-                { label: 'Location', value: currentRiver.mouth.location }
+                { label: 'Location', value: currentRiver.mouth?.name || 'N/A' },
+                { label: 'Flows Into', value: currentRiver.mouth?.flowsInto || 'N/A' },
+                { label: 'Country', value: currentRiver.mouth?.country || 'N/A' },
+                { label: 'Type', value: currentRiver.mouth?.type || 'N/A' }
             ]
         },
         {
-            icon: '⭐',
-            title: 'Fun Facts',
-            subtitle: 'Did you know?',
+            icon: 'fa-history',
+            title: 'Historical Significance',
             items: [
-                { label: 'Historical', value: currentRiver.facts.historical },
-                { label: 'Ecological', value: currentRiver.facts.ecological },
-                { label: 'Economic', value: currentRiver.facts.economic },
-                { label: 'Fun Fact', value: currentRiver.facts.funFact }
+                { label: 'Ancient Name', value: currentRiver.ancientName || 'N/A' },
+                { label: 'Historical Importance', value: currentRiver.historicalImportance || 'N/A' },
+                { label: 'UNESCO Status', value: currentRiver.unescoStatus || 'N/A' }
+            ]
+        },
+        {
+            icon: 'fa-leaf',
+            title: 'Ecology',
+            items: [
+                { label: 'Fish Species', value: currentRiver.fishSpecies || 'N/A' },
+                { label: 'Endangered Species', value: currentRiver.endangeredSpecies || 'N/A' },
+                { label: 'Ecosystem Type', value: currentRiver.ecosystem || 'N/A' }
             ]
         }
     ];
     
-    infoTree.innerHTML = branches.map(branch => `
-        <div class="info-branch">
-            <div class="branch-header" onclick="toggleBranch(this)">
-                <div class="branch-icon">${branch.icon}</div>
-                <div class="branch-title">
-                    <h4>${branch.title}</h4>
-                    <span>${branch.subtitle}</span>
+    treeContainer.innerHTML = branches.map((branch, index) => `
+        <div class="tree-branch">
+            <div class="branch-header ${index === 0 ? 'open' : ''}" onclick="toggleBranch(this)">
+                <div class="branch-icon">
+                    <i class="fas ${branch.icon}"></i>
                 </div>
+                <span class="branch-title">${branch.title}</span>
                 <i class="fas fa-chevron-down branch-toggle"></i>
             </div>
-            <div class="branch-content">
+            <div class="branch-content ${index === 0 ? 'open' : ''}">
                 ${branch.items.map(item => `
                     <div class="branch-item">
-                        <span class="item-label">${item.label}</span>
+                        <span class="item-label">${item.label}:</span>
                         <span class="item-value">${item.value}</span>
                     </div>
                 `).join('')}
@@ -533,238 +737,371 @@ function renderInfoTree() {
 }
 
 function toggleBranch(header) {
-    header.classList.toggle('active');
-    header.nextElementSibling.classList.toggle('active');
+    header.classList.toggle('open');
+    const content = header.nextElementSibling;
+    content.classList.toggle('open');
 }
 
-function renderTributaries() {
-    const tributariesList = document.getElementById('tributariesList');
-    const distributariesList = document.getElementById('distributariesList');
+function renderTributariesDistributaries() {
+    const container = document.getElementById('tributariesSection');
+    if (!container) return;
     
-    if (tributariesList) {
-        if (currentRiver.tributaries.length === 0) {
-            tributariesList.innerHTML = '<p style="color: var(--text-muted); padding: 1rem;">No major tributaries recorded</p>';
-        } else {
-            tributariesList.innerHTML = currentRiver.tributaries.map(trib => `
-                <div class="trib-item" onclick="zoomToCoords(${JSON.stringify(trib.coordinates[1])})">
-                    <div class="trib-arrow">→</div>
-                    <div class="trib-info">
-                        <div class="trib-name">${trib.name}</div>
-                        <div class="trib-detail">From: ${trib.source}</div>
-                    </div>
-                    <div class="trib-length">${trib.length} km</div>
-                </div>
-            `).join('');
-        }
-    }
+    const tributaries = currentRiver.tributaries || [];
+    const distributaries = currentRiver.distributaries || [];
     
-    if (distributariesList) {
-        if (currentRiver.distributaries.length === 0) {
-            distributariesList.innerHTML = '<p style="color: var(--text-muted); padding: 1rem;">No major distributaries</p>';
-        } else {
-            distributariesList.innerHTML = currentRiver.distributaries.map(dist => `
-                <div class="trib-item" onclick="zoomToCoords(${JSON.stringify(dist.coordinates[1])})">
-                    <div class="trib-arrow">←</div>
-                    <div class="trib-info">
-                        <div class="trib-name">${dist.name}</div>
-                        <div class="trib-detail">To: ${dist.mouth}</div>
+    container.innerHTML = `
+        <h3 class="section-title">
+            <i class="fas fa-code-branch"></i>
+            Tributaries & Distributaries
+        </h3>
+        <div class="flow-container">
+            <!-- Tributaries (Left - Arrows IN) -->
+            <div class="tributaries-list">
+                <h4 style="color: var(--text-secondary); margin-bottom: var(--space-md); text-align: center;">
+                    <i class="fas fa-arrow-right" style="color: #3b82f6;"></i> Tributaries (Flow In)
+                </h4>
+                ${tributaries.length > 0 ? tributaries.map(trib => `
+                    <div class="tributary-item">
+                        <span class="arrow">→</span>
+                        <div class="tributary-info">
+                            <div class="tributary-name">${trib.name}</div>
+                            <div class="tributary-details">
+                                <span>${trib.length ? trib.length + ' km' : ''}</span>
+                                ${trib.bank ? `<span class="tributary-bank ${trib.bank.toLowerCase()}">${trib.bank} Bank</span>` : ''}
+                            </div>
+                        </div>
                     </div>
-                    <div class="trib-length">${dist.length} km</div>
-                </div>
-            `).join('');
-        }
-    }
+                `).join('') : '<p style="color: var(--text-muted); text-align: center;">No major tributaries</p>'}
+            </div>
+            
+            <!-- Main River (Center) -->
+            <div class="main-river-flow">
+                <span class="main-river-name">${currentRiver.name}</span>
+                <span class="flow-arrow">↓</span>
+            </div>
+            
+            <!-- Distributaries (Right - Arrows OUT) -->
+            <div class="distributaries-list">
+                <h4 style="color: var(--text-secondary); margin-bottom: var(--space-md); text-align: center;">
+                    Distributaries (Flow Out) <i class="fas fa-arrow-right" style="color: #ef4444;"></i>
+                </h4>
+                ${distributaries.length > 0 ? distributaries.map(dist => `
+                    <div class="distributary-item">
+                        <div class="distributary-info">
+                            <div class="distributary-name">${dist.name}</div>
+                            <div class="distributary-details">
+                                ${dist.length ? dist.length + ' km' : ''} ${dist.flowsInto ? '→ ' + dist.flowsInto : ''}
+                            </div>
+                        </div>
+                        <span class="arrow">→</span>
+                    </div>
+                `).join('') : '<p style="color: var(--text-muted); text-align: center;">No distributaries (single channel)</p>'}
+            </div>
+        </div>
+    `;
 }
 
-function zoomToCoords(coords) {
-    if (mainMap && coords) {
-        mainMap.setView([coords[0], coords[1]], 8);
-    }
+function renderCourse() {
+    const container = document.getElementById('courseSection');
+    if (!container || !currentRiver.course) return;
+    
+    container.innerHTML = `
+        <h3 class="section-title">
+            <i class="fas fa-route"></i>
+            River Course
+        </h3>
+        <div class="course-timeline">
+            ${currentRiver.course.map((point, index) => {
+                const isSource = index === 0;
+                const isMouth = index === currentRiver.course.length - 1;
+                const itemClass = isSource ? 'source' : (isMouth ? 'mouth' : '');
+                
+                return `
+                    <div class="course-item ${itemClass}">
+                        <div class="course-header">
+                            <span class="course-name">
+                                <i class="fas ${isSource ? 'fa-play-circle' : (isMouth ? 'fa-stop-circle' : 'fa-circle')}"></i>
+                                ${point.name}
+                            </span>
+                            <span class="course-distance">${point.distanceFromSource || 0} km</span>
+                        </div>
+                        <p class="course-description">${point.description || ''}</p>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
 }
 
 function renderCities() {
-    const citiesGrid = document.getElementById('citiesGrid');
-    if (!citiesGrid) return;
+    const container = document.getElementById('citiesSection');
+    if (!container || !currentRiver.majorCities) return;
     
-    citiesGrid.innerHTML = currentRiver.majorCities.map(city => `
-        <div class="city-card" onclick="zoomToCoords([${city.coordinates[0]}, ${city.coordinates[1]}])">
-            <div class="city-icon">🏙️</div>
-            <div class="city-name">${city.name}</div>
-            <div class="city-country">${city.country}</div>
-            <div class="city-population">
-                <i class="fas fa-users"></i>
-                <span>${(city.population / 1000000).toFixed(1)} million</span>
-            </div>
+    container.innerHTML = `
+        <h3 class="section-title">
+            <i class="fas fa-city"></i>
+            Major Cities Along the River
+        </h3>
+        <div class="cities-grid">
+            ${currentRiver.majorCities.map(city => `
+                <div class="city-card">
+                    <div class="city-icon">🏙️</div>
+                    <div class="city-name">${city.name}</div>
+                    <div class="city-country">${city.country || ''}</div>
+                </div>
+            `).join('')}
         </div>
-    `).join('');
+    `;
 }
 
-// ============================================
-// FLYOVER MODAL
-// ============================================
-
-function initFlyoverModal() {
-    const flyAlongBtn = document.getElementById('flyAlongBtn');
+// ─────────────────────────────────────────────────────────────────
+// FLYOVER FUNCTIONALITY
+// ─────────────────────────────────────────────────────────────────
+function setupFlyover() {
+    const flyoverBtn = document.getElementById('flyoverBtn');
     const flyoverModal = document.getElementById('flyoverModal');
     const closeFlyover = document.getElementById('closeFlyover');
     const pauseBtn = document.getElementById('pauseBtn');
     const restartBtn = document.getElementById('restartBtn');
-    const speedUpBtn = document.getElementById('speedUpBtn');
-    const slowDownBtn = document.getElementById('slowDownBtn');
     
-    if (flyAlongBtn) flyAlongBtn.addEventListener('click', openFlyoverModal);
-    if (closeFlyover) closeFlyover.addEventListener('click', closeFlyoverModal);
-    if (pauseBtn) pauseBtn.addEventListener('click', toggleFlyoverPause);
-    if (restartBtn) restartBtn.addEventListener('click', restartFlyover);
-    if (speedUpBtn) speedUpBtn.addEventListener('click', () => adjustSpeed(0.5));
-    if (slowDownBtn) slowDownBtn.addEventListener('click', () => adjustSpeed(-0.25));
-}
-
-function openFlyoverModal() {
-    const modal = document.getElementById('flyoverModal');
-    modal.classList.add('active');
-    document.getElementById('flyoverTitle').textContent = `✈️ Flying Along ${currentRiver.name} River`;
+    if (!flyoverBtn) return;
     
-    setTimeout(() => {
-        if (flyoverMap) flyoverMap.remove();
-        
-        flyoverMap = L.map('flyoverMap').setView(
-            [currentRiver.source.coordinates[0], currentRiver.source.coordinates[1]], 8
-        );
-        
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '© Esri'
-        }).addTo(flyoverMap);
-        
-        const riverCoords = currentRiver.course.map(coord => [coord[0], coord[1]]);
-        L.polyline(riverCoords, { color: '#3498db', weight: 4, opacity: 0.8 }).addTo(flyoverMap);
-        
-        startFlyover();
-    }, 300);
-}
-
-function closeFlyoverModal() {
-    document.getElementById('flyoverModal').classList.remove('active');
-    if (flyoverAnimation) clearInterval(flyoverAnimation);
-    flyoverIndex = 0;
-    flyoverPaused = false;
-    flyoverSpeed = 1;
-}
-
-function startFlyover() {
-    flyoverIndex = 0;
-    flyoverPaused = false;
+    flyoverBtn.addEventListener('click', startFlyover);
     
-    const course = currentRiver.course;
-    const totalPoints = course.length;
+    if (closeFlyover) {
+        closeFlyover.addEventListener('click', () => {
+            flyoverModal.classList.remove('active');
+            stopFlyover();
+        });
+    }
     
-    const planeMarker = L.marker([course[0][0], course[0][1]], {
-        icon: L.divIcon({
-            className: 'custom-marker',
-            html: '✈️',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        })
-    }).addTo(flyoverMap);
+    if (pauseBtn) {
+        pauseBtn.addEventListener('click', togglePause);
+    }
     
-    updateFlyoverInfo(0, totalPoints);
-    
-    flyoverAnimation = setInterval(() => {
-        if (flyoverPaused) return;
-        
-        if (flyoverIndex >= totalPoints) {
-            clearInterval(flyoverAnimation);
-            document.getElementById('currentLocation').textContent = '🎉 Journey Complete!';
-            document.getElementById('currentDetail').textContent = `Reached ${currentRiver.mouth.name}`;
-            return;
-        }
-        
-        const currentCoord = course[flyoverIndex];
-        planeMarker.setLatLng([currentCoord[0], currentCoord[1]]);
-        flyoverMap.panTo([currentCoord[0], currentCoord[1]], { animate: true, duration: 0.5 });
-        
-        updateFlyoverInfo(flyoverIndex, totalPoints);
-        flyoverIndex++;
-    }, 2000 / flyoverSpeed);
-}
-
-function updateFlyoverInfo(index, total) {
-    const progress = ((index / (total - 1)) * 100).toFixed(0);
-    const distance = ((index / (total - 1)) * currentRiver.length).toFixed(0);
-    
-    document.getElementById('progressFill').style.width = `${progress}%`;
-    document.getElementById('journeyProgress').textContent = `${progress}%`;
-    document.getElementById('distanceTraveled').textContent = `${distance} km`;
-    
-    // Find location name
-    if (index === 0) {
-        document.getElementById('currentLocation').textContent = `🏔️ ${currentRiver.source.name}`;
-        document.getElementById('currentDetail').textContent = 'Starting at source...';
-    } else if (index >= total - 1) {
-        document.getElementById('currentLocation').textContent = `🌊 ${currentRiver.mouth.name}`;
-        document.getElementById('currentDetail').textContent = 'Reached the mouth!';
-    } else {
-        const nearCity = findNearestCity(currentRiver.course[index]);
-        if (nearCity) {
-            document.getElementById('currentLocation').textContent = `📍 Near ${nearCity.name}`;
-            document.getElementById('currentDetail').textContent = nearCity.country;
-        } else {
-            document.getElementById('currentLocation').textContent = `📍 Flowing through...`;
-            document.getElementById('currentDetail').textContent = currentRiver.countries[0];
-        }
+    if (restartBtn) {
+        restartBtn.addEventListener('click', restartFlyover);
     }
 }
 
-function findNearestCity(coord) {
-    let nearest = null;
-    let minDist = 2; // Degrees threshold
+function startFlyover() {
+    const modal = document.getElementById('flyoverModal');
+    if (!modal) return;
     
-    currentRiver.majorCities.forEach(city => {
-        const dist = Math.sqrt(
-            Math.pow(city.coordinates[0] - coord[0], 2) +
-            Math.pow(city.coordinates[1] - coord[1], 2)
-        );
-        if (dist < minDist) {
-            minDist = dist;
-            nearest = city;
-        }
-    });
+    modal.classList.add('active');
     
-    return nearest;
+    // Set title
+    const title = document.getElementById('flyoverTitle');
+    if (title) title.textContent = `Flying Along ${currentRiver.name}`;
+    
+    // Initialize flyover map
+    setTimeout(() => {
+        initFlyoverMap();
+    }, 100);
 }
 
-function toggleFlyoverPause() {
-    flyoverPaused = !flyoverPaused;
-    document.getElementById('pauseBtn').innerHTML = flyoverPaused ? 
-        '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
+function initFlyoverMap() {
+    const mapContainer = document.getElementById('flyoverMap');
+    if (!mapContainer) return;
+    
+    // Clear existing map
+    if (flyoverMap) {
+        flyoverMap.remove();
+    }
+    
+    const course = currentRiver.course || [];
+    if (course.length === 0) {
+        mapContainer.innerHTML = '<div class="no-data"><p>No course data available for flyover</p></div>';
+        return;
+    }
+    
+    // Initialize map
+    flyoverMap = L.map('flyoverMap', {
+        zoomControl: false
+    }).setView(course[0].coordinates, 10);
+    
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri'
+    }).addTo(flyoverMap);
+    
+    // Draw river course
+    const courseCoords = course.map(c => c.coordinates);
+    L.polyline(courseCoords, {
+        color: '#0ea5e9',
+        weight: 4,
+        opacity: 0.9
+    }).addTo(flyoverMap);
+    
+    // Add markers for each point
+    course.forEach((point, index) => {
+        L.circleMarker(point.coordinates, {
+            radius: 8,
+            fillColor: index === 0 ? '#22c55e' : (index === course.length - 1 ? '#ef4444' : '#0ea5e9'),
+            color: '#fff',
+            weight: 2,
+            fillOpacity: 0.9
+        }).addTo(flyoverMap).bindPopup(point.name);
+    });
+    
+    // Create progress dots
+    renderFlyoverProgress(course);
+    
+    // Start animation
+    currentFlyoverIndex = 0;
+    isPaused = false;
+    animateFlyover(course);
+}
+
+function renderFlyoverProgress(course) {
+    const container = document.getElementById('flyoverProgress');
+    if (!container) return;
+    
+    container.innerHTML = course.map((point, index) => `
+        <div class="progress-dot ${index === 0 ? 'active' : ''}" 
+             data-index="${index}" 
+             title="${point.name}"
+             onclick="jumpToPoint(${index})">
+        </div>
+    `).join('');
+}
+
+function animateFlyover(course) {
+    if (currentFlyoverIndex >= course.length) {
+        // Loop back to start
+        currentFlyoverIndex = 0;
+    }
+    
+    const point = course[currentFlyoverIndex];
+    
+    // Update map view
+    flyoverMap.flyTo(point.coordinates, 11, {
+        duration: 2
+    });
+    
+    // Update current location display
+    const currentName = document.getElementById('currentPeak');
+    const currentDetails = document.getElementById('currentElev');
+    
+    if (currentName) currentName.textContent = point.name;
+    if (currentDetails) currentDetails.textContent = point.description || '';
+    
+    // Update progress dots
+    document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+        dot.classList.remove('active');
+        if (index < currentFlyoverIndex) dot.classList.add('visited');
+        if (index === currentFlyoverIndex) dot.classList.add('active');
+    });
+    
+    // Schedule next point
+    if (!isPaused) {
+        flyoverInterval = setTimeout(() => {
+            currentFlyoverIndex++;
+            animateFlyover(course);
+        }, 3000);
+    }
+}
+
+function togglePause() {
+    const pauseBtn = document.getElementById('pauseBtn');
+    isPaused = !isPaused;
+    
+    if (pauseBtn) {
+        pauseBtn.innerHTML = isPaused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
+    }
+    
+    if (!isPaused && currentRiver.course) {
+        animateFlyover(currentRiver.course);
+    }
 }
 
 function restartFlyover() {
-    if (flyoverAnimation) clearInterval(flyoverAnimation);
-    startFlyover();
-}
-
-function adjustSpeed(delta) {
-    flyoverSpeed = Math.max(0.25, Math.min(4, flyoverSpeed + delta));
-    document.getElementById('speedDisplay').textContent = `${flyoverSpeed}x`;
-}
-
-// ============================================
-// MIND MAP MODAL
-// ============================================
-
-function initMindMapModal() {
-    const expandBtn = document.getElementById('expandMindMap');
-    const modal = document.getElementById('mindmapModal');
-    const closeBtn = document.getElementById('closeMindmap');
+    stopFlyover();
+    currentFlyoverIndex = 0;
+    isPaused = false;
     
-    if (expandBtn) expandBtn.addEventListener('click', () => modal.classList.add('active'));
-    if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    const pauseBtn = document.getElementById('pauseBtn');
+    if (pauseBtn) pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    
+    if (currentRiver.course) {
+        animateFlyover(currentRiver.course);
+    }
 }
 
-// ============================================
-// GLOBAL FUNCTIONS
-// ============================================
+function jumpToPoint(index) {
+    clearTimeout(flyoverInterval);
+    currentFlyoverIndex = index;
+    
+    if (currentRiver.course) {
+        animateFlyover(currentRiver.course);
+    }
+}
 
+function stopFlyover() {
+    clearTimeout(flyoverInterval);
+    isPaused = false;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// UTILITY FUNCTIONS
+// ─────────────────────────────────────────────────────────────────
+function formatNumber(num) {
+    if (!num) return '0';
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toLocaleString();
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showError(message) {
+    const container = document.querySelector('.profile-container') || document.body;
+    container.innerHTML = `
+        <div class="error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Error</h3>
+            <p>${message}</p>
+            <a href="rivers.html" class="card-btn primary" style="display: inline-flex; margin-top: 1rem;">
+                <i class="fas fa-arrow-left"></i> Back to Rivers
+            </a>
+        </div>
+    `;
+    
+    // Hide loader
+    const loader = document.getElementById('loader');
+    if (loader) loader.classList.add('hidden');
+}
+
+function createWaterParticles() {
+    const container = document.querySelector('.water-particles');
+    if (!container) return;
+    
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'water-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+        container.appendChild(particle);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// EXPORT FOR GLOBAL ACCESS
+// ─────────────────────────────────────────────────────────────────
+window.viewRiver = viewRiver;
+window.quickView = quickView;
 window.toggleBranch = toggleBranch;
-window.zoomToCoords = zoomToCoords;
+window.jumpToPoint = jumpToPoint;
