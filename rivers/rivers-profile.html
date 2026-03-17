@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>River Profile | GEOTOPIA</title>
+    <link rel="stylesheet" href="rivers-styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="profile-page">
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="water-animation">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+        <h2>Loading River...</h2>
+        <p class="loading-text" id="loadingRiverName">Preparing your journey</p>
+    </div>
+
+    <!-- Background -->
+    <div class="profile-background" id="profileBackground">
+        <div class="background-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-profile">
+        <div class="nav-container">
+            <a href="rivers.html" class="nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Rivers</span>
+            </a>
+            <div class="nav-logo">
+                <i class="fas fa-water"></i>
+                <span id="navRiverName">River Name</span>
+            </div>
+            <div class="nav-actions">
+                <button class="action-btn" id="shareBtn" title="Share">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <button class="action-btn" id="fullscreenBtn" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="profile-main">
+        <!-- Hero Section -->
+        <section class="profile-hero">
+            <div class="hero-content">
+                <div class="river-badge" id="riverRank">
+                    <span class="rank-number">#1</span>
+                    <span class="rank-label">World's Longest</span>
+                </div>
+                <h1 class="river-name" id="riverName">Nile River</h1>
+                <div class="river-countries" id="riverCountries">
+                    <!-- Country flags will be inserted here -->
+                </div>
+                <div class="river-quick-stats">
+                    <div class="quick-stat">
+                        <i class="fas fa-ruler-horizontal"></i>
+                        <span id="riverLength">6,650 km</span>
+                    </div>
+                    <div class="quick-stat">
+                        <i class="fas fa-mountain"></i>
+                        <span id="riverSource">Burundi</span>
+                    </div>
+                    <div class="quick-stat">
+                        <i class="fas fa-water"></i>
+                        <span id="riverMouth">Mediterranean Sea</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fly Along Button -->
+        <section class="fly-section">
+            <button class="fly-button" id="flyAlongBtn">
+                <div class="fly-icon">
+                    <i class="fas fa-plane"></i>
+                </div>
+                <div class="fly-text">
+                    <span class="fly-title">Fly Along River</span>
+                    <span class="fly-subtitle">Source to Mouth Journey</span>
+                </div>
+                <div class="fly-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </button>
+            <div class="fly-controls" id="flyControls" style="display: none;">
+                <button class="control-btn" id="pauseFly">
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button class="control-btn" id="stopFly">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <div class="speed-control">
+                    <label>Speed:</label>
+                    <input type="range" id="flySpeed" min="1" max="5" value="3">
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="flyProgress"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Map -->
+        <section class="map-section">
+            <div class="map-header">
+                <h2><i class="fas fa-map"></i> Interactive River Map</h2>
+                <div class="map-controls">
+                    <button class="map-control-btn active" data-layer="course">
+                        <i class="fas fa-route"></i> Course
+                    </button>
+                    <button class="map-control-btn" data-layer="tributaries">
+                        <i class="fas fa-code-branch"></i> Tributaries
+                    </button>
+                    <button class="map-control-btn" data-layer="distributaries">
+                        <i class="fas fa-project-diagram"></i> Distributaries
+                    </button>
+                    <button class="map-control-btn" data-layer="cities">
+                        <i class="fas fa-city"></i> Cities
+                    </button>
+                    <button class="map-control-btn" data-layer="dams">
+                        <i class="fas fa-archway"></i> Dams
+                    </button>
+                </div>
+            </div>
+            <div class="map-wrapper">
+                <div id="riverMap"></div>
+                <div class="map-legend-panel">
+                    <h4><i class="fas fa-list"></i> Map Legend</h4>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span class="legend-line main-river"></span>
+                            <span>Main River Course</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line tributary"></span>
+                            <span>Tributaries (Inflow)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line distributary"></span>
+                            <span>Distributaries (Outflow)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-marker source"></span>
+                            <span>River Source</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-marker mouth"></span>
+                            <span>River Mouth</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-marker city"></span>
+                            <span>Major Cities</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-marker dam"></span>
+                            <span>Dams</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Flight Info Panel -->
+            <div class="flight-info-panel" id="flightInfoPanel" style="display: none;">
+                <div class="flight-header">
+                    <i class="fas fa-plane"></i>
+                    <span>Flying Along River</span>
+                </div>
+                <div class="flight-location" id="flightLocation">
+                    <h4>Current Location</h4>
+                    <p id="currentLocationName">Starting Point</p>
+                </div>
+                <div class="flight-stats">
+                    <div class="flight-stat">
+                        <span class="label">Distance Traveled</span>
+                        <span class="value" id="distanceTraveled">0 km</span>
+                    </div>
+                    <div class="flight-stat">
+                        <span class="label">Remaining</span>
+                        <span class="value" id="distanceRemaining">0 km</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mind Map Section -->
+        <section class="mindmap-section">
+            <div class="section-header">
+                <h2><i class="fas fa-project-diagram"></i> River Information Mind Map</h2>
+                <p>Click on any node to expand details</p>
+            </div>
+            <div class="mindmap-container" id="mindmapContainer">
+                <div class="mindmap-wrapper" id="mindmapWrapper">
+                    <!-- Central Node -->
+                    <div class="mindmap-center" id="mindmapCenter">
+                        <div class="center-image" id="centerImage"></div>
+                        <h3 id="centerName">River Name</h3>
+                    </div>
+                    
+                    <!-- Branches will be dynamically created -->
+                    <div class="mindmap-branches" id="mindmapBranches"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Information Sections -->
+        <section class="details-section">
+            <div class="details-grid">
+                <!-- Source & Mouth Card -->
+                <div class="detail-card" id="sourceCard">
+                    <div class="card-header">
+                        <i class="fas fa-mountain"></i>
+                        <h3>Source & Mouth</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-row">
+                            <div class="info-item">
+                                <span class="info-label">
+                                    <i class="fas fa-play-circle"></i> Source
+                                </span>
+                                <span class="info-value" id="sourceLocation">-</span>
+                                <span class="info-sub" id="sourceType">-</span>
+                            </div>
+                            <div class="info-arrow">
+                                <i class="fas fa-long-arrow-alt-right"></i>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">
+                                    <i class="fas fa-stop-circle"></i> Mouth
+                                </span>
+                                <span class="info-value" id="mouthLocation">-</span>
+                                <span class="info-sub" id="mouthType">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Countries Card -->
+                <div class="detail-card" id="countriesCard">
+                    <div class="card-header">
+                        <i class="fas fa-globe"></i>
+                        <h3>Countries & Regions</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="countries-list" id="countriesList">
+                            <!-- Countries will be inserted here -->
+                        </div>
+                        <div class="states-section">
+                            <h4>Major States/Provinces</h4>
+                            <div class="states-list" id="statesList">
+                                <!-- States will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tributaries Card -->
+                <div class="detail-card tributaries-card" id="tributariesCard">
+                    <div class="card-header">
+                        <i class="fas fa-code-branch"></i>
+                        <h3>Tributaries</h3>
+                        <span class="arrow-indicator inflow">
+                            <i class="fas fa-arrow-right"></i> Inflow
+                        </span>
+                    </div>
+                    <div class="card-content">
+                        <div class="tributaries-grid">
+                            <div class="tributary-bank">
+                                <h4><i class="fas fa-arrow-left"></i> Left Bank</h4>
+                                <ul class="tributary-list" id="leftTributaries">
+                                    <!-- Left tributaries -->
+                                </ul>
+                            </div>
+                            <div class="tributary-divider">
+                                <div class="river-line"></div>
+                            </div>
+                            <div class="tributary-bank">
+                                <h4>Right Bank <i class="fas fa-arrow-right"></i></h4>
+                                <ul class="tributary-list" id="rightTributaries">
+                                    <!-- Right tributaries -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distributaries Card -->
+                <div class="detail-card distributaries-card" id="distributariesCard">
+                    <div class="card-header">
+                        <i class="fas fa-project-diagram"></i>
+                        <h3>Distributaries</h3>
+                        <span class="arrow-indicator outflow">
+                            <i class="fas fa-arrow-right"></i> Outflow
+                        </span>
+                    </div>
+                    <div class="card-content">
+                        <div class="distributaries-visual">
+                            <div class="main-channel">
+                                <span>Main Channel</span>
+                            </div>
+                            <div class="delta-branches" id="distributariesList">
+                                <!-- Distributaries will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Major Cities Card -->
+                <div class="detail-card" id="citiesCard">
+                    <div class="card-header">
+                        <i class="fas fa-city"></i>
+                        <h3>Major Cities</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="cities-grid" id="citiesList">
+                            <!-- Cities will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dams Card -->
+                <div class="detail-card" id="damsCard">
+                    <div class="card-header">
+                        <i class="fas fa-archway"></i>
+                        <h3>Dams & Projects</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="dams-list" id="damsList">
+                            <!-- Dams will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Basin Area Card -->
+                <div class="detail-card stats-card" id="basinCard">
+                    <div class="card-header">
+                        <i class="fas fa-vector-square"></i>
+                        <h3>Basin Statistics</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-ruler-combined"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="lengthStat">-</span>
+                                <span class="stat-label">Total Length</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-draw-polygon"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="basinAreaStat">-</span>
+                                <span class="stat-label">Basin Area</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="dischargeStat">-</span>
+                                <span class="stat-label">Avg. Discharge</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economic Importance Card -->
+                <div class="detail-card" id="economicCard">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Economic Importance</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="importance-list" id="economicList">
+                            <!-- Economic items will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environmental Issues Card -->
+                <div class="detail-card" id="environmentalCard">
+                    <div class="card-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Environmental Issues</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="issues-list" id="issuesList">
+                            <!-- Issues will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Water Disputes Card -->
+                <div class="detail-card" id="disputesCard">
+                    <div class="card-header">
+                        <i class="fas fa-balance-scale"></i>
+                        <h3>Water Disputes</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="disputes-content" id="disputesContent">
+                            <!-- Disputes will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historical Importance Card -->
+                <div class="detail-card" id="historicalCard">
+                    <div class="card-header">
+                        <i class="fas fa-landmark"></i>
+                        <h3>Historical Importance</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="history-content" id="historyContent">
+                            <!-- History will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Rivers -->
+        <section class="related-section">
+            <div class="section-header">
+                <h2><i class="fas fa-water"></i> Explore More Rivers</h2>
+            </div>
+            <div class="related-rivers" id="relatedRivers">
+                <!-- Related river cards will be inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Flight Summary Modal -->
+    <div class="modal" id="flightSummaryModal">
+        <div class="modal-content flight-summary">
+            <button class="modal-close" id="closeSummary">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="summary-header">
+                <i class="fas fa-flag-checkered"></i>
+                <h2>Journey Complete!</h2>
+            </div>
+            <div class="summary-image" id="summaryImage"></div>
+            <div class="summary-title" id="summaryRiverName">Nile River</div>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <span class="stat-value" id="summaryLength">6,650 km</span>
+                    <span class="stat-label">Total Distance</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="stat-value" id="summaryCountries">11</span>
+                    <span class="stat-label">Countries Crossed</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="stat-value" id="summaryTributaries">8</span>
+                    <span class="stat-label">Tributaries Passed</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="stat-value" id="summaryBasin">3.3M km²</span>
+                    <span class="stat-label">Basin Area</span>
+                </div>
+            </div>
+            <div class="summary-actions">
+                <button class="btn btn-primary" id="flyAgainBtn">
+                    <i class="fas fa-redo"></i> Fly Again
+                </button>
+                <button class="btn btn-secondary" id="exploreMapBtn">
+                    <i class="fas fa-map"></i> Explore Map
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-globe-americas"></i>
+                <span>GEOTOPIA</span>
+            </div>
+            <p>The Complete Geography Universe</p>
+            <p class="copyright">© 2024 GEOTOPIA. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- River Data Files -->
+    <script src="data/rivers-data-1.js"></script>
+    <script src="data/rivers-data-2.js"></script>
+    <script src="data/rivers-data-3.js"></script>
+    <script src="data/rivers-data-4.js"></script>
+    <script src="data/rivers-data-5.js"></script>
+    <script src="data/rivers-data-6.js"></script>
+    <script src="data/rivers-data-7.js"></script>
+    <script src="data/rivers-data-8.js"></script>
+    <script src="data/rivers-data-9.js"></script>
+    <script src="data/rivers-data-10.js"></script>
+    <script src="rivers-data.js"></script>
+    <script src="rivers-app.js"></script>
+</body>
+</html>
