@@ -1,1119 +1,615 @@
-/* ═══════════════════════════════════════════════════════════════
-   🌍 UPSC GEOGRAPHY - COMPLETE APP.JS
-   File: upsc-app.js
-   This handles ALL interactivity
-   ═══════════════════════════════════════════════════════════════ */
+/* ========================================
+   UPSC GEOGRAPHY - APPLICATION LOGIC
+======================================== */
 
-// ═══════════════════════════════════════════════════════════════
-// 🚀 INITIALIZATION
-// ═══════════════════════════════════════════════════════════════
+// ===== STATE MANAGEMENT =====
+const AppState = {
+    topics: [],
+    filteredTopics: [],
+    currentFilter: 'all',
+    currentCategory: 'all',
+    currentTopicIndex: 0,
+    completed: JSON.parse(localStorage.getItem('upsc_completed') || '[]'),
+    bookmarked: JSON.parse(localStorage.getItem('upsc_bookmarked') || '[]'),
+    streak: parseInt(localStorage.getItem('upsc_streak') || '0'),
+    lastVisit: localStorage.getItem('upsc_lastVisit') || ''
+};
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🌍 UPSC Geography App Starting...');
-    
-    // Hide loader after short delay
-    setTimeout(() => {
-        hideLoader();
-        initApp();
-    }, 1500);
+// ===== DOM ELEMENTS =====
+const DOM = {
+    loader: document.getElementById('loader'),
+    topicsGrid: document.getElementById('topicsGrid'),
+    categoryTabs: document.getElementById('categoryTabs'),
+    searchInput: document.getElementById('searchInput'),
+    modalOverlay: document.getElementById('modalOverlay'),
+    modalContainer: document.getElementById('modalContainer'),
+    modalClose: document.getElementById('modalClose'),
+    progressFill: document.getElementById('progressFill'),
+    progressText: document.getElementById('progressText'),
+    totalTopics: document.getElementById('totalTopics'),
+    completedTopics: document.getElementById('completedTopics'),
+    bookmarkedTopics: document.getElementById('bookmarkedTopics'),
+    streakDays: document.getElementById('streakDays')
+};
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
 });
 
-// Hide Loading Screen
-function hideLoader() {
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.classList.add('hidden');
-        console.log('✅ Loader hidden');
-    }
-}
-
-// Initialize App
 function initApp() {
-    console.log('📚 Initializing App...');
-    
-    // Check which page we're on
-    const isMainPage = document.getElementById('categoriesContainer');
-    const isProfilePage = document.querySelector('.profile-page');
-    
-    if (isMainPage) {
-        initMainPage();
-    } else if (isProfilePage) {
-        initProfilePage();
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// 📚 MAIN PAGE FUNCTIONS
-// ═══════════════════════════════════════════════════════════════
-
-function initMainPage() {
-    console.log('📖 Main page detected');
-    
-    renderCategories();
-    initSearch();
-    initFilters();
-    initModal();
-    initRandomTopic();
-    updateStats();
-    
-    console.log('✅ Main page initialized');
-}
-
-// ─────────────────────────────────────────
-// 📦 RENDER CATEGORIES & TOPICS
-// ─────────────────────────────────────────
-
-function renderCategories() {
-    const container = document.getElementById('categoriesContainer');
-    if (!container) return;
-    
     // Check if data exists
-    if (typeof UPSC_GEOGRAPHY_DATA === 'undefined') {
-        container.innerHTML = `
-            <div class="error-message">
-                <h2>⚠️ Data Not Found</h2>
-                <p>Make sure upsc-data.js is loaded before upsc-app.js</p>
+    if (typeof UPSCData === 'undefined') {
+        console.error('UPSCData not found!');
+        DOM.loader.innerHTML = `
+            <div class="loader-content">
+                <div class="loader-icon">❌</div>
+                <p style="color: #ef4444;">Data Not Found!</p>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Make sure upsc-data.js is loaded</p>
             </div>
         `;
-        console.error('❌ UPSC_GEOGRAPHY_DATA not found!');
         return;
     }
+
+    // Flatten all topics
+    flattenTopics();
     
-    const categories = UPSC_GEOGRAPHY_DATA.categories;
-    const topics = UPSC_GEOGRAPHY_DATA.topics;
+    // Update streak
+    updateStreak();
+    
+    // Render UI
+    renderCategoryTabs();
+    renderTopics();
+    updateStats();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Hide loader
+    setTimeout(() => {
+        DOM.loader.classList.add('hidden');
+    }, 800);
+}
+
+function flattenTopics() {
+    AppState.topics = [];
+    
+    for (const [categoryKey, category] of Object.entries(UPSCData.categories)) {
+        for (const [subcatKey, subcategory] of Object.entries(category.subcategories || {})) {
+            for (const topic of subcategory.topics || []) {
+                AppState.topics.push({
+                    ...topic,
+                    categoryKey,
+                    categoryName: category.name,
+                    categoryIcon: category.icon,
+                    subcategoryKey: subcatKey,
+                    subcategoryName: subcategory.name
+                });
+            }
+        }
+    }
+    
+    AppState.filteredTopics = [...AppState.topics];
+}
+
+// ===== RENDER FUNCTIONS =====
+function renderCategoryTabs() {
+    let html = `
+        <button class="category-tab active" data-category="all">
+            <i class="fas fa-globe"></i> All Topics
+            <span class="count">${AppState.topics.length}</span>
+        </button>
+    `;
+    
+    for (const [key, category] of Object.entries(UPSCData.categories)) {
+        const count = AppState.topics.filter(t => t.categoryKey === key).length;
+        html += `
+            <button class="category-tab" data-category="${key}">
+                ${category.icon} ${category.name}
+                <span class="count">${count}</span>
+            </button>
+        `;
+    }
+    
+    DOM.categoryTabs.innerHTML = html;
+}
+
+function renderTopics() {
+    if (AppState.filteredTopics.length === 0) {
+        DOM.topicsGrid.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 20px;"></i>
+                <h3>No topics found</h3>
+                <p>Try a different search term or category</p>
+            </div>
+        `;
+        return;
+    }
     
     let html = '';
     
-    categories.forEach((category, index) => {
-        // Filter topics for this category
-        const categoryTopics = topics.filter(t => t.category === category.id);
-        
-        // Calculate progress (from localStorage)
-        const completedCount = getCompletedCount(category.id);
-        const totalCount = categoryTopics.length;
-        const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+    AppState.filteredTopics.forEach((topic, index) => {
+        const isCompleted = AppState.completed.includes(topic.id);
+        const isBookmarked = AppState.bookmarked.includes(topic.id);
+        const color = getTopicColor(topic.theme || topic.categoryKey);
         
         html += `
-            <div class="category-block" data-category="${category.id}">
-                <!-- Category Header -->
-                <div class="category-header">
-                    <div class="category-icon" style="background: ${category.color};">
-                        <i class="${category.icon}"></i>
-                    </div>
-                    <div class="category-info">
-                        <h2>${category.name}</h2>
-                        <p>${category.description}</p>
-                    </div>
-                    <div class="category-progress">
-                        <div class="progress-text">${completedCount}/${totalCount} Topics</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progressPercent}%; background: ${category.color};"></div>
-                        </div>
+            <div class="topic-card ${isCompleted ? 'completed' : ''}" 
+                 data-index="${index}"
+                 style="--card-color: ${color.main}; --card-color-light: ${color.light};">
+                <div class="card-header">
+                    <div class="card-icon">${topic.icon || '📚'}</div>
+                    <div class="card-title">
+                        <h3>${topic.title}</h3>
+                        <span>${topic.subcategoryName}</span>
                     </div>
                 </div>
-                
-                <!-- Topics Grid -->
-                <div class="topics-grid">
-                    ${renderTopicCards(categoryTopics, category)}
+                <div class="card-preview">
+                    ${(topic.tags || []).slice(0, 3).map(tag => `
+                        <span class="preview-tag">${tag}</span>
+                    `).join('')}
                 </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-    
-    // Add click listeners to topic cards
-    addTopicCardListeners();
-    
-    console.log(`✅ Rendered ${categories.length} categories with ${topics.length} topics`);
-}
-
-function renderTopicCards(topics, category) {
-    if (!topics || topics.length === 0) {
-        return `<p class="no-topics">No topics available yet</p>`;
-    }
-    
-    return topics.map(topic => {
-        const isCompleted = isTopicCompleted(topic.id);
-        const difficultyClass = topic.difficulty || 'medium';
-        const themeClass = topic.theme || 'default';
-        
-        return `
-            <div class="topic-card theme-${themeClass} ${isCompleted ? 'completed' : ''}" 
-                 data-topic-id="${topic.id}">
-                
-                <!-- Card Background Animation -->
-                <div class="card-background">
-                    ${getThemeBackground(themeClass)}
-                </div>
-                
-                <!-- Card Content -->
-                <div class="card-content">
-                    <div class="card-header">
-                        <div class="card-icon" style="background: ${category.color};">
-                            ${getTopicIcon(topic.theme)}
-                        </div>
-                        <div class="card-badges">
-                            <span class="badge badge-${difficultyClass}">${difficultyClass}</span>
-                            ${topic.importance === 'very-high' ? '<span class="badge badge-important">★ Important</span>' : ''}
-                            ${isCompleted ? '<span class="badge badge-completed">✓ Done</span>' : ''}
-                        </div>
+                <div class="card-footer">
+                    <div class="difficulty">
+                        ${[1,2,3].map(i => `
+                            <span class="${i <= (topic.difficulty || 2) ? 'active' : ''}"></span>
+                        `).join('')}
                     </div>
-                    
-                    <h3 class="card-title">${topic.name}</h3>
-                    
-                    <div class="card-subtitle">
-                        <i class="fas fa-layer-group"></i>
-                        <span>${getCategoryName(topic.category)}</span>
-                    </div>
-                    
-                    <div class="card-topics">
-                        ${getTopicTags(topic)}
-                    </div>
-                    
-                    <div class="card-footer">
-                        <div class="card-meta">
-                            <span><i class="fas fa-clock"></i> ${topic.studyTime || '30 min'}</span>
-                            <span><i class="fas fa-brain"></i> ${topic.mnemonics ? topic.mnemonics.length : 0} tricks</span>
-                        </div>
-                        <div class="card-action">
-                            Study <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
+                    <button class="card-action">Learn →</button>
                 </div>
             </div>
         `;
-    }).join('');
+    });
+    
+    DOM.topicsGrid.innerHTML = html;
 }
 
-// Get theme-specific background elements
-function getThemeBackground(theme) {
-    const backgrounds = {
-        ocean: `
-            <div class="ocean-bubbles">
-                <div class="bubble"></div>
-                <div class="bubble"></div>
-                <div class="bubble"></div>
-                <div class="bubble"></div>
-                <div class="bubble"></div>
-            </div>
-        `,
-        climate: `
-            <div class="clouds-container">
-                <div class="cloud cloud-1"></div>
-                <div class="cloud cloud-2"></div>
-                <div class="cloud cloud-3"></div>
-            </div>
-        `,
-        volcano: `
-            <div class="lava-container">
-                <div class="lava-flow"></div>
-                <div class="lava-flow"></div>
-            </div>
-            <div class="fire-particles">
-                <div class="fire-particle"></div>
-                <div class="fire-particle"></div>
-                <div class="fire-particle"></div>
-            </div>
-        `,
-        mountain: `
-            <div class="mountain-silhouettes">
-                <div class="mountain-layer mountain-layer-1"></div>
-                <div class="mountain-layer mountain-layer-2"></div>
-                <div class="mountain-layer mountain-layer-3"></div>
-            </div>
-        `,
-        forest: `
-            <div class="leaves-container">
-                <div class="leaf">🍃</div>
-                <div class="leaf">🍂</div>
-                <div class="leaf">🍃</div>
-            </div>
-        `,
-        river: `
-            <div class="river-container">
-                <div class="river-flow"></div>
-            </div>
-        `,
-        tectonic: `
-            <div class="fault-lines">
-                <div class="fault-line"></div>
-                <div class="fault-line"></div>
-            </div>
-        `,
-        soil: `
-            <div class="soil-layers">
-                <div class="soil-layer layer-humus"></div>
-                <div class="soil-layer layer-topsoil"></div>
-                <div class="soil-layer layer-subsoil"></div>
-            </div>
-        `,
-        default: ''
+function getTopicColor(theme) {
+    const colors = {
+        geomorphology: { main: '#92400e', light: '#fbbf24' },
+        climatology: { main: '#0369a1', light: '#38bdf8' },
+        oceanography: { main: '#1e40af', light: '#60a5fa' },
+        biogeography: { main: '#166534', light: '#4ade80' },
+        physical: { main: '#059669', light: '#34d399' },
+        india: { main: '#ea580c', light: '#fb923c' },
+        human: { main: '#7c3aed', light: '#a78bfa' },
+        economic: { main: '#0891b2', light: '#22d3ee' },
+        environment: { main: '#16a34a', light: '#4ade80' },
+        default: { main: '#4f46e5', light: '#818cf8' }
     };
     
-    return backgrounds[theme] || backgrounds.default;
+    return colors[theme] || colors.default;
 }
 
-// Get topic icon based on theme
-function getTopicIcon(theme) {
-    const icons = {
-        ocean: '🌊',
-        climate: '☁️',
-        volcano: '🌋',
-        mountain: '🏔️',
-        forest: '🌳',
-        river: '💧',
-        tectonic: '🌍',
-        soil: '🌱',
-        economic: '📊',
-        population: '👥',
-        environment: '🌿',
-        default: '📚'
-    };
+function updateStats() {
+    DOM.totalTopics.textContent = AppState.topics.length;
+    DOM.completedTopics.textContent = AppState.completed.length;
+    DOM.bookmarkedTopics.textContent = AppState.bookmarked.length;
+    DOM.streakDays.textContent = AppState.streak;
     
-    return icons[theme] || icons.default;
+    // Update progress ring
+    const progress = AppState.topics.length > 0 
+        ? Math.round((AppState.completed.length / AppState.topics.length) * 100) 
+        : 0;
+    
+    DOM.progressFill.setAttribute('stroke-dasharray', `${progress}, 100`);
+    DOM.progressText.textContent = `${progress}%`;
 }
 
-// Get category name
-function getCategoryName(categoryId) {
-    if (typeof UPSC_GEOGRAPHY_DATA === 'undefined') return categoryId;
+function updateStreak() {
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
     
-    const category = UPSC_GEOGRAPHY_DATA.categories.find(c => c.id === categoryId);
-    return category ? category.name : categoryId;
-}
-
-// Get topic tags from mindmap branches
-function getTopicTags(topic) {
-    if (!topic.mindMap || !topic.mindMap.branches) {
-        return '<span class="topic-tag">General</span>';
-    }
-    
-    return topic.mindMap.branches.slice(0, 3).map(branch => 
-        `<span class="topic-tag">${branch.name.replace(/[🔴🟠🟡⬇️⬆️💨📍📊🌊🌡️❄️⚡📏🔄🌍🔬🌱☁️✈️📋🧱]/g, '').trim().substring(0, 15)}</span>`
-    ).join('');
-}
-
-// ─────────────────────────────────────────
-// 🔍 SEARCH FUNCTIONALITY
-// ─────────────────────────────────────────
-
-function initSearch() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-    
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        filterTopics(query);
-    });
-    
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            filterTopics('');
-        });
-    }
-}
-
-function filterTopics(query) {
-    const topicCards = document.querySelectorAll('.topic-card');
-    const categoryBlocks = document.querySelectorAll('.category-block');
-    
-    if (!query) {
-        // Show all
-        topicCards.forEach(card => card.style.display = '');
-        categoryBlocks.forEach(block => block.style.display = '');
+    if (AppState.lastVisit === today) {
+        // Already visited today
         return;
+    } else if (AppState.lastVisit === yesterday) {
+        // Streak continues
+        AppState.streak++;
+    } else if (AppState.lastVisit !== '') {
+        // Streak broken
+        AppState.streak = 1;
+    } else {
+        // First visit
+        AppState.streak = 1;
     }
     
-    topicCards.forEach(card => {
-        const topicId = card.dataset.topicId;
-        const topic = getTopicById(topicId);
-        
-        if (topic) {
-            const searchText = `${topic.name} ${topic.category} ${topic.theme} ${JSON.stringify(topic.quickFacts || [])}`.toLowerCase();
-            const matches = searchText.includes(query);
-            card.style.display = matches ? '' : 'none';
-        }
-    });
-    
-    // Hide empty categories
-    categoryBlocks.forEach(block => {
-        const visibleCards = block.querySelectorAll('.topic-card[style=""], .topic-card:not([style])');
-        const hasVisible = Array.from(block.querySelectorAll('.topic-card')).some(card => card.style.display !== 'none');
-        block.style.display = hasVisible ? '' : 'none';
-    });
+    AppState.lastVisit = today;
+    localStorage.setItem('upsc_streak', AppState.streak);
+    localStorage.setItem('upsc_lastVisit', today);
 }
 
-// ─────────────────────────────────────────
-// 🏷️ FILTER TABS
-// ─────────────────────────────────────────
-
-function initFilters() {
-    const filterTabs = document.querySelectorAll('.filter-tab');
+// ===== MODAL FUNCTIONS =====
+function openModal(index) {
+    const topic = AppState.filteredTopics[index];
+    AppState.currentTopicIndex = index;
     
-    filterTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Update active state
-            filterTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            // Filter categories
-            const filter = tab.dataset.filter;
-            filterByCategory(filter);
-        });
-    });
-}
-
-function filterByCategory(filter) {
-    const categoryBlocks = document.querySelectorAll('.category-block');
+    const color = getTopicColor(topic.theme || topic.categoryKey);
     
-    categoryBlocks.forEach(block => {
-        if (filter === 'all') {
-            block.style.display = '';
-        } else {
-            block.style.display = block.dataset.category === filter ? '' : 'none';
-        }
-    });
-}
-
-// ─────────────────────────────────────────
-// 🎭 MODAL (Topic Detail View)
-// ─────────────────────────────────────────
-
-function initModal() {
-    const modal = document.getElementById('topicModal');
-    const closeBtn = document.getElementById('closeModal');
+    // Set modal header
+    document.getElementById('modalIcon').textContent = topic.icon || '📚';
+    document.getElementById('modalTitle').textContent = topic.title;
+    document.getElementById('modalCategory').textContent = topic.categoryName;
+    document.getElementById('modalDifficulty').textContent = 
+        ['Easy', 'Medium', 'Hard'][topic.difficulty - 1] || 'Medium';
     
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
+    // Set header color
+    document.getElementById('modalHeader').style.background = 
+        `linear-gradient(135deg, ${color.main}, ${color.light})`;
     
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
+    // Update action buttons
+    updateModalActions(topic.id);
     
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
-    });
-}
-
-function addTopicCardListeners() {
-    const topicCards = document.querySelectorAll('.topic-card');
-    
-    topicCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const topicId = card.dataset.topicId;
-            openTopicModal(topicId);
-        });
-    });
-}
-
-function openTopicModal(topicId) {
-    const modal = document.getElementById('topicModal');
-    const modalContent = document.getElementById('modalContent');
-    
-    if (!modal || !modalContent) return;
-    
-    const topic = getTopicById(topicId);
-    
-    if (!topic) {
-        console.error('Topic not found:', topicId);
-        return;
-    }
-    
-    // Render modal content
-    modalContent.innerHTML = renderTopicDetail(topic);
+    // Render content
+    renderModalContent(topic);
     
     // Show modal
-    modal.classList.add('active');
-    document.body.classList.add('no-scroll');
+    DOM.modalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
     
-    // Track study time
-    startStudyTimer(topicId);
-    
-    // Add complete button listener
-    setTimeout(() => {
-        const completeBtn = document.getElementById('markCompleteBtn');
-        if (completeBtn) {
-            completeBtn.addEventListener('click', () => markTopicComplete(topicId));
-        }
-    }, 100);
+    // Activate first section
+    document.querySelector('.modal-nav-btn').click();
 }
 
 function closeModal() {
-    const modal = document.getElementById('topicModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.classList.remove('no-scroll');
-        stopStudyTimer();
-    }
+    DOM.modalOverlay.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
-function renderTopicDetail(topic) {
-    const category = UPSC_GEOGRAPHY_DATA.categories.find(c => c.id === topic.category);
-    const isCompleted = isTopicCompleted(topic.id);
+function updateModalActions(topicId) {
+    const bookmarkBtn = document.getElementById('bookmarkBtn');
+    const completeBtn = document.getElementById('completeBtn');
     
-    return `
-        <!-- Modal Header -->
-        <div class="modal-header theme-${topic.theme}">
-            <div class="modal-title">
-                <div class="modal-title-icon" style="background: ${category ? category.color : '#667eea'};">
-                    ${getTopicIcon(topic.theme)}
-                </div>
-                <div>
-                    <h2>${topic.name}</h2>
-                    <div class="modal-meta">
-                        <span><i class="fas fa-folder"></i> ${getCategoryName(topic.category)}</span>
-                        <span><i class="fas fa-clock"></i> ${topic.studyTime || '30 min'}</span>
-                        <span><i class="fas fa-signal"></i> ${topic.difficulty || 'Medium'}</span>
-                        ${isCompleted ? '<span><i class="fas fa-check-circle"></i> Completed</span>' : ''}
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Body -->
-        <div class="modal-body">
-            
-            <!-- 1️⃣ Mind Map Section -->
-            ${renderMindMapSection(topic)}
-            
-            <!-- 2️⃣ Mnemonics Section -->
-            ${renderMnemonicsSection(topic)}
-            
-            <!-- 3️⃣ Concepts Section -->
-            ${renderConceptsSection(topic)}
-            
-            <!-- 4️⃣ Diagrams Section -->
-            ${renderDiagramsSection(topic)}
-            
-            <!-- 5️⃣ Quick Facts Section -->
-            ${renderQuickFactsSection(topic)}
-            
-            <!-- 6️⃣ UPSC Traps Section -->
-            ${renderTrapsSection(topic)}
-            
-            <!-- 7️⃣ Revision Box -->
-            ${renderRevisionSection(topic)}
-            
-            <!-- Action Buttons -->
-            <div class="modal-actions">
-                <button class="btn btn-primary" id="markCompleteBtn">
-                    <i class="fas ${isCompleted ? 'fa-redo' : 'fa-check'}"></i>
-                    ${isCompleted ? 'Mark for Revision' : 'Mark as Complete'}
-                </button>
-            </div>
-            
-        </div>
-    `;
-}
-
-// ─────────────────────────────────────────
-// 📊 RENDER SECTIONS
-// ─────────────────────────────────────────
-
-function renderMindMapSection(topic) {
-    if (!topic.mindMap) return '';
-    
-    const { center, branches } = topic.mindMap;
-    
-    return `
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-project-diagram"></i></div>
-                <h3 class="section-title">Visual Mind Map</h3>
-            </div>
-            <div class="mind-map-container">
-                <div class="mind-map">
-                    <div class="mind-map-center">${center}</div>
-                    <div class="mind-map-branches">
-                        ${branches.map(branch => `
-                            <div class="branch">
-                                <div class="branch-main" style="border-color: ${branch.color}; color: ${branch.color};">
-                                    ${branch.name}
-                                </div>
-                                <div class="branch-subs">
-                                    ${branch.subs.map(sub => `
-                                        <div class="branch-sub">${sub}</div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function renderMnemonicsSection(topic) {
-    if (!topic.mnemonics || topic.mnemonics.length === 0) return '';
-    
-    return `
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-brain"></i></div>
-                <h3 class="section-title">Memory Hooks & Mnemonics</h3>
-            </div>
-            <div class="mnemonics-grid">
-                ${topic.mnemonics.map(mnemonic => `
-                    <div class="mnemonic-card">
-                        <h4>${mnemonic.title}</h4>
-                        <div class="mnemonic-trick">${mnemonic.trick}</div>
-                        ${mnemonic.meaning ? `
-                            <div class="mnemonic-meaning">
-                                ${mnemonic.meaning.map(m => `
-                                    <div class="mnemonic-letter">
-                                        <span class="letter-key">${m.letter}</span>
-                                        <span class="letter-value"><strong>${m.word}</strong> - ${m.hint}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                        ${mnemonic.visual ? `
-                            <div class="mnemonic-visual">💡 ${mnemonic.visual}</div>
-                        ` : ''}
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-function renderConceptsSection(topic) {
-    if (!topic.concepts || topic.concepts.length === 0) return '';
-    
-    return `
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-cubes"></i></div>
-                <h3 class="section-title">Micro Concept Blocks</h3>
-            </div>
-            <div class="concepts-grid">
-                ${topic.concepts.map(concept => `
-                    <div class="concept-block">
-                        <h4 class="concept-title">${concept.icon || '📌'} ${concept.title}</h4>
-                        <ul class="concept-points">
-                            ${concept.points.map(point => `
-                                <li>${point}</li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-function renderDiagramsSection(topic) {
-    if (!topic.diagrams || topic.diagrams.length === 0) return '';
-    
-    return `
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-image"></i></div>
-                <h3 class="section-title">Visual Diagrams</h3>
-            </div>
-            <div class="diagrams-grid">
-                ${topic.diagrams.map(diagram => `
-                    <div class="diagram-card">
-                        <div class="diagram-visual">
-                            ${diagram.icon || '📊'}
-                        </div>
-                        <div class="diagram-info">
-                            <div class="diagram-type">${diagram.type}</div>
-                            <h4 class="diagram-title">${diagram.title}</h4>
-                            <p class="diagram-desc">${diagram.description}</p>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-function renderQuickFactsSection(topic) {
-    if (!topic.quickFacts || topic.quickFacts.length === 0) return '';
-    
-    return `
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-bolt"></i></div>
-                <h3 class="section-title">Quick Facts for UPSC</h3>
-            </div>
-            <div class="quick-facts-list">
-                ${topic.quickFacts.map(fact => `
-                    <div class="quick-fact">
-                        <div class="fact-icon">${fact.icon || '📌'}</div>
-                        <div class="fact-text">${fact.fact}</div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-function renderTrapsSection(topic) {
-    if (!topic.traps || topic.traps.length === 0) return '';
-    
-    return `
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                <h3 class="section-title">Common UPSC Traps</h3>
-            </div>
-            <div class="traps-list">
-                ${topic.traps.map(trap => `
-                    <div class="trap-item">
-                        <div class="trap-icon">⚠️</div>
-                        <div class="trap-text">
-                            <div class="trap-wrong">❌ Wrong: ${trap.wrong}</div>
-                            <div class="trap-correct">✅ Correct: ${trap.correct}</div>
-                            <div class="trap-explanation">💡 ${trap.explanation}</div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-function renderRevisionSection(topic) {
-    if (!topic.revision) return '';
-    
-    return `
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-rocket"></i></div>
-                <h3 class="section-title">Super Fast Revision</h3>
-            </div>
-            <div class="revision-box">
-                <div class="revision-content">
-                    <p><strong>📝 One-Liner:</strong> ${topic.revision.oneLiner}</p>
-                    ${topic.revision.keyPoints ? `
-                        <div class="revision-keypoints">
-                            <strong>🎯 Key Points:</strong>
-                            <ul>
-                                ${topic.revision.keyPoints.map(point => `<li>${point}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                    ${topic.revision.examTip ? `
-                        <p class="revision-tip"><strong>💡 Exam Tip:</strong> ${topic.revision.examTip}</p>
-                    ` : ''}
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ─────────────────────────────────────────
-// 🎲 RANDOM TOPIC
-// ─────────────────────────────────────────
-
-function initRandomTopic() {
-    const randomBtn = document.getElementById('randomTopicBtn');
-    
-    if (randomBtn) {
-        randomBtn.addEventListener('click', () => {
-            const topics = UPSC_GEOGRAPHY_DATA.topics;
-            const randomIndex = Math.floor(Math.random() * topics.length);
-            const randomTopic = topics[randomIndex];
-            openTopicModal(randomTopic.id);
-        });
-    }
-}
-
-// ─────────────────────────────────────────
-// 📊 STATS & PROGRESS
-// ─────────────────────────────────────────
-
-function updateStats() {
-    const totalTopicsEl = document.getElementById('totalTopics');
-    const totalMnemonicsEl = document.getElementById('totalMnemonics');
-    const totalDiagramsEl = document.getElementById('totalDiagrams');
-    const completionRateEl = document.getElementById('completionRate');
-    
-    if (typeof UPSC_GEOGRAPHY_DATA === 'undefined') return;
-    
-    const topics = UPSC_GEOGRAPHY_DATA.topics;
-    
-    // Count totals
-    const totalTopics = topics.length;
-    let totalMnemonics = 0;
-    let totalDiagrams = 0;
-    
-    topics.forEach(topic => {
-        if (topic.mnemonics) totalMnemonics += topic.mnemonics.length;
-        if (topic.diagrams) totalDiagrams += topic.diagrams.length;
-    });
-    
-    // Get completion rate
-    const completedTopics = getCompletedTopics().length;
-    const completionRate = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-    
-    // Update DOM
-    if (totalTopicsEl) totalTopicsEl.textContent = totalTopics + '+';
-    if (totalMnemonicsEl) totalMnemonicsEl.textContent = totalMnemonics + '+';
-    if (totalDiagramsEl) totalDiagramsEl.textContent = totalDiagrams + '+';
-    if (completionRateEl) completionRateEl.textContent = completionRate + '%';
-}
-
-// ─────────────────────────────────────────
-// 💾 LOCAL STORAGE FUNCTIONS
-// ─────────────────────────────────────────
-
-function getCompletedTopics() {
-    const data = localStorage.getItem('upsc_completed_topics');
-    return data ? JSON.parse(data) : [];
-}
-
-function isTopicCompleted(topicId) {
-    return getCompletedTopics().includes(topicId);
-}
-
-function markTopicComplete(topicId) {
-    let completed = getCompletedTopics();
-    
-    if (completed.includes(topicId)) {
-        // Remove (for revision)
-        completed = completed.filter(id => id !== topicId);
+    if (AppState.bookmarked.includes(topicId)) {
+        bookmarkBtn.classList.add('active');
+        bookmarkBtn.innerHTML = '<i class="fas fa-bookmark"></i>';
     } else {
-        // Add
-        completed.push(topicId);
+        bookmarkBtn.classList.remove('active');
+        bookmarkBtn.innerHTML = '<i class="far fa-bookmark"></i>';
     }
     
-    localStorage.setItem('upsc_completed_topics', JSON.stringify(completed));
-    
-    // Refresh UI
-    closeModal();
-    renderCategories();
-    updateStats();
-    
-    // Show notification
-    showNotification(completed.includes(topicId) ? '✅ Topic marked as complete!' : '📝 Topic marked for revision');
-}
-
-function getCompletedCount(categoryId) {
-    const completed = getCompletedTopics();
-    const categoryTopics = UPSC_GEOGRAPHY_DATA.topics.filter(t => t.category === categoryId);
-    return categoryTopics.filter(t => completed.includes(t.id)).length;
-}
-
-// ─────────────────────────────────────────
-// ⏱️ STUDY TIMER
-// ─────────────────────────────────────────
-
-let studyTimerInterval = null;
-let currentStudyTopic = null;
-let studyStartTime = null;
-
-function startStudyTimer(topicId) {
-    currentStudyTopic = topicId;
-    studyStartTime = Date.now();
-}
-
-function stopStudyTimer() {
-    if (studyStartTime && currentStudyTopic) {
-        const duration = Date.now() - studyStartTime;
-        saveStudyTime(currentStudyTopic, duration);
+    if (AppState.completed.includes(topicId)) {
+        completeBtn.classList.add('active');
+        completeBtn.innerHTML = '<i class="fas fa-check-circle"></i>';
+    } else {
+        completeBtn.classList.remove('active');
+        completeBtn.innerHTML = '<i class="far fa-check-circle"></i>';
     }
-    currentStudyTopic = null;
-    studyStartTime = null;
 }
 
-function saveStudyTime(topicId, duration) {
-    let studyData = JSON.parse(localStorage.getItem('upsc_study_time') || '{}');
-    studyData[topicId] = (studyData[topicId] || 0) + duration;
-    localStorage.setItem('upsc_study_time', JSON.stringify(studyData));
-}
-
-// ─────────────────────────────────────────
-// 🔔 NOTIFICATIONS
-// ─────────────────────────────────────────
-
-function showNotification(message) {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.innerHTML = message;
-    notification.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
+function renderModalContent(topic) {
+    const content = document.getElementById('modalContent');
+    
+    content.innerHTML = `
+        <!-- Mind Map Section -->
+        <div class="content-section active" data-section="mindmap">
+            ${renderMindMap(topic)}
+        </div>
+        
+        <!-- Memory Hooks Section -->
+        <div class="content-section" data-section="memory">
+            ${renderMemoryHooks(topic)}
+        </div>
+        
+        <!-- Concepts Section -->
+        <div class="content-section" data-section="concepts">
+            ${renderConcepts(topic)}
+        </div>
+        
+        <!-- Quick Facts Section -->
+        <div class="content-section" data-section="facts">
+            ${renderFacts(topic)}
+        </div>
+        
+        <!-- UPSC Traps Section -->
+        <div class="content-section" data-section="traps">
+            ${renderTraps(topic)}
+        </div>
+        
+        <!-- Revision Section -->
+        <div class="content-section" data-section="revision">
+            ${renderRevision(topic)}
+        </div>
     `;
-    
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
 }
 
-// ─────────────────────────────────────────
-// 🔧 HELPER FUNCTIONS
-// ─────────────────────────────────────────
-
-function getTopicById(topicId) {
-    if (typeof UPSC_GEOGRAPHY_DATA === 'undefined') return null;
-    return UPSC_GEOGRAPHY_DATA.topics.find(t => t.id === topicId);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// 📊 PROFILE PAGE FUNCTIONS
-// ═══════════════════════════════════════════════════════════════
-
-function initProfilePage() {
-    console.log('📊 Profile page detected');
+function renderMindMap(topic) {
+    if (!topic.mindMap) return '<p>Mind map not available</p>';
     
-    renderProfileStats();
-    renderCategoryProgress();
-    renderStudyCalendar();
-    renderWeakTopics();
-    renderAchievements();
+    const branches = topic.mindMap.branches || [];
     
-    console.log('✅ Profile page initialized');
-}
-
-function renderProfileStats() {
-    const topicsStudied = document.getElementById('topicsStudied');
-    const mnemonicsLearned = document.getElementById('mnemonicsLearned');
-    const diagramsViewed = document.getElementById('diagramsViewed');
-    const studyTime = document.getElementById('studyTime');
-    
-    const completed = getCompletedTopics();
-    const studyData = JSON.parse(localStorage.getItem('upsc_study_time') || '{}');
-    
-    // Calculate total study time
-    let totalTime = Object.values(studyData).reduce((a, b) => a + b, 0);
-    const hours = Math.floor(totalTime / 3600000);
-    const minutes = Math.floor((totalTime % 3600000) / 60000);
-    
-    if (topicsStudied) topicsStudied.textContent = completed.length;
-    if (mnemonicsLearned) mnemonicsLearned.textContent = completed.length * 3; // Estimate
-    if (diagramsViewed) diagramsViewed.textContent = completed.length * 2; // Estimate
-    if (studyTime) studyTime.textContent = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-}
-
-function renderCategoryProgress() {
-    const container = document.getElementById('categoryProgress');
-    if (!container || typeof UPSC_GEOGRAPHY_DATA === 'undefined') return;
-    
-    const categories = UPSC_GEOGRAPHY_DATA.categories;
-    const topics = UPSC_GEOGRAPHY_DATA.topics;
-    
-    let html = '';
-    
-    categories.forEach(category => {
-        const categoryTopics = topics.filter(t => t.category === category.id);
-        const completedCount = getCompletedCount(category.id);
-        const totalCount = categoryTopics.length;
-        const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-        
-        html += `
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span class="progress-name">
-                        <i class="${category.icon}"></i> ${category.name}
-                    </span>
-                    <span class="progress-percent">${completedCount}/${totalCount} (${percent}%)</span>
-                </div>
-                <div class="progress-bar-full">
-                    <div class="progress-bar-fill" style="width: ${percent}%; background: ${category.color};"></div>
-                </div>
+    return `
+        <div class="mindmap-container">
+            <div class="mindmap-center">
+                ${topic.icon || '📚'} ${topic.mindMap.central || topic.title}
             </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-}
-
-function renderStudyCalendar() {
-    const container = document.getElementById('studyCalendar');
-    if (!container) return;
-    
-    const studyData = JSON.parse(localStorage.getItem('upsc_study_dates') || '{}');
-    
-    let html = '';
-    
-    // Generate last 35 days (5 weeks)
-    for (let i = 34; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateKey = date.toISOString().split('T')[0];
-        const count = studyData[dateKey] || 0;
-        
-        let heatClass = 'heat-0';
-        if (count >= 6) heatClass = 'heat-3';
-        else if (count >= 3) heatClass = 'heat-2';
-        else if (count >= 1) heatClass = 'heat-1';
-        
-        html += `<div class="calendar-day ${heatClass}" title="${dateKey}: ${count} topics"></div>`;
-    }
-    
-    container.innerHTML = html;
-}
-
-function renderWeakTopics() {
-    const container = document.getElementById('weakTopicsGrid');
-    if (!container || typeof UPSC_GEOGRAPHY_DATA === 'undefined') return;
-    
-    const completed = getCompletedTopics();
-    const allTopics = UPSC_GEOGRAPHY_DATA.topics;
-    const incomplete = allTopics.filter(t => !completed.includes(t.id)).slice(0, 6);
-    
-    if (incomplete.length === 0) {
-        container.innerHTML = '<p class="all-complete">🎉 Great job! All topics completed!</p>';
-        return;
-    }
-    
-    container.innerHTML = incomplete.map(topic => `
-        <div class="weak-topic" onclick="window.location.href='UPSC.html'">
-            <i class="fas fa-exclamation-circle"></i>
-            <div class="weak-topic-info">
-                <div class="weak-topic-name">${topic.name}</div>
-                <div class="weak-topic-category">${getCategoryName(topic.category)}</div>
+            <div class="mindmap-branches">
+                ${branches.map((branch, i) => `
+                    <div class="mindmap-branch" style="--branch-color: ${getBranchColor(i)}">
+                        <div class="branch-title">
+                            <i class="fas fa-angle-right"></i>
+                            ${branch.label}
+                        </div>
+                        <div class="branch-items">
+                            ${branch.items.map(item => `
+                                <div class="branch-item">${item}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         </div>
-    `).join('');
+    `;
 }
 
-function renderAchievements() {
-    const container = document.getElementById('achievementsGrid');
-    if (!container) return;
+function getBranchColor(index) {
+    const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+    return colors[index % colors.length];
+}
+
+function renderMemoryHooks(topic) {
+    if (!topic.memoryHooks || topic.memoryHooks.length === 0) {
+        return '<p>Memory hooks not available</p>';
+    }
     
-    const completed = getCompletedTopics().length;
+    return `
+        <div class="memory-hooks">
+            ${topic.memoryHooks.map((hook, i) => `
+                <div class="memory-card" style="--memory-color: ${getBranchColor(i)}">
+                    <span class="memory-type">${hook.type}</span>
+                    <div class="memory-content">
+                        <h4>${hook.title}</h4>
+                        <p>${hook.content}</p>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderConcepts(topic) {
+    if (!topic.concepts || topic.concepts.length === 0) {
+        return '<p>Concepts not available</p>';
+    }
     
-    const achievements = [
-        { icon: '🌱', name: 'First Step', desc: 'Complete 1 topic', requirement: 1 },
-        { icon: '📚', name: 'Scholar', desc: 'Complete 10 topics', requirement: 10 },
-        { icon: '🎓', name: 'Expert', desc: 'Complete 25 topics', requirement: 25 },
-        { icon: '🏆', name: 'Master', desc: 'Complete 50 topics', requirement: 50 },
-        { icon: '👑', name: 'Legend', desc: 'Complete all topics', requirement: 100 },
-        { icon: '🔥', name: '7-Day Streak', desc: 'Study 7 days in a row', requirement: -1 }
-    ];
+    return `
+        <div class="concept-grid">
+            ${topic.concepts.map((concept, i) => `
+                <div class="concept-card">
+                    <div class="concept-number">${i + 1}</div>
+                    <h4>${concept.title}</h4>
+                    <p>${concept.content}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderFacts(topic) {
+    if (!topic.quickFacts || topic.quickFacts.length === 0) {
+        return '<p>Quick facts not available</p>';
+    }
     
-    container.innerHTML = achievements.map(ach => {
-        const unlocked = completed >= ach.requirement;
-        return `
-            <div class="achievement ${unlocked ? '' : 'locked'}">
-                <div class="achievement-icon">${ach.icon}</div>
-                <div class="achievement-name">${ach.name}</div>
-                <div class="achievement-desc">${ach.desc}</div>
+    return `
+        <div class="facts-list">
+            ${topic.quickFacts.map(fact => `
+                <div class="fact-item">
+                    <i class="fas fa-bolt fact-icon"></i>
+                    <span class="fact-text">${fact}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderTraps(topic) {
+    if (!topic.upscTraps || topic.upscTraps.length === 0) {
+        return '<p>UPSC traps not available</p>';
+    }
+    
+    return `
+        <div class="traps-container">
+            ${topic.upscTraps.map(trap => `
+                <div class="trap-card">
+                    <div class="trap-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>${trap.title}</h4>
+                    </div>
+                    <div class="trap-wrong">
+                        <i class="fas fa-times-circle"></i>
+                        <p><strong>Common Mistake:</strong> ${trap.wrong}</p>
+                    </div>
+                    <div class="trap-correct">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Correct Understanding:</strong> ${trap.correct}</p>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderRevision(topic) {
+    if (!topic.revision || topic.revision.length === 0) {
+        return '<p>Revision points not available</p>';
+    }
+    
+    return `
+        <div class="revision-box">
+            <h3 class="revision-title">
+                <i class="fas fa-compress-arrows-alt"></i>
+                Super Fast Revision
+            </h3>
+            <div class="revision-points">
+                ${topic.revision.map(point => `
+                    <div class="revision-point">
+                        <i class="fas fa-star"></i>
+                        <span>${point}</span>
+                    </div>
+                `).join('')}
             </div>
-        `;
-    }).join('');
+        </div>
+    `;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 🎨 ADD NOTIFICATION ANIMATION STYLES
-// ═══════════════════════════════════════════════════════════════
+// ===== EVENT LISTENERS =====
+function setupEventListeners() {
+    // Category tabs
+    DOM.categoryTabs.addEventListener('click', (e) => {
+        const tab = e.target.closest('.category-tab');
+        if (!tab) return;
+        
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        AppState.currentCategory = tab.dataset.category;
+        filterTopics();
+    });
+    
+    // Nav buttons
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            AppState.currentFilter = btn.dataset.filter;
+            filterTopics();
+        });
+    });
+    
+    // Search
+    DOM.searchInput.addEventListener('input', debounce(() => {
+        filterTopics();
+    }, 300));
+    
+    // Topic cards
+    DOM.topicsGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.topic-card');
+        if (card) {
+            openModal(parseInt(card.dataset.index));
+        }
+    });
+    
+    // Modal close
+    DOM.modalClose.addEventListener('click', closeModal);
+    DOM.modalOverlay.addEventListener('click', (e) => {
+        if (e.target === DOM.modalOverlay) closeModal();
+    });
+    
+    // Modal navigation
+    document.querySelector('.modal-nav').addEventListener('click', (e) => {
+        const btn = e.target.closest('.modal-nav-btn');
+        if (!btn) return;
+        
+        document.querySelectorAll('.modal-nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelector(`.content-section[data-section="${btn.dataset.section}"]`).classList.add('active');
+    });
+    
+    // Bookmark button
+    document.getElementById('bookmarkBtn').addEventListener('click', () => {
+        const topic = AppState.filteredTopics[AppState.currentTopicIndex];
+        toggleBookmark(topic.id);
+    });
+    
+    // Complete button
+    document.getElementById('completeBtn').addEventListener('click', () => {
+        const topic = AppState.filteredTopics[AppState.currentTopicIndex];
+        toggleComplete(topic.id);
+    });
+    
+    // Previous/Next
+    document.getElementById('prevTopic').addEventListener('click', () => {
+        if (AppState.currentTopicIndex > 0) {
+            openModal(AppState.currentTopicIndex - 1);
+        }
+    });
+    
+    document.getElementById('nextTopic').addEventListener('click', () => {
+        if (AppState.currentTopicIndex < AppState.filteredTopics.length - 1) {
+            openModal(AppState.currentTopicIndex + 1);
+        }
+    });
+    
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+        if (!DOM.modalOverlay.classList.contains('active')) return;
+        
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'ArrowLeft') document.getElementById('prevTopic').click();
+        if (e.key === 'ArrowRight') document.getElementById('nextTopic').click();
+    });
+}
 
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    .mnemonic-visual {
-        margin-top: 1rem;
-        padding: 0.8rem;
-        background: rgba(255,255,255,0.05);
-        border-radius: 8px;
-        font-size: 0.9rem;
-        color: rgba(255,255,255,0.8);
-    }
-    .trap-explanation {
-        margin-top: 0.5rem;
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.6);
-    }
-    .modal-actions {
-        display: flex;
-        justify-content: center;
-        padding: 2rem 0;
-        border-top: 1px solid rgba(255,255,255,0.1);
-        margin-top: 2rem;
-    }
-    .revision-keypoints ul {
-        margin-top: 0.5rem;
-        padding-left: 1.5rem;
-    }
-    .revision-keypoints li {
-        margin-bottom: 0.3rem;
-    }
-    .revision-tip {
-        margin-top: 1rem;
-        padding: 0.8rem;
-        background: rgba(102, 126, 234, 0.1);
-        border-radius: 8px;
-    }
-    .all-complete {
-        text-align: center;
-        padding: 2rem;
-        color: #43e97b;
-    }
-    .error-message {
-        text-align: center;
-        padding: 3rem;
-        background: rgba(255,0,0,0.1);
-        border-radius: 20px;
-        margin: 2rem;
-    }
-    .error-message h2 {
-        color: #f5576c;
-        margin-bottom: 1rem;
-    }
-    .no-topics {
-        color: rgba(255,255,255,0.5);
-        padding: 1rem;
-        text-align: center;
-    }
-    .badge-completed {
-        background: rgba(67, 233, 123, 0.2);
-        color: #43e97b;
-    }
-    .topic-card.completed {
-        border-color: rgba(67, 233, 123, 0.3);
-    }
-    .topic-card.completed::after {
-        content: '✓';
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 25px;
-        height: 25px;
-        background: #43e97b;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        z-index: 10;
-    }
-`;
-document.head.appendChild(style);
+// ===== FILTER FUNCTIONS =====
+function filterTopics() {
+    const search = DOM.searchInput.value.toLowerCase();
+    
+    AppState.filteredTopics = AppState.topics.filter(topic => {
+        // Category filter
+        if (AppState.currentCategory !== 'all' && topic.categoryKey !== AppState.currentCategory) {
+            return false;
+        }
+        
+        // Type filter (physical, india, human, etc.)
+        if (AppState.currentFilter !== 'all') {
+            // You can customize this logic based on your categories
+        }
+        
+        // Search filter
+        if (search) {
+            const searchText = `${topic.title} ${topic.tags?.join(' ')} ${topic.categoryName}`.toLowerCase();
+            if (!searchText.includes(search)) return false;
+        }
+        
+        return true;
+    });
+    
+    renderTopics();
+}
 
-console.log('📄 UPSC App.js loaded successfully!');
+// ===== UTILITY FUNCTIONS =====
+function toggleBookmark(topicId) {
+    const index = AppState.bookmarked.indexOf(topicId);
+    if (index > -1) {
+        AppState.bookmarked.splice(index, 1);
+    } else {
+        AppState.bookmarked.push(topicId);
+    }
+    
+    localStorage.setItem('upsc_bookmarked', JSON.stringify(AppState.bookmarked));
+    updateModalActions(topicId);
+    updateStats();
+    renderTopics();
+}
+
+function toggleComplete(topicId) {
+    const index = AppState.completed.indexOf(topicId);
+    if (index > -1) {
+        AppState.completed.splice(index, 1);
+    } else {
+        AppState.completed.push(topicId);
+    }
+    
+    localStorage.setItem('upsc_completed', JSON.stringify(AppState.completed));
+    updateModalActions(topicId);
+    updateStats();
+    renderTopics();
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Export for debugging
+window.AppState = AppState;
