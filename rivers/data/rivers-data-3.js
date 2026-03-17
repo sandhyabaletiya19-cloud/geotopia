@@ -1025,3 +1025,1074 @@ const RIVERS_DATA_3 = [
             }
         ]
     }
+        // ========================================
+    // 26. COLORADO RIVER
+    // ========================================
+    {
+        id: "colorado",
+        name: "Colorado River",
+        length: 2330,
+        continent: "north-america",
+        image: "https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?w=800",
+        
+        countries: [
+            { name: "United States", flag: "🇺🇸" },
+            { name: "Mexico", flag: "🇲🇽" }
+        ],
+        
+        states: [
+            "Colorado", "Utah", "Arizona", "Nevada",
+            "California", "Wyoming", "New Mexico",
+            "Baja California", "Sonora"
+        ],
+        
+        source: {
+            location: "Rocky Mountain National Park, Colorado, USA",
+            type: "Mountain springs/La Poudre Pass",
+            elevation: "3,104 m",
+            coordinates: [40.4736, -105.8219]
+        },
+        
+        mouth: {
+            location: "Gulf of California, Mexico (historic)",
+            type: "Delta (mostly dry)",
+            delta: "Colorado River Delta - rarely reaches sea now",
+            coordinates: [31.9000, -114.9167]
+        },
+        
+        tributaries: {
+            leftBank: [
+                "Green River",
+                "San Juan River",
+                "Little Colorado River",
+                "Virgin River",
+                "Gila River"
+            ],
+            rightBank: [
+                "Gunnison River",
+                "Dolores River",
+                "Bill Williams River"
+            ]
+        },
+        
+        distributaries: [
+            "Historic Colorado Delta Channels (mostly dry)",
+            "Rio Hardy (occasional flow)"
+        ],
+        
+        majorCities: [
+            "Grand Junction", "Moab", "Page", "Las Vegas",
+            "Boulder City", "Laughlin", "Lake Havasu City",
+            "Yuma", "San Luis Río Colorado"
+        ],
+        
+        dams: [
+            { name: "Hoover Dam", details: "Nevada/Arizona, 2,080 MW, 1936, engineering marvel" },
+            { name: "Glen Canyon Dam", details: "Arizona, 1,320 MW, 1966, creates Lake Powell" },
+            { name: "Parker Dam", details: "California/Arizona, 120 MW, deepest dam in world" },
+            { name: "Davis Dam", details: "Nevada/Arizona, 255 MW, 1951" },
+            { name: "Imperial Dam", details: "Arizona, diversion to All-American Canal" },
+            { name: "Morelos Dam", details: "Mexico, diverts Mexico's share" }
+        ],
+        
+        basinArea: "637,000 km²",
+        discharge: "620 m³/s (often zero at mouth)",
+        
+        riverPath: [
+            [40.47, -105.82],   // Source - Rocky Mountain NP
+            [40.00, -106.40],
+            [39.50, -107.30],
+            [39.00, -108.00],
+            [39.06, -108.55],   // Grand Junction
+            [38.50, -109.00],
+            [38.57, -109.55],   // Moab
+            [38.75, -109.55],
+            [38.20, -110.50],
+            [37.20, -110.00],
+            [36.85, -111.50],
+            [36.94, -111.49],   // Glen Canyon Dam
+            [36.10, -111.85],
+            [36.00, -113.00],   // Grand Canyon
+            [36.01, -114.00],
+            [36.02, -114.74],   // Hoover Dam
+            [35.20, -114.56],
+            [34.80, -114.52],
+            [34.48, -114.32],   // Lake Havasu City
+            [33.50, -114.50],
+            [32.75, -114.55],
+            [32.69, -114.63],   // Yuma
+            [32.20, -114.85],
+            [31.90, -114.92]    // Gulf of California (Mouth)
+        ],
+        
+        tributaryPaths: [
+            {
+                name: "Green River",
+                path: [
+                    [43.00, -109.75],   // Wind River Range, Wyoming
+                    [41.00, -109.50],
+                    [39.50, -110.00],
+                    [38.19, -109.90]    // Confluence
+                ]
+            },
+            {
+                name: "San Juan River",
+                path: [
+                    [37.50, -106.80],   // Colorado
+                    [37.00, -108.50],
+                    [37.18, -109.88]    // Confluence at Lake Powell
+                ]
+            },
+            {
+                name: "Little Colorado River",
+                path: [
+                    [34.50, -109.50],   // Arizona
+                    [35.50, -111.00],
+                    [36.18, -111.78]    // Confluence in Grand Canyon
+                ]
+            },
+            {
+                name: "Gila River",
+                path: [
+                    [33.00, -108.50],   // New Mexico
+                    [33.00, -111.00],
+                    [32.72, -114.55]    // Confluence near Yuma
+                ]
+            }
+        ],
+        
+        distributaryPaths: [
+            {
+                name: "Historic Delta Channel",
+                path: [
+                    [31.95, -114.85],
+                    [31.90, -114.92]    // Gulf of California
+                ]
+            }
+        ],
+        
+        cityCoordinates: [
+            { name: "Grand Junction", coords: [39.06, -108.55] },
+            { name: "Moab", coords: [38.57, -109.55] },
+            { name: "Page", coords: [36.91, -111.46] },
+            { name: "Las Vegas", coords: [36.17, -115.14] },
+            { name: "Lake Havasu City", coords: [34.48, -114.32] },
+            { name: "Yuma", coords: [32.69, -114.63] }
+        ],
+        
+        damCoordinates: [
+            { name: "Hoover Dam", coords: [36.02, -114.74], details: "2,080 MW - National Historic Landmark" },
+            { name: "Glen Canyon Dam", coords: [36.94, -111.48], details: "1,320 MW - Creates Lake Powell" },
+            { name: "Parker Dam", coords: [34.29, -114.14], details: "Deepest dam in the world" }
+        ],
+        
+        flightLandmarks: [
+            { progress: 0, name: "Rocky Mountains", icon: "🏔️", description: "Source in Colorado Rockies" },
+            { progress: 0.10, name: "Grand Junction", icon: "🏙️", description: "Western Colorado hub" },
+            { progress: 0.20, name: "Moab", icon: "🏜️", description: "Gateway to Arches & Canyonlands" },
+            { progress: 0.30, name: "Green River Confluence", icon: "🔀", description: "Largest tributary joins" },
+            { progress: 0.40, name: "Glen Canyon Dam", icon: "🏗️", description: "Creates Lake Powell" },
+            { progress: 0.50, name: "Grand Canyon", icon: "🏜️", description: "Natural wonder of the world" },
+            { progress: 0.65, name: "Hoover Dam", icon: "🏗️", description: "Engineering marvel, Lake Mead" },
+            { progress: 0.75, name: "Lake Havasu", icon: "🌊", description: "London Bridge relocated here" },
+            { progress: 0.90, name: "Yuma", icon: "🏙️", description: "Historic crossing point" },
+            { progress: 1.0, name: "Gulf of California", icon: "🌊", description: "Historic mouth (often dry)" }
+        ],
+        
+        economicImportance: [
+            "Water supply for 40 million people",
+            "Irrigation for 5.5 million acres of farmland",
+            "Hydroelectric power generation (4,200+ MW)",
+            "Recreation and tourism ($26 billion annually)",
+            "Supplies cities: LA, San Diego, Phoenix, Las Vegas",
+            "Largest reservoir system in United States"
+        ],
+        
+        environmentalIssues: [
+            "River rarely reaches the sea (over-allocation)",
+            "Lake Mead and Lake Powell at historic lows",
+            "Drought and climate change impacts",
+            "Invasive species (quagga mussels, tamarisk)",
+            "Salinity increases downstream",
+            "Colorado River Delta ecosystem destruction"
+        ],
+        
+        waterDisputes: [
+            {
+                title: "Colorado River Compact (1922)",
+                description: "Divides water between Upper and Lower Basin states, now contested as allocations exceed actual flow."
+            },
+            {
+                title: "1944 US-Mexico Treaty",
+                description: "Guarantees Mexico 1.5 million acre-feet annually, with ongoing negotiations over shortage sharing."
+            },
+            {
+                title: "2023 Water Cuts",
+                description: "Historic cuts to Arizona, Nevada, and Mexico due to critically low reservoir levels."
+            }
+        ],
+        
+        historicalImportance: [
+            {
+                title: "Grand Canyon Formation",
+                description: "The Colorado carved the Grand Canyon over 5-6 million years, exposing 2 billion years of geological history."
+            },
+            {
+                title: "Powell Expedition (1869)",
+                description: "John Wesley Powell led the first documented expedition through the Grand Canyon, mapping the river."
+            },
+            {
+                title: "Hoover Dam Construction",
+                description: "Built 1931-1936 during the Great Depression, it transformed the American Southwest and remains an engineering icon."
+            }
+        ]
+    },
+
+    // ========================================
+    // 27. SYR DARYA
+    // ========================================
+    {
+        id: "syr-darya",
+        name: "Syr Darya",
+        length: 2212,
+        continent: "asia",
+        image: "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=800",
+        
+        countries: [
+            { name: "Kyrgyzstan", flag: "🇰🇬" },
+            { name: "Uzbekistan", flag: "🇺🇿" },
+            { name: "Tajikistan", flag: "🇹🇯" },
+            { name: "Kazakhstan", flag: "🇰🇿" }
+        ],
+        
+        states: [
+            "Naryn Region", "Jalal-Abad Region", "Fergana Region",
+            "Namangan Region", "Sughd Region", "Tashkent Region",
+            "Turkestan Region", "Kyzylorda Region"
+        ],
+        
+        source: {
+            location: "Tian Shan Mountains, Kyrgyzstan",
+            type: "Confluence of Naryn and Kara Darya rivers",
+            elevation: "3,000 m",
+            coordinates: [41.3833, 75.9000]
+        },
+        
+        mouth: {
+            location: "North Aral Sea, Kazakhstan",
+            type: "Delta (shrinking)",
+            delta: "Syr Darya Delta - feeding Small Aral Sea",
+            coordinates: [46.1333, 60.5833]
+        },
+        
+        tributaries: {
+            leftBank: [
+                "Naryn River",
+                "Chirchik River",
+                "Ahangaran River",
+                "Keles River"
+            ],
+            rightBank: [
+                "Kara Darya",
+                "Arys River"
+            ]
+        },
+        
+        distributaries: [
+            "Kazalinsk Channels",
+            "Kyzylorda Irrigation Canals"
+        ],
+        
+        majorCities: [
+            "Namangan", "Andijan", "Fergana", "Khujand",
+            "Tashkent", "Turkestan", "Kyzylorda", "Kazalinsk"
+        ],
+        
+        dams: [
+            { name: "Toktogul Dam", details: "Kyrgyzstan, 1,200 MW, 1975, largest in Central Asia" },
+            { name: "Andijan Reservoir", details: "Uzbekistan, 1.9 km³ storage, 1969" },
+            { name: "Kairakkum Reservoir", details: "Tajikistan, 126 MW, 1957" },
+            { name: "Chardara Dam", details: "Kazakhstan, 100 MW, 1966" },
+            { name: "Kokaral Dam", details: "Kazakhstan, 2005, saves North Aral Sea" }
+        ],
+        
+        basinArea: "219,000 km²",
+        discharge: "1,180 m³/s (much reduced)",
+        
+        riverPath: [
+            [41.38, 75.90],    // Source - Naryn-Kara Darya confluence
+            [40.50, 70.95],
+            [40.38, 71.79],    // Fergana
+            [40.30, 68.80],
+            [40.28, 69.63],    // Khujand
+            [40.10, 67.85],
+            [40.50, 68.25],
+            [40.85, 68.65],
+            [41.30, 69.20],    // Near Tashkent
+            [41.50, 67.50],
+            [42.10, 65.50],
+            [43.00, 63.00],
+            [43.30, 68.25],    // Turkestan
+            [44.00, 61.50],
+            [44.85, 65.50],    // Kyzylorda
+            [45.00, 60.50],
+            [46.13, 60.58]     // North Aral Sea (Mouth)
+        ],
+        
+        tributaryPaths: [
+            {
+                name: "Naryn River",
+                path: [
+                    [41.50, 76.00],    // Tian Shan
+                    [41.43, 75.95],
+                    [41.38, 75.90]     // Confluence
+                ]
+            },
+            {
+                name: "Chirchik River",
+                path: [
+                    [41.80, 70.00],
+                    [41.50, 69.50],
+                    [41.33, 69.08]     // Confluence
+                ]
+            },
+            {
+                name: "Arys River",
+                path: [
+                    [42.80, 69.00],
+                    [42.43, 68.80]     // Confluence
+                ]
+            }
+        ],
+        
+        distributaryPaths: [
+            {
+                name: "Syr Darya Delta",
+                path: [
+                    [45.75, 62.10],
+                    [46.13, 60.58]     // North Aral Sea
+                ]
+            }
+        ],
+        
+        cityCoordinates: [
+            { name: "Namangan", coords: [41.00, 71.67] },
+            { name: "Fergana", coords: [40.38, 71.79] },
+            { name: "Khujand", coords: [40.28, 69.63] },
+            { name: "Tashkent", coords: [41.30, 69.24] },
+            { name: "Turkestan", coords: [43.30, 68.25] },
+            { name: "Kyzylorda", coords: [44.85, 65.50] }
+        ],
+        
+        damCoordinates: [
+            { name: "Toktogul Dam", coords: [41.75, 72.92], details: "1,200 MW - Central Asia's largest" },
+            { name: "Kokaral Dam", coords: [46.00, 60.35], details: "Saved the North Aral Sea" },
+            { name: "Chardara Dam", coords: [41.25, 67.97], details: "100 MW hydroelectric" }
+        ],
+        
+        flightLandmarks: [
+            { progress: 0, name: "Tian Shan Mountains", icon: "🏔️", description: "Source region in Kyrgyzstan" },
+            { progress: 0.10, name: "Toktogul Reservoir", icon: "🌊", description: "Central Asia's largest dam" },
+            { progress: 0.25, name: "Fergana Valley", icon: "🌾", description: "Cotton heartland" },
+            { progress: 0.35, name: "Khujand", icon: "🏙️", description: "Tajikistan's second city" },
+            { progress: 0.45, name: "Chardara Dam", icon: "🏗️", description: "Border dam" },
+            { progress: 0.55, name: "Turkestan", icon: "🕌", description: "Holy city, Yasawi Mausoleum" },
+            { progress: 0.70, name: "Kyzylorda", icon: "🏙️", description: "Kazakhstan regional capital" },
+            { progress: 0.85, name: "Kokaral Dam", icon: "🏗️", description: "Aral Sea restoration" },
+            { progress: 1.0, name: "North Aral Sea", icon: "🌊", description: "Recovering sea" }
+        ],
+        
+        economicImportance: [
+            "Irrigation for cotton cultivation (Fergana Valley)",
+            "Hydroelectric power generation (Toktogul)",
+            "Drinking water for millions",
+            "Rice cultivation in lower reaches",
+            "Industrial water supply",
+            "Ancient Silk Road water source"
+        ],
+        
+        environmentalIssues: [
+            "Aral Sea catastrophe - world's worst ecological disaster",
+            "Over-extraction for cotton irrigation",
+            "Salinization of agricultural lands",
+            "Water quality degradation",
+            "Desertification of former seabed",
+            "Toxic dust storms from dry seabed"
+        ],
+        
+        waterDisputes: [
+            {
+                title: "Upstream-Downstream Conflict",
+                description: "Kyrgyzstan wants hydropower (winter releases), while downstream countries need irrigation water (summer releases)."
+            },
+            {
+                title: "Aral Sea Restoration",
+                description: "International Fund for Saving the Aral Sea coordinates efforts; Kokaral Dam successfully restored North Aral."
+            }
+        ],
+        
+        historicalImportance: [
+            {
+                title: "Ancient Jaxartes",
+                description: "Known as Jaxartes in ancient times, marking the northeastern boundary of Alexander the Great's empire (329 BCE)."
+            },
+            {
+                title: "Silk Road",
+                description: "Cities along the Syr Darya were vital oases on the ancient Silk Road trade routes."
+            },
+            {
+                title: "Soviet Cotton Campaign",
+                description: "Massive irrigation diversions in Soviet era transformed the region but destroyed the Aral Sea."
+            }
+        ]
+    },
+
+    // ========================================
+    // 28. DNIEPER RIVER
+    // ========================================
+    {
+        id: "dnieper",
+        name: "Dnieper River",
+        length: 2201,
+        continent: "europe",
+        image: "https://images.unsplash.com/photo-1561542320-9a18cd340469?w=800",
+        
+        countries: [
+            { name: "Russia", flag: "🇷🇺" },
+            { name: "Belarus", flag: "🇧🇾" },
+            { name: "Ukraine", flag: "🇺🇦" }
+        ],
+        
+        states: [
+            "Smolensk Oblast", "Mogilev Region", "Gomel Region",
+            "Kyiv Oblast", "Cherkasy Oblast", "Poltava Oblast",
+            "Dnipropetrovsk Oblast", "Zaporizhzhia Oblast", "Kherson Oblast"
+        ],
+        
+        source: {
+            location: "Valdai Hills, Russia",
+            type: "Wetlands/Springs",
+            elevation: "220 m",
+            coordinates: [55.8700, 33.7500]
+        },
+        
+        mouth: {
+            location: "Black Sea, Ukraine",
+            type: "Estuary",
+            delta: "Dnieper-Bug Estuary",
+            coordinates: [46.5000, 32.2833]
+        },
+        
+        tributaries: {
+            leftBank: [
+                "Berezina River",
+                "Sozh River",
+                "Pripyat River",
+                "Sula River",
+                "Psel River",
+                "Vorskla River",
+                "Samara River"
+            ],
+            rightBank: [
+                "Desna River",
+                "Teteriv River",
+                "Ros River",
+                "Inhulets River"
+            ]
+        },
+        
+        distributaries: [
+            "Dnieper Delta Channels",
+            "Dnieper-Bug Canal (artificial)"
+        ],
+        
+        majorCities: [
+            "Smolensk", "Orsha", "Mogilev", "Gomel",
+            "Kyiv", "Cherkasy", "Kremenchuk", "Dnipro",
+            "Zaporizhzhia", "Kherson"
+        ],
+        
+        dams: [
+            { name: "Kyiv Hydroelectric Station", details: "Ukraine, 444 MW, 1964" },
+            { name: "Kaniv Hydroelectric Station", details: "Ukraine, 444 MW, 1972" },
+            { name: "Kremenchuk Hydroelectric Station", details: "Ukraine, 625 MW, 1959" },
+            { name: "Dnieper Hydroelectric Station (DneproGES)", details: "Ukraine, 1,548 MW, 1932, historic" },
+            { name: "Kakhovka Dam", details: "Ukraine, 351 MW, 1956 (destroyed 2023)" }
+        ],
+        
+        basinArea: "504,000 km²",
+        discharge: "1,670 m³/s",
+        
+        riverPath: [
+            [55.87, 33.75],    // Source - Valdai Hills
+            [54.80, 32.05],    // Smolensk
+            [54.50, 31.00],
+            [53.90, 30.33],    // Mogilev
+            [52.40, 31.00],
+            [52.43, 30.98],    // Gomel
+            [51.52, 30.60],    // Pripyat confluence
+            [51.50, 31.30],
+            [50.45, 30.52],    // Kyiv
+            [49.44, 32.06],    // Cherkasy
+            [49.00, 33.25],    // Kremenchuk
+            [48.50, 35.10],
+            [48.46, 35.05],    // Dnipro city
+            [47.85, 35.14],    // Zaporizhzhia
+            [47.10, 34.00],
+            [46.65, 33.00],
+            [46.64, 32.62],    // Kherson
+            [46.50, 32.28]     // Black Sea (Mouth)
+        ],
+        
+        tributaryPaths: [
+            {
+                name: "Pripyat River",
+                path: [
+                    [52.00, 25.50],    // Belarus/Ukraine border
+                    [51.75, 28.00],
+                    [51.52, 30.60]     // Confluence
+                ]
+            },
+            {
+                name: "Desna River",
+                path: [
+                    [54.50, 33.50],    // Russia
+                    [52.50, 33.00],
+                    [51.53, 30.55]     // Confluence near Kyiv
+                ]
+            },
+            {
+                name: "Berezina River",
+                path: [
+                    [54.50, 28.50],
+                    [53.50, 29.50],
+                    [52.50, 30.00]     // Confluence
+                ]
+            }
+        ],
+        
+        distributaryPaths: [
+            {
+                name: "Dnieper Estuary",
+                path: [
+                    [46.55, 32.35],
+                    [46.50, 32.28]     // Black Sea
+                ]
+            }
+        ],
+        
+        cityCoordinates: [
+            { name: "Smolensk", coords: [54.78, 32.05] },
+            { name: "Mogilev", coords: [53.90, 30.33] },
+            { name: "Gomel", coords: [52.43, 30.98] },
+            { name: "Kyiv", coords: [50.45, 30.52] },
+            { name: "Dnipro", coords: [48.46, 35.05] },
+            { name: "Zaporizhzhia", coords: [47.85, 35.14] },
+            { name: "Kherson", coords: [46.64, 32.62] }
+        ],
+        
+        damCoordinates: [
+            { name: "Kyiv HPP", coords: [50.58, 30.50], details: "444 MW hydroelectric" },
+            { name: "DneproGES", coords: [47.85, 35.08], details: "1,548 MW - Historic 1932 dam" },
+            { name: "Kakhovka Dam", coords: [46.77, 33.38], details: "Destroyed in June 2023" }
+        ],
+        
+        flightLandmarks: [
+            { progress: 0, name: "Valdai Hills", icon: "🏔️", description: "Source in Russia" },
+            { progress: 0.10, name: "Smolensk", icon: "🏙️", description: "Historic Russian city" },
+            { progress: 0.20, name: "Belarus Border", icon: "🛂", description: "River enters Belarus" },
+            { progress: 0.30, name: "Mogilev", icon: "🏙️", description: "Belarus third largest city" },
+            { progress: 0.40, name: "Pripyat Confluence", icon: "🔀", description: "Chernobyl area" },
+            { progress: 0.50, name: "Kyiv", icon: "🏙️", description: "Ukrainian capital" },
+            { progress: 0.65, name: "Kremenchuk Reservoir", icon: "🌊", description: "Major reservoir" },
+            { progress: 0.75, name: "Dnipro City", icon: "🏙️", description: "Fourth largest in Ukraine" },
+            { progress: 0.85, name: "Zaporizhzhia", icon: "⚡", description: "Nuclear plant nearby" },
+            { progress: 0.95, name: "Kherson", icon: "🏙️", description: "Port city" },
+            { progress: 1.0, name: "Black Sea", icon: "🌊", description: "Dnieper-Bug Estuary" }
+        ],
+        
+        economicImportance: [
+            "Fourth longest river in Europe",
+            "Major navigation corridor",
+            "Cascade of 6 hydroelectric dams",
+            "Irrigation for Ukrainian agriculture",
+            "Drinking water for millions",
+            "Industrial water supply"
+        ],
+        
+        environmentalIssues: [
+            "Chernobyl disaster contamination (1986)",
+            "Industrial pollution",
+            "Agricultural runoff",
+            "Eutrophication of reservoirs",
+            "Kakhovka Dam destruction (2023) - ecological disaster"
+        ],
+        
+        waterDisputes: [
+            {
+                title: "Kakhovka Dam Destruction (2023)",
+                description: "The dam's destruction in June 2023 caused massive flooding, ecological disaster, and water supply crisis."
+            },
+            {
+                title: "Crimea Water Supply",
+                description: "North Crimean Canal from Dnieper was blocked in 2014, restored in 2022, remains contentious."
+            }
+        ],
+        
+        historicalImportance: [
+            {
+                title: "Kyivan Rus'",
+                description: "The Dnieper was the heart of medieval Kyivan Rus', one of the largest states in medieval Europe."
+            },
+            {
+                title: "Varangian Trade Route",
+                description: "Vikings used the Dnieper as part of the 'route from the Varangians to the Greeks' connecting Scandinavia to Constantinople."
+            },
+            {
+                title: "Zaporozhian Cossacks",
+                description: "Khortytsia Island near Zaporizhzhia was the legendary headquarters of the Zaporozhian Cossacks."
+            }
+        ]
+    },
+
+    // ========================================
+    // 29. ORANGE RIVER
+    // ========================================
+    {
+        id: "orange",
+        name: "Orange River",
+        length: 2200,
+        continent: "africa",
+        image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800",
+        
+        countries: [
+            { name: "South Africa", flag: "🇿🇦" },
+            { name: "Lesotho", flag: "🇱🇸" },
+            { name: "Namibia", flag: "🇳🇦" },
+            { name: "Botswana", flag: "🇧🇼" }
+        ],
+        
+        states: [
+            "Lesotho Highlands", "Eastern Cape", "Free State",
+            "Northern Cape", "Karas Region"
+        ],
+        
+        source: {
+            location: "Drakensberg Mountains, Lesotho",
+            type: "Mountain springs near Mont-aux-Sources",
+            elevation: "3,000 m",
+            coordinates: [-29.4500, 29.2833]
+        },
+        
+        mouth: {
+            location: "Atlantic Ocean, South Africa/Namibia border",
+            type: "Estuary",
+            delta: "Orange River Mouth - diamond mining area",
+            coordinates: [-28.6333, 16.4500]
+        },
+        
+        tributaries: {
+            leftBank: [
+                "Caledon River",
+                "Kraai River",
+                "Senqu River (upper Orange)"
+            ],
+            rightBank: [
+                "Vaal River",
+                "Modder River",
+                "Fish River",
+                "Hartbees River"
+            ]
+        },
+        
+        distributaries: [
+            "Orange River Mouth Channels"
+        ],
+        
+        majorCities: [
+            "Bethlehem", "Bloemfontein", "Aliwal North",
+            "Kimberley", "Douglas", "Upington",
+            "Oranjemund", "Alexander Bay"
+        ],
+        
+        dams: [
+            { name: "Gariep Dam", details: "South Africa, 360 MW, 1971, largest in SA" },
+            { name: "Vanderkloof Dam", details: "South Africa, 240 MW, 1977" },
+            { name: "Katse Dam", details: "Lesotho, 185 m high, 1996, LHWP" },
+            { name: "Mohale Dam", details: "Lesotho, 145 m, 2002, LHWP" },
+            { name: "Orange-Fish Tunnel", details: "82 km water transfer tunnel, 1975" }
+        ],
+        
+        basinArea: "973,000 km²",
+        discharge: "365 m³/s",
+        
+        riverPath: [
+            [-29.45, 29.28],   // Source - Drakensberg
+            [-29.40, 28.50],
+            [-29.80, 27.00],
+            [-29.75, 26.00],
+            [-30.62, 25.50],   // Gariep Dam
+            [-29.10, 25.00],
+            [-29.07, 23.75],   // Douglas, Vaal confluence
+            [-28.75, 24.00],
+            [-28.50, 22.50],
+            [-28.60, 21.00],
+            [-28.46, 21.26],   // Upington
+            [-28.45, 20.00],
+            [-28.45, 20.62],   // Augrabies Falls
+            [-28.50, 18.50],
+            [-28.07, 17.07],   // Fish River confluence
+            [-28.55, 16.45],   // Oranjemund
+            [-28.63, 16.45]    // Atlantic Ocean (Mouth)
+        ],
+        
+        tributaryPaths: [
+            {
+                name: "Vaal River",
+                path: [
+                    [-27.00, 29.50],   // Mpumalanga
+                    [-28.00, 27.00],
+                    [-28.50, 25.00],
+                    [-29.07, 23.65]    // Confluence at Douglas
+                ]
+            },
+            {
+                name: "Caledon River",
+                path: [
+                    [-29.50, 28.50],
+                    [-29.70, 27.50],
+                    [-29.83, 26.50]    // Confluence
+                ]
+            },
+            {
+                name: "Fish River",
+                path: [
+                    [-24.00, 18.00],   // Central Namibia
+                    [-27.00, 17.50],
+                    [-28.07, 17.07]    // Confluence
+                ]
+            }
+        ],
+        
+        distributaryPaths: [
+            {
+                name: "Orange Mouth",
+                path: [
+                    [-28.62, 16.47],
+                    [-28.63, 16.45]    // Atlantic Ocean
+                ]
+            }
+        ],
+        
+        cityCoordinates: [
+            { name: "Bloemfontein", coords: [-29.09, 26.16] },
+            { name: "Kimberley", coords: [-28.73, 24.75] },
+            { name: "Douglas", coords: [-29.07, 23.75] },
+            { name: "Upington", coords: [-28.46, 21.26] },
+            { name: "Oranjemund", coords: [-28.55, 16.43] },
+            { name: "Alexander Bay", coords: [-28.58, 16.50] }
+        ],
+        
+        damCoordinates: [
+            { name: "Gariep Dam", coords: [-30.62, 25.50], details: "360 MW - Largest dam in South Africa" },
+            { name: "Vanderkloof Dam", coords: [-30.02, 24.73], details: "240 MW hydroelectric" },
+            { name: "Katse Dam", coords: [-29.37, 28.50], details: "185 m - Lesotho Highlands Water Project" }
+        ],
+        
+        flightLandmarks: [
+            { progress: 0, name: "Drakensberg Mountains", icon: "🏔️", description: "Source in Lesotho Highlands" },
+            { progress: 0.10, name: "Katse Dam", icon: "🏗️", description: "LHWP - Water to Gauteng" },
+            { progress: 0.25, name: "Gariep Dam", icon: "🏗️", description: "South Africa's largest dam" },
+            { progress: 0.35, name: "Douglas", icon: "🔀", description: "Vaal River confluence" },
+            { progress: 0.45, name: "Kimberley Area", icon: "💎", description: "Diamond mining region" },
+            { progress: 0.55, name: "Upington", icon: "🏙️", description: "Northern Cape hub" },
+            { progress: 0.65, name: "Augrabies Falls", icon: "💧", description: "Spectacular 56 m waterfall" },
+            { progress: 0.80, name: "Fish River Confluence", icon: "🔀", description: "Namibian tributary" },
+            { progress: 0.95, name: "Oranjemund", icon: "💎", description: "Diamond mining town" },
+            { progress: 1.0, name: "Atlantic Ocean", icon: "🌊", description: "SA-Namibia border" }
+        ],
+        
+        economicImportance: [
+            "Water supply for Gauteng Province (LHWP)",
+            "Irrigation for agriculture (grapes, cotton, wheat)",
+            "Hydroelectric power generation (600+ MW)",
+            "Diamond mining at the mouth",
+            "Tourism (Augrabies Falls National Park)",
+            "Longest river in South Africa"
+        ],
+        
+        environmentalIssues: [
+            "Water scarcity and over-extraction",
+            "Invasive species (water hyacinth)",
+            "Mining pollution",
+            "Agricultural runoff",
+            "Flow reduction affecting estuary",
+            "Climate change impacts"
+        ],
+        
+        waterDisputes: [
+            {
+                title: "Lesotho Highlands Water Project",
+                description: "Treaty between Lesotho and South Africa (1986) for water transfer to Gauteng, with ongoing Phase 2."
+            },
+            {
+                title: "Orange-Senqu River Commission",
+                description: "Cooperative management between South Africa, Namibia, Botswana, and Lesotho."
+            }
+        ],
+        
+        historicalImportance: [
+            {
+                title: "Dutch Naming (1779)",
+                description: "Named after the Dutch Royal House of Orange by Colonel Robert Jacob Gordon."
+            },
+            {
+                title: "Great Trek",
+                description: "Boer settlers crossed the Orange River during the Great Trek of the 1830s-1840s."
+            },
+            {
+                title: "Diamond Discovery",
+                description: "Diamonds discovered at the mouth in the 1920s, leading to the establishment of mining towns."
+            }
+        ]
+    },
+
+    // ========================================
+    // 30. IRRAWADDY RIVER
+    // ========================================
+    {
+        id: "irrawaddy",
+        name: "Irrawaddy River",
+        length: 2170,
+        continent: "asia",
+        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+        
+        countries: [
+            { name: "Myanmar", flag: "🇲🇲" }
+        ],
+        
+        states: [
+            "Kachin State", "Sagaing Region", "Mandalay Region",
+            "Magway Region", "Bago Region", "Ayeyarwady Region", "Yangon Region"
+        ],
+        
+        source: {
+            location: "Confluence of Mali and N'mai Rivers, Kachin State",
+            type: "Mountain rivers from Himalayan foothills",
+            elevation: "200 m (at confluence)",
+            coordinates: [25.8500, 97.5333]
+        },
+        
+        mouth: {
+            location: "Andaman Sea, Myanmar",
+            type: "Delta",
+            delta: "Irrawaddy Delta - 30,000 km², rice bowl of Myanmar",
+            coordinates: [15.8667, 95.2167]
+        },
+        
+        tributaries: {
+            leftBank: [
+                "Mali River",
+                "Mogaung River",
+                "Mu River",
+                "Chindwin River",
+                "Yaw River"
+            ],
+            rightBank: [
+                "N'mai River",
+                "Myitnge River",
+                "Zawgyi River"
+            ]
+        },
+        
+        distributaries: [
+            "Pathein River",
+            "Pyamalaw River",
+            "Toe River",
+            "Bogale River",
+            "Pyapon River",
+            "China Bakir River"
+        ],
+        
+        majorCities: [
+            "Myitkyina", "Bhamo", "Katha", "Mandalay",
+            "Sagaing", "Pakokku", "Bagan", "Magway",
+            "Pyay", "Hinthada", "Pathein", "Yangon"
+        ],
+        
+        dams: [
+            { name: "Myitsone Dam (Suspended)", details: "Kachin State, 6,000 MW planned, suspended 2011" },
+            { name: "Yeywa Dam", details: "Mandalay, 790 MW, 2010" },
+            { name: "Shweli I Dam", details: "Shan State, 600 MW, 2008" },
+            { name: "Sedawgyi Dam", details: "Mandalay Region, irrigation, 1989" }
+        ],
+        
+        basinArea: "411,000 km²",
+        discharge: "13,000 m³/s",
+        
+        riverPath: [
+            [25.85, 97.53],    // Source - Mali-N'mai confluence
+            [25.38, 97.40],    // Myitkyina
+            [24.08, 97.03],
+            [24.25, 97.23],    // Bhamo
+            [23.83, 96.10],
+            [22.93, 95.50],
+            [22.00, 95.15],
+            [21.97, 95.85],
+            [21.97, 96.09],    // Mandalay
+            [21.88, 95.98],    // Sagaing
+            [21.33, 95.10],    // Pakokku
+            [21.25, 95.08],    // Chindwin confluence
+            [21.17, 94.87],    // Bagan
+            [20.15, 94.90],    // Magway
+            [19.80, 95.22],
+            [18.82, 95.22],    // Pyay
+            [17.90, 95.00],
+            [17.65, 95.47],    // Hinthada
+            [17.00, 95.00],
+            [16.80, 95.30],    // Delta begins
+            [16.50, 95.22],
+            [15.87, 95.22]     // Andaman Sea (Mouth)
+        ],
+        
+        tributaryPaths: [
+            {
+                name: "Chindwin River",
+                path: [
+                    [26.50, 95.50],    // India-Myanmar border
+                    [24.00, 95.00],
+                    [22.50, 95.00],
+                    [21.25, 95.08]     // Confluence near Pakokku
+                ]
+            },
+            {
+                name: "Myitnge River",
+                path: [
+                    [22.50, 97.00],    // Shan State
+                    [22.00, 96.50],
+                    [21.85, 96.05]     // Confluence near Mandalay
+                ]
+            },
+            {
+                name: "Mu River",
+                path: [
+                    [23.50, 95.00],
+                    [22.70, 95.50],
+                    [22.50, 95.80]     // Confluence
+                ]
+            }
+        ],
+        
+        distributaryPaths: [
+            {
+                name: "Pathein River",
+                path: [
+                    [16.80, 95.30],
+                    [16.78, 94.73]     // Pathein, Andaman Sea
+                ]
+            },
+            {
+                name: "Bogale River",
+                path: [
+                    [16.80, 95.30],
+                    [16.30, 95.35]     // Andaman Sea
+                ]
+            },
+            {
+                name: "Pyapon River",
+                path: [
+                    [16.80, 95.30],
+                    [16.25, 95.70]     // Andaman Sea
+                ]
+            }
+        ],
+        
+        cityCoordinates: [
+            { name: "Myitkyina", coords: [25.38, 97.40] },
+            { name: "Bhamo", coords: [24.25, 97.23] },
+            { name: "Mandalay", coords: [21.97, 96.09] },
+            { name: "Sagaing", coords: [21.88, 95.98] },
+            { name: "Bagan", coords: [21.17, 94.87] },
+            { name: "Pyay", coords: [18.82, 95.22] },
+            { name: "Pathein", coords: [16.78, 94.73] },
+            { name: "Yangon", coords: [16.87, 96.20] }
+        ],
+        
+        damCoordinates: [
+            { name: "Myitsone Dam Site", coords: [25.67, 97.45], details: "6,000 MW - Suspended since 2011" },
+            { name: "Yeywa Dam", coords: [21.68, 96.42], details: "790 MW hydroelectric" }
+        ],
+        
+        flightLandmarks: [
+            { progress: 0, name: "Mali-N'mai Confluence", icon: "🔀", description: "Source of the Irrawaddy" },
+            { progress: 0.08, name: "Myitkyina", icon: "🏙️", description: "Kachin State capital" },
+            { progress: 0.15, name: "Bhamo", icon: "🏘️", description: "Historic jade trade town" },
+            { progress: 0.30, name: "Second Defile", icon: "🏞️", description: "Dramatic gorge" },
+            { progress: 0.45, name: "Mandalay", icon: "🏙️", description: "Cultural capital of Myanmar" },
+            { progress: 0.50, name: "Sagaing", icon: "🛕", description: "Buddhist religious center" },
+            { progress: 0.55, name: "Chindwin Confluence", icon: "🔀", description: "Largest tributary joins" },
+            { progress: 0.60, name: "Bagan", icon: "🛕", description: "Ancient temple city - UNESCO" },
+            { progress: 0.75, name: "Pyay", icon: "🏛️", description: "Sri Ksetra ancient city nearby" },
+            { progress: 0.90, name: "Irrawaddy Delta", icon: "🌾", description: "Rice bowl of Myanmar" },
+            { progress: 1.0, name: "Andaman Sea", icon: "🌊", description: "Delta mouth" }
+        ],
+        
+        economicImportance: [
+            "Lifeline of Myanmar's economy",
+            "Major transportation corridor",
+            "Rice cultivation in delta (rice bowl of Myanmar)",
+            "Fishing industry",
+            "Jade and gem trade (upper reaches)",
+            "Tourism (Bagan, river cruises)"
+        ],
+        
+        environmentalIssues: [
+            "Proposed dam projects threatening ecosystem",
+            "Deforestation in upper basin",
+            "Gold mining pollution",
+            "Cyclone Nargis devastation (2008) - 138,000 deaths",
+            "Mangrove destruction in delta",
+            "Plastic pollution"
+        ],
+        
+        waterDisputes: [
+            {
+                title: "Myitsone Dam Controversy",
+                description: "Chinese-backed 6,000 MW dam suspended in 2011 due to environmental and social concerns; remains contentious."
+            }
+        ],
+        
+        historicalImportance: [
+            {
+                title: "Burmese Kingdoms",
+                description: "The Irrawaddy was the center of successive Burmese kingdoms, with royal capitals at Bagan, Ava, Amarapura, and Mandalay."
+            },
+            {
+                title: "Colonial Steamship Era",
+                description: "The Irrawaddy Flotilla Company operated the world's largest inland fleet, connecting all of Burma."
+            },
+            {
+                title: "WWII Burma Campaign",
+                description: "The river was a crucial battleground during the Allied campaign against Japanese forces (1942-1945)."
+            },
+            {
+                title: "George Orwell",
+                description: "The author served as a police officer in Burma, and the Irrawaddy features in his writings including 'Burmese Days'."
+            }
+        ]
+    }
+];
+
+// ============================================================
+// EXPORT RIVERS DATA 3
+// ============================================================
+
+if (typeof window !== 'undefined') {
+    window.RIVERS_DATA_3 = RIVERS_DATA_3;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = RIVERS_DATA_3;
+}
+
+console.log('✅ Rivers Data 3 loaded:', RIVERS_DATA_3.length, 'rivers (21-30)');
