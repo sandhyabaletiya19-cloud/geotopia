@@ -1024,7 +1024,7 @@ const RIVERS_DATA_3 = [
                 description: "One of the few remaining undammed major rivers in the world, symbolizing conservation struggles."
             }
         ]
-    }
+    },
         // ========================================
     // 26. COLORADO RIVER
     // ========================================
