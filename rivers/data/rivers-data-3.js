@@ -3,7 +3,7 @@
 // Ordered by length: Longest to Shortest
 // ============================================================
 
-const riversData3 = [
+const RIVERS_DATA_3 = [
     // ========================================
     // RIVER 21: YUKON RIVER
     // ========================================
@@ -3845,12 +3845,7 @@ const riversData3 = [
 
 // Make data available globally
 if (typeof window !== 'undefined') {
-    window.riversData3 = riversData3;
+    window.RIVERS_DATA_3 = RIVERS_DATA_3;
 }
 
-// For module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = riversData3;
-}
-
-console.log('✅ Rivers Data 3 loaded: Rivers 21-30 (Yukon to Irrawaddy)');
+console.log('✅ Rivers Data 3 loaded:', RIVERS_DATA_3.length, 'rivers');
