@@ -38,21 +38,39 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initApp() {
-    // Check if data exists
-    if (typeof UPSCData === 'undefined') {
-        console.error('UPSCData not found!');
+    // Combine all topic arrays
+    let allTopics = [];
+    
+    // Add geomorphology topics
+    if (typeof geomorphologyTopics !== 'undefined') {
+        allTopics = [...allTopics, ...geomorphologyTopics];
+        console.log('✅ Loaded Geomorphology:', geomorphologyTopics.length, 'topics');
+    }
+    
+    // Add climatology topics
+    if (typeof climatologyTopics1 !== 'undefined') {
+        allTopics = [...allTopics, ...climatologyTopics1];
+        console.log('✅ Loaded Climatology-1:', climatologyTopics1.length, 'topics');
+    }
+    
+    // Check if we have any data
+    if (allTopics.length === 0) {
+        console.error('❌ No topics found!');
         DOM.loader.innerHTML = `
             <div class="loader-content">
                 <div class="loader-icon">❌</div>
                 <p style="color: #ef4444;">Data Not Found!</p>
-                <p style="color: #94a3b8; font-size: 0.9rem;">Make sure upsc-data.js is loaded</p>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Make sure data files are loaded</p>
             </div>
         `;
         return;
     }
 
-    // Flatten all topics
-    flattenTopics();
+    console.log('📊 Total topics loaded:', allTopics.length);
+
+    // Store in AppState
+    AppState.topics = allTopics;
+    AppState.filteredTopics = allTopics;
     
     // Update streak
     updateStreak();
@@ -70,7 +88,6 @@ function initApp() {
         DOM.loader.classList.add('hidden');
     }, 800);
 }
-
 function flattenTopics() {
     AppState.topics = [];
     
