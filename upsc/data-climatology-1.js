@@ -1,15 +1,26 @@
-// ☁️ DATA-CLIMATOLOGY-1.JS
-// Topics: Atmosphere Structure, Temperature Distribution, Pressure Belts, Wind Systems
+/* ========================================
+   UPSC GEOGRAPHY - CLIMATOLOGY PART 1
+   4 Topics:
+   1. Structure of Atmosphere
+   2. Temperature Distribution
+   3. Pressure Belts
+   4. Wind Systems
+   
+   Load AFTER: data-geomorphology.js
+======================================== */
 
-const climatologyData1 = [
+const climatologyTopics1 = [
+
+    // ========================================
+    // TOPIC 1: STRUCTURE OF ATMOSPHERE
+    // ========================================
     {
         id: 'atmosphere-structure',
-        title: '🌍 Structure of Atmosphere',
+        title: 'Structure of Atmosphere',
         category: 'Climatology',
         icon: '☁️',
         color: '#4A90E2',
         
-        // Background theme
         theme: {
             primary: '#4A90E2',
             secondary: '#87CEEB',
@@ -17,7 +28,6 @@ const climatologyData1 = [
             pattern: 'clouds'
         },
 
-        // Quick Stats
         stats: {
             'Total Height': '10,000 km',
             'Layers': '5 Major',
@@ -25,7 +35,6 @@ const climatologyData1 = [
             'Weather Zone': 'Troposphere'
         },
 
-        // 1️⃣ VISUAL MIND MAP
         mindmap: {
             center: 'Atmosphere Structure',
             branches: [
@@ -57,54 +66,52 @@ const climatologyData1 = [
             ]
         },
 
-        // 2️⃣ MEMORY HOOKS
         memoryHooks: [
             {
                 type: 'Mnemonic',
-                text: '🎯 **"The Smart Man Takes Exercise"**',
+                text: '🎯 "The Smart Man Takes Exercise"',
                 explanation: 'Troposphere → Stratosphere → Mesosphere → Thermosphere → Exosphere'
             },
             {
                 type: 'Story Method',
-                text: '🏔️ **The Temperature Rollercoaster**',
-                explanation: 'Tropos: Gets COLD going up (normal)\nStratos: Gets HOT going up (ozone party!)\nMesos: Gets COLD again (coldest layer)\nThermos: Gets SUPER HOT (think thermos bottle!)'
+                text: '🏔️ The Temperature Rollercoaster',
+                explanation: 'Tropos: Gets COLD going up ❄️\nStratos: Gets HOT going up 🔥 (ozone party!)\nMesos: Gets COLD again ❄️\nThermos: Gets SUPER HOT 🔥🔥'
             },
             {
-                type: 'Visual Hook',
-                text: '📏 **Height Trick**',
-                explanation: '0-12-50-80-400 (Remember: 12, 50, 80 are nice round numbers)'
+                type: 'Number Trick',
+                text: '📏 Height Memory',
+                explanation: '0-12-50-80-400 km (Remember: 12, 50, 80 are nice round numbers)'
             }
         ],
 
-        // 3️⃣ MICRO CONCEPT BLOCKS
         concepts: [
             {
                 title: 'Troposphere - The Weather Kitchen',
                 icon: '🌦️',
                 points: [
-                    '• Contains 75% of atmospheric mass and 99% of water vapor',
-                    '• Temperature decreases at 6.5°C per km (Normal Lapse Rate)',
-                    '• All weather phenomena (clouds, rain, storms) happen here',
-                    '• Height varies: 18km at equator, 8km at poles (heat expansion)'
+                    '• Contains 75% of atmospheric mass and 99% of water vapor - ALL weather happens here',
+                    '• Temperature decreases at 6.5°C per km - called Normal Lapse Rate (NLR)',
+                    '• Height varies: 18km at equator (hot air expands), only 8km at poles (cold air contracts)',
+                    '• Tropopause = boundary layer - jet aircraft fly here for smooth travel'
                 ]
             },
             {
                 title: 'Stratosphere - The Ozone Shield',
                 icon: '🛡️',
                 points: [
-                    '• Contains ozone layer (O₃) which absorbs UV radiation',
-                    '• Temperature INCREASES with height (temperature inversion)',
-                    '• Ideal for jet aircraft - stable, no weather turbulence',
-                    '• CFCs destroy ozone here causing ozone holes'
+                    '• Contains ozone layer (O₃) at 25-30 km - absorbs 97-99% harmful UV radiation',
+                    '• Temperature INCREASES with height - called temperature inversion (opposite of normal)',
+                    '• Very stable layer - no weather, no turbulence - ideal for aircraft',
+                    '• CFCs released from ACs/refrigerators destroy ozone here - causing ozone holes'
                 ]
             },
             {
                 title: 'Mesosphere - The Meteor Destroyer',
                 icon: '☄️',
                 points: [
-                    '• Coldest atmospheric layer (-90°C at top)',
-                    '• Meteors burn up here due to friction with air molecules',
-                    '• Noctilucent clouds form here (highest clouds)',
+                    '• COLDEST atmospheric layer - temperature drops to -90°C at mesopause',
+                    '• Meteors burn up here due to friction - we see them as "shooting stars"',
+                    '• Noctilucent clouds form here - highest clouds visible from Earth',
                     '• Least studied layer - too high for balloons, too low for satellites'
                 ]
             },
@@ -112,97 +119,85 @@ const climatologyData1 = [
                 title: 'Thermosphere - The Aurora Zone',
                 icon: '🌌',
                 points: [
-                    '• Temperature can reach 1500°C but feels cold (low density)',
-                    '• Aurora Borealis/Australis (Northern/Southern Lights) occur here',
-                    '• International Space Station orbits here (~400 km)',
-                    '• Radio waves are reflected back by ionosphere (part of thermosphere)'
+                    '• Temperature can reach 1500°C but feels cold - very few molecules to transfer heat',
+                    '• Aurora Borealis (North) and Aurora Australis (South) occur here - solar wind + magnetic field',
+                    '• International Space Station orbits at ~400 km in this layer',
+                    '• Ionosphere (60-1000 km) is part of this - reflects radio waves for communication'
                 ]
             },
             {
                 title: 'Exosphere - The Space Gateway',
                 icon: '🛰️',
                 points: [
-                    '• Outermost layer merging with outer space',
-                    '• Extremely low density - atoms escape to space',
-                    '• Satellites orbit in this layer',
-                    '• No clear boundary - gradually fades into space'
+                    '• Outermost layer starting at ~400 km - gradually merges with outer space',
+                    '• Extremely low density - atoms can escape Earth\'s gravity into space',
+                    '• Weather satellites orbit here in geostationary positions',
+                    '• No clear upper boundary - fades into the vacuum of space'
                 ]
             }
         ],
 
-        // 4️⃣ VISUAL DIAGRAM IDEAS
         diagrams: [
             {
                 type: 'Layered Diagram',
                 title: 'Atmospheric Layers with Height',
-                description: 'Vertical cross-section showing all 5 layers with exact heights, temperature curve, and key features (aircraft, aurora, meteors, satellites)'
+                description: 'Vertical cross-section showing all 5 layers with heights, temperature curve, aircraft, aurora, meteors, and satellites at correct positions'
             },
             {
                 type: 'Temperature Graph',
                 title: 'Temperature vs Height',
-                description: 'Line graph showing temperature changes - decreasing in troposphere, increasing in stratosphere, decreasing in mesosphere, increasing in thermosphere'
-            },
-            {
-                type: 'Comparison Table',
-                title: 'Layer-wise Features',
-                description: 'Table comparing all layers: Height, Temperature trend, Density, Special features, Importance'
+                description: 'Line graph showing zigzag pattern - decrease in troposphere, increase in stratosphere, decrease in mesosphere, increase in thermosphere'
             }
         ],
 
-        // 5️⃣ QUICK FACTS (UPSC Important)
         quickFacts: [
-            '📍 78% Nitrogen, 21% Oxygen, 0.9% Argon, 0.04% CO₂',
-            '📍 Troposphere contains ALL weather - clouds, rain, storms',
-            '📍 Ozone layer at 25-30 km absorbs 97-99% UV radiation',
-            '📍 Tropopause height: 18km (equator) vs 8km (poles)',
-            '📍 Mesopause is coldest point in atmosphere (-90°C)',
-            '📍 Ionosphere (part of thermosphere) reflects radio waves',
-            '📍 Karman Line (100 km) - official boundary of space',
-            '📍 Air pressure decreases by 50% every 5.6 km'
+            '📍 Atmosphere composition: 78% Nitrogen, 21% Oxygen, 0.9% Argon, 0.04% CO₂',
+            '📍 Troposphere has ALL weather - clouds, rain, storms, cyclones form here',
+            '📍 Ozone hole discovered 1985 over Antarctica - Montreal Protocol banned CFCs',
+            '📍 Normal Lapse Rate = 6.5°C decrease per 1 km altitude increase',
+            '📍 Karman Line at 100 km = official boundary between atmosphere and space',
+            '📍 Air pressure reduces by 50% every 5.6 km increase in altitude'
         ],
 
-        // 6️⃣ COMMON UPSC TRAPS
         traps: [
             {
                 wrong: '❌ Temperature always decreases with height',
-                right: '✅ Only in Troposphere & Mesosphere. INCREASES in Stratosphere & Thermosphere'
+                right: '✅ Decreases in Troposphere & Mesosphere, INCREASES in Stratosphere & Thermosphere'
             },
             {
                 wrong: '❌ Ozone layer is in Troposphere',
-                right: '✅ Ozone layer is in STRATOSPHERE (25-30 km)'
+                right: '✅ Ozone layer is in STRATOSPHERE at 25-30 km height'
             },
             {
-                wrong: '❌ All atmospheric layers have same height everywhere',
-                right: '✅ Troposphere is TALLER at equator (18km) than poles (8km) due to heat'
+                wrong: '❌ Troposphere has same height everywhere',
+                right: '✅ 18 km at equator (hot = expansion), only 8 km at poles (cold = contraction)'
             },
             {
-                wrong: '❌ Thermosphere is hottest so it feels hot',
-                right: '✅ High temperature but LOW DENSITY = feels cold (few molecules to transfer heat)'
-            },
-            {
-                wrong: '❌ Mesosphere is where auroras occur',
-                right: '✅ Auroras occur in THERMOSPHERE (not mesosphere)'
+                wrong: '❌ Thermosphere is hottest so it feels very hot',
+                right: '✅ High temperature but LOW density = feels cold (few molecules to transfer heat)'
             }
         ],
 
-        // 7️⃣ SUPER FAST REVISION BOX
         revisionBox: {
             title: '⚡ 30-Second Revision',
             points: [
-                '🔢 5 Layers: Tropo-Strato-Meso-Thermo-Exo (The Smart Man Takes Exercise)',
-                '🌡️ Temp: ↓↑↓↑ (down-up-down-up pattern)',
+                '🔢 5 Layers: Tropo → Strato → Meso → Thermo → Exo (The Smart Man Takes Exercise)',
+                '🌡️ Temperature pattern: ↓ ↑ ↓ ↑ (down-up-down-up)',
                 '☁️ Tropo = Weather | Strato = Ozone | Meso = Meteors | Thermo = Aurora',
-                '📏 Heights: 12-50-80-400 km boundaries',
-                '⚠️ Temperature INVERSION in Stratosphere (unique!)'
+                '📏 Heights: 0-12-50-80-400 km',
+                '⚠️ Stratosphere = Temperature INVERSION (increases with height)'
             ]
         }
     },
 
+    // ========================================
+    // TOPIC 2: TEMPERATURE DISTRIBUTION
+    // ========================================
     {
         id: 'temperature-distribution',
-        title: '🌡️ Temperature Distribution on Earth',
+        title: 'Temperature Distribution',
         category: 'Climatology',
-        icon: '🔥',
+        icon: '🌡️',
         color: '#E74C3C',
         
         theme: {
@@ -215,8 +210,8 @@ const climatologyData1 = [
         stats: {
             'Hottest Recorded': '56.7°C (Death Valley)',
             'Coldest Recorded': '-89.2°C (Antarctica)',
-            'Average Earth Temp': '15°C',
-            'Equator Temp': '25-28°C'
+            'Average Earth': '15°C',
+            'Lapse Rate': '6.5°C/km'
         },
 
         mindmap: {
@@ -225,27 +220,22 @@ const climatologyData1 = [
                 {
                     name: 'Controls/Factors',
                     color: '#E74C3C',
-                    sub: ['Latitude (most important)', 'Altitude', 'Distance from sea', 'Ocean currents', 'Winds', 'Slope & Aspect']
+                    sub: ['Latitude', 'Altitude', 'Distance from sea', 'Ocean currents', 'Winds', 'Slope aspect']
                 },
                 {
-                    name: 'Horizontal Distribution',
+                    name: 'Horizontal Pattern',
                     color: '#3498DB',
-                    sub: ['Isotherms (lines)', 'Equator = Hottest', 'Poles = Coldest', 'Thermal equator (ITCZ)']
+                    sub: ['Isotherms', 'Equator hottest', 'Poles coldest', 'Thermal equator']
                 },
                 {
-                    name: 'Vertical Distribution',
+                    name: 'Vertical Pattern',
                     color: '#27AE60',
-                    sub: ['Normal lapse rate', '6.5°C per km', 'Temperature inversion', 'Mountain climates']
+                    sub: ['Lapse rate 6.5°C/km', 'Inversion', 'Mountain climates']
                 },
                 {
                     name: 'Land vs Ocean',
                     color: '#F39C12',
-                    sub: ['Land heats faster', 'Water heats slowly', 'Specific heat capacity', 'Albedo differences']
-                },
-                {
-                    name: 'Seasonal Variation',
-                    color: '#9B59B6',
-                    sub: ['Axial tilt (23.5°)', 'Revolution around sun', 'Solstices & Equinoxes', 'Angle of sun rays']
+                    sub: ['Land heats faster', 'Ocean moderate', 'Specific heat', 'Albedo']
                 }
             ]
         },
@@ -253,18 +243,18 @@ const climatologyData1 = [
         memoryHooks: [
             {
                 type: 'Mnemonic',
-                text: '🎯 **"LADOS WC"** for Temperature Controls',
-                explanation: 'Latitude - Altitude - Distance from sea - Ocean currents - Slope - Wind - Clouds'
+                text: '🎯 "LADOS-WC" for Temperature Controls',
+                explanation: 'Latitude - Altitude - Distance from sea - Ocean currents - Slope - Winds - Clouds'
             },
             {
-                type: 'Story Method',
-                text: '🏖️ **Beach vs Mountain Story**',
-                explanation: 'Beach boy (sea) = Calm, steady temperature, slow to anger, slow to cool\nMountain man (land) = Quick temper, heats up fast, cools down fast!'
+                type: 'Story',
+                text: '🏖️ Beach vs Mountain Story',
+                explanation: 'Beach boy (ocean) = Calm, steady, slow to anger, slow to cool down\nMountain man (land) = Quick temper, heats up fast, cools down fast!'
             },
             {
-                type: 'Number Trick',
-                text: '📊 **The 6.5 Rule**',
-                explanation: 'Every 1 km UP = 6.5°C DOWN (Normal Lapse Rate)\nEasy: Climb Mt. Everest (8.8km) = 57°C cooler at top!'
+                type: 'Number',
+                text: '📊 The 6.5 Rule',
+                explanation: 'Every 1 km UP = 6.5°C DOWN\nMt Everest (8.8 km) = ~57°C cooler at top!'
             }
         ],
 
@@ -273,138 +263,111 @@ const climatologyData1 = [
                 title: 'Latitude - The Master Control',
                 icon: '🌍',
                 points: [
-                    '• Equator receives direct/vertical sun rays = maximum heating (25-28°C)',
-                    '• Poles receive slanted/oblique rays = minimum heating (-40 to -50°C)',
-                    '• Sun\'s rays spread over larger area at poles (same energy, larger area)',
-                    '• Insolation (incoming solar radiation) decreases from equator to poles'
+                    '• Equator receives DIRECT sun rays = maximum heating (25-28°C average)',
+                    '• Poles receive SLANTED rays = same energy spread over larger area = less heating',
+                    '• Temperature generally decreases from equator to poles at ~0.5°C per degree latitude',
+                    '• Thermal equator (hottest zone) is NOT at 0° - shifts north in July, south in January'
                 ]
             },
             {
                 title: 'Altitude - The Height Effect',
                 icon: '⛰️',
                 points: [
-                    '• Temperature DECREASES with altitude at 6.5°C/km (Normal Lapse Rate)',
-                    '• Mountains are colder even at equator (Mt. Kilimanjaro has snow!)',
-                    '• Air is thinner at height = holds less heat',
-                    '• Exception: Temperature INVERSION (temperature increases with height in valleys during winter nights)'
+                    '• Temperature DECREASES at 6.5°C per km - Normal Lapse Rate (NLR)',
+                    '• Mountains are cold even at equator - Mt Kilimanjaro has snow on equator!',
+                    '• Air is thinner at height = fewer molecules = holds less heat',
+                    '• Exception: Temperature INVERSION - temperature increases with height in valleys at night'
                 ]
             },
             {
-                title: 'Distance from Sea - Maritime vs Continental',
+                title: 'Distance from Sea - Continentality',
                 icon: '🌊',
                 points: [
-                    '• Oceans: Moderate temperature, small daily/annual range (specific heat capacity of water)',
-                    '• Land interiors: Extreme temperatures, large daily/annual range (continental climate)',
-                    '• Coastal areas: Mild climate, sea breeze moderates temperature',
-                    '• Example: Mumbai (coastal) vs Delhi (interior) temperature range'
+                    '• Coastal areas = MODERATE temperature - small daily/annual range (maritime climate)',
+                    '• Interior areas = EXTREME temperature - large daily/annual range (continental climate)',
+                    '• Water has HIGH specific heat - absorbs more heat, releases slowly',
+                    '• Mumbai (coast) has 5°C annual range vs Delhi (interior) has 20°C annual range'
                 ]
             },
             {
-                title: 'Ocean Currents - The Heat Conveyor Belt',
-                icon: '🌊',
+                title: 'Ocean Currents - Heat Transporters',
+                icon: '🌀',
                 points: [
-                    '• Warm currents (from equator) WARM nearby coasts (Gulf Stream warms Western Europe)',
-                    '• Cold currents (from poles) COOL nearby coasts (Labrador Current cools NE Canada)',
-                    '• West coasts of continents = usually cold currents',
-                    '• East coasts of continents = usually warm currents'
+                    '• WARM currents (from equator) WARM nearby coasts - Gulf Stream warms Western Europe',
+                    '• COLD currents (from poles) COOL nearby coasts - Labrador Current cools Canada',
+                    '• West coasts of continents usually have COLD currents (except in Indian Ocean)',
+                    '• East coasts of continents usually have WARM currents'
                 ]
             },
             {
-                title: 'Land vs Water Heating',
-                icon: '🏝️',
-                points: [
-                    '• Land: Heats quickly, cools quickly (low specific heat, opaque, no mobility)',
-                    '• Water: Heats slowly, cools slowly (high specific heat, transparent, currents distribute heat)',
-                    '• Land has HIGHER annual temperature range than oceans',
-                    '• Northern Hemisphere has more extreme seasons (more landmass)'
-                ]
-            },
-            {
-                title: 'Temperature Inversion - The Upside Down',
+                title: 'Temperature Inversion',
                 icon: '🔄',
                 points: [
-                    '• Normally: Temperature DECREASES with height',
-                    '• Inversion: Temperature INCREASES with height (opposite/abnormal)',
-                    '• Occurs: Winter nights in valleys, under anticyclones, near polar regions',
-                    '• Effects: Pollution trapped, frost in valleys, poor visibility'
+                    '• ABNORMAL condition - temperature INCREASES with height instead of decreasing',
+                    '• Occurs in: Valley bottoms at night, under anticyclones, polar regions',
+                    '• Cold heavy air sinks to valley floor, warm air stays above',
+                    '• Causes: Frost in valleys, fog, smog trapped, poor visibility - Delhi winter smog!'
                 ]
             }
         ],
 
         diagrams: [
             {
-                type: 'Global Heat Map',
-                title: 'World Temperature Distribution',
-                description: 'Map with isotherms (lines joining equal temperature) showing hot equatorial belt, temperate mid-latitudes, and cold polar regions'
+                type: 'World Map',
+                title: 'Global Temperature Distribution',
+                description: 'Map with isotherms (lines of equal temperature) showing hot equatorial belt and cold polar zones'
             },
             {
-                type: 'Comparative Diagram',
-                title: 'Land vs Water Heating Curves',
-                description: 'Graph showing land heats/cools rapidly (steep curve) vs water heats/cools slowly (gentle curve) over 24 hours'
-            },
-            {
-                type: 'Altitude Temperature Graph',
-                title: 'Normal Lapse Rate',
-                description: 'Graph showing temperature decreasing 6.5°C per km with altitude, with example of mountain climates'
-            },
-            {
-                type: 'Seasonal Diagram',
-                title: 'Earth\'s Tilt & Seasons',
-                description: 'Earth\'s 23.5° tilt causing direct rays at Tropic of Cancer (June) and Tropic of Capricorn (December)'
+                type: 'Graph',
+                title: 'Land vs Water Heating',
+                description: 'Two curves showing land heats/cools rapidly vs ocean heats/cools slowly over 24 hours'
             }
         ],
 
         quickFacts: [
-            '📍 Thermal Equator (hottest zone) shifts N-S with seasons, NOT fixed at geographical equator',
-            '📍 Isotherms = lines joining places with same temperature',
+            '📍 Isotherms = lines joining places with SAME temperature',
             '📍 Isotherms are irregular over land, smooth over oceans',
-            '📍 Northern Hemisphere is warmer than Southern (more land)',
-            '📍 Highest temperature: Death Valley, USA (56.7°C)',
-            '📍 Lowest temperature: Vostok, Antarctica (-89.2°C)',
-            '📍 Albedo effect: Snow reflects 80-90% sunlight (stays cold)',
-            '📍 Annual temperature range: Least at equator, maximum in continental interiors'
+            '📍 Northern Hemisphere is warmer than Southern (more land mass)',
+            '📍 Hottest: Death Valley, USA (56.7°C) | Coldest: Vostok, Antarctica (-89.2°C)',
+            '📍 Albedo effect: Snow reflects 80-90% sunlight - stays cold',
+            '📍 Annual range: LEAST at equator, MAXIMUM in continental interiors (Siberia)'
         ],
 
         traps: [
             {
-                wrong: '❌ Hottest point is exactly at Equator',
-                right: '✅ Thermal Equator (ITCZ) shifts between Tropics with seasons'
+                wrong: '❌ Hottest point on Earth is exactly at Equator (0°)',
+                right: '✅ Thermal equator shifts - north of 0° in July, south in January'
             },
             {
                 wrong: '❌ Temperature always decreases with altitude',
-                right: '✅ Normally yes, but INVERSION occurs (increases with height in special conditions)'
+                right: '✅ Normally yes, but INVERSION = temperature increases with height'
             },
             {
-                wrong: '❌ Oceans are colder than land',
+                wrong: '❌ Oceans are always colder than land',
                 right: '✅ Oceans are WARMER in winter, COOLER in summer (moderate temperature)'
-            },
-            {
-                wrong: '❌ Latitude and altitude have same effect',
-                right: '✅ Both cool, but mechanisms differ - latitude = slanted rays; altitude = thin air'
-            },
-            {
-                wrong: '❌ West coasts are warmer than east coasts',
-                right: '✅ Depends on ocean currents! Generally, west = cold current, east = warm current'
             }
         ],
 
         revisionBox: {
             title: '⚡ 30-Second Revision',
             points: [
-                '🌍 Latitude = King control (equator hot, poles cold)',
-                '⛰️ Altitude: -6.5°C per km (Normal Lapse Rate)',
+                '🌍 Latitude = King factor (equator hot, poles cold)',
+                '⛰️ Altitude: -6.5°C per km up (Normal Lapse Rate)',
                 '🌊 Water = Slow & Steady; Land = Quick & Extreme',
                 '🔄 Inversion = Temperature increases with height (abnormal)',
-                '📏 LADOS WC: Latitude-Altitude-Distance-Ocean-Slope-Wind-Clouds'
+                '📏 LADOS-WC: Latitude-Altitude-Distance-Ocean-Slope-Winds-Clouds'
             ]
         }
     },
 
+    // ========================================
+    // TOPIC 3: PRESSURE BELTS
+    // ========================================
     {
         id: 'pressure-belts',
-        title: '🌀 Atmospheric Pressure Belts',
+        title: 'Atmospheric Pressure Belts',
         category: 'Climatology',
-        icon: '🔵',
+        icon: '🌀',
         color: '#3498DB',
         
         theme: {
@@ -416,8 +379,8 @@ const climatologyData1 = [
 
         stats: {
             'Pressure Belts': '7 Major',
-            'High Pressure Belts': '3',
-            'Low Pressure Belts': '4',
+            'High Pressure': '3 Belts',
+            'Low Pressure': '4 Belts',
             'Standard Pressure': '1013.25 mb'
         },
 
@@ -427,27 +390,22 @@ const climatologyData1 = [
                 {
                     name: 'Equatorial Low (0-5°)',
                     color: '#E74C3C',
-                    sub: ['Doldrums', 'ITCZ', 'Rising air', 'Calm winds', 'Heavy rainfall']
+                    sub: ['Doldrums', 'ITCZ', 'Rising air', 'Heavy rain']
                 },
                 {
                     name: 'Sub-Tropical High (25-35°)',
                     color: '#3498DB',
-                    sub: ['Horse Latitudes', 'Descending air', 'Calm winds', 'Deserts form', 'Both hemispheres']
+                    sub: ['Horse Latitudes', 'Descending air', 'Deserts form']
                 },
                 {
                     name: 'Sub-Polar Low (60-65°)',
                     color: '#E74C3C',
-                    sub: ['Polar front', 'Convergence zone', 'Stormy weather', 'Cyclonic activity']
+                    sub: ['Polar Front', 'Cyclones form', 'Stormy']
                 },
                 {
                     name: 'Polar High (90°)',
                     color: '#3498DB',
-                    sub: ['Very cold', 'Descending air', 'High pressure', 'Dry conditions']
-                },
-                {
-                    name: 'Formation Causes',
-                    color: '#F39C12',
-                    sub: ['Thermal factors', 'Dynamic factors', 'Rotation of Earth', 'Differential heating']
+                    sub: ['Very cold', 'Descending air', 'Dry']
                 }
             ]
         },
@@ -455,158 +413,145 @@ const climatologyData1 = [
         memoryHooks: [
             {
                 type: 'Mnemonic',
-                text: '🎯 **"Every Student Should Pass"** for Pressure Belts',
+                text: '🎯 "Every Student Should Pass"',
                 explanation: 'Equatorial Low → Sub-tropical High → Sub-polar Low → Polar High'
             },
             {
-                type: 'Pattern Memory',
-                text: '🔄 **The Pressure Sandwich**',
-                explanation: 'LOW-HIGH-LOW-HIGH from Equator to Pole\n0° = LOW, 30° = HIGH, 60° = LOW, 90° = HIGH'
+                type: 'Pattern',
+                text: '🔄 The LOW-HIGH Pattern',
+                explanation: 'From equator to pole: LOW → HIGH → LOW → HIGH\n0° = L, 30° = H, 60° = L, 90° = H'
             },
             {
-                type: 'Story Method',
-                text: '🐴 **Horse Latitudes Story**',
-                explanation: 'Spanish ships carrying horses to Americas got stuck in calm winds at 30°. No wind = No movement. Threw horses overboard to lighten ship. Hence "Horse Latitudes"!'
-            },
-            {
-                type: 'Visual Trick',
-                text: '☝️👇 **Up & Down Pattern**',
-                explanation: 'LOW = Air RISES ☝️ (light, goes up)\nHIGH = Air DESCENDS 👇 (heavy, comes down)'
+                type: 'Story',
+                text: '🐴 Horse Latitudes Story',
+                explanation: 'Spanish ships carrying horses got stuck at 30° - no winds! Threw horses overboard to save water. Hence "Horse Latitudes"!'
             }
-        },
+        ],
 
         concepts: [
             {
-                title: 'Equatorial Low Pressure Belt (ITCZ)',
+                title: 'Equatorial Low Pressure (ITCZ)',
                 icon: '🌧️',
                 points: [
-                    '• Located 0-5° N & S of equator (shifts with seasons)',
-                    '• Called "Doldrums" - calm, light winds, no sailor\'s friend',
-                    '• Formed due to intense heating → hot air rises → low pressure',
-                    '• Characteristics: Heavy convectional rainfall, thunderstorms, high humidity'
+                    '• Located 0-5° N & S - shifts with seasons following the sun',
+                    '• Called DOLDRUMS - calm winds, sailors got stuck here for weeks',
+                    '• ITCZ = Inter-Tropical Convergence Zone - trade winds meet here',
+                    '• Intense heating → hot air rises → low pressure → heavy convectional rainfall'
                 ]
             },
             {
-                title: 'Sub-Tropical High Pressure Belt',
+                title: 'Sub-Tropical High Pressure (25-35°)',
                 icon: '🏜️',
                 points: [
-                    '• Located at 25-35° N & S latitudes (both hemispheres)',
-                    '• Called "Horse Latitudes" - calm winds, descending air',
-                    '• Formed by DYNAMIC reasons - air from equator descends here after rising',
-                    '• World\'s major deserts located here: Sahara, Arabian, Kalahari, Australian'
+                    '• Called HORSE LATITUDES - calm, descending air, clear skies',
+                    '• Formed by DYNAMIC reasons - air from equator descends here after cooling',
+                    '• World\'s major HOT DESERTS located here: Sahara, Arabian, Kalahari, Thar, Australian',
+                    '• Air descends → compresses → heats up → no rain → deserts form'
                 ]
             },
             {
-                title: 'Sub-Polar Low Pressure Belt',
+                title: 'Sub-Polar Low Pressure (60-65°)',
                 icon: '🌪️',
                 points: [
-                    '• Located at 60-65° N & S latitudes',
-                    '• Called "Polar Front" - where warm & cold air masses meet',
-                    '• Formed by convergence of warm westerlies and cold polar winds',
-                    '• Characteristics: Stormy weather, cyclonic activity, variable winds'
+                    '• Called POLAR FRONT - warm westerlies meet cold polar winds',
+                    '• Convergence of different air masses → cyclones form → stormy weather',
+                    '• Formed by DYNAMIC reasons - rotation of Earth causes convergence',
+                    '• Variable, unpredictable weather - important for Europe and North America'
                 ]
             },
             {
-                title: 'Polar High Pressure Belt',
+                title: 'Polar High Pressure (90°)',
                 icon: '❄️',
                 points: [
-                    '• Located at 90° N & S (North & South poles)',
-                    '• Formed due to extreme cold → cold air descends → high pressure',
-                    '• Characteristics: Very cold, dry, descending air, calm conditions',
-                    '• Polar easterlies blow FROM poles TO sub-polar low belt'
+                    '• Located at North and South poles - extremely cold regions',
+                    '• Formed by THERMAL reasons - intense cold → air descends → high pressure',
+                    '• Cold, dry, stable conditions - minimal precipitation (polar deserts)',
+                    '• Source of cold polar easterly winds blowing toward 60°'
                 ]
             },
             {
-                title: 'Thermal vs Dynamic Formation',
-                icon: '🔥',
+                title: 'Thermal vs Dynamic Belts',
+                icon: '⚡',
                 points: [
-                    '• THERMAL belts: Formed due to temperature (Equatorial Low & Polar High)',
-                    '• DYNAMIC belts: Formed due to Earth\'s rotation & air circulation (Sub-tropical High & Sub-polar Low)',
-                    '• Sub-tropical high is MOST IMPORTANT dynamic belt',
-                    '• Understanding this helps explain desert formation and wind systems'
+                    '• THERMAL belts formed by temperature: Equatorial Low (hot) & Polar High (cold)',
+                    '• DYNAMIC belts formed by Earth\'s rotation: Sub-tropical High & Sub-polar Low',
+                    '• Thermal belts are PRIMARY - formed first due to heating/cooling',
+                    '• Dynamic belts are SECONDARY - formed due to air circulation patterns'
                 ]
             },
             {
-                title: 'Seasonal Shifting of Belts',
+                title: 'Seasonal Shifting',
                 icon: '🔄',
                 points: [
-                    '• Pressure belts shift NORTH in June (Northern Summer)',
-                    '• Pressure belts shift SOUTH in December (Southern Summer)',
-                    '• ITCZ shifts most (up to 20-25° from equator)',
-                    '• This shifting causes monsoons in tropical regions (India, SE Asia)'
+                    '• All pressure belts shift NORTH in June (Northern summer) following the sun',
+                    '• All pressure belts shift SOUTH in December (Southern summer)',
+                    '• ITCZ shifts most dramatically - up to 20-25° from equator',
+                    '• This shifting causes MONSOONS in tropical regions (India, SE Asia, Africa)'
                 ]
             }
         ],
 
         diagrams: [
             {
-                type: 'Global Pressure Map',
+                type: 'Globe Diagram',
                 title: 'World Pressure Belts',
-                description: 'Circular diagram showing Earth with 7 pressure belts marked at correct latitudes (0°, 30°N, 30°S, 60°N, 60°S, 90°N, 90°S) with H and L labels'
+                description: 'Earth showing 7 belts at 0°, 30°N, 30°S, 60°N, 60°S, 90°N, 90°S with L and H marked'
             },
             {
-                type: 'Vertical Circulation',
+                type: 'Vertical Section',
                 title: 'Air Circulation Cells',
-                description: 'Cross-section showing Hadley Cell (0-30°), Ferrel Cell (30-60°), Polar Cell (60-90°) with rising and descending air marked'
-            },
-            {
-                type: 'Seasonal Shift',
-                title: 'ITCZ Migration',
-                description: 'Map showing ITCZ position in January vs July, demonstrating northward shift in summer'
+                description: 'Hadley Cell (0-30°), Ferrel Cell (30-60°), Polar Cell (60-90°) with rising/descending air'
             }
         ],
 
         quickFacts: [
             '📍 Standard atmospheric pressure at sea level = 1013.25 millibars (mb)',
-            '📍 Pressure DECREASES with altitude (50% reduction at 5.6 km)',
-            '📍 LOW pressure = Rising air = Clouds = Rain (bad weather)',
-            '📍 HIGH pressure = Descending air = Clear skies = Dry (good weather)',
-            '📍 All major deserts (Sahara, Arabian, Kalahari) at 30° latitudes',
-            '📍 ITCZ shifts 20-25° north in July, causes Indian monsoon',
-            '📍 Sub-polar low = meeting point of warm & cold winds = storms',
-            '📍 Horse Latitudes = 30° = calm winds frustrated ancient sailors'
+            '📍 LOW pressure = Rising air = Clouds = Rain ☔',
+            '📍 HIGH pressure = Descending air = Clear sky = No rain ☀️',
+            '📍 All major deserts at 30° N & S (Sub-tropical high belt)',
+            '📍 ITCZ shifts to 25°N over India in July → causes SW Monsoon',
+            '📍 Horse Latitudes = 30° = calm winds (descending air)'
         ],
 
         traps: [
             {
-                wrong: '❌ Equatorial region has high pressure',
-                right: '✅ Equatorial region has LOW pressure (hot air rises)'
+                wrong: '❌ Equatorial region has high pressure due to heat',
+                right: '✅ Equatorial region has LOW pressure - hot air rises!'
             },
             {
                 wrong: '❌ All pressure belts are thermally formed',
-                right: '✅ Equatorial Low & Polar High = Thermal; Sub-tropical High & Sub-polar Low = Dynamic'
+                right: '✅ Only Equatorial Low & Polar High are thermal; others are dynamic'
             },
             {
-                wrong: '❌ ITCZ is always at the equator',
-                right: '✅ ITCZ SHIFTS north (June-Sept) and south (Dec-March) with seasons'
+                wrong: '❌ ITCZ stays fixed at equator',
+                right: '✅ ITCZ shifts north (June) and south (December) with seasons'
             },
             {
-                wrong: '❌ High pressure means good rainfall',
-                right: '✅ HIGH pressure = Descending air = NO RAIN = Clear skies (opposite!)'
-            },
-            {
-                wrong: '❌ Sub-tropical high and sub-polar low are at same latitude',
-                right: '✅ Sub-tropical high = 30°; Sub-polar low = 60° (different!)'
+                wrong: '❌ High pressure means more rainfall',
+                right: '✅ HIGH pressure = Descending air = NO rainfall'
             }
         ],
 
         revisionBox: {
             title: '⚡ 30-Second Revision',
             points: [
-                '🔢 7 Belts: LOW-HIGH-LOW-HIGH pattern (0°-30°-60°-90°)',
-                '🌍 Every Student Should Pass = Eq.Low - Sub.High - Sub.Low - Polar High',
-                '🌧️ LOW = Rain (rising air); HIGH = Dry (descending air)',
+                '🔢 7 Belts: L-H-L-H pattern (0°-30°-60°-90°)',
+                '🎯 Every Student Should Pass = Eq.Low → Sub.High → Sub.Low → Polar.High',
+                '☔ LOW = Rain (rising air) | ☀️ HIGH = Dry (descending air)',
                 '🏜️ Deserts at 30° (Sub-tropical High)',
-                '🔄 ITCZ shifts N-S causing monsoons'
+                '🔄 ITCZ shifts → causes Monsoons'
             ]
         }
     },
 
+    // ========================================
+    // TOPIC 4: WIND SYSTEMS
+    // ========================================
     {
         id: 'wind-systems',
-        title: '💨 Planetary Wind Systems',
+        title: 'Planetary Wind Systems',
         category: 'Climatology',
-        icon: '🌬️',
+        icon: '💨',
         color: '#16A085',
         
         theme: {
@@ -620,36 +565,31 @@ const climatologyData1 = [
             'Permanent Winds': '3 Types',
             'Periodic Winds': '2 Types',
             'Local Winds': '50+ Types',
-            'Coriolis Effect': 'Deflects winds'
+            'Coriolis Effect': 'Deflects all winds'
         },
 
         mindmap: {
             center: 'Wind Systems',
             branches: [
                 {
-                    name: 'Permanent/Planetary Winds',
+                    name: 'Permanent Winds',
                     color: '#E74C3C',
-                    sub: ['Trade Winds', 'Westerlies', 'Polar Easterlies', 'Blow year-round', 'Same direction']
+                    sub: ['Trade Winds (0-30°)', 'Westerlies (30-60°)', 'Polar Easterlies (60-90°)']
                 },
                 {
-                    name: 'Periodic/Seasonal Winds',
+                    name: 'Periodic Winds',
                     color: '#3498DB',
-                    sub: ['Monsoons', 'Land & Sea Breeze', 'Mountain & Valley Breeze', 'Change direction', 'Seasonal/Daily']
+                    sub: ['Monsoons (seasonal)', 'Land/Sea Breeze (daily)', 'Mountain/Valley Breeze']
                 },
                 {
                     name: 'Local Winds',
                     color: '#F39C12',
-                    sub: ['Loo (India)', 'Chinook (USA)', 'Foehn (Alps)', 'Mistral (France)', 'Sirocco (Sahara)']
+                    sub: ['Loo (India)', 'Chinook (USA)', 'Foehn (Alps)', 'Mistral (France)']
                 },
                 {
                     name: 'Coriolis Effect',
                     color: '#9B59B6',
-                    sub: ['Earth\'s rotation', 'Deflects winds', 'Right in N.Hemisphere', 'Left in S.Hemisphere']
-                },
-                {
-                    name: 'Ferrel\'s Law',
-                    color: '#16A085',
-                    sub: ['Wind deflection law', 'Due to Coriolis', 'Explains wind patterns', 'Navigation impact']
+                    sub: ['Right in N.Hemisphere', 'Left in S.Hemisphere', 'Zero at Equator']
                 }
             ]
         },
@@ -657,23 +597,23 @@ const climatologyData1 = [
         memoryHooks: [
             {
                 type: 'Mnemonic',
-                text: '🎯 **"TWP"** for Permanent Winds',
-                explanation: 'Trade winds → Westerlies → Polar easterlies (from equator to poles)'
+                text: '🎯 "TWP" for Permanent Winds',
+                explanation: 'Trade winds → Westerlies → Polar easterlies (Equator to Poles)'
             },
             {
-                type: 'Directional Trick',
-                text: '➡️⬅️ **East vs West Winds**',
-                explanation: 'EASTERLIES = FROM East (Trade winds, Polar easterlies)\nWESTERLIES = FROM West (Mid-latitude westerlies)\nRemember: Named by SOURCE direction, not destination!'
+                type: 'Direction Trick',
+                text: '➡️ Easterly vs Westerly',
+                explanation: 'Winds named by SOURCE!\nEasterly = FROM East (blowing westward)\nWesterly = FROM West (blowing eastward)'
             },
             {
-                type: 'Story Method',
-                text: '🏝️ **The Trade Route Story**',
-                explanation: 'Trade Winds helped merchant ships sail from Europe to Americas (predictable, steady). Columbus used them! That\'s why called "Trade" winds.'
+                type: 'Story',
+                text: '⛵ Trade Wind Story',
+                explanation: 'Reliable Trade Winds helped merchant ships sail from Europe to Americas. Columbus used them! That\'s why called "Trade" winds!'
             },
             {
-                type: 'Visual Hook',
-                text: '🔄 **Coriolis Right-Left Rule**',
-                explanation: 'Northern Hemisphere = Deflection to RIGHT\nSouthern Hemisphere = Deflection to LEFT\nThink: "North RIGHT, South LEFT" (like politics!)'
+                type: 'Coriolis Rule',
+                text: '🔄 Right-Left Rule',
+                explanation: 'Northern Hemisphere = Deflection to RIGHT\nSouthern Hemisphere = Deflection to LEFT\nThink: "North-Right, South-Left"'
             }
         ],
 
@@ -682,108 +622,96 @@ const climatologyData1 = [
                 title: 'Trade Winds - The Reliable Traders',
                 icon: '⛵',
                 points: [
-                    '• Blow from Sub-tropical High (30°) TO Equatorial Low (0°)',
-                    '• Direction: NE in Northern Hemisphere, SE in Southern Hemisphere',
-                    '• Most regular & constant winds - helped historical trade routes',
-                    '• Convergence at equator forms ITCZ (Inter-Tropical Convergence Zone)'
+                    '• Blow FROM Sub-tropical High (30°) TO Equatorial Low (0°) - most reliable winds',
+                    '• Direction: NE Trade Winds in N.Hemisphere, SE Trade Winds in S.Hemisphere',
+                    '• Helped sailing ships trade between continents - hence the name "Trade" winds',
+                    '• Where they meet at equator = ITCZ (Inter-Tropical Convergence Zone)'
                 ]
             },
             {
                 title: 'Westerlies - The Storm Bringers',
                 icon: '🌩️',
                 points: [
-                    '• Blow from Sub-tropical High (30°) TO Sub-polar Low (60°)',
-                    '• Direction: SW in Northern Hemisphere, NW in Southern Hemisphere',
-                    '• Strongest between 40-50° latitudes ("Roaring Forties")',
-                    '• Bring cyclonic storms, variable weather, important for rainfall in temperate regions'
+                    '• Blow FROM Sub-tropical High (30°) TO Sub-polar Low (60°)',
+                    '• Direction: SW in N.Hemisphere, NW in S.Hemisphere (Coriolis deflection)',
+                    '• Strongest at 40-50°S latitude - called "Roaring Forties" (no land obstruction)',
+                    '• Bring cyclonic storms and rainfall to Western Europe and temperate regions'
                 ]
             },
             {
                 title: 'Polar Easterlies - The Cold Winds',
                 icon: '❄️',
                 points: [
-                    '• Blow from Polar High (90°) TO Sub-polar Low (60°)',
-                    '• Direction: NE in Northern Hemisphere, SE in Southern Hemisphere',
-                    '• Cold, dry winds from polar regions',
-                    '• Weak and irregular compared to Trade Winds and Westerlies'
+                    '• Blow FROM Polar High (90°) TO Sub-polar Low (60°)',
+                    '• Direction: NE in N.Hemisphere, SE in S.Hemisphere',
+                    '• Cold, dry, weak and irregular winds compared to Trade Winds',
+                    '• Where they meet Westerlies = Polar Front (cyclones form)'
                 ]
             },
             {
-                title: 'Monsoons - The Seasonal Giants',
+                title: 'Monsoons - Seasonal Reversal',
                 icon: '🌧️',
                 points: [
-                    '• REVERSE direction seasonally (Summer vs Winter)',
-                    '• Summer: Blow from Ocean to Land (bring rainfall)',
-                    '• Winter: Blow from Land to Ocean (dry season)',
-                    '• Most prominent in India, SE Asia, West Africa (40% world population depends on monsoons!)'
+                    '• REVERSE direction seasonally - most important for India (40% world depends on monsoons)',
+                    '• Summer Monsoon: Blows from OCEAN to LAND - brings rainfall (SW Monsoon in India)',
+                    '• Winter Monsoon: Blows from LAND to OCEAN - dry season (NE Monsoon)',
+                    '• Caused by differential heating of land and ocean + ITCZ shifting'
                 ]
             },
             {
-                title: 'Land & Sea Breeze - Daily Dancers',
+                title: 'Land & Sea Breeze - Daily Cycle',
                 icon: '🏖️',
                 points: [
-                    '• Sea Breeze (Day): From SEA → LAND (sea is cooler, high pressure)',
-                    '• Land Breeze (Night): From LAND → SEA (land cools faster, high pressure)',
-                    '• Distance: Extends 30-50 km inland',
-                    '• Gives relief in coastal areas during hot days'
+                    '• SEA BREEZE (Daytime): Sea → Land (sea is cooler, high pressure over sea)',
+                    '• LAND BREEZE (Nighttime): Land → Sea (land cools faster, high pressure over land)',
+                    '• Extends 30-50 km inland - gives relief in coastal areas',
+                    '• Daily reversal based on differential heating of land and water'
                 ]
             },
             {
-                title: 'Coriolis Effect - The Invisible Deflector',
+                title: 'Coriolis Effect',
                 icon: '🌀',
                 points: [
-                    '• Earth\'s rotation deflects moving air (and water)',
-                    '• Northern Hemisphere: Deflection to the RIGHT',
-                    '• Southern Hemisphere: Deflection to the LEFT',
-                    '• Maximum at poles, ZERO at equator (no deflection)'
+                    '• Earth\'s rotation deflects moving air (and water) from straight path',
+                    '• Northern Hemisphere: Deflection to the RIGHT of motion',
+                    '• Southern Hemisphere: Deflection to the LEFT of motion',
+                    '• Maximum at poles, ZERO at equator (no deflection at equator)'
                 ]
             },
             {
                 title: 'Famous Local Winds',
                 icon: '💨',
                 points: [
-                    '• Loo: Hot, dusty wind in N.India summer (May-June)',
-                    '• Chinook: Warm wind in Rockies (USA) - "Snow Eater"',
-                    '• Foehn: Warm wind in Alps (Europe) - helps ripen grapes',
-                    '• Mistral: Cold wind in S.France - causes frost damage',
-                    '• Sirocco: Hot Saharan wind affecting Mediterranean'
+                    '• LOO: Hot, dry, dusty wind in North India (May-June) - can cause heat stroke',
+                    '• CHINOOK: Warm wind in Rocky Mountains (USA/Canada) - melts snow rapidly - "Snow Eater"',
+                    '• FOEHN: Warm, dry wind in Alps (Europe) - helps ripen grapes',
+                    '• MISTRAL: Cold wind in Southern France - causes frost damage to crops',
+                    '• SIROCCO: Hot Saharan wind affecting Mediterranean - carries dust'
                 ]
             }
         ],
 
         diagrams: [
             {
-                type: 'Global Wind Map',
+                type: 'Global Map',
                 title: 'Planetary Wind Systems',
-                description: 'World map showing Trade Winds (0-30°), Westerlies (30-60°), Polar Easterlies (60-90°) with arrows showing direction and Coriolis deflection'
+                description: 'World map showing Trade Winds, Westerlies, and Polar Easterlies with arrows showing direction and Coriolis deflection'
             },
             {
-                type: 'Circulation Cells',
-                title: 'Hadley-Ferrel-Polar Cells',
-                description: 'Vertical cross-section from equator to pole showing 3 circulation cells and wind belts between them'
-            },
-            {
-                type: 'Daily Wind Pattern',
+                type: 'Daily Cycle',
                 title: 'Land & Sea Breeze',
-                description: 'Side-by-side comparison of day (sea breeze) and night (land breeze) with pressure centers and wind arrows'
-            },
-            {
-                type: 'Coriolis Deflection',
-                title: 'Wind Deflection Pattern',
-                description: 'Diagram showing how winds deflect right (N.Hem) and left (S.Hem) with curved arrows'
+                description: 'Two diagrams showing day (sea breeze: sea to land) and night (land breeze: land to sea)'
             }
         ],
 
         quickFacts: [
-            '📍 Trade Winds blow FROM 30° TO 0° (Sub-tropical to Equator)',
-            '📍 Westerlies blow FROM 30° TO 60° (Sub-tropical to Sub-polar)',
-            '📍 "Roaring Forties" = Strong westerlies at 40-50°S',
-            '📍 Wind named by SOURCE direction (Easterly = FROM East)',
-            '📍 Coriolis effect is ZERO at equator (no deflection)',
-            '📍 Monsoon comes from Arabic "Mausim" = Season',
-            '📍 Indian SW Monsoon brings 75-80% annual rainfall',
-            '📍 Jet streams are HIGH ALTITUDE winds (9-15 km up)',
-            '📍 Chinook can raise temp by 20°C in few hours!'
+            '📍 Trade Winds: FROM 30° TO 0° (most reliable, helped Columbus!)',
+            '📍 Westerlies: FROM 30° TO 60° (Roaring Forties at 40-50°S)',
+            '📍 Winds named by SOURCE direction (Easterly = FROM East)',
+            '📍 Coriolis: Right in North, Left in South, Zero at Equator',
+            '📍 Monsoon = Arabic "Mausim" meaning Season',
+            '📍 Indian SW Monsoon brings 75-80% of annual rainfall',
+            '📍 Chinook can raise temperature by 20°C in few hours!'
         ],
 
         traps: [
@@ -793,40 +721,37 @@ const climatologyData1 = [
             },
             {
                 wrong: '❌ Trade winds blow from equator to 30°',
-                right: '✅ Trade winds blow FROM 30° TO equator (opposite direction!)'
+                right: '✅ Trade winds blow FROM 30° TO equator (high to low pressure)'
             },
             {
                 wrong: '❌ Coriolis effect is strongest at equator',
-                right: '✅ Coriolis effect is ZERO at equator, maximum at poles'
+                right: '✅ Coriolis is ZERO at equator, MAXIMUM at poles'
             },
             {
-                wrong: '❌ Land breeze blows during day',
-                right: '✅ LAND breeze = Night (land to sea); SEA breeze = Day (sea to land)'
-            },
-            {
-                wrong: '❌ All winds deflect to the right',
-                right: '✅ N.Hemisphere = Right; S.Hemisphere = LEFT (Coriolis)'
+                wrong: '❌ Land breeze occurs during daytime',
+                right: '✅ LAND breeze = Night | SEA breeze = Day'
             },
             {
                 wrong: '❌ Monsoons are permanent winds',
-                right: '✅ Monsoons are SEASONAL/PERIODIC winds (change direction)'
+                right: '✅ Monsoons are PERIODIC/SEASONAL winds (reverse direction)'
             }
         ],
 
         revisionBox: {
             title: '⚡ 30-Second Revision',
             points: [
-                '💨 TWP: Trade winds (0-30°) → Westerlies (30-60°) → Polar Easterlies (60-90°)',
-                '🔄 Coriolis: Right in North, Left in South',
+                '💨 TWP: Trade (0-30°) → Westerlies (30-60°) → Polar Easterlies (60-90°)',
+                '🔄 Coriolis: Right in North, Left in South, Zero at Equator',
                 '📍 Named by SOURCE: Easterly = FROM East, Westerly = FROM West',
-                '🌧️ Monsoon = Seasonal reversal; Sea Breeze = Daily (day)',
-                '⛵ Trade winds = Most reliable; Westerlies = "Roaring Forties"'
+                '🌧️ Monsoon = Seasonal reversal; Sea Breeze = Daily (daytime)',
+                '⛵ Trade winds = Most reliable; Roaring Forties = 40-50°S'
             ]
         }
     }
+
 ];
 
-// Export for use in other files
+// Export check for Node.js environment
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = climatologyData1;
+    module.exports = climatologyTopics1;
 }
