@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 Seas Explorer | Geography Learning</title>
+    <link rel="stylesheet" href="oceans-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Seas-specific styles */
+        .seas-hero {
+            text-align: center;
+            padding: var(--spacing-xl) 0;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+        
+        .hero-stat {
+            text-align: center;
+        }
+        
+        .hero-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            display: block;
+        }
+        
+        .hero-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xl);
+            flex-wrap: wrap;
+        }
+        
+        .category-tab {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition-normal);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        
+        .category-tab:hover {
+            background: rgba(0, 180, 216, 0.15);
+            color: var(--text-light);
+            border-color: var(--wave-teal);
+        }
+        
+        .category-tab.active {
+            background: linear-gradient(135deg, var(--ocean-blue), var(--wave-teal));
+            color: var(--text-light);
+            border-color: var(--accent-cyan);
+        }
+        
+        .category-tab .count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+        }
+        
+        /* Sea Cards Grid */
+        .seas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        /* Sea Card */
+        .sea-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: var(--transition-slow);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sea-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--wave-gradient);
+            background-size: 200% 100%;
+            animation: waveGradient 3s linear infinite;
+            opacity: 0;
+            transition: var(--transition-normal);
+        }
+        
+        .sea-card:hover::before {
+            opacity: 1;
+        }
+        
+        .sea-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 20px 50px rgba(0, 180, 216, 0.2),
+                        0 0 30px rgba(0, 255, 229, 0.1);
+        }
+        
+        .sea-card-image {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .sea-card-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(transparent, var(--card-bg));
+        }
+        
+        .sea-card-badges {
+            position: absolute;
+            top: var(--spacing-sm);
+            left: var(--spacing-sm);
+            right: var(--spacing-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .ocean-badge {
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .ocean-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .strategic-badge {
+            padding: 4px 10px;
+            border-radius: var(--radius-md);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .strategic-badge.critical {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            color: white;
+        }
+        
+        .strategic-badge.very-high {
+            background: linear-gradient(135deg, #FFA500, #FFD700);
+            color: #000;
+        }
+        
+        .strategic-badge.high {
+            background: linear-gradient(135deg, #48CAE4, #00B4D8);
+            color: white;
+        }
+        
+        .sea-card-content {
+            padding: var(--spacing-md);
+        }
+        
+        .sea-card-name {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            color: var(--text-light);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .sea-card-stats {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .sea-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .sea-stat i {
+            color: var(--accent-cyan);
+            font-size: 0.75rem;
+        }
+        
+        .sea-stat-value {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        .sea-card-countries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .country-tag {
+            padding: 2px 8px;
+            background: rgba(0, 180, 216, 0.15);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .sea-card-trade {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-sm);
+        }
+        
+        .trade-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--shipping-gold), #FFA500);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .trade-info {
+            flex: 1;
+        }
+        
+        .trade-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--shipping-gold);
+        }
+        
+        .trade-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .sea-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--card-border);
+        }
+        
+        .straits-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .straits-info i {
+            color: #FF6B6B;
+        }
+        
+        .explore-btn {
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: linear-gradient(135deg, var(--ocean-blue), var(--wave-teal));
+            border-radius: var(--radius-md);
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            transition: var(--transition-normal);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .explore-btn:hover {
+            background: linear-gradient(135deg, var(--wave-teal), var(--accent-cyan));
+            transform: scale(1.05);
+        }
+        
+        /* Trade Routes Section */
+        .trade-routes-section {
+            margin-top: var(--spacing-xl);
+            padding: var(--spacing-xl);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-xl);
+        }
+        
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+        }
+        
+        .route-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            transition: var(--transition-normal);
+            cursor: pointer;
+        }
+        
+        .route-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-5px);
+        }
+        
+        .route-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .route-type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .route-type-icon.oil { background: linear-gradient(135deg, #FF6B6B, #FF8E8E); }
+        .route-type-icon.container { background: linear-gradient(135deg, #00B4D8, #48CAE4); }
+        .route-type-icon.lng { background: linear-gradient(135deg, #2ECC71, #58D68D); }
+        .route-type-icon.bulk { background: linear-gradient(135deg, #9B59B6, #BB8FCE); }
+        
+        .route-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .route-type-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .route-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-top: 1px solid var(--card-border);
+            margin-top: var(--spacing-sm);
+        }
+        
+        .route-stat {
+            text-align: center;
+        }
+        
+        .route-stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        
+        .route-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        /* Chokepoints Section */
+        .chokepoints-section {
+            margin-top: var(--spacing-xl);
+        }
+        
+        .chokepoints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+        }
+        
+        .chokepoint-card {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05));
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            transition: var(--transition-normal);
+        }
+        
+        .chokepoint-card:hover {
+            border-color: #FF6B6B;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.2);
+        }
+        
+        .chokepoint-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .chokepoint-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .chokepoint-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #FF6B6B;
+        }
+        
+        .chokepoint-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+        }
+        
+        .cp-stat {
+            background: rgba(0, 0, 0, 0.2);
+            padding: var(--spacing-xs);
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        
+        .cp-stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+        
+        .cp-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        /* Quick Navigation */
+        .quick-nav {
+            position: fixed;
+            right: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            z-index: 100;
+        }
+        
+        .quick-nav-btn {
+            width: 12px;
+            height: 12px;
+            background: var(--card-border);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            position: relative;
+        }
+        
+        .quick-nav-btn:hover,
+        .quick-nav-btn.active {
+            background: var(--accent-cyan);
+            transform: scale(1.3);
+        }
+        
+        .quick-nav-btn::before {
+            content: attr(data-label);
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--deep-ocean);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-normal);
+        }
+        
+        .quick-nav-btn:hover::before {
+            opacity: 1;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .seas-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-stat-value {
+                font-size: 1.8rem;
+            }
+            
+            .category-tabs {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: var(--spacing-sm);
+            }
+            
+            .quick-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="diver-animation">
+                <div class="diver">
+                    <i class="fas fa-anchor"></i>
+                </div>
+                <div class="dive-bubbles">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <div class="loading-text">Charting the World's Seas...</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Effects -->
+    <div class="ocean-background">
+        <div class="bubbles-container" id="bubblesContainer"></div>
+        <div class="caustics-container">
+            <div class="caustic-ray" style="--delay: 0s; --left: 10%;"></div>
+            <div class="caustic-ray" style="--delay: 2s; --left: 30%;"></div>
+            <div class="caustic-ray" style="--delay: 4s; --left: 50%;"></div>
+            <div class="caustic-ray" style="--delay: 1s; --left: 70%;"></div>
+            <div class="caustic-ray" style="--delay: 3s; --left: 90%;"></div>
+        </div>
+        <div class="plankton-container" id="planktonContainer"></div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <nav class="quick-nav">
+        <button class="quick-nav-btn active" data-section="seas" data-label="Seas"></button>
+        <button class="quick-nav-btn" data-section="routes" data-label="Trade Routes"></button>
+        <button class="quick-nav-btn" data-section="chokepoints" data-label="Chokepoints"></button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Header -->
+        <header class="ocean-header">
+            <div class="header-top">
+                <a href="oceans.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="header-title">
+                    <h1>
+                        <span class="title-wave">🌊</span>
+                        <span class="title-text">Seas Explorer</span>
+                    </h1>
+                    <p class="subtitle">Strategic seas, trade routes & chokepoints</p>
+                </div>
+                <div class="header-actions">
+                    <a href="oceans.html" class="theme-toggle" title="Back to Oceans">
+                        <i class="fas fa-globe"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="seas-hero" id="seas">
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="totalSeas">0</span>
+                    <span class="hero-stat-label">Major Seas</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="totalRoutes">0</span>
+                    <span class="hero-stat-label">Trade Routes</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="totalChokepoints">0</span>
+                    <span class="hero-stat-label">Chokepoints</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">$10T+</span>
+                    <span class="hero-stat-label">Annual Trade</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <button class="category-tab active" data-filter="all">
+                <i class="fas fa-water"></i>
+                All Seas
+                <span class="count" id="allCount">0</span>
+            </button>
+            <button class="category-tab" data-filter="strategic">
+                <i class="fas fa-exclamation-triangle"></i>
+                Strategic
+                <span class="count" id="strategicCount">0</span>
+            </button>
+            <button class="category-tab" data-filter="pacific-ocean">
+                <span class="dot" style="background: #0077B6; width: 10px; height: 10px; border-radius: 50%;"></span>
+                Pacific
+            </button>
+            <button class="category-tab" data-filter="atlantic-ocean">
+                <span class="dot" style="background: #00B4D8; width: 10px; height: 10px; border-radius: 50%;"></span>
+                Atlantic
+            </button>
+            <button class="category-tab" data-filter="indian-ocean">
+                <span class="dot" style="background: #48CAE4; width: 10px; height: 10px; border-radius: 50%;"></span>
+                Indian
+            </button>
+            <button class="category-tab" data-filter="arctic-ocean">
+                <span class="dot" style="background: #CAF0F8; width: 10px; height: 10px; border-radius: 50%;"></span>
+                Arctic
+            </button>
+            <button class="category-tab" data-filter="southern-ocean">
+                <span class="dot" style="background: #90E0EF; width: 10px; height: 10px; border-radius: 50%;"></span>
+                Southern
+            </button>
+        </div>
+
+        <!-- Seas Grid -->
+        <section class="seas-section">
+            <div class="seas-grid" id="seasGrid">
+                <!-- Sea cards will be dynamically generated -->
+            </div>
+        </section>
+
+        <!-- Trade Routes Section -->
+        <section class="trade-routes-section" id="routes">
+            <div class="section-header">
+                <h2>
+                    <span class="section-icon">🚢</span>
+                    Global Trade Routes
+                </h2>
+                <p class="section-description">Major shipping lanes that power the global economy</p>
+            </div>
+            
+            <div class="routes-grid" id="routesGrid">
+                <!-- Trade route cards will be dynamically generated -->
+            </div>
+        </section>
+
+        <!-- Chokepoints Section -->
+        <section class="chokepoints-section" id="chokepoints">
+            <div class="section-header">
+                <h2>
+                    <span class="section-icon">⚠️</span>
+                    Strategic Chokepoints
+                </h2>
+                <p class="section-description">Narrow passages critical to global trade and security</p>
+            </div>
+            
+            <div class="chokepoints-grid" id="chokepointsGrid">
+                <!-- Chokepoint cards will be dynamically generated -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="ocean-footer">
+            <div class="footer-bottom">
+                <p>🌊 Seas Explorer | Part of Geography Learning App</p>
+                <p class="footer-note">Understanding global maritime trade and geopolitics</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="seas-data.js"></script>
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // SEAS LISTING PAGE LOGIC
+        // ═══════════════════════════════════════════════════════════
+        
+        const oceanColors = {
+            'pacific-ocean': '#0077B6',
+            'atlantic-ocean': '#00B4D8',
+            'indian-ocean': '#48CAE4',
+            'southern-ocean': '#90E0EF',
+            'arctic-ocean': '#CAF0F8'
+        };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initLoadingScreen();
+        });
+        
+        function initLoadingScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const progress = document.querySelector('.loading-progress');
+            
+            let progressValue = 0;
+            const loadInterval = setInterval(() => {
+                progressValue += Math.random() * 15;
+                if (progressValue >= 100) {
+                    progressValue = 100;
+                    clearInterval(loadInterval);
+                    
+                    setTimeout(() => {
+                        loadingScreen.classList.add('fade-out');
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            initPage();
+                        }, 500);
+                    }, 300);
+                }
+                progress.style.width = `${progressValue}%`;
+            }, 50);
+            
+            generateBubbles();
+            generatePlankton();
+        }
+        
+        function generateBubbles() {
+            const container = document.getElementById('bubblesContainer');
+            for (let i = 0; i < 20; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.setProperty('--left', `${Math.random() * 100}%`);
+                bubble.style.setProperty('--size', `${Math.random() * 15 + 5}px`);
+                bubble.style.setProperty('--duration', `${Math.random() * 10 + 8}s`);
+                bubble.style.setProperty('--delay', `${Math.random() * 5}s`);
+                bubble.style.setProperty('--wobble', `${(Math.random() - 0.5) * 50}px`);
+                container.appendChild(bubble);
+            }
+        }
+        
+        function generatePlankton() {
+            const container = document.getElementById('planktonContainer');
+            for (let i = 0; i < 25; i++) {
+                const plankton = document.createElement('div');
+                plankton.className = 'plankton';
+                plankton.style.setProperty('--left', `${Math.random() * 100}%`);
+                plankton.style.setProperty('--top', `${Math.random() * 100}%`);
+                plankton.style.setProperty('--duration', `${Math.random() * 15 + 10}s`);
+                plankton.style.setProperty('--delay', `${Math.random() * 5}s`);
+                container.appendChild(plankton);
+            }
+        }
+        
+        function initPage() {
+            updateStats();
+            renderSeaCards('all');
+            renderTradeRoutes();
+            renderChokepoints();
+            setupCategoryTabs();
+            setupQuickNav();
+        }
+        
+        function updateStats() {
+            document.getElementById('totalSeas').textContent = seasData.length;
+            document.getElementById('totalRoutes').textContent = globalTradeRoutes.length;
+            document.getElementById('totalChokepoints').textContent = globalChokepoints.length;
+            document.getElementById('allCount').textContent = seasData.length;
+            
+            const strategicCount = seasData.filter(sea => 
+                sea.geopolitics?.strategicImportance === 'Critical' ||
+                sea.geopolitics?.strategicImportance === 'Very High'
+            ).length;
+            document.getElementById('strategicCount').textContent = strategicCount;
+        }
+        
+        function renderSeaCards(filter = 'all') {
+            const grid = document.getElementById('seasGrid');
+            grid.innerHTML = '';
+            
+            let filteredSeas = [...seasData];
+            
+            if (filter === 'strategic') {
+                filteredSeas = seasData.filter(sea => 
+                    sea.geopolitics?.strategicImportance === 'Critical' ||
+                    sea.geopolitics?.strategicImportance === 'Very High'
+                );
+            } else if (filter !== 'all') {
+                filteredSeas = seasData.filter(sea => sea.parentOceanId === filter);
+            }
+            
+            // Sort by area (largest first)
+            filteredSeas.sort((a, b) => (b.area || 0) - (a.area || 0));
+            
+            filteredSeas.forEach((sea, index) => {
+                const card = createSeaCard(sea, index);
+                grid.appendChild(card);
+            });
+        }
+        
+        function createSeaCard(sea, index) {
+            const card = document.createElement('article');
+            card.className = 'sea-card';
+            card.style.animationDelay = `${index * 0.1}s`;
+            
+            const oceanColor = oceanColors[sea.parentOceanId] || '#0077B6';
+            const strategicImportance = sea.geopolitics?.strategicImportance;
+            const tradeValue = sea.economicImportance?.tradeValue || '';
+            const countries = sea.borderingCountries?.slice(0, 4).map(c => c.name) || [];
+            const straitsCount = sea.straits?.length || 0;
+            
+            card.innerHTML = `
+                <div class="sea-card-image" style="background-image: url('${sea.image || 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=500'}')">
+                    <div class="sea-card-badges">
+                        <div class="ocean-badge">
+                            <span class="dot" style="background: ${oceanColor}"></span>
+                            ${sea.parentOcean.replace(' Ocean', '')}
+                        </div>
+                        ${strategicImportance ? `
+                            <div class="strategic-badge ${strategicImportance.toLowerCase().replace(' ', '-')}">
+                                ${strategicImportance}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="sea-card-content">
+                    <h3 class="sea-card-name">${sea.name}</h3>
+                    <div class="sea-card-stats">
+                        <div class="sea-stat">
+                            <i class="fas fa-expand"></i>
+                            <span class="sea-stat-value">${formatNumber(sea.area)}</span> km²
+                        </div>
+                        <div class="sea-stat">
+                            <i class="fas fa-arrow-down"></i>
+                            <span class="sea-stat-value">${formatNumber(sea.maxDepth)}</span>m
+                        </div>
+                    </div>
+                    <div class="sea-card-countries">
+                        ${countries.map(c => `<span class="country-tag">${c}</span>`).join('')}
+                        ${sea.borderingCountries?.length > 4 ? `<span class="country-tag">+${sea.borderingCountries.length - 4}</span>` : ''}
+                    </div>
+                    ${tradeValue ? `
+                        <div class="sea-card-trade">
+                            <div class="trade-icon">💰</div>
+                            <div class="trade-info">
+                                <div class="trade-value">${tradeValue}</div>
+                                <div class="trade-label">Annual Trade</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="sea-card-footer">
+                    <div class="straits-info">
+                        <i class="fas fa-route"></i>
+                        ${straitsCount} Strait${straitsCount !== 1 ? 's' : ''}
+                    </div>
+                    <button class="explore-btn" onclick="navigateToSea('${sea.id}')">
+                        Explore <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+            
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.explore-btn')) {
+                    navigateToSea(sea.id);
+                }
+            });
+            
+            return card;
+        }
+        
+        function renderTradeRoutes() {
+            const grid = document.getElementById('routesGrid');
+            grid.innerHTML = '';
+            
+            globalTradeRoutes.forEach((route, index) => {
+                const typeIcons = {
+                    'oil': '🛢️',
+                    'container': '📦',
+                    'lng': '⛽',
+                    'bulk': '🚚',
+                    'bulk-commodity': '🌾',
+                    'oil-lng': '🛢️'
+                };
+                
+                const icon = typeIcons[route.type] || '🚢';
+                const stats = route.statistics || {};
+                
+                const card = document.createElement('div');
+                card.className = 'route-card';
+                card.innerHTML = `
+                    <div class="route-header">
+                        <div class="route-type-icon ${route.type?.split('-')[0] || 'container'}">${icon}</div>
+                        <div>
+                            <div class="route-name">${route.name}</div>
+                            <div class="route-type-label">${route.type?.toUpperCase() || 'GENERAL'}</div>
+                        </div>
+                    </div>
+                    <div class="route-stats">
+                        ${stats.annualValue ? `
+                            <div class="route-stat">
+                                <div class="route-stat-value">${stats.annualValue}</div>
+                                <div class="route-stat-label">Annual Value</div>
+                            </div>
+                        ` : ''}
+                        ${stats.dailyBarrels ? `
+                            <div class="route-stat">
+                                <div class="route-stat-value">${(stats.dailyBarrels / 1000000).toFixed(1)}M</div>
+                                <div class="route-stat-label">Barrels/Day</div>
+                            </div>
+                        ` : ''}
+                        ${stats.percentGlobalTrade ? `
+                            <div class="route-stat">
+                                <div class="route-stat-value">${stats.percentGlobalTrade}%</div>
+                                <div class="route-stat-label">Global Trade</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function renderChokepoints() {
+            const grid = document.getElementById('chokepointsGrid');
+            grid.innerHTML = '';
+            
+            globalChokepoints.forEach(cp => {
+                const traffic = cp.traffic || {};
+                
+                const card = document.createElement('div');
+                card.className = 'chokepoint-card';
+                card.innerHTML = `
+                    <div class="chokepoint-header">
+                        <div class="chokepoint-icon">⚠️</div>
+                        <div class="chokepoint-name">${cp.name}</div>
+                    </div>
+                    <div class="chokepoint-stats">
+                        ${traffic.dailyOilBarrels ? `
+                            <div class="cp-stat">
+                                <div class="cp-stat-value">${(traffic.dailyOilBarrels / 1000000).toFixed(1)}M</div>
+                                <div class="cp-stat-label">Barrels/Day</div>
+                            </div>
+                        ` : ''}
+                        ${traffic.percentWorldOil ? `
+                            <div class="cp-stat">
+                                <div class="cp-stat-value">${traffic.percentWorldOil}%</div>
+                                <div class="cp-stat-label">World Oil</div>
+                            </div>
+                        ` : ''}
+                        ${traffic.annualShips ? `
+                            <div class="cp-stat">
+                                <div class="cp-stat-value">${formatNumber(traffic.annualShips)}</div>
+                                <div class="cp-stat-label">Ships/Year</div>
+                            </div>
+                        ` : ''}
+                        ${cp.width ? `
+                            <div class="cp-stat">
+                                <div class="cp-stat-value">${cp.width}</div>
+                                <div class="cp-stat-label">Width (km)</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function setupCategoryTabs() {
+            const tabs = document.querySelectorAll('.category-tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    const filter = tab.dataset.filter;
+                    renderSeaCards(filter);
+                });
+            });
+        }
+        
+        function setupQuickNav() {
+            const navBtns = document.querySelectorAll('.quick-nav-btn');
+            
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = document.getElementById(btn.dataset.section);
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth' });
+                        navBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    }
+                });
+            });
+            
+            // Update active state on scroll
+            window.addEventListener('scroll', () => {
+                const sections = ['seas', 'routes', 'chokepoints'];
+                let current = '';
+                
+                sections.forEach(id => {
+                    const section = document.getElementById(id);
+                    if (section && window.scrollY >= section.offsetTop - 200) {
+                        current = id;
+                    }
+                });
+                
+                navBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.section === current);
+                });
+            });
+        }
+        
+        function navigateToSea(seaId) {
+            window.location.href = `seas-profile.html?id=${seaId}`;
+        }
+        
+        function formatNumber(num) {
+            if (!num) return '0';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+    </script>
+</body>
+</html>
