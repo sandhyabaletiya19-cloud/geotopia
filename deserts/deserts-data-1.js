@@ -2935,11 +2935,8 @@ const desertsData1 = [
         }
     },
 
-    // Continue with deserts 4-10...
-    // Due to length, I'll provide the remaining 7 deserts with the same comprehensive structure
-
-    // ═══════════════════════════════════════════════════════════════════
-    // #4 - ARABIAN DESERT
+       // ═══════════════════════════════════════════════════════════════════
+    // #4 - ARABIAN DESERT (CONTINUED)
     // ═══════════════════════════════════════════════════════════════════
     {
         id: 'arabian-desert',
@@ -2968,7 +2965,8 @@ const desertsData1 = [
         backgroundImage: 'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=1920',
         galleryImages: [
             'https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?w=800',
-            'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800'
+            'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800',
+            'https://images.unsplash.com/photo-1547235001-d703406d3f17?w=800'
         ],
         
         geoJSON: {
@@ -2984,14 +2982,2594 @@ const desertsData1 = [
             }
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Location Branch
+        // ═══════════════════════════════════════════════════════════
         location: {
             continent: 'Asia (Arabian Peninsula)',
             hemispheres: ['Northern', 'Eastern'],
             latitudeRange: '12°N to 33°N',
             longitudeRange: '34°E to 60°E',
+            geographicCenter: '21°N, 46.5°E',
             totalCountries: 8,
-            coastlines: ['Red Sea', 'Persian Gulf', 'Gulf of Oman', 'Arabian Sea'],
-            percentOfPeninsula: '95%'
+            coastlines: ['Red Sea (west)', 'Persian Gulf (east)', 'Gulf of Oman (southeast)', 'Arabian Sea (south)'],
+            borders: ['Fertile Crescent (north)', 'Indian Ocean (south)'],
+            percentOfPeninsula: 95,
+            nearestOceans: ['Indian Ocean', 'Atlantic via Red Sea']
+        },
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Desert Type Branch
+        // ═══════════════════════════════════════════════════════════
+        desertClassification: {
+            primaryType: 'Hot Desert',
+            secondaryType: 'Subtropical Desert',
+            climateClassification: 'BWh (Hot Desert Climate)',
+            formationCauses: [
+                {
+                    cause: 'Subtropical High Pressure',
+                    explanation: 'Located under descending dry air of Hadley cell at 20-30°N'
+                },
+                {
+                    cause: 'Continental Interior Effect',
+                    explanation: 'Large landmass with limited moisture penetration'
+                },
+                {
+                    cause: 'Rain Shadow',
+                    explanation: 'Mountains in Yemen and Oman block monsoon moisture'
+                },
+                {
+                    cause: 'Hot Ocean Currents',
+                    explanation: 'Surrounding warm seas evaporate quickly but rain falls elsewhere'
+                }
+            ],
+            whyItsDesert: 'Combination of subtropical high pressure and continental isolation creates extreme aridity',
+            uniqueFeature: 'Contains the largest contiguous sand desert (Rub\' al Khali)'
+        },
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Size & Scale Branch
+        // ═══════════════════════════════════════════════════════════
+        size: {
+            totalArea: 2330000,
+            areaUnit: 'km²',
+            areaInMiles: 900000,
+            percentOfPeninsula: 95,
+            comparisonToCountries: [
+                'Slightly smaller than Argentina',
+                '10x size of United Kingdom',
+                'Half the size of European Union'
+            ],
+            ranking: {
+                amongDeserts: 4,
+                totalDeserts: 50,
+                hotDesertRank: 2,
+                statement: 'Fourth largest desert, second largest hot desert'
+            },
+            subDeserts: {
+                rubAlKhali: 650000,
+                nafud: 65000,
+                dahna: 45000
+            }
+        },
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Climate Branch
+        // ═══════════════════════════════════════════════════════════
+        climate: {
+            overview: 'Extremely hot summers, mild winters, minimal rainfall year-round',
+            temperatureData: {
+                summerHigh: {
+                    typical: '45°C to 50°C',
+                    extreme: 'Over 54°C',
+                    rubAlKhali: 'Up to 56°C'
+                },
+                winterLow: {
+                    typical: '5°C to 15°C',
+                    northern: 'Can reach freezing',
+                    frost: 'Possible in northern regions'
+                },
+                dailySwing: '20°C to 30°C variation',
+                annualMean: {
+                    coastal: '27°C',
+                    interior: '33°C'
+                },
+                extremeRecords: {
+                    hottestEver: '54.0°C (Mitribah, Kuwait, 2016)',
+                    hottestSaudi: '52.0°C (Jeddah)',
+                    coldestEver: '-12°C (Turayf, Saudi Arabia)',
+                    hottestGround: '70°C+ (sand surface)'
+                }
+            },
+            precipitation: {
+                annualAverage: '<100mm (most areas)',
+                rubAlKhali: '<35mm',
+                coastalAreas: '100-200mm',
+                yemenHighlands: '500mm (exception)',
+                type: 'Winter thunderstorms, occasional tropical systems',
+                droughtPeriod: 'Years can pass without rain in interior'
+            },
+            wind: {
+                shamal: 'Hot dry northwesterly wind',
+                khamsin: 'Hot dusty wind from south',
+                sandstorms: 'Common, especially spring',
+                averageSpeed: '15-30 km/h'
+            },
+            humidity: {
+                coastal: 'Very high (80-90%)',
+                interior: 'Very low (10-20%)',
+                summer: 'Coastal areas oppressively humid'
+            }
+        },
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Landforms Branch
+        // ═══════════════════════════════════════════════════════════
+        landforms: [
+            {
+                name: 'Rub\' al Khali (Empty Quarter)',
+                localName: 'الربع الخالي',
+                description: 'Largest contiguous sand desert in the world',
+                area: '650,000 km²',
+                countries: ['Saudi Arabia', 'UAE', 'Oman', 'Yemen'],
+                duneHeight: 'Up to 250m (among tallest in world)',
+                duneTypes: ['Star dunes', 'Crescentic dunes', 'Linear dunes'],
+                characteristics: 'Virtually uninhabited, extremely harsh conditions',
+                exploration: 'First European crossing by Wilfred Thesiger (1946-1948)'
+            },
+            {
+                name: 'An-Nafud Desert',
+                localName: 'النفود',
+                description: 'Northern sand desert with distinctive red dunes',
+                area: '65,000 km²',
+                country: 'Saudi Arabia',
+                duneHeight: 'Up to 90m',
+                color: 'Red-orange from iron oxide',
+                characteristics: 'More accessible than Empty Quarter'
+            },
+            {
+                name: 'Ad-Dahna Desert',
+                localName: 'الدهناء',
+                description: 'Narrow corridor of red sand connecting Nafud to Empty Quarter',
+                length: '1,200 km',
+                width: '25-80 km',
+                significance: 'Natural barrier historically dividing regions'
+            },
+            {
+                name: 'Harrat (Lava Fields)',
+                description: 'Extensive volcanic fields in western Arabia',
+                area: '180,000 km² total',
+                examples: ['Harrat Rahat', 'Harrat Khaybar', 'Harrat al-Shaam'],
+                recentActivity: 'Last eruption 1256 CE near Medina',
+                characteristics: 'Black basalt plains, volcanic cones'
+            },
+            {
+                name: 'Asir Mountains',
+                description: 'Mountain range in southwestern Saudi Arabia',
+                height: 'Up to 3,000m',
+                climate: 'Cooler, receives monsoon rain',
+                vegetation: 'Juniper forests (rare in Arabia)'
+            },
+            {
+                name: 'Hajar Mountains',
+                description: 'Mountain range in UAE and Oman',
+                height: '3,009m (Jebel Shams, Oman)',
+                characteristics: 'Dramatic canyons, wadis',
+                significance: 'Blocks monsoon moisture from interior'
+            },
+            {
+                name: 'Wadis',
+                description: 'Dry riverbeds that flood seasonally',
+                examples: ['Wadi Hanifa', 'Wadi Rum', 'Wadi Dawasir'],
+                characteristics: 'Support vegetation, human settlement',
+                danger: 'Flash floods can be sudden and deadly'
+            },
+            {
+                name: 'Sabkhas',
+                description: 'Coastal salt flats',
+                locations: 'Persian Gulf coast, UAE, Qatar',
+                characteristics: 'Flat, salty, prone to flooding',
+                hazard: 'Can appear solid but be quicksand-like'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Key Features & Landmarks
+        // ═══════════════════════════════════════════════════════════
+        features: [
+            {
+                name: 'Rub\' al Khali (Empty Quarter)',
+                type: 'Sand Sea',
+                coordinates: [21.0, 50.0],
+                area: '650,000 km²',
+                description: 'Largest continuous sand desert on Earth, virtually uninhabited',
+                duneHeight: '250m (some of tallest dunes in world)',
+                firstCrossing: 'Wilfred Thesiger with Bedouin guides (1946-1948)',
+                oilDiscovery: 'Vast oil reserves discovered beneath',
+                temperature: 'Summer surface temperatures over 70°C'
+            },
+            {
+                name: 'Wadi Rum',
+                type: 'Valley/Protected Area',
+                coordinates: [29.58, 35.42],
+                description: 'Spectacular sandstone valley in Jordan, "Valley of the Moon"',
+                area: '720 km²',
+                UNESCO: 'World Heritage Site (2011)',
+                filming: ['Lawrence of Arabia', 'The Martian', 'Dune', 'Star Wars'],
+                features: 'Natural arches, petroglyphs, Bedouin camps',
+                history: 'T.E. Lawrence headquarters during Arab Revolt'
+            },
+            {
+                name: 'Al-Ahsa Oasis',
+                type: 'Oasis',
+                coordinates: [25.37, 49.59],
+                description: 'Largest oasis in the world',
+                area: '85.4 km² of palm groves',
+                palms: '2.5 million date palm trees',
+                UNESCO: 'World Heritage Site (2018)',
+                springs: 'Over 60 artesian springs',
+                history: 'Inhabited for 6,000+ years'
+            },
+            {
+                name: 'Liwa Oasis',
+                type: 'Oasis',
+                coordinates: [23.13, 53.76],
+                description: 'Crescent of oases on northern edge of Empty Quarter',
+                length: '100 km arc',
+                palms: 'Over 10 million date palms',
+                feature: 'Moreeb Dune (300m, one of tallest in world)',
+                significance: 'Ancestral home of Abu Dhabi ruling family'
+            },
+            {
+                name: 'Madain Saleh (Hegra)',
+                type: 'Archaeological Site',
+                coordinates: [26.79, 37.95],
+                description: 'Nabataean city with rock-cut tombs, sister city to Petra',
+                UNESCO: 'First Saudi World Heritage Site (2008)',
+                tombs: '131 monumental rock-cut tombs',
+                age: '1st century CE',
+                significance: 'Major stop on incense trade route'
+            },
+            {
+                name: 'Edge of the World (Jebel Fihrayn)',
+                type: 'Cliff',
+                coordinates: [24.94, 46.23],
+                description: 'Dramatic escarpment with views over ancient seabed',
+                height: '300m cliffs',
+                location: 'Near Riyadh, Saudi Arabia',
+                geology: 'Ancient Tethys Sea floor'
+            },
+            {
+                name: 'Wahiba Sands',
+                type: 'Sand Sea',
+                coordinates: [21.91, 58.75],
+                description: 'Accessible dune field in Oman',
+                area: '12,500 km²',
+                duneHeight: 'Up to 100m',
+                inhabitants: 'Bedouin still live here',
+                tourism: 'Popular for desert camps'
+            },
+            {
+                name: 'Jebel Shams',
+                type: 'Mountain',
+                coordinates: [23.24, 57.25],
+                height: '3,009m',
+                description: 'Highest peak in Oman, "Grand Canyon of Arabia"',
+                feature: 'Wadi Ghul canyon 1,000m deep',
+                climate: 'Snow occasionally in winter'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Oases Branch
+        // ═══════════════════════════════════════════════════════════
+        oases: [
+            {
+                name: 'Al-Ahsa Oasis',
+                coordinates: [25.37, 49.59],
+                country: 'Saudi Arabia',
+                population: 1200000,
+                description: 'Largest natural oasis in the world',
+                palms: '2.5 million date palms',
+                springs: '60+ artesian springs',
+                UNESCO: 'World Heritage Site',
+                history: 'Settlement since 4000 BCE'
+            },
+            {
+                name: 'Liwa Oasis',
+                coordinates: [23.13, 53.76],
+                country: 'UAE',
+                population: 20000,
+                description: 'String of villages on Empty Quarter edge',
+                palms: '10+ million date palms',
+                dunes: 'Borders highest dunes in Arabia',
+                significance: 'Ancestral Al Nahyan homeland'
+            },
+            {
+                name: 'Al Ain Oasis',
+                coordinates: [24.22, 55.76],
+                country: 'UAE',
+                population: 766000,
+                description: 'Garden city, "Green Heart of Abu Dhabi"',
+                UNESCO: 'World Heritage Site',
+                features: 'Falaj irrigation system, 147,000 date palms'
+            },
+            {
+                name: 'Wadi Hanifa',
+                coordinates: [24.63, 46.72],
+                country: 'Saudi Arabia',
+                description: 'Valley through Riyadh with restored wetlands',
+                length: '120 km',
+                restoration: 'Major bioremediation project'
+            },
+            {
+                name: 'Tabuk Oasis',
+                coordinates: [28.38, 36.57],
+                country: 'Saudi Arabia',
+                population: 900000,
+                description: 'Northern oasis, site of famous Tabuk expedition',
+                history: 'Prophet Muhammad led expedition here 630 CE'
+            },
+            {
+                name: 'Taif',
+                coordinates: [21.27, 40.42],
+                country: 'Saudi Arabia',
+                population: 700000,
+                description: 'Mountain resort, "Summer capital"',
+                elevation: '1,879m',
+                features: 'Rose gardens, fruit orchards, cooler climate'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Cities Branch
+        // ═══════════════════════════════════════════════════════════
+        cities: [
+            {
+                name: 'Riyadh',
+                coordinates: [24.71, 46.68],
+                country: 'Saudi Arabia',
+                population: 7500000,
+                description: 'Capital of Saudi Arabia, largest city in Arabian Desert',
+                features: 'Kingdom Centre, Diriyah historic site',
+                climate: 'Extreme - 48°C summers common',
+                growth: 'From small oasis town to megacity in 50 years'
+            },
+            {
+                name: 'Dubai',
+                coordinates: [25.27, 55.3],
+                country: 'UAE',
+                population: 3500000,
+                description: 'Iconic modern city, global business hub',
+                features: 'Burj Khalifa, Palm Islands, modern architecture',
+                transformation: 'From fishing village to global city',
+                tourism: '16 million visitors per year'
+            },
+            {
+                name: 'Abu Dhabi',
+                coordinates: [24.45, 54.37],
+                country: 'UAE',
+                population: 1500000,
+                description: 'Capital of UAE, oil wealth center',
+                features: 'Sheikh Zayed Mosque, Louvre Abu Dhabi',
+                oilReserves: '6% of world\'s proven reserves'
+            },
+            {
+                name: 'Doha',
+                coordinates: [25.29, 51.53],
+                country: 'Qatar',
+                population: 2400000,
+                description: 'Capital of Qatar, ultra-modern city',
+                features: 'Museum of Islamic Art, Pearl Qatar',
+                wealth: 'Highest GDP per capita in world',
+                events: 'FIFA World Cup 2022'
+            },
+            {
+                name: 'Kuwait City',
+                coordinates: [29.38, 47.99],
+                country: 'Kuwait',
+                population: 3000000,
+                description: 'Capital of Kuwait, Persian Gulf port',
+                features: 'Kuwait Towers, historic souks',
+                history: 'Major trading port, devastated in 1990 Iraqi invasion'
+            },
+            {
+                name: 'Muscat',
+                coordinates: [23.61, 58.59],
+                country: 'Oman',
+                population: 1550000,
+                description: 'Capital of Oman, port city',
+                features: 'Sultan Qaboos Mosque, Mutrah Souq',
+                character: 'More traditional feel than other Gulf cities'
+            },
+            {
+                name: 'Mecca',
+                coordinates: [21.42, 39.83],
+                country: 'Saudi Arabia',
+                population: 2000000,
+                description: 'Holiest city in Islam',
+                significance: 'Birthplace of Prophet Muhammad',
+                pilgrimage: '2 million hajj pilgrims annually',
+                restriction: 'Non-Muslims prohibited from entering'
+            },
+            {
+                name: 'Medina',
+                coordinates: [24.47, 39.61],
+                country: 'Saudi Arabia',
+                population: 1500000,
+                description: 'Second holiest city in Islam',
+                significance: 'Prophet\'s Mosque, burial site of Muhammad',
+                history: 'Destination of Hijra (migration) from Mecca'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Biodiversity Branch
+        // ═══════════════════════════════════════════════════════════
+        biodiversity: {
+            overview: 'Harsh conditions support specialized desert species, many now endangered',
+            
+            plants: [
+                {
+                    name: 'Date Palm',
+                    scientificName: 'Phoenix dactylifera',
+                    description: 'Foundation of desert agriculture, cultivated 6,000+ years',
+                    uses: 'Food, timber, rope, baskets',
+                    significance: 'Over 400 varieties grown in region',
+                    oasisDensity: '2.5 million in Al-Ahsa alone'
+                },
+                {
+                    name: 'Ghaf Tree',
+                    scientificName: 'Prosopis cineraria',
+                    description: 'National tree of UAE, drought-resistant',
+                    adaptation: 'Roots reach 30m deep for groundwater',
+                    uses: 'Fodder, firewood, shade',
+                    status: 'Protected in UAE'
+                },
+                {
+                    name: 'Desert Hyacinth',
+                    scientificName: 'Cistanche tubulosa',
+                    description: 'Parasitic plant on tree roots',
+                    adaptation: 'No chlorophyll, underground bulb',
+                    uses: 'Traditional medicine'
+                },
+                {
+                    name: 'Acacia tortilis',
+                    scientificName: 'Vachellia tortilis',
+                    description: 'Umbrella-shaped tree in wadis',
+                    adaptation: 'Deep taproot, thorns, small leaves',
+                    uses: 'Fodder, gum, firewood'
+                },
+                {
+                    name: 'Calotropis (Apple of Sodom)',
+                    scientificName: 'Calotropis procera',
+                    description: 'Tough shrub with milky sap',
+                    adaptation: 'Toxic sap deters herbivores',
+                    uses: 'Traditional medicine, fiber'
+                }
+            ],
+            
+            animals: [
+                {
+                    name: 'Arabian Oryx',
+                    scientificName: 'Oryx leucoryx',
+                    description: 'Elegant white antelope, national animal of Qatar, UAE, Jordan',
+                    population: '1,220 wild, 6,000-7,000 captive',
+                    adaptation: 'Can detect rain from 80km, survives without drinking',
+                    status: 'Vulnerable (recovered from Extinct in Wild 1972)',
+                    conservation: 'One of greatest conservation successes',
+                    history: 'Last wild one shot 1972, reintroduced from zoos'
+                },
+                {
+                    name: 'Arabian Leopard',
+                    scientificName: 'Panthera pardus nimr',
+                    description: 'Smallest leopard subspecies, critically endangered',
+                    population: '<200 (possibly <100)',
+                    range: 'Mountains of Yemen, Oman, Saudi Arabia',
+                    status: 'Critically Endangered',
+                    threat: 'Habitat loss, prey depletion, persecution'
+                },
+                {
+                    name: 'Dromedary Camel',
+                    scientificName: 'Camelus dromedarius',
+                    description: 'One-humped camel, domesticated in Arabia 4,000 years ago',
+                    population: '1 million+ in Arabia',
+                    adaptation: 'Survives weeks without water, tolerates 40% body water loss',
+                    uses: 'Transport, racing (major industry), meat, milk',
+                    value: 'Racing camels worth millions'
+                },
+                {
+                    name: 'Arabian Sand Gazelle',
+                    scientificName: 'Gazella marica',
+                    description: 'Pale gazelle adapted to sandy deserts',
+                    population: '8,000-10,000',
+                    adaptation: 'Pale coat reflects heat, can survive without drinking',
+                    status: 'Vulnerable'
+                },
+                {
+                    name: 'Rüppell\'s Fox',
+                    scientificName: 'Vulpes rueppellii',
+                    description: 'Small desert fox similar to fennec',
+                    adaptation: 'Large ears for heat dissipation',
+                    diet: 'Insects, rodents, reptiles',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Arabian Wolf',
+                    scientificName: 'Canis lupus arabs',
+                    description: 'Smallest wolf subspecies',
+                    population: '<1,000',
+                    adaptation: 'Adapted to extreme heat and scarce prey',
+                    status: 'Not assessed (likely Endangered)'
+                },
+                {
+                    name: 'Spiny-tailed Lizard',
+                    scientificName: 'Uromastyx aegyptia',
+                    description: 'Large herbivorous lizard, locally called "dhub"',
+                    size: 'Up to 75cm',
+                    adaptation: 'Gets water from plants, active in extreme heat',
+                    use: 'Traditional food in some cultures'
+                },
+                {
+                    name: 'Arabian Fat-tailed Scorpion',
+                    scientificName: 'Androctonus crassicauda',
+                    description: 'One of world\'s most venomous scorpions',
+                    size: '10cm',
+                    danger: 'Potentially fatal sting',
+                    habitat: 'Rocky areas, ruins'
+                },
+                {
+                    name: 'Sand Cat',
+                    scientificName: 'Felis margarita',
+                    description: 'Only cat living exclusively in desert',
+                    adaptation: 'Furry paws insulate from hot sand, nocturnal',
+                    status: 'Near Threatened',
+                    range: 'Empty Quarter, Nafud'
+                },
+                {
+                    name: 'Hamadryas Baboon',
+                    scientificName: 'Papio hamadryas',
+                    description: 'Found in southwest Arabian highlands',
+                    population: 'Several thousand',
+                    range: 'Yemen, Asir Mountains',
+                    significance: 'Sacred to ancient Egyptians'
+                }
+            ],
+            
+            birds: [
+                { name: 'Arabian Bustard', description: 'Large ground bird, endangered' },
+                { name: 'Houbara Bustard', description: 'Hunted with falcons, conservation concern' },
+                { name: 'Lappet-faced Vulture', description: 'Largest vulture in Arabia' },
+                { name: 'Sooty Falcon', description: 'Breeds on Arabian islands' }
+            ],
+            
+            marineLife: [
+                { name: 'Dugong', description: 'Largest population in UAE waters (3,000+)' },
+                { name: 'Whale Shark', description: 'Seasonally abundant in Gulf' },
+                { name: 'Sea Turtles', description: '5 species nest on Arabian beaches' }
+            ],
+            
+            endangeredSpecies: [
+                { name: 'Arabian Leopard', status: 'Critically Endangered', population: '<200' },
+                { name: 'Arabian Oryx', status: 'Vulnerable (recovering)', population: '1,220 wild' },
+                { name: 'Arabian Tahr', status: 'Endangered', population: '<2,500' },
+                { name: 'Houbara Bustard', status: 'Vulnerable', threat: 'Hunting' }
+            ],
+            
+            extinctSpecies: [
+                { name: 'Arabian Ostrich', status: 'Extinct', lastSeen: '1966' },
+                { name: 'Syrian Wild Ass', status: 'Extinct', lastSeen: '1927' },
+                { name: 'Cheetah', status: 'Regionally Extinct', lastSeen: '1970s' }
+            ]
+        },
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Human Life Branch
+        // ═══════════════════════════════════════════════════════════
+        humanLife: {
+            overview: 'From ancient Bedouin nomads to modern oil-rich metropolises',
+            
+            population: {
+                total: '75 million in Arabian Peninsula',
+                inDesert: 'Most now in cities',
+                nomadic: '<5% traditional lifestyle'
+            },
+            
+            indigenousPeoples: [
+                {
+                    name: 'Bedouin',
+                    region: 'Throughout Arabian Desert',
+                    population: '4-5 million (ethnic), <1 million nomadic',
+                    lifestyle: 'Traditionally nomadic herders of camels, sheep, goats',
+                    language: 'Arabic (various dialects)',
+                    culture: 'Poetry, hospitality (diyafa), honor code',
+                    change: 'Most now settled in villages/cities'
+                },
+                {
+                    name: 'Marsh Arabs (Ma\'dan)',
+                    region: 'Southern Iraq marshlands',
+                    population: '20,000-40,000 (reduced from 500,000)',
+                    lifestyle: 'Reed house dwellers, water buffalo herding',
+                    threat: 'Marshes drained under Saddam Hussein, partly restored'
+                }
+            ],
+            
+            traditionalLife: {
+                housing: ['Black goat-hair tents (beit al-sha\'r)', 'Mud-brick oasis houses', 'Wind towers for cooling'],
+                transport: ['Camel (primary)', 'Donkey', 'Arabian horse (prized)'],
+                clothing: ['Thobe/dishdasha (men)', 'Abaya (women)', 'Keffiyeh/ghutra headwear'],
+                food: ['Dates', 'Camel milk', 'Rice (machboos)', 'Coffee (qahwa)', 'Lamb'],
+                economy: ['Camel breeding', 'Date farming', 'Pearl diving', 'Trade']
+            },
+            
+            modernLife: {
+                transformation: 'Oil discovered 1938, transformed economy and society',
+                urbanization: '85%+ now urban',
+                infrastructure: 'World-class in Gulf states',
+                expatriates: 'UAE: 88% non-citizens, Qatar: 85%',
+                challenges: ['Water scarcity', 'Diversification from oil', 'Climate change']
+            },
+            
+            religion: {
+                dominant: 'Islam',
+                holyCity: 'Mecca (birthplace of Islam)',
+                pilgrimage: 'Hajj - 2 million annually',
+                significance: 'Region is heartland of Islamic civilization'
+            }
+        },
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Economic Importance Branch
+        // ═══════════════════════════════════════════════════════════
+        economy: [
+            {
+                sector: 'Oil & Gas',
+                description: 'World\'s largest petroleum reserves',
+                value: '50% of global proven oil reserves',
+                majorProducers: ['Saudi Arabia (2nd)', 'UAE (7th)', 'Kuwait (9th)', 'Qatar (gas)'],
+                saudiOil: '260 billion barrels reserves',
+                impact: 'Transformed region from one of poorest to wealthiest',
+                export: 'Primary revenue source for all Gulf states'
+            },
+            {
+                sector: 'Desalination',
+                description: 'World\'s largest desalination capacity',
+                production: 'Saudi Arabia: 5.5 million m³/day (largest)',
+                necessity: 'Almost no natural freshwater',
+                technology: 'Multi-stage flash, reverse osmosis',
+                challenge: 'Energy intensive, environmental impact'
+            },
+            {
+                sector: 'Tourism',
+                description: 'Rapidly growing sector',
+                dubaiVisitors: '16 million annually',
+                attractions: ['Dubai architecture', 'Desert safaris', 'Heritage sites', 'Luxury resorts'],
+                saudiOpening: 'Tourist visas from 2019, major investment',
+                religiousTourism: '15 million to Mecca/Medina annually'
+            },
+            {
+                sector: 'Finance',
+                description: 'Global financial hubs',
+                centers: ['Dubai International Financial Centre', 'Abu Dhabi Global Market', 'Qatar Financial Centre'],
+                wealth: 'Sovereign wealth funds among world\'s largest'
+            },
+            {
+                sector: 'Date Production',
+                description: 'World\'s leading date producers',
+                saudiProduction: '1.5 million tonnes/year',
+                varieties: '400+ varieties',
+                significance: 'Cultural and economic importance'
+            },
+            {
+                sector: 'Camel Racing & Breeding',
+                description: 'Major industry and cultural sport',
+                value: 'Racing camels worth $1-10 million',
+                events: 'Major festivals with large prizes',
+                technology: 'Robot jockeys (replaced child jockeys)'
+            },
+            {
+                sector: 'Renewable Energy',
+                description: 'Major investment in solar',
+                projects: ['NEOM (Saudi)', 'Mohammed bin Rashid Solar Park (UAE)'],
+                goal: 'UAE: 44% clean energy by 2050',
+                potential: 'Abundant solar radiation'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Environmental Issues Branch
+        // ═══════════════════════════════════════════════════════════
+        environmentalIssues: [
+            {
+                issue: 'Water Scarcity',
+                severity: 'Critical',
+                description: 'Among world\'s most water-stressed nations',
+                renewable: 'Almost no renewable freshwater',
+                aquifer: 'Fossil aquifers depleting rapidly',
+                solution: 'Desalination provides 50-90% of water',
+                cost: 'Extremely energy intensive'
+            },
+            {
+                issue: 'Climate Change',
+                severity: 'Critical',
+                description: 'Already hot region getting hotter',
+                projections: '2-4°C increase by 2100',
+                impacts: [
+                    'Heat waves exceeding human survivability',
+                    'Sea level rise threatening coastal cities',
+                    'More intense sandstorms'
+                ],
+                study: 'Parts may be uninhabitable by 2100'
+            },
+            {
+                issue: 'Desalination Impact',
+                severity: 'High',
+                description: 'Brine discharge affecting marine ecosystems',
+                discharge: 'Hypersaline water returned to Gulf',
+                impact: 'Gulf salinity increasing',
+                heating: 'Waste heat from plants'
+            },
+            {
+                issue: 'Air Quality',
+                severity: 'High',
+                description: 'Dust storms and urban pollution',
+                dustDays: '10-50 major dust events per year',
+                urbanPollution: 'Traffic, industry, construction',
+                health: 'Respiratory issues prevalent'
+            },
+            {
+                issue: 'Wildlife Decline',
+                severity: 'High',
+                description: 'Large mammals nearly extirpated',
+                hunting: 'Historical overhunting',
+                habitatLoss: 'Development, overgrazing',
+                success: 'Arabian Oryx conservation'
+            },
+            {
+                issue: 'Coastal Development',
+                severity: 'Moderate',
+                description: 'Artificial islands and reclamation',
+                impact: 'Coral reef destruction, seagrass loss',
+                affected: 'Dugong habitat, turtle nesting beaches'
+            },
+            {
+                issue: 'Oil Spills',
+                severity: 'Moderate',
+                description: 'Risk from massive oil infrastructure',
+                history: 'Gulf War spill (1991) largest in history',
+                ongoing: 'Pipeline leaks, tanker incidents'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Historical Importance Branch
+        // ═══════════════════════════════════════════════════════════
+        historicalImportance: [
+            {
+                era: '3000 BCE',
+                title: 'Dilmun Civilization',
+                description: 'Ancient trading civilization in Bahrain/Eastern Arabia',
+                significance: 'Linked Mesopotamia with Indus Valley',
+                evidence: 'Burial mounds, cuneiform references'
+            },
+            {
+                era: '1000 BCE - 300 CE',
+                title: 'Incense Trade',
+                description: 'Frankincense and myrrh trade routes through Arabia',
+                routes: 'Yemen to Mediterranean via Petra',
+                wealth: 'Arabia Felix (Fortunate Arabia)',
+                products: 'Incense worth more than gold'
+            },
+            {
+                era: '300 BCE - 100 CE',
+                title: 'Nabataean Kingdom',
+                description: 'Desert traders built Petra and controlled routes',
+                capital: 'Petra (Jordan)',
+                skill: 'Water management in desert',
+                legacy: 'Petra, Madain Saleh'
+            },
+            {
+                era: '570 CE',
+                title: 'Birth of Prophet Muhammad',
+                description: 'Born in Mecca, founder of Islam',
+                significance: 'Arabia becomes center of new world religion'
+            },
+            {
+                era: '622 CE',
+                title: 'Hijra (Migration)',
+                description: 'Muhammad migrates from Mecca to Medina',
+                significance: 'Start of Islamic calendar',
+                outcome: 'Medina becomes first Islamic state'
+            },
+            {
+                era: '632-750 CE',
+                title: 'Islamic Conquests',
+                description: 'Arab armies spread from Arabia to Spain and Central Asia',
+                extent: 'Largest empire to that date',
+                legacy: 'Arabic language and Islam spread globally'
+            },
+            {
+                era: '1500-1900',
+                title: 'Ottoman Period',
+                description: 'Much of Arabia under Ottoman influence',
+                exceptions: 'Interior remained independent',
+                events: 'Portuguese, British presence on coasts'
+            },
+            {
+                era: '1902-1932',
+                title: 'Saudi Unification',
+                description: 'Ibn Saud unifies Arabian Peninsula',
+                foundation: 'Kingdom of Saudi Arabia proclaimed 1932'
+            },
+            {
+                era: '1938',
+                title: 'Oil Discovery',
+                description: 'Commercial oil found in Saudi Arabia',
+                location: 'Dammam Well #7',
+                impact: 'Transformed Arabia from backwater to global importance'
+            },
+            {
+                era: '1971',
+                title: 'UAE Formation',
+                description: 'Seven emirates unite after British withdrawal',
+                development: 'Rapid modernization follows'
+            },
+            {
+                era: '1990-1991',
+                title: 'Gulf War',
+                description: 'Iraq invades Kuwait, international coalition response',
+                impact: 'Environmental disaster, regional realignment',
+                oilFires: '700+ oil wells set ablaze'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Fun Facts Branch
+        // ═══════════════════════════════════════════════════════════
+        funFacts: [
+            {
+                fact: 'The Empty Quarter has no permanent human population and some areas have never been explored',
+                category: 'Remoteness'
+            },
+            {
+                fact: 'Dubai imports sand despite being surrounded by desert - beach sand requires specific properties',
+                category: 'Irony'
+            },
+            {
+                fact: 'Arabian camels can drink 100 liters of water in 10 minutes',
+                category: 'Wildlife'
+            },
+            {
+                fact: 'The Arabian Peninsula was tropical and green with rivers 10,000 years ago',
+                category: 'History'
+            },
+            {
+                fact: 'Racing camels can be worth more than $10 million',
+                category: 'Economy'
+            },
+            {
+                fact: 'Saudi Arabia has no permanent rivers, only seasonal wadis',
+                category: 'Geography'
+            },
+            {
+                fact: 'Qatar is building air-conditioned outdoor spaces for the heat',
+                category: 'Engineering'
+            },
+            {
+                fact: 'The Arabian Oryx was extinct in the wild from 1972 to 1982 - now there are 1,200',
+                category: 'Conservation'
+            },
+            {
+                fact: 'Bedouin can navigate the desert by taste - they can identify locations by the taste of soil',
+                category: 'Culture'
+            },
+            {
+                fact: 'Wadi Rum in Jordan was used to film Mars scenes in "The Martian"',
+                category: 'Film'
+            },
+            {
+                fact: 'Palm Islands in Dubai used 3 billion cubic feet of sand',
+                category: 'Engineering'
+            },
+            {
+                fact: 'The word "alcohol" comes from Arabic "al-kuhl" - an Arabian invention',
+                category: 'Language'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // JOURNEY WAYPOINTS - Cross the Desert Feature
+        // ═══════════════════════════════════════════════════════════
+        journeyWaypoints: [
+            {
+                name: 'Wadi Rum, Jordan',
+                coordinates: [29.58, 35.42],
+                description: 'Starting in the dramatic "Valley of the Moon"',
+                type: 'start',
+                duration: 3000
+            },
+            {
+                name: 'An-Nafud Desert',
+                coordinates: [28.5, 40.0],
+                description: 'Crossing the great northern sand sea with red dunes',
+                type: 'terrain',
+                duration: 4000
+            },
+            {
+                name: 'Riyadh Oasis',
+                coordinates: [24.71, 46.68],
+                description: 'The capital rises from the desert - ancient oasis turned megacity',
+                type: 'settlement',
+                duration: 3000
+            },
+            {
+                name: 'Ad-Dahna Corridor',
+                coordinates: [24.0, 48.0],
+                description: 'The red sand arc connecting north to south',
+                type: 'terrain',
+                duration: 3000
+            },
+            {
+                name: 'Al-Ahsa Oasis',
+                coordinates: [25.37, 49.59],
+                description: 'The world\'s largest natural oasis - 2.5 million palm trees',
+                type: 'oasis',
+                duration: 4000
+            },
+            {
+                name: 'Rub\' al Khali Edge',
+                coordinates: [22.0, 51.0],
+                description: 'Entering the Empty Quarter - the largest sand desert on Earth',
+                type: 'terrain',
+                duration: 4000
+            },
+            {
+                name: 'Deep Empty Quarter',
+                coordinates: [20.0, 50.0],
+                description: 'In the heart of nothing - no water, no life, no shelter',
+                type: 'terrain',
+                duration: 5000
+            },
+            {
+                name: 'Liwa Oasis, UAE',
+                coordinates: [23.13, 53.76],
+                description: 'Journey\'s end at the crescent of life on the Empty Quarter\'s edge',
+                type: 'end',
+                duration: 3000
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // QUICK FACTS - Profile Page Bottom Panel
+        // ═══════════════════════════════════════════════════════════
+        quickFacts: {
+            area: '2,330,000 km²',
+            type: 'Hot Desert',
+            avgTemp: '33°C (interior)',
+            rainfall: '<100mm/year',
+            countries: '8 countries',
+            population: '75 million (peninsula)'
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // #5 - GOBI DESERT
+    // ═══════════════════════════════════════════════════════════════════
+    {
+        id: 'gobi-desert',
+        name: 'Gobi Desert',
+        subtitle: 'The Dinosaur Graveyard',
+        countries: [
+            { name: 'Mongolia', code: 'MN' },
+            { name: 'China', code: 'CN' }
+        ],
+        continent: 'Asia',
+        desertType: 'cold',
+        subType: 'Rain Shadow Desert',
+        area: 1295000,
+        areaRank: 5,
+        rank: 5,
+        coordinates: [42.5, 105.0],
+        defaultZoom: 5,
+        
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
+        backgroundImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1504198070170-4ca53bb1c1fa?w=800',
+            'https://images.unsplash.com/photo-1563204601-fc81cc4cd883?w=800'
+        ],
+        
+        geoJSON: {
+            type: 'Feature',
+            properties: { name: 'Gobi Desert' },
+            geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                    [87, 47], [97, 47], [115, 45], [120, 42], [118, 38],
+                    [110, 37], [100, 38], [90, 40], [87, 45], [87, 47]
+                ]]
+            }
+        },
+        
+        location: {
+            continent: 'Asia (Central/East)',
+            hemispheres: ['Northern', 'Eastern'],
+            latitudeRange: '37°N to 47°N',
+            longitudeRange: '87°E to 120°E',
+            geographicCenter: '42.5°N, 105°E',
+            totalCountries: 2,
+            percentInMongolia: 60,
+            percentInChina: 40,
+            borderedBy: ['Altai Mountains (west)', 'Mongolian Steppe (north)', 'North China Plain (south)', 'Manchurian Plain (east)'],
+            elevation: '910-1,520m above sea level'
+        },
+        
+        desertClassification: {
+            primaryType: 'Cold Desert',
+            secondaryType: 'Rain Shadow Desert',
+            climateClassification: 'BWk (Cold Desert Climate)',
+            formationCauses: [
+                {
+                    cause: 'Rain Shadow Effect',
+                    explanation: 'Himalayas and Tibetan Plateau block Indian Ocean moisture'
+                },
+                {
+                    cause: 'Continental Interior',
+                    explanation: 'Far from any ocean, moisture doesn\'t penetrate'
+                },
+                {
+                    cause: 'High Altitude',
+                    explanation: 'Average elevation over 1,000m contributes to extreme temperatures'
+                },
+                {
+                    cause: 'Siberian High Pressure',
+                    explanation: 'Winter high pressure brings cold dry air'
+                }
+            ],
+            whyItsDesert: 'Himalayan rain shadow combined with extreme continental location creates cold, dry conditions',
+            uniqueFeature: 'Asia\'s largest desert, extreme temperature range'
+        },
+        
+        size: {
+            totalArea: 1295000,
+            areaUnit: 'km²',
+            areaInMiles: 500000,
+            length: '1,600 km east-west',
+            width: '800 km north-south',
+            comparisonToCountries: [
+                'Larger than Peru',
+                '5x size of United Kingdom',
+                'Half of Mongolia'
+            ],
+            ranking: {
+                amongDeserts: 5,
+                totalDeserts: 50,
+                coldDesertRank: 3,
+                statement: 'Fifth largest desert, largest in Asia'
+            },
+            growthRate: 'Expanding 3,600 km²/year southward into China'
+        },
+        
+        climate: {
+            overview: 'Extreme temperature swings, cold winters, hot summers, very low rainfall',
+            temperatureData: {
+                summerHigh: {
+                    typical: '38°C to 45°C',
+                    extreme: 'Up to 50°C'
+                },
+                winterLow: {
+                    typical: '-30°C to -40°C',
+                    extreme: 'Below -40°C'
+                },
+                dailySwing: 'Up to 35°C variation in single day',
+                annualMean: '-2°C to 8°C',
+                annualRange: '80-90°C (summer high to winter low)',
+                extremeRecords: {
+                    hottestEver: '50°C',
+                    coldestEver: '-47°C',
+                    groundFrost: '10 months per year in north'
+                }
+            },
+            precipitation: {
+                annualAverage: '50-100mm',
+                westernGobi: '<50mm',
+                easternGobi: '100-200mm',
+                type: 'Summer thunderstorms, winter snow',
+                snowCover: '10-20 days per year',
+                evaporation: 'Far exceeds precipitation'
+            },
+            wind: {
+                springStorms: 'Severe dust storms March-May',
+                averageSpeed: '15-20 km/h',
+                dustReach: 'Gobi dust reaches Beijing, Korea, Japan, even USA',
+                sandstormDays: '20-30 per year'
+            }
+        },
+        
+        landforms: [
+            {
+                name: 'Gravel Plains',
+                description: 'Most of Gobi is bare rock and gravel, not sand',
+                coverage: '~70% of desert',
+                characteristics: 'Flat, hard-packed surface',
+                mongolianName: 'Gobi means "waterless place" not "sandy"'
+            },
+            {
+                name: 'Sand Dunes',
+                description: 'Sand seas cover only small percentage',
+                majorFields: ['Khongoryn Els (Singing Sands)', 'Mongol Els'],
+                coverage: '~5% of desert',
+                duneHeight: 'Up to 300m at Khongoryn Els'
+            },
+            {
+                name: 'Mountains',
+                description: 'Mountain ranges within and bordering desert',
+                examples: ['Altai Mountains', 'Gobi Altai', 'Gurvan Saikhan'],
+                height: 'Up to 4,374m (Khüiten Peak)'
+            },
+            {
+                name: 'Canyons',
+                description: 'Deep gorges carved by seasonal water',
+                examples: ['Yolyn Am (Vulture Valley)', 'Bayanzag (Flaming Cliffs)'],
+                features: 'Year-round ice in some valleys'
+            },
+            {
+                name: 'Dry Lake Beds',
+                description: 'Ancient lakes now salt flats',
+                examples: ['Ulaan Nuur', 'Orog Nuur'],
+                significance: 'Indicate wetter past climate'
+            },
+            {
+                name: 'Flaming Cliffs (Bayanzag)',
+                description: 'Red sandstone cliffs, major dinosaur fossil site',
+                color: 'Orange-red at sunset',
+                significance: 'First dinosaur eggs discovered here 1923'
+            }
+        ],
+        
+        features: [
+            {
+                name: 'Flaming Cliffs (Bayanzag)',
+                type: 'Paleontological Site',
+                coordinates: [44.15, 103.72],
+                description: 'World-famous dinosaur fossil site, red sandstone cliffs',
+                discovery: 'Roy Chapman Andrews expedition, 1923',
+                findings: 'First dinosaur eggs, Velociraptor, Protoceratops',
+                age: 'Cretaceous fossils, 75 million years old',
+                name_origin: 'Glows red at sunset'
+            },
+            {
+                name: 'Khongoryn Els (Singing Sands)',
+                type: 'Sand Dunes',
+                coordinates: [43.77, 102.18],
+                height: 'Up to 300m',
+                length: '180 km long, 27 km wide',
+                description: 'Largest sand dunes in Gobi, "singing" from wind',
+                sound: 'Wind creates humming/booming sound',
+                activity: 'Camel trekking, sandboarding'
+            },
+            {
+                name: 'Yolyn Am (Vulture Valley)',
+                type: 'Canyon',
+                coordinates: [43.5, 104.1],
+                depth: '200m deep',
+                description: 'Narrow gorge with year-round ice',
+                ice: 'Ice persists into July despite desert heat',
+                wildlife: 'Lammergeier vultures, ibex, pika'
+            },
+            {
+                name: 'Gurvan Saikhan Mountains',
+                type: 'Mountain Range',
+                coordinates: [43.5, 104.5],
+                height: '2,825m highest peak',
+                description: '"Three Beauties" - mountain range in southern Gobi',
+                protection: 'Gobi Gurvansaikhan National Park',
+                size: 'Largest national park in Mongolia'
+            },
+            {
+                name: 'Nemegt Basin',
+                type: 'Paleontological Site',
+                coordinates: [43.5, 100.5],
+                description: 'Richest dinosaur fossil site in Asia',
+                findings: 'Tarbosaurus (Asian T-Rex), Gallimimus, Therizinosaurus',
+                age: 'Late Cretaceous, 70 million years'
+            },
+            {
+                name: 'Dalanzadgad',
+                type: 'Town',
+                coordinates: [43.57, 104.43],
+                population: 20000,
+                description: 'Capital of South Gobi Province, gateway to national park',
+                facilities: 'Airport, tourist base'
+            },
+            {
+                name: 'Sainshand',
+                type: 'Town',
+                coordinates: [44.9, 110.13],
+                population: 25000,
+                description: 'Trans-Mongolian Railway stop, Buddhist temples',
+                significance: 'Danzan Ravjaa museum and energy center'
+            },
+            {
+                name: 'Ulaanbaatar',
+                type: 'Capital City',
+                coordinates: [47.92, 106.92],
+                population: 1500000,
+                description: 'Mongolia\'s capital, gateway to Gobi',
+                note: 'Not in desert but primary access point'
+            }
+        ],
+        
+        oases: [
+            {
+                name: 'Ekhiin Gol Oasis',
+                coordinates: [41.85, 101.1],
+                country: 'Mongolia',
+                description: 'Rare water source in deep Gobi',
+                features: 'Natural spring, saxaul forest',
+                wildlife: 'Wild ass, gazelle water here'
+            },
+            {
+                name: 'Zulganai Oasis',
+                coordinates: [42.5, 99.0],
+                country: 'Mongolia',
+                description: 'Spring-fed oasis in Trans-Altai Gobi',
+                significance: 'Critical wildlife corridor'
+            },
+            {
+                name: 'Dunhuang Oasis',
+                coordinates: [40.14, 94.66],
+                country: 'China',
+                population: 200000,
+                description: 'Ancient Silk Road oasis on Gobi edge',
+                features: 'Mogao Caves (UNESCO), Crescent Lake',
+                history: 'Major trading post for 2,000+ years'
+            }
+        ],
+        
+        cities: [
+            {
+                name: 'Dunhuang',
+                coordinates: [40.14, 94.66],
+                country: 'China',
+                population: 200000,
+                description: 'Ancient Silk Road oasis city, Mogao Caves',
+                UNESCO: 'Mogao Caves World Heritage Site',
+                history: '2,000 years of continuous habitation'
+            },
+            {
+                name: 'Jiayuguan',
+                coordinates: [39.77, 98.29],
+                country: 'China',
+                population: 300000,
+                description: 'Western end of Great Wall, Gobi gateway',
+                feature: 'Jiayuguan Fort (1372 CE)',
+                nickname: '"First Pass Under Heaven"'
+            },
+            {
+                name: 'Dalanzadgad',
+                coordinates: [43.57, 104.43],
+                country: 'Mongolia',
+                population: 20000,
+                description: 'Capital of South Gobi Province',
+                features: 'Gateway to Gobi Gurvansaikhan National Park'
+            },
+            {
+                name: 'Sainshand',
+                coordinates: [44.9, 110.13],
+                country: 'Mongolia',
+                population: 25000,
+                description: 'Trans-Mongolian Railway town',
+                features: 'Khamaryn Khiid monastery, energy center'
+            },
+            {
+                name: 'Bayanhongor',
+                coordinates: [46.19, 100.72],
+                country: 'Mongolia',
+                population: 30000,
+                description: 'Provincial capital on Gobi edge',
+                features: 'Gateway to western Gobi'
+            }
+        ],
+        
+        biodiversity: {
+            overview: 'Surprisingly rich wildlife adapted to extreme conditions',
+            
+            plants: [
+                {
+                    name: 'Saxaul Tree',
+                    scientificName: 'Haloxylon ammodendron',
+                    description: 'Main tree of Gobi, critical desert vegetation',
+                    adaptation: 'Deep roots (up to 10m), stores water, salty bark',
+                    uses: 'Fuel, erosion control, camel fodder',
+                    threat: 'Overharvesting for firewood'
+                },
+                {
+                    name: 'Wild Onion',
+                    scientificName: 'Allium mongolicum',
+                    description: 'Common herb in steppe-desert transition',
+                    adaptation: 'Bulb survives cold and drought',
+                    uses: 'Food for herders and wildlife'
+                },
+                {
+                    name: 'Ephedra',
+                    scientificName: 'Ephedra sinica',
+                    description: 'Medicinal shrub, source of ephedrine',
+                    adaptation: 'Leafless, photosynthesizes through stems',
+                    uses: 'Traditional medicine'
+                },
+                {
+                    name: 'Nitraria',
+                    scientificName: 'Nitraria sibirica',
+                    description: 'Salt-tolerant shrub forming mounds',
+                    adaptation: 'Tolerates extreme salinity',
+                    fruit: 'Edible berries'
+                },
+                {
+                    name: 'Feather Grass',
+                    scientificName: 'Stipa species',
+                    description: 'Dominant grass in steppe-desert margins',
+                    significance: 'Critical grazing resource'
+                }
+            ],
+            
+            animals: [
+                {
+                    name: 'Gobi Bear (Mazaalai)',
+                    scientificName: 'Ursus arctos gobiensis',
+                    description: 'World\'s rarest bear, only desert-dwelling brown bear',
+                    population: '<40 individuals',
+                    status: 'Critically Endangered',
+                    range: 'Small area in western Gobi',
+                    diet: 'Wild rhubarb, nitraria berries, rodents',
+                    significance: 'Mongolian national treasure'
+                },
+                {
+                    name: 'Wild Bactrian Camel',
+                    scientificName: 'Camelus ferus',
+                    description: 'Last truly wild camel species, two humps',
+                    population: '<1,000',
+                    status: 'Critically Endangered',
+                    adaptation: 'Drinks salt water, survives -30°C to 40°C',
+                    range: 'Gobi and Taklamakan edges',
+                    difference: 'Genetically distinct from domestic Bactrian'
+                },
+                {
+                    name: 'Mongolian Wild Ass (Khulan)',
+                    scientificName: 'Equus hemionus hemionus',
+                    description: 'Largest population of Asian wild ass',
+                    population: '20,000-25,000',
+                    adaptation: 'Can run 70 km/h, survives extreme cold',
+                    status: 'Near Threatened',
+                    range: 'Mongolian Gobi'
+                },
+                {
+                    name: 'Gobi Ibex',
+                    scientificName: 'Capra sibirica',
+                    description: 'Mountain goat of Gobi ranges',
+                    population: '40,000 in Mongolia',
+                    adaptation: 'Climbs steep rocky terrain',
+                    status: 'Near Threatened'
+                },
+                {
+                    name: 'Snow Leopard',
+                    scientificName: 'Panthera uncia',
+                    description: 'Ghost cat of the mountains',
+                    population: '500-1,000 in Mongolia',
+                    range: 'Gobi Altai and mountain ranges',
+                    status: 'Vulnerable',
+                    adaptation: 'Thick fur, long tail for balance'
+                },
+                {
+                    name: 'Mongolian Gazelle',
+                    scientificName: 'Procapra gutturosa',
+                    description: 'One of last great migrations on Earth',
+                    population: '1-1.5 million',
+                    migration: 'Herds of 100,000+ cross Gobi',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Black-tailed Gazelle',
+                    scientificName: 'Gazella subgutturosa',
+                    description: 'Desert gazelle of Gobi proper',
+                    population: '50,000',
+                    adaptation: 'Survives without drinking water',
+                    status: 'Vulnerable'
+                },
+                {
+                    name: 'Pallas\'s Cat',
+                    scientificName: 'Otocolobus manul',
+                    description: 'Fluffy wild cat of Central Asian steppes',
+                    adaptation: 'Extremely thick fur for cold',
+                    status: 'Near Threatened',
+                    appearance: 'Grumpy expression, round pupils'
+                },
+                {
+                    name: 'Long-eared Jerboa',
+                    scientificName: 'Euchoreutes naso',
+                    description: 'Bizarre rodent with enormous ears',
+                    adaptation: 'Ears 1/3 of body length for heat regulation',
+                    nocturnal: 'Avoids heat by burrowing'
+                },
+                {
+                    name: 'Corsac Fox',
+                    scientificName: 'Vulpes corsac',
+                    description: 'Small fox of steppes and deserts',
+                    adaptation: 'Lives in burrows, survives -50°C',
+                    status: 'Least Concern'
+                }
+            ],
+            
+            birds: [
+                { name: 'Saker Falcon', description: 'Prized falconry bird, national bird of Mongolia' },
+                { name: 'Lammergeier', description: 'Giant vulture, drops bones to break them' },
+                { name: 'Houbara Bustard', description: 'Large ground bird, hunted by Arab falconers' },
+                { name: 'Pallas\'s Sandgrouse', description: 'Desert bird, flies to water daily' }
+            ],
+            
+            dinosaurs: [
+                {
+                    name: 'Velociraptor',
+                    era: 'Late Cretaceous (75-71 mya)',
+                    discovery: 'Flaming Cliffs, 1923',
+                    significance: 'Famous "raptor" of Jurassic Park (smaller in reality)'
+                },
+                {
+                    name: 'Protoceratops',
+                    era: 'Late Cretaceous',
+                    discovery: 'Flaming Cliffs, 1923',
+                    significance: 'Ancestor of horned dinosaurs'
+                },
+                {
+                    name: 'Tarbosaurus',
+                    era: 'Late Cretaceous',
+                    discovery: 'Nemegt Basin',
+                    significance: 'Asian equivalent of T-Rex'
+                },
+                {
+                    name: 'Oviraptor',
+                    era: 'Late Cretaceous',
+                    discovery: 'Flaming Cliffs',
+                    significance: 'Found sitting on eggs, parental care evidence'
+                },
+                {
+                    name: 'Therizinosaurus',
+                    era: 'Late Cretaceous',
+                    discovery: 'Nemegt',
+                    significance: 'Bizarre dinosaur with 1m claws'
+                }
+            ],
+            
+            endangeredSpecies: [
+                { name: 'Gobi Bear', status: 'Critically Endangered', population: '<40' },
+                { name: 'Wild Bactrian Camel', status: 'Critically Endangered', population: '<1,000' },
+                { name: 'Snow Leopard', status: 'Vulnerable', population: '500-1,000 in Mongolia' },
+                { name: 'Takhi (Przewalski\'s Horse)', status: 'Endangered', population: '2,000 (reintroduced)' }
+            ]
+        },
+        
+        humanLife: {
+            overview: 'Nomadic herders have lived in Gobi for thousands of years',
+            
+            population: {
+                inDesert: '500,000 in Gobi region',
+                density: '0.3 people per km²',
+                lifestyle: '30% still semi-nomadic'
+            },
+            
+            indigenousPeoples: [
+                {
+                    name: 'Mongolian Nomads',
+                    population: 'Majority of Gobi inhabitants',
+                    lifestyle: 'Herding goats, sheep, horses, camels, cattle',
+                    dwelling: 'Ger (yurt) - portable felt tent',
+                    movement: 'Move 2-4 times per year following pasture',
+                    culture: 'Ancient traditions, Buddhism, shamanism'
+                }
+            ],
+            
+            traditionalLife: {
+                housing: ['Ger (yurt) - circular felt tent', 'Easy to assemble/disassemble', 'Fits on camels for transport'],
+                livestock: ['Goats (cashmere)', 'Sheep', 'Horses', 'Camels', 'Cattle/yaks'],
+                food: ['Airag (fermented mare\'s milk)', 'Dried meat (borts)', 'Dairy products', 'Mutton'],
+                economy: ['Cashmere production', 'Livestock', 'Mining (modern)']
+            },
+            
+            challenges: [
+                'Desertification increasing',
+                'Climate change (dzud - harsh winters)',
+                'Overgrazing from cashmere boom',
+                'Mining impacts',
+                'Youth migration to cities'
+            ]
+        },
+        
+        economy: [
+            {
+                sector: 'Mining',
+                description: 'Vast mineral resources discovered',
+                resources: ['Copper (Oyu Tolgoi)', 'Gold', 'Coal (Tavan Tolgoi)', 'Rare earths'],
+                oyuTolgoi: 'One of world\'s largest copper-gold mines',
+                controversy: 'Environmental and social impacts'
+            },
+            {
+                sector: 'Cashmere',
+                description: 'Mongolia is 2nd largest cashmere producer',
+                production: '9,000 tonnes/year',
+                goats: '27 million cashmere goats',
+                impact: 'Overgrazing causing desertification'
+            },
+            {
+                sector: 'Tourism',
+                description: 'Growing adventure tourism',
+                activities: ['Dinosaur sites', 'Ger camps', 'Camel trekking', 'Eagle hunters'],
+                visitors: '500,000+ annually to Mongolia',
+                growth: 'Fastest growing sector'
+            },
+            {
+                sector: 'Livestock',
+                description: 'Traditional economy still important',
+                animals: '70 million head in Mongolia',
+                products: 'Meat, dairy, hides, wool'
+            }
+        ],
+        
+        environmentalIssues: [
+            {
+                issue: 'Desertification',
+                severity: 'Critical',
+                description: 'Gobi expanding 3,600 km²/year southward',
+                causes: ['Climate change', 'Overgrazing', 'Deforestation'],
+                impacts: ['Beijing dust storms', 'Pasture loss', 'Herder displacement'],
+                response: 'China\'s Great Green Wall project'
+            },
+            {
+                issue: 'Climate Change',
+                severity: 'Critical',
+                description: 'Mongolia warming faster than global average',
+                changes: ['More extreme temperatures', 'Less snow', 'More dzud events'],
+                dzud: 'Severe winters killing millions of livestock'
+            },
+            {
+                issue: 'Overgrazing',
+                severity: 'High',
+                description: 'Cashmere boom caused goat numbers to triple',
+                impact: '90% of pastureland degraded',
+                cause: 'Cashmere market incentives'
+            },
+            {
+                issue: 'Mining Impact',
+                severity: 'High',
+                description: 'Large-scale mining affecting environment',
+                issues: ['Water depletion', 'Dust pollution', 'Wildlife displacement'],
+                tension: 'Economic benefit vs environmental cost'
+            },
+            {
+                issue: 'Dust Storms',
+                severity: 'High',
+                description: 'Increasing dust storms affect East Asia',
+                reach: 'Dust reaches Beijing, Korea, Japan, even North America',
+                health: 'Respiratory problems, reduced visibility'
+            },
+            {
+                issue: 'Wildlife Decline',
+                severity: 'High',
+                description: 'Poaching and habitat loss threatening species',
+                victims: ['Gobi Bear', 'Wild Camel', 'Argali sheep'],
+                cause: 'Illegal hunting, mining, fencing'
+            }
+        ],
+        
+        historicalImportance: [
+            {
+                era: 'Cretaceous Period',
+                title: 'Dinosaur Age',
+                description: 'Gobi was dinosaur paradise 75 million years ago',
+                climate: 'Semi-arid with seasonal rivers',
+                evidence: 'World\'s best preserved dinosaur fossils'
+            },
+            {
+                era: '2000 BCE',
+                title: 'Bronze Age Settlement',
+                description: 'Nomadic cultures develop in Gobi region',
+                evidence: 'Deer stones, burial mounds'
+            },
+            {
+                era: '200 BCE - 100 CE',
+                title: 'Xiongnu Empire',
+                description: 'Powerful nomadic confederation',
+                significance: 'Controlled Silk Road, rivaled Han China',
+                legacy: 'May be ancestors of Huns'
+            },
+            {
+                era: '1206-1368 CE',
+                title: 'Mongol Empire',
+                description: 'Gobi at heart of largest land empire in history',
+                founder: 'Genghis Khan united Mongol tribes',
+                extent: 'From Korea to Poland',
+                capital: 'Karakorum in northern Gobi edge'
+            },
+            {
+                era: '13th century',
+                title: 'Silk Road Peak',
+                description: 'Trade routes crossed Gobi',
+                goods: ['Silk', 'Spices', 'Porcelain', 'Ideas'],
+                safety: 'Pax Mongolica ensured safe passage'
+            },
+            {
+                era: '1923',
+                title: 'Dinosaur Discovery',
+                description: 'Roy Chapman Andrews expedition finds dinosaur eggs',
+                location: 'Flaming Cliffs',
+                significance: 'First dinosaur eggs ever discovered',
+                impact: 'Gobi becomes paleontological paradise'
+            },
+            {
+                era: '1990',
+                title: 'Democratic Revolution',
+                description: 'Mongolia transitions to democracy',
+                impact: 'Opening to tourism, foreign investment'
+            },
+            {
+                era: '2000s',
+                title: 'Mining Boom',
+                description: 'Discovery of massive mineral deposits',
+                projects: 'Oyu Tolgoi copper/gold mine',
+                impact: 'Economic transformation, environmental concerns'
+            }
+        ],
+        
+        funFacts: [
+            {
+                fact: 'The Gobi is not sandy - only 5% is sand dunes, the rest is bare rock and gravel',
+                category: 'Misconception'
+            },
+            {
+                fact: 'The first dinosaur eggs ever discovered were found in the Gobi in 1923',
+                category: 'Paleontology'
+            },
+            {
+                fact: 'The Gobi Bear is the rarest bear in the world with fewer than 40 individuals',
+                category: 'Wildlife'
+            },
+            {
+                fact: 'Temperatures can range from -40°C in winter to +50°C in summer - a 90°C variation',
+                category: 'Climate'
+            },
+            {
+                fact: 'Wild Bactrian camels can drink salt water that would kill other mammals',
+                category: 'Wildlife'
+            },
+            {
+                fact: 'Gobi dust blows all the way to Beijing, Korea, Japan, and even North America',
+                category: 'Environment'
+            },
+            {
+                fact: 'Mongolian nomads can set up a ger (yurt) in about an hour',
+                category: 'Culture'
+            },
+            {
+                fact: 'The word "Gobi" means "waterless place" in Mongolian, not "sandy desert"',
+                category: 'Language'
+            },
+            {
+                fact: 'Marco Polo crossed the Gobi, describing it as "so long it would take a year to go from end to end"',
+                category: 'History'
+            },
+            {
+                fact: 'The "Singing Sands" of Khongoryn Els produce a booming sound when wind blows over them',
+                category: 'Phenomenon'
+            }
+        ],
+        
+        journeyWaypoints: [
+            {
+                name: 'Ulaanbaatar',
+                coordinates: [47.92, 106.92],
+                description: 'Starting from Mongolia\'s capital, gateway to the Gobi',
+                type: 'start',
+                duration: 3000
+            },
+            {
+                name: 'Mandalgovi',
+                coordinates: [45.76, 106.27],
+                description: 'Entering the Gobi proper, endless steppe gives way to desert',
+                type: 'terrain',
+                duration: 3000
+            },
+            {
+                name: 'Flaming Cliffs (Bayanzag)',
+                coordinates: [44.15, 103.72],
+                description: 'Where dinosaur history was written - first eggs discovered here',
+                type: 'landmark',
+                duration: 4000
+            },
+            {
+                name: 'Khongoryn Els (Singing Sands)',
+                coordinates: [43.77, 102.18],
+                description: 'The great dunes rise 300m - they sing in the wind',
+                type: 'landmark',
+                duration: 4000
+            },
+            {
+                name: 'Yolyn Am (Vulture Valley)',
+                coordinates: [43.5, 104.1],
+                description: 'A frozen canyon in the heart of the desert',
+                type: 'landmark',
+                duration: 3000
+            },
+            {
+                name: 'Gurvan Saikhan Mountains',
+                coordinates: [43.5, 104.5],
+                description: 'The "Three Beauties" - mountains in the desert',
+                type: 'terrain',
+                duration: 3000
+            },
+            {
+                name: 'Dalanzadgad',
+                coordinates: [43.57, 104.43],
+                description: 'Journey\'s end at the capital of South Gobi',
+                type: 'end',
+                duration: 3000
+            }
+        ],
+        
+        quickFacts: {
+            area: '1,295,000 km²',
+            type: 'Cold Desert',
+            avgTemp: '-2°C to 8°C (annual)',
+            rainfall: '50-100mm/year',
+            countries: 'Mongolia, China',
+            population: '~500,000'
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // #6 - KALAHARI DESERT
+    // ═══════════════════════════════════════════════════════════════════
+    {
+        id: 'kalahari-desert',
+        name: 'Kalahari Desert',
+        subtitle: 'Home of the San People',
+        countries: [
+            { name: 'Botswana', code: 'BW' },
+            { name: 'Namibia', code: 'NA' },
+            { name: 'South Africa', code: 'ZA' }
+        ],
+        continent: 'Africa',
+        desertType: 'hot',
+        subType: 'Semi-arid/Fossil Desert',
+        area: 900000,
+        areaRank: 6,
+        rank: 6,
+        coordinates: [-24.5, 21.5],
+        defaultZoom: 5,
+        
+        image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400',
+        backgroundImage: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1920',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1547970810-dc1eac37d174?w=800',
+            'https://images.unsplash.com/photo-1504945005722-33670dcaf685?w=800'
+        ],
+        
+        geoJSON: {
+            type: 'Feature',
+            properties: { name: 'Kalahari Desert' },
+            geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                    [17, -18], [25, -18], [28, -22], [28, -28], [24, -28],
+                    [20, -28], [17, -26], [17, -22], [17, -18]
+                ]]
+            }
+        },
+        
+        location: {
+            continent: 'Africa (Southern)',
+            hemispheres: ['Southern', 'Eastern'],
+            latitudeRange: '18°S to 28°S',
+            longitudeRange: '17°E to 28°E',
+            geographicCenter: '-24.5°S, 21.5°E',
+            totalCountries: 3,
+            percentages: { Botswana: 70, Namibia: 20, SouthAfrica: 10 },
+            borders: ['Okavango Delta (north)', 'Orange River (south)']
+        },
+        
+        desertClassification: {
+            primaryType: 'Hot Semi-arid',
+            secondaryType: 'Fossil Desert',
+            climateClassification: 'BSh/BWh (Hot Semi-arid/Hot Desert)',
+            formationCauses: [
+                {
+                    cause: 'Subtropical High Pressure',
+                    explanation: 'Located under descending dry air zone'
+                },
+                {
+                    cause: 'Cold Benguela Current',
+                    explanation: 'Cools air over Atlantic, reducing rainfall'
+                },
+                {
+                    cause: 'Continental Interior',
+                    explanation: 'Far from moisture sources'
+                }
+            ],
+            uniqueFeature: 'Technically semi-arid, not true desert - receives more rain than most deserts',
+            debate: 'Some scientists classify it as desert, others as semi-desert or savanna'
+        },
+        
+        size: {
+            totalArea: 900000,
+            areaUnit: 'km²',
+            comparisonToCountries: ['Larger than Texas', '3.5x United Kingdom'],
+            ranking: { amongDeserts: 6, statement: 'Sixth largest desert' }
+        },
+        
+        climate: {
+            overview: 'Hot semi-arid with summer rainfall - wetter than typical deserts',
+            temperatureData: {
+                summerHigh: { typical: '35°C to 45°C' },
+                winterLow: { typical: '-10°C to 10°C (frost common)' },
+                extremeRecords: {
+                    hottestEver: '45°C',
+                    coldestEver: '-14°C'
+                }
+            },
+            precipitation: {
+                annualAverage: '150-500mm (varies by region)',
+                southern: '150mm',
+                northern: '500mm',
+                season: 'Summer (November-April)',
+                type: 'Thunderstorms'
+            }
+        },
+        
+        landforms: [
+            {
+                name: 'Sand Sheets',
+                description: 'Vast areas of red sand (Kalahari sand)',
+                coverage: 'Covers most of region',
+                depth: 'Up to 200m deep',
+                color: 'Red from iron oxide'
+            },
+            {
+                name: 'Linear Dunes',
+                description: 'Long parallel sand ridges',
+                orientation: 'Northwest-southeast',
+                type: 'Mostly vegetated, stabilized'
+            },
+            {
+                name: 'Pans (Salt Lakes)',
+                description: 'Ancient lake beds, seasonal water',
+                examples: ['Makgadikgadi Pans', 'Etosha Pan (Namibia edge)'],
+                size: 'Makgadikgadi: 16,000 km²'
+            },
+            {
+                name: 'Okavango Delta',
+                description: 'Inland river delta on Kalahari edge',
+                area: '15,000-22,000 km² (seasonal)',
+                significance: 'World\'s largest inland delta',
+                UNESCO: 'World Heritage Site'
+            },
+            {
+                name: 'Fossil River Valleys',
+                description: 'Ancient rivers now dry',
+                examples: ['Molopo River', 'Nossob River'],
+                water: 'Flow only after heavy rains'
+            }
+        ],
+        
+        features: [
+            {
+                name: 'Okavango Delta',
+                type: 'Inland Delta',
+                coordinates: [-19.3, 22.9],
+                area: '15,000-22,000 km²',
+                description: 'Largest inland delta in world, never reaches sea',
+                UNESCO: 'World Heritage Site (2014)',
+                wildlife: 'Africa\'s highest elephant concentration',
+                water: 'Fed by Okavango River from Angola'
+            },
+            {
+                name: 'Makgadikgadi Pans',
+                type: 'Salt Pans',
+                coordinates: [-20.5, 25.5],
+                area: '16,000 km²',
+                description: 'One of largest salt flats in world',
+                rainy: 'Flamingos, zebra migration when wet',
+                dry: 'White lunar landscape'
+            },
+            {
+                name: 'Central Kalahari Game Reserve',
+                type: 'Protected Area',
+                coordinates: [-22.5, 23.5],
+                area: '52,800 km²',
+                description: 'Second largest game reserve in world',
+                wildlife: 'Lions, cheetahs, wild dogs, oryx',
+                people: 'San Bushmen homeland'
+            },
+            {
+                name: 'Deception Valley',
+                type: 'Fossil River Valley',
+                coordinates: [-22.5, 23.5],
+                description: 'Ancient river bed, famous for wildlife',
+                wildlife: 'Black-maned Kalahari lions',
+                research: 'Site of famous lion and meerkat studies'
+            },
+            {
+                name: 'Kgalagadi Transfrontier Park',
+                type: 'Protected Area',
+                coordinates: [-25.5, 20.5],
+                area: '38,000 km²',
+                description: 'Cross-border park (Botswana/South Africa)',
+                significance: 'Africa\'s first transfrontier park (1999)',
+                wildlife: 'Black-maned lions, gemsbok, cheetah'
+            },
+            {
+                name: 'Tsodilo Hills',
+                type: 'Rock Art Site',
+                coordinates: [-18.75, 21.73],
+                description: 'Sacred San site with 4,500 rock paintings',
+                UNESCO: 'World Heritage Site (2001)',
+                age: 'Paintings span 100,000 years',
+                name: '"Louvre of the Desert"'
+            }
+        ],
+        
+        oases: [
+            {
+                name: 'Okavango Delta',
+                coordinates: [-19.3, 22.9],
+                country: 'Botswana',
+                description: 'World\'s largest inland delta, never reaches sea',
+                water: 'From Angola highlands, 11 trillion liters annually',
+                wildlife: 'Africa\'s last great wildlife refuges'
+            },
+            {
+                name: 'Gcwihaba (Drotsky\'s Caves)',
+                coordinates: [-20.02, 21.28],
+                country: 'Botswana',
+                description: 'Cave system with underground lake',
+                features: 'Stalactites, stalagmites'
+            }
+        ],
+        
+        cities: [
+            {
+                name: 'Gaborone',
+                coordinates: [-24.66, 25.91],
+                country: 'Botswana',
+                population: 270000,
+                description: 'Capital of Botswana, on Kalahari edge',
+                note: 'Not in desert but gateway'
+            },
+            {
+                name: 'Maun',
+                coordinates: [-19.99, 23.42],
+                country: 'Botswana',
+                population: 65000,
+                description: 'Gateway to Okavango Delta',
+                tourism: 'Safari capital of Botswana'
+            },
+            {
+                name: 'Upington',
+                coordinates: [-28.45, 21.25],
+                country: 'South Africa',
+                population: 80000,
+                description: 'Gateway to Kgalagadi, Orange River',
+                industry: 'Wine, dates, solar energy'
+            },
+            {
+                name: 'Windhoek',
+                coordinates: [-22.56, 17.08],
+                country: 'Namibia',
+                population: 450000,
+                description: 'Capital of Namibia, near Kalahari',
+                note: 'Gateway to Namibian Kalahari'
+            }
+        ],
+        
+        biodiversity: {
+            overview: 'Surprisingly rich due to higher rainfall than typical deserts',
+            
+            plants: [
+                {
+                    name: 'Camel Thorn Tree',
+                    scientificName: 'Vachellia erioloba',
+                    description: 'Iconic tree of Kalahari',
+                    adaptation: 'Roots reach 60m deep for water',
+                    uses: 'Shade, pods for wildlife fodder'
+                },
+                {
+                    name: 'Tsamma Melon',
+                    scientificName: 'Citrullus lanatus',
+                    description: 'Wild watermelon, water source',
+                    significance: 'Critical water for wildlife and San people',
+                    origin: 'Ancestor of domestic watermelon'
+                },
+                {
+                    name: 'Hoodia',
+                    scientificName: 'Hoodia gordonii',
+                    description: 'Succulent used by San as appetite suppressant',
+                    adaptation: 'Stores water, looks like cactus',
+                    use: 'San used it to suppress hunger on hunts'
+                },
+                {
+                    name: 'Shepherd\'s Tree',
+                    scientificName: 'Boscia albitrunca',
+                    description: 'Evergreen tree, roots reach 70m',
+                    significance: 'Provides shade and food for wildlife'
+                }
+            ],
+            
+            animals: [
+                {
+                    name: 'Kalahari Lion',
+                    scientificName: 'Panthera leo',
+                    description: 'Black-maned lions of the Kalahari',
+                    adaptation: 'Survive without drinking water for weeks',
+                    range: 'Central Kalahari, Kgalagadi',
+                    status: 'Vulnerable'
+                },
+                {
+                    name: 'Meerkat',
+                    scientificName: 'Suricata suricatta',
+                    description: 'Iconic cooperative mongoose',
+                    behavior: 'Sentry system, complex social structure',
+                    fame: 'Meerkat Manor filmed in Kalahari',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Gemsbok (Oryx)',
+                    scientificName: 'Oryx gazella',
+                    description: 'Large antelope, national animal of Namibia',
+                    adaptation: 'Can survive without drinking water, body temperature regulation',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'African Wild Dog',
+                    scientificName: 'Lycaon pictus',
+                    description: 'Endangered pack hunter',
+                    population: '6,600 total, Kalahari population important',
+                    adaptation: 'Highly efficient hunter',
+                    status: 'Endangered'
+                },
+                {
+                    name: 'Brown Hyena',
+                    scientificName: 'Parahyaena brunnea',
+                    description: 'Rarest hyena species',
+                    population: '5,000-8,000',
+                    range: 'Southern Africa, Kalahari core habitat',
+                    status: 'Near Threatened'
+                },
+                {
+                    name: 'Springbok',
+                    scientificName: 'Antidorcas marsupialis',
+                    description: 'National animal of South Africa',
+                    behavior: 'Famous "pronking" jumping display',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Bat-eared Fox',
+                    scientificName: 'Otocyon megalotis',
+                    description: 'Large-eared fox eating termites',
+                    adaptation: 'Ears detect insect sounds underground',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Honey Badger',
+                    scientificName: 'Mellivora capensis',
+                    description: 'Fearless and aggressive carnivore',
+                    reputation: 'Attacks animals much larger than itself',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Pangolin',
+                    scientificName: 'Smutsia temminckii',
+                    description: 'Scaly anteater, world\'s most trafficked animal',
+                    status: 'Vulnerable',
+                    threat: 'Illegal trade for scales'
+                },
+                {
+                    name: 'Aardvark',
+                    scientificName: 'Orycteropus afer',
+                    description: 'Nocturnal burrowing mammal',
+                    diet: 'Termites and ants',
+                    burrows: 'Provide shelter for many other species'
+                }
+            ],
+            
+            birds: [
+                { name: 'Kori Bustard', description: 'Heaviest flying bird in Africa' },
+                { name: 'Secretary Bird', description: 'Snake-killing raptor' },
+                { name: 'Sociable Weaver', description: 'Builds giant communal nests' },
+                { name: 'Lappet-faced Vulture', description: 'Largest vulture in Africa' }
+            ],
+            
+            endangeredSpecies: [
+                { name: 'African Wild Dog', status: 'Endangered', population: '6,600' },
+                { name: 'Lion', status: 'Vulnerable', threat: 'Human-wildlife conflict' },
+                { name: 'Cheetah', status: 'Vulnerable', population: '7,000 total' },
+                { name: 'Pangolin', status: 'Vulnerable', threat: 'Illegal trade' }
+            ]
+        },
+        
+        humanLife: {
+            overview: 'Home to the San (Bushmen), oldest continuous culture on Earth',
+            
+            population: {
+                sanPeople: '100,000 across Southern Africa',
+                inKalahari: '~50,000'
+            },
+            
+            indigenousPeoples: [
+                {
+                    name: 'San (Bushmen)',
+                    population: '100,000 total',
+                    lifestyle: 'Traditionally hunter-gatherer, oldest continuous culture',
+                    language: 'Khoisan languages with click consonants',
+                    age: 'Genetic evidence shows 70,000+ year lineage',
+                    knowledge: 'Unparalleled tracking and survival skills',
+                    status: 'Marginalized, fighting for land rights',
+                    controversy: 'Relocated from Central Kalahari Game Reserve'
+                },
+                {
+                    name: 'Tswana/Batswana',
+                    population: '4 million (Botswana majority)',
+                    lifestyle: 'Cattle herding, farming',
+                    country: 'Botswana named after them'
+                }
+            ],
+            
+            traditionalSanLife: {
+                housing: ['Grass shelters', 'Rock overhangs'],
+                food: ['Mongongo nuts', 'Tsamma melons', 'Wild game', '100+ plant species'],
+                water: ['Sip wells (reeds inserted in sand)', 'Tsamma melons', 'Ostrich egg containers'],
+                tools: ['Poison arrows', 'Digging sticks'],
+                tracking: 'Can track animals for days, read footprints like books'
+            }
+        },
+        
+        economy: [
+            {
+                sector: 'Diamond Mining',
+                description: 'Botswana is world\'s largest diamond producer by value',
+                history: 'Diamonds discovered 1967, transformed country',
+                impact: 'Funded Botswana\'s development success story'
+            },
+            {
+                sector: 'Tourism',
+                description: 'High-end safari tourism',
+                destinations: ['Okavango Delta', 'Makgadikgadi', 'Central Kalahari'],
+                type: 'Low volume, high value sustainable tourism',
+                revenue: 'Major GDP contributor'
+            },
+            {
+                sector: 'Cattle Ranching',
+                description: 'Important agricultural sector',
+                challenge: 'Fencing affects wildlife migration',
+                conflict: 'Competes with conservation'
+            },
+            {
+                sector: 'Solar Energy',
+                description: 'Massive solar potential',
+                projects: 'Jasper Solar Farm (South Africa) on Kalahari edge',
+                potential: '10+ hours daily sunshine'
+            }
+        ],
+        
+        environmentalIssues: [
+            {
+                issue: 'Diamond Mining',
+                severity: 'Moderate',
+                description: 'Environmental impact of large mines',
+                response: 'Botswana has strict regulations'
+            },
+            {
+                issue: 'Wildlife Fencing',
+                severity: 'High',
+                description: 'Veterinary fences block migration',
+                impact: 'Wildebeest populations crashed',
+                reason: 'Separate cattle from wildlife to protect beef exports'
+            },
+            {
+                issue: 'San Land Rights',
+                severity: 'Ongoing',
+                description: 'Indigenous people relocated from ancestral lands',
+                controversy: 'Central Kalahari Game Reserve relocations',
+                status: 'Legal battles ongoing'
+            },
+            {
+                issue: 'Climate Change',
+                severity: 'High',
+                description: 'Increasing temperatures and drought',
+                impacts: ['More severe droughts', 'Water scarcity', 'Wildlife stress']
+            },
+            {
+                issue: 'Overgrazing',
+                severity: 'Moderate',
+                description: 'Cattle farming in marginal areas',
+                impact: 'Vegetation degradation'
+            }
+        ],
+        
+        historicalImportance: [
+            {
+                era: '70,000+ years ago',
+                title: 'San Arrival',
+                description: 'San ancestors inhabited Kalahari',
+                significance: 'Oldest continuous culture on Earth'
+            },
+            {
+                era: '2,000 years ago',
+                title: 'Bantu Migration',
+                description: 'Bantu peoples arrive in southern Africa',
+                impact: 'San pushed into more marginal areas'
+            },
+            {
+                era: '1849',
+                title: 'Livingstone Crosses Kalahari',
+                description: 'David Livingstone first European to cross',
+                route: 'Lake Ngami discovery'
+            },
+            {
+                era: '1885',
+                title: 'Bechuanaland Protectorate',
+                description: 'British establish protectorate (later Botswana)',
+                reason: 'Block German expansion from Namibia'
+            },
+            {
+                era: '1966',
+                title: 'Botswana Independence',
+                description: 'Botswana becomes independent',
+                condition: 'One of poorest countries in world'
+            },
+            {
+                era: '1967',
+                title: 'Diamond Discovery',
+                description: 'Diamonds found at Orapa',
+                impact: 'Transformed Botswana into success story'
+            },
+            {
+                era: '2014',
+                title: 'Okavango UNESCO Status',
+                description: 'Delta becomes World Heritage Site',
+                significance: '1,000th site on UNESCO list'
+            }
+        ],
+        
+        funFacts: [
+            {
+                fact: 'The Kalahari is not a true desert - it receives more rainfall than most deserts',
+                category: 'Definition'
+            },
+            {
+                fact: 'San Bushmen can identify 100+ plant species and track animals for days',
+                category: 'Culture'
+            },
+            {
+                fact: 'The Okavango Delta is the only inland delta in the world that never reaches the sea',
+                category: 'Geography'
+            },
+            {
+                fact: 'Meerkat Manor was filmed in the Kalahari',
+                category: 'Media'
+            },
+            {
+                fact: 'Kalahari lions are famous for their black manes',
+                category: 'Wildlife'
+            },
+            {
+                fact: 'The tsamma melon provided water for both San people and wildlife for millennia',
+                category: 'Survival'
+            },
+            {
+                fact: 'Diamonds transformed Botswana from one of poorest to one of richest African countries',
+                category: 'Economy'
+            },
+            {
+                fact: 'San rock art in Tsodilo Hills spans 100,000 years - called "Louvre of the Desert"',
+                category: 'Art'
+            },
+            {
+                fact: 'The wild watermelon (tsamma) originated in the Kalahari - ancestor of all watermelons',
+                category: 'Origin'
+            },
+            {
+                fact: 'Sociable weaver birds build the largest nests in the world - apartment complexes for 500 birds',
+                category: 'Wildlife'
+            }
+        ],
+        
+        journeyWaypoints: [
+            {
+                name: 'Maun, Botswana',
+                coordinates: [-19.99, 23.42],
+                description: 'Starting at the safari capital, gateway to the Okavango',
+                type: 'start',
+                duration: 3000
+            },
+            {
+                name: 'Okavango Delta',
+                coordinates: [-19.3, 22.9],
+                description: 'The jewel of the Kalahari - a river that never reaches the sea',
+                type: 'landmark',
+                duration: 4000
+            },
+            {
+                name: 'Tsodilo Hills',
+                coordinates: [-18.75, 21.73],
+                description: 'Sacred to the San - 4,500 rock paintings over 100,000 years',
+                type: 'cultural',
+                duration: 3000
+            },
+            {
+                name: 'Central Kalahari Game Reserve',
+                coordinates: [-22.5, 23.5],
+                description: 'Second largest reserve in the world - black-maned lions roam',
+                type: 'terrain',
+                duration: 4000
+            },
+            {
+                name: 'Deception Valley',
+                coordinates: [-22.3, 24.0],
+                description: 'Fossil river valley, site of famous wildlife research',
+                type: 'scientific',
+                duration: 3000
+            },
+            {
+                name: 'Makgadikgadi Pans',
+                coordinates: [-20.5, 25.5],
+                description: 'Vast salt flats - moonscape when dry, flamingos when wet',
+                type: 'landmark',
+                duration: 4000
+            },
+            {
+                name: 'Kgalagadi Transfrontier Park',
+                coordinates: [-25.5, 20.5],
+                description: 'Journey\'s end at Africa\'s first transfrontier park',
+                type: 'end',
+                duration: 3000
+            }
+        ],
+        
+        quickFacts: {
+            area: '900,000 km²',
+            type: 'Hot Semi-arid',
+            avgTemp: '20°C to 25°C',
+            rainfall: '150-500mm/year',
+            countries: 'Botswana, Namibia, South Africa',
+            population: 'Sparse (San people)'
+        }
+    },
+
+    // Continuing with deserts 7-10...
+    // Due to character limits, I'll provide a condensed but complete version
+
+    // ═══════════════════════════════════════════════════════════════════
+    // #7 - PATAGONIAN DESERT
+    // ═══════════════════════════════════════════════════════════════════
+    {
+        id: 'patagonian-desert',
+        name: 'Patagonian Desert',
+        subtitle: 'Land of the Wind',
+        countries: [
+            { name: 'Argentina', code: 'AR' },
+            { name: 'Chile', code: 'CL' }
+        ],
+        continent: 'South America',
+        desertType: 'cold',
+        subType: 'Rain Shadow Desert',
+        area: 673000,
+        areaRank: 7,
+        rank: 7,
+        coordinates: [-45.0, -69.0],
+        defaultZoom: 5,
+        
+        image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400',
+        backgroundImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920',
+        
+        geoJSON: {
+            type: 'Feature',
+            properties: { name: 'Patagonian Desert' },
+            geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                    [-75, -39], [-67, -39], [-65, -52], [-73, -52], [-75, -45], [-75, -39]
+                ]]
+            }
+        },
+        
+        location: {
+            continent: 'South America',
+            hemispheres: ['Southern', 'Western'],
+            latitudeRange: '39°S to 52°S',
+            longitudeRange: '75°W to 65°W',
+            totalCountries: 2,
+            percentages: { Argentina: 95, Chile: 5 }
+        },
+        
+        desertClassification: {
+            primaryType: 'Cold Desert',
+            secondaryType: 'Rain Shadow Desert',
+            climateClassification: 'BWk (Cold Desert Climate)',
+            formationCauses: [
+                { cause: 'Rain Shadow', explanation: 'Andes block Pacific moisture' },
+                { cause: 'Cold Ocean', explanation: 'Falkland Current cools coastal air' },
+                { cause: 'High Latitude', explanation: 'Far south location means cold temperatures' }
+            ]
+        },
+        
+        size: {
+            totalArea: 673000,
+            areaUnit: 'km²',
+            ranking: { amongDeserts: 7, coldDesertRank: 4 }
+        },
+        
+        climate: {
+            overview: 'Cold, windy, dry - Southern Hemisphere\'s largest desert',
+            temperatureData: {
+                summerHigh: { typical: '15°C to 25°C' },
+                winterLow: { typical: '-10°C to 0°C' },
+                averageAnnual: '3°C to 10°C'
+            },
+            precipitation: {
+                annualAverage: '150-300mm',
+                andeanFoothills: '100mm',
+                type: 'Snow and rain'
+            },
+            wind: {
+                averageSpeed: '30-40 km/h',
+                gusts: 'Up to 150 km/h',
+                direction: 'Constant westerlies',
+                nickname: 'Land of the Wind'
+            }
+        },
+        
+        landforms: [
+            { name: 'Mesetas (Plateaus)', description: 'Flat-topped volcanic plateaus dominate landscape' },
+            { name: 'Canyons', description: 'Deep river canyons cut through plateaus' },
+            { name: 'Petrified Forests', description: 'Ancient fossilized trees from Jurassic era' },
+            { name: 'Glacier-fed Lakes', description: 'Striking blue lakes on western edge' }
+        ],
+        
+        features: [
+            {
+                name: 'Petrified Forest (Bosque Petrificado)',
+                type: 'Paleontological Site',
+                coordinates: [-47.8, -68.1],
+                description: '150 million year old fossilized trees',
+                treeHeight: 'Some logs 30m long, 3m diameter',
+                age: 'Jurassic era',
+                origin: 'Volcanic ash buried and fossilized forest'
+            },
+            {
+                name: 'Cave of the Hands (Cueva de las Manos)',
+                type: 'Archaeological Site',
+                coordinates: [-47.15, -70.67],
+                description: '9,000 year old rock art, hand stencils',
+                UNESCO: 'World Heritage Site (1999)',
+                paintings: '829 hand stencils, hunting scenes',
+                age: '9,300 years old'
+            },
+            {
+                name: 'Monte León National Park',
+                type: 'Coastal Park',
+                coordinates: [-50.35, -68.95],
+                description: 'Sea cliffs, penguin colonies, sea lions',
+                coastline: '40 km of coast',
+                wildlife: 'Magellanic penguins, cormorants'
+            },
+            {
+                name: 'Valdés Peninsula',
+                type: 'Wildlife Reserve',
+                coordinates: [-42.5, -64.0],
+                UNESCO: 'World Heritage Site (1999)',
+                wildlife: 'Southern right whales, elephant seals, orcas',
+                description: 'World\'s best whale watching'
+            }
+        ],
+        
+        biodiversity: {
+            overview: 'Hardy wildlife adapted to wind and cold',
+            animals: [
+                { name: 'Guanaco', description: 'Wild relative of llama, main herbivore', population: '500,000' },
+                { name: 'Puma', description: 'Top predator, hunts guanaco', status: 'Near Threatened' },
+                { name: 'Patagonian Mara', description: 'Large rodent resembling rabbit-deer hybrid' },
+                { name: 'Darwin\'s Rhea', description: 'Flightless bird, smaller cousin of ostrich' },
+                { name: 'Magellanic Penguin', description: 'Coastal colonies, 1.5 million in Patagonia' },
+                { name: 'Southern Right Whale', description: 'Breeds at Valdés Peninsula' },
+                { name: 'Patagonian Fox', description: 'Endemic canid' }
+            ],
+            plants: [
+                { name: 'Coirón Grass', description: 'Dominant grass, adapted to wind' },
+                { name: 'Calafate Berry', description: 'Legend says who eats it will return' },
+                { name: 'Lenga/Ñire', description: 'Southern beech at forest margins' }
+            ]
+        },
+        
+        humanLife: {
+            population: { total: '2 million (entire Patagonia)', density: 'Less than 2 per km²' },
+            indigenousPeoples: [
+                { name: 'Tehuelche', description: 'Original "Patagonians" - nearly extinct culture' },
+                { name: 'Mapuche', description: 'Major indigenous group of Chile/Argentina' }
+            ],
+            economy: ['Sheep ranching (50 million sheep)', 'Oil/gas', 'Tourism', 'Wind energy']
+        },
+        
+        historicalImportance: [
+            { era: '11,000 BCE', title: 'First Humans', description: 'Cave of Hands art begins' },
+            { era: '1520', title: 'Magellan\'s Voyage', description: 'First European contact, named Patagonia' },
+            { era: '1833', title: 'Darwin\'s Visit', description: 'Charles Darwin studies geology and wildlife' },
+            { era: '1880s', title: 'Sheep Boom', description: 'Welsh and other settlers establish estancias' }
+        ],
+        
+        funFacts: [
+            { fact: 'Patagonia means "land of big feet" - Magellan\'s crew thought natives were giants', category: 'Origin' },
+            { fact: 'Winds regularly exceed 100 km/h - people walk hunched over', category: 'Wind' },
+            { fact: 'The petrified trees are from when dinosaurs roamed 150 million years ago', category: 'History' },
+            { fact: 'Chile and Argentina almost went to war over Patagonia in 1978', category: 'Politics' },
+            { fact: 'There are more sheep than people in Patagonia - 50 million sheep', category: 'Economy' }
+        ],
+        
+        journeyWaypoints: [
+            { name: 'Trelew', coordinates: [-43.25, -65.31], description: 'Welsh settlement on Atlantic coast', type: 'start', duration: 3000 },
+            { name: 'Valdés Peninsula', coordinates: [-42.5, -64.0], description: 'Whale watching paradise', type: 'wildlife', duration: 3000 },
+            { name: 'Patagonian Steppe', coordinates: [-45.0, -68.0], description: 'Endless windswept grasslands', type: 'terrain', duration: 4000 },
+            { name: 'Petrified Forest', coordinates: [-47.8, -68.1], description: 'Jurassic trees turned to stone', type: 'landmark', duration: 3000 },
+            { name: 'Cueva de las Manos', coordinates: [-47.15, -70.67], description: '9,000 years of human history on cave walls', type: 'cultural', duration: 3000 },
+            { name: 'Punta Arenas', coordinates: [-53.16, -70.91], description: 'Journey\'s end at the end of the world', type: 'end', duration: 3000 }
+        ],
+        
+        quickFacts: {
+            area: '673,000 km²',
+            type: 'Cold Desert',
+            avgTemp: '3°C to 10°C',
+            rainfall: '150-300mm/year',
+            countries: 'Argentina, Chile',
+            population: '~2 million'
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // #8 - GREAT VICTORIA DESERT
+    // ═══════════════════════════════════════════════════════════════════
+    {
+        id: 'great-victoria-desert',
+        name: 'Great Victoria Desert',
+        subtitle: 'Australia\'s Largest Desert',
+        countries: [
+            { name: 'Australia', code: 'AU' }
+        ],
+        continent: 'Australia',
+        desertType: 'hot',
+        subType: 'Subtropical Desert',
+        area: 647000,
+        areaRank: 8,
+        rank: 8,
+        coordinates: [-28.0, 129.0],
+        defaultZoom: 5,
+        
+        image: 'https://images.unsplash.com/photo-1494564605686-2e931f77a8e2?w=400',
+        backgroundImage: 'https://images.unsplash.com/photo-1494564605686-2e931f77a8e2?w=1920',
+        
+        geoJSON: {
+            type: 'Feature',
+            properties: { name: 'Great Victoria Desert' },
+            geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                    [123, -26], [133, -26], [133, -32], [123, -32], [123, -26]
+                ]]
+            }
+        },
+        
+        location: {
+            continent: 'Australia',
+            hemispheres: ['Southern', 'Eastern'],
+            latitudeRange: '26°S to 32°S',
+            longitudeRange: '123°E to 133°E',
+            states: ['Western Australia', 'South Australia'],
+            geographicCenter: '-28°S, 129°E'
         },
         
         desertClassification: {
@@ -2999,144 +5577,458 @@ const desertsData1 = [
             secondaryType: 'Subtropical Desert',
             climateClassification: 'BWh (Hot Desert Climate)',
             formationCauses: [
-                { cause: 'Subtropical High Pressure', explanation: 'Permanent high pressure zone at 30°N' },
-                { cause: 'Continental Interior', explanation: 'Far from moisture-bearing winds' },
-                { cause: 'Surrounding Warm Seas', explanation: 'Seas too warm to produce much precipitation' }
+                { cause: 'Subtropical High Pressure', explanation: 'Descending dry air over 30°S' },
+                { cause: 'Cold Ocean Currents', explanation: 'West Australian Current cools air' },
+                { cause: 'Continental Interior', explanation: 'Far from moisture sources' }
             ]
         },
         
         size: {
-            totalArea: 2330000,
+            totalArea: 647000,
             areaUnit: 'km²',
-            comparisonToCountries: ['Slightly smaller than Argentina', '9x United Kingdom'],
-            ranking: { amongDeserts: 4, hotDesertRank: 2 }
+            ranking: { amongDeserts: 8, australianRank: 1 }
         },
         
         climate: {
-            overview: 'Extreme heat, very little rainfall, hot winds',
+            overview: 'Hot days, cool nights, summer thunderstorms',
             temperatureData: {
-                summerHigh: { typical: '45°C to 54°C' },
-                winterLow: { typical: '5°C to 15°C' },
-                extremeRecords: {
-                    hottestEver: '54.0°C (Mitribah, Kuwait)',
-                    coldestEver: '-12°C (Turayf, Saudi Arabia)'
-                }
+                summerHigh: { typical: '35°C to 42°C', extreme: 'Up to 50°C' },
+                winterLow: { typical: '5°C to 10°C', frost: 'Possible' }
             },
             precipitation: {
-                annualAverage: '<100mm (most areas <35mm)',
-                rubAlKhali: 'Less than 30mm'
+                annualAverage: '200-250mm',
+                type: 'Summer thunderstorms, winter fronts',
+                variability: 'Highly variable year to year'
             }
         },
         
         landforms: [
-            {
-                name: 'Rub\' al Khali (Empty Quarter)',
-                description: 'Largest contiguous sand desert in world',
-                area: '650,000 km²',
-                duneHeight: 'Up to 250m'
-            },
-            {
-                name: 'Nafud Desert',
-                description: 'Northern sand desert with red dunes',
-                area: '65,000 km²'
-            },
-            {
-                name: 'Dahna Desert',
-                description: 'Narrow arc of red sand connecting Nafud to Empty Quarter',
-                length: '1,200 km'
-            },
-            {
-                name: 'Asir Mountains',
-                description: 'Mountain range in western Saudi Arabia',
-                height: 'Up to 3,000m'
-            },
-            {
-                name: 'Lava Fields (Harrat)',
-                description: 'Extensive volcanic fields',
-                area: '180,000 km² total',
-                age: 'Some eruptions as recent as 1256 CE'
-            }
+            { name: 'Sand Dunes', description: 'Parallel east-west dunes, mostly vegetated', type: 'Linear/longitudinal dunes' },
+            { name: 'Gibber Plains', description: 'Stony desert pavement', coverage: 'Interspersed between dunes' },
+            { name: 'Salt Lakes', description: 'Ephemeral salt pans', examples: ['Lake Disappointment'] }
         ],
         
         features: [
             {
-                name: 'Rub\' al Khali (Empty Quarter)',
-                type: 'Sand Sea',
-                coordinates: [21.0, 50.0],
-                area: '650,000 km²',
-                description: 'Largest sand desert on Earth',
-                duneHeight: '250m dunes',
-                firstCrossing: 'Wilfred Thesiger (1948)'
+                name: 'Great Victoria Desert Nature Reserve',
+                type: 'Protected Area',
+                coordinates: [-28.5, 125.0],
+                area: '2.5 million hectares',
+                description: 'One of largest reserves in Australia',
+                remoteness: 'No public roads or facilities'
             },
             {
-                name: 'Wadi Rum',
-                type: 'Valley',
-                coordinates: [29.58, 35.42],
-                description: 'Spectacular sandstone valley in Jordan',
-                UNESCO: 'World Heritage Site',
-                filming: 'The Martian, Lawrence of Arabia, Dune'
+                name: 'Ooldea',
+                type: 'Historic Site',
+                coordinates: [-30.45, 131.83],
+                description: 'Historic Trans-Australian Railway siding',
+                history: 'Daisy Bates lived here studying Aboriginal people'
             },
             {
-                name: 'Liwa Oasis',
-                type: 'Oasis',
-                coordinates: [23.13, 53.76],
-                description: 'Crescent of oases on Empty Quarter edge',
-                palms: '10+ million date palms'
-            },
-            {
-                name: 'Al-Ahsa Oasis',
-                type: 'Oasis',
-                coordinates: [25.37, 49.59],
-                description: 'Largest oasis in world',
-                UNESCO: 'World Heritage Site',
-                palms: '2.5 million date palms'
+                name: 'Queen Victoria Spring',
+                type: 'Natural Spring',
+                coordinates: [-30.33, 123.62],
+                description: 'Rare water source, named for the desert',
+                significance: 'Historic explorer landmark'
             }
         ],
         
-        oases: [
-            { name: 'Al-Ahsa Oasis', coordinates: [25.37, 49.59], country: 'Saudi Arabia', description: 'Largest oasis in world' },
-            { name: 'Liwa Oasis', coordinates: [23.13, 53.76], country: 'UAE', description: 'Edge of Empty Quarter' },
-            { name: 'Wadi Hanifa', coordinates: [24.63, 46.72], country: 'Saudi Arabia', description: 'Near Riyadh' }
-        ],
-        
-        cities: [
-            { name: 'Riyadh', coordinates: [24.71, 46.68], country: 'Saudi Arabia', population: 7500000, description: 'Capital, largest desert city in world' },
-            { name: 'Dubai', coordinates: [25.27, 55.3], country: 'UAE', population: 3500000, description: 'Modern metropolis on desert coast' },
-            { name: 'Abu Dhabi', coordinates: [24.45, 54.37], country: 'UAE', population: 1500000, description: 'Capital of UAE' },
-            { name: 'Doha', coordinates: [25.29, 51.53], country: 'Qatar', population: 2400000, description: 'Capital of Qatar' },
-            { name: 'Kuwait City', coordinates: [29.38, 47.99], country: 'Kuwait', population: 3000000, description: 'Capital of Kuwait' },
-            { name: 'Muscat', coordinates: [23.61, 58.59], country: 'Oman', population: 1550000, description: 'Capital of Oman' }
-        ],
-        
         biodiversity: {
-            overview: 'Limited but specialized desert fauna',
-            plants: [
-                { name: 'Date Palm', description: 'Foundation of oasis agriculture' },
-                { name: 'Ghaf Tree', description: 'National tree of UAE' },
-                { name: 'Desert Hyacinth', description: 'Bulb survives drought' }
-            ],
+            overview: 'Rich reptile diversity despite harsh conditions',
             animals: [
-                { name: 'Arabian Oryx', scientificName: 'Oryx leucoryx', description: 'National animal of several countries', status: 'Vulnerable (recovered from extinction in wild)' },
-                { name: 'Arabian Leopard', scientificName: 'Panthera pardus nimr', description: 'Critically endangered', population: '<200' },
-                { name: 'Dromedary Camel', description: '1 million wild, domesticated throughout' },
-                { name: 'Arabian Sand Gazelle', description: 'Adapted to extreme heat' },
-                { name: 'Rüppell\'s Fox', description: 'Smallest canid in Arabia' },
-                { name: 'Spiny-tailed Lizard', description: 'Herbivorous lizard' }
+                { name: 'Thorny Devil', description: 'Iconic spiny lizard that drinks through skin' },
+                { name: 'Sand Goanna', description: 'Large monitor lizard' },
+                { name: 'Bilby', description: 'Endangered rabbit-eared bandicoot', status: 'Vulnerable' },
+                { name: 'Mulgara', description: 'Small carnivorous marsupial' },
+                { name: 'Great Desert Skink', description: 'Lives in burrow colonies' },
+                { name: 'Malleefowl', description: 'Ground bird using temperature-regulated mounds' }
             ],
-            endangeredSpecies: [
-                { name: 'Arabian Leopard', status: 'Critically Endangered' },
-                { name: 'Arabian Oryx', status: 'Vulnerable (recovering)' }
+            plants: [
+                { name: 'Spinifex', description: 'Dominant grass, spiny clumps' },
+                { name: 'Mulga', description: 'Acacia species, important for wildlife' },
+                { name: 'Desert Oak', description: 'Distinctive tree with drooping foliage' }
             ]
         },
         
         humanLife: {
-            population: { peninsula: '75 million (most in cities)', nomadic: '<5%' },
             indigenousPeoples: [
-                { name: 'Bedouin', description: 'Traditional Arab nomads', lifestyle: 'Herding, trading, now largely settled' }
+                { name: 'Anangu', description: 'Aboriginal people of western desert region' },
+                { name: 'Spinifex People', description: 'Last contacted group (1986)' }
             ],
-            historicalLife: 'Camel herding, oasis farming, trade routes',
-            modernLife: 'Oil wealth transformed region, modern cities'
+            population: 'Very sparse, <1 person per 100 km²',
+            modernUse: 'Nuclear test sites (1950s-60s), now nature reserve'
+        },
+        
+        historicalImportance: [
+            { era: '40,000+ years', title: 'Aboriginal Habitation', description: 'Continuous indigenous presence' },
+            { era: '1875', title: 'Ernest Giles Crossing', description: 'First European crossing, named for Queen Victoria' },
+            { era: '1956-1963', title: 'Nuclear Tests', description: 'British atomic tests at Maralinga', legacy: 'Contamination issues' }
+        ],
+        
+        funFacts: [
+            { fact: 'Thorny devils drink through their skin - water channels to their mouth', category: 'Wildlife' },
+            { fact: 'Named after Queen Victoria by explorer Ernest Giles in 1875', category: 'History' },
+            { fact: 'The Spinifex People weren\'t contacted by Europeans until 1986', category: 'Culture' },
+            { fact: 'British nuclear tests contaminated parts of the desert', category: 'History' }
+        ],
+        
+        quickFacts: {
+            area: '647,000 km²',
+            type: 'Hot Desert',
+            avgTemp: '18°C to 24°C',
+            rainfall: '200-250mm/year',
+            countries: 'Australia',
+            population: 'Very sparse'
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // #9 - SYRIAN DESERT
+    // ═══════════════════════════════════════════════════════════════════
+    {
+        id: 'syrian-desert',
+        name: 'Syrian Desert',
+        subtitle: 'Crossroads of Civilizations',
+        countries: [
+            { name: 'Syria', code: 'SY' },
+            { name: 'Jordan', code: 'JO' },
+            { name: 'Iraq', code: 'IQ' },
+            { name: 'Saudi Arabia', code: 'SA' }
+        ],
+        continent: 'Asia',
+        desertType: 'hot',
+        subType: 'Subtropical Desert',
+        area: 500000,
+        areaRank: 9,
+        rank: 9,
+        coordinates: [33.0, 39.0],
+        defaultZoom: 6,
+        
+        image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400',
+        backgroundImage: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920',
+        
+        geoJSON: {
+            type: 'Feature',
+            properties: { name: 'Syrian Desert' },
+            geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                    [36, 35], [42, 35], [44, 32], [40, 29], [36, 30], [35, 33], [36, 35]
+                ]]
+            }
+        },
+        
+        location: {
+            continent: 'Asia (Middle East)',
+            hemispheres: ['Northern', 'Eastern'],
+            latitudeRange: '29°N to 35°N',
+            longitudeRange: '35°E to 44°E',
+            totalCountries: 4,
+            alternateNames: ['Badiyat ash-Sham', 'Shamiyah']
+        },
+        
+        desertClassification: {
+            primaryType: 'Hot Desert',
+            secondaryType: 'Subtropical Desert',
+            climateClassification: 'BWh (Hot Desert Climate)',
+            formationCauses: [
+                { cause: 'Subtropical High', explanation: 'Descending dry air' },
+                { cause: 'Continental Interior', explanation: 'Far from Mediterranean moisture' },
+                { cause: 'Rain Shadow', explanation: 'Mountains block western moisture' }
+            ]
+        },
+        
+        size: {
+            totalArea: 500000,
+            areaUnit: 'km²'
+        },
+        
+        climate: {
+            overview: 'Hot summers, cool winters, very little rainfall',
+            temperatureData: {
+                summerHigh: { typical: '40°C to 46°C' },
+                winterLow: { typical: '0°C to 7°C', frost: 'Common' }
+            },
+            precipitation: { annualAverage: '100-150mm' }
+        },
+        
+        features: [
+            {
+                name: 'Palmyra',
+                type: 'Archaeological Site',
+                coordinates: [34.55, 38.27],
+                description: 'Magnificent Roman ruins, Silk Road oasis city',
+                UNESCO: 'World Heritage Site (1980)',
+                history: 'Queen Zenobia\'s capital',
+                damage: 'Damaged by ISIS (2015)'
+            },
+            {
+                name: 'Qasr al-Hayr al-Sharqi',
+                type: 'Archaeological Site',
+                coordinates: [34.44, 38.95],
+                description: 'Umayyad desert castle',
+                built: '8th century CE'
+            },
+            {
+                name: 'Azraq Wetlands',
+                type: 'Oasis/Wetland',
+                coordinates: [31.83, 36.83],
+                country: 'Jordan',
+                description: 'Desert oasis, Lawrence of Arabia base',
+                history: 'T.E. Lawrence headquarters 1917'
+            }
+        ],
+        
+        biodiversity: {
+            animals: [
+                { name: 'Arabian Oryx', description: 'Reintroduced to reserves', status: 'Vulnerable' },
+                { name: 'Striped Hyena', description: 'Nocturnal scavenger' },
+                { name: 'Desert Monitor', description: 'Large lizard' },
+                { name: 'MacQueen\'s Bustard', description: 'Large ground bird' }
+            ],
+            endangeredSpecies: [
+                { name: 'Syrian Brown Bear', status: 'Extinct in Syria' },
+                { name: 'Arabian Ostrich', status: 'Extinct (1966)' }
+            ]
+        },
+        
+        humanLife: {
+            indigenousPeoples: [
+                { name: 'Bedouin', description: 'Traditional nomads, now largely settled' }
+            ],
+            historicalImportance: 'Silk Road crossroads, ancient caravan routes',
+            modernSituation: 'Syrian Civil War has affected region'
+        },
+        
+        historicalImportance: [
+            { era: '3000 BCE', title: 'Trade Routes', description: 'Caravans cross desert connecting Mesopotamia and Mediterranean' },
+            { era: '3rd century CE', title: 'Palmyrene Empire', description: 'Queen Zenobia challenges Rome' },
+            { era: '7th century', title: 'Umayyad Caliphate', description: 'Desert castles built' },
+            { era: '1917', title: 'Arab Revolt', description: 'Lawrence of Arabia operates from Azraq' },
+            { era: '2015', title: 'ISIS Destruction', description: 'Ancient Palmyra monuments destroyed' }
+        ],
+        
+        funFacts: [
+            { fact: 'Palmyra was a major Silk Road city controlling trade between Rome and Persia', category: 'History' },
+            { fact: 'Lawrence of Arabia made Azraq Castle his headquarters', category: 'History' },
+            { fact: 'The Syrian Desert was where the Arabian Oryx went extinct before reintroduction', category: 'Wildlife' }
+        ],
+        
+        quickFacts: {
+            area: '500,000 km²',
+            type: 'Hot Desert',
+            avgTemp: '15°C to 20°C',
+            rainfall: '100-150mm/year',
+            countries: 'Syria, Jordan, Iraq, Saudi Arabia',
+            population: 'Sparse (Bedouin)'
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // #10 - GREAT BASIN DESERT
+    // ═══════════════════════════════════════════════════════════════════
+    {
+        id: 'great-basin-desert',
+        name: 'Great Basin Desert',
+        subtitle: 'America\'s Cold Desert',
+        countries: [
+            { name: 'United States', code: 'US' }
+        ],
+        continent: 'North America',
+        desertType: 'cold',
+        subType: 'Rain Shadow Desert',
+        area: 492000,
+        areaRank: 10,
+        rank: 10,
+        coordinates: [40.0, -117.0],
+        defaultZoom: 6,
+        
+        image: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400',
+        backgroundImage: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920',
+        
+        geoJSON: {
+            type: 'Feature',
+            properties: { name: 'Great Basin Desert' },
+            geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                    [-120, 42], [-114, 42], [-111, 37], [-117, 35], [-120, 38], [-120, 42]
+                ]]
+            }
+        },
+        
+        location: {
+            continent: 'North America',
+            hemispheres: ['Northern', 'Western'],
+            latitudeRange: '35°N to 42°N',
+            longitudeRange: '120°W to 111°W',
+            states: ['Nevada (most)', 'Utah', 'Oregon', 'Idaho', 'California'],
+            geographicCenter: '40°N, 117°W'
+        },
+        
+        desertClassification: {
+            primaryType: 'Cold Desert',
+            secondaryType: 'Rain Shadow Desert',
+            climateClassification: 'BWk (Cold Desert Climate)',
+            formationCauses: [
+                { cause: 'Rain Shadow', explanation: 'Sierra Nevada blocks Pacific moisture' },
+                { cause: 'High Elevation', explanation: 'Average 1,200-2,000m, cold winters' },
+                { cause: 'Basin Topography', explanation: 'Mountain ranges trap dry air' }
+            ]
+        },
+        
+        size: {
+            totalArea: 492000,
+            areaUnit: 'km²',
+            ranking: { amongDeserts: 10, usDesertRank: 1 }
+        },
+        
+        climate: {
+            overview: 'Cold winters, hot summers, snowy - America\'s only cold desert',
+            temperatureData: {
+                summerHigh: { typical: '30°C to 38°C' },
+                winterLow: { typical: '-10°C to -20°C' }
+            },
+            precipitation: {
+                annualAverage: '150-300mm',
+                snowfall: 'Common in winter',
+                type: 'Winter snow, summer thunderstorms'
+            }
+        },
+        
+        landforms: [
+            { name: 'Basin and Range', description: 'Parallel mountain ranges with flat valleys between', count: 'Over 300 mountain ranges' },
+            { name: 'Playas', description: 'Dry lake beds, salt flats', examples: ['Bonneville Salt Flats', 'Black Rock Desert'] },
+            { name: 'Endorheic Basin', description: 'Internally draining - no outlet to sea', unique: 'Largest US endorheic basin' }
+        ],
+        
+        features: [
+            {
+                name: 'Bonneville Salt Flats',
+                type: 'Salt Flat',
+                coordinates: [40.75, -113.9],
+                area: '260 km²',
+                description: 'Land speed record site, remnant of ancient Lake Bonneville',
+                records: 'Over 600 land speed records set here',
+                surface: 'Almost perfectly flat'
+            },
+            {
+                name: 'Black Rock Desert',
+                type: 'Playa',
+                coordinates: [40.75, -119.0],
+                area: '2,600 km²',
+                description: 'Site of Burning Man festival',
+                records: 'Thrust SSC set 763 mph land speed record (1997)'
+            },
+            {
+                name: 'Great Salt Lake',
+                type: 'Lake',
+                coordinates: [41.0, -112.5],
+                area: '4,400 km² (varies)',
+                description: 'Western Hemisphere\'s largest salt lake',
+                salinity: '5-27% (varies)',
+                remnant: 'Remnant of Lake Bonneville'
+            },
+            {
+                name: 'Pyramid Lake',
+                type: 'Lake',
+                coordinates: [40.0, -119.5],
+                description: 'Nevada\'s largest natural lake',
+                significance: 'Paiute sacred site, unique fish species'
+            },
+            {
+                name: 'Lehman Caves',
+                type: 'Cave System',
+                coordinates: [39.0, -114.22],
+                description: 'Limestone caves in Great Basin National Park',
+                features: 'Shield formations, stalactites'
+            },
+            {
+                name: 'Wheeler Peak',
+                type: 'Mountain',
+                coordinates: [38.99, -114.31],
+                height: '3,982m',
+                description: 'Second highest peak in Nevada',
+                feature: 'Only glacier in Great Basin'
+            },
+            {
+                name: 'Bristlecone Pine Forest',
+                type: 'Forest',
+                coordinates: [38.95, -114.28],
+                description: 'Oldest trees on Earth, up to 5,000 years old',
+                location: 'Great Basin National Park',
+                name: 'Methuselah (oldest known tree)'
+            }
+        ],
+        
+        biodiversity: {
+            overview: 'Unique high-desert ecosystem with endemic species',
+            animals: [
+                { name: 'Pronghorn', description: 'Fastest North American land animal' },
+                { name: 'Bighorn Sheep', description: 'Desert subspecies' },
+                { name: 'Kit Fox', description: 'Small nocturnal canid' },
+                { name: 'Pygmy Rabbit', description: 'Smallest North American rabbit', status: 'Threatened' },
+                { name: 'Greater Sage-Grouse', description: 'Iconic ground bird, complex mating display', status: 'Near Threatened' },
+                { name: 'Desert Horned Lizard', description: 'Squirts blood from eyes when threatened' },
+                { name: 'Lahontan Cutthroat Trout', description: 'Once 40 pounds, now endangered', status: 'Threatened' }
+            ],
+            plants: [
+                { name: 'Big Sagebrush', description: 'Dominant plant, covers millions of acres' },
+                { name: 'Bristlecone Pine', description: 'Oldest living organisms on Earth - 5,000+ years' },
+                { name: 'Joshua Tree', description: 'On southern margins' },
+                { name: 'Mormon Tea', description: 'Traditional medicinal plant' }
+            ],
+            endangeredSpecies: [
+                { name: 'Greater Sage-Grouse', status: 'Near Threatened', issue: 'Habitat fragmentation' },
+                { name: 'Pygmy Rabbit', status: 'Threatened', population: '<5,000' }
+            ]
+        },
+        
+        humanLife: {
+            indigenousPeoples: [
+                { name: 'Shoshone', description: 'Western Great Basin inhabitants' },
+                { name: 'Paiute', description: 'Northern and Southern groups' },
+                { name: 'Ute', description: 'Eastern Great Basin' }
+            ],
+            population: '1.5 million in region',
+            cities: ['Reno', 'Salt Lake City (edge)', 'Elko']
         },
         
         economy: [
-            { sector: 'Oil & Gas', description: '
+            { sector: 'Mining', description: 'Nevada is largest gold producer in US, 2nd in world' },
+            { sector: 'Gambling', description: 'Reno, small casinos throughout' },
+            { sector: 'Ranching', description: 'Cattle grazing on public lands' },
+            { sector: 'Military', description: 'Nevada Test Site, Area 51, various bases' },
+            { sector: 'Festivals', description: 'Burning Man brings 70,000+ to Black Rock Desert' }
+        ],
+        
+        environmentalIssues: [
+            { issue: 'Groundwater Depletion', description: 'Las Vegas draws from basin aquifers' },
+            { issue: 'Sagebrush Loss', description: 'Invasive cheatgrass, wildfires increasing' },
+            { issue: 'Great Salt Lake Shrinking', description: 'Down to 1/3 historical size, dust storms, ecosystem collapse' },
+            { issue: 'Nuclear Testing Legacy', description: 'Nevada Test Site conducted 928 tests' }
+        ],
+        
+        historicalImportance: [
+            { era: '10,000 BCE', title: 'First Peoples', description: 'Human habitation begins as glaciers retreat' },
+            { era: '1827', title: 'Jedediah Smith', description: 'First European-American to cross' },
+            { era: '1846', title: 'Donner Party', description: 'Tragic pioneer crossing, cannibalism' },
+            { era: '1869', title: 'Transcontinental Railroad', description: 'Linked at Promontory, Utah' },
+            { era: '1951-1992', title: 'Nuclear Testing', description: '928 nuclear tests at Nevada Test Site' },
+            { era: '1997', title: 'Land Speed Record', description: 'ThrustSSC breaks sound barrier at Black Rock' }
+        ],
+        
+        funFacts: [
+            { fact: 'The Great Basin is the only true cold desert in North America', category: 'Geography' },
+            { fact: 'No rivers in the Great Basin reach the ocean - all water evaporates or sinks', category: 'Hydrology' },
+            { fact: 'Bristlecone pines here are oldest living organisms - one named Methuselah is 4,850 years old', category: 'Nature' },
+            { fact: 'The Bonneville Salt Flats are so flat you can see the curvature of Earth', category: 'Geography' },
+            { fact: 'Area 51, famous UFO conspiracy site, is in the Great Basin', category: 'Mystery' },
+            { fact: 'Burning Man festival in Black Rock Desert creates one of Nevada\'s largest cities temporarily', category: 'Culture' },
+            { fact: 'Nevada Test Site had 928 nuclear tests, more than anywhere else in US', category: 'History' }
+        ],
+        
+        journeyWaypoints: [
+            { name: 'Reno, Nevada', coordinates: [39.53, -119.81], description: 'Starting at "The Biggest Little City in the World"', type: 'start', duration: 3000 },
+            { name: 'Pyramid Lake', coordinates: [40.0, -119.5], description: 'Sacred Paiute lake with unique fish', type: 'landmark', duration: 3000 },
+            { name: 'Black Rock Desert', coordinates: [40.75, -119.0], description: 'Burning Man playa
