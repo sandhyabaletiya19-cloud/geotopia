@@ -1,791 +1,1190 @@
-/* ============================================
-   CORAL REEFS EXPLORER - DATA FILE 2
-   Reefs 11-20 (Part 1: Reefs 11-15)
-   ============================================ */
+/* ========================================
+   CORAL REEFS DATA - FILE 2
+   Reefs 11-20 (Major Coral Reef Systems)
+   ======================================== */
 
-'use strict';
-
-const CORAL_REEFS_DATA_2 = [
-    
-    // ========================================
-    // #11 - FLORIDA REEF TRACT
-    // ========================================
+const CORAL_REEFS_2 = [
     {
-        id: 'florida-reef-tract',
-        name: 'Florida Reef Tract',
-        countries: [
-            { name: 'United States', code: 'US' }
+        id: 11,
+        name: "Raja Ampat Reefs",
+        country: "Indonesia",
+        ocean: "Pacific Ocean",
+        region: "Coral Triangle",
+        type: "Fringing Reef",
+        size: "40,000 km²",
+        length: "1,500+ islands",
+        area: "40,000 km² marine area",
+        reefCount: "1,500+ small islands",
+        
+        coordinates: {
+            lat: -0.5000,
+            lng: 130.5000
+        },
+        mapZoom: 7,
+        
+        image: "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
         ],
-        ocean: 'Atlantic Ocean',
-        region: 'Florida Keys, Florida',
-        reefType: 'barrier',
-        
-        length: 560,
-        area: 9600,
-        numberOfReefs: 6000,
-        numberOfIslands: 1700,
-        
-        coordinates: [24.5500, -81.8000],
-        defaultZoom: 8,
-        
-        image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920',
-        
-        description: 'The Florida Reef Tract is the only living coral barrier reef in the continental United States and the third-largest barrier reef system in the world. Stretching from the Dry Tortugas to the St. Lucie Inlet, this reef system has been a critical part of Florida\'s marine ecosystem for thousands of years. Despite facing significant challenges from climate change and disease, it remains an important habitat for hundreds of species of fish, coral, and other marine life.',
-        
-        formation: {
-            type: 'Barrier reef on carbonate platform',
-            age: '6,000-7,000 years (current structure)',
-            process: 'Formed on the Florida carbonate platform as sea levels stabilized after the last ice age. The reef developed in shallow, warm waters with ideal conditions for coral growth, building upon older Pleistocene reef structures.'
-        },
-        
-        reefStructure: {
-            lagoon: true,
-            reefCrest: true,
-            foreReef: true,
-            backReef: true,
-            reefFlat: true
-        },
         
         biodiversity: {
-            coralSpecies: 45,
-            fishSpecies: 500,
-            molluskSpecies: 350,
-            marineAnimals: [
-                'Green sea turtles',
-                'Loggerhead turtles',
-                'Hawksbill turtles',
-                'Manatees',
-                'Dolphins',
-                'Nurse sharks',
-                'Barracudas',
-                'Groupers',
-                'Parrotfish',
-                'Spiny lobsters'
-            ],
-            endangeredSpecies: [
-                'Elkhorn coral',
-                'Staghorn coral',
-                'Pillar coral',
-                'Hawksbill turtle',
-                'Green sea turtle',
-                'West Indian manatee',
-                'Nassau grouper'
+            coralSpecies: "600+",
+            fishSpecies: "1,700+",
+            turtleSpecies: "6",
+            sharkSpecies: "35+",
+            whaleSpecies: "27+",
+            molluskSpecies: "700+",
+            notableSpecies: [
+                "Manta Ray",
+                "Wobbegong Shark",
+                "Pygmy Seahorse",
+                "Walking Shark",
+                "Giant Trevally",
+                "Napoleon Wrasse",
+                "Dugong",
+                "Leatherback Turtle",
+                "Whale Shark",
+                "Blue-ringed Octopus"
             ]
         },
         
-        nearbyIslands: [
-            { name: 'Key West', coordinates: [24.5551, -81.7800] },
-            { name: 'Key Largo', coordinates: [25.0865, -80.4473] },
-            { name: 'Dry Tortugas', coordinates: [24.6285, -82.8732] },
-            { name: 'Islamorada', coordinates: [24.9243, -80.6278] },
-            { name: 'Marathon Key', coordinates: [24.7136, -81.0903] },
-            { name: 'Big Pine Key', coordinates: [24.6698, -81.3534] }
-        ],
-        
-        oceanConditions: {
-            temperature: '22-30°C',
-            salinity: '35-36 ppt',
-            currents: ['Gulf Stream', 'Florida Current'],
-            visibility: '15-30 meters'
+        formation: {
+            age: "10-15 million years",
+            process: "Formed through tectonic activity creating limestone islands with fringing reef development",
+            growthRate: "1-3 cm per year"
         },
         
-        diveSites: [
-            {
-                name: 'John Pennekamp Coral Reef',
-                coordinates: [25.12, -80.38],
-                depth: '20m',
-                description: 'America\'s first underwater park, pristine coral gardens.'
-            },
-            {
-                name: 'Christ of the Abyss',
-                coordinates: [25.12, -80.30],
-                depth: '8m',
-                description: 'Famous underwater statue in Key Largo dry rocks.'
-            },
-            {
-                name: 'Looe Key',
-                coordinates: [24.55, -81.40],
-                depth: '10m',
-                description: 'One of the most popular and pristine reef areas.'
-            },
-            {
-                name: 'Sombrero Reef',
-                coordinates: [24.63, -81.11],
-                depth: '8m',
-                description: 'Marked by lighthouse, excellent snorkeling site.'
-            },
-            {
-                name: 'USS Vandenberg',
-                coordinates: [24.47, -81.73],
-                depth: '42m',
-                description: 'Intentionally sunk missile ship, now artificial reef.'
-            },
-            {
-                name: 'Dry Tortugas',
-                coordinates: [24.63, -82.87],
-                depth: '20m',
-                description: 'Remote, pristine reefs with minimal human impact.'
-            }
+        structure: {
+            lagoonDepth: "0-40m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-50m",
+            outerSlopeDepth: "50-500m+"
+        },
+        
+        conditions: {
+            temperature: "27-30°C",
+            salinity: "34 ppt",
+            currents: "Indonesian Throughflow",
+            visibility: "15-40m"
+        },
+        
+        economic: {
+            tourismValue: "$100 million/year",
+            fisheriesValue: "$50 million/year",
+            jobsSupported: "15,000+",
+            coastalProtection: "$300 million/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "low",
+            pollution: "low",
+            overfishing: "medium"
+        },
+        
+        conservation: {
+            status: "Raja Ampat Marine Protected Area Network",
+            mpaPercent: "70%",
+            programs: "Conservation International, The Nature Conservancy",
+            research: "California Academy of Sciences expeditions"
+        },
+        
+        history: [
+            { year: "2001", event: "Marine biodiversity survey reveals exceptional species richness" },
+            { year: "2007", event: "Raja Ampat MPA Network established" },
+            { year: "2012", event: "Shark and Manta Ray sanctuary declared" }
         ],
         
-        cities: [
-            { name: 'Miami', coordinates: [25.7617, -80.1918], country: 'United States', population: 463347 },
-            { name: 'Key West', coordinates: [24.5551, -81.7800], country: 'United States', population: 25478 },
-            { name: 'Key Largo', coordinates: [25.0865, -80.4473], country: 'United States', population: 10433 },
-            { name: 'Islamorada', coordinates: [24.9243, -80.6278], country: 'United States', population: 6500 },
-            { name: 'Marathon', coordinates: [24.7136, -81.0903], country: 'United States', population: 10255 }
+        nearbyIslands: [
+            "Waigeo",
+            "Misool",
+            "Salawati",
+            "Batanta",
+            "Kri Island"
         ],
         
-        economicImportance: [
-            { label: 'Tourism', value: '$4.4 billion annually' },
-            { label: 'Fishing', value: '$247 million annually' },
-            { label: 'Jobs', value: '70,000+ reef-related jobs' },
-            { label: 'Coastal Protection', value: 'Protects $8 billion in coastal infrastructure' }
+        islandCoordinates: [
+            { name: "Waigeo", lat: -0.2500, lng: 130.0833 },
+            { name: "Misool", lat: -1.8500, lng: 130.0833 },
+            { name: "Salawati", lat: -1.1000, lng: 131.1333 }
         ],
         
-        environmentalThreats: [
-            { label: 'Stony Coral Tissue Loss', value: 'Devastating disease since 2014, spread to 96% of reef' },
-            { label: 'Coral Bleaching', value: 'Frequent events, severe in 2014-2015, 2023' },
-            { label: 'Ocean Acidification', value: 'Reducing coral growth rates' },
-            { label: 'Hurricanes', value: 'Increasing intensity causing damage' },
-            { label: 'Water Quality', value: 'Runoff from Everglades and urban areas' }
-        ],
+        scientificImportance: "Holds the world record for marine biodiversity with 75% of all known coral species found here. The epicenter of the Coral Triangle and a critical evolutionary hotspot for marine life.",
         
-        conservation: [
-            { label: 'Florida Keys NMS', value: 'National Marine Sanctuary since 1990' },
-            { label: 'Coral Restoration Foundation', value: 'Largest coral restoration program' },
-            { label: 'Dry Tortugas NP', value: 'National Park protecting remote reefs' },
-            { label: 'Sanctuary Preservation Areas', value: '24 no-take zones' }
-        ],
-        
-        historicalImportance: [
-            { label: 'Calusa & Tequesta', value: 'Indigenous peoples lived here 4,000+ years' },
-            { label: 'Spanish Exploration', value: 'Ponce de León arrived 1513' },
-            { label: 'Wrecking Industry', value: 'Salvaging shipwrecks was major 1800s industry' },
-            { label: 'First Underwater Park', value: 'John Pennekamp established 1960' }
-        ],
-        
-        healthStatus: 'critical',
-        coralCoverage: 5
+        typeDescription: "The crown jewel of the Coral Triangle, containing more species per hectare than anywhere else on Earth."
     },
     
-    // ========================================
-    // #12 - PHILIPPINES CORAL TRIANGLE
-    // ========================================
     {
-        id: 'philippines-coral-triangle',
-        name: 'Philippines Coral Triangle',
-        countries: [
-            { name: 'Philippines', code: 'PH' }
+        id: 12,
+        name: "Tubbataha Reefs Natural Park",
+        country: "Philippines",
+        ocean: "Pacific Ocean",
+        region: "Sulu Sea",
+        type: "Atoll",
+        size: "97,030 hectares",
+        length: "Two atolls spanning 35 km",
+        area: "970 km²",
+        reefCount: "2 coral atolls",
+        
+        coordinates: {
+            lat: 8.9500,
+            lng: 119.8833
+        },
+        mapZoom: 9,
+        
+        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600"
         ],
-        ocean: 'Pacific Ocean',
-        region: 'Coral Triangle, Southeast Asia',
-        reefType: 'fringing',
-        
-        length: 0,
-        area: 26000,
-        numberOfReefs: 500,
-        numberOfIslands: 7641,
-        
-        coordinates: [11.0000, 122.0000],
-        defaultZoom: 6,
-        
-        image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920',
-        
-        description: 'The Philippines sits at the apex of the Coral Triangle, the global center of marine biodiversity. With over 7,600 islands and 26,000 square kilometers of coral reefs, the Philippines harbors more species of coral and fish than anywhere else on Earth. The reefs range from pristine, remote ecosystems to heavily utilized coastal reefs that support millions of Filipinos who depend on the sea for food and income.',
-        
-        formation: {
-            type: 'Fringing and patch reefs around volcanic archipelago',
-            age: 'Varies, 5,000-15,000 years',
-            process: 'Formed around the thousands of volcanic islands that make up the Philippine archipelago. The complex oceanography, with multiple currents converging, has created ideal conditions for exceptional biodiversity.'
-        },
-        
-        reefStructure: {
-            lagoon: true,
-            reefCrest: true,
-            foreReef: true,
-            backReef: true,
-            reefFlat: true
-        },
         
         biodiversity: {
-            coralSpecies: 500,
-            fishSpecies: 2500,
-            molluskSpecies: 900,
-            marineAnimals: [
-                'Whale sharks',
-                'Thresher sharks',
-                'Manta rays',
-                'Dugongs',
-                'Dolphins',
-                'Sea turtles',
-                'Giant clams',
-                'Nautilus',
-                'Seahorses',
-                'Nudibranchs'
-            ],
-            endangeredSpecies: [
-                'Whale shark',
-                'Dugong',
-                'Hawksbill turtle',
-                'Green sea turtle',
-                'Giant clams',
-                'Napoleon wrasse',
-                'Thresher shark'
+            coralSpecies: "400+",
+            fishSpecies: "600+",
+            turtleSpecies: "2",
+            sharkSpecies: "13+",
+            whaleSpecies: "11+",
+            molluskSpecies: "300+",
+            notableSpecies: [
+                "Hammerhead Shark",
+                "Tiger Shark",
+                "Whale Shark",
+                "Manta Ray",
+                "Green Sea Turtle",
+                "Hawksbill Turtle",
+                "Napoleon Wrasse",
+                "Giant Barracuda",
+                "Bumphead Parrotfish",
+                "Whitetip Reef Shark"
             ]
         },
         
-        nearbyIslands: [
-            { name: 'Palawan', coordinates: [9.8349, 118.7384] },
-            { name: 'Cebu', coordinates: [10.3157, 123.8854] },
-            { name: 'Bohol', coordinates: [9.8500, 124.0000] },
-            { name: 'Mindoro', coordinates: [12.5000, 121.0833] },
-            { name: 'Negros', coordinates: [9.9817, 123.1567] },
-            { name: 'Leyte', coordinates: [10.4167, 124.7500] }
-        ],
-        
-        oceanConditions: {
-            temperature: '26-30°C',
-            salinity: '33-35 ppt',
-            currents: ['North Equatorial Current', 'Kuroshio Current'],
-            visibility: '10-40 meters'
+        formation: {
+            age: "15,000+ years",
+            process: "Classic atoll formation on subsiding volcanic seamounts",
+            growthRate: "1-2 cm per year"
         },
         
-        diveSites: [
-            {
-                name: 'Tubbataha Reefs',
-                coordinates: [8.93, 119.88],
-                depth: '40m',
-                description: 'UNESCO site, pristine reefs, large pelagics.'
-            },
-            {
-                name: 'Moalboal',
-                coordinates: [9.95, 123.40],
-                depth: '35m',
-                description: 'Famous sardine run and sea turtle encounters.'
-            },
-            {
-                name: 'Malapascua Island',
-                coordinates: [11.33, 124.12],
-                depth: '30m',
-                description: 'World\'s best place to see thresher sharks.'
-            },
-            {
-                name: 'Apo Reef',
-                coordinates: [12.65, 120.45],
-                depth: '30m',
-                description: 'Second largest contiguous reef in world.'
-            },
-            {
-                name: 'Anilao',
-                coordinates: [13.77, 120.93],
-                depth: '25m',
-                description: 'Macro diving capital, incredible diversity.'
-            },
-            {
-                name: 'Coron Wrecks',
-                coordinates: [11.98, 120.20],
-                depth: '42m',
-                description: 'WWII Japanese shipwrecks, world-class wreck diving.'
-            }
+        structure: {
+            lagoonDepth: "0-25m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-1m",
+            foreReefDepth: "1-60m",
+            outerSlopeDepth: "60-100m+"
+        },
+        
+        conditions: {
+            temperature: "27-30°C",
+            salinity: "34-35 ppt",
+            currents: "Sulu Sea currents",
+            visibility: "30-45m"
+        },
+        
+        economic: {
+            tourismValue: "$8 million/year",
+            fisheriesValue: "Protected (no fishing)",
+            jobsSupported: "1,500+",
+            coastalProtection: "$50 million/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "low",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "UNESCO World Heritage Site",
+            mpaPercent: "100%",
+            programs: "Tubbataha Management Office",
+            research: "Annual scientific monitoring expeditions"
+        },
+        
+        history: [
+            { year: "1988", event: "Declared a National Marine Park" },
+            { year: "1993", event: "Inscribed as UNESCO World Heritage Site" },
+            { year: "2009", event: "Expanded to include Jessie Beazley Reef" }
         ],
         
-        cities: [
-            { name: 'Manila', coordinates: [14.5995, 120.9842], country: 'Philippines', population: 1780148 },
-            { name: 'Cebu City', coordinates: [10.3157, 123.8854], country: 'Philippines', population: 922611 },
-            { name: 'Puerto Princesa', coordinates: [9.7392, 118.7353], country: 'Philippines', population: 255116 },
-            { name: 'Dumaguete', coordinates: [9.3103, 123.3081], country: 'Philippines', population: 134103 },
-            { name: 'Tagbilaran', coordinates: [9.6500, 123.8500], country: 'Philippines', population: 105051 }
+        nearbyIslands: [
+            "North Atoll",
+            "South Atoll",
+            "Jessie Beazley Reef",
+            "Palawan (150 km away)"
         ],
         
-        economicImportance: [
-            { label: 'Fishing', value: '$4.5 billion annually' },
-            { label: 'Tourism', value: '$1 billion from diving/snorkeling' },
-            { label: 'Jobs', value: '1.5+ million in fishing industry' },
-            { label: 'Food Security', value: '70% of protein from seafood' }
+        islandCoordinates: [
+            { name: "North Atoll", lat: 9.0333, lng: 119.8833 },
+            { name: "South Atoll", lat: 8.8333, lng: 119.8333 },
+            { name: "Ranger Station", lat: 8.9167, lng: 119.9000 }
         ],
         
-        environmentalThreats: [
-            { label: 'Overfishing', value: 'Most fishing grounds overexploited' },
-            { label: 'Blast Fishing', value: 'Illegal dynamite fishing persists' },
-            { label: 'Coral Bleaching', value: 'Increasing frequency' },
-            { label: 'Sedimentation', value: 'Runoff from deforestation' },
-            { label: 'Plastic Pollution', value: 'Third largest ocean plastic polluter' }
-        ],
+        scientificImportance: "One of the Philippines' oldest ecosystems, serving as a critical nursery and spawning ground for commercially important fish species across the Sulu Sea.",
         
-        conservation: [
-            { label: 'Tubbataha NP', value: 'UNESCO World Heritage Site' },
-            { label: 'Marine Protected Areas', value: '1,800+ MPAs established' },
-            { label: 'Coral Triangle Initiative', value: 'Regional conservation partnership' },
-            { label: 'Local Conservation', value: 'Community-based marine sanctuaries' }
-        ],
-        
-        historicalImportance: [
-            { label: 'Ancient Seafarers', value: 'Austronesian sailors for 4,000+ years' },
-            { label: 'Spanish Colonial Era', value: 'Spanish rule 1565-1898' },
-            { label: 'WWII Pacific', value: 'Major WWII battles, many shipwrecks' },
-            { label: 'Marine Science', value: 'Important biodiversity research center' }
-        ],
-        
-        healthStatus: 'endangered',
-        coralCoverage: 30
+        typeDescription: "A remote pristine atoll system in the middle of the Sulu Sea, accessible only during calm season (March-June)."
     },
     
-    // ========================================
-    // #13 - GREAT CHAGOS BANK
-    // ========================================
     {
-        id: 'great-chagos-bank',
-        name: 'Great Chagos Bank',
-        countries: [
-            { name: 'British Indian Ocean Territory', code: 'IO' }
+        id: 13,
+        name: "Apo Reef Natural Park",
+        country: "Philippines",
+        ocean: "Pacific Ocean",
+        region: "Mindoro Strait",
+        type: "Atoll",
+        size: "34 km²",
+        length: "34 km north-south",
+        area: "15,792 hectares total",
+        reefCount: "2 lagoons, 27 km of reef",
+        
+        coordinates: {
+            lat: 12.6667,
+            lng: 120.4500
+        },
+        mapZoom: 10,
+        
+        image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
         ],
-        ocean: 'Indian Ocean',
-        region: 'Central Indian Ocean',
-        reefType: 'atoll',
-        
-        length: 0,
-        area: 12642,
-        numberOfReefs: 55,
-        numberOfIslands: 65,
-        
-        coordinates: [-6.2000, 71.5000],
-        defaultZoom: 8,
-        
-        image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1920',
-        
-        description: 'The Great Chagos Bank is the world\'s largest atoll structure, located in the remote central Indian Ocean. Part of the British Indian Ocean Territory, the Chagos Archipelago contains some of the healthiest and least disturbed coral reefs on Earth. The isolated location and strict marine protection have allowed these reefs to thrive, serving as a critical reference for how coral reefs function without human pressure.',
-        
-        formation: {
-            type: 'Submerged atoll platform',
-            age: '60+ million years (volcanic base)',
-            process: 'Formed atop ancient volcanic seamounts that have subsided over millions of years. The coral reef has kept growing upward, creating the world\'s largest atoll structure, mostly submerged with only a few emergent islands.'
-        },
-        
-        reefStructure: {
-            lagoon: true,
-            reefCrest: true,
-            foreReef: true,
-            backReef: true,
-            reefFlat: true
-        },
         
         biodiversity: {
-            coralSpecies: 300,
-            fishSpecies: 800,
-            molluskSpecies: 400,
-            marineAnimals: [
-                'Manta rays',
-                'Silvertip sharks',
-                'Grey reef sharks',
-                'Blacktip sharks',
-                'Hawksbill turtles',
-                'Green sea turtles',
-                'Dolphins',
-                'Coconut crabs',
-                'Tuna',
-                'Giant trevally'
-            ],
-            endangeredSpecies: [
-                'Hawksbill turtle',
-                'Green sea turtle',
-                'Coconut crab',
-                'Giant clam'
+            coralSpecies: "400+",
+            fishSpecies: "500+",
+            turtleSpecies: "4",
+            sharkSpecies: "12+",
+            whaleSpecies: "8+",
+            molluskSpecies: "200+",
+            notableSpecies: [
+                "Grey Reef Shark",
+                "Whitetip Reef Shark",
+                "Manta Ray",
+                "Green Sea Turtle",
+                "Giant Clam",
+                "Napoleon Wrasse",
+                "Banded Sea Snake",
+                "Bumphead Parrotfish",
+                "Giant Grouper",
+                "Blue-spotted Stingray"
             ]
         },
         
-        nearbyIslands: [
-            { name: 'Diego Garcia', coordinates: [-7.32, 72.42] },
-            { name: 'Peros Banhos', coordinates: [-5.32, 71.85] },
-            { name: 'Salomon Islands', coordinates: [-5.32, 72.23] },
-            { name: 'Egmont Islands', coordinates: [-6.67, 71.35] },
-            { name: 'Nelson Island', coordinates: [-5.68, 72.30] }
-        ],
-        
-        oceanConditions: {
-            temperature: '27-29°C',
-            salinity: '34-35 ppt',
-            currents: ['South Equatorial Current'],
-            visibility: '30-50 meters'
+        formation: {
+            age: "10,000+ years",
+            process: "Developed on submerged volcanic foundation",
+            growthRate: "1-2 cm per year"
         },
         
-        diveSites: [
-            {
-                name: 'Peros Banhos Atoll',
-                coordinates: [-5.32, 71.85],
-                depth: '30m',
-                description: 'Pristine reefs with abundant shark populations.'
-            },
-            {
-                name: 'Salomon Atoll',
-                coordinates: [-5.32, 72.23],
-                depth: '35m',
-                description: 'Remote atoll with exceptional coral coverage.'
-            },
-            {
-                name: 'Brothers Islands',
-                coordinates: [-6.20, 71.52],
-                depth: '40m',
-                description: 'Dramatic walls and large pelagic fish.'
-            },
-            {
-                name: 'Egmont Channel',
-                coordinates: [-6.65, 71.33],
-                depth: '25m',
-                description: 'Channel diving with strong currents and sharks.'
-            },
-            {
-                name: 'Great Chagos Bank Drop-off',
-                coordinates: [-6.50, 71.40],
-                depth: '60m+',
-                description: 'Massive wall dropping into the abyss.'
-            }
+        structure: {
+            lagoonDepth: "0-20m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-1m",
+            foreReefDepth: "1-50m",
+            outerSlopeDepth: "50-100m+"
+        },
+        
+        conditions: {
+            temperature: "26-30°C",
+            salinity: "34 ppt",
+            currents: "Mindoro Strait currents",
+            visibility: "20-40m"
+        },
+        
+        economic: {
+            tourismValue: "$5 million/year",
+            fisheriesValue: "Protected",
+            jobsSupported: "800+",
+            coastalProtection: "$30 million/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "low",
+            pollution: "medium",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "National Park, UNESCO Tentative List",
+            mpaPercent: "100%",
+            programs: "DENR Protected Area Management",
+            research: "Mindoro Biodiversity Conservation Foundation"
+        },
+        
+        history: [
+            { year: "1996", event: "Declared a Natural Park" },
+            { year: "2006", event: "Nominated for UNESCO World Heritage" },
+            { year: "2018", event: "Management plan renewed and strengthened" }
         ],
         
-        cities: [
-            { name: 'Diego Garcia Naval Base', coordinates: [-7.3200, 72.4200], country: 'BIOT', population: 4000 }
+        nearbyIslands: [
+            "Apo Island",
+            "Cayos del Bajo",
+            "Mindoro",
+            "Coron",
+            "Busuanga"
         ],
         
-        economicImportance: [
-            { label: 'Research', value: 'Invaluable scientific reference site' },
-            { label: 'Fisheries', value: 'Limited licensed fishing only' },
-            { label: 'Climate Science', value: 'Critical for climate change research' }
+        islandCoordinates: [
+            { name: "Apo Island", lat: 12.6667, lng: 120.4500 },
+            { name: "Sablayan", lat: 12.8417, lng: 120.7694 },
+            { name: "Coron", lat: 11.9986, lng: 120.2043 }
         ],
         
-        environmentalThreats: [
-            { label: 'Climate Change', value: 'Coral bleaching events in 2015-2016' },
-            { label: 'Illegal Fishing', value: 'Poaching from distant fleets' },
-            { label: 'Marine Debris', value: 'Plastic accumulation from ocean currents' },
-            { label: 'Sea Level Rise', value: 'Low-lying islands at risk' }
-        ],
+        scientificImportance: "The second largest contiguous coral reef in the world. Critical waypoint for marine species migration between the South China Sea and Sulu Sea.",
         
-        conservation: [
-            { label: 'Chagos MPA', value: 'World\'s largest marine reserve (2010)' },
-            { label: 'No-Take Zone', value: '640,000 km² fully protected' },
-            { label: 'Scientific Research', value: 'Ongoing coral reef monitoring' },
-            { label: 'No Permanent Population', value: 'Limited human impact' }
-        ],
-        
-        historicalImportance: [
-            { label: 'Discovery', value: 'Portuguese discovery in early 1500s' },
-            { label: 'Coconut Plantations', value: 'French and British colonial settlements' },
-            { label: 'Chagossian Removal', value: 'Population removed 1967-1973' },
-            { label: 'Military Base', value: 'US-UK Diego Garcia base since 1971' },
-            { label: 'Conservation Milestone', value: 'Largest MPA established 2010' }
-        ],
-        
-        healthStatus: 'healthy',
-        coralCoverage: 70
+        typeDescription: "The largest coral reef in the Philippines and second largest contiguous reef system globally."
     },
     
-    // ========================================
-    // #14 - APO REEF
-    // ========================================
     {
-        id: 'apo-reef',
-        name: 'Apo Reef',
-        countries: [
-            { name: 'Philippines', code: 'PH' }
+        id: 14,
+        name: "Ningaloo Reef",
+        country: "Australia",
+        ocean: "Indian Ocean",
+        region: "Western Australia",
+        type: "Fringing Reef",
+        size: "260 km length",
+        length: "260 km",
+        area: "5,048 km²",
+        reefCount: "200+ coral species",
+        
+        coordinates: {
+            lat: -22.5500,
+            lng: 113.8000
+        },
+        mapZoom: 8,
+        
+        image: "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
         ],
-        ocean: 'Pacific Ocean',
-        region: 'Mindoro Strait, Occidental Mindoro',
-        reefType: 'atoll',
-        
-        length: 0,
-        area: 34,
-        numberOfReefs: 2,
-        numberOfIslands: 3,
-        
-        coordinates: [12.6500, 120.4500],
-        defaultZoom: 11,
-        
-        image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920',
-        
-        description: 'Apo Reef is the second-largest contiguous coral reef in the world and the largest in the Philippines. This protected natural park features two separate reef systems with a stunning lagoon, dramatic walls, and exceptional marine biodiversity. The reef rises from depths of over 500 meters, creating a remarkable underwater landscape that attracts divers from around the world.',
-        
-        formation: {
-            type: 'Oceanic atoll',
-            age: '10,000-15,000 years',
-            process: 'Formed as an oceanic reef atop a submerged seamount in the Mindoro Strait. The reef structure grew upward as the volcanic base subsided, creating a classic atoll with a central lagoon.'
-        },
-        
-        reefStructure: {
-            lagoon: true,
-            reefCrest: true,
-            foreReef: true,
-            backReef: true,
-            reefFlat: true
-        },
         
         biodiversity: {
-            coralSpecies: 400,
-            fishSpecies: 500,
-            molluskSpecies: 200,
-            marineAnimals: [
-                'Manta rays',
-                'Grey reef sharks',
-                'Whitetip reef sharks',
-                'Hammerhead sharks',
-                'Sea turtles',
-                'Napoleon wrasse',
-                'Barracudas',
-                'Giant trevally',
-                'Bluefin tuna',
-                'Moray eels'
-            ],
-            endangeredSpecies: [
-                'Hawksbill turtle',
-                'Green sea turtle',
-                'Napoleon wrasse',
-                'Giant clam',
-                'Hammerhead shark'
+            coralSpecies: "300+",
+            fishSpecies: "500+",
+            turtleSpecies: "3",
+            sharkSpecies: "28+",
+            whaleSpecies: "10+",
+            molluskSpecies: "600+",
+            notableSpecies: [
+                "Whale Shark",
+                "Manta Ray",
+                "Humpback Whale",
+                "Dugong",
+                "Green Sea Turtle",
+                "Loggerhead Turtle",
+                "Tiger Shark",
+                "Leopard Shark",
+                "Giant Potato Cod",
+                "Spangled Emperor"
             ]
         },
         
-        nearbyIslands: [
-            { name: 'Apo Island (within reef)', coordinates: [12.67, 120.46] },
-            { name: 'Cayos del Bajo', coordinates: [12.66, 120.44] },
-            { name: 'Apo Menor', coordinates: [12.64, 120.43] },
-            { name: 'Coron Island', coordinates: [11.98, 120.20] },
-            { name: 'Busuanga', coordinates: [12.15, 120.08] }
-        ],
-        
-        oceanConditions: {
-            temperature: '26-30°C',
-            salinity: '34 ppt',
-            currents: ['Mindoro Current', 'seasonal monsoon currents'],
-            visibility: '15-40 meters'
+        formation: {
+            age: "6,000-10,000 years",
+            process: "Fringing reef developed close to shore on ancient limestone coast",
+            growthRate: "1-2 cm per year"
         },
         
-        diveSites: [
-            {
-                name: 'Apo Reef Wall',
-                coordinates: [12.66, 120.47],
-                depth: '50m+',
-                description: 'Dramatic vertical wall plunging into the abyss.'
-            },
-            {
-                name: 'Shark Ridge',
-                coordinates: [12.65, 120.46],
-                depth: '30m',
-                description: 'Ridge frequented by grey reef sharks.'
-            },
-            {
-                name: 'Apo Lagoon',
-                coordinates: [12.65, 120.45],
-                depth: '8m',
-                description: 'Shallow lagoon with coral gardens and fish.'
-            },
-            {
-                name: 'Hunter\'s Rock',
-                coordinates: [12.64, 120.44],
-                depth: '35m',
-                description: 'Submerged rock with big fish action.'
-            },
-            {
-                name: 'Binangaan Drop-off',
-                coordinates: [12.67, 120.48],
-                depth: '40m',
-                description: 'Deep wall with excellent coral coverage.'
-            }
+        structure: {
+            lagoonDepth: "0-10m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-1m",
+            foreReefDepth: "1-20m",
+            outerSlopeDepth: "20-50m"
+        },
+        
+        conditions: {
+            temperature: "22-29°C",
+            salinity: "35-36 ppt",
+            currents: "Leeuwin Current",
+            visibility: "10-40m"
+        },
+        
+        economic: {
+            tourismValue: "$120 million/year",
+            fisheriesValue: "$10 million/year",
+            jobsSupported: "1,500+",
+            coastalProtection: "$200 million/year"
+        },
+        
+        threats: {
+            bleaching: "low",
+            warming: "medium",
+            acidification: "low",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "UNESCO World Heritage Site, Ningaloo Marine Park",
+            mpaPercent: "44%",
+            programs: "Department of Biodiversity, Conservation and Attractions",
+            research: "CSIRO, Australian Institute of Marine Science"
+        },
+        
+        history: [
+            { year: "1987", event: "Ningaloo Marine Park established" },
+            { year: "2011", event: "Listed as UNESCO World Heritage Site" },
+            { year: "2017", event: "Extended sanctuary zones implemented" }
         ],
         
-        cities: [
-            { name: 'Sablayan', coordinates: [12.8456, 120.7897], country: 'Philippines', population: 68699 },
-            { name: 'San Jose', coordinates: [12.3500, 121.0667], country: 'Philippines', population: 132459 },
-            { name: 'Coron', coordinates: [12.0000, 120.2000], country: 'Philippines', population: 51803 }
+        nearbyIslands: [
+            "Exmouth",
+            "Coral Bay",
+            "North West Cape",
+            "Muiron Islands",
+            "Point Cloates"
         ],
         
-        economicImportance: [
-            { label: 'Tourism', value: 'Growing dive tourism destination' },
-            { label: 'Fishing', value: 'Buffer zone sustainable fishing' },
-            { label: 'Research', value: 'Marine biodiversity research site' }
+        islandCoordinates: [
+            { name: "Exmouth", lat: -21.9309, lng: 114.1258 },
+            { name: "Coral Bay", lat: -23.1500, lng: 113.7667 },
+            { name: "Muiron Islands", lat: -21.6667, lng: 114.3333 }
         ],
         
-        environmentalThreats: [
-            { label: 'Blast Fishing', value: 'Historical damage, now patrolled' },
-            { label: 'Climate Change', value: 'Bleaching events recorded' },
-            { label: 'Poaching', value: 'Illegal fishing incursions' },
-            { label: 'Crown-of-Thorns', value: 'Periodic outbreaks' }
-        ],
+        scientificImportance: "World's largest fringing reef and best location to swim with whale sharks. Important site for studying whale shark migration and aggregation patterns.",
         
-        conservation: [
-            { label: 'Natural Park', value: 'Apo Reef Natural Park since 1996' },
-            { label: 'UNESCO Tentative', value: 'On UNESCO tentative list' },
-            { label: 'Protected Area', value: '15,792 hectares protected' },
-            { label: 'Ranger Station', value: 'Permanent monitoring presence' }
-        ],
-        
-        historicalImportance: [
-            { label: 'Navigation Hazard', value: 'Historically dangerous for ships' },
-            { label: 'Filipino Heritage', value: 'Traditional fishing grounds' },
-            { label: 'Conservation Pioneer', value: 'One of Philippines\' first marine parks' }
-        ],
-        
-        healthStatus: 'threatened',
-        coralCoverage: 45
+        typeDescription: "The world's largest fringing reef, famous for annual whale shark aggregations and exceptional accessibility from shore."
     },
     
-    // ========================================
-    // #15 - TUBBATAHA REEFS
-    // ========================================
     {
-        id: 'tubbataha-reefs',
-        name: 'Tubbataha Reefs Natural Park',
-        countries: [
-            { name: 'Philippines', code: 'PH' }
+        id: 15,
+        name: "Aldabra Atoll",
+        country: "Seychelles",
+        ocean: "Indian Ocean",
+        region: "Western Indian Ocean",
+        type: "Atoll",
+        size: "155 km²",
+        length: "34 km x 14.5 km",
+        area: "155 km² land, 224 km² lagoon",
+        reefCount: "Raised coral atoll",
+        
+        coordinates: {
+            lat: -9.4167,
+            lng: 46.3500
+        },
+        mapZoom: 10,
+        
+        image: "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600"
         ],
-        ocean: 'Pacific Ocean',
-        region: 'Sulu Sea, Palawan',
-        reefType: 'atoll',
-        
-        length: 0,
-        area: 97030,
-        numberOfReefs: 2,
-        numberOfIslands: 2,
-        
-        coordinates: [8.9300, 119.8800],
-        defaultZoom: 10,
-        
-        image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1920',
-        
-        description: 'Tubbataha Reefs Natural Park is a UNESCO World Heritage Site in the middle of the Sulu Sea, often called the "Crown Jewel" of Philippine reefs. This remote marine sanctuary consists of two atolls separated by an 8-kilometer channel, featuring pristine coral walls, incredible biodiversity, and large populations of sharks, mantas, and turtles. Accessible only by liveaboard during a limited season, Tubbataha represents one of the finest diving destinations on Earth.',
-        
-        formation: {
-            type: 'Oceanic coral atolls',
-            age: 'Unknown, estimated millions of years',
-            process: 'Two coral atolls formed atop ancient volcanic seamounts in the middle of the Sulu Sea. The isolation and strong currents have created exceptionally healthy reef ecosystems.'
-        },
-        
-        reefStructure: {
-            lagoon: true,
-            reefCrest: true,
-            foreReef: true,
-            backReef: true,
-            reefFlat: true
-        },
         
         biodiversity: {
-            coralSpecies: 360,
-            fishSpecies: 600,
-            molluskSpecies: 300,
-            marineAnimals: [
-                'Whale sharks',
-                'Manta rays',
-                'Tiger sharks',
-                'Hammerhead sharks',
-                'Whitetip reef sharks',
-                'Hawksbill turtles',
-                'Green sea turtles',
-                'Dolphins',
-                'Napoleon wrasse',
-                'Giant trevally'
-            ],
-            endangeredSpecies: [
-                'Hawksbill turtle',
-                'Green sea turtle',
-                'Whale shark',
-                'Tiger shark',
-                'Napoleon wrasse',
-                'Giant clam'
+            coralSpecies: "200+",
+            fishSpecies: "1,000+",
+            turtleSpecies: "2",
+            sharkSpecies: "15+",
+            whaleSpecies: "8+",
+            molluskSpecies: "300+",
+            notableSpecies: [
+                "Aldabra Giant Tortoise",
+                "Green Sea Turtle",
+                "Hawksbill Turtle",
+                "Manta Ray",
+                "Tiger Shark",
+                "Lemon Shark",
+                "Coconut Crab",
+                "Dugong",
+                "Red-footed Booby",
+                "Frigatebird"
             ]
         },
         
-        nearbyIslands: [
-            { name: 'North Atoll Bird Islet', coordinates: [9.00, 119.90] },
-            { name: 'South Atoll Bird Islet', coordinates: [8.82, 119.82] },
-            { name: 'Jessie Beazley Reef', coordinates: [9.18, 119.75] },
-            { name: 'Cagayan Islands', coordinates: [9.07, 121.22] }
-        ],
-        
-        oceanConditions: {
-            temperature: '27-30°C',
-            salinity: '34 ppt',
-            currents: ['Strong tidal currents', 'Sulu Sea currents'],
-            visibility: '30-45 meters'
+        formation: {
+            age: "125,000 years (emerged)",
+            process: "Raised atoll formed through tectonic uplift of coral reef",
+            growthRate: "Static (raised coral)"
         },
         
-        diveSites: [
-            {
-                name: 'Amos Rock',
-                coordinates: [9.00, 119.91],
-                depth: '35m',
-                description: 'Pinnacle with schools of big-eye trevally and sharks.'
-            },
-            {
-                name: 'Shark Airport',
-                coordinates: [8.98, 119.89],
-                depth: '25m',
-                description: 'Sandy area where whitetip sharks rest.'
-            },
-            {
-                name: 'Wall Street',
-                coordinates: [8.95, 119.87],
-                depth: '40m',
-                description: 'Dramatic vertical wall with excellent coral.'
-            },
-            {
-                name: 'Black Rock',
-                coordinates: [8.83, 119.83],
-                depth: '30m',
-                description: 'South Atoll site with large pelagics.'
-            },
-            {
-                name: 'Delsan Wreck',
-                coordinates: [8.92, 119.88],
-                depth: '28m',
-                description: 'Fishing vessel wreck colonized by coral.'
-            },
-            {
-                name: 'Malayan Wreck',
-                coordinates: [8.80, 119.80],
-                depth: '25m',
-                description: 'Cargo ship wreck teeming with life.'
-            }
+        structure: {
+            lagoonDepth: "0-10m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "Raised",
+            foreReefDepth: "0-40m",
+            outerSlopeDepth: "40-200m+"
+        },
+        
+        conditions: {
+            temperature: "25-30°C",
+            salinity: "35 ppt",
+            currents: "South Equatorial Current",
+            visibility: "15-40m"
+        },
+        
+        economic: {
+            tourismValue: "$2 million/year (limited access)",
+            fisheriesValue: "Protected",
+            jobsSupported: "50+ (research/conservation)",
+            coastalProtection: "$20 million/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "medium",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "UNESCO World Heritage Site (1982)",
+            mpaPercent: "100%",
+            programs: "Seychelles Islands Foundation",
+            research: "Aldabra Research Station"
+        },
+        
+        history: [
+            { year: "1971", event: "Research station established" },
+            { year: "1982", event: "Listed as UNESCO World Heritage Site" },
+            { year: "2020", event: "Plastic cleanup initiative launched" }
         ],
         
-        cities: [
-            { name: 'Puerto Princesa', coordinates: [9.7392, 118.7353], country: 'Philippines', population: 255116 },
-            { name: 'Quezon (Palawan)', coordinates: [9.4833, 118.0000], country: 'Philippines', population: 69885 }
+        nearbyIslands: [
+            "Grande Terre",
+            "Picard",
+            "Polymnie",
+            "Malabar",
+            "Assumption Island"
         ],
         
-        economicImportance: [
-            { label: 'Tourism', value: '$1.5 million annually from dive tourism' },
-            { label: 'Conservation Fees', value: 'Funds local marine protection' },
-            { label: 'Research', value: 'Important marine research site' },
-            { label: 'Fisheries', value: 'Fish spillover benefits surrounding areas' }
+        islandCoordinates: [
+            { name: "Grande Terre", lat: -9.4333, lng: 46.3833 },
+            { name: "Picard", lat: -9.3833, lng: 46.2167 },
+            { name: "Research Station", lat: -9.4167, lng: 46.3167 }
         ],
         
-        environmentalThreats: [
-            { label: 'Climate Change', value: 'Coral bleaching in 2010' },
-            { label: 'Ship Groundings', value: 'USS Guardian grounding 2013' },
-            { label: 'Poaching', value: 'Occasional illegal fishing' },
-            { label: 'Plastic Pollution', value: 'Ocean debris accumulation' }
+        scientificImportance: "Home to the world's largest population of giant tortoises (100,000+). One of the least disturbed large islands in the Indian Ocean, providing baseline data for coral and marine ecosystem studies.",
+        
+        typeDescription: "The world's second-largest raised coral atoll and a pristine natural laboratory, largely untouched by humans."
+    },
+    
+    {
+        id: 16,
+        name: "Chagos Archipelago",
+        country: "British Indian Ocean Territory",
+        ocean: "Indian Ocean",
+        region: "Central Indian Ocean",
+        type: "Atoll",
+        size: "60,000 km² total area",
+        length: "Seven atolls",
+        area: "4,000 km² reef area",
+        reefCount: "55+ islands, 7 atolls",
+        
+        coordinates: {
+            lat: -6.0000,
+            lng: 71.5000
+        },
+        mapZoom: 7,
+        
+        image: "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600"
         ],
         
-        conservation: [
-            { label: 'UNESCO', value: 'World Heritage Site since 1993, expanded 2009' },
-            { label: 'No-Take Zone', value: 'Entire park is strictly protected' },
-            { label: 'Ranger Station', value: 'Permanent presence on both atolls' },
-            { label: 'Limited Access', value: 'Only liveaboard access March-June' }
+        biodiversity: {
+            coralSpecies: "300+",
+            fishSpecies: "800+",
+            turtleSpecies: "2",
+            sharkSpecies: "20+",
+            whaleSpecies: "12+",
+            molluskSpecies: "400+",
+            notableSpecies: [
+                "Silvertip Shark",
+                "Grey Reef Shark",
+                "Green Sea Turtle",
+                "Hawksbill Turtle",
+                "Manta Ray",
+                "Humphead Wrasse",
+                "Giant Trevally",
+                "Coconut Crab",
+                "Red-footed Booby",
+                "Giant Clam"
+            ]
+        },
+        
+        formation: {
+            age: "60 million years (foundation)",
+            process: "Chain of atolls formed over volcanic hotspot track",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-80m",
+            reefFlatDepth: "0-4m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-50m",
+            outerSlopeDepth: "50-1,000m+"
+        },
+        
+        conditions: {
+            temperature: "26-30°C",
+            salinity: "34-35 ppt",
+            currents: "South Equatorial Current",
+            visibility: "30-60m"
+        },
+        
+        economic: {
+            tourismValue: "Limited (restricted access)",
+            fisheriesValue: "Protected",
+            jobsSupported: "200+ (military/research)",
+            coastalProtection: "$100 million/year"
+        },
+        
+        threats: {
+            bleaching: "high",
+            warming: "high",
+            acidification: "medium",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "Largest Marine Protected Area (2010)",
+            mpaPercent: "100%",
+            programs: "Chagos Conservation Trust",
+            research: "Bertarelli Foundation expeditions"
+        },
+        
+        history: [
+            { year: "1965", event: "British Indian Ocean Territory created" },
+            { year: "2010", event: "World's largest marine protected area declared" },
+            { year: "2019", event: "ICJ rules UK administration unlawful" }
         ],
         
-        historicalImportance: [
-            { label: 'Traditional Waters', value: 'Historic Cagayan Sulu fishing grounds' },
-            { label: 'WWII History', value: 'Ships sunk during WWII' },
-            { label: 'Conservation Milestone', value: 'First marine UNESCO site in ASEAN' },
-            { label: 'Dive Discovery', value: 'First recreational diving in 1980s' }
+        nearbyIslands: [
+            "Diego Garcia",
+            "Peros Banhos",
+            "Salomon Islands",
+            "Great Chagos Bank",
+            "Egmont Islands"
         ],
         
-        healthStatus: 'healthy',
-        coralCoverage: 65
+        islandCoordinates: [
+            { name: "Diego Garcia", lat: -7.3000, lng: 72.4000 },
+            { name: "Peros Banhos", lat: -5.3167, lng: 71.8833 },
+            { name: "Salomon", lat: -5.3167, lng: 72.2500 }
+        ],
+        
+        scientificImportance: "One of the most pristine reef systems on Earth with minimal human impact. Critical reference site for understanding healthy reef ecosystems and climate change impacts.",
+        
+        typeDescription: "The world's largest marine protected area, featuring pristine coral atolls with exceptional water clarity and shark populations."
+    },
+    
+    {
+        id: 17,
+        name: "Palau Coral Reefs",
+        country: "Palau",
+        ocean: "Pacific Ocean",
+        region: "Micronesia",
+        type: "Barrier Reef",
+        size: "1,500 km²",
+        length: "130 km barrier reef",
+        area: "1,500 km² reef area",
+        reefCount: "500+ islands",
+        
+        coordinates: {
+            lat: 7.5000,
+            lng: 134.5000
+        },
+        mapZoom: 8,
+        
+        image: "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "400+",
+            fishSpecies: "1,500+",
+            turtleSpecies: "5",
+            sharkSpecies: "30+",
+            whaleSpecies: "8+",
+            molluskSpecies: "700+",
+            notableSpecies: [
+                "Manta Ray",
+                "Grey Reef Shark",
+                "Napoleon Wrasse",
+                "Mandarin Fish",
+                "Nautilus",
+                "Saltwater Crocodile",
+                "Dugong",
+                "Giant Clam",
+                "Jellyfish (non-stinging)",
+                "Bumphead Parrotfish"
+            ]
+        },
+        
+        formation: {
+            age: "20-30 million years",
+            process: "Volcanic island chain with extensive coral reef development",
+            growthRate: "1-3 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-50m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-60m",
+            outerSlopeDepth: "60-300m+"
+        },
+        
+        conditions: {
+            temperature: "28-30°C",
+            salinity: "34 ppt",
+            currents: "North Equatorial Current",
+            visibility: "25-50m"
+        },
+        
+        economic: {
+            tourismValue: "$150 million/year",
+            fisheriesValue: "$5 million/year",
+            jobsSupported: "8,000+",
+            coastalProtection: "$100 million/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "low",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "Rock Islands UNESCO World Heritage Site",
+            mpaPercent: "80%",
+            programs: "Palau National Marine Sanctuary",
+            research: "Palau International Coral Reef Center"
+        },
+        
+        history: [
+            { year: "1956", event: "First marine protected area established" },
+            { year: "2012", event: "Rock Islands listed as UNESCO World Heritage Site" },
+            { year: "2015", event: "Palau National Marine Sanctuary created" }
+        ],
+        
+        nearbyIslands: [
+            "Koror",
+            "Peleliu",
+            "Rock Islands",
+            "Babeldaob",
+            "Kayangel"
+        ],
+        
+        islandCoordinates: [
+            { name: "Koror", lat: 7.3389, lng: 134.4667 },
+            { name: "Rock Islands", lat: 7.1500, lng: 134.3667 },
+            { name: "Peleliu", lat: 7.0000, lng: 134.2500 }
+        ],
+        
+        scientificImportance: "Home to Jellyfish Lake with non-stinging jellyfish that have evolved in isolation. Pioneered sustainable tourism and marine protection policies adopted worldwide.",
+        
+        typeDescription: "A pristine island nation that created one of the world's largest national marine sanctuaries, protecting 80% of its waters."
+    },
+    
+    {
+        id: 18,
+        name: "Wakatobi National Park",
+        country: "Indonesia",
+        ocean: "Pacific Ocean",
+        region: "Coral Triangle",
+        type: "Fringing Reef",
+        size: "13,900 km²",
+        length: "Four main islands",
+        area: "13,900 km² marine park",
+        reefCount: "750+ coral species",
+        
+        coordinates: {
+            lat: -5.5000,
+            lng: 123.5000
+        },
+        mapZoom: 9,
+        
+        image: "https://images.unsplash.com/photo-1551244072-5d12893278ab?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1551244072-5d12893278ab?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1551244072-5d12893278ab?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "750+",
+            fishSpecies: "900+",
+            turtleSpecies: "4",
+            sharkSpecies: "20+",
+            whaleSpecies: "15+",
+            molluskSpecies: "500+",
+            notableSpecies: [
+                "Pygmy Seahorse",
+                "Manta Ray",
+                "Whale Shark",
+                "Green Sea Turtle",
+                "Leaf Scorpionfish",
+                "Ghost Pipefish",
+                "Blue-ringed Octopus",
+                "Banded Sea Snake",
+                "Giant Frogfish",
+                "Flamboyant Cuttlefish"
+            ]
+        },
+        
+        formation: {
+            age: "5-10 million years",
+            process: "Fringing reefs around volcanic islands in the Banda Sea",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-30m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-40m",
+            outerSlopeDepth: "40-200m+"
+        },
+        
+        conditions: {
+            temperature: "27-30°C",
+            salinity: "34 ppt",
+            currents: "Indonesian Throughflow",
+            visibility: "20-50m"
+        },
+        
+        economic: {
+            tourismValue: "$30 million/year",
+            fisheriesValue: "$15 million/year",
+            jobsSupported: "10,000+",
+            coastalProtection: "$80 million/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "low",
+            pollution: "low",
+            overfishing: "medium"
+        },
+        
+        conservation: {
+            status: "National Park, UNESCO Biosphere Reserve",
+            mpaPercent: "100%",
+            programs: "Wakatobi Dive Resort conservation programs",
+            research: "Operation Wallacea research expeditions"
+        },
+        
+        history: [
+            { year: "1996", event: "Established as National Park" },
+            { year: "2005", event: "Added to UNESCO Biosphere Reserve Network" },
+            { year: "2012", event: "Community-based conservation programs expanded" }
+        ],
+        
+        nearbyIslands: [
+            "Wangi-Wangi",
+            "Kaledupa",
+            "Tomia",
+            "Binongko",
+            "Hoga Island"
+        ],
+        
+        islandCoordinates: [
+            { name: "Wangi-Wangi", lat: -5.3000, lng: 123.5167 },
+            { name: "Tomia", lat: -5.7500, lng: 123.9167 },
+            { name: "Kaledupa", lat: -5.4667, lng: 123.7333 }
+        ],
+        
+        scientificImportance: "Holds world record for number of coral species found in single dive (247). Major research site for Operation Wallacea studying reef ecosystems and conservation strategies.",
+        
+        typeDescription: "Named after four main islands (Wangi-wangi, Kaledupa, Tomia, Binongko), renowned for exceptional coral diversity and macro marine life."
+    },
+    
+    {
+        id: 19,
+        name: "Komodo National Park Reefs",
+        country: "Indonesia",
+        ocean: "Indian Ocean / Pacific Ocean",
+        region: "Lesser Sunda Islands",
+        type: "Fringing Reef",
+        size: "1,733 km²",
+        length: "Three major islands",
+        area: "1,733 km² marine area",
+        reefCount: "260+ coral species",
+        
+        coordinates: {
+            lat: -8.5500,
+            lng: 119.4500
+        },
+        mapZoom: 9,
+        
+        image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "260+",
+            fishSpecies: "1,000+",
+            turtleSpecies: "4",
+            sharkSpecies: "25+",
+            whaleSpecies: "14+",
+            molluskSpecies: "350+",
+            notableSpecies: [
+                "Manta Ray",
+                "Komodo Dragon",
+                "Giant Trevally",
+                "Mobula Ray",
+                "Napoleon Wrasse",
+                "Green Sea Turtle",
+                "Blacktip Reef Shark",
+                "Giant Moray Eel",
+                "Cuttlefish",
+                "Nudibranchs"
+            ]
+        },
+        
+        formation: {
+            age: "1-2 million years",
+            process: "Volcanic island reefs where Indian and Pacific Oceans meet",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-20m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-40m",
+            outerSlopeDepth: "40-100m+"
+        },
+        
+        conditions: {
+            temperature: "20-29°C (variable due to upwelling)",
+            salinity: "34-35 ppt",
+            currents: "Strong tidal currents",
+            visibility: "10-30m"
+        },
+        
+        economic: {
+            tourismValue: "$25 million/year",
+            fisheriesValue: "$10 million/year",
+            jobsSupported: "4,000+",
+            coastalProtection: "$50 million/year"
+        },
+        
+        threats: {
+            bleaching: "low",
+            warming: "low",
+            acidification: "low",
+            pollution: "medium",
+            overfishing: "medium"
+        },
+        
+        conservation: {
+            status: "UNESCO World Heritage Site, National Park",
+            mpaPercent: "100%",
+            programs: "Komodo Survival Program, TNC partnership",
+            research: "Indonesian Institute of Sciences"
+        },
+        
+        history: [
+            { year: "1980", event: "Komodo National Park established" },
+            { year: "1991", event: "Listed as UNESCO World Heritage Site" },
+            { year: "2019", event: "Temporary closure considered to protect ecosystems" }
+        ],
+        
+        nearbyIslands: [
+            "Komodo Island",
+            "Rinca Island",
+            "Padar Island",
+            "Flores",
+            "Gili Lawa"
+        ],
+        
+        islandCoordinates: [
+            { name: "Komodo Island", lat: -8.5500, lng: 119.4500 },
+            { name: "Rinca Island", lat: -8.7000, lng: 119.7000 },
+            { name: "Padar Island", lat: -8.6500, lng: 119.6167 }
+        ],
+        
+        scientificImportance: "Unique ecosystem where cold nutrient-rich upwellings create highly productive reefs resistant to bleaching. Confluence of Indian and Pacific Ocean species creates exceptional biodiversity.",
+        
+        typeDescription: "Famous for Komodo dragons on land, but equally remarkable underwater with nutrient-rich currents supporting abundant marine life."
+    },
+    
+    {
+        id: 20,
+        name: "Bunaken Marine Park",
+        country: "Indonesia",
+        ocean: "Pacific Ocean",
+        region: "Sulawesi",
+        type: "Fringing Reef",
+        size: "890 km²",
+        length: "Five islands",
+        area: "890 km² marine park",
+        reefCount: "390+ coral species",
+        
+        coordinates: {
+            lat: 1.6333,
+            lng: 124.7500
+        },
+        mapZoom: 10,
+        
+        image: "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "390+",
+            fishSpecies: "3,000+",
+            turtleSpecies: "4",
+            sharkSpecies: "20+",
+            whaleSpecies: "10+",
+            molluskSpecies: "400+",
+            notableSpecies: [
+                "Coelacanth (nearby)",
+                "Pygmy Seahorse",
+                "Tarsier (on land)",
+                "Mandarin Fish",
+                "Ghost Pipefish",
+                "Mimic Octopus",
+                "Napoleon Wrasse",
+                "Sea Snake",
+                "Whale Shark",
+                "Eagle Ray"
+            ]
+        },
+        
+        formation: {
+            age: "5-8 million years",
+            process: "Dramatic wall reefs developed along volcanic island slopes",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-15m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-50m (sheer walls)",
+            outerSlopeDepth: "50-1,500m+"
+        },
+        
+        conditions: {
+            temperature: "27-30°C",
+            salinity: "34 ppt",
+            currents: "Sulawesi Sea currents",
+            visibility: "20-40m"
+        },
+        
+        economic: {
+            tourismValue: "$15 million/year",
+            fisheriesValue: "$8 million/year",
+            jobsSupported: "5,000+",
+            coastalProtection: "$40 million/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "low",
+            pollution: "medium",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "National Marine Park, UNESCO Tentative List",
+            mpaPercent: "100%",
+            programs: "Community-based marine tourism management",
+            research: "Sam Ratulangi University marine research"
+        },
+        
+        history: [
+            { year: "1991", event: "Established as National Marine Park" },
+            { year: "1998", event: "Living fossil Coelacanth discovered nearby" },
+            { year: "2005", event: "Nominated for UNESCO World Heritage" }
+        ],
+        
+        nearbyIslands: [
+            "Bunaken Island",
+            "Manado Tua",
+            "Siladen",
+            "Montehage",
+            "Nain"
+        ],
+        
+        islandCoordinates: [
+            { name: "Bunaken Island", lat: 1.6333, lng: 124.7500 },
+            { name: "Manado Tua", lat: 1.6167, lng: 124.6833 },
+            { name: "Siladen", lat: 1.6167, lng: 124.8000 }
+        ],
+        
+        scientificImportance: "Features dramatic sheer walls dropping over 1,000 meters, creating diverse habitats. Nearby Coelacanth discovery (1998) made this region significant for evolutionary biology.",
+        
+        typeDescription: "Famous for dramatic wall diving with near-vertical reef faces dropping into the abyss, located in the heart of the Coral Triangle."
     }
 ];
 
-// Log load status
-console.log('📁 coral-reefs-data-2.js loaded (Part 1: Reefs 11-15)');
+// Export for use in main application
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CORAL_REEFS_2;
+}
