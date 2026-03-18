@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volcano Profile | Volcanoes Explorer</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="volcanoes-styles.css">
+</head>
+<body class="profile-page">
+    <!-- Full Screen Background -->
+    <div class="profile-background" id="profileBackground">
+        <div class="background-image" id="backgroundImage"></div>
+        <div class="background-overlay"></div>
+        
+        <!-- Smoke/Ash Particles -->
+        <div class="ash-particles" id="ashParticles"></div>
+        
+        <!-- Rising Ember Particles -->
+        <div class="ember-particles-profile" id="emberParticlesProfile"></div>
+        
+        <!-- Volcanic Glow Effect -->
+        <div class="crater-glow" id="craterGlow"></div>
+    </div>
+
+    <!-- Eruption Simulation Overlay -->
+    <div class="eruption-overlay" id="eruptionOverlay">
+        <div class="eruption-content">
+            <div class="eruption-header">
+                <div class="eruption-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>ERUPTION SIMULATION</span>
+                </div>
+                <button class="stop-eruption-btn" id="stopEruption">
+                    <i class="fas fa-stop"></i>
+                    Stop Simulation
+                </button>
+            </div>
+            
+            <div class="eruption-info">
+                <div class="eruption-phase" id="eruptionPhase">
+                    <span class="phase-number">Phase 1</span>
+                    <span class="phase-text">Seismic Activity Increasing...</span>
+                </div>
+                
+                <div class="eruption-stats">
+                    <div class="eruption-stat">
+                        <span class="stat-label">VEI Level</span>
+                        <span class="stat-value" id="veiLevel">4</span>
+                    </div>
+                    <div class="eruption-stat">
+                        <span class="stat-label">Affected Radius</span>
+                        <span class="stat-value" id="affectedRadius">30 km</span>
+                    </div>
+                    <div class="eruption-stat">
+                        <span class="stat-label">Ash Cloud</span>
+                        <span class="stat-value" id="ashCloudHeight">15 km</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="eruption-visual">
+                <div class="eruption-volcano">
+                    <div class="volcano-silhouette"></div>
+                    <div class="lava-fountain" id="lavaFountain"></div>
+                    <div class="ash-cloud-animation" id="ashCloudAnimation"></div>
+                    <div class="lava-flows" id="lavaFlows">
+                        <div class="lava-flow flow-1"></div>
+                        <div class="lava-flow flow-2"></div>
+                        <div class="lava-flow flow-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fly Over Overlay -->
+    <div class="flyover-overlay" id="flyoverOverlay">
+        <div class="flyover-ui">
+            <div class="flyover-header">
+                <div class="flyover-title">
+                    <i class="fas fa-helicopter"></i>
+                    <span>Aerial Tour</span>
+                </div>
+                <button class="skip-flyover-btn" id="skipFlyover">
+                    <i class="fas fa-forward"></i>
+                    Skip
+                </button>
+            </div>
+            
+            <div class="flyover-info">
+                <div class="waypoint-info">
+                    <span class="waypoint-name" id="waypointName">Starting Tour...</span>
+                    <span class="waypoint-description" id="waypointDescription"></span>
+                </div>
+                
+                <div class="altitude-indicator">
+                    <i class="fas fa-plane"></i>
+                    <span>Altitude: <strong id="currentAltitude">2,000m</strong></span>
+                </div>
+            </div>
+            
+            <div class="flyover-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="flyoverProgress"></div>
+                </div>
+                <div class="progress-waypoints" id="progressWaypoints"></div>
+            </div>
+            
+            <div class="flyover-controls">
+                <button class="flyover-control-btn" id="pauseFlyover">
+                    <i class="fas fa-pause"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="profile-container">
+        
+        <!-- Header Section -->
+        <header class="profile-header">
+            <!-- Back Button -->
+            <a href="volcanoes.html" class="back-button profile-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Volcanoes</span>
+            </a>
+            
+            <!-- Volcano Title Section -->
+            <div class="volcano-title-section">
+                <div class="volcano-main-title">
+                    <h1 class="volcano-name-large" id="volcanoName">Mount Fuji</h1>
+                    <span class="volcano-native-name" id="volcanoNativeName">富士山 (Fujisan)</span>
+                </div>
+                
+                <div class="volcano-badges">
+                    <!-- Country Flag -->
+                    <div class="country-badge" id="countryBadge">
+                        <img src="" alt="" class="country-flag-large" id="countryFlag">
+                        <span class="country-name" id="countryName">Japan</span>
+                    </div>
+                    
+                    <!-- Status Badge -->
+                    <div class="status-badge-large" id="statusBadge">
+                        <span class="status-indicator-large"></span>
+                        <span class="status-text-large" id="statusText">Active</span>
+                    </div>
+                    
+                    <!-- Elevation Badge -->
+                    <div class="elevation-badge-large">
+                        <i class="fas fa-mountain"></i>
+                        <span class="elevation-large" id="elevationDisplay">3,776m</span>
+                    </div>
+                    
+                    <!-- Type Badge -->
+                    <div class="type-badge-large" id="typeBadge">
+                        <i class="fas fa-volcano"></i>
+                        <span id="volcanoType">Stratovolcano</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn eruption-btn" id="simulateEruption">
+                    <i class="fas fa-fire-alt"></i>
+                    <span>Simulate Eruption</span>
+                    <div class="btn-glow"></div>
+                </button>
+                
+                <button class="action-btn flyover-btn" id="flyOverBtn">
+                    <i class="fas fa-helicopter"></i>
+                    <span>Fly Over Volcano</span>
+                    <div class="btn-glow"></div>
+                </button>
+                
+                <button class="action-btn tectonic-btn-profile" id="tectonicToggleProfile">
+                    <i class="fas fa-globe"></i>
+                    <span>Tectonic View</span>
+                    <div class="toggle-indicator"></div>
+                    <div class="btn-glow"></div>
+                </button>
+                
+                <button class="action-btn fullscreen-btn" id="fullscreenBtn">
+                    <i class="fas fa-expand"></i>
+                    <div class="btn-glow"></div>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="profile-main">
+            <!-- Map Section -->
+            <section class="map-section">
+                <div class="map-container">
+                    <div id="volcanoMap" class="volcano-map"></div>
+                    
+                    <!-- Map Controls Panel -->
+                    <div class="map-controls-panel">
+                        <h4 class="controls-title">
+                            <i class="fas fa-sliders-h"></i>
+                            Map Layers
+                        </h4>
+                        
+                        <div class="map-toggles">
+                            <label class="map-toggle">
+                                <input type="checkbox" id="toggleTectonicPlates">
+                                <span class="toggle-slider-small"></span>
+                                <span class="toggle-label">
+                                    <i class="fas fa-layer-group"></i>
+                                    Tectonic Plates
+                                </span>
+                            </label>
+                            
+                            <label class="map-toggle">
+                                <input type="checkbox" id="toggleLavaFlows">
+                                <span class="toggle-slider-small"></span>
+                                <span class="toggle-label">
+                                    <i class="fas fa-water"></i>
+                                    Lava Flows
+                                </span>
+                            </label>
+                            
+                            <label class="map-toggle">
+                                <input type="checkbox" id="toggleHazardZones" checked>
+                                <span class="toggle-slider-small"></span>
+                                <span class="toggle-label">
+                                    <i class="fas fa-radiation"></i>
+                                    Hazard Zones
+                                </span>
+                            </label>
+                            
+                            <label class="map-toggle">
+                                <input type="checkbox" id="toggleCities" checked>
+                                <span class="toggle-slider-small"></span>
+                                <span class="toggle-label">
+                                    <i class="fas fa-city"></i>
+                                    Nearby Cities
+                                </span>
+                            </label>
+                            
+                            <label class="map-toggle">
+                                <input type="checkbox" id="toggleOtherVolcanoes">
+                                <span class="toggle-slider-small"></span>
+                                <span class="toggle-label">
+                                    <i class="fas fa-volcano"></i>
+                                    Other Volcanoes
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <button class="reset-view-btn" id="resetMapView">
+                            <i class="fas fa-sync-alt"></i>
+                            Reset View
+                        </button>
+                    </div>
+                    
+                    <!-- Map Legend -->
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <span class="legend-marker volcano-marker"></span>
+                            <span>Volcano</span>
+                        </div>
+                        <div class="legend-item" id="legendPlates">
+                            <span class="legend-line plate-line"></span>
+                            <span>Plate Boundary</span>
+                        </div>
+                        <div class="legend-item" id="legendSubduction">
+                            <span class="legend-arrow"></span>
+                            <span>Subduction Zone</span>
+                        </div>
+                        <div class="legend-item" id="legendLava">
+                            <span class="legend-path lava-path"></span>
+                            <span>Lava Flow</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-circle hazard-circle"></span>
+                            <span>Hazard Zone</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot city-dot"></span>
+                            <span>City</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Coordinates Display -->
+                    <div class="coordinates-display">
+                        <span class="coord-label">Coordinates:</span>
+                        <span class="coord-value" id="coordsDisplay">35.3606°N, 138.7274°E</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mind Map / Info Section -->
+            <section class="info-section">
+                <div class="mind-map-container">
+                    <h2 class="section-title">
+                        <i class="fas fa-sitemap"></i>
+                        Volcano Information
+                    </h2>
+                    
+                    <div class="mind-map-tree" id="mindMapTree">
+                        <!-- 1. Location -->
+                        <div class="mind-map-branch" data-branch="location">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <h3 class="branch-title">Location</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Country</span>
+                                        <span class="item-value" id="infoCountry">Japan</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Region</span>
+                                        <span class="item-value" id="infoRegion">Honshu Island</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Coordinates</span>
+                                        <span class="item-value" id="infoCoords">35.3606°N, 138.7274°E</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Volcanic Belt</span>
+                                        <span class="item-value" id="infoVolcanicBelt">Fuji Volcanic Zone</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 2. Elevation -->
+                        <div class="mind-map-branch" data-branch="elevation">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-ruler-vertical"></i>
+                                </div>
+                                <h3 class="branch-title">Elevation</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Height</span>
+                                        <span class="item-value highlight" id="infoHeight">3,776 meters</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Prominence</span>
+                                        <span class="item-value" id="infoProminence">3,776 meters</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Global Rank</span>
+                                        <span class="item-value" id="infoRank">#23 among volcanoes</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 3. Volcano Type -->
+                        <div class="mind-map-branch" data-branch="type">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-mountain"></i>
+                                </div>
+                                <h3 class="branch-title">Volcano Type</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Classification</span>
+                                        <span class="item-value" id="infoClassification">Stratovolcano</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Formation</span>
+                                        <span class="item-value" id="infoFormation">Built by layers of lava, ash, and tephra</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Shape</span>
+                                        <span class="item-value" id="infoShape">Symmetrical cone</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 4. Status -->
+                        <div class="mind-map-branch" data-branch="status">
+                            <div class="branch-header">
+                                <div class="branch-icon status-icon">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                <h3 class="branch-title">Status</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Current Status</span>
+                                        <span class="item-value status-active" id="infoStatus">Active</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Monitoring Level</span>
+                                        <span class="item-value" id="infoMonitoring">Continuously monitored</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Alert Level</span>
+                                        <span class="item-value" id="infoAlertLevel">Normal</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 5. Tectonic Setting -->
+                        <div class="mind-map-branch" data-branch="tectonic">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-globe-americas"></i>
+                                </div>
+                                <h3 class="branch-title">Tectonic Setting</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Boundary Type</span>
+                                        <span class="item-value" id="infoBoundaryType">Convergent boundary</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Plates Involved</span>
+                                        <span class="item-value" id="infoPlates">Philippine Sea, Eurasian, North American</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Subduction</span>
+                                        <span class="item-value" id="infoSubduction">Yes - Philippine Sea Plate subducting</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 6. Last Eruption -->
+                        <div class="mind-map-branch" data-branch="lastEruption">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <h3 class="branch-title">Last Eruption</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Year</span>
+                                        <span class="item-value highlight" id="infoLastEruptionYear">1707</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Name</span>
+                                        <span class="item-value" id="infoLastEruptionName">Hōei Eruption</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">VEI</span>
+                                        <span class="item-value vei-badge" id="infoVEI">5</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Type</span>
+                                        <span class="item-value" id="infoEruptionType">Explosive</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 7. Eruption History -->
+                        <div class="mind-map-branch" data-branch="eruptionHistory">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <h3 class="branch-title">Eruption History</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <div class="eruption-timeline" id="eruptionTimeline">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8. Lava Type -->
+                        <div class="mind-map-branch" data-branch="lavaType">
+                            <div class="branch-header">
+                                <div class="branch-icon lava-icon">
+                                    <i class="fas fa-fire-flame-curved"></i>
+                                </div>
+                                <h3 class="branch-title">Lava Type</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Composition</span>
+                                        <span class="item-value" id="infoLavaComposition">Basaltic to Andesitic</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Viscosity</span>
+                                        <span class="item-value" id="infoViscosity">Moderate to High</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Behavior</span>
+                                        <span class="item-value" id="infoLavaBehavior">Explosive eruptions with ash and tephra</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 9. Crater/Caldera -->
+                        <div class="mind-map-branch" data-branch="crater">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-circle-notch"></i>
+                                </div>
+                                <h3 class="branch-title">Crater / Caldera</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items">
+                                    <li>
+                                        <span class="item-label">Diameter</span>
+                                        <span class="item-value" id="infoCraterDiameter">~500 meters</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Depth</span>
+                                        <span class="item-value" id="infoCraterDepth">~250 meters</span>
+                                    </li>
+                                    <li>
+                                        <span class="item-label">Lava Lake</span>
+                                        <span class="item-value" id="infoLavaLake">No</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 10. Nearby Cities -->
+                        <div class="mind-map-branch" data-branch="cities">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-city"></i>
+                                </div>
+                                <h3 class="branch-title">Nearby Cities</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <div class="cities-list" id="citiesList">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 11. Hazards -->
+                        <div class="mind-map-branch" data-branch="hazards">
+                            <div class="branch-header">
+                                <div class="branch-icon hazard-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <h3 class="branch-title">Hazards</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <div class="hazards-grid" id="hazardsGrid">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 12. Economic Importance -->
+                        <div class="mind-map-branch" data-branch="economic">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <h3 class="branch-title">Economic Importance</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items" id="economicList">
+                                    <!-- Populated dynamically -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 13. Environmental Impact -->
+                        <div class="mind-map-branch" data-branch="environmental">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-leaf"></i>
+                                </div>
+                                <h3 class="branch-title">Environmental Impact</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="branch-items" id="environmentalList">
+                                    <!-- Populated dynamically -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 14. Famous Events -->
+                        <div class="mind-map-branch" data-branch="famous">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <h3 class="branch-title">Famous Events</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <div class="events-timeline" id="eventsTimeline">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 15. Fun Facts -->
+                        <div class="mind-map-branch" data-branch="funFacts">
+                            <div class="branch-header">
+                                <div class="branch-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <h3 class="branch-title">Fun Facts</h3>
+                                <button class="branch-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="branch-content">
+                                <ul class="fun-facts-list" id="funFactsList">
+                                    <!-- Populated dynamically -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Quick Facts Panel (Fixed Bottom) -->
+        <aside class="quick-facts-panel" id="quickFactsPanel">
+            <div class="quick-facts-toggle" id="quickFactsToggle">
+                <i class="fas fa-chevron-up"></i>
+                <span>Quick Facts</span>
+            </div>
+            
+            <div class="quick-facts-content">
+                <div class="quick-fact">
+                    <div class="fact-icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <div class="fact-info">
+                        <span class="fact-label">Elevation</span>
+                        <span class="fact-value" id="quickElevation">3,776m</span>
+                    </div>
+                </div>
+                
+                <div class="quick-fact">
+                    <div class="fact-icon status-icon-quick">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="fact-info">
+                        <span class="fact-label">Status</span>
+                        <span class="fact-value" id="quickStatus">Active</span>
+                    </div>
+                </div>
+                
+                <div class="quick-fact">
+                    <div class="fact-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="fact-info">
+                        <span class="fact-label">Last Eruption</span>
+                        <span class="fact-value" id="quickLastEruption">1707</span>
+                    </div>
+                </div>
+                
+                <div class="quick-fact">
+                    <div class="fact-icon">
+                        <i class="fas fa-volcano"></i>
+                    </div>
+                    <div class="fact-info">
+                        <span class="fact-label">Type</span>
+                        <span class="fact-value" id="quickType">Stratovolcano</span>
+                    </div>
+                </div>
+                
+                <div class="quick-fact">
+                    <div class="fact-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="fact-info">
+                        <span class="fact-label">Tectonic</span>
+                        <span class="fact-value" id="quickTectonic">Convergent</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Navigation Buttons -->
+        <div class="profile-navigation">
+            <button class="nav-btn prev-btn" id="prevVolcano" title="Previous Volcano">
+                <i class="fas fa-chevron-left"></i>
+                <span class="nav-label">Previous</span>
+            </button>
+            
+            <button class="nav-btn next-btn" id="nextVolcano" title="Next Volcano">
+                <span class="nav-label">Next</span>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="profile-loading" id="profileLoading">
+        <div class="loading-content">
+            <div class="loading-volcano-icon">
+                <i class="fas fa-volcano"></i>
+                <div class="loading-flames">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <p>Loading volcano data...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="volcanoes-data-1.js"></script>
+    <script src="volcanoes-data-2.js"></script>
+    <script src="volcanoes-data-3.js"></script>
+    <script src="volcanoes-data-4.js"></script>
+    <script src="volcanoes-data-5.js"></script>
+    <script src="volcanoes-data-6.js"></script>
+    <script src="volcanoes-data-7.js"></script>
+    <script src="volcanoes-data-8.js"></script>
+    <script src="volcanoes-data-9.js"></script>
+    <script src="volcanoes-data-10.js"></script>
+    <script src="volcanoes-data.js"></script>
+    <script src="volcanoes-app.js"></script>
+</body>
+</html>
