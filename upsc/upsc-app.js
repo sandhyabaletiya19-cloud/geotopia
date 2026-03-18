@@ -1628,76 +1628,120 @@ GeoMasterApp.updateActiveSectionTab = function() {
             tab.classList.add('active');
         }
     });
+this.fixModalScroll();
 };
 
 // ============================================
-// 8. MIND MAP RENDERING
+// 8. MIND MAP RENDERING (COMPLETE FIXED VERSION)
 // ============================================
 
 GeoMasterApp.renderMindMap = function(topic) {
-    const container = this.elements.mindmapCanvas;
-    if (!container || !topic.mindMap) return;
+    const container = document.getElementById('mindmapCanvas');
+    
+    if (!container) {
+        console.warn('Mind map canvas not found');
+        return;
+    }
+    
+    // Clear previous content completely
+    container.innerHTML = '';
+    
+    // Check if topic has mindMap data
+    if (!topic.mindMap) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 60px; color: var(--text-tertiary);">
+                <span style="font-size: 64px; display: block; margin-bottom: 16px;">🧠</span>
+                <p style="font-size: 18px;">No mind map available for this topic</p>
+            </div>
+        `;
+        return;
+    }
     
     const mindMap = topic.mindMap;
     
-    // Set central node
-    const centralNode = container.querySelector('.mindmap-central');
-    if (centralNode) {
-        centralNode.innerHTML = `<span class="central-text">${mindMap.central}</span>`;
+    // Create wrapper for positioning
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mindmap-wrapper';
+    wrapper.style.cssText = `
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 450px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    // Create central node
+    const centralNode = document.createElement('div');
+    centralNode.className = 'mindmap-central';
+    centralNode.style.cssText = `
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 140px;
+        min-height: 140px;
+        padding: 20px;
+        background: linear-gradient(135deg, var(--accent-primary), #7B68EE);
+        border-radius: 50%;
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+        animation: centralPulse 3s ease-in-out infinite;
+    `;
+    centralNode.innerHTML = `
+        <span class="central-text" style="
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--bg-primary);
+            text-align: center;
+            max-width: 110px;
+            line-height: 1.3;
+        ">${mindMap.central}</span>
+    `;
+    wrapper.appendChild(centralNode);
+    
+    // Create branches container
+    const branchesContainer = document.createElement('div');
+    branchesContainer.className = 'mindmap-branches';
+    branchesContainer.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    `;
+    wrapper.appendChild(branchesContainer);
+    
+    // Add wrapper to container
+    container.appendChild(wrapper);
+    
+    // Check if branches exist
+    if (!mindMap.branches || mindMap.branches.length === 0) {
+        console.log('No branches in mind map');
+        return;
     }
     
-    // Render branches
-    const branchesContainer = container.querySelector('.mindmap-branches') || container;
-    
-    // Clear existing branches except central
-    const existingBranches = branchesContainer.querySelectorAll('.mindmap-branch');
-    existingBranches.forEach(b => b.remove());
-    
-    if (!mindMap.branches || mindMap.branches.length === 0) return;
-    
     const numBranches = mindMap.branches.length;
-    const angleStep = 360 / numBranches;
-    const radius = 180; // Distance from center
+    const radius = 170; // Distance from center
     
+    // Create each branch
     mindMap.branches.forEach((branch, index) => {
-        const angle = (angleStep * index) - 90; // Start from top
+        // Calculate position around the circle
+        const angle = (360 / numBranches) * index - 90; // Start from top
         const angleRad = (angle * Math.PI) / 180;
         
         const x = Math.cos(angleRad) * radius;
         const y = Math.sin(angleRad) * radius;
         
-        const branchEl = document.createElement('div');
-        branchEl.className = 'mindmap-branch';
-        branchEl.style.cssText = `
-            position: absolute;
-            left: calc(50% + ${x}px);
-            top: calc(50% + ${y}px);
-            transform: translate(-50%, -50%);
-            --branch-color: ${branch.color || '#4ECDC4'};
-        `;
-        
-        // Create branch node
-        const nodeEl = document.createElement('div');
-        nodeEl.className = 'branch-node';
-        nodeEl.innerHTML = `
-            <div class="branch-title" style="color: ${branch.color}">${branch.name}</div>
-            ${branch.children && branch.children.length > 0 ? `
-                <div class="branch-children">
-                    ${branch.children.map(child => `
-                        <div class="branch-child">${child}</div>
-                    `).join('')}
-                </div>
-            ` : ''}
-        `;
-        
-        branchEl.appendChild(nodeEl);
-        
-        // Create connecting line
+        // Create connecting line FIRST
         const lineEl = document.createElement('div');
         lineEl.className = 'branch-line';
+        lineEl.dataset.index = index;
         
-        // Calculate line properties
-        const lineLength = Math.sqrt(x * x + y * y) - 75; // Subtract central node radius
+        const lineLength = radius - 50;
         const lineAngle = Math.atan2(y, x) * (180 / Math.PI);
         
         lineEl.style.cssText = `
@@ -1705,55 +1749,145 @@ GeoMasterApp.renderMindMap = function(topic) {
             left: 50%;
             top: 50%;
             width: ${lineLength}px;
+            height: 3px;
+            background: ${branch.color || '#4ECDC4'};
             transform: rotate(${lineAngle}deg);
             transform-origin: left center;
-            background: ${branch.color || '#4ECDC4'};
+            z-index: 1;
+            border-radius: 2px;
+            opacity: 0;
+        `;
+        branchesContainer.appendChild(lineEl);
+        
+        // Create branch element
+        const branchEl = document.createElement('div');
+        branchEl.className = 'mindmap-branch';
+        branchEl.dataset.index = index;
+        branchEl.style.cssText = `
+            position: absolute;
+            left: calc(50% + ${x}px);
+            top: calc(50% + ${y}px);
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 5;
+            pointer-events: auto;
+            opacity: 0;
         `;
         
-        branchesContainer.appendChild(lineEl);
+        // Create branch node content
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'branch-node';
+        nodeEl.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 2px solid ${branch.color || '#4ECDC4'};
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            max-width: 180px;
+            min-width: 120px;
+        `;
+        
+        // Branch title
+        const titleEl = document.createElement('div');
+        titleEl.className = 'branch-title';
+        titleEl.style.cssText = `
+            font-weight: 600;
+            font-size: 13px;
+            color: ${branch.color || '#4ECDC4'};
+            text-align: center;
+            margin-bottom: 8px;
+        `;
+        titleEl.textContent = branch.name;
+        nodeEl.appendChild(titleEl);
+        
+        // Branch children
+        if (branch.children && branch.children.length > 0) {
+            const childrenEl = document.createElement('div');
+            childrenEl.className = 'branch-children';
+            childrenEl.style.cssText = `
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 100%;
+            `;
+            
+            branch.children.forEach(child => {
+                const childEl = document.createElement('div');
+                childEl.className = 'branch-child';
+                childEl.style.cssText = `
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    padding: 4px 8px;
+                    background: var(--bg-glass);
+                    border-radius: 4px;
+                    text-align: center;
+                    line-height: 1.3;
+                `;
+                childEl.textContent = child;
+                childrenEl.appendChild(childEl);
+            });
+            
+            nodeEl.appendChild(childrenEl);
+        }
+        
+        // Hover effect
+        nodeEl.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.boxShadow = `0 0 20px ${branch.color || '#4ECDC4'}40`;
+        });
+        
+        nodeEl.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+        
+        branchEl.appendChild(nodeEl);
         branchesContainer.appendChild(branchEl);
     });
     
-    // Add animation
+    // Animate the mind map
     this.animateMindMap();
+    
+    console.log('✅ Mind map rendered for:', topic.name);
 };
 
 GeoMasterApp.animateMindMap = function() {
-    const branches = document.querySelectorAll('.mindmap-branch');
+    // Get all lines and branches
     const lines = document.querySelectorAll('.branch-line');
+    const branches = document.querySelectorAll('.mindmap-branch');
     
     // Animate lines first
     lines.forEach((line, index) => {
+        const originalWidth = line.style.width;
+        line.style.width = '0px';
         line.style.opacity = '0';
-        line.style.transform = line.style.transform + ' scaleX(0)';
         
         setTimeout(() => {
-            line.style.transition = 'all 0.5s ease-out';
+            line.style.transition = 'width 0.4s ease-out, opacity 0.3s ease-out';
+            line.style.width = originalWidth;
             line.style.opacity = '0.6';
-            line.style.transform = line.style.transform.replace('scaleX(0)', 'scaleX(1)');
-        }, 200 + index * 100);
+        }, 150 + index * 100);
     });
     
-    // Then animate branches
+    // Then animate branch nodes
     branches.forEach((branch, index) => {
-        branch.style.opacity = '0';
-        branch.style.transform = branch.style.transform + ' scale(0)';
-        
         setTimeout(() => {
-            branch.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            branch.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             branch.style.opacity = '1';
             branch.style.transform = branch.style.transform.replace('scale(0)', 'scale(1)');
-        }, 400 + index * 100);
+        }, 300 + index * 120);
     });
 };
 
-// Mind Map Controls
 GeoMasterApp.initMindMapControls = function() {
     let scale = 1;
     const minScale = 0.5;
     const maxScale = 2;
     
-    const canvas = this.elements.mindmapCanvas;
+    const canvas = document.getElementById('mindmapCanvas');
     if (!canvas) return;
     
     const zoomIn = document.getElementById('zoomIn');
@@ -1762,37 +1896,45 @@ GeoMasterApp.initMindMapControls = function() {
     const fullscreen = document.getElementById('fullscreen');
     
     const updateZoom = () => {
-        canvas.style.transform = `scale(${scale})`;
+        const wrapper = canvas.querySelector('.mindmap-wrapper');
+        if (wrapper) {
+            wrapper.style.transform = `scale(${scale})`;
+            wrapper.style.transition = 'transform 0.3s ease';
+        }
     };
     
     if (zoomIn) {
-        zoomIn.addEventListener('click', () => {
+        zoomIn.onclick = function(e) {
+            e.preventDefault();
             if (scale < maxScale) {
                 scale += 0.1;
                 updateZoom();
             }
-        });
+        };
     }
     
     if (zoomOut) {
-        zoomOut.addEventListener('click', () => {
+        zoomOut.onclick = function(e) {
+            e.preventDefault();
             if (scale > minScale) {
                 scale -= 0.1;
                 updateZoom();
             }
-        });
+        };
     }
     
     if (resetZoom) {
-        resetZoom.addEventListener('click', () => {
+        resetZoom.onclick = function(e) {
+            e.preventDefault();
             scale = 1;
             updateZoom();
-        });
+        };
     }
     
     if (fullscreen) {
-        fullscreen.addEventListener('click', () => {
-            const container = this.elements.mindmapContainer;
+        fullscreen.onclick = function(e) {
+            e.preventDefault();
+            const container = document.getElementById('mindmapContainer');
             if (!container) return;
             
             if (!document.fullscreenElement) {
@@ -1802,11 +1944,11 @@ GeoMasterApp.initMindMapControls = function() {
             } else {
                 document.exitFullscreen();
             }
-        });
+        };
     }
     
     // Mouse wheel zoom
-    canvas.addEventListener('wheel', (e) => {
+    canvas.addEventListener('wheel', function(e) {
         if (e.ctrlKey) {
             e.preventDefault();
             const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1815,6 +1957,53 @@ GeoMasterApp.initMindMapControls = function() {
             updateZoom();
         }
     }, { passive: false });
+    
+    console.log('✅ Mind map controls initialized');
+};
+
+GeoMasterApp.fixModalScroll = function() {
+    setTimeout(() => {
+        const modal = document.querySelector('.modal-container');
+        const header = document.querySelector('.modal-header');
+        const nav = document.querySelector('.modal-nav');
+        const footer = document.querySelector('.modal-footer');
+        const modalContent = document.getElementById('modalContent');
+        const contentScroll = document.querySelector('.content-scroll');
+        
+        if (modal && header && nav && footer && modalContent && contentScroll) {
+            // Calculate available height
+            const modalHeight = modal.clientHeight;
+            const headerHeight = header.offsetHeight;
+            const navHeight = nav.offsetHeight;
+            const footerHeight = footer.offsetHeight;
+            
+            const availableHeight = modalHeight - headerHeight - navHeight - footerHeight;
+            
+            // Set heights
+            modalContent.style.height = availableHeight + 'px';
+            modalContent.style.minHeight = availableHeight + 'px';
+            modalContent.style.maxHeight = availableHeight + 'px';
+            modalContent.style.overflow = 'hidden';
+            modalContent.style.position = 'relative';
+            
+            contentScroll.style.position = 'absolute';
+            contentScroll.style.top = '0';
+            contentScroll.style.left = '0';
+            contentScroll.style.right = '0';
+            contentScroll.style.bottom = '0';
+            contentScroll.style.height = '100%';
+            contentScroll.style.overflowY = 'auto';
+            contentScroll.style.overflowX = 'hidden';
+            contentScroll.style.padding = '24px';
+            
+            // Reset scroll to top
+            contentScroll.scrollTop = 0;
+            
+            console.log('✅ Modal scroll fixed, height:', availableHeight + 'px');
+        } else {
+            console.warn('Modal elements not found for scroll fix');
+        }
+    }, 150);
 };
 
 // ============================================
@@ -2944,17 +3133,27 @@ GeoMasterApp.initScrollEffects = function() {
     });
 };
 
+// ============================================
+// FIX: Category Scroll Functionality
+// ============================================
+
 GeoMasterApp.initCategoryScroll = function() {
-    const scroll = this.elements.categoryScroll;
-    const leftBtn = this.elements.scrollLeft;
-    const rightBtn = this.elements.scrollRight;
+    const scroll = document.getElementById('categoryScroll');
+    const leftBtn = document.getElementById('scrollLeft');
+    const rightBtn = document.getElementById('scrollRight');
     
-    if (!scroll) return;
+    if (!scroll) {
+        console.warn('Category scroll container not found');
+        return;
+    }
     
-    const scrollAmount = 200;
+    const scrollAmount = 250;
     
+    // Left button click
     if (leftBtn) {
-        leftBtn.addEventListener('click', () => {
+        leftBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             scroll.scrollBy({
                 left: -scrollAmount,
                 behavior: 'smooth'
@@ -2962,8 +3161,11 @@ GeoMasterApp.initCategoryScroll = function() {
         });
     }
     
+    // Right button click
     if (rightBtn) {
-        rightBtn.addEventListener('click', () => {
+        rightBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             scroll.scrollBy({
                 left: scrollAmount,
                 behavior: 'smooth'
@@ -2971,22 +3173,71 @@ GeoMasterApp.initCategoryScroll = function() {
         });
     }
     
-    // Update button visibility on scroll
+    // Update button visibility
     const updateScrollButtons = () => {
+        const maxScrollLeft = scroll.scrollWidth - scroll.clientWidth;
+        
         if (leftBtn) {
-            leftBtn.style.opacity = scroll.scrollLeft > 10 ? '1' : '0';
+            if (scroll.scrollLeft > 10) {
+                leftBtn.style.opacity = '1';
+                leftBtn.style.pointerEvents = 'auto';
+            } else {
+                leftBtn.style.opacity = '0.3';
+                leftBtn.style.pointerEvents = 'none';
+            }
         }
+        
         if (rightBtn) {
-            const maxScroll = scroll.scrollWidth - scroll.clientWidth;
-            rightBtn.style.opacity = scroll.scrollLeft < maxScroll - 10 ? '1' : '0';
+            if (scroll.scrollLeft < maxScrollLeft - 10) {
+                rightBtn.style.opacity = '1';
+                rightBtn.style.pointerEvents = 'auto';
+            } else {
+                rightBtn.style.opacity = '0.3';
+                rightBtn.style.pointerEvents = 'none';
+            }
         }
     };
     
+    // Listen for scroll events
     scroll.addEventListener('scroll', updateScrollButtons);
-    window.addEventListener('resize', updateScrollButtons);
     
     // Initial check
-    setTimeout(updateScrollButtons, 100);
+    setTimeout(updateScrollButtons, 200);
+    
+    // Update on window resize
+    window.addEventListener('resize', updateScrollButtons);
+    
+    // Touch/drag scroll support for mobile
+    let isDown = false;
+    let startX;
+    let scrollLeftStart;
+    
+    scroll.addEventListener('mousedown', (e) => {
+        isDown = true;
+        scroll.style.cursor = 'grabbing';
+        startX = e.pageX - scroll.offsetLeft;
+        scrollLeftStart = scroll.scrollLeft;
+    });
+    
+    scroll.addEventListener('mouseleave', () => {
+        isDown = false;
+        scroll.style.cursor = 'grab';
+    });
+    
+    scroll.addEventListener('mouseup', () => {
+        isDown = false;
+        scroll.style.cursor = 'grab';
+    });
+    
+    scroll.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - scroll.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        scroll.scrollLeft = scrollLeftStart - walk;
+    });
+    
+    console.log('✅ Category scroll initialized');
 };
 
 // ============================================
