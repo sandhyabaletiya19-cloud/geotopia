@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Profile | Oceans Explorer</title>
+    <link rel="stylesheet" href="oceans-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="profile-page">
+    <!-- Loading Screen -->
+    <div class="loading-screen profile-loading" id="loadingScreen">
+        <div class="loading-content">
+            <div class="submarine-animation">
+                <div class="submarine">
+                    <div class="submarine-body">
+                        <div class="window"></div>
+                        <div class="propeller"></div>
+                    </div>
+                    <div class="submarine-light"></div>
+                </div>
+                <div class="sonar-waves">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <div class="loading-text">Exploring the depths...</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Background -->
+    <div class="profile-background" id="profileBackground">
+        <div class="background-image"></div>
+        <div class="background-overlay"></div>
+        
+        <!-- Animated Effects -->
+        <div class="bubbles-container" id="bubblesContainer"></div>
+        <div class="caustics-container">
+            <div class="caustic-ray" style="--delay: 0s; --left: 5%;"></div>
+            <div class="caustic-ray" style="--delay: 1.5s; --left: 15%;"></div>
+            <div class="caustic-ray" style="--delay: 3s; --left: 28%;"></div>
+            <div class="caustic-ray" style="--delay: 0.5s; --left: 42%;"></div>
+            <div class="caustic-ray" style="--delay: 2s; --left: 58%;"></div>
+            <div class="caustic-ray" style="--delay: 4s; --left: 72%;"></div>
+            <div class="caustic-ray" style="--delay: 1s; --left: 85%;"></div>
+            <div class="caustic-ray" style="--delay: 2.5s; --left: 95%;"></div>
+        </div>
+        <div class="bioluminescence-container" id="bioContainer"></div>
+        <div class="plankton-container" id="planktonContainer"></div>
+    </div>
+
+    <!-- Dive Overlay -->
+    <div class="dive-overlay" id="diveOverlay">
+        <div class="dive-background" id="diveBackground"></div>
+        <div class="dive-content">
+            <div class="dive-header">
+                <button class="dive-close" id="diveClose">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="dive-title">Deep Sea Dive</h2>
+            </div>
+            
+            <div class="dive-visualization">
+                <div class="depth-column">
+                    <div class="depth-meter">
+                        <div class="depth-fill" id="diveDepthFill"></div>
+                        <div class="depth-zones">
+                            <div class="zone sunlight" data-zone="sunlight">
+                                <span class="zone-label">Sunlight Zone</span>
+                                <span class="zone-depth">0-200m</span>
+                            </div>
+                            <div class="zone twilight" data-zone="twilight">
+                                <span class="zone-label">Twilight Zone</span>
+                                <span class="zone-depth">200-1000m</span>
+                            </div>
+                            <div class="zone midnight" data-zone="midnight">
+                                <span class="zone-label">Midnight Zone</span>
+                                <span class="zone-depth">1000-4000m</span>
+                            </div>
+                            <div class="zone abyssal" data-zone="abyssal">
+                                <span class="zone-label">Abyssal Zone</span>
+                                <span class="zone-depth">4000-6000m</span>
+                            </div>
+                            <div class="zone hadal" data-zone="hadal">
+                                <span class="zone-label">Hadal Zone</span>
+                                <span class="zone-depth">6000m+</span>
+                            </div>
+                        </div>
+                        <div class="diver-icon" id="diverIcon">
+                            <i class="fas fa-person-swimming"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dive-info-panel">
+                    <div class="dive-stats">
+                        <div class="dive-stat">
+                            <span class="dive-stat-label">Depth</span>
+                            <span class="dive-stat-value" id="currentDepth">0m</span>
+                        </div>
+                        <div class="dive-stat">
+                            <span class="dive-stat-label">Pressure</span>
+                            <span class="dive-stat-value" id="currentPressure">1 atm</span>
+                        </div>
+                        <div class="dive-stat">
+                            <span class="dive-stat-label">Temperature</span>
+                            <span class="dive-stat-value" id="currentTemp">25°C</span>
+                        </div>
+                        <div class="dive-stat">
+                            <span class="dive-stat-label">Light Level</span>
+                            <span class="dive-stat-value" id="currentLight">100%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="zone-info" id="zoneInfo">
+                        <h3 class="zone-name">Sunlight Zone (Epipelagic)</h3>
+                        <p class="zone-description">The uppermost layer where light penetrates, supporting most marine life including coral reefs.</p>
+                        <div class="zone-creatures">
+                            <h4>Marine Life</h4>
+                            <div class="creatures-list">
+                                <span class="creature">🐬 Dolphins</span>
+                                <span class="creature">🐠 Coral Fish</span>
+                                <span class="creature">🐢 Sea Turtles</span>
+                                <span class="creature">🦈 Sharks</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dive-controls">
+                        <button class="dive-btn" id="diveDown">
+                            <i class="fas fa-arrow-down"></i> Descend
+                        </button>
+                        <button class="dive-btn" id="diveSurface">
+                            <i class="fas fa-arrow-up"></i> Surface
+                        </button>
+                        <button class="dive-btn auto" id="diveAuto">
+                            <i class="fas fa-play"></i> Auto Dive
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dive-trench-info" id="trenchInfo">
+                <div class="trench-reached">
+                    <span class="trench-icon">🕳️</span>
+                    <h3 class="trench-name">Mariana Trench Reached!</h3>
+                    <p class="trench-depth">Depth: 10,935m</p>
+                    <p class="trench-fact">Deepest point on Earth - Challenger Deep</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Currents Journey Overlay -->
+    <div class="currents-overlay" id="currentsOverlay">
+        <div class="currents-content">
+            <div class="currents-header">
+                <button class="currents-close" id="currentsClose">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="currents-title">
+                    <i class="fas fa-water"></i>
+                    Following Ocean Currents
+                </h2>
+            </div>
+            
+            <div class="currents-journey">
+                <div class="journey-progress">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="currentProgressFill"></div>
+                    </div>
+                    <div class="progress-waypoints" id="progressWaypoints">
+                        <!-- Waypoints generated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="journey-info" id="journeyInfo">
+                    <div class="current-info-card">
+                        <div class="current-type warm">
+                            <span class="type-indicator"></span>
+                            <span class="type-label">Warm Current</span>
+                        </div>
+                        <h3 class="current-name" id="currentName">North Equatorial Current</h3>
+                        <p class="current-description" id="currentDescription">Flows westward along the equator, driven by trade winds.</p>
+                        <div class="current-stats">
+                            <div class="current-stat">
+                                <i class="fas fa-compass"></i>
+                                <span id="currentDirection">Westward</span>
+                            </div>
+                            <div class="current-stat">
+                                <i class="fas fa-temperature-high"></i>
+                                <span id="currentTemp2">28°C</span>
+                            </div>
+                            <div class="current-stat">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span id="currentSpeed">0.5 m/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="journey-controls">
+                    <button class="journey-btn" id="journeyPrev" disabled>
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="journey-btn play" id="journeyPlayPause">
+                        <i class="fas fa-pause"></i>
+                    </button>
+                    <button class="journey-btn" id="journeyNext">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                    <button class="journey-btn skip" id="journeySkip">
+                        Skip <i class="fas fa-forward"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="gyre-complete" id="gyreComplete">
+                <div class="complete-animation">
+                    <div class="gyre-icon">🌀</div>
+                    <h3>Gyre Circuit Complete!</h3>
+                    <p id="gyreCompleteName">North Pacific Gyre</p>
+                    <p class="gyre-fact">This circular system moves water across thousands of kilometers!</p>
+                    <button class="journey-restart" id="journeyRestart">
+                        <i class="fas fa-redo"></i> Follow Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-container">
+        <!-- Header -->
+        <header class="profile-header">
+            <div class="header-left">
+                <a href="oceans.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Oceans</span>
+                </a>
+            </div>
+            
+            <div class="header-center">
+                <h1 class="ocean-title" id="oceanTitle">
+                    <span class="title-icon">🌊</span>
+                    <span class="title-text">Pacific Ocean</span>
+                </h1>
+                <div class="ocean-subtitle">
+                    <span class="subtitle-stat">
+                        <i class="fas fa-expand"></i>
+                        <span id="oceanArea">168,723,000 km²</span>
+                    </span>
+                    <span class="subtitle-divider">•</span>
+                    <span class="subtitle-stat">
+                        <i class="fas fa-arrow-down"></i>
+                        <span id="oceanDepth">Avg: 4,280m</span>
+                    </span>
+                    <span class="subtitle-divider">•</span>
+                    <span class="subtitle-stat">
+                        <i class="fas fa-globe"></i>
+                        <span id="oceanPercent">33% of Earth</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="mode-toggles">
+                    <div class="mode-toggle">
+                        <span class="toggle-icon">🌊</span>
+                        <span class="toggle-text">Currents</span>
+                        <label class="toggle-switch small">
+                            <input type="checkbox" id="currentsToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="mode-toggle">
+                        <span class="toggle-icon">🔬</span>
+                        <span class="toggle-text">Depth View</span>
+                        <label class="toggle-switch small">
+                            <input type="checkbox" id="depthViewToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <button class="fullscreen-btn" id="fullscreenBtn" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn currents-btn" id="followCurrentsBtn">
+                <span class="btn-icon">🌊</span>
+                <span class="btn-text">Follow Ocean Currents</span>
+                <span class="btn-arrow"><i class="fas fa-arrow-right"></i></span>
+            </button>
+            <button class="action-btn dive-btn" id="diveIntoBtn">
+                <span class="btn-icon">🤿</span>
+                <span class="btn-text">Dive into Ocean</span>
+                <span class="btn-arrow"><i class="fas fa-arrow-down"></i></span>
+            </button>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="profile-content">
+            <!-- Map Section -->
+            <section class="map-section">
+                <div class="map-container">
+                    <div id="oceanMap" class="ocean-map"></div>
+                    
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <button class="map-control-btn" id="resetViewBtn" title="Reset View">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button class="map-control-btn" id="zoomInBtn" title="Zoom In">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="map-control-btn" id="zoomOutBtn" title="Zoom Out">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Map Layers Panel -->
+                    <div class="map-layers-panel">
+                        <h4 class="layers-title">
+                            <i class="fas fa-layer-group"></i>
+                            Map Layers
+                        </h4>
+                        <div class="layer-toggles">
+                            <label class="layer-toggle">
+                                <input type="checkbox" id="layerCurrents" checked>
+                                <span class="layer-icon" style="--color: #FF6B6B;">🌊</span>
+                                <span class="layer-name">Ocean Currents</span>
+                            </label>
+                            <label class="layer-toggle">
+                                <input type="checkbox" id="layerTectonic">
+                                <span class="layer-icon" style="--color: #E67E22;">🔥</span>
+                                <span class="layer-name">Tectonic Features</span>
+                            </label>
+                            <label class="layer-toggle">
+                                <input type="checkbox" id="layerShipping">
+                                <span class="layer-icon" style="--color: #FFD700;">🚢</span>
+                                <span class="layer-name">Shipping Routes</span>
+                            </label>
+                            <label class="layer-toggle">
+                                <input type="checkbox" id="layerIslands" checked>
+                                <span class="layer-icon" style="--color: #2ECC71;">🏝️</span>
+                                <span class="layer-name">Islands</span>
+                            </label>
+                            <label class="layer-toggle">
+                                <input type="checkbox" id="layerCities">
+                                <span class="layer-icon" style="--color: #F1C40F;">🏙️</span>
+                                <span class="layer-name">Coastal Cities</span>
+                            </label>
+                            <label class="layer-toggle">
+                                <input type="checkbox" id="layerSeas">
+                                <span class="layer-icon" style="--color: #3498DB;">🌊</span>
+                                <span class="layer-name">Major Seas</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Map Legend -->
+                    <div class="map-legend" id="mapLegend">
+                        <h4 class="legend-title">Legend</h4>
+                        <div class="legend-items">
+                            <div class="legend-item">
+                                <span class="legend-color warm-current"></span>
+                                <span class="legend-label">Warm Current</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color cold-current"></span>
+                                <span class="legend-label">Cold Current</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color ridge"></span>
+                                <span class="legend-label">Mid-Ocean Ridge</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color trench"></span>
+                                <span class="legend-label">Ocean Trench</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color shipping"></span>
+                                <span class="legend-label">Shipping Route</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-icon island">🏝️</span>
+                                <span class="legend-label">Island</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-icon city">🏙️</span>
+                                <span class="legend-label">City</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Flow Indicator -->
+                    <div class="current-flow-indicator" id="currentFlowIndicator">
+                        <div class="flow-animation">
+                            <span class="flow-line"></span>
+                            <span class="flow-line"></span>
+                            <span class="flow-line"></span>
+                        </div>
+                        <span class="flow-text">Currents Active</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info Section -->
+            <section class="info-section">
+                <!-- Mind Map Data Display -->
+                <div class="mind-map-container">
+                    <h2 class="section-title">
+                        <i class="fas fa-brain"></i>
+                        Ocean Data Explorer
+                    </h2>
+                    
+                    <div class="mind-map-tree" id="mindMapTree">
+                        <!-- Area & Dimensions -->
+                        <div class="tree-node" data-section="dimensions">
+                            <div class="node-header">
+                                <span class="node-icon">📐</span>
+                                <span class="node-title">Area & Dimensions</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="data-grid" id="dimensionsData">
+                                    <!-- Data populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Depth -->
+                        <div class="tree-node" data-section="depth">
+                            <div class="node-header">
+                                <span class="node-icon">📏</span>
+                                <span class="node-title">Depth</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="data-grid" id="depthData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="tree-node" data-section="location">
+                            <div class="node-header">
+                                <span class="node-icon">🌍</span>
+                                <span class="node-title">Location</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="data-grid" id="locationData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Major Seas -->
+                        <div class="tree-node" data-section="seas">
+                            <div class="node-header">
+                                <span class="node-icon">🌊</span>
+                                <span class="node-title">Major Seas & Gulfs</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="seas-list" id="seasData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ocean Currents -->
+                        <div class="tree-node" data-section="currents">
+                            <div class="node-header">
+                                <span class="node-icon">🔄</span>
+                                <span class="node-title">Ocean Currents</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="currents-data" id="currentsData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tectonic Features -->
+                        <div class="tree-node" data-section="tectonic">
+                            <div class="node-header">
+                                <span class="node-icon">🌋</span>
+                                <span class="node-title">Tectonic Features</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="tectonic-data" id="tectonicData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Marine Life -->
+                        <div class="tree-node" data-section="marine">
+                            <div class="node-header">
+                                <span class="node-icon">🐠</span>
+                                <span class="node-title">Marine Life</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="marine-data" id="marineData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Climate Role -->
+                        <div class="tree-node" data-section="climate">
+                            <div class="node-header">
+                                <span class="node-icon">🌤️</span>
+                                <span class="node-title">Climate Role</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="climate-data" id="climateData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Economic Importance -->
+                        <div class="tree-node" data-section="economic">
+                            <div class="node-header">
+                                <span class="node-icon">💰</span>
+                                <span class="node-title">Economic Importance</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="economic-data" id="economicData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Environmental Issues -->
+                        <div class="tree-node" data-section="environmental">
+                            <div class="node-header">
+                                <span class="node-icon">⚠️</span>
+                                <span class="node-title">Environmental Issues</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="environmental-data" id="environmentalData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Exploration -->
+                        <div class="tree-node" data-section="exploration">
+                            <div class="node-header">
+                                <span class="node-icon">🔬</span>
+                                <span class="node-title">Exploration History</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="exploration-data" id="explorationData"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Geopolitics -->
+                        <div class="tree-node" data-section="geopolitics">
+                            <div class="node-header">
+                                <span class="node-icon">🌐</span>
+                                <span class="node-title">Geopolitical Importance</span>
+                                <span class="node-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="node-content">
+                                <div class="geopolitics-data" id="geopoliticsData"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fun Facts -->
+                <div class="fun-facts-section">
+                    <h3 class="facts-title">
+                        <i class="fas fa-lightbulb"></i>
+                        Amazing Facts
+                    </h3>
+                    <div class="facts-carousel" id="factsCarousel">
+                        <!-- Facts populated dynamically -->
+                    </div>
+                    <div class="facts-nav">
+                        <button class="fact-nav-btn" id="prevFact">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="facts-dots" id="factsDots"></div>
+                        <button class="fact-nav-btn" id="nextFact">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Quick Facts Panel -->
+        <div class="quick-facts-panel" id="quickFactsPanel">
+            <div class="quick-fact">
+                <span class="qf-icon">📐</span>
+                <span class="qf-label">Area</span>
+                <span class="qf-value" id="qfArea">168.7M km²</span>
+            </div>
+            <div class="quick-fact">
+                <span class="qf-icon">📏</span>
+                <span class="qf-label">Avg Depth</span>
+                <span class="qf-value" id="qfAvgDepth">4,280m</span>
+            </div>
+            <div class="quick-fact">
+                <span class="qf-icon">🕳️</span>
+                <span class="qf-label">Deepest</span>
+                <span class="qf-value" id="qfDeepest">10,935m</span>
+            </div>
+            <div class="quick-fact">
+                <span class="qf-icon">🌡️</span>
+                <span class="qf-label">Surface Temp</span>
+                <span class="qf-value" id="qfTemp">-2°C to 30°C</span>
+            </div>
+            <div class="quick-fact">
+                <span class="qf-icon">🐠</span>
+                <span class="qf-label">Species</span>
+                <span class="qf-value" id="qfSpecies">Millions</span>
+            </div>
+            <button class="qf-toggle" id="qfToggle">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        </div>
+
+        <!-- Ocean Navigation -->
+        <div class="ocean-navigation">
+            <button class="nav-btn prev" id="prevOcean" title="Previous Ocean">
+                <i class="fas fa-chevron-left"></i>
+                <span class="nav-label" id="prevOceanName">Arctic Ocean</span>
+            </button>
+            <div class="nav-dots" id="navDots">
+                <span class="nav-dot" data-ocean="pacific-ocean"></span>
+                <span class="nav-dot" data-ocean="atlantic-ocean"></span>
+                <span class="nav-dot" data-ocean="indian-ocean"></span>
+                <span class="nav-dot" data-ocean="southern-ocean"></span>
+                <span class="nav-dot" data-ocean="arctic-ocean"></span>
+            </div>
+            <button class="nav-btn next" id="nextOcean" title="Next Ocean">
+                <span class="nav-label" id="nextOceanName">Atlantic Ocean</span>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Depth View Overlay -->
+    <div class="depth-view-overlay" id="depthViewOverlay">
+        <div class="depth-view-content">
+            <div class="depth-column-visual">
+                <div class="dv-zone sunlight">
+                    <div class="dv-zone-info">
+                        <h4>Sunlight Zone</h4>
+                        <p>0 - 200m</p>
+                    </div>
+                    <div class="dv-creatures">🐬 🐠 🐢 🦈 🐙</div>
+                </div>
+                <div class="dv-zone twilight">
+                    <div class="dv-zone-info">
+                        <h4>Twilight Zone</h4>
+                        <p>200 - 1,000m</p>
+                    </div>
+                    <div class="dv-creatures">🦑 🪼 🐟</div>
+                </div>
+                <div class="dv-zone midnight">
+                    <div class="dv-zone-info">
+                        <h4>Midnight Zone</h4>
+                        <p>1,000 - 4,000m</p>
+                    </div>
+                    <div class="dv-creatures">🐡 🦐</div>
+                </div>
+                <div class="dv-zone abyssal">
+                    <div class="dv-zone-info">
+                        <h4>Abyssal Zone</h4>
+                        <p>4,000 - 6,000m</p>
+                    </div>
+                    <div class="dv-creatures">🪸 🦠</div>
+                </div>
+                <div class="dv-zone hadal">
+                    <div class="dv-zone-info">
+                        <h4>Hadal Zone</h4>
+                        <p>6,000m+</p>
+                    </div>
+                    <div class="dv-trench" id="dvTrench">
+                        <span class="trench-marker">🕳️</span>
+                        <span class="trench-name">Mariana Trench</span>
+                        <span class="trench-depth">10,935m</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="oceans-data.js"></script>
+    <script src="oceans-app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize loading
+            const loadingScreen = document.getElementById('loadingScreen');
+            const progress = document.querySelector('.loading-progress');
+            
+            let progressValue = 0;
+            const loadInterval = setInterval(() => {
+                progressValue += Math.random() * 15;
+                if (progressValue >= 100) {
+                    progressValue = 100;
+                    clearInterval(loadInterval);
+                    
+                    setTimeout(() => {
+                        loadingScreen.classList.add('fade-out');
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            document.body.classList.add('loaded');
+                            
+                            // Initialize profile page
+                            if (typeof initProfilePage === 'function') {
+                                initProfilePage();
+                            }
+                        }, 500);
+                    }, 300);
+                }
+                progress.style.width = `${progressValue}%`;
+            }, 50);
+            
+            // Generate background effects
+            generateBubbles();
+            generateBioluminescence();
+            generatePlankton();
+        });
+        
+        function generateBubbles() {
+            const container = document.getElementById('bubblesContainer');
+            if (!container) return;
+            
+            const bubbleCount = 30;
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.setProperty('--left', `${Math.random() * 100}%`);
+                bubble.style.setProperty('--size', `${Math.random() * 15 + 5}px`);
+                bubble.style.setProperty('--duration', `${Math.random() * 12 + 8}s`);
+                bubble.style.setProperty('--delay', `${Math.random() * 10}s`);
+                bubble.style.setProperty('--wobble', `${(Math.random() - 0.5) * 80}px`);
+                container.appendChild(bubble);
+            }
+        }
+        
+        function generateBioluminescence() {
+            const container = document.getElementById('bioContainer');
+            if (!container) return;
+            
+            const bioCount = 20;
+            for (let i = 0; i < bioCount; i++) {
+                const bio = document.createElement('div');
+                bio.className = 'bioluminescence';
+                bio.style.setProperty('--left', `${Math.random() * 100}%`);
+                bio.style.setProperty('--top', `${Math.random() * 100}%`);
+                bio.style.setProperty('--duration', `${Math.random() * 4 + 2}s`);
+                bio.style.setProperty('--delay', `${Math.random() * 5}s`);
+                bio.style.setProperty('--size', `${Math.random() * 8 + 2}px`);
+                container.appendChild(bio);
+            }
+        }
+        
+        function generatePlankton() {
+            const container = document.getElementById('planktonContainer');
+            if (!container) return;
+            
+            const planktonCount = 25;
+            for (let i = 0; i < planktonCount; i++) {
+                const plankton = document.createElement('div');
+                plankton.className = 'plankton';
+                plankton.style.setProperty('--left', `${Math.random() * 100}%`);
+                plankton.style.setProperty('--top', `${Math.random() * 100}%`);
+                plankton.style.setProperty('--duration', `${Math.random() * 20 + 15}s`);
+                plankton.style.setProperty('--delay', `${Math.random() * 10}s`);
+                container.appendChild(plankton);
+            }
+        }
+    </script>
+</body>
+</html>
