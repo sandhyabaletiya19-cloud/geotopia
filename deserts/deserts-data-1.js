@@ -5,7 +5,7 @@
  * ═══════════════════════════════════════════════════════════
  */
 
-const desertsData1 = [
+const DESERTS_DATA_1 = [
     // ═══════════════════════════════════════════════════════════
     // #1 - ANTARCTIC DESERT (Largest Desert on Earth)
     // ═══════════════════════════════════════════════════════════
@@ -6880,7 +6880,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // For browser global
 if (typeof window !== 'undefined') {
-    window.desertsData1 = desertsData1;
+    window.DESERTS_DATA_1 = desertsData1;
 }
 
-console.log('✅ deserts-data-1.js loaded: ' + desertsData1.length + ' deserts (1-10)');
+console.log('✅ DESERTS_DATA_1.js loaded: ' + DESERTS_DATA_1.length + ' deserts (1-10)');
