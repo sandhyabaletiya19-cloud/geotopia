@@ -3457,7 +3457,7 @@ if (typeof module !== 'undefined' && module.exports) {
         getSeaById,
         getSeaByName,
         getSeaByOcean,
-        getStrategicSeas,
+        getStrategicSeas,```
         getSeaStats,
         getTradeRouteById,
         getTradeRoutesByType,
