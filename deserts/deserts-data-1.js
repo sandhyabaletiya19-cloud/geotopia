@@ -6875,12 +6875,12 @@ const DESERTS_DATA_1 = [
 
 // For ES6 modules
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = desertsData1;
+    module.exports = DESERTS_DATA_1;
 }
 
 // For browser global
 if (typeof window !== 'undefined') {
-    window.DESERTS_DATA_1 = desertsData1;
+    window.DESERTS_DATA_1 = DESERTS_DATA_1;
 }
 
-console.log('✅ DESERTS_DATA_1.js loaded: ' + DESERTS_DATA_1.length + ' deserts (1-10)');
+console.log('✅ deserts-data-1.js loaded: ' + DESERTS_DATA_1.length + ' deserts (1-10)');
