@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="forestTitle">Forest Profile | Forests Explorer</title>
+    <link rel="stylesheet" href="forest-style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+</head>
+<body class="profile-page">
+    
+    <!-- Full-screen forest background with dark overlay -->
+    <div class="forest-profile-bg" id="profileBg"></div>
+    <div class="profile-overlay"></div>
+
+    <!-- Ambient forest sounds -->
+    <div class="ambient-toggle profile-ambient" id="ambientToggle" title="Toggle Forest Sounds">
+        <span class="sound-icon">🔊</span>
+    </div>
+    <audio id="forestAmbient" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-forest-birds-ambience-1210.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Floating particles -->
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- Back Navigation -->
+    <nav class="profile-nav">
+        <button onclick="goBack()" class="back-btn">
+            <span class="back-arrow">←</span>
+            <span class="back-text">Back to Forests</span>
+        </button>
+        <div class="nav-breadcrumb">
+            <span onclick="goHome()">🏠 Home</span>
+            <span class="nav-arrow">→</span>
+            <span onclick="goBack()">🌲 Forests</span>
+            <span class="nav-arrow">→</span>
+            <span class="current" id="navForestName">Forest Name</span>
+        </div>
+        <div class="nav-actions">
+            <button class="nav-action-btn" id="shareBtn" title="Share">
+                <span>📤</span>
+            </button>
+            <button class="nav-action-btn" id="printBtn" title="Print">
+                <span>🖨️</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="profile-container">
+        
+        <!-- Forest Hero Section -->
+        <section class="forest-hero">
+            <div class="hero-rank" id="heroRank">#1</div>
+            <h1 id="forestName" class="hero-title">Loading...</h1>
+            <div class="hero-tags" id="heroTags"></div>
+            <div class="hero-description" id="heroDescription"></div>
+            
+            <!-- Quick Stats Bar -->
+            <div class="quick-stats" id="quickStats">
+                <div class="quick-stat">
+                    <span class="quick-stat-icon">📏</span>
+                    <span class="quick-stat-value" id="statArea">-</span>
+                    <span class="quick-stat-label">Area (km²)</span>
+                </div>
+                <div class="quick-stat">
+                    <span class="quick-stat-icon">🌡️</span>
+                    <span class="quick-stat-value" id="statTemp">-</span>
+                    <span class="quick-stat-label">Temperature</span>
+                </div>
+                <div class="quick-stat">
+                    <span class="quick-stat-icon">🌧️</span>
+                    <span class="quick-stat-value" id="statRainfall">-</span>
+                    <span class="quick-stat-label">Rainfall</span>
+                </div>
+                <div class="quick-stat">
+                    <span class="quick-stat-icon">🦜</span>
+                    <span class="quick-stat-value" id="statSpecies">-</span>
+                    <span class="quick-stat-label">Key Species</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <div class="profile-tabs">
+            <button class="tab-btn active" data-tab="overview">
+                <span class="tab-icon">📋</span>
+                <span class="tab-text">Overview</span>
+            </button>
+            <button class="tab-btn" data-tab="map">
+                <span class="tab-icon">🗺️</span>
+                <span class="tab-text">Location</span>
+            </button>
+            <button class="tab-btn" data-tab="biodiversity">
+                <span class="tab-icon">🦋</span>
+                <span class="tab-text">Biodiversity</span>
+            </button>
+            <button class="tab-btn" data-tab="conservation">
+                <span class="tab-icon">🛡️</span>
+                <span class="tab-text">Conservation</span>
+            </button>
+            <button class="tab-btn" data-tab="gallery">
+                <span class="tab-icon">📷</span>
+                <span class="tab-text">Gallery</span>
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            
+            <!-- Overview Tab -->
+            <section class="tab-panel active" id="overview-panel">
+                <!-- Mind Map Section -->
+                <div class="mindmap-section">
+                    <div class="section-header">
+                        <h2>🧠 Forest Knowledge Tree</h2>
+                        <button class="explore-btn" id="exploreForest">
+                            <span>🔍</span> Explore Forest Journey
+                        </button>
+                    </div>
+                    <div class="mindmap-container" id="mindmapContainer">
+                        <!-- Mind map populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Map Tab -->
+            <section class="tab-panel" id="map-panel">
+                <div class="map-section">
+                    <div class="section-header">
+                        <h2>🗺️ Forest Location & Boundary</h2>
+                        <div class="map-controls">
+                            <button class="map-btn active" id="standardView">
+                                <span>🗺️</span> Standard
+                            </button>
+                            <button class="map-btn" id="satelliteView">
+                                <span>🛰️</span> Satellite
+                            </button>
+                            <button class="map-btn" id="terrainView">
+                                <span>🏔️</span> Terrain
+                            </button>
+                        </div>
+                    </div>
+                    <div id="forestMap" class="forest-map"></div>
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <span class="legend-color high-density"></span> 
+                            <span>High Density</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color medium-density"></span> 
+                            <span>Medium Density</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color low-density"></span> 
+                            <span>Low Density</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color protected"></span> 
+                            <span>Protected Area</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color water"></span> 
+                            <span>Rivers/Water</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Location Details -->
+                    <div class="location-details" id="locationDetails">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Biodiversity Tab -->
+            <section class="tab-panel" id="biodiversity-panel">
+                <div class="biodiversity-section">
+                    <div class="section-header">
+                        <h2>🦋 Flora & Fauna</h2>
+                    </div>
+                    
+                    <div class="bio-grid" id="bioGrid">
+                        <!-- Animals Card -->
+                        <div class="bio-card animals-card">
+                            <div class="bio-card-header">
+                                <span class="bio-icon">🦁</span>
+                                <h3>Animals</h3>
+                            </div>
+                            <ul class="bio-list" id="animalsList">
+                                <!-- Populated by JavaScript -->
+                            </ul>
+                        </div>
+
+                        <!-- Birds Card -->
+                        <div class="bio-card birds-card">
+                            <div class="bio-card-header">
+                                <span class="bio-icon">🦜</span>
+                                <h3>Birds</h3>
+                            </div>
+                            <ul class="bio-list" id="birdsList">
+                                <!-- Populated by JavaScript -->
+                            </ul>
+                        </div>
+
+                        <!-- Vegetation Card -->
+                        <div class="bio-card vegetation-card">
+                            <div class="bio-card-header">
+                                <span class="bio-icon">🌿</span>
+                                <h3>Vegetation</h3>
+                            </div>
+                            <ul class="bio-list" id="vegetationList">
+                                <!-- Populated by JavaScript -->
+                            </ul>
+                        </div>
+
+                        <!-- Insects Card -->
+                        <div class="bio-card insects-card">
+                            <div class="bio-card-header">
+                                <span class="bio-icon">🦋</span>
+                                <h3>Insects & Others</h3>
+                            </div>
+                            <ul class="bio-list" id="insectsList">
+                                <!-- Populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Indigenous Communities -->
+                    <div class="indigenous-section">
+                        <div class="section-header">
+                            <h2>👥 Indigenous Communities</h2>
+                        </div>
+                        <div class="indigenous-list" id="indigenousList">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conservation Tab -->
+            <section class="tab-panel" id="conservation-panel">
+                <div class="conservation-section">
+                    <!-- Environmental Importance -->
+                    <div class="conservation-card importance-card">
+                        <div class="card-header">
+                            <span class="card-icon">🌍</span>
+                            <h3>Environmental Importance</h3>
+                        </div>
+                        <ul class="conservation-list" id="importanceList">
+                            <!-- Populated by JavaScript -->
+                        </ul>
+                    </div>
+
+                    <!-- Environmental Issues -->
+                    <div class="conservation-card issues-card">
+                        <div class="card-header">
+                            <span class="card-icon">⚠️</span>
+                            <h3>Environmental Issues</h3>
+                        </div>
+                        <ul class="conservation-list" id="issuesList">
+                            <!-- Populated by JavaScript -->
+                        </ul>
+                    </div>
+
+                    <!-- Conservation Efforts -->
+                    <div class="conservation-card efforts-card">
+                        <div class="card-header">
+                            <span class="card-icon">🛡️</span>
+                            <h3>Conservation Efforts</h3>
+                        </div>
+                        <ul class="conservation-list" id="effortsList">
+                            <!-- Populated by JavaScript -->
+                        </ul>
+                    </div>
+
+                    <!-- Economic Importance -->
+                    <div class="conservation-card economic-card">
+                        <div class="card-header">
+                            <span class="card-icon">💰</span>
+                            <h3>Economic Importance</h3>
+                        </div>
+                        <ul class="conservation-list" id="economicList">
+                            <!-- Populated by JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gallery Tab -->
+            <section class="tab-panel" id="gallery-panel">
+                <div class="gallery-section">
+                    <div class="section-header">
+                        <h2>📷 Forest Gallery</h2>
+                    </div>
+                    <div class="gallery-grid" id="galleryGrid">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Related Forests -->
+        <section class="related-forests">
+            <div class="section-header">
+                <h2>🌲 Similar Forests</h2>
+            </div>
+            <div class="related-grid" id="relatedGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Navigation Footer -->
+        <div class="profile-nav-footer">
+            <button class="nav-footer-btn prev-btn" id="prevForest">
+                <span class="nav-arrow">←</span>
+                <span class="nav-label">Previous Forest</span>
+                <span class="nav-name" id="prevName">-</span>
+            </button>
+            <button class="nav-footer-btn home-btn" onclick="goBack()">
+                <span>🌲</span>
+                <span>All Forests</span>
+            </button>
+            <button class="nav-footer-btn next-btn" id="nextForest">
+                <span class="nav-label">Next Forest</span>
+                <span class="nav-name" id="nextName">-</span>
+                <span class="nav-arrow">→</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Exploration Mode Overlay -->
+    <div class="exploration-overlay hidden" id="explorationOverlay">
+        <div class="exploration-content">
+            <div class="exploration-visual">
+                <div class="exploration-scene" id="explorationScene">
+                    <!-- Animated scene -->
+                </div>
+            </div>
+            <h2 id="explorationTitle">Exploring...</h2>
+            <p id="explorationText"></p>
+            <div class="exploration-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="exploration-nav">
+                <button class="exploration-btn" id="skipExploration">Skip</button>
+                <button class="exploration-btn primary" id="closeExploration">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="image-modal hidden" id="imageModal">
+        <div class="modal-content">
+            <img src="" alt="" id="modalImage">
+            <div class="modal-caption" id="modalCaption"></div>
+            <button class="modal-close" id="modalClose">×</button>
+            <button class="modal-nav prev" id="modalPrev">←</button>
+            <button class="modal-nav next" id="modalNext">→</button>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="share-modal hidden" id="shareModal">
+        <div class="share-content">
+            <h3>Share This Forest</h3>
+            <div class="share-buttons">
+                <button class="share-btn twitter">🐦 Twitter</button>
+                <button class="share-btn facebook">📘 Facebook</button>
+                <button class="share-btn linkedin">💼 LinkedIn</button>
+                <button class="share-btn copy">📋 Copy Link</button>
+            </div>
+            <button class="share-close" id="shareClose">×</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="forest-data1.js"></script>
+    <script src="forest-data2.js"></script>
+    <script src="forest-data3.js"></script>
+    <script src="forest-data4.js"></script>
+    <script src="forest-data5.js"></script>
+    <script src="forest-data6.js"></script>
+    <script src="forest-data7.js"></script>
+    <script src="forest-data8.js"></script>
+    <script src="forest-data9.js"></script>
+    <script src="forest-data10.js"></script>
+    <script src="forest-app.js"></script>
+</body>
+</html>
