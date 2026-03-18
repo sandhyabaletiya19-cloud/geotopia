@@ -70,17 +70,17 @@ const RIVERS_DATA_10 = [
         discharge: "5,500 m³/s",
         
         riverPath: [
-            [-4.17, 141.50],   // Source - Victor Emanuel Range
+            [-4.17, 141.50],
             [-4.00, 141.80],
             [-3.80, 142.00],
-            [-3.60, 142.50],   // Ambunti area
+            [-3.60, 142.50],
             [-3.75, 143.00],
             [-3.90, 143.50],
-            [-4.00, 143.80],   // Pagwi
+            [-4.00, 143.80],
             [-4.05, 144.00],
-            [-4.10, 144.30],   // Angoram
+            [-4.10, 144.30],
             [-4.00, 144.50],
-            [-3.92, 144.75]    // Bismarck Sea (Mouth)
+            [-3.92, 144.75]
         ],
         
         tributaryPaths: [
@@ -89,7 +89,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [-4.50, 142.00],
                     [-4.00, 142.30],
-                    [-3.70, 142.50]    // Confluence
+                    [-3.70, 142.50]
                 ]
             },
             {
@@ -97,7 +97,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [-4.80, 143.50],
                     [-4.40, 143.80],
-                    [-4.10, 144.00]    // Confluence
+                    [-4.10, 144.00]
                 ]
             },
             {
@@ -105,7 +105,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [-4.50, 143.00],
                     [-4.20, 143.40],
-                    [-4.00, 143.70]    // Confluence
+                    [-4.00, 143.70]
                 ]
             }
         ],
@@ -115,7 +115,7 @@ const RIVERS_DATA_10 = [
                 name: "Sepik Delta",
                 path: [
                     [-3.95, 144.60],
-                    [-3.92, 144.75]    // Bismarck Sea
+                    [-3.92, 144.75]
                 ]
             }
         ],
@@ -238,7 +238,7 @@ const RIVERS_DATA_10 = [
                 "Nyamindi River",
                 "Thua River"
             ]
-        ],
+        },
         
         distributaries: [
             "Tana Delta channels",
@@ -261,18 +261,18 @@ const RIVERS_DATA_10 = [
         discharge: "120 m³/s",
         
         riverPath: [
-            [-0.47, 36.75],    // Source - Aberdare Range
+            [-0.47, 36.75],
             [-0.50, 37.00],
-            [-0.52, 37.20],    // Sagana
-            [-0.60, 37.30],    // Masinga Dam
-            [-0.80, 37.50],    // Kamburu Dam
+            [-0.52, 37.20],
+            [-0.60, 37.30],
+            [-0.80, 37.50],
             [-1.20, 37.80],
             [-1.50, 38.50],
             [-1.80, 39.00],
             [-2.00, 39.50],
-            [-2.28, 40.11],    // Garissa
+            [-2.28, 40.11],
             [-2.35, 40.35],
-            [-2.45, 40.52]     // Indian Ocean (Mouth)
+            [-2.45, 40.52]
         ],
         
         tributaryPaths: [
@@ -281,7 +281,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [-1.05, 36.95],
                     [-0.80, 37.20],
-                    [-0.60, 37.30]     // Confluence
+                    [-0.60, 37.30]
                 ]
             },
             {
@@ -289,7 +289,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [-0.70, 37.00],
                     [-0.60, 37.15],
-                    [-0.52, 37.20]     // Confluence
+                    [-0.52, 37.20]
                 ]
             }
         ],
@@ -299,7 +299,7 @@ const RIVERS_DATA_10 = [
                 name: "Tana Delta",
                 path: [
                     [-2.40, 40.45],
-                    [-2.45, 40.52]     // Indian Ocean
+                    [-2.45, 40.52]
                 ]
             }
         ],
@@ -398,8 +398,8 @@ const RIVERS_DATA_10 = [
         ],
         
         states: [
-            "Ardèche", "Haute-Loire", "Loire", "Saône-et-Loire",
-            "Nièvre", "Cher", "Loiret", "Loir-et-Cher",
+            "Ardeche", "Haute-Loire", "Loire", "Saone-et-Loire",
+            "Nievre", "Cher", "Loiret", "Loir-et-Cher",
             "Indre-et-Loire", "Maine-et-Loire", "Loire-Atlantique"
         ],
         
@@ -415,7 +415,7 @@ const RIVERS_DATA_10 = [
             type: "Estuary",
             delta: "Loire Estuary - wide tidal estuary",
             coordinates: [47.2833, -2.2167]
-        ],
+        },
         
         tributaries: {
             leftBank: [
@@ -423,7 +423,7 @@ const RIVERS_DATA_10 = [
                 "Cher River",
                 "Indre River",
                 "Vienne River",
-                "Sèvre Nantaise"
+                "Sevre Nantaise"
             ],
             rightBank: [
                 "Arroux River",
@@ -432,14 +432,14 @@ const RIVERS_DATA_10 = [
                 "Mayenne River",
                 "Erdre River"
             ]
-        ],
+        },
         
         distributaries: [
             "Loire Estuary channels"
         ],
         
         majorCities: [
-            "Le Puy-en-Velay", "Roanne", "Nevers", "Orléans",
+            "Le Puy-en-Velay", "Roanne", "Nevers", "Orleans",
             "Blois", "Tours", "Angers", "Nantes", "Saint-Nazaire"
         ],
         
@@ -453,28 +453,28 @@ const RIVERS_DATA_10 = [
         discharge: "931 m³/s",
         
         riverPath: [
-            [44.84, 4.22],     // Source - Mont Gerbier de Jonc
-            [45.04, 4.07],     // Le Puy-en-Velay
+            [44.84, 4.22],
+            [45.04, 4.07],
             [45.50, 4.00],
-            [46.04, 4.07],     // Roanne
+            [46.04, 4.07],
             [46.50, 3.80],
-            [46.99, 3.16],     // Nevers
+            [46.99, 3.16],
             [47.25, 2.50],
-            [47.90, 1.90],     // Orléans
-            [47.59, 1.33],     // Blois
-            [47.39, 0.69],     // Tours
-            [47.47, -0.55],    // Angers
-            [47.22, -1.55],    // Nantes
-            [47.28, -2.22]     // Atlantic Ocean (Mouth)
+            [47.90, 1.90],
+            [47.59, 1.33],
+            [47.39, 0.69],
+            [47.47, -0.55],
+            [47.22, -1.55],
+            [47.28, -2.22]
         ],
         
         tributaryPaths: [
             {
                 name: "Allier River",
                 path: [
-                    [44.80, 3.50],     // Massif Central
+                    [44.80, 3.50],
                     [46.20, 3.40],
-                    [46.99, 3.16]      // Confluence at Nevers
+                    [46.99, 3.16]
                 ]
             },
             {
@@ -482,7 +482,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [46.00, 2.50],
                     [47.00, 1.80],
-                    [47.39, 0.45]      // Confluence at Tours
+                    [47.39, 0.45]
                 ]
             },
             {
@@ -490,7 +490,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [45.80, 1.20],
                     [47.00, 0.30],
-                    [47.21, 0.07]      // Confluence
+                    [47.21, 0.07]
                 ]
             },
             {
@@ -498,7 +498,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [47.60, -0.80],
                     [47.50, -0.60],
-                    [47.47, -0.55]     // Confluence at Angers
+                    [47.47, -0.55]
                 ]
             }
         ],
@@ -508,7 +508,7 @@ const RIVERS_DATA_10 = [
                 name: "Loire Estuary",
                 path: [
                     [47.25, -1.80],
-                    [47.28, -2.22]     // Atlantic Ocean
+                    [47.28, -2.22]
                 ]
             }
         ],
@@ -517,7 +517,7 @@ const RIVERS_DATA_10 = [
             { name: "Le Puy-en-Velay", coords: [45.04, 3.88] },
             { name: "Roanne", coords: [46.04, 4.07] },
             { name: "Nevers", coords: [46.99, 3.16] },
-            { name: "Orléans", coords: [47.90, 1.90] },
+            { name: "Orleans", coords: [47.90, 1.90] },
             { name: "Blois", coords: [47.59, 1.33] },
             { name: "Tours", coords: [47.39, 0.69] },
             { name: "Angers", coords: [47.47, -0.55] },
@@ -536,9 +536,9 @@ const RIVERS_DATA_10 = [
             { progress: 0.15, name: "Gorges de la Loire", icon: "🏞️", description: "Scenic gorges" },
             { progress: 0.25, name: "Roanne", icon: "🏙️", description: "Industrial city" },
             { progress: 0.35, name: "Nevers", icon: "🏛️", description: "Historic city" },
-            { progress: 0.50, name: "Orléans", icon: "🏰", description: "Joan of Arc city" },
-            { progress: 0.60, name: "Blois", icon: "🏰", description: "Renaissance château" },
-            { progress: 0.70, name: "Tours", icon: "🏰", description: "Loire Valley châteaux" },
+            { progress: 0.50, name: "Orleans", icon: "🏰", description: "Joan of Arc city" },
+            { progress: 0.60, name: "Blois", icon: "🏰", description: "Renaissance chateau" },
+            { progress: 0.70, name: "Tours", icon: "🏰", description: "Loire Valley chateaux" },
             { progress: 0.82, name: "Angers", icon: "🏰", description: "Medieval fortress" },
             { progress: 0.92, name: "Nantes", icon: "🏙️", description: "Historic port" },
             { progress: 1.0, name: "Atlantic Ocean", icon: "🌊", description: "Saint-Nazaire estuary" }
@@ -547,7 +547,7 @@ const RIVERS_DATA_10 = [
         economicImportance: [
             "France's longest river",
             "Loire Valley wine production",
-            "Tourism (châteaux and UNESCO World Heritage)",
+            "Tourism (chateaux and UNESCO World Heritage)",
             "Agriculture in valley",
             "Limited navigation (historically important)",
             "Nuclear power plant cooling"
@@ -575,26 +575,26 @@ const RIVERS_DATA_10 = [
         
         historicalImportance: [
             {
-                title: "Loire Valley Châteaux",
-                description: "The Loire Valley is famed for Renaissance châteaux like Chambord, Chenonceau, and Amboise - UNESCO World Heritage."
+                title: "Loire Valley Chateaux",
+                description: "The Loire Valley is famed for Renaissance chateaux like Chambord, Chenonceau, and Amboise - UNESCO World Heritage."
             },
             {
                 title: "Joan of Arc",
-                description: "Joan of Arc lifted the Siege of Orléans in 1429, turning point of Hundred Years' War."
+                description: "Joan of Arc lifted the Siege of Orleans in 1429, turning point of Hundred Years' War."
             },
             {
                 title: "Royal Residence",
-                description: "French kings resided in Loire châteaux during the Renaissance, making it the 'Garden of France.'"
+                description: "French kings resided in Loire chateaux during the Renaissance, making it the 'Garden of France.'"
             },
             {
                 title: "Leonardo da Vinci",
-                description: "Leonardo spent his final years at Château du Clos Lucé in Amboise on the Loire."
+                description: "Leonardo spent his final years at Chateau du Clos Luce in Amboise on the Loire."
             }
         ]
     },
 
     // ========================================
-    // 94. TAGUS RIVER (TAJO/TEJO)
+    // 94. TAGUS RIVER
     // ========================================
     {
         id: "tagus",
@@ -610,11 +610,11 @@ const RIVERS_DATA_10 = [
         
         states: [
             "Aragon", "Castile-La Mancha", "Madrid", "Extremadura",
-            "Santarém", "Lisbon"
+            "Santarem", "Lisbon"
         ],
         
         source: {
-            location: "Fuente de García, Montes Universales, Spain",
+            location: "Fuente de Garcia, Montes Universales, Spain",
             type: "Mountain spring",
             elevation: "1,593 m",
             coordinates: [40.4167, -1.6667]
@@ -632,19 +632,19 @@ const RIVERS_DATA_10 = [
                 "Jarama River",
                 "Guadarrama River",
                 "Alberche River",
-                "Tiétar River"
+                "Tietar River"
             ],
             rightBank: [
                 "Henares River",
-                "Tajuña River",
+                "Tajuna River",
                 "Guadiela River",
                 "Almonte River",
                 "Salor River",
                 "Sever River",
-                "Zêzere River",
+                "Zezere River",
                 "Sorraia River"
             ]
-        ],
+        },
         
         distributaries: [
             "Tagus Estuary channels"
@@ -652,13 +652,13 @@ const RIVERS_DATA_10 = [
         
         majorCities: [
             "Teruel", "Aranjuez", "Toledo", "Talavera de la Reina",
-            "Alcántara", "Abrantes", "Santarém", "Lisbon"
+            "Alcantara", "Abrantes", "Santarem", "Lisbon"
         ],
         
         dams: [
-            { name: "Alcántara Dam", details: "Spain, 915 MW, 1969" },
-            { name: "Torrejón-Tajo Dam", details: "Spain, 1960" },
-            { name: "Valdecañas Dam", details: "Spain, 225 MW, 1964" },
+            { name: "Alcantara Dam", details: "Spain, 915 MW, 1969" },
+            { name: "Torrejon-Tajo Dam", details: "Spain, 1960" },
+            { name: "Valdecanas Dam", details: "Spain, 225 MW, 1964" },
             { name: "Cedillo Dam", details: "Spain-Portugal border, 1976" },
             { name: "Belver Dam", details: "Portugal, 112 MW, 1952" }
         ],
@@ -667,25 +667,25 @@ const RIVERS_DATA_10 = [
         discharge: "444 m³/s",
         
         riverPath: [
-            [40.42, -1.67],    // Source - Montes Universales
+            [40.42, -1.67],
             [40.20, -1.50],
-            [40.03, -3.36],    // Aranjuez
-            [39.86, -4.03],    // Toledo
-            [39.96, -4.83],    // Talavera de la Reina
-            [39.72, -5.67],    // Alcántara Dam
+            [40.03, -3.36],
+            [39.86, -4.03],
+            [39.96, -4.83],
+            [39.72, -5.67],
             [39.65, -6.50],
-            [39.47, -7.44],    // Abrantes
-            [39.23, -8.69],    // Santarém
-            [38.72, -9.13]     // Atlantic Ocean (Mouth)
+            [39.47, -7.44],
+            [39.23, -8.69],
+            [38.72, -9.13]
         ],
         
         tributaryPaths: [
             {
                 name: "Jarama River",
                 path: [
-                    [41.00, -3.60],    // Madrid area
+                    [41.00, -3.60],
                     [40.50, -3.50],
-                    [40.20, -3.40]     // Confluence at Aranjuez
+                    [40.20, -3.40]
                 ]
             },
             {
@@ -693,23 +693,23 @@ const RIVERS_DATA_10 = [
                 path: [
                     [40.50, -4.50],
                     [40.00, -4.70],
-                    [39.90, -4.75]     // Confluence
+                    [39.90, -4.75]
                 ]
             },
             {
-                name: "Tiétar River",
+                name: "Tietar River",
                 path: [
                     [40.20, -5.00],
                     [39.90, -5.30],
-                    [39.80, -5.50]     // Confluence
+                    [39.80, -5.50]
                 ]
             },
             {
-                name: "Zêzere River",
+                name: "Zezere River",
                 path: [
-                    [40.00, -7.60],    // Portugal
+                    [40.00, -7.60],
                     [39.50, -8.00],
-                    [39.47, -8.29]     // Confluence
+                    [39.47, -8.29]
                 ]
             }
         ],
@@ -719,7 +719,7 @@ const RIVERS_DATA_10 = [
                 name: "Tagus Estuary",
                 path: [
                     [38.75, -9.10],
-                    [38.72, -9.13]     // Atlantic Ocean
+                    [38.72, -9.13]
                 ]
             }
         ],
@@ -728,15 +728,15 @@ const RIVERS_DATA_10 = [
             { name: "Aranjuez", coords: [40.03, -3.60] },
             { name: "Toledo", coords: [39.86, -4.03] },
             { name: "Talavera de la Reina", coords: [39.96, -4.83] },
-            { name: "Alcántara", coords: [39.72, -6.89] },
+            { name: "Alcantara", coords: [39.72, -6.89] },
             { name: "Abrantes", coords: [39.47, -8.20] },
-            { name: "Santarém", coords: [39.24, -8.69] },
+            { name: "Santarem", coords: [39.24, -8.69] },
             { name: "Lisbon", coords: [38.71, -9.14] }
         ],
         
         damCoordinates: [
-            { name: "Alcántara Dam", coords: [39.72, -6.87], details: "915 MW - Spain's largest arch dam" },
-            { name: "Valdecañas Dam", coords: [39.78, -5.48], details: "225 MW hydroelectric" },
+            { name: "Alcantara Dam", coords: [39.72, -6.87], details: "915 MW - Spain's largest arch dam" },
+            { name: "Valdecanas Dam", coords: [39.78, -5.48], details: "225 MW hydroelectric" },
             { name: "Cedillo Dam", coords: [39.63, -7.51], details: "Spanish-Portuguese border" },
             { name: "Belver Dam", coords: [39.50, -8.15], details: "112 MW - Portugal" }
         ],
@@ -747,10 +747,10 @@ const RIVERS_DATA_10 = [
             { progress: 0.30, name: "Aranjuez", icon: "🏰", description: "Royal palace" },
             { progress: 0.40, name: "Toledo", icon: "🏛️", description: "Historic capital" },
             { progress: 0.50, name: "Talavera de la Reina", icon: "🏙️", description: "Ceramic city" },
-            { progress: 0.65, name: "Alcántara Dam", icon: "🏗️", description: "Massive arch dam" },
+            { progress: 0.65, name: "Alcantara Dam", icon: "🏗️", description: "Massive arch dam" },
             { progress: 0.70, name: "Spain-Portugal Border", icon: "🛂", description: "Enters Portugal" },
             { progress: 0.80, name: "Portuguese Countryside", icon: "🌳", description: "Ribatejo region" },
-            { progress: 0.90, name: "Santarém", icon: "🏘️", description: "Gothic city" },
+            { progress: 0.90, name: "Santarem", icon: "🏘️", description: "Gothic city" },
             { progress: 1.0, name: "Lisbon", icon: "🏙️", description: "Portuguese capital" }
         ],
         
@@ -789,8 +789,8 @@ const RIVERS_DATA_10 = [
                 description: "Toledo, former Spanish capital, overlooks the Tagus; known as 'City of Three Cultures' (Christian, Muslim, Jewish)."
             },
             {
-                title: "Alcántara Bridge",
-                description: "Roman bridge at Alcántara (106 AD) is a masterpiece of Roman engineering still standing."
+                title: "Alcantara Bridge",
+                description: "Roman bridge at Alcantara (106 AD) is a masterpiece of Roman engineering still standing."
             },
             {
                 title: "Lisbon",
@@ -818,7 +818,7 @@ const RIVERS_DATA_10 = [
         ],
         
         states: [
-            "Cantabria", "Castile and León", "Basque Country",
+            "Cantabria", "Castile and Leon", "Basque Country",
             "La Rioja", "Navarre", "Aragon", "Catalonia"
         ],
         
@@ -841,25 +841,25 @@ const RIVERS_DATA_10 = [
                 "Zadorra River",
                 "Ega River",
                 "Arga River",
-                "Aragón River",
-                "Gállego River",
+                "Aragon River",
+                "Gallego River",
                 "Cinca River",
                 "Segre River"
             ],
             rightBank: [
-                "Jalón River",
+                "Jalon River",
                 "Huerva River",
                 "Guadalope River",
-                "Matarraña River"
+                "Matarrana River"
             ]
-        ],
+        },
         
         distributaries: [
             "Ebro Delta channels"
         ],
         
         majorCities: [
-            "Reinosa", "Miranda de Ebro", "Logroño",
+            "Reinosa", "Miranda de Ebro", "Logrono",
             "Tudela", "Zaragoza", "Tortosa"
         ],
         
@@ -874,49 +874,49 @@ const RIVERS_DATA_10 = [
         discharge: "426 m³/s",
         
         riverPath: [
-            [43.03, -4.22],    // Source - Fontibre
+            [43.03, -4.22],
             [42.80, -3.50],
-            [42.68, -2.93],    // Miranda de Ebro
-            [42.47, -2.45],    // Logroño
-            [41.98, -1.60],    // Tudela
-            [41.66, -0.88],    // Zaragoza
+            [42.68, -2.93],
+            [42.47, -2.45],
+            [41.98, -1.60],
+            [41.66, -0.88],
             [41.50, 0.00],
             [41.18, 0.52],
-            [40.82, 0.72],     // Tortosa
-            [40.72, 0.87]      // Mediterranean Sea (Mouth)
+            [40.82, 0.72],
+            [40.72, 0.87]
         ],
         
         tributaryPaths: [
             {
-                name: "Aragón River",
+                name: "Aragon River",
                 path: [
-                    [42.70, -0.70],    // Pyrenees
+                    [42.70, -0.70],
                     [42.40, -1.20],
-                    [42.10, -1.50]     // Confluence
+                    [42.10, -1.50]
                 ]
             },
             {
-                name: "Gállego River",
+                name: "Gallego River",
                 path: [
-                    [42.60, -0.30],    // Pyrenees
+                    [42.60, -0.30],
                     [42.00, -0.70],
-                    [41.70, -0.80]     // Confluence at Zaragoza
+                    [41.70, -0.80]
                 ]
             },
             {
                 name: "Segre River",
                 path: [
-                    [42.40, 1.70],     // Pyrenees
+                    [42.40, 1.70],
                     [41.60, 0.60],
-                    [41.30, 0.40]      // Confluence
+                    [41.30, 0.40]
                 ]
             },
             {
-                name: "Jalón River",
+                name: "Jalon River",
                 path: [
                     [41.10, -1.90],
                     [41.50, -1.40],
-                    [41.68, -1.10]     // Confluence
+                    [41.68, -1.10]
                 ]
             }
         ],
@@ -926,7 +926,7 @@ const RIVERS_DATA_10 = [
                 name: "Ebro Delta",
                 path: [
                     [40.75, 0.80],
-                    [40.72, 0.87]      // Mediterranean
+                    [40.72, 0.87]
                 ]
             }
         ],
@@ -934,7 +934,7 @@ const RIVERS_DATA_10 = [
         cityCoordinates: [
             { name: "Reinosa", coords: [43.00, -4.14] },
             { name: "Miranda de Ebro", coords: [42.69, -2.95] },
-            { name: "Logroño", coords: [42.47, -2.44] },
+            { name: "Logrono", coords: [42.47, -2.44] },
             { name: "Tudela", coords: [42.07, -1.61] },
             { name: "Zaragoza", coords: [41.65, -0.89] },
             { name: "Tortosa", coords: [40.81, 0.52] }
@@ -951,7 +951,7 @@ const RIVERS_DATA_10 = [
             { progress: 0.10, name: "Cantabrian Mountains", icon: "🏔️", description: "Mountain valley" },
             { progress: 0.20, name: "Miranda de Ebro", icon: "🏙️", description: "Industrial city" },
             { progress: 0.30, name: "La Rioja", icon: "🍷", description: "Wine region" },
-            { progress: 0.40, name: "Logroño", icon: "🏙️", description: "Wine capital" },
+            { progress: 0.40, name: "Logrono", icon: "🏙️", description: "Wine capital" },
             { progress: 0.50, name: "Tudela", icon: "🏘️", description: "Vegetable garden of Navarre" },
             { progress: 0.60, name: "Zaragoza", icon: "🏛️", description: "Aragon capital" },
             { progress: 0.75, name: "Ebro Reservoirs", icon: "🏞️", description: "Dam cascade" },
@@ -1058,7 +1058,7 @@ const RIVERS_DATA_10 = [
                 "Secchia River",
                 "Panaro River"
             ]
-        ],
+        },
         
         distributaries: [
             "Po di Goro",
@@ -1082,48 +1082,48 @@ const RIVERS_DATA_10 = [
         discharge: "1,540 m³/s",
         
         riverPath: [
-            [44.70, 7.08],     // Source - Monviso
+            [44.70, 7.08],
             [44.85, 7.30],
-            [45.07, 7.69],     // Turin
+            [45.07, 7.69],
             [45.05, 8.00],
-            [45.05, 9.21],     // Piacenza
-            [45.13, 10.02],    // Cremona
-            [45.16, 10.79],    // Mantua
-            [44.96, 11.62],    // Ferrara
-            [44.97, 12.48]     // Adriatic Sea (Mouth)
+            [45.05, 9.21],
+            [45.13, 10.02],
+            [45.16, 10.79],
+            [44.96, 11.62],
+            [44.97, 12.48]
         ],
         
         tributaryPaths: [
             {
                 name: "Ticino River",
                 path: [
-                    [46.20, 8.60],     // Swiss Alps
-                    [45.50, 8.80],     // Lake Maggiore
-                    [45.18, 9.01]      // Confluence
+                    [46.20, 8.60],
+                    [45.50, 8.80],
+                    [45.18, 9.01]
                 ]
             },
             {
                 name: "Adda River",
                 path: [
-                    [46.40, 10.20],    // Alps
-                    [45.85, 9.50],     // Lake Como
-                    [45.20, 9.60]      // Confluence
+                    [46.40, 10.20],
+                    [45.85, 9.50],
+                    [45.20, 9.60]
                 ]
             },
             {
                 name: "Tanaro River",
                 path: [
-                    [44.20, 7.60],     // Maritime Alps
+                    [44.20, 7.60],
                     [44.90, 8.30],
-                    [45.08, 8.64]      // Confluence
+                    [45.08, 8.64]
                 ]
             },
             {
                 name: "Mincio River",
                 path: [
-                    [45.43, 10.85],    // Lake Garda outlet
-                    [45.16, 10.80],    // Mantua
-                    [45.02, 11.10]     // Confluence
+                    [45.43, 10.85],
+                    [45.16, 10.80],
+                    [45.02, 11.10]
                 ]
             }
         ],
@@ -1133,21 +1133,21 @@ const RIVERS_DATA_10 = [
                 name: "Po di Pila",
                 path: [
                     [44.97, 12.40],
-                    [44.97, 12.48]     // Adriatic
+                    [44.97, 12.48]
                 ]
             },
             {
                 name: "Po di Goro",
                 path: [
                     [44.95, 12.35],
-                    [44.82, 12.35]     // Adriatic
+                    [44.82, 12.35]
                 ]
             },
             {
                 name: "Po di Tolle",
                 path: [
                     [44.98, 12.30],
-                    [44.90, 12.45]     // Adriatic
+                    [44.90, 12.45]
                 ]
             }
         ],
@@ -1245,7 +1245,7 @@ const RIVERS_DATA_10 = [
         ],
         
         source: {
-            location: "Lake Taupō, Central Plateau, North Island",
+            location: "Lake Taupo, Central Plateau, North Island",
             type: "Lake outlet",
             elevation: "357 m",
             coordinates: [-38.8167, 175.9167]
@@ -1267,14 +1267,14 @@ const RIVERS_DATA_10 = [
                 "Pueto Stream",
                 "Waihou River"
             ]
-        ],
+        },
         
         distributaries: [
             "Waikato estuary channels"
         ],
         
         majorCities: [
-            "Taupō", "Cambridge", "Hamilton", "Ngāruawāhia", "Huntly"
+            "Taupo", "Cambridge", "Hamilton", "Ngaruawahia", "Huntly"
         ],
         
         dams: [
@@ -1292,17 +1292,17 @@ const RIVERS_DATA_10 = [
         discharge: "340 m³/s",
         
         riverPath: [
-            [-38.82, 175.92],  // Source - Lake Taupō
-            [-38.70, 176.00],  // Taupō town
-            [-38.50, 176.10],  // Aratiatia Dam
-            [-38.40, 176.00],  // Ohakuri Dam
-            [-38.20, 175.90],  // Whakamaru Dam
-            [-37.90, 175.70],  // Maraetai Dam
-            [-37.97, 175.53],  // Cambridge
-            [-37.79, 175.28],  // Hamilton
-            [-37.67, 175.15],  // Ngāruawāhia
-            [-37.57, 175.07],  // Huntly
-            [-37.38, 174.73]   // Tasman Sea (Mouth)
+            [-38.82, 175.92],
+            [-38.70, 176.00],
+            [-38.50, 176.10],
+            [-38.40, 176.00],
+            [-38.20, 175.90],
+            [-37.90, 175.70],
+            [-37.97, 175.53],
+            [-37.79, 175.28],
+            [-37.67, 175.15],
+            [-37.57, 175.07],
+            [-37.38, 174.73]
         ],
         
         tributaryPaths: [
@@ -1311,7 +1311,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [-38.40, 175.30],
                     [-37.90, 175.20],
-                    [-37.67, 175.15]   // Confluence at Ngāruawāhia
+                    [-37.67, 175.15]
                 ]
             }
         ],
@@ -1321,16 +1321,16 @@ const RIVERS_DATA_10 = [
                 name: "Waikato Mouth",
                 path: [
                     [-37.40, 174.75],
-                    [-37.38, 174.73]   // Tasman Sea
+                    [-37.38, 174.73]
                 ]
             }
         ],
         
         cityCoordinates: [
-            { name: "Taupō", coords: [-38.69, 176.07] },
+            { name: "Taupo", coords: [-38.69, 176.07] },
             { name: "Cambridge", coords: [-37.89, 175.47] },
             { name: "Hamilton", coords: [-37.79, 175.28] },
-            { name: "Ngāruawāhia", coords: [-37.67, 175.15] },
+            { name: "Ngaruawahia", coords: [-37.67, 175.15] },
             { name: "Huntly", coords: [-37.56, 175.17] }
         ],
         
@@ -1344,13 +1344,13 @@ const RIVERS_DATA_10 = [
         ],
         
         flightLandmarks: [
-            { progress: 0, name: "Lake Taupō", icon: "🏞️", description: "Volcanic caldera lake" },
+            { progress: 0, name: "Lake Taupo", icon: "🏞️", description: "Volcanic caldera lake" },
             { progress: 0.08, name: "Huka Falls", icon: "💦", description: "Dramatic waterfall" },
             { progress: 0.15, name: "Aratiatia Rapids", icon: "🌊", description: "Dam-controlled rapids" },
             { progress: 0.30, name: "Hydro Lakes", icon: "🏞️", description: "Dam cascade" },
             { progress: 0.50, name: "Cambridge", icon: "🏘️", description: "Horse breeding town" },
             { progress: 0.65, name: "Hamilton", icon: "🏙️", description: "Waikato capital" },
-            { progress: 0.75, name: "Ngāruawāhia", icon: "🏛️", description: "Māori King Movement center" },
+            { progress: 0.75, name: "Ngaruawahia", icon: "🏛️", description: "Maori King Movement center" },
             { progress: 0.85, name: "Huntly", icon: "🏭", description: "Power station" },
             { progress: 0.95, name: "Lower Waikato", icon: "🌾", description: "Agricultural floodplain" },
             { progress: 1.0, name: "Tasman Sea", icon: "🌊", description: "Port Waikato" }
@@ -1361,7 +1361,7 @@ const RIVERS_DATA_10 = [
             "17% of New Zealand's electricity (8 hydro dams)",
             "Hamilton and Waikato region water supply",
             "Agriculture (dairy farming in valley)",
-            "Tourism (Huka Falls, Lake Taupō)",
+            "Tourism (Huka Falls, Lake Taupo)",
             "Rowing venue (Karapiro)"
         ],
         
@@ -1371,13 +1371,13 @@ const RIVERS_DATA_10 = [
             "Dam cascade impacts on fish migration",
             "Water quality degradation",
             "Invasive species (catfish)",
-            "Climate change affecting Lake Taupō levels"
+            "Climate change affecting Lake Taupo levels"
         ],
         
         waterDisputes: [
             {
                 title: "Waikato River Settlement",
-                description: "2010 Waikato River Settlement Act between government and Māori iwi granted co-governance rights."
+                description: "2010 Waikato River Settlement Act between government and Maori iwi granted co-governance rights."
             },
             {
                 title: "Water Quality Targets",
@@ -1387,12 +1387,12 @@ const RIVERS_DATA_10 = [
         
         historicalImportance: [
             {
-                title: "Māori Significance",
-                description: "The Waikato is sacred to Tainui iwi; Ngāruawāhia is home to the Māori King Movement (Kīngitanga)."
+                title: "Maori Significance",
+                description: "The Waikato is sacred to Tainui iwi; Ngaruawahia is home to the Maori King Movement (Kingitanga)."
             },
             {
                 title: "New Zealand Wars",
-                description: "Waikato Wars (1863-64) saw British forces invade the Waikato region, confiscating Māori land."
+                description: "Waikato Wars (1863-64) saw British forces invade the Waikato region, confiscating Maori land."
             },
             {
                 title: "Hydro Development",
@@ -1400,7 +1400,7 @@ const RIVERS_DATA_10 = [
             },
             {
                 title: "2010 River Settlement",
-                description: "Landmark co-governance agreement recognizes Māori as guardians of the river."
+                description: "Landmark co-governance agreement recognizes Maori as guardians of the river."
             }
         ]
     },
@@ -1452,7 +1452,7 @@ const RIVERS_DATA_10 = [
                 "Mulkear River",
                 "Maigue River"
             ]
-        ],
+        },
         
         distributaries: [
             "Shannon Estuary channels"
@@ -1471,15 +1471,15 @@ const RIVERS_DATA_10 = [
         discharge: "208 m³/s",
         
         riverPath: [
-            [54.22, -7.93],    // Source - Shannon Pot
+            [54.22, -7.93],
             [54.15, -8.00],
-            [54.02, -8.10],    // Carrick-on-Shannon
-            [53.80, -8.05],    // Lough Ree
-            [53.43, -7.94],    // Athlone
-            [53.08, -8.31],    // Lough Derg
-            [52.80, -8.44],    // Killaloe
-            [52.67, -8.62],    // Limerick
-            [52.60, -9.50]     // Atlantic Ocean (Mouth)
+            [54.02, -8.10],
+            [53.80, -8.05],
+            [53.43, -7.94],
+            [53.08, -8.31],
+            [52.80, -8.44],
+            [52.67, -8.62],
+            [52.60, -9.50]
         ],
         
         tributaryPaths: [
@@ -1488,7 +1488,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [53.80, -8.50],
                     [53.50, -8.30],
-                    [53.43, -7.98]     // Confluence
+                    [53.43, -7.98]
                 ]
             },
             {
@@ -1496,7 +1496,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [53.30, -7.40],
                     [53.20, -7.80],
-                    [53.10, -8.00]     // Confluence
+                    [53.10, -8.00]
                 ]
             }
         ],
@@ -1506,7 +1506,7 @@ const RIVERS_DATA_10 = [
                 name: "Shannon Estuary",
                 path: [
                     [52.65, -8.80],
-                    [52.60, -9.50]     // Atlantic Ocean
+                    [52.60, -9.50]
                 ]
             }
         ],
@@ -1635,7 +1635,7 @@ const RIVERS_DATA_10 = [
                 "River Mole",
                 "River Medway"
             ]
-        ],
+        },
         
         distributaries: [
             "Thames Estuary channels"
@@ -1655,15 +1655,15 @@ const RIVERS_DATA_10 = [
         discharge: "65.8 m³/s",
         
         riverPath: [
-            [51.68, -2.08],    // Source - Thames Head
-            [51.73, -1.85],    // Cirencester area
-            [51.75, -1.26],    // Oxford
-            [51.48, -0.97],    // Reading
-            [51.48, -0.61],    // Windsor
-            [51.50, -0.13],    // London
-            [51.48, 0.00],     // Greenwich
-            [51.45, 0.37],     // Gravesend
-            [51.50, 0.75]      // North Sea (Mouth)
+            [51.68, -2.08],
+            [51.73, -1.85],
+            [51.75, -1.26],
+            [51.48, -0.97],
+            [51.48, -0.61],
+            [51.50, -0.13],
+            [51.48, 0.00],
+            [51.45, 0.37],
+            [51.50, 0.75]
         ],
         
         tributaryPaths: [
@@ -1672,7 +1672,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [52.20, -1.30],
                     [51.90, -1.25],
-                    [51.75, -1.22]     // Confluence at Oxford
+                    [51.75, -1.22]
                 ]
             },
             {
@@ -1680,7 +1680,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [51.40, -1.80],
                     [51.45, -1.00],
-                    [51.46, -0.97]     // Confluence at Reading
+                    [51.46, -0.97]
                 ]
             },
             {
@@ -1688,7 +1688,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [51.80, -0.10],
                     [51.55, -0.05],
-                    [51.50, 0.00]      // Confluence at East London
+                    [51.50, 0.00]
                 ]
             }
         ],
@@ -1698,7 +1698,7 @@ const RIVERS_DATA_10 = [
                 name: "Thames Estuary",
                 path: [
                     [51.48, 0.40],
-                    [51.50, 0.75]      // North Sea
+                    [51.50, 0.75]
                 ]
             }
         ],
@@ -1800,9 +1800,9 @@ const RIVERS_DATA_10 = [
         ],
         
         states: [
-            "Erzurum Province", "Elazığ Province", "Adıyaman Province",
-            "Şanlıurfa Province", "Raqqa Governorate", "Deir ez-Zor Governorate",
-            "Anbar Governorate", "Babil Governorate", "Al-Qādisiyyah Governorate",
+            "Erzurum Province", "Elazig Province", "Adiyaman Province",
+            "Sanliurfa Province", "Raqqa Governorate", "Deir ez-Zor Governorate",
+            "Anbar Governorate", "Babil Governorate", "Al-Qadisiyyah Governorate",
             "Dhi Qar Governorate", "Basra Governorate"
         ],
         
@@ -1844,7 +1844,7 @@ const RIVERS_DATA_10 = [
         dams: [
             { name: "Keban Dam", details: "Turkey, 1,330 MW, 1974" },
             { name: "Karakaya Dam", details: "Turkey, 1,800 MW, 1987" },
-            { name: "Atatürk Dam", details: "Turkey, 2,400 MW, 1990, largest in GAP project" },
+            { name: "Ataturk Dam", details: "Turkey, 2,400 MW, 1990, largest in GAP project" },
             { name: "Birecik Dam", details: "Turkey, 672 MW, 2000" },
             { name: "Tabqa Dam", details: "Syria, 880 MW, 1973, Lake Assad" },
             { name: "Haditha Dam", details: "Iraq, 660 MW, 1986" }
@@ -1854,21 +1854,21 @@ const RIVERS_DATA_10 = [
         discharge: "356 m³/s (severely reduced from historical 1,000+ m³/s)",
         
         riverPath: [
-            [38.75, 38.65],    // Source - Murat-Karasu confluence
-            [38.80, 39.40],    // Keban Dam
-            [38.20, 39.44],    // Karakaya Dam
-            [37.99, 38.46],    // Atatürk Dam
-            [37.35, 38.01],    // Birecik Dam
-            [36.95, 38.00],    // Turkey-Syria border
-            [35.95, 38.99],    // Raqqa
-            [35.34, 40.14],    // Deir ez-Zor
-            [34.38, 40.90],    // Syria-Iraq border
-            [34.02, 41.78],    // Al-Qa'im
-            [33.44, 43.30],    // Ramadi
-            [33.35, 43.78],    // Fallujah
-            [32.46, 44.42],    // Al-Hillah
-            [31.05, 46.25],    // Nasiriyah
-            [30.45, 47.80]     // Shatt al-Arab (joins Tigris)
+            [38.75, 38.65],
+            [38.80, 39.40],
+            [38.20, 39.44],
+            [37.99, 38.46],
+            [37.35, 38.01],
+            [36.95, 38.00],
+            [35.95, 38.99],
+            [35.34, 40.14],
+            [34.38, 40.90],
+            [34.02, 41.78],
+            [33.44, 43.30],
+            [33.35, 43.78],
+            [32.46, 44.42],
+            [31.05, 46.25],
+            [30.45, 47.80]
         ],
         
         tributaryPaths: [
@@ -1877,7 +1877,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [37.00, 39.00],
                     [36.50, 38.80],
-                    [36.20, 38.95]     // Confluence
+                    [36.20, 38.95]
                 ]
             },
             {
@@ -1885,7 +1885,7 @@ const RIVERS_DATA_10 = [
                 path: [
                     [37.00, 41.20],
                     [36.00, 40.90],
-                    [35.20, 40.50]     // Confluence
+                    [35.20, 40.50]
                 ]
             }
         ],
@@ -1894,8 +1894,8 @@ const RIVERS_DATA_10 = [
             {
                 name: "Shatt al-Arab",
                 path: [
-                    [30.45, 47.80],    // Tigris-Euphrates confluence
-                    [29.97, 48.58]     // Persian Gulf
+                    [30.45, 47.80],
+                    [29.97, 48.58]
                 ]
             }
         ],
@@ -1914,7 +1914,7 @@ const RIVERS_DATA_10 = [
         damCoordinates: [
             { name: "Keban Dam", coords: [38.80, 38.73], details: "1,330 MW - first GAP dam" },
             { name: "Karakaya Dam", coords: [38.20, 39.44], details: "1,800 MW" },
-            { name: "Atatürk Dam", coords: [37.99, 38.46], details: "2,400 MW - largest GAP dam" },
+            { name: "Ataturk Dam", coords: [37.99, 38.46], details: "2,400 MW - largest GAP dam" },
             { name: "Birecik Dam", coords: [37.02, 37.98], details: "672 MW" },
             { name: "Tabqa Dam", coords: [35.86, 38.55], details: "880 MW - Syria, Lake Assad" },
             { name: "Haditha Dam", coords: [34.13, 42.37], details: "660 MW - Iraq" }
@@ -1923,7 +1923,7 @@ const RIVERS_DATA_10 = [
         flightLandmarks: [
             { progress: 0, name: "Armenian Highlands", icon: "🏔️", description: "Murat River source" },
             { progress: 0.10, name: "Eastern Anatolia", icon: "🏔️", description: "Turkish mountains" },
-            { progress: 0.20, name: "Atatürk Dam", icon: "🏗️", description: "Largest Turkish dam" },
+            { progress: 0.20, name: "Ataturk Dam", icon: "🏗️", description: "Largest Turkish dam" },
             { progress: 0.28, name: "GAP Irrigation", icon: "🌾", description: "Southeast Anatolia Project" },
             { progress: 0.35, name: "Turkey-Syria Border", icon: "🛂", description: "Enters Syria" },
             { progress: 0.45, name: "Raqqa", icon: "🏙️", description: "Former ISIS capital" },
