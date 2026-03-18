@@ -287,7 +287,7 @@
             return sorted;
         },
 
-       renderIslands() {
+        renderIslands() {
             if (!this.grid) return;
 
             this.grid.innerHTML = '';
@@ -312,55 +312,6 @@
                 const comingSoonCard = this.createComingSoonCard(this.filteredIslands.length);
                 this.grid.appendChild(comingSoonCard);
             }
-        },
-
-        createComingSoonCard(index) {
-            const card = document.createElement('article');
-            card.className = 'island-card coming-soon-card';
-            card.style.animationDelay = `${index * CONFIG.animationDelay}ms`;
-
-            card.innerHTML = `
-                <div class="card-image-container">
-                    <div class="card-image-wrapper coming-soon-wrapper">
-                        <div class="coming-soon-content">
-                            <div class="coming-soon-icon">
-                                <i class="fas fa-globe-americas"></i>
-                            </div>
-                            <div class="coming-soon-plus">
-                                <i class="fas fa-plus"></i>
-                            </div>
-                        </div>
-                        <div class="card-overlay"></div>
-                    </div>
-                    <div class="card-glow coming-soon-glow"></div>
-                </div>
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3 class="island-name">More Islands</h3>
-                        <div class="island-flags">
-                            <span class="coming-soon-badge">Coming Soon</span>
-                        </div>
-                    </div>
-                    <div class="card-details">
-                        <div class="detail-item">
-                            <i class="fas fa-hourglass-half"></i>
-                            <span>Discovering more...</span>
-                        </div>
-                    </div>
-                    <div class="card-badge">
-                        <span class="type-badge coming-soon-type">
-                            <i class="fas fa-compass"></i>
-                            Exploring
-                        </span>
-                    </div>
-                </div>
-                <div class="coming-soon-overlay">
-                    <p><i class="fas fa-map-marked-alt"></i> We're exploring the world to bring you more amazing islands!</p>
-                    <span class="stay-tuned">Stay Tuned <i class="fas fa-anchor"></i></span>
-                </div>
-            `;
-
-            return card;
         },
 
         createIslandCard(island, index) {
@@ -416,6 +367,55 @@
             card.addEventListener('click', () => {
                 window.location.href = `islands-profile.html?id=${island.id}`;
             });
+
+            return card;
+        },
+
+        createComingSoonCard(index) {
+            const card = document.createElement('article');
+            card.className = 'island-card coming-soon-card';
+            card.style.animationDelay = `${index * CONFIG.animationDelay}ms`;
+
+            card.innerHTML = `
+                <div class="card-image-container">
+                    <div class="card-image-wrapper coming-soon-wrapper">
+                        <div class="coming-soon-content">
+                            <div class="coming-soon-icon">
+                                <i class="fas fa-globe-americas"></i>
+                            </div>
+                            <div class="coming-soon-plus">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-glow coming-soon-glow"></div>
+                </div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3 class="island-name">More Islands</h3>
+                        <div class="island-flags">
+                            <span class="coming-soon-badge">Coming Soon</span>
+                        </div>
+                    </div>
+                    <div class="card-details">
+                        <div class="detail-item">
+                            <i class="fas fa-hourglass-half"></i>
+                            <span>Discovering more...</span>
+                        </div>
+                    </div>
+                    <div class="card-badge">
+                        <span class="type-badge coming-soon-type">
+                            <i class="fas fa-compass"></i>
+                            Exploring
+                        </span>
+                    </div>
+                </div>
+                <div class="coming-soon-overlay">
+                    <p><i class="fas fa-map-marked-alt"></i> We're exploring the world to bring you more amazing islands!</p>
+                    <span class="stay-tuned">Stay Tuned <i class="fas fa-anchor"></i></span>
+                </div>
+            `;
 
             return card;
         },
@@ -1208,187 +1208,3 @@
     }
 
 })();
-/* ========================================
-   COMING SOON CARD
-======================================== */
-
-.coming-soon-card {
-    cursor: default;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(144, 224, 239, 0.3) 100%);
-    border: 2px dashed var(--ocean-mid);
-    position: relative;
-    overflow: hidden;
-}
-
-.coming-soon-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-xl), var(--shadow-ocean);
-}
-
-.coming-soon-card:hover .card-glow {
-    background: radial-gradient(circle, rgba(0, 180, 216, 0.4) 0%, transparent 70%);
-}
-
-.coming-soon-wrapper {
-    background: linear-gradient(135deg, var(--ocean-light) 0%, var(--ocean-mid) 50%, var(--ocean-deep) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.coming-soon-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-}
-
-.coming-soon-icon {
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: var(--spacing-sm);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-.coming-soon-icon i {
-    font-size: 2.5rem;
-    color: var(--white);
-}
-
-.coming-soon-plus {
-    position: absolute;
-    bottom: -10px;
-    right: -10px;
-    width: 36px;
-    height: 36px;
-    background: var(--golden);
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-md);
-    animation: bounce 1s ease-in-out infinite;
-}
-
-.coming-soon-plus i {
-    font-size: 1rem;
-    color: var(--gray-800);
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-    }
-    50% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
-    }
-}
-
-.coming-soon-badge {
-    display: inline-block;
-    padding: var(--spacing-xs) var(--spacing-md);
-    background: linear-gradient(135deg, var(--sunset-coral) 0%, var(--sunset-orange) 100%);
-    color: var(--white);
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    animation: shimmer 2s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-    }
-}
-
-.coming-soon-type {
-    background: linear-gradient(135deg, var(--ocean-mid) 0%, var(--ocean-deep) 100%) !important;
-}
-
-.coming-soon-glow {
-    background: radial-gradient(circle, rgba(0, 180, 216, 0.3) 0%, transparent 70%) !important;
-    opacity: 0.5;
-}
-
-.coming-soon-card:hover .coming-soon-glow {
-    opacity: 1;
-}
-
-.coming-soon-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: var(--spacing-lg);
-    background: linear-gradient(180deg, transparent, rgba(0, 119, 182, 0.95));
-    color: var(--white);
-    text-align: center;
-    transform: translateY(100%);
-    transition: var(--transition-smooth);
-}
-
-.coming-soon-card:hover .coming-soon-overlay {
-    transform: translateY(0);
-}
-
-.coming-soon-overlay p {
-    font-size: 0.85rem;
-    margin-bottom: var(--spacing-sm);
-    opacity: 0.9;
-}
-
-.coming-soon-overlay p i {
-    margin-right: var(--spacing-xs);
-}
-
-.stay-tuned {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    font-weight: 600;
-    color: var(--golden);
-}
-
-.stay-tuned i {
-    animation: sway 2s ease-in-out infinite;
-}
-
-@keyframes sway {
-    0%, 100% {
-        transform: rotate(-10deg);
-    }
-    50% {
-        transform: rotate(10deg);
-    }
-}
-
-/* Responsive adjustments for Coming Soon card */
-@media (max-width: 768px) {
-    .coming-soon-icon {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .coming-soon-icon i {
-        font-size: 2rem;
-    }
-    
-    .coming-soon-plus {
-        width: 30px;
-        height: 30px;
-    }
-}
