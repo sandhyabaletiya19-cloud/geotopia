@@ -165,11 +165,6 @@ function renderRiverCards() {
         countEl.textContent = filteredRivers.length;
     }
 }
-
-// Add Coming Soon card at the end
-    addComingSoonCard();
-}
-
 function createRiverCard(river, rank) {
     const card = document.createElement('div');
     card.className = 'river-card';
@@ -1347,17 +1342,9 @@ function debounce(func, wait) {
 // ============================================
 
 function getTotalRiversCount() {
-    let total = 0;
-    // Check for all possible data files (up to 50 for future expansion)
-    for (let i = 1; i <= 50; i++) {
-        const dataVar = window['RIVERS_DATA_' + i];
-        if (dataVar && Array.isArray(dataVar)) {
-            total += dataVar.length;
-        }
-    }
-    return total;
+    // Simply return the length of allRivers array
+    return allRivers.length;
 }
-
 function createComingSoonCard() {
     const totalRivers = getTotalRiversCount();
     
@@ -1380,11 +1367,8 @@ function createComingSoonCard() {
 }
 
 function addComingSoonCard() {
-    // Find your river grid container - adjust selector as needed
-    const riverGrid = document.querySelector('.river-grid') || 
-                      document.querySelector('.rivers-grid') ||
-                      document.querySelector('#river-grid') ||
-                      document.querySelector('#rivers-container');
+    // Use the correct ID from your HTML
+    const riverGrid = document.getElementById('riversGrid');
     
     if (riverGrid) {
         // Remove existing coming soon card if any
