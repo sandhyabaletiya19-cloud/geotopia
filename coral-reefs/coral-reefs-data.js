@@ -1,387 +1,336 @@
-/* ============================================
-   CORAL REEFS EXPLORER - DATA COMBINER
-   Combines all reef data from data files 1-5
-   ============================================ */
+/* ========================================
+   CORAL REEFS EXPLORER - DATA CONFIGURATION
+   Main data file with utilities and configuration
+   ======================================== */
 
-'use strict';
-
-// ============================================
-// COMBINE ALL REEF DATA
-// ============================================
-const CORAL_REEFS_DATA = (function() {
-    
-    // Collect data from all data files
-    const allData = [];
-    
-    // Data file 1: Reefs 1-10
-    if (typeof CORAL_REEFS_DATA_1 !== 'undefined' && Array.isArray(CORAL_REEFS_DATA_1)) {
-        allData.push(...CORAL_REEFS_DATA_1);
-        console.log(`✓ Loaded ${CORAL_REEFS_DATA_1.length} reefs from data file 1`);
-    } else {
-        console.warn('⚠ Data file 1 not loaded');
-    }
-    
-    // Data file 2: Reefs 11-20
-    if (typeof CORAL_REEFS_DATA_2 !== 'undefined' && Array.isArray(CORAL_REEFS_DATA_2)) {
-        allData.push(...CORAL_REEFS_DATA_2);
-        console.log(`✓ Loaded ${CORAL_REEFS_DATA_2.length} reefs from data file 2`);
-    } else {
-        console.warn('⚠ Data file 2 not loaded');
-    }
-    
-    // Data file 3: Reefs 21-30
-    if (typeof CORAL_REEFS_DATA_3 !== 'undefined' && Array.isArray(CORAL_REEFS_DATA_3)) {
-        allData.push(...CORAL_REEFS_DATA_3);
-        console.log(`✓ Loaded ${CORAL_REEFS_DATA_3.length} reefs from data file 3`);
-    } else {
-        console.warn('⚠ Data file 3 not loaded');
-    }
-    
-    // Data file 4: Reefs 31-40
-    if (typeof CORAL_REEFS_DATA_4 !== 'undefined' && Array.isArray(CORAL_REEFS_DATA_4)) {
-        allData.push(...CORAL_REEFS_DATA_4);
-        console.log(`✓ Loaded ${CORAL_REEFS_DATA_4.length} reefs from data file 4`);
-    } else {
-        console.warn('⚠ Data file 4 not loaded');
-    }
-    
-    // Data file 5: Reefs 41-50
-    if (typeof CORAL_REEFS_DATA_5 !== 'undefined' && Array.isArray(CORAL_REEFS_DATA_5)) {
-        allData.push(...CORAL_REEFS_DATA_5);
-        console.log(`✓ Loaded ${CORAL_REEFS_DATA_5.length} reefs from data file 5`);
-    } else {
-        console.warn('⚠ Data file 5 not loaded');
-    }
-    
-    console.log(`🪸 Total reefs loaded: ${allData.length}`);
-    
-    return allData;
-    
-})();
-
-// ============================================
-// DATA VALIDATION & HELPERS
-// ============================================
-const CoralReefsDataUtils = {
-    
-    /**
-     * Get reef by ID
-     * @param {string} id - Reef ID
-     * @returns {Object|null} Reef object or null
-     */
-    getReefById(id) {
-        return CORAL_REEFS_DATA.find(reef => reef.id === id) || null;
+// ===== DATA CONFIGURATION =====
+const REEF_CONFIG = {
+    // Image sources from Unsplash and Pixabay
+    imageSources: {
+        unsplash: 'https://images.unsplash.com/',
+        pixabay: 'https://pixabay.com/get/'
     },
     
-    /**
-     * Get reefs by country
-     * @param {string} countryCode - Country code (e.g., 'AU')
-     * @returns {Array} Array of reefs
-     */
-    getReefsByCountry(countryCode) {
-        return CORAL_REEFS_DATA.filter(reef => 
-            reef.countries.some(c => c.code.toUpperCase() === countryCode.toUpperCase())
-        );
+    // Default values
+    defaults: {
+        temperature: '24-30°C',
+        salinity: '34-36 ppt',
+        visibility: '15-30m',
+        growthRate: '1-3 cm per year'
     },
     
-    /**
-     * Get reefs by ocean
-     * @param {string} ocean - Ocean name
-     * @returns {Array} Array of reefs
-     */
-    getReefsByOcean(ocean) {
-        return CORAL_REEFS_DATA.filter(reef => 
-            reef.ocean.toLowerCase().includes(ocean.toLowerCase())
-        );
-    },
-    
-    /**
-     * Get reefs by type
-     * @param {string} type - Reef type (barrier, fringing, atoll, etc.)
-     * @returns {Array} Array of reefs
-     */
-    getReefsByType(type) {
-        return CORAL_REEFS_DATA.filter(reef => reef.reefType === type);
-    },
-    
-    /**
-     * Get reefs by health status
-     * @param {string} status - Health status (healthy, threatened, endangered, critical)
-     * @returns {Array} Array of reefs
-     */
-    getReefsByHealthStatus(status) {
-        return CORAL_REEFS_DATA.filter(reef => reef.healthStatus === status);
-    },
-    
-    /**
-     * Get largest reefs by area
-     * @param {number} count - Number of reefs to return
-     * @returns {Array} Array of reefs sorted by area
-     */
-    getLargestReefs(count = 10) {
-        return [...CORAL_REEFS_DATA]
-            .sort((a, b) => (b.area || b.length || 0) - (a.area || a.length || 0))
-            .slice(0, count);
-    },
-    
-    /**
-     * Get most biodiverse reefs
-     * @param {number} count - Number of reefs to return
-     * @returns {Array} Array of reefs sorted by biodiversity
-     */
-    getMostBiodiverseReefs(count = 10) {
-        return [...CORAL_REEFS_DATA]
-            .sort((a, b) => {
-                const bioA = (a.biodiversity?.coralSpecies || 0) + (a.biodiversity?.fishSpecies || 0);
-                const bioB = (b.biodiversity?.coralSpecies || 0) + (b.biodiversity?.fishSpecies || 0);
-                return bioB - bioA;
-            })
-            .slice(0, count);
-    },
-    
-    /**
-     * Search reefs by name
-     * @param {string} query - Search query
-     * @returns {Array} Array of matching reefs
-     */
-    searchReefs(query) {
-        const searchTerm = query.toLowerCase().trim();
-        return CORAL_REEFS_DATA.filter(reef => 
-            reef.name.toLowerCase().includes(searchTerm) ||
-            reef.ocean.toLowerCase().includes(searchTerm) ||
-            reef.countries.some(c => c.name.toLowerCase().includes(searchTerm))
-        );
-    },
-    
-    /**
-     * Get all unique countries
-     * @returns {Array} Array of unique country objects
-     */
-    getAllCountries() {
-        const countriesMap = new Map();
-        
-        CORAL_REEFS_DATA.forEach(reef => {
-            reef.countries.forEach(country => {
-                if (!countriesMap.has(country.code)) {
-                    countriesMap.set(country.code, country);
-                }
-            });
-        });
-        
-        return Array.from(countriesMap.values()).sort((a, b) => 
-            a.name.localeCompare(b.name)
-        );
-    },
-    
-    /**
-     * Get all unique oceans
-     * @returns {Array} Array of unique ocean names
-     */
-    getAllOceans() {
-        const oceans = new Set();
-        CORAL_REEFS_DATA.forEach(reef => oceans.add(reef.ocean));
-        return Array.from(oceans).sort();
-    },
-    
-    /**
-     * Get statistics
-     * @returns {Object} Statistics object
-     */
-    getStatistics() {
-        const stats = {
-            totalReefs: CORAL_REEFS_DATA.length,
-            totalCountries: this.getAllCountries().length,
-            totalArea: 0,
-            totalLength: 0,
-            totalCoralSpecies: 0,
-            totalFishSpecies: 0,
-            healthStatus: {
-                healthy: 0,
-                threatened: 0,
-                endangered: 0,
-                critical: 0
-            },
-            reefTypes: {
-                barrier: 0,
-                fringing: 0,
-                atoll: 0,
-                patch: 0,
-                platform: 0,
-                bank: 0
-            }
-        };
-        
-        CORAL_REEFS_DATA.forEach(reef => {
-            stats.totalArea += reef.area || 0;
-            stats.totalLength += reef.length || 0;
-            stats.totalCoralSpecies += reef.biodiversity?.coralSpecies || 0;
-            stats.totalFishSpecies += reef.biodiversity?.fishSpecies || 0;
-            
-            if (stats.healthStatus.hasOwnProperty(reef.healthStatus)) {
-                stats.healthStatus[reef.healthStatus]++;
-            }
-            
-            if (stats.reefTypes.hasOwnProperty(reef.reefType)) {
-                stats.reefTypes[reef.reefType]++;
-            }
-        });
-        
-        return stats;
-    },
-    
-    /**
-     * Validate reef data structure
-     * @param {Object} reef - Reef object to validate
-     * @returns {Object} Validation result
-     */
-    validateReef(reef) {
-        const errors = [];
-        const warnings = [];
-        
-        // Required fields
-        const requiredFields = ['id', 'name', 'countries', 'ocean', 'reefType', 'coordinates', 'image'];
-        requiredFields.forEach(field => {
-            if (!reef[field]) {
-                errors.push(`Missing required field: ${field}`);
-            }
-        });
-        
-        // Validate countries array
-        if (reef.countries && !Array.isArray(reef.countries)) {
-            errors.push('Countries must be an array');
-        } else if (reef.countries?.length === 0) {
-            warnings.push('Countries array is empty');
-        }
-        
-        // Validate coordinates
-        if (reef.coordinates) {
-            if (!Array.isArray(reef.coordinates) || reef.coordinates.length !== 2) {
-                errors.push('Coordinates must be [lat, lng] array');
-            } else {
-                const [lat, lng] = reef.coordinates;
-                if (lat < -90 || lat > 90) errors.push('Invalid latitude');
-                if (lng < -180 || lng > 180) errors.push('Invalid longitude');
-            }
-        }
-        
-        // Validate reef type
-        const validTypes = ['barrier', 'fringing', 'atoll', 'patch', 'platform', 'bank', 'ribbon'];
-        if (reef.reefType && !validTypes.includes(reef.reefType)) {
-            warnings.push(`Unknown reef type: ${reef.reefType}`);
-        }
-        
-        // Validate health status
-        const validStatuses = ['healthy', 'threatened', 'endangered', 'critical'];
-        if (reef.healthStatus && !validStatuses.includes(reef.healthStatus)) {
-            warnings.push(`Unknown health status: ${reef.healthStatus}`);
-        }
-        
-        // Optional field warnings
-        if (!reef.biodiversity) warnings.push('Missing biodiversity data');
-        if (!reef.oceanConditions) warnings.push('Missing ocean conditions');
-        if (!reef.diveSites) warnings.push('Missing dive sites');
-        
-        return {
-            isValid: errors.length === 0,
-            errors,
-            warnings
-        };
-    },
-    
-    /**
-     * Validate all reef data
-     * @returns {Object} Validation report
-     */
-    validateAllReefs() {
-        const report = {
-            total: CORAL_REEFS_DATA.length,
-            valid: 0,
-            invalid: 0,
-            issues: []
-        };
-        
-        CORAL_REEFS_DATA.forEach((reef, index) => {
-            const result = this.validateReef(reef);
-            
-            if (result.isValid) {
-                report.valid++;
-            } else {
-                report.invalid++;
-                report.issues.push({
-                    index,
-                    id: reef.id,
-                    name: reef.name,
-                    errors: result.errors,
-                    warnings: result.warnings
-                });
-            }
-        });
-        
-        return report;
-    },
-    
-    /**
-     * Get reef rank by size
-     * @param {string} reefId - Reef ID
-     * @returns {number} Rank (1-based)
-     */
-    getReefRank(reefId) {
-        const sorted = [...CORAL_REEFS_DATA].sort((a, b) => 
-            (b.area || b.length || 0) - (a.area || a.length || 0)
-        );
-        
-        const index = sorted.findIndex(r => r.id === reefId);
-        return index !== -1 ? index + 1 : null;
-    },
-    
-    /**
-     * Get nearby reefs
-     * @param {Array} coordinates - [lat, lng] coordinates
-     * @param {number} radiusKm - Search radius in km
-     * @returns {Array} Array of nearby reefs
-     */
-    getNearbyReefs(coordinates, radiusKm = 500) {
-        const [lat1, lng1] = coordinates;
-        
-        const getDistanceKm = (lat2, lng2) => {
-            const R = 6371; // Earth's radius in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLng/2) * Math.sin(dLng/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        };
-        
-        return CORAL_REEFS_DATA
-            .map(reef => ({
-                ...reef,
-                distance: getDistanceKm(reef.coordinates[0], reef.coordinates[1])
-            }))
-            .filter(reef => reef.distance <= radiusKm && reef.distance > 0)
-            .sort((a, b) => a.distance - b.distance);
+    // Reef type descriptions
+    typeDescriptions: {
+        'Barrier Reef': 'A reef separated from the mainland or island shore by a deep channel or lagoon',
+        'Fringing Reef': 'A reef that is directly attached to a shore or borders it with shallow water',
+        'Atoll': 'A ring-shaped coral reef encircling a lagoon partially or completely',
+        'Patch Reef': 'An isolated, small reef formation that grows up from the open bottom of an island platform or continental shelf',
+        'Platform Reef': 'A reef that forms on a submerged platform and grows in all directions',
+        'Bank Reef': 'A linear or semicircular reef that develops on high points of the sea floor',
+        'Ribbon Reef': 'A long, narrow reef that follows the edge of a continental shelf',
+        'Apron Reef': 'A reef that slopes away from the shore like a fringing reef but is more sloped',
+        'Table Reef': 'A flat-topped reef isolated from the shore'
     }
 };
 
-// ============================================
-// EXPORT FOR DIFFERENT ENVIRONMENTS
-// ============================================
+// ===== REEF DATA UTILITIES =====
+const ReefDataUtils = {
+    // Generate consistent image URLs
+    getReefImage: function(query, width = 400, height = 400) {
+        const searchTerms = encodeURIComponent(query + ' coral reef underwater');
+        return `https://source.unsplash.com/${width}x${height}/?${searchTerms}`;
+    },
+    
+    // Format size display
+    formatSize: function(value, unit) {
+        if (typeof value === 'number') {
+            return `${value.toLocaleString()} ${unit}`;
+        }
+        return value;
+    },
+    
+    // Calculate biodiversity score
+    calculateBiodiversityScore: function(reef) {
+        let score = 0;
+        if (reef.biodiversity) {
+            const b = reef.biodiversity;
+            score += (parseInt(b.coralSpecies) || 0) * 0.3;
+            score += (parseInt(b.fishSpecies) || 0) * 0.4;
+            score += (parseInt(b.turtleSpecies) || 0) * 5;
+            score += (parseInt(b.sharkSpecies) || 0) * 3;
+        }
+        return Math.round(score);
+    },
+    
+    // Get threat level color
+    getThreatColor: function(level) {
+        const colors = {
+            'high': '#FF4444',
+            'medium': '#FFB344',
+            'low': '#44BB44',
+            'critical': '#CC0000'
+        };
+        return colors[level.toLowerCase()] || colors.medium;
+    },
+    
+    // Generate polygon coordinates for reef shape
+    generateReefPolygon: function(centerLat, centerLng, size, shape = 'irregular') {
+        const points = [];
+        const numPoints = shape === 'atoll' ? 36 : 12;
+        const baseRadius = Math.sqrt(size) / 100;
+        
+        for (let i = 0; i < numPoints; i++) {
+            const angle = (i / numPoints) * 2 * Math.PI;
+            const variance = shape === 'irregular' ? (Math.random() * 0.3 + 0.85) : 1;
+            const r = baseRadius * variance;
+            
+            points.push([
+                centerLat + r * Math.cos(angle),
+                centerLng + r * Math.sin(angle) * 1.2
+            ]);
+        }
+        
+        return points;
+    }
+};
 
-// CommonJS
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { CORAL_REEFS_DATA, CoralReefsDataUtils };
+// ===== OCEAN CURRENT DATA =====
+const OCEAN_CURRENTS = {
+    'East Australian Current': {
+        path: [[-10, 150], [-15, 152], [-20, 154], [-25, 153], [-30, 152]],
+        color: '#4169E1'
+    },
+    'Gulf Stream': {
+        path: [[25, -80], [30, -78], [35, -75], [40, -70], [45, -60]],
+        color: '#4169E1'
+    },
+    'Kuroshio Current': {
+        path: [[20, 125], [25, 130], [30, 135], [35, 140], [40, 145]],
+        color: '#4169E1'
+    },
+    'South Equatorial Current': {
+        path: [[-5, -170], [-5, -150], [-5, -130], [-5, -110]],
+        color: '#4169E1'
+    },
+    'North Equatorial Current': {
+        path: [[10, 130], [10, 150], [10, 170], [10, -170]],
+        color: '#4169E1'
+    },
+    'Caribbean Current': {
+        path: [[12, -65], [15, -70], [18, -75], [20, -80]],
+        color: '#4169E1'
+    },
+    'Agulhas Current': {
+        path: [[-25, 35], [-30, 32], [-35, 28], [-40, 25]],
+        color: '#4169E1'
+    },
+    'Indonesia Throughflow': {
+        path: [[0, 120], [-5, 125], [-10, 130], [-15, 125]],
+        color: '#4169E1'
+    }
+};
+
+// ===== MARINE PROTECTED AREA DATA =====
+const MPA_DATA = {
+    'Great Barrier Reef Marine Park': {
+        established: 1975,
+        area: 344400,
+        coverage: '100%'
+    },
+    'Papahānaumokuākea Marine National Monument': {
+        established: 2006,
+        area: 1510000,
+        coverage: '100%'
+    },
+    'Coral Sea Marine Park': {
+        established: 2012,
+        area: 989842,
+        coverage: '100%'
+    },
+    'Florida Keys National Marine Sanctuary': {
+        established: 1990,
+        area: 9900,
+        coverage: '100%'
+    }
+};
+
+// ===== DEFAULT GALLERY IMAGES =====
+const DEFAULT_GALLERY_IMAGES = [
+    'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600',
+    'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600',
+    'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600',
+    'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600',
+    'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600',
+    'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600'
+];
+
+// ===== REEF IMAGES DATABASE =====
+const REEF_IMAGES = {
+    // Great Barrier Reef
+    greatBarrier: {
+        main: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
+        background: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920',
+        gallery: [
+            'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600',
+            'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600',
+            'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600',
+            'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600',
+            'https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=600',
+            'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600'
+        ]
+    },
+    // Generic coral reef images for different types
+    barrier: {
+        main: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800',
+        background: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920',
+        gallery: DEFAULT_GALLERY_IMAGES
+    },
+    fringing: {
+        main: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800',
+        background: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1920',
+        gallery: DEFAULT_GALLERY_IMAGES
+    },
+    atoll: {
+        main: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800',
+        background: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920',
+        gallery: DEFAULT_GALLERY_IMAGES
+    },
+    patch: {
+        main: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=800',
+        background: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=1920',
+        gallery: DEFAULT_GALLERY_IMAGES
+    }
+};
+
+// ===== SPECIFIC REEF IMAGES =====
+const SPECIFIC_REEF_IMAGES = {
+    1: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',  // Great Barrier Reef
+    2: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',  // Mesoamerican
+    3: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400',  // New Caledonia
+    4: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400', // Red Sea
+    5: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=400', // Andros
+    6: 'https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=400', // Florida
+    7: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400', // Belize
+    8: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=400', // Maldives
+    9: 'https://images.unsplash.com/photo-1551244072-5d12893278ab?w=400',  // Philippines
+    10: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400', // Fiji
+    11: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400', // Raja Ampat
+    12: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400', // Tubbataha
+    13: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400', // Apo Reef
+    14: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=400', // Ningaloo
+    15: 'https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=400', // Aldabra
+    16: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400', // Chagos
+    17: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=400', // Palau
+    18: 'https://images.unsplash.com/photo-1551244072-5d12893278ab?w=400',  // Wakatobi
+    19: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400', // Komodo
+    20: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400'  // Bunaken
+};
+
+// ===== NOTABLE MARINE SPECIES =====
+const NOTABLE_SPECIES = {
+    commonFish: [
+        'Clownfish', 'Parrotfish', 'Butterflyfish', 'Angelfish', 'Surgeonfish',
+        'Damselfish', 'Wrasse', 'Grouper', 'Snapper', 'Triggerfish'
+    ],
+    sharks: [
+        'Blacktip Reef Shark', 'Whitetip Reef Shark', 'Grey Reef Shark',
+        'Hammerhead Shark', 'Whale Shark', 'Nurse Shark', 'Tiger Shark'
+    ],
+    turtles: [
+        'Green Sea Turtle', 'Hawksbill Turtle', 'Loggerhead Turtle',
+        'Leatherback Turtle', 'Olive Ridley Turtle', 'Flatback Turtle'
+    ],
+    rays: [
+        'Manta Ray', 'Eagle Ray', 'Stingray', 'Blue-spotted Ray'
+    ],
+    corals: [
+        'Staghorn Coral', 'Brain Coral', 'Table Coral', 'Elkhorn Coral',
+        'Mushroom Coral', 'Plate Coral', 'Fire Coral', 'Fan Coral'
+    ],
+    invertebrates: [
+        'Giant Clam', 'Sea Cucumber', 'Crown-of-Thorns Starfish',
+        'Octopus', 'Nautilus', 'Sea Urchin', 'Moray Eel'
+    ]
+};
+
+// ===== DATA VALIDATION =====
+function validateReefData(reef) {
+    const required = ['id', 'name', 'country', 'ocean', 'type', 'size'];
+    const missing = required.filter(field => !reef[field]);
+    
+    if (missing.length > 0) {
+        console.warn(`Reef ${reef.id || 'unknown'} missing fields: ${missing.join(', ')}`);
+        return false;
+    }
+    return true;
 }
 
-// AMD
-if (typeof define === 'function' && define.amd) {
-    define([], function() {
-        return { CORAL_REEFS_DATA, CoralReefsDataUtils };
+// ===== DATA EXPORT CHECK =====
+function getAllReefData() {
+    const allData = [];
+    
+    for (let i = 1; i <= 10; i++) {
+        const varName = `CORAL_REEFS_${i}`;
+        if (typeof window[varName] !== 'undefined') {
+            allData.push(...window[varName]);
+        }
+    }
+    
+    return allData.sort((a, b) => {
+        const sizeA = parseFloat(a.size.replace(/[^0-9.]/g, '')) || 0;
+        const sizeB = parseFloat(b.size.replace(/[^0-9.]/g, '')) || 0;
+        return sizeB - sizeA;
     });
 }
 
-// Log data summary
-console.log('📊 Coral Reefs Data Summary:');
-console.log(`   • Total Reefs: ${CORAL_REEFS_DATA.length}`);
-console.log(`   • Countries: ${CoralReefsDataUtils.getAllCountries().length}`);
-console.log(`   • Oceans: ${CoralReefsDataUtils.getAllOceans().join(', ')}`);
+// ===== STATISTICS CALCULATOR =====
+function calculateReefStatistics(reefs) {
+    const stats = {
+        totalReefs: reefs.length,
+        totalCountries: new Set(reefs.map(r => r.country)).size,
+        byType: {},
+        byOcean: {},
+        totalArea: 0,
+        averageSpecies: 0
+    };
+    
+    reefs.forEach(reef => {
+        // Count by type
+        stats.byType[reef.type] = (stats.byType[reef.type] || 0) + 1;
+        
+        // Count by ocean
+        stats.byOcean[reef.ocean] = (stats.byOcean[reef.ocean] || 0) + 1;
+        
+        // Calculate total area
+        const areaMatch = reef.area?.match(/[\d,]+/);
+        if (areaMatch) {
+            stats.totalArea += parseInt(areaMatch[0].replace(/,/g, ''));
+        }
+        
+        // Average species
+        if (reef.biodiversity?.fishSpecies) {
+            stats.averageSpecies += parseInt(reef.biodiversity.fishSpecies) || 0;
+        }
+    });
+    
+    stats.averageSpecies = Math.round(stats.averageSpecies / reefs.length);
+    
+    return stats;
+}
+
+// Export for use in other files
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        REEF_CONFIG,
+        ReefDataUtils,
+        OCEAN_CURRENTS,
+        MPA_DATA,
+        REEF_IMAGES,
+        SPECIFIC_REEF_IMAGES,
+        NOTABLE_SPECIES,
+        DEFAULT_GALLERY_IMAGES,
+        validateReefData,
+        getAllReefData,
+        calculateReefStatistics
+    };
+}
