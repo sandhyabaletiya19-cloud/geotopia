@@ -166,6 +166,10 @@ function renderRiverCards() {
     }
 }
 
+// Add Coming Soon card at the end
+    addComingSoonCard();
+}
+
 function createRiverCard(river, rank) {
     const card = document.createElement('div');
     card.className = 'river-card';
