@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forests Explorer | World's Greatest Forests</title>
+    <link rel="stylesheet" href="forest-style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Ambient forest sounds toggle -->
+    <div class="ambient-toggle" id="ambientToggle" title="Toggle Forest Sounds">
+        <span class="sound-icon">🔊</span>
+    </div>
+    <audio id="forestAmbient" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-forest-birds-ambience-1210.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Floating particles (leaves) -->
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- Natural forest background with subtle leaf patterns -->
+    <div class="forest-explorer-container">
+        
+        <!-- Header with natural aesthetic -->
+        <header class="forest-header">
+            <div class="header-canopy-effect"></div>
+            <div class="header-light-rays"></div>
+            <div class="header-content">
+                <h1 class="forest-title">
+                    <span class="title-icon">🌲</span>
+                    World's Forest Biomes
+                    <span class="title-icon">🌳</span>
+                </h1>
+                <p class="forest-subtitle">Explore 100 magnificent forests from largest to smallest</p>
+                <div class="forest-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalForests">100</span>
+                        <span class="stat-label">Forests</span>
+                    </div>
+                    <div class="stat-divider">|</div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalArea">0</span>
+                        <span class="stat-label">km² Total</span>
+                    </div>
+                    <div class="stat-divider">|</div>
+                    <div class="stat-item">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">Continents</span>
+                    </div>
+                </div>
+                <div class="breadcrumb">
+                    <span onclick="goHome()">🏠 Home</span> 
+                    <span class="breadcrumb-arrow">→</span> 
+                    <span class="active">🌲 Forests</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search forests by name, region, or type...">
+                <button class="search-clear" id="searchClear">✕</button>
+            </div>
+        </div>
+
+        <!-- Filter/Sort Section with natural styling -->
+        <div class="forest-controls">
+            <div class="filter-group">
+                <button class="filter-btn active" data-type="all">
+                    <span class="filter-icon">🌍</span>
+                    <span class="filter-text">All Forests</span>
+                </button>
+                <button class="filter-btn" data-type="tropical">
+                    <span class="filter-icon">🌴</span>
+                    <span class="filter-text">Tropical</span>
+                </button>
+                <button class="filter-btn" data-type="temperate">
+                    <span class="filter-icon">🍂</span>
+                    <span class="filter-text">Temperate</span>
+                </button>
+                <button class="filter-btn" data-type="boreal">
+                    <span class="filter-icon">❄️</span>
+                    <span class="filter-text">Boreal</span>
+                </button>
+                <button class="filter-btn" data-type="mangrove">
+                    <span class="filter-icon">🌊</span>
+                    <span class="filter-text">Mangrove</span>
+                </button>
+                <button class="filter-btn" data-type="cloud">
+                    <span class="filter-icon">☁️</span>
+                    <span class="filter-text">Cloud Forest</span>
+                </button>
+            </div>
+
+            <div class="sort-group">
+                <label class="sort-label">Sort by:</label>
+                <select id="sortSelect" class="sort-select">
+                    <option value="area-desc">Area (Largest First)</option>
+                    <option value="area-asc">Area (Smallest First)</option>
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+            <button class="view-btn active" data-view="grid" title="Grid View">
+                <span>▦</span>
+            </button>
+            <button class="view-btn" data-view="list" title="List View">
+                <span>☰</span>
+            </button>
+            <button class="view-btn" data-view="map" title="Map View">
+                <span>🗺️</span>
+            </button>
+        </div>
+
+        <!-- Results Counter -->
+        <div class="results-counter">
+            <span id="resultsCount">100</span> forests found
+        </div>
+
+        <!-- World Map View (Hidden by default) -->
+        <div class="world-map-container hidden" id="worldMapContainer">
+            <div id="worldMap" class="world-map"></div>
+        </div>
+
+        <!-- Forest Cards Grid -->
+        <div class="forest-grid" id="forestGrid">
+            <!-- Cards populated by JavaScript -->
+        </div>
+
+        <!-- List View (Hidden by default) -->
+        <div class="forest-list hidden" id="forestList">
+            <!-- List items populated by JavaScript -->
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading-indicator hidden" id="loadingIndicator">
+            <div class="loading-spinner">
+                <div class="leaf-spin">🍃</div>
+            </div>
+            <p>Loading forests...</p>
+        </div>
+
+        <!-- Coming Soon Card at end -->
+        <div class="coming-soon-card" id="comingSoon">
+            <div class="coming-soon-circle">
+                <div class="seedling-icon">🌱</div>
+            </div>
+            <h3>More Forests Coming Soon</h3>
+            <p>We're planting new forest data daily</p>
+            <div class="coming-soon-progress">
+                <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            <span class="progress-text">100 of 100 forests loaded</span>
+        </div>
+
+        <!-- Footer -->
+        <footer class="forest-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>🌲 Forests Explorer</h4>
+                    <p>Dedicated to preserving and celebrating the world's magnificent forests.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Forest Types</h4>
+                    <ul>
+                        <li>🌴 Tropical Rainforests</li>
+                        <li>🍂 Temperate Forests</li>
+                        <li>❄️ Boreal Forests</li>
+                        <li>🌊 Mangrove Forests</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Conservation</h4>
+                    <ul>
+                        <li>🌍 WWF</li>
+                        <li>🌳 Rainforest Alliance</li>
+                        <li>🦜 Conservation International</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 Forests Explorer | Protecting Nature's Lungs</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" title="Back to Top">
+        <span>↑</span>
+    </button>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="forest-data1.js"></script>
+    <script src="forest-data2.js"></script>
+    <script src="forest-data3.js"></script>
+    <script src="forest-data4.js"></script>
+    <script src="forest-data5.js"></script>
+    <script src="forest-data6.js"></script>
+    <script src="forest-data7.js"></script>
+    <script src="forest-data8.js"></script>
+    <script src="forest-data9.js"></script>
+    <script src="forest-data10.js"></script>
+    <script src="forest-app.js"></script>
+</body>
+</html>
