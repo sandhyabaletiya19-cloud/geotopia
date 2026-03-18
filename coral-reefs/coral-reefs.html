@@ -5,1381 +5,281 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coral Reefs Explorer | Geography Learning App</title>
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
-        /* ============================================
-           CSS VARIABLES
-           ============================================ */
-        :root {
-            --ocean-deep: #0a1628;
-            --ocean-dark: #0d2137;
-            --ocean-medium: #1a4a6e;
-            --ocean-light: #2d7d9a;
-            --ocean-surface: #4db8d4;
-            --coral-pink: #ff6b8a;
-            --coral-orange: #ff8c5a;
-            --coral-red: #e74c3c;
-            --coral-purple: #9b59b6;
-            --accent-cyan: #00d4ff;
-            --accent-turquoise: #00e5c7;
-            --accent-gold: #ffd700;
-            --text-primary: #ffffff;
-            --text-muted: rgba(255, 255, 255, 0.6);
-            --bg-card: rgba(255, 255, 255, 0.08);
-            --bg-card-hover: rgba(255, 255, 255, 0.12);
-            --status-healthy: #00e676;
-            --status-threatened: #ffeb3b;
-            --status-endangered: #ff9800;
-            --status-critical: #f44336;
-        }
-
-        /* ============================================
-           BASE STYLES
-           ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #0a1628 0%, #0d2137 50%, #1a4a6e 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ============================================
-           LOADING SCREEN
-           ============================================ */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--ocean-deep);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loading-content {
-            text-align: center;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--bg-card);
-            border-top-color: var(--accent-cyan);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-size: 1.2rem;
-            color: var(--text-primary);
-        }
-
-        /* ============================================
-           HEADER
-           ============================================ */
-        .page-header {
-            padding: 24px;
-        }
-
-        .header-top {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .back-button {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .back-button:hover {
-            background: var(--bg-card-hover);
-            transform: translateX(-4px);
-        }
-
-        .header-title-group {
-            flex: 1;
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 5px;
-            background: linear-gradient(135deg, #fff, var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .title-icon {
-            font-size: 3rem;
-            -webkit-text-fill-color: initial;
-        }
-
-        .page-subtitle {
-            font-size: 1rem;
-            color: var(--text-muted);
-        }
-
-        /* Stats Bar */
-        .stats-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            padding: 20px 30px;
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-turquoise));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ocean-deep);
-            font-size: 1.3rem;
-        }
-
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        /* ============================================
-           SEARCH & FILTERS
-           ============================================ */
-        .search-filter-section {
-            padding: 0 24px;
-            margin-bottom: 30px;
-        }
-
-        .search-box {
-            position: relative;
-            max-width: 600px;
-            margin: 0 auto 20px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 14px 50px;
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 30px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .search-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .search-input:focus {
-            background: var(--bg-card-hover);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        /* Filter Buttons */
-        .filter-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .filter-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--accent-cyan);
-            transform: translateY(-2px);
-        }
-
-        .filter-btn.active {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-turquoise));
-            border-color: transparent;
-            color: var(--ocean-deep);
-            font-weight: 600;
-        }
-
-        .results-info {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            padding: 10px 0;
-        }
-
-        /* ============================================
-           REEFS GRID
-           ============================================ */
-        .reefs-section {
-            padding: 0 24px;
-        }
-
-        .reefs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 30px;
-            justify-items: center;
-        }
-
-        /* Reef Card */
-        .reef-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            max-width: 200px;
-        }
-
-        .reef-card:hover {
-            transform: translateY(-8px);
-        }
-
-        .reef-card:hover .card-image-container {
-            box-shadow: 0 15px 40px rgba(0, 200, 255, 0.3);
-        }
-
-        .reef-card:hover .card-image {
-            transform: scale(1.08);
-        }
-
-        .card-image-container {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            position: relative;
-            background: var(--bg-card);
-            border: 3px solid transparent;
-            background-image: linear-gradient(var(--ocean-dark), var(--ocean-dark)),
-                              linear-gradient(135deg, var(--accent-cyan), var(--coral-pink));
-            background-origin: border-box;
-            background-clip: padding-box, border-box;
-            transition: all 0.4s ease;
-            margin-bottom: 15px;
-        }
-
-        .card-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .card-rank {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-gold), #ffaa00);
-            color: var(--ocean-deep);
-            font-size: 0.7rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
-            z-index: 2;
-        }
-
-        .card-type-badge {
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 3px 10px;
-            border-radius: 15px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 2;
-            white-space: nowrap;
-        }
-
-        .card-type-badge.barrier {
-            background: linear-gradient(135deg, var(--coral-pink), var(--coral-red));
-            color: white;
-        }
-
-        .card-type-badge.fringing {
-            background: linear-gradient(135deg, var(--accent-turquoise), var(--ocean-light));
-            color: white;
-        }
-
-        .card-type-badge.atoll {
-            background: linear-gradient(135deg, var(--coral-purple), #7b3fa0);
-            color: white;
-        }
-
-        .card-type-badge.bank {
-            background: linear-gradient(135deg, var(--ocean-surface), var(--ocean-light));
-            color: white;
-        }
-
-        .card-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            line-height: 1.3;
-        }
-
-        .card-flags {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            margin-bottom: 8px;
-        }
-
-        .country-flag {
-            width: 24px;
-            height: 18px;
-            border-radius: 3px;
-            object-fit: cover;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-size {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .card-size i {
-            color: var(--accent-cyan);
-        }
-
-        /* No Results */
-        .no-results {
-            display: none;
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .no-results.visible {
-            display: block;
-        }
-
-        .no-results-icon {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 48px;
-            color: var(--text-muted);
-        }
-
-        .no-results h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        .no-results p {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .reset-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: var(--accent-cyan);
-            color: var(--ocean-deep);
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .reset-btn:hover {
-            background: var(--accent-turquoise);
-            transform: translateY(-2px);
-        }
-
-        /* ============================================
-           FOOTER
-           ============================================ */
-        .page-footer {
-            text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
-            background: var(--ocean-dark);
-        }
-
-        .footer-text {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-
-        .footer-credits {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 1.8rem;
-            }
-            
-            .title-icon {
-                font-size: 2rem;
-            }
-            
-            .stats-bar {
-                gap: 20px;
-                padding: 15px 20px;
-            }
-            
-            .reefs-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 20px;
-            }
-            
-            .card-image-container {
-                width: 120px;
-                height: 120px;
-            }
-            
-            .filter-btn span {
-                display: none;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .reefs-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-            
-            .card-image-container {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .card-name {
-                font-size: 0.9rem;
-            }
-            
-            .header-top {
-                flex-wrap: wrap;
-            }
-            
-            .stats-bar {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="coral-reefs-styles.css">
 </head>
-<body>
+<body class="day-mode">
     <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <p class="loading-text">Loading Coral Reefs...</p>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loader-content">
+            <div class="coral-loader">
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="coral-icon">🪸</div>
+            </div>
+            <h2>Diving into the Ocean...</h2>
+            <p>Loading Coral Reefs Explorer</p>
         </div>
     </div>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Header -->
-        <header class="page-header">
-            <div class="header-top">
-                <a href="#" class="back-button">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <div class="header-title-group">
-                    <h1 class="page-title">
-                        <span class="title-icon">🪸</span>
-                        Coral Reefs Explorer
-                    </h1>
-                    <p class="page-subtitle">Discover the world's underwater treasures</p>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <a href="index.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Home</span>
+            </a>
+            
+            <div class="logo">
+                <span class="logo-icon">🪸</span>
+                <h1>Coral Reefs Explorer</h1>
+            </div>
+            
+            <div class="header-controls">
+                <button id="day-night-toggle" class="control-btn" aria-label="Toggle Day/Night Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="map-view-toggle" class="control-btn" aria-label="Toggle Map View">
+                    <i class="fas fa-map"></i>
+                </button>
+                <button id="sound-toggle" class="control-btn" aria-label="Toggle Sound">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-background">
+            <div class="underwater-particles">
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+            </div>
+        </div>
+        <div class="hero-content">
+            <h2 class="hero-title">Explore the World's Coral Reefs</h2>
+            <p class="hero-subtitle">Discover 100 magnificent coral reef ecosystems from around the globe</p>
+            
+            <!-- Search and Filter -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="reef-search" placeholder="Search coral reefs...">
+                    <button id="clear-search" class="clear-btn" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-globe"></i>
+                        <span>All Reefs</span>
+                    </button>
+                    <button class="filter-btn" data-filter="barrier">
+                        <i class="fas fa-water"></i>
+                        <span>Barrier Reefs</span>
+                    </button>
+                    <button class="filter-btn" data-filter="fringing">
+                        <i class="fas fa-mountain"></i>
+                        <span>Fringing Reefs</span>
+                    </button>
+                    <button class="filter-btn" data-filter="atoll">
+                        <i class="fas fa-circle"></i>
+                        <span>Atolls</span>
+                    </button>
+                    <button class="filter-btn" data-filter="patch">
+                        <i class="fas fa-dot-circle"></i>
+                        <span>Patch Reefs</span>
+                    </button>
+                </div>
+                
+                <div class="sort-options">
+                    <label for="sort-select">Sort by:</label>
+                    <select id="sort-select">
+                        <option value="size-desc">Size (Largest First)</option>
+                        <option value="size-asc">Size (Smallest First)</option>
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="biodiversity">Biodiversity</option>
+                    </select>
                 </div>
             </div>
-
+            
+            <!-- Stats Bar -->
             <div class="stats-bar">
                 <div class="stat-item">
-                    <div class="stat-icon"><i class="fas fa-water"></i></div>
-                    <div>
-                        <span class="stat-number" id="totalReefs">50</span>
-                        <span class="stat-label">Coral Reefs</span>
-                    </div>
+                    <span class="stat-number" id="total-reefs">100</span>
+                    <span class="stat-label">Coral Reefs</span>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-icon"><i class="fas fa-globe-americas"></i></div>
-                    <div>
-                        <span class="stat-number" id="totalCountries">25+</span>
-                        <span class="stat-label">Countries</span>
-                    </div>
+                    <span class="stat-number" id="total-countries">45</span>
+                    <span class="stat-label">Countries</span>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-icon"><i class="fas fa-fish"></i></div>
-                    <div>
-                        <span class="stat-number">10K+</span>
-                        <span class="stat-label">Species</span>
-                    </div>
+                    <span class="stat-number" id="total-species">6000+</span>
+                    <span class="stat-label">Coral Species</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="total-area">284,300</span>
+                    <span class="stat-label">km² Total Area</span>
                 </div>
             </div>
-        </header>
+        </div>
+    </section>
 
-        <!-- Search & Filters -->
-        <section class="search-filter-section">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search coral reefs...">
+    <!-- World Map Section -->
+    <section id="world-map-section" class="world-map-section" style="display: none;">
+        <div class="map-header">
+            <h3><i class="fas fa-map-marked-alt"></i> World Coral Reef Map</h3>
+            <button id="close-map" class="close-map-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="world-map" class="world-map"></div>
+        <div class="map-legend">
+            <h4>Legend</h4>
+            <div class="legend-item">
+                <span class="legend-color barrier"></span>
+                <span>Barrier Reef</span>
             </div>
-
-            <div class="filter-container">
-                <button class="filter-btn active" data-filter="all">
-                    <i class="fas fa-globe"></i>
-                    <span>All Reefs</span>
-                </button>
-                <button class="filter-btn" data-filter="barrier">
-                    <i class="fas fa-layer-group"></i>
-                    <span>Barrier</span>
-                </button>
-                <button class="filter-btn" data-filter="fringing">
-                    <i class="fas fa-circle-notch"></i>
-                    <span>Fringing</span>
-                </button>
-                <button class="filter-btn" data-filter="atoll">
-                    <i class="fas fa-ring"></i>
-                    <span>Atoll</span>
-                </button>
+            <div class="legend-item">
+                <span class="legend-color fringing"></span>
+                <span>Fringing Reef</span>
             </div>
-
-            <div class="results-info" id="resultsInfo">
-                Showing all 50 coral reefs
+            <div class="legend-item">
+                <span class="legend-color atoll"></span>
+                <span>Atoll</span>
             </div>
-        </section>
-
-        <!-- Reefs Grid -->
-        <section class="reefs-section">
-            <div class="reefs-grid" id="reefsGrid">
-                <!-- Cards will be inserted here -->
+            <div class="legend-item">
+                <span class="legend-color patch"></span>
+                <span>Patch Reef</span>
             </div>
+        </div>
+    </section>
 
-            <div class="no-results" id="noResults">
-                <div class="no-results-icon">
-                    <i class="fas fa-fish"></i>
-                </div>
-                <h3>No reefs found</h3>
-                <p>Try adjusting your search or filters</p>
-                <button class="reset-btn" id="resetBtn">
-                    <i class="fas fa-undo"></i>
-                    Reset Filters
-                </button>
-            </div>
-        </section>
+    <!-- Main Content - Reef Cards Grid -->
+    <main class="main-content">
+        <div class="content-header">
+            <h3 class="section-title">
+                <span class="title-icon">🐠</span>
+                Explore Coral Reef Systems
+            </h3>
+            <p class="results-count">Showing <span id="visible-count">100</span> of 100 reefs</p>
+        </div>
+        
+        <div id="reef-cards-grid" class="reef-cards-grid">
+            <!-- Cards will be dynamically generated -->
+        </div>
+        
+        <!-- Load More Button -->
+        <div class="load-more-container">
+            <button id="load-more-btn" class="load-more-btn" style="display: none;">
+                <i class="fas fa-plus-circle"></i>
+                Load More Reefs
+            </button>
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="no-results" class="no-results" style="display: none;">
+            <div class="no-results-icon">🔍</div>
+            <h3>No Coral Reefs Found</h3>
+            <p>Try adjusting your search or filter criteria</p>
+            <button id="reset-filters" class="reset-btn">Reset Filters</button>
+        </div>
+    </main>
 
-        <!-- Footer -->
-        <footer class="page-footer">
-            <p class="footer-text">🪸 Coral Reefs Explorer</p>
-            <p class="footer-credits">Data: NOAA, GBRMPA | Images: Unsplash</p>
-        </footer>
+    <!-- Quick Facts Ticker -->
+    <div class="facts-ticker">
+        <div class="ticker-content">
+            <span class="fact-item">🪸 Coral reefs cover less than 1% of the ocean floor but support 25% of marine life</span>
+            <span class="fact-item">🌡️ Coral bleaching occurs when water temperatures rise above 30°C (86°F)</span>
+            <span class="fact-item">🐟 The Great Barrier Reef is home to over 1,500 species of fish</span>
+            <span class="fact-item">🌍 Coral reefs protect coastlines from 97% of wave energy</span>
+            <span class="fact-item">⏰ Some coral colonies are over 4,000 years old</span>
+            <span class="fact-item">💰 Coral reefs provide economic goods and services worth $375 billion annually</span>
+        </div>
     </div>
 
-    <script>
-        // ============================================
-        // CORAL REEFS DATA (Embedded)
-        // ============================================
-        const CORAL_REEFS_DATA = [
-            {
-                id: 'great-barrier-reef',
-                name: 'Great Barrier Reef',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'barrier',
-                length: 2300,
-                area: 344400,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'endangered'
-            },
-            {
-                id: 'new-caledonia-barrier-reef',
-                name: 'New Caledonia Barrier Reef',
-                countries: [{ name: 'France', code: 'FR' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'barrier',
-                length: 1500,
-                area: 40000,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'mesoamerican-barrier-reef',
-                name: 'Mesoamerican Barrier Reef',
-                countries: [{ name: 'Mexico', code: 'MX' }, { name: 'Belize', code: 'BZ' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'barrier',
-                length: 1000,
-                area: 250000,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'endangered'
-            },
-            {
-                id: 'fiji-barrier-reef',
-                name: 'Fiji Barrier Reef',
-                countries: [{ name: 'Fiji', code: 'FJ' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'barrier',
-                length: 600,
-                area: 10000,
-                image: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'red-sea-coral-reef',
-                name: 'Red Sea Coral Reef',
-                countries: [{ name: 'Egypt', code: 'EG' }, { name: 'Saudi Arabia', code: 'SA' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 2000,
-                area: 174000,
-                image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'andros-barrier-reef',
-                name: 'Andros Barrier Reef',
-                countries: [{ name: 'Bahamas', code: 'BS' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'barrier',
-                length: 225,
-                area: 5800,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'belize-barrier-reef',
-                name: 'Belize Barrier Reef',
-                countries: [{ name: 'Belize', code: 'BZ' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'barrier',
-                length: 300,
-                area: 96300,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'endangered'
-            },
-            {
-                id: 'ningaloo-reef',
-                name: 'Ningaloo Reef',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 300,
-                area: 5000,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'raja-ampat-reefs',
-                name: 'Raja Ampat Reefs',
-                countries: [{ name: 'Indonesia', code: 'ID' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 40000,
-                image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'maldives-coral-reefs',
-                name: 'Maldives Coral Reefs',
-                countries: [{ name: 'Maldives', code: 'MV' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 21100,
-                image: 'https://images.unsplash.com/photo-1514649923863-ceaf75b7ec00?w=400',
-                healthStatus: 'endangered'
-            },
-            {
-                id: 'florida-reef-tract',
-                name: 'Florida Reef Tract',
-                countries: [{ name: 'United States', code: 'US' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'barrier',
-                length: 560,
-                area: 9600,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'critical'
-            },
-            {
-                id: 'philippines-coral-triangle',
-                name: 'Philippines Coral Triangle',
-                countries: [{ name: 'Philippines', code: 'PH' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 26000,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'endangered'
-            },
-            {
-                id: 'great-chagos-bank',
-                name: 'Great Chagos Bank',
-                countries: [{ name: 'British Indian Ocean Territory', code: 'IO' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 12642,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'apo-reef',
-                name: 'Apo Reef',
-                countries: [{ name: 'Philippines', code: 'PH' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 34,
-                image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'tubbataha-reefs',
-                name: 'Tubbataha Reefs',
-                countries: [{ name: 'Philippines', code: 'PH' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 97030,
-                image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'palau-reefs',
-                name: 'Palau Reefs',
-                countries: [{ name: 'Palau', code: 'PW' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'barrier',
-                length: 0,
-                area: 1458,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'aldabra-atoll',
-                name: 'Aldabra Atoll',
-                countries: [{ name: 'Seychelles', code: 'SC' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 155,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'komodo-reefs',
-                name: 'Komodo Reefs',
-                countries: [{ name: 'Indonesia', code: 'ID' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 1733,
-                image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'wakatobi-reefs',
-                name: 'Wakatobi Reefs',
-                countries: [{ name: 'Indonesia', code: 'ID' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 13900,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'bunaken-reefs',
-                name: 'Bunaken Reefs',
-                countries: [{ name: 'Indonesia', code: 'ID' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 890,
-                image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'sipadan-reef',
-                name: 'Sipadan Reef',
-                countries: [{ name: 'Malaysia', code: 'MY' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 0.2,
-                image: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'similan-islands-reefs',
-                name: 'Similan Islands Reefs',
-                countries: [{ name: 'Thailand', code: 'TH' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 140,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'andaman-reefs',
-                name: 'Andaman Reefs',
-                countries: [{ name: 'India', code: 'IN' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 11939,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'lakshadweep-reefs',
-                name: 'Lakshadweep Reefs',
-                countries: [{ name: 'India', code: 'IN' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 4200,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'mauritius-reefs',
-                name: 'Mauritius Reefs',
-                countries: [{ name: 'Mauritius', code: 'MU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 150,
-                area: 0,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'seychelles-inner-islands-reefs',
-                name: 'Seychelles Inner Islands Reefs',
-                countries: [{ name: 'Seychelles', code: 'SC' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 1690,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'zanzibar-reefs',
-                name: 'Zanzibar Reefs',
-                countries: [{ name: 'Tanzania', code: 'TZ' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 2600,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'mozambique-reefs',
-                name: 'Mozambique Reefs',
-                countries: [{ name: 'Mozambique', code: 'MZ' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 1860,
-                image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'sodwana-bay-reefs',
-                name: 'Sodwana Bay Reefs',
-                countries: [{ name: 'South Africa', code: 'ZA' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 50,
-                image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'lord-howe-island-reef',
-                name: 'Lord Howe Island Reef',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 6,
-                image: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'rowley-shoals',
-                name: 'Rowley Shoals',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 87,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'cocos-keeling-reefs',
-                name: 'Cocos Keeling Reefs',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 14,
-                image: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'christmas-island-reefs',
-                name: 'Christmas Island Reefs',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 60,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'palmyra-atoll',
-                name: 'Palmyra Atoll',
-                countries: [{ name: 'United States', code: 'US' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 6.56,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'hawaiian-coral-reefs',
-                name: 'Hawaiian Coral Reefs',
-                countries: [{ name: 'United States', code: 'US' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 3600,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'lighthouse-reef',
-                name: 'Lighthouse Reef',
-                countries: [{ name: 'Belize', code: 'BZ' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 300,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'roatan-reef',
-                name: 'Roatan Reef',
-                countries: [{ name: 'Honduras', code: 'HN' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'fringing',
-                length: 60,
-                area: 0,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'cozumel-reefs',
-                name: 'Cozumel Reefs',
-                countries: [{ name: 'Mexico', code: 'MX' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 120,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'bonaire-reef',
-                name: 'Bonaire Reef',
-                countries: [{ name: 'Netherlands', code: 'NL' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 27,
-                image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'turks-caicos-reef',
-                name: 'Turks and Caicos Reef',
-                countries: [{ name: 'United Kingdom', code: 'GB' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'barrier',
-                length: 0,
-                area: 1000,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'cayman-islands-reefs',
-                name: 'Cayman Islands Reefs',
-                countries: [{ name: 'United Kingdom', code: 'GB' }],
-                ocean: 'Atlantic Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 350,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'great-sea-reef',
-                name: 'Great Sea Reef',
-                countries: [{ name: 'Fiji', code: 'FJ' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'barrier',
-                length: 200,
-                area: 0,
-                image: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'pemba-reefs',
-                name: 'Pemba Reefs',
-                countries: [{ name: 'Tanzania', code: 'TZ' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 1200,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'reunion-reefs',
-                name: 'Réunion Reefs',
-                countries: [{ name: 'France', code: 'FR' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 25,
-                area: 12,
-                image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'coral-bay-reefs',
-                name: 'Coral Bay Reefs',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 50,
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400',
-                healthStatus: 'healthy'
-            },
-            {
-                id: 'scott-reef',
-                name: 'Scott Reef',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 500,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'ashmore-reef',
-                name: 'Ashmore Reef',
-                countries: [{ name: 'Australia', code: 'AU' }],
-                ocean: 'Indian Ocean',
-                reefType: 'atoll',
-                length: 0,
-                area: 583,
-                image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400',
-                healthStatus: 'threatened'
-            },
-            {
-                id: 'jarvis-island-reef',
-                name: 'Jarvis Island Reef',
-                countries: [{ name: 'United States', code: 'US' }],
-                ocean: 'Pacific Ocean',
-                reefType: 'fringing',
-                length: 0,
-                area: 4.5,
-                image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400',
-                healthStatus: 'threatened'
-            }
-        ];
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About Coral Reefs Explorer</h4>
+                <p>An interactive educational platform dedicated to exploring and understanding the world's coral reef ecosystems.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#" id="link-all-reefs">All Reefs</a></li>
+                    <li><a href="#" id="link-map">World Map</a></li>
+                    <li><a href="#" id="link-conservation">Conservation</a></li>
+                    <li><a href="#" id="link-about">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Ocean Regions</h4>
+                <ul>
+                    <li><a href="#" data-region="pacific">Pacific Ocean</a></li>
+                    <li><a href="#" data-region="atlantic">Atlantic Ocean</a></li>
+                    <li><a href="#" data-region="indian">Indian Ocean</a></li>
+                    <li><a href="#" data-region="caribbean">Caribbean Sea</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Coral Reefs Explorer. All rights reserved. | Images from Unsplash & Pixabay</p>
+        </div>
+    </footer>
 
-        // ============================================
-        // APPLICATION
-        // ============================================
-        let filteredReefs = [...CORAL_REEFS_DATA];
-        let currentFilter = 'all';
+    <!-- Scroll to Top Button -->
+    <button id="scroll-to-top" class="scroll-to-top" aria-label="Scroll to Top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
 
-        // DOM Elements
-        const reefsGrid = document.getElementById('reefsGrid');
-        const searchInput = document.getElementById('searchInput');
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const resultsInfo = document.getElementById('resultsInfo');
-        const noResults = document.getElementById('noResults');
-        const resetBtn = document.getElementById('resetBtn');
-        const loadingScreen = document.getElementById('loadingScreen');
+    <!-- Audio Element for Ocean Sounds -->
+    <audio id="ocean-sound" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/2432/2432-preview.mp3" type="audio/mpeg">
+    </audio>
 
-        // Get flag URL
-        function getFlagUrl(code) {
-            return `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
-        }
-
-        // Get reef type label
-        function getTypeLabel(type) {
-            const types = {
-                'barrier': 'Barrier',
-                'fringing': 'Fringing',
-                'atoll': 'Atoll',
-                'bank': 'Bank'
-            };
-            return types[type] || type;
-        }
-
-        // Format number
-        function formatNumber(num) {
-            if (!num) return '-';
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        }
-
-        // Render cards
-        function renderCards() {
-            reefsGrid.innerHTML = '';
-            
-            if (filteredReefs.length === 0) {
-                noResults.classList.add('visible');
-                reefsGrid.style.display = 'none';
-                return;
-            }
-            
-            noResults.classList.remove('visible');
-            reefsGrid.style.display = '';
-            
-            filteredReefs.forEach((reef, index) => {
-                const card = document.createElement('div');
-                card.className = 'reef-card';
-                
-                const flagsHtml = reef.countries.slice(0, 2).map(c => 
-                    `<img src="${getFlagUrl(c.code)}" alt="${c.name}" class="country-flag" title="${c.name}">`
-                ).join('');
-                
-                let sizeText = '';
-                if (reef.length) {
-                    sizeText = `${formatNumber(reef.length)} km`;
-                } else if (reef.area) {
-                    sizeText = `${formatNumber(reef.area)} km²`;
-                } else {
-                    sizeText = 'Various';
-                }
-                
-                card.innerHTML = `
-                    <div class="card-image-container">
-                        <img src="${reef.image}" alt="${reef.name}" class="card-image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=400'">
-                        <span class="card-rank">#${index + 1}</span>
-                        <span class="card-type-badge ${reef.reefType}">${getTypeLabel(reef.reefType)}</span>
-                    </div>
-                    <h3 class="card-name">${reef.name}</h3>
-                    <div class="card-flags">${flagsHtml}</div>
-                    <div class="card-size">
-                        <i class="fas fa-ruler-combined"></i>
-                        <span>${sizeText}</span>
-                    </div>
-                `;
-                
-                card.addEventListener('click', () => {
-                    alert(`Clicked: ${reef.name}\n\nIn the full version, this would open the profile page.`);
-                });
-                
-                reefsGrid.appendChild(card);
-            });
-            
-            resultsInfo.textContent = `Showing ${filteredReefs.length} of ${CORAL_REEFS_DATA.length} coral reefs`;
-        }
-
-        // Apply filters
-        function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            
-            filteredReefs = CORAL_REEFS_DATA.filter(reef => {
-                // Search filter
-                if (searchTerm) {
-                    const searchFields = [
-                        reef.name,
-                        reef.ocean,
-                        ...reef.countries.map(c => c.name)
-                    ].join(' ').toLowerCase();
-                    
-                    if (!searchFields.includes(searchTerm)) {
-                        return false;
-                    }
-                }
-                
-                // Type filter
-                if (currentFilter !== 'all' && reef.reefType !== currentFilter) {
-                    return false;
-                }
-                
-                return true;
-            });
-            
-            renderCards();
-        }
-
-        // Reset filters
-        function resetFilters() {
-            searchInput.value = '';
-            currentFilter = 'all';
-            
-            filterBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.filter === 'all');
-            });
-            
-            applyFilters();
-        }
-
-        // Event Listeners
-        searchInput.addEventListener('input', applyFilters);
-
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                applyFilters();
-            });
-        });
-
-        resetBtn.addEventListener('click', resetFilters);
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCards();
-            
-            // Hide loading screen
-            setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-            }, 500);
-            
-            console.log('🪸 Coral Reefs Explorer loaded successfully!');
-            console.log(`📊 Total reefs: ${CORAL_REEFS_DATA.length}`);
-        });
-    </script>
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="coral-reefs-data.js"></script>
+    <script src="coral-reefs-data-1.js"></script>
+    <script src="coral-reefs-data-2.js"></script>
+    <script src="coral-reefs-data-3.js"></script>
+    <script src="coral-reefs-data-4.js"></script>
+    <script src="coral-reefs-data-5.js"></script>
+    <script src="coral-reefs-data-6.js"></script>
+    <script src="coral-reefs-data-7.js"></script>
+    <script src="coral-reefs-data-8.js"></script>
+    <script src="coral-reefs-data-9.js"></script>
+    <script src="coral-reefs-data-10.js"></script>
+    <script src="coral-reefs-app.js"></script>
 </body>
 </html>
