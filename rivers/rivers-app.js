@@ -164,7 +164,11 @@ function renderRiverCards() {
     if (countEl) {
         countEl.textContent = filteredRivers.length;
     }
+    
+    // Add Coming Soon card at the end
+    addComingSoonCard();
 }
+
 function createRiverCard(river, rank) {
     const card = document.createElement('div');
     card.className = 'river-card';
@@ -1342,9 +1346,9 @@ function debounce(func, wait) {
 // ============================================
 
 function getTotalRiversCount() {
-    // Simply return the length of allRivers array
     return allRivers.length;
 }
+
 function createComingSoonCard() {
     const totalRivers = getTotalRiversCount();
     
@@ -1367,7 +1371,6 @@ function createComingSoonCard() {
 }
 
 function addComingSoonCard() {
-    // Use the correct ID from your HTML
     const riverGrid = document.getElementById('riversGrid');
     
     if (riverGrid) {
@@ -1379,5 +1382,152 @@ function addComingSoonCard() {
         
         // Add new coming soon card at the end
         riverGrid.appendChild(createComingSoonCard());
+    }
+}
+```
+
+---
+
+## Don't forget to add the CSS!
+
+Add this to the **end** of your `rivers-styles.css`:
+
+```css
+/* ============================================
+   COMING SOON CARD STYLES
+   ============================================ */
+
+.coming-soon-card {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border: 2px dashed #4a9eff;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: default;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coming-soon-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(74, 158, 255, 0.1) 0%, transparent 70%);
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.coming-soon-card:hover {
+    border-color: #64b5f6;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(74, 158, 255, 0.3);
+}
+
+.coming-soon-content {
+    position: relative;
+    z-index: 1;
+}
+
+.coming-soon-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    animation: wave-animation 2s ease-in-out infinite;
+}
+
+@keyframes wave-animation {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-10px) rotate(-5deg); }
+    75% { transform: translateY(-5px) rotate(5deg); }
+}
+
+.coming-soon-card h3 {
+    color: #4a9eff;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.coming-soon-card .coming-soon-content p {
+    color: #a0a0a0;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.coming-soon-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 25px 0;
+    padding: 15px 25px;
+    background: rgba(74, 158, 255, 0.1);
+    border-radius: 30px;
+    border: 1px solid rgba(74, 158, 255, 0.3);
+}
+
+.current-count {
+    color: #4ade80;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.separator {
+    color: #4a9eff;
+    font-size: 1.2rem;
+    animation: arrow-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes arrow-pulse {
+    0%, 100% { opacity: 0.5; transform: translateX(0); }
+    50% { opacity: 1; transform: translateX(5px); }
+}
+
+.future-count {
+    color: #fbbf24;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.coming-soon-note {
+    color: #888 !important;
+    font-size: 0.85rem !important;
+    font-style: italic;
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .coming-soon-card {
+        padding: 30px 20px;
+        min-height: 250px;
+    }
+    
+    .coming-soon-icon {
+        font-size: 45px;
+    }
+    
+    .coming-soon-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .coming-soon-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .separator {
+        transform: rotate(90deg);
     }
 }
