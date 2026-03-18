@@ -1,253 +1,1190 @@
-/* ============================================
-   CORAL REEFS EXPLORER - DATA FILE 3
-   Reefs 21-30
-   ============================================ */
+/* ========================================
+   CORAL REEFS DATA - FILE 3
+   Reefs 21-30 (Major Coral Reef Systems)
+   ======================================== */
 
-'use strict';
-
-const CORAL_REEFS_DATA_3 = [
+const CORAL_REEFS_3 = [
     {
-        id: 'lighthouse-reef',
-        name: 'Lighthouse Reef',
-        countries: [{ name: 'Belize', code: 'BZ' }],
-        ocean: 'Atlantic Ocean',
-        region: 'Caribbean Sea',
-        reefType: 'atoll',
-        length: 0, area: 300, numberOfReefs: 1, numberOfIslands: 6,
-        coordinates: [17.3200, -87.5300],
-        defaultZoom: 11,
-        image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1920',
-        description: 'Lighthouse Reef is famous for the Great Blue Hole.',
-        formation: { type: 'Atoll', age: '15,000+ years', process: 'Coral atoll formation.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 50, fishSpecies: 300, molluskSpecies: 150, marineAnimals: ['Sharks', 'Rays', 'Turtles'], endangeredSpecies: ['Elkhorn coral'] },
-        nearbyIslands: [{ name: 'Half Moon Caye', coordinates: [17.20, -87.53] }],
-        oceanConditions: { temperature: '26-30°C', salinity: '35 ppt', currents: ['Caribbean Current'], visibility: '30-40 meters' },
-        diveSites: [{ name: 'Great Blue Hole', coordinates: [17.32, -87.53], depth: '124m', description: 'World-famous sinkhole.' }],
-        cities: [{ name: 'Belize City', coordinates: [17.5046, -88.1962], country: 'Belize', population: 61461 }],
-        economicImportance: [{ label: 'Tourism', value: 'Major dive tourism destination' }],
-        environmentalThreats: [{ label: 'Climate Change', value: 'Coral bleaching' }],
-        conservation: [{ label: 'UNESCO', value: 'Part of World Heritage Site' }],
-        historicalImportance: [{ label: 'Cousteau', value: 'Jacques Cousteau explored 1971' }],
-        healthStatus: 'threatened', coralCoverage: 35
+        id: 21,
+        name: "Saya de Malha Bank",
+        country: "Mauritius",
+        ocean: "Indian Ocean",
+        region: "Mascarene Plateau",
+        type: "Submerged Bank Reef",
+        size: "40,808 km²",
+        length: "300 km",
+        area: "40,808 km²",
+        reefCount: "Largest submerged bank",
+        
+        coordinates: {
+            lat: -10.5000,
+            lng: 61.5000
+        },
+        mapZoom: 7,
+        
+        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "200+",
+            fishSpecies: "600+",
+            turtleSpecies: "3",
+            sharkSpecies: "15+",
+            whaleSpecies: "10+",
+            molluskSpecies: "250+",
+            notableSpecies: [
+                "Seagrass Meadows",
+                "Green Sea Turtle",
+                "Dugong",
+                "Spinner Dolphin",
+                "Hammerhead Shark",
+                "Giant Trevally",
+                "Wahoo",
+                "Yellowfin Tuna",
+                "Manta Ray",
+                "Sperm Whale"
+            ]
+        },
+        
+        formation: {
+            age: "35 million years",
+            process: "Submerged volcanic plateau with shallow reef development",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "N/A (submerged bank)",
+            reefFlatDepth: "8-25m below surface",
+            reefCrestDepth: "8m minimum",
+            foreReefDepth: "25-100m",
+            outerSlopeDepth: "100-3,000m+"
+        },
+        
+        conditions: {
+            temperature: "24-28°C",
+            salinity: "35 ppt",
+            currents: "South Equatorial Current",
+            visibility: "25-50m"
+        },
+        
+        economic: {
+            tourismValue: "Minimal (remote)",
+            fisheriesValue: "$200 million/year",
+            jobsSupported: "2,000+",
+            coastalProtection: "N/A (submerged)"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "medium",
+            pollution: "low",
+            overfishing: "high"
+        },
+        
+        conservation: {
+            status: "Extended Continental Shelf Claim",
+            mpaPercent: "0%",
+            programs: "Indian Ocean Tuna Commission monitoring",
+            research: "Limited deep-sea research expeditions"
+        },
+        
+        history: [
+            { year: "1722", event: "First charted by Dutch explorers" },
+            { year: "2011", event: "Mauritius extends continental shelf claim" },
+            { year: "2019", event: "Scientific expedition documents seagrass extent" }
+        ],
+        
+        nearbyIslands: [
+            "No emergent land",
+            "Mauritius (900 km)",
+            "Seychelles (800 km)",
+            "Rodrigues (600 km)"
+        ],
+        
+        islandCoordinates: [
+            { name: "Saya de Malha Bank Center", lat: -10.5000, lng: 61.5000 },
+            { name: "Northern Bank", lat: -9.5000, lng: 61.0000 },
+            { name: "Southern Bank", lat: -11.5000, lng: 62.0000 }
+        ],
+        
+        scientificImportance: "World's largest submerged bank and largest seagrass meadow (estimated 40,000 km²). Critical carbon sink and potential blue carbon hotspot, largely unexplored scientifically.",
+        
+        typeDescription: "The world's largest submerged reef structure and seagrass ecosystem, entirely beneath the ocean surface with no emergent land."
     },
+    
     {
-        id: 'roatan-reef',
-        name: 'Roatan Reef',
-        countries: [{ name: 'Honduras', code: 'HN' }],
-        ocean: 'Atlantic Ocean', region: 'Caribbean Sea', reefType: 'fringing',
-        length: 60, area: 0, numberOfReefs: 100, numberOfIslands: 1,
-        coordinates: [16.3500, -86.5000],
-        defaultZoom: 10,
-        image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920',
-        description: 'Roatan features the best diving in Honduras.',
-        formation: { type: 'Fringing reef', age: '10,000+ years', process: 'Formed along Bay Islands.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 60, fishSpecies: 400, molluskSpecies: 200, marineAnimals: ['Whale sharks', 'Dolphins', 'Turtles'], endangeredSpecies: ['Whale shark'] },
-        nearbyIslands: [{ name: 'Utila', coordinates: [16.10, -86.90] }],
-        oceanConditions: { temperature: '26-30°C', salinity: '35 ppt', currents: ['Caribbean Current'], visibility: '20-40 meters' },
-        diveSites: [{ name: 'Mary\'s Place', coordinates: [16.30, -86.55], depth: '30m', description: 'Dramatic swim-through canyon.' }],
-        cities: [{ name: 'Coxen Hole', coordinates: [16.3167, -86.5333], country: 'Honduras', population: 5070 }],
-        economicImportance: [{ label: 'Tourism', value: '$100 million annually' }],
-        environmentalThreats: [{ label: 'Development', value: 'Coastal development pressure' }],
-        conservation: [{ label: 'Marine Park', value: 'Sandy Bay-West End Marine Reserve' }],
-        historicalImportance: [{ label: 'Pirate History', value: 'Historic pirate haven' }],
-        healthStatus: 'threatened', coralCoverage: 40
+        id: 22,
+        name: "Lakshadweep Coral Reefs",
+        country: "India",
+        ocean: "Indian Ocean",
+        region: "Arabian Sea",
+        type: "Atoll",
+        size: "4,200 km²",
+        length: "36 islands across 400 km",
+        area: "4,200 km² total lagoon",
+        reefCount: "12 atolls, 3 reef islands",
+        
+        coordinates: {
+            lat: 10.5667,
+            lng: 72.6417
+        },
+        mapZoom: 8,
+        
+        image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "105+",
+            fishSpecies: "600+",
+            turtleSpecies: "4",
+            sharkSpecies: "12+",
+            whaleSpecies: "8+",
+            molluskSpecies: "200+",
+            notableSpecies: [
+                "Giant Clam",
+                "Green Sea Turtle",
+                "Hawksbill Turtle",
+                "Blacktip Reef Shark",
+                "Manta Ray",
+                "Napoleon Wrasse",
+                "Parrotfish",
+                "Butterflyfish",
+                "Sea Cucumber",
+                "Giant Trevally"
+            ]
+        },
+        
+        formation: {
+            age: "55 million years",
+            process: "Atolls formed over volcanic hotspot similar to Maldives",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-30m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-1m",
+            foreReefDepth: "1-40m",
+            outerSlopeDepth: "40-1,500m+"
+        },
+        
+        conditions: {
+            temperature: "27-30°C",
+            salinity: "35-36 ppt",
+            currents: "Monsoon-driven currents",
+            visibility: "20-40m"
+        },
+        
+        economic: {
+            tourismValue: "$50 million/year",
+            fisheriesValue: "$80 million/year",
+            jobsSupported: "15,000+",
+            coastalProtection: "$500 million/year"
+        },
+        
+        threats: {
+            bleaching: "high",
+            warming: "high",
+            acidification: "medium",
+            pollution: "low",
+            overfishing: "medium"
+        },
+        
+        conservation: {
+            status: "Restricted Access Territory",
+            mpaPercent: "20%",
+            programs: "Lakshadweep Marine Research Centre",
+            research: "National Institute of Oceanography studies"
+        },
+        
+        history: [
+            { year: "1956", event: "Became Union Territory of India" },
+            { year: "1998", event: "Major coral bleaching event" },
+            { year: "2016", event: "Second mass bleaching event recorded" }
+        ],
+        
+        nearbyIslands: [
+            "Kavaratti",
+            "Agatti",
+            "Minicoy",
+            "Bangaram",
+            "Kadmat"
+        ],
+        
+        islandCoordinates: [
+            { name: "Kavaratti", lat: 10.5667, lng: 72.6417 },
+            { name: "Agatti", lat: 10.8500, lng: 72.1833 },
+            { name: "Minicoy", lat: 8.2833, lng: 73.0500 }
+        ],
+        
+        scientificImportance: "India's only coral atoll ecosystem and important model for studying atoll vulnerability to climate change. Key site for monsoon current research.",
+        
+        typeDescription: "India's smallest Union Territory consisting of 36 pristine coral islands, India's only true atoll system."
     },
+    
     {
-        id: 'cozumel-reefs',
-        name: 'Cozumel Reefs',
-        countries: [{ name: 'Mexico', code: 'MX' }],
-        ocean: 'Atlantic Ocean', region: 'Caribbean Sea', reefType: 'fringing',
-        length: 0, area: 120, numberOfReefs: 25, numberOfIslands: 1,
-        coordinates: [20.4300, -86.9200],
-        defaultZoom: 11,
-        image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920',
-        description: 'Cozumel is Mexico\'s premier diving destination.',
-        formation: { type: 'Fringing reef', age: '10,000+ years', process: 'Formed along island coast.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 50, fishSpecies: 300, molluskSpecies: 200, marineAnimals: ['Eagle rays', 'Turtles', 'Nurse sharks'], endangeredSpecies: ['Elkhorn coral'] },
-        nearbyIslands: [{ name: 'Cozumel Island', coordinates: [20.43, -86.92] }],
-        oceanConditions: { temperature: '26-29°C', salinity: '35 ppt', currents: ['Yucatan Current'], visibility: '25-40 meters' },
-        diveSites: [{ name: 'Palancar Reef', coordinates: [20.34, -87.03], depth: '40m', description: 'Towering coral formations.' }],
-        cities: [{ name: 'San Miguel', coordinates: [20.5000, -86.9500], country: 'Mexico', population: 77236 }],
-        economicImportance: [{ label: 'Tourism', value: '$500 million annually' }],
-        environmentalThreats: [{ label: 'Cruise Ships', value: 'Anchor and diver damage' }],
-        conservation: [{ label: 'National Park', value: 'Cozumel Reefs National Park 1996' }],
-        historicalImportance: [{ label: 'Maya Heritage', value: 'Sacred Maya island' }],
-        healthStatus: 'threatened', coralCoverage: 30
+        id: 23,
+        name: "Coral Sea Reefs",
+        country: "Australia",
+        ocean: "Pacific Ocean",
+        region: "Coral Sea",
+        type: "Platform Reef",
+        size: "989,842 km²",
+        length: "1,000+ km extent",
+        area: "989,842 km² marine park",
+        reefCount: "30+ individual reefs",
+        
+        coordinates: {
+            lat: -17.0000,
+            lng: 152.0000
+        },
+        mapZoom: 6,
+        
+        image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "350+",
+            fishSpecies: "1,100+",
+            turtleSpecies: "5",
+            sharkSpecies: "30+",
+            whaleSpecies: "20+",
+            molluskSpecies: "600+",
+            notableSpecies: [
+                "Grey Reef Shark",
+                "Silvertip Shark",
+                "Humpback Whale",
+                "Loggerhead Turtle",
+                "Green Sea Turtle",
+                "Giant Trevally",
+                "Red Bass",
+                "Coral Trout",
+                "Nautilus",
+                "Manta Ray"
+            ]
+        },
+        
+        formation: {
+            age: "2-3 million years",
+            process: "Platform reefs on submerged seamounts and ridges",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-50m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-60m",
+            outerSlopeDepth: "60-4,000m+"
+        },
+        
+        conditions: {
+            temperature: "23-29°C",
+            salinity: "35-36 ppt",
+            currents: "East Australian Current",
+            visibility: "30-60m"
+        },
+        
+        economic: {
+            tourismValue: "$20 million/year (limited)",
+            fisheriesValue: "Protected",
+            jobsSupported: "500+",
+            coastalProtection: "N/A (offshore)"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "low",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "Coral Sea Marine Park (2012)",
+            mpaPercent: "50%",
+            programs: "Australian Marine Parks management",
+            research: "ARC Centre of Excellence for Coral Reef Studies"
+        },
+        
+        history: [
+            { year: "1803", event: "First European charting begins" },
+            { year: "1942", event: "Battle of the Coral Sea fought" },
+            { year: "2012", event: "Coral Sea Marine Park established" }
+        ],
+        
+        nearbyIslands: [
+            "Osprey Reef",
+            "Bougainville Reef",
+            "Holmes Reef",
+            "Flinders Reef",
+            "Lihou Reef"
+        ],
+        
+        islandCoordinates: [
+            { name: "Osprey Reef", lat: -13.8833, lng: 146.5500 },
+            { name: "Bougainville Reef", lat: -15.5000, lng: 147.1167 },
+            { name: "Holmes Reef", lat: -16.4833, lng: 147.8667 }
+        ],
+        
+        scientificImportance: "Remote and pristine reefs serving as genetic source for Great Barrier Reef. Important site for studying isolated reef systems and their connectivity.",
+        
+        typeDescription: "Remote offshore reefs extending from the Great Barrier Reef into the deep Coral Sea, featuring spectacular walls and pristine ecosystems."
     },
+    
     {
-        id: 'bonaire-reef',
-        name: 'Bonaire Reef',
-        countries: [{ name: 'Netherlands', code: 'NL' }],
-        ocean: 'Atlantic Ocean', region: 'Caribbean Sea', reefType: 'fringing',
-        length: 0, area: 27, numberOfReefs: 86, numberOfIslands: 1,
-        coordinates: [12.2000, -68.2600],
-        defaultZoom: 11,
-        image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920',
-        description: 'Bonaire is consistently rated as one of the best shore diving destinations.',
-        formation: { type: 'Fringing reef', age: '10,000+ years', process: 'Formed along volcanic island.' },
-        reefStructure: { lagoon: false, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 57, fishSpecies: 350, molluskSpecies: 200, marineAnimals: ['Seahorses', 'Turtles', 'Dolphins'], endangeredSpecies: ['Elkhorn coral', 'Staghorn coral'] },
-        nearbyIslands: [{ name: 'Klein Bonaire', coordinates: [12.15, -68.32] }],
-        oceanConditions: { temperature: '26-29°C', salinity: '35 ppt', currents: ['Caribbean Current'], visibility: '25-40 meters' },
-        diveSites: [{ name: 'Salt Pier', coordinates: [12.10, -68.28], depth: '15m', description: 'Amazing pier dive with rich life.' }],
-        cities: [{ name: 'Kralendijk', coordinates: [12.1500, -68.2667], country: 'Netherlands', population: 3081 }],
-        economicImportance: [{ label: 'Tourism', value: '$100 million annually' }],
-        environmentalThreats: [{ label: 'Climate Change', value: 'Coral bleaching events' }],
-        conservation: [{ label: 'Marine Park', value: 'Bonaire National Marine Park 1979' }],
-        historicalImportance: [{ label: 'Conservation Pioneer', value: 'First Caribbean marine park' }],
-        healthStatus: 'threatened', coralCoverage: 45
+        id: 24,
+        name: "Papahānaumokuākea Marine Monument",
+        country: "United States (Hawaii)",
+        ocean: "Pacific Ocean",
+        region: "Northwestern Hawaiian Islands",
+        type: "Atoll",
+        size: "1,510,000 km²",
+        length: "2,000 km chain",
+        area: "1,510,000 km²",
+        reefCount: "10 islands and atolls",
+        
+        coordinates: {
+            lat: 25.0000,
+            lng: -171.0000
+        },
+        mapZoom: 5,
+        
+        image: "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "57+",
+            fishSpecies: "250+",
+            turtleSpecies: "2",
+            sharkSpecies: "15+",
+            whaleSpecies: "24+",
+            molluskSpecies: "300+",
+            notableSpecies: [
+                "Hawaiian Monk Seal",
+                "Green Sea Turtle",
+                "Laysan Albatross",
+                "Giant Trevally",
+                "Galapagos Shark",
+                "Tiger Shark",
+                "Humpback Whale",
+                "Spinner Dolphin",
+                "Masked Booby",
+                "Endangered Short-tailed Albatross"
+            ]
+        },
+        
+        formation: {
+            age: "28 million years (oldest)",
+            process: "Volcanic hotspot chain with progressive atoll development",
+            growthRate: "Variable by age"
+        },
+        
+        structure: {
+            lagoonDepth: "0-60m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-100m",
+            outerSlopeDepth: "100-5,000m+"
+        },
+        
+        conditions: {
+            temperature: "20-27°C",
+            salinity: "35 ppt",
+            currents: "North Pacific Current",
+            visibility: "20-60m"
+        },
+        
+        economic: {
+            tourismValue: "Minimal (restricted)",
+            fisheriesValue: "Protected",
+            jobsSupported: "200+ (research/management)",
+            coastalProtection: "$2 billion/year (ecosystem services)"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "medium",
+            pollution: "low (marine debris)",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "UNESCO World Heritage Site, US National Monument",
+            mpaPercent: "100%",
+            programs: "NOAA and US Fish & Wildlife Service co-management",
+            research: "NOAA Pacific Islands Fisheries Science Center"
+        },
+        
+        history: [
+            { year: "1909", event: "Hawaiian Islands Bird Reservation created" },
+            { year: "2006", event: "Established as National Monument" },
+            { year: "2010", event: "Listed as UNESCO World Heritage Site" }
+        ],
+        
+        nearbyIslands: [
+            "Midway Atoll",
+            "Pearl and Hermes Atoll",
+            "Lisianski Island",
+            "Laysan Island",
+            "French Frigate Shoals"
+        ],
+        
+        islandCoordinates: [
+            { name: "Midway Atoll", lat: 28.2000, lng: -177.3500 },
+            { name: "French Frigate Shoals", lat: 23.8500, lng: -166.2833 },
+            { name: "Laysan Island", lat: 25.7667, lng: -171.7333 }
+        ],
+        
+        scientificImportance: "One of largest fully protected areas on Earth. Critical habitat for Hawaiian monk seal (most endangered pinniped). Living laboratory for studying predator-dominated reef ecosystems.",
+        
+        typeDescription: "One of the world's largest marine conservation areas, a remote chain of islands demonstrating atoll evolution over 28 million years."
     },
+    
     {
-        id: 'turks-caicos-reef',
-        name: 'Turks and Caicos Reef',
-        countries: [{ name: 'United Kingdom', code: 'GB' }],
-        ocean: 'Atlantic Ocean', region: 'Caribbean Sea', reefType: 'barrier',
-        length: 0, area: 1000, numberOfReefs: 200, numberOfIslands: 40,
-        coordinates: [21.7500, -71.5833],
-        defaultZoom: 9,
-        image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1920',
-        description: 'Turks and Caicos features some of the healthiest reefs in the Caribbean.',
-        formation: { type: 'Barrier reef', age: '10,000+ years', process: 'Formed along carbonate platform.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 50, fishSpecies: 300, molluskSpecies: 200, marineAnimals: ['Humpback whales', 'Dolphins', 'Turtles'], endangeredSpecies: ['Hawksbill turtle'] },
-        nearbyIslands: [{ name: 'Providenciales', coordinates: [21.77, -72.27] }],
-        oceanConditions: { temperature: '24-29°C', salinity: '35 ppt', currents: ['Antilles Current'], visibility: '25-40 meters' },
-        diveSites: [{ name: 'Northwest Point', coordinates: [21.87, -72.33], depth: '30m', description: 'Dramatic wall diving.' }],
-        cities: [{ name: 'Cockburn Town', coordinates: [21.4667, -71.1333], country: 'Turks and Caicos', population: 3720 }],
-        economicImportance: [{ label: 'Tourism', value: '$400 million annually' }],
-        environmentalThreats: [{ label: 'Development', value: 'Resort development pressure' }],
-        conservation: [{ label: 'Protected Areas', value: '33 protected areas' }],
-        historicalImportance: [{ label: 'Columbus Landing', value: 'Possible Columbus landfall 1492' }],
-        healthStatus: 'healthy', coralCoverage: 50
+        id: 25,
+        name: "Phoenix Islands Protected Area",
+        country: "Kiribati",
+        ocean: "Pacific Ocean",
+        region: "Central Pacific",
+        type: "Atoll",
+        size: "408,250 km²",
+        length: "Eight atolls",
+        area: "408,250 km²",
+        reefCount: "8 atolls and 2 submerged reefs",
+        
+        coordinates: {
+            lat: -3.7500,
+            lng: -171.7500
+        },
+        mapZoom: 6,
+        
+        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "200+",
+            fishSpecies: "500+",
+            turtleSpecies: "2",
+            sharkSpecies: "12+",
+            whaleSpecies: "15+",
+            molluskSpecies: "200+",
+            notableSpecies: [
+                "Giant Clam",
+                "Blacktip Reef Shark",
+                "Grey Reef Shark",
+                "Green Sea Turtle",
+                "Hawksbill Turtle",
+                "Manta Ray",
+                "Giant Trevally",
+                "Bumphead Parrotfish",
+                "Napoleon Wrasse",
+                "Coconut Crab"
+            ]
+        },
+        
+        formation: {
+            age: "60-70 million years",
+            process: "Volcanic hotspot chain with complete atoll development",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-30m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-1m",
+            foreReefDepth: "1-60m",
+            outerSlopeDepth: "60-5,000m+"
+        },
+        
+        conditions: {
+            temperature: "28-30°C",
+            salinity: "35 ppt",
+            currents: "South Equatorial Current",
+            visibility: "30-60m"
+        },
+        
+        economic: {
+            tourismValue: "Minimal",
+            fisheriesValue: "Protected",
+            jobsSupported: "100+",
+            coastalProtection: "N/A (uninhabited)"
+        },
+        
+        threats: {
+            bleaching: "high",
+            warming: "high",
+            acidification: "medium",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "UNESCO World Heritage Site (2010)",
+            mpaPercent: "100%",
+            programs: "Conservation International partnership",
+            research: "New England Aquarium expeditions"
+        },
+        
+        history: [
+            { year: "1938-1963", event: "British and American colonization attempts" },
+            { year: "2008", event: "Phoenix Islands Protected Area created" },
+            { year: "2010", event: "Listed as UNESCO World Heritage Site" }
+        ],
+        
+        nearbyIslands: [
+            "Kanton",
+            "Enderbury",
+            "Birnie",
+            "McKean",
+            "Phoenix Island"
+        ],
+        
+        islandCoordinates: [
+            { name: "Kanton", lat: -2.8167, lng: -171.6667 },
+            { name: "Enderbury", lat: -3.1333, lng: -171.0833 },
+            { name: "Orona", lat: -4.5000, lng: -172.1667 }
+        ],
+        
+        scientificImportance: "One of Earth's last intact oceanic coral ecosystems. Critical site for studying deep reef connectivity and climate change impacts on remote Pacific reefs.",
+        
+        typeDescription: "The world's largest UNESCO Marine World Heritage Site at time of inscription, featuring pristine and uninhabited Pacific atolls."
     },
+    
     {
-        id: 'cayman-islands-reefs',
-        name: 'Cayman Islands Reefs',
-        countries: [{ name: 'United Kingdom', code: 'GB' }],
-        ocean: 'Atlantic Ocean', region: 'Caribbean Sea', reefType: 'fringing',
-        length: 0, area: 350, numberOfReefs: 300, numberOfIslands: 3,
-        coordinates: [19.3133, -81.2546],
-        defaultZoom: 10,
-        image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920',
-        description: 'Cayman Islands are famous for dramatic walls and Stingray City.',
-        formation: { type: 'Fringing reef', age: '10,000+ years', process: 'Formed around carbonate islands.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 50, fishSpecies: 400, molluskSpecies: 200, marineAnimals: ['Stingrays', 'Turtles', 'Groupers'], endangeredSpecies: ['Nassau grouper'] },
-        nearbyIslands: [{ name: 'Grand Cayman', coordinates: [19.32, -81.24] }, { name: 'Little Cayman', coordinates: [19.68, -80.05] }],
-        oceanConditions: { temperature: '26-30°C', salinity: '35 ppt', currents: ['Caribbean Current'], visibility: '25-40 meters' },
-        diveSites: [{ name: 'Stingray City', coordinates: [19.38, -81.40], depth: '5m', description: 'Shallow sandbar with friendly stingrays.' }, { name: 'Bloody Bay Wall', coordinates: [19.70, -80.07], depth: '365m', description: 'Dramatic vertical wall.' }],
-        cities: [{ name: 'George Town', coordinates: [19.2866, -81.3744], country: 'Cayman Islands', population: 34399 }],
-        economicImportance: [{ label: 'Tourism', value: '$500 million annually' }],
-        environmentalThreats: [{ label: 'Coral Disease', value: 'SCTLD spreading' }],
-        conservation: [{ label: 'Marine Parks', value: 'Marine Parks Law 1986' }],
-        historicalImportance: [{ label: 'Turtle Heritage', value: 'Historic turtle fishing industry' }],
-        healthStatus: 'threatened', coralCoverage: 35
+        id: 26,
+        name: "Lord Howe Island Reefs",
+        country: "Australia",
+        ocean: "Pacific Ocean",
+        region: "Tasman Sea",
+        type: "Fringing Reef",
+        size: "146 km² lagoon",
+        length: "11 km x 2 km island",
+        area: "146 km² marine park",
+        reefCount: "World's southernmost coral reef",
+        
+        coordinates: {
+            lat: -31.5500,
+            lng: 159.0833
+        },
+        mapZoom: 10,
+        
+        image: "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "90+",
+            fishSpecies: "500+",
+            turtleSpecies: "3",
+            sharkSpecies: "15+",
+            whaleSpecies: "5+",
+            molluskSpecies: "400+",
+            notableSpecies: [
+                "Lord Howe Island Stick Insect",
+                "Double-headed Wrasse",
+                "Galapagos Shark",
+                "Green Sea Turtle",
+                "Ballina Angelfish",
+                "Lord Howe Butterflyfish",
+                "Spanish Dancer Nudibranch",
+                "Giant Cuttlefish",
+                "Black Cod",
+                "Bluefish"
+            ]
+        },
+        
+        formation: {
+            age: "7 million years",
+            process: "Volcanic remnant with southernmost coral reef development",
+            growthRate: "0.5-1 cm per year (slow due to cool water)"
+        },
+        
+        structure: {
+            lagoonDepth: "0-10m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-30m",
+            outerSlopeDepth: "30-500m+"
+        },
+        
+        conditions: {
+            temperature: "18-26°C",
+            salinity: "35 ppt",
+            currents: "East Australian Current",
+            visibility: "15-40m"
+        },
+        
+        economic: {
+            tourismValue: "$15 million/year",
+            fisheriesValue: "Protected",
+            jobsSupported: "400+",
+            coastalProtection: "$50 million/year"
+        },
+        
+        threats: {
+            bleaching: "low",
+            warming: "medium",
+            acidification: "medium",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "UNESCO World Heritage Site",
+            mpaPercent: "100%",
+            programs: "Lord Howe Island Board management",
+            research: "Australian Museum expeditions"
+        },
+        
+        history: [
+            { year: "1788", event: "Discovered by HMS Supply" },
+            { year: "1982", event: "Listed as UNESCO World Heritage Site" },
+            { year: "2019", event: "Rodent eradication program completed" }
+        ],
+        
+        nearbyIslands: [
+            "Ball's Pyramid",
+            "Admiralty Islands",
+            "Mutton Bird Island",
+            "Blackburn Island",
+            "Roach Island"
+        ],
+        
+        islandCoordinates: [
+            { name: "Lord Howe Island", lat: -31.5544, lng: 159.0850 },
+            { name: "Ball's Pyramid", lat: -31.7544, lng: 159.2511 },
+            { name: "Admiralty Islands", lat: -31.4850, lng: 159.0750 }
+        ],
+        
+        scientificImportance: "World's southernmost true coral reef (31°S). Mix of tropical and temperate species creates unique assemblage. Ball's Pyramid is world's tallest sea stack.",
+        
+        typeDescription: "The world's southernmost coral reef ecosystem, where tropical and temperate marine species meet in a unique UNESCO World Heritage site."
     },
+    
     {
-        id: 'komodo-reefs',
-        name: 'Komodo Reefs',
-        countries: [{ name: 'Indonesia', code: 'ID' }],
-        ocean: 'Indian Ocean', region: 'Lesser Sunda Islands', reefType: 'fringing',
-        length: 0, area: 1733, numberOfReefs: 200, numberOfIslands: 29,
-        coordinates: [-8.5500, 119.4500],
-        defaultZoom: 10,
-        image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1920',
-        description: 'Komodo National Park features exceptional diving with strong currents and mantas.',
-        formation: { type: 'Fringing reef', age: '10,000+ years', process: 'Formed around volcanic islands.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 260, fishSpecies: 1000, molluskSpecies: 400, marineAnimals: ['Manta rays', 'Sharks', 'Komodo dragons', 'Dolphins'], endangeredSpecies: ['Komodo dragon', 'Manta ray'] },
-        nearbyIslands: [{ name: 'Komodo Island', coordinates: [-8.55, 119.45] }, { name: 'Rinca Island', coordinates: [-8.73, 119.70] }],
-        oceanConditions: { temperature: '26-30°C', salinity: '34 ppt', currents: ['Indonesian Throughflow'], visibility: '10-30 meters' },
-        diveSites: [{ name: 'Batu Bolong', coordinates: [-8.53, 119.42], depth: '35m', description: 'Current-swept pinnacle with incredible fish life.' }, { name: 'Manta Point', coordinates: [-8.72, 119.35], depth: '15m', description: 'Reliable manta ray encounters.' }],
-        cities: [{ name: 'Labuan Bajo', coordinates: [-8.4961, 119.8892], country: 'Indonesia', population: 75000 }],
-        economicImportance: [{ label: 'Tourism', value: '$50 million annually' }],
-        environmentalThreats: [{ label: 'Overfishing', value: 'Illegal fishing pressure' }],
-        conservation: [{ label: 'National Park', value: 'UNESCO World Heritage Site 1991' }],
-        historicalImportance: [{ label: 'Komodo Discovery', value: 'Dragons discovered by West 1910' }],
-        healthStatus: 'healthy', coralCoverage: 50
+        id: 27,
+        name: "Bermuda Coral Reefs",
+        country: "Bermuda (UK)",
+        ocean: "Atlantic Ocean",
+        region: "North Atlantic",
+        type: "Platform Reef",
+        size: "900 km²",
+        length: "34 km x 22 km platform",
+        area: "900 km² reef platform",
+        reefCount: "World's northernmost reef",
+        
+        coordinates: {
+            lat: 32.3000,
+            lng: -64.7833
+        },
+        mapZoom: 10,
+        
+        image: "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "25+",
+            fishSpecies: "400+",
+            turtleSpecies: "4",
+            sharkSpecies: "10+",
+            whaleSpecies: "20+",
+            molluskSpecies: "200+",
+            notableSpecies: [
+                "Green Sea Turtle",
+                "Humpback Whale",
+                "Blue Angel",
+                "Bermuda Chub",
+                "Great Barracuda",
+                "Parrotfish",
+                "Spiny Lobster",
+                "Queen Conch",
+                "Brain Coral",
+                "Sea Fan"
+            ]
+        },
+        
+        formation: {
+            age: "100,000 years (modern reef)",
+            process: "Reef built on volcanic seamount, warmed by Gulf Stream",
+            growthRate: "0.3-1 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-20m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-3m",
+            foreReefDepth: "3-30m",
+            outerSlopeDepth: "30-4,000m+"
+        },
+        
+        conditions: {
+            temperature: "18-29°C",
+            salinity: "36-37 ppt",
+            currents: "Gulf Stream",
+            visibility: "15-50m"
+        },
+        
+        economic: {
+            tourismValue: "$200 million/year",
+            fisheriesValue: "$10 million/year",
+            jobsSupported: "5,000+",
+            coastalProtection: "$1 billion/year"
+        },
+        
+        threats: {
+            bleaching: "medium",
+            warming: "medium",
+            acidification: "medium",
+            pollution: "medium",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "Marine Protected Areas Network",
+            mpaPercent: "20%",
+            programs: "Bermuda Zoological Society, BIOS",
+            research: "Bermuda Institute of Ocean Sciences (since 1903)"
+        },
+        
+        history: [
+            { year: "1609", event: "Sea Venture shipwreck leads to colonization" },
+            { year: "1903", event: "Bermuda Biological Station established" },
+            { year: "1966", event: "First marine protected areas created" }
+        ],
+        
+        nearbyIslands: [
+            "Main Island",
+            "St. George's",
+            "St. David's",
+            "Somerset",
+            "Ireland Island"
+        ],
+        
+        islandCoordinates: [
+            { name: "Hamilton", lat: 32.2949, lng: -64.7830 },
+            { name: "St. George's", lat: 32.3778, lng: -64.6786 },
+            { name: "North Rock", lat: 32.4833, lng: -64.7500 }
+        ],
+        
+        scientificImportance: "World's northernmost coral reef system (32°N). BIOS operates longest-running ocean time series (since 1954). Critical for understanding reef survival at thermal limits.",
+        
+        typeDescription: "The world's northernmost true coral reef, surviving thanks to the warming influence of the Gulf Stream at an unlikely latitude."
     },
+    
     {
-        id: 'wakatobi-reefs',
-        name: 'Wakatobi Reefs',
-        countries: [{ name: 'Indonesia', code: 'ID' }],
-        ocean: 'Indian Ocean', region: 'Sulawesi, Coral Triangle', reefType: 'fringing',
-        length: 0, area: 13900, numberOfReefs: 600, numberOfIslands: 143,
-        coordinates: [-5.5000, 123.5000],
-        defaultZoom: 9,
-        image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920',
-        description: 'Wakatobi is renowned for pristine reefs and exceptional biodiversity.',
-        formation: { type: 'Fringing reef', age: '10,000+ years', process: 'Formed around coral islands.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 396, fishSpecies: 942, molluskSpecies: 400, marineAnimals: ['Pygmy seahorses', 'Mantas', 'Dolphins'], endangeredSpecies: ['Hawksbill turtle', 'Pygmy seahorse'] },
-        nearbyIslands: [{ name: 'Wangi-Wangi', coordinates: [-5.30, 123.52] }, { name: 'Tomia', coordinates: [-5.78, 123.92] }],
-        oceanConditions: { temperature: '27-30°C', salinity: '34 ppt', currents: ['Indonesian Throughflow'], visibility: '20-40 meters' },
-        diveSites: [{ name: 'House Reef', coordinates: [-5.48, 123.77], depth: '25m', description: 'World-class house reef.' }],
-        cities: [{ name: 'Wanci', coordinates: [-5.2833, 123.5333], country: 'Indonesia', population: 35000 }],
-        economicImportance: [{ label: 'Tourism', value: '$20 million annually' }],
-        environmentalThreats: [{ label: 'Blast Fishing', value: 'Historical damage' }],
-        conservation: [{ label: 'National Park', value: 'Wakatobi National Park 2002' }],
-        historicalImportance: [{ label: 'Bajo People', value: 'Sea nomad traditional waters' }],
-        healthStatus: 'healthy', coralCoverage: 60
+        id: 28,
+        name: "Persian Gulf Coral Reefs",
+        country: "UAE, Bahrain, Qatar, Iran, Saudi Arabia, Kuwait",
+        ocean: "Indian Ocean",
+        region: "Persian Gulf",
+        type: "Fringing Reef",
+        size: "3,500 km²",
+        length: "1,000 km coastline",
+        area: "3,500 km² reef area",
+        reefCount: "Multiple reef complexes",
+        
+        coordinates: {
+            lat: 26.0000,
+            lng: 52.0000
+        },
+        mapZoom: 6,
+        
+        image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "60+",
+            fishSpecies: "500+",
+            turtleSpecies: "2",
+            sharkSpecies: "15+",
+            whaleSpecies: "3+",
+            molluskSpecies: "200+",
+            notableSpecies: [
+                "Arabian Carpet Shark",
+                "Hawksbill Turtle",
+                "Dugong",
+                "Whale Shark",
+                "Giant Grouper",
+                "Cuttlefish",
+                "Pearl Oyster",
+                "Sea Snake",
+                "Hamour (Orange-spotted Grouper)",
+                "Sooty Gull"
+            ]
+        },
+        
+        formation: {
+            age: "15,000 years (post-glacial)",
+            process: "Developed in extreme conditions after Persian Gulf flooded",
+            growthRate: "0.5-1 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-15m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-35m",
+            outerSlopeDepth: "35-90m (max gulf depth)"
+        },
+        
+        conditions: {
+            temperature: "15-36°C (extreme range)",
+            salinity: "38-45 ppt (extreme)",
+            currents: "Tidal and wind-driven",
+            visibility: "5-20m"
+        },
+        
+        economic: {
+            tourismValue: "$300 million/year",
+            fisheriesValue: "$500 million/year",
+            jobsSupported: "25,000+",
+            coastalProtection: "$2 billion/year"
+        },
+        
+        threats: {
+            bleaching: "high",
+            warming: "high",
+            acidification: "medium",
+            pollution: "high",
+            overfishing: "high"
+        },
+        
+        conservation: {
+            status: "Various national protected areas",
+            mpaPercent: "5%",
+            programs: "Regional Organization for Protection of Marine Environment",
+            research: "UAE University, NYUAD research"
+        },
+        
+        history: [
+            { year: "3000 BCE", event: "Ancient pearl diving industry begins" },
+            { year: "1990s", event: "Offshore development impacts begin" },
+            { year: "2017", event: "Abu Dhabi Blue Carbon project launched" }
+        ],
+        
+        nearbyIslands: [
+            "Sir Abu Nu'ayr",
+            "Halul Island",
+            "Das Island",
+            "Sir Bani Yas",
+            "Bahrain Islands"
+        ],
+        
+        islandCoordinates: [
+            { name: "Abu Dhabi", lat: 24.4539, lng: 54.3773 },
+            { name: "Bahrain", lat: 26.0667, lng: 50.5577 },
+            { name: "Qatar", lat: 25.3548, lng: 51.1839 }
+        ],
+        
+        scientificImportance: "World's most extreme coral environment (15-36°C, 45 ppt salinity). These 'super corals' provide genetic insights for climate adaptation research globally.",
+        
+        typeDescription: "Corals surviving in Earth's hottest and most saline reef environment, offering hope for climate change adaptation research."
     },
+    
     {
-        id: 'bunaken-reefs',
-        name: 'Bunaken Reefs',
-        countries: [{ name: 'Indonesia', code: 'ID' }],
-        ocean: 'Pacific Ocean', region: 'North Sulawesi', reefType: 'fringing',
-        length: 0, area: 890, numberOfReefs: 100, numberOfIslands: 5,
-        coordinates: [1.6250, 124.7600],
-        defaultZoom: 11,
-        image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1920',
-        description: 'Bunaken features dramatic walls and exceptional marine biodiversity.',
-        formation: { type: 'Fringing reef', age: '10,000+ years', process: 'Formed around volcanic islands.' },
-        reefStructure: { lagoon: true, reefCrest: true, foreReef: true, backReef: true, reefFlat: true },
-        biodiversity: { coralSpecies: 390, fishSpecies: 2000, molluskSpecies: 400, marineAnimals: ['Sea turtles', 'Dolphins', 'Dugongs', 'Coelacanths'], endangeredSpecies: ['Coelacanth', 'Dugong'] },
-        nearbyIslands: [{ name: 'Bunaken Island', coordinates: [1.62, 124.76] }, { name: 'Manado Tua', coordinates: [1.55, 124.70] }],
-        oceanConditions: { temperature: '27-30°C', salinity: '34 ppt', currents: ['Sulawesi Sea currents'], visibility: '20-35 meters' },
-        diveSites: [{ name: 'Lekuan', coordinates: [1.61, 124.77], depth: '40m', description: 'Famous vertical wall.' }],
-        cities: [{ name: 'Manado', coordinates: [1.4748, 124.8421], country: 'Indonesia', population: 451916 }],
-        economicImportance: [{ label: 'Tourism', value: '$30 million annually' }],
-        environmentalThreats: [{ label: 'Pollution', value: 'Manado city runoff' }],
-        conservation: [{ label: 'Marine Park', value: 'Bunaken National Marine Park 1991' }],
-        historicalImportance: [{ label: 'Coelacanth', value: 'Living fossil discovered nearby' }],
-        healthStatus: 'threatened', coralCoverage: 45
+        id: 29,
+        name: "Rowley Shoals",
+        country: "Australia",
+        ocean: "Indian Ocean",
+        region: "Timor Sea",
+        type: "Atoll",
+        size: "87 km²",
+        length: "Three atolls over 260 km",
+        area: "87 km² reef area",
+        reefCount: "3 shelf-edge atolls",
+        
+        coordinates: {
+            lat: -17.3500,
+            lng: 119.3500
+        },
+        mapZoom: 9,
+        
+        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "200+",
+            fishSpecies: "650+",
+            turtleSpecies: "3",
+            sharkSpecies: "20+",
+            whaleSpecies: "8+",
+            molluskSpecies: "300+",
+            notableSpecies: [
+                "Potato Cod",
+                "Grey Reef Shark",
+                "Manta Ray",
+                "Giant Trevally",
+                "Whale Shark",
+                "Hawksbill Turtle",
+                "Giant Clam",
+                "Nautilus",
+                "Red Bass",
+                "Maori Wrasse"
+            ]
+        },
+        
+        formation: {
+            age: "10,000+ years",
+            process: "Shelf-edge atolls developed on continental margin",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-30m",
+            reefFlatDepth: "0-3m",
+            reefCrestDepth: "0-1m",
+            foreReefDepth: "1-100m",
+            outerSlopeDepth: "100-400m+"
+        },
+        
+        conditions: {
+            temperature: "25-30°C",
+            salinity: "35 ppt",
+            currents: "Indonesian Throughflow influence",
+            visibility: "30-60m"
+        },
+        
+        economic: {
+            tourismValue: "$5 million/year (limited access)",
+            fisheriesValue: "Catch and release only",
+            jobsSupported: "100+",
+            coastalProtection: "N/A (offshore)"
+        },
+        
+        threats: {
+            bleaching: "low",
+            warming: "low",
+            acidification: "low",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "Rowley Shoals Marine Park",
+            mpaPercent: "100%",
+            programs: "Western Australian Department of Biodiversity",
+            research: "WA Museum expeditions"
+        },
+        
+        history: [
+            { year: "1800", event: "Discovered by Captain Rowley" },
+            { year: "1990", event: "Marine Park established" },
+            { year: "2007", event: "Park boundaries extended" }
+        ],
+        
+        nearbyIslands: [
+            "Mermaid Reef",
+            "Clerke Reef",
+            "Imperieuse Reef",
+            "Scott Reef (90 km)",
+            "Browse Island"
+        ],
+        
+        islandCoordinates: [
+            { name: "Mermaid Reef", lat: -17.0833, lng: 119.5833 },
+            { name: "Clerke Reef", lat: -17.3333, lng: 119.3500 },
+            { name: "Imperieuse Reef", lat: -17.5833, lng: 118.9333 }
+        ],
+        
+        scientificImportance: "Australia's most pristine reef system with 80%+ live coral cover. Isolated location creates genetic sanctuary. Critical baseline for comparing degraded reef systems.",
+        
+        typeDescription: "Three pristine shelf-edge atolls rising from deep water, representing some of Australia's most unspoiled coral reef ecosystems."
     },
+    
     {
-        id: 'sipadan-reef',
-        name: 'Sipadan Reef',
-        countries: [{ name: 'Malaysia', code: 'MY' }],
-        ocean: 'Pacific Ocean', region: 'Celebes Sea, Sabah', reefType: 'fringing',
-        length: 0, area: 0.2, numberOfReefs: 1, numberOfIslands: 1,
-        coordinates: [4.1147, 118.6289],
-        defaultZoom: 14,
-        image: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600',
-        backgroundImage: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=1920',
-        description: 'Sipadan is consistently ranked among the world\'s top dive destinations.',
-        formation: { type: 'Oceanic island reef', age: '10,000+ years', process: 'Formed atop extinct volcanic seamount.' },
-        reefStructure: { lagoon: false, reefCrest: true, foreReef: true, backReef: false, reefFlat: true },
-        biodiversity: { coralSpecies: 200, fishSpecies: 3000, molluskSpecies: 300, marineAnimals: ['Hammerhead sharks', 'Barracuda tornados', 'Sea turtles', 'White tip sharks'], endangeredSpecies: ['Scalloped hammerhead', 'Hawksbill turtle'] },
-        nearbyIslands: [{ name: 'Sipadan Island', coordinates: [4.11, 118.63] }, { name: 'Mabul', coordinates: [4.24, 118.63] }],
-        oceanConditions: { temperature: '27-30°C', salinity: '34 ppt', currents: ['Celebes Sea currents'], visibility: '20-40 meters' },
-        diveSites: [{ name: 'Barracuda Point', coordinates: [4.12, 118.63], depth: '30m', description: 'Massive barracuda tornadoes.' }, { name: 'South Point', coordinates: [4.11, 118.62], depth: '40m', description: 'Hammerhead shark encounters.' }],
-        cities: [{ name: 'Semporna', coordinates: [4.4819, 118.6117], country: 'Malaysia', population: 133000 }],
-        economicImportance: [{ label: 'Tourism', value: '$50 million annually' }],
-        environmentalThreats: [{ label: 'Dive Pressure', value: 'Limited permits required' }],
-        conservation: [{ label: 'Protected', value: 'Sipadan Island Park 2004' }],
-        historicalImportance: [{ label: 'Cousteau', value: '"Untouched piece of art" - Cousteau' }],
-        healthStatus: 'healthy', coralCoverage: 70
+        id: 30,
+        name: "Scott Reef",
+        country: "Australia",
+        ocean: "Indian Ocean",
+        region: "Timor Sea",
+        type: "Platform Reef",
+        size: "375 km²",
+        length: "Two reefs over 50 km",
+        area: "375 km²",
+        reefCount: "2 large platform reefs",
+        
+        coordinates: {
+            lat: -14.0667,
+            lng: 121.8333
+        },
+        mapZoom: 9,
+        
+        image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        backgroundImage: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920",
+        gallery: [
+            "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
+            "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600",
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600",
+            "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=600",
+            "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=600"
+        ],
+        
+        biodiversity: {
+            coralSpecies: "300+",
+            fishSpecies: "700+",
+            turtleSpecies: "3",
+            sharkSpecies: "20+",
+            whaleSpecies: "10+",
+            molluskSpecies: "400+",
+            notableSpecies: [
+                "Green Sea Turtle",
+                "Hawksbill Turtle",
+                "Tiger Shark",
+                "Whale Shark",
+                "Manta Ray",
+                "Silvertip Shark",
+                "Giant Grouper",
+                "Bumphead Parrotfish",
+                "Coconut Crab",
+                "Seabirds (nesting colonies)"
+            ]
+        },
+        
+        formation: {
+            age: "15,000+ years",
+            process: "Oceanic platform reefs developed on submerged plateaus",
+            growthRate: "1-2 cm per year"
+        },
+        
+        structure: {
+            lagoonDepth: "0-60m",
+            reefFlatDepth: "0-5m",
+            reefCrestDepth: "0-2m",
+            foreReefDepth: "2-80m",
+            outerSlopeDepth: "80-500m+"
+        },
+        
+        conditions: {
+            temperature: "27-31°C",
+            salinity: "35 ppt",
+            currents: "Indonesian Throughflow",
+            visibility: "25-50m"
+        },
+        
+        economic: {
+            tourismValue: "Minimal (very remote)",
+            fisheriesValue: "Protected",
+            jobsSupported: "50+",
+            coastalProtection: "N/A (oceanic)"
+        },
+        
+        threats: {
+            bleaching: "high",
+            warming: "high",
+            acidification: "medium",
+            pollution: "low",
+            overfishing: "low"
+        },
+        
+        conservation: {
+            status: "Scott Reef Managed Area",
+            mpaPercent: "100%",
+            programs: "Australian Institute of Marine Science monitoring",
+            research: "Long-term bleaching recovery studies"
+        },
+        
+        history: [
+            { year: "1995", event: "Severe bleaching event" },
+            { year: "1998", event: "Mass bleaching affected 80% of corals" },
+            { year: "2016", event: "Unprecedented third mass bleaching" }
+        ],
+        
+        nearbyIslands: [
+            "South Scott Reef",
+            "North Scott Reef",
+            "Sandy Islet",
+            "Seringapatam Reef (100 km)",
+            "Browse Island"
+        ],
+        
+        islandCoordinates: [
+            { name: "South Scott Reef", lat: -14.1000, lng: 121.8167 },
+            { name: "North Scott Reef", lat: -13.9833, lng: 121.8500 },
+            { name: "Sandy Islet", lat: -14.0500, lng: 121.8167 }
+        ],
+        
+        scientificImportance: "Key site for understanding coral reef recovery after bleaching events. Isolated location (400 km from mainland) makes it natural laboratory for reef resilience studies.",
+        
+        typeDescription: "Remote oceanic reefs that have experienced multiple bleaching events, now serving as critical sites for studying coral recovery and resilience."
     }
 ];
 
-console.log('📁 coral-reefs-data-3.js loaded (Reefs 21-30)');
+// Export for use in main application
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CORAL_REEFS_3;
+}
