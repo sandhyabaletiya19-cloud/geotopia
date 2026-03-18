@@ -851,22 +851,6 @@ const biogeographyData = [
 
 ];
 
-// TO BE CONTINUED IN NEXT MESSAGE...
-// Remaining topics (4 more):
-// 3. Soil Types of India
-// 4. World Biomes
-// 5. Vegetation Distribution
-// 6. Grasslands & Deserts
-
-// Make data available globally
-window.biogeographyData = biogeographyData;
-
-console.log('🌿 Biogeography Data Loaded (Part 1):', biogeographyData.length, 'topics');
-/* ============================================
-   CONTINUATION OF BIOGEOGRAPHY DATA
-   Topics 3-6: India Soils, Biomes, Vegetation, Grasslands & Deserts
-   ============================================ */
-
     // ============================================
     // TOPIC 3: SOIL TYPES OF INDIA
     // ============================================
@@ -2043,24 +2027,7 @@ console.log('🌿 Biogeography Data Loaded (Part 1):', biogeographyData.length, 
             }
         ]
     },
-
-
-    // CONTINUE IN NEXT MESSAGE...
-    // Remaining 2 topics:
-    // 5. Vegetation Distribution
-    // 6. Grasslands & Deserts
-
 ];
-
-// Make data available globally (update existing array)
-window.biogeographyData = biogeographyData;
-
-console.log('🌿 Biogeography Data Loaded (Part 2):', biogeographyData.length, 'topics so far');
-/* ============================================
-   FINAL PART - BIOGEOGRAPHY DATA
-   Topics 5-6: Vegetation Distribution & Grasslands/Deserts
-   ============================================ */
-
     // ============================================
     // TOPIC 5: VEGETATION DISTRIBUTION
     // ============================================
