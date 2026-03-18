@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth-Sun System Simulator | Ultimate 3D Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #000011;
+            --bg-secondary: #0a1628;
+            --bg-glass: rgba(10, 22, 40, 0.9);
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-yellow: #fbbf24;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(59, 130, 246, 0.3);
+            --glow-blue: rgba(59, 130, 246, 0.6);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Main Canvas */
+        #simulatorCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(0,0,17,0.9) 0%, transparent 100%);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 10px 40px var(--glow-blue);
+        }
+
+        .logo-text h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-btn {
+            padding: 12px 24px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .header-btn:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--glow-blue);
+        }
+
+        /* Control Panel - Left */
+        .control-panel {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-btn {
+            padding: 14px 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 10px 30px var(--glow-blue);
+        }
+
+        .control-btn .icon {
+            font-size: 1.3rem;
+            width: 30px;
+            text-align: center;
+        }
+
+        /* Grid Controls - Right Top */
+        .grid-controls {
+            position: fixed;
+            right: 30px;
+            top: 120px;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            min-width: 220px;
+        }
+
+        .grid-controls h4 {
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .grid-toggle:last-child {
+            border-bottom: none;
+        }
+
+        .grid-toggle label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        /* Tilt Control */
+        .tilt-control {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .tilt-control h4 {
+            font-size: 0.85rem;
+            color: var(--accent-yellow);
+            margin-bottom: 20px;
+        }
+
+        .tilt-slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tilt-slider {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 30px;
+            height: 180px;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .tilt-slider::-webkit-slider-runnable-track {
+            width: 8px;
+            background: linear-gradient(to top, var(--accent-cyan), var(--accent-yellow), var(--accent-orange));
+            border-radius: 4px;
+        }
+
+        .tilt-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--glow-blue);
+            margin-left: -8px;
+        }
+
+        .tilt-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            margin-top: 10px;
+        }
+
+        .tilt-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 15px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Time Controls */
+        .time-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 15px 30px;
+        }
+
+        .time-btn {
+            width: 50px;
+            height: 50px;
+            background: transparent;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .time-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
+        .time-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 30px var(--glow-blue);
+        }
+
+        .time-display {
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .time-display .speed {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .time-display .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            position: fixed;
+            left: 30px;
+            bottom: 30px;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            min-width: 200px;
+        }
+
+        .stats-panel h4 {
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-row .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .stat-row .value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 350px;
+            display: none;
+        }
+
+        .info-panel.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-panel h3 {
+            font-size: 1.1rem;
+            color: var(--accent-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-panel p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .info-panel .highlight {
+            color: var(--accent-yellow);
+            font-weight: 600;
+        }
+
+        .info-panel .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .info-panel .close-btn:hover {
+            color: var(--accent-red);
+        }
+
+        /* Legend Panel */
+        .legend-panel {
+            position: fixed;
+            left: 250px;
+            bottom: 30px;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: none;
+        }
+
+        .legend-panel.show {
+            display: block;
+        }
+
+        .legend-panel h4 {
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        /* Season Markers */
+        .season-marker {
+            position: fixed;
+            z-index: 50;
+            padding: 10px 18px;
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid var(--accent-yellow);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--accent-yellow);
+            font-weight: 500;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .season-marker.show {
+            opacity: 1;
+        }
+
+        .season-marker .date {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        /* City Lights Legend */
+        .city-legend {
+            position: fixed;
+            right: 270px;
+            top: 120px;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px 20px;
+            display: none;
+        }
+
+        .city-legend.show {
+            display: block;
+        }
+
+        .city-legend h4 {
+            font-size: 0.8rem;
+            color: var(--accent-yellow);
+            margin-bottom: 10px;
+        }
+
+        .city-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .city-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: cityPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes cityPulse {
+            0%, 100% { opacity: 0.5; box-shadow: none; }
+            50% { opacity: 1; box-shadow: 0 0 10px currentColor; }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-earth {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e90ff 0%, #32cd32 50%, #1e90ff 100%);
+            background-size: 200% 100%;
+            animation: earthRotate 2s linear infinite;
+            box-shadow: 
+                0 0 60px rgba(30, 144, 255, 0.5),
+                inset -20px -10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes earthRotate {
+            from { background-position: 0% 0%; }
+            to { background-position: 200% 0%; }
+        }
+
+        .loading-text {
+            margin-top: 30px;
+            color: var(--accent-cyan);
+            font-size: 1rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        .loading-progress {
+            width: 200px;
+            height: 3px;
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan));
+            border-radius: 2px;
+            animation: loadProgress 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loadProgress {
+            0% { width: 0%; margin-left: 0; }
+            50% { width: 70%; margin-left: 0; }
+            100% { width: 0%; margin-left: 100%; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .control-panel {
+                left: 15px;
+            }
+
+            .control-btn {
+                min-width: 160px;
+                padding: 12px 15px;
+                font-size: 0.8rem;
+            }
+
+            .grid-controls {
+                right: 15px;
+                min-width: 180px;
+                padding: 15px;
+            }
+
+            .tilt-control {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                left: 10px;
+                top: auto;
+                bottom: 100px;
+                transform: none;
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-width: calc(100% - 20px);
+            }
+
+            .control-btn {
+                min-width: auto;
+                padding: 10px 12px;
+            }
+
+            .control-btn span:not(.icon) {
+                display: none;
+            }
+
+            .grid-controls,
+            .city-legend,
+            .legend-panel {
+                display: none !important;
+            }
+
+            .stats-panel {
+                left: 10px;
+                bottom: auto;
+                top: 80px;
+                min-width: 150px;
+                padding: 15px;
+            }
+
+            .info-panel {
+                left: 10px;
+                right: 10px;
+                bottom: 180px;
+                max-width: none;
+            }
+
+            .time-controls {
+                padding: 10px 20px;
+                gap: 10px;
+            }
+
+            .time-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .logo-text h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-earth"></div>
+        <div class="loading-text">Initializing Simulation</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Main Canvas -->
+    <div id="simulatorCanvas"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🌍</div>
+            <div class="logo-text">
+                <h1>Earth-Sun Simulator</h1>
+                <p>Interactive 3D Experience</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="encyclopedia.html" class="header-btn">
+                <span>📚</span> Encyclopedia
+            </a>
+            <a href="atlas.html" class="header-btn">
+                <span>🗺️</span> Atlas
+            </a>
+        </div>
+    </header>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <button class="control-btn" data-mode="default">
+            <span class="icon">🌍</span>
+            <span>Default View</span>
+        </button>
+        <button class="control-btn" data-mode="daynight">
+            <span class="icon">🌗</span>
+            <span>Day & Night</span>
+        </button>
+        <button class="control-btn" data-mode="seasons">
+            <span class="icon">🍂</span>
+            <span>Seasons</span>
+        </button>
+        <button class="control-btn" data-mode="solstice">
+            <span class="icon">☀️</span>
+            <span>Solstices</span>
+        </button>
+        <button class="control-btn" data-mode="pressure">
+            <span class="icon">💨</span>
+            <span>Pressure Belts</span>
+        </button>
+        <button class="control-btn" data-mode="monsoon">
+            <span class="icon">🌧️</span>
+            <span>Monsoon</span>
+        </button>
+    </div>
+
+    <!-- Grid Controls -->
+    <div class="grid-controls" id="gridControls">
+        <h4>🌐 Globe Overlays</h4>
+        
+        <div class="grid-toggle">
+            <label><span style="color: #fbbf24;">━</span> Equator</label>
+            <div class="toggle-switch active" data-toggle="equator"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label><span style="color: #f97316;">━</span> Tropics</label>
+            <div class="toggle-switch active" data-toggle="tropics"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label><span style="color: #06b6d4;">━</span> Arctic Circles</label>
+            <div class="toggle-switch active" data-toggle="arctic"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label><span style="color: #8b5cf6;">━</span> Latitudes</label>
+            <div class="toggle-switch" data-toggle="latitudes"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label><span style="color: #10b981;">━</span> Longitudes</label>
+            <div class="toggle-switch" data-toggle="longitudes"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label><span style="color: #ef4444;">━</span> Prime Meridian</label>
+            <div class="toggle-switch active" data-toggle="primeMeridian"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label>🌃 City Lights</label>
+            <div class="toggle-switch active" data-toggle="cityLights"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label>☁️ Clouds</label>
+            <div class="toggle-switch active" data-toggle="clouds"></div>
+        </div>
+        
+        <div class="grid-toggle">
+            <label>🛤️ Orbit Path</label>
+            <div class="toggle-switch" data-toggle="orbit"></div>
+        </div>
+    </div>
+
+    <!-- Tilt Control -->
+    <div class="tilt-control" id="tiltControl">
+        <h4>🔥 Axial Tilt</h4>
+        <div class="tilt-slider-container">
+            <input type="range" class="tilt-slider" id="tiltSlider" min="0" max="45" value="23.5" step="0.5" orient="vertical">
+            <div class="tilt-value"><span id="tiltValue">23.5</span>°</div>
+        </div>
+        <div class="tilt-labels">
+            <span>45° = Extreme</span>
+            <span>23.5° = Current</span>
+            <span>0° = No seasons</span>
+        </div>
+    </div>
+
+    <!-- Time Controls -->
+    <div class="time-controls">
+        <button class="time-btn" data-speed="reverse" title="Reverse">⏪</button>
+        <button class="time-btn" data-speed="slow" title="Slow">🐢</button>
+        <button class="time-btn" data-speed="pause" title="Pause">⏸️</button>
+        <button class="time-btn active" data-speed="play" title="Play">▶️</button>
+        <button class="time-btn" data-speed="fast" title="Fast">⏩</button>
+        
+        <div class="time-display">
+            <div class="speed" id="speedDisplay">1x</div>
+            <div class="label">Simulation Speed</div>
+        </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+        <h4>📊 Live Stats</h4>
+        <div class="stat-row">
+            <span class="label">Rotation</span>
+            <span class="value" id="rotationStat">0°</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">Revolution</span>
+            <span class="value" id="revolutionStat">0°</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">Axial Tilt</span>
+            <span class="value" id="tiltStat">23.5°</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">Day Length</span>
+            <span class="value" id="dayLengthStat">12h</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">Season</span>
+            <span class="value" id="seasonStat">Equinox</span>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="infoPanel">
+        <button class="close-btn" onclick="hideInfoPanel()">×</button>
+        <h3 id="infoPanelTitle">🌍 Earth-Sun System</h3>
+        <div id="infoPanelContent">
+            <p>Welcome to the interactive Earth-Sun simulator!</p>
+            <p>Use the controls to explore different phenomena.</p>
+        </div>
+    </div>
+
+    <!-- Legend Panel -->
+    <div class="legend-panel" id="legendPanel">
+        <h4>📍 Important Lines</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #fbbf24;"></div>
+            <span>Equator (0°)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f97316;"></div>
+            <span>Tropic of Cancer (23.5°N)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f97316;"></div>
+            <span>Tropic of Capricorn (23.5°S)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #06b6d4;"></div>
+            <span>Arctic Circle (66.5°N)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #06b6d4;"></div>
+            <span>Antarctic Circle (66.5°S)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ef4444;"></div>
+            <span>Prime Meridian (0°)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #a855f7;"></div>
+            <span>Date Line (180°)</span>
+        </div>
+    </div>
+
+    <!-- City Lights Legend -->
+    <div class="city-legend" id="cityLegend">
+        <h4>🌃 Major Cities</h4>
+        <div class="city-item">
+            <div class="city-dot" style="background: #ef4444; color: #ef4444;"></div>
+            <span>New York</span>
+        </div>
+        <div class="city-item">
+            <div class="city-dot" style="background: #fbbf24; color: #fbbf24;"></div>
+            <span>Delhi</span>
+        </div>
+        <div class="city-item">
+            <div class="city-dot" style="background: #10b981; color: #10b981;"></div>
+            <span>Tokyo</span>
+        </div>
+        <div class="city-item">
+            <div class="city-dot" style="background: #3b82f6; color: #3b82f6;"></div>
+            <span>London</span>
+        </div>
+        <div class="city-item">
+            <div class="city-dot" style="background: #ec4899; color: #ec4899;"></div>
+            <span>Sydney</span>
+        </div>
+    </div>
+
+    <!-- Season Markers -->
+    <div class="season-marker" id="markerMarch">
+        March Equinox
+        <span class="date">~21 March</span>
+    </div>
+    <div class="season-marker" id="markerJune">
+        June Solstice
+        <span class="date">~21 June</span>
+    </div>
+    <div class="season-marker" id="markerSept">
+        September Equinox
+        <span class="date">~23 September</span>
+    </div>
+    <div class="season-marker" id="markerDec">
+        December Solstice
+        <span class="date">~21 December</span>
+    </div>
+
+    <script>
+        // ============================================
+        // EARTH-SUN SIMULATOR - ULTIMATE VERSION
+        // ============================================
+
+        class EarthSunSimulator {
+            constructor() {
+                // Scene elements
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                
+                // Celestial bodies
+                this.sun = null;
+                this.sunLight = null;
+                this.earth = null;
+                this.earthGroup = null;
+                this.earthOrbitGroup = null;
+                this.clouds = null;
+                this.atmosphere = null;
+                
+                // Lines & grids
+                this.equatorLine = null;
+                this.tropicCancer = null;
+                this.tropicCapricorn = null;
+                this.arcticCircle = null;
+                this.antarcticCircle = null;
+                this.primeMeridian = null;
+                this.dateLine = null;
+                this.latitudeLines = [];
+                this.longitudeLines = [];
+                this.orbitPath = null;
+                
+                // City lights
+                this.cityLights = [];
+                
+                // Pressure belts
+                this.pressureBelts = null;
+                
+                // State
+                this.currentMode = 'default';
+                this.timeSpeed = 1;
+                this.isPaused = false;
+                this.isReverse = false;
+                this.axialTilt = 23.5;
+                this.rotationAngle = 0;
+                this.revolutionAngle = 0;
+                
+                // Toggle states
+                this.toggleStates = {
+                    equator: true,
+                    tropics: true,
+                    arctic: true,
+                    latitudes: false,
+                    longitudes: false,
+                    primeMeridian: true,
+                    cityLights: true,
+                    clouds: true,
+                    orbit: false
+                };
+                
+                // Cities data [lat, lng, name, color]
+                this.cities = [
+                    { name: 'New York', lat: 40.7128, lng: -74.0060, color: 0xef4444 },
+                    { name: 'Delhi', lat: 28.6139, lng: 77.2090, color: 0xfbbf24 },
+                    { name: 'Tokyo', lat: 35.6762, lng: 139.6503, color: 0x10b981 },
+                    { name: 'London', lat: 51.5074, lng: -0.1278, color: 0x3b82f6 },
+                    { name: 'Sydney', lat: -33.8688, lng: 151.2093, color: 0xec4899 },
+                    { name: 'Mumbai', lat: 19.0760, lng: 72.8777, color: 0xf97316 },
+                    { name: 'Shanghai', lat: 31.2304, lng: 121.4737, color: 0x8b5cf6 },
+                    { name: 'São Paulo', lat: -23.5505, lng: -46.6333, color: 0x06b6d4 },
+                    { name: 'Cairo', lat: 30.0444, lng: 31.2357, color: 0xeab308 },
+                    { name: 'Moscow', lat: 55.7558, lng: 37.6173, color: 0x22c55e }
+                ];
+                
+                // Clock
+                this.clock = new THREE.Clock();
+                
+                // Initialize
+                this.init();
+            }
+
+            init() {
+                this.createScene();
+                this.createStarfield();
+                this.createSun();
+                this.createEarth();
+                this.createGlobeLines();
+                this.createOrbitPath();
+                this.createCityLights();
+                this.setupControls();
+                this.setupEventListeners();
+                this.animate();
+                
+                // Hide loading screen
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').classList.add('hide');
+                    this.showLegend();
+                    this.showCityLegend();
+                }, 2000);
+            }
+
+            // ============================================
+            // SCENE SETUP
+            // ============================================
+
+            createScene() {
+                const container = document.getElementById('simulatorCanvas');
+                
+                // Scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x000011);
+                
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(
+                    60,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    10000
+                );
+                this.camera.position.set(100, 80, 250);
+                
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true,
+                    alpha: false
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                container.appendChild(this.renderer.domElement);
+                
+                // Orbit Controls
+                if (typeof THREE.OrbitControls !== 'undefined') {
+                    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                    this.controls.enableDamping = true;
+                    this.controls.dampingFactor = 0.05;
+                    this.controls.minDistance = 80;
+                    this.controls.maxDistance = 600;
+                    this.controls.enablePan = true;
+                }
+                
+                // Resize handler
+                window.addEventListener('resize', () => this.onResize());
+            }
+
+            createStarfield() {
+                // Stars
+                const starsGeometry = new THREE.BufferGeometry();
+                const starCount = 15000;
+                const positions = new Float32Array(starCount * 3);
+                const colors = new Float32Array(starCount * 3);
+                
+                for (let i = 0; i < starCount; i++) {
+                    const i3 = i * 3;
+                    positions[i3] = (Math.random() - 0.5) * 4000;
+                    positions[i3 + 1] = (Math.random() - 0.5) * 4000;
+                    positions[i3 + 2] = (Math.random() - 0.5) * 4000;
+                    
+                    // Vary star colors slightly
+                    const color = new THREE.Color();
+                    color.setHSL(0.6, Math.random() * 0.2, 0.8 + Math.random() * 0.2);
+                    colors[i3] = color.r;
+                    colors[i3 + 1] = color.g;
+                    colors[i3 + 2] = color.b;
+                }
+                
+                starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                starsGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const starsMaterial = new THREE.PointsMaterial({
+                    size: 1.5,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const stars = new THREE.Points(starsGeometry, starsMaterial);
+                this.scene.add(stars);
+                
+                // Milky way effect
+                const milkyWay = this.createMilkyWay();
+                this.scene.add(milkyWay);
+            }
+
+            createMilkyWay() {
+                const geometry = new THREE.BufferGeometry();
+                const count = 5000;
+                const positions = new Float32Array(count * 3);
+                
+                for (let i = 0; i < count; i++) {
+                    const i3 = i * 3;
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = 500 + Math.random() * 1500;
+                    
+                    positions[i3] = Math.cos(angle) * radius;
+                    positions[i3 + 1] = (Math.random() - 0.5) * 100;
+                    positions[i3 + 2] = Math.sin(angle) * radius;
+                }
+                
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                
+                const material = new THREE.PointsMaterial({
+                    size: 0.8,
+                    color: 0x8888ff,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                
+                return new THREE.Points(geometry, material);
+            }
+
+            // ============================================
+            // SUN
+            // ============================================
+
+            createSun() {
+                const sunGroup = new THREE.Group();
+                
+                // Main sun sphere
+                const sunGeometry = new THREE.SphereGeometry(25, 64, 64);
+                const sunMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffdd00
+                });
+                this.sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                sunGroup.add(this.sun);
+                
+                // Sun glow layers
+                const glowColors = [0xffaa00, 0xff8800, 0xff6600];
+                for (let i = 0; i < 3; i++) {
+                    const glowGeometry = new THREE.SphereGeometry(28 + i * 5, 32, 32);
+                    const glowMaterial = new THREE.ShaderMaterial({
+                        uniforms: {
+                            glowColor: { value: new THREE.Color(glowColors[i]) },
+                            intensity: { value: 0.8 - i * 0.2 }
+                        },
+                        vertexShader: `
+                            varying vec3 vNormal;
+                            void main() {
+                                vNormal = normalize(normalMatrix * normal);
+                                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                            }
+                        `,
+                        fragmentShader: `
+                            uniform vec3 glowColor;
+                            uniform float intensity;
+                            varying vec3 vNormal;
+                            void main() {
+                                float glow = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                                gl_FragColor = vec4(glowColor, glow * intensity);
+                            }
+                        `,
+                        side: THREE.BackSide,
+                        blending: THREE.AdditiveBlending,
+                        transparent: true
+                    });
+                    
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    sunGroup.add(glow);
+                }
+                
+                // Corona rays
+                const coronaGeometry = new THREE.RingGeometry(26, 60, 64, 1);
+                const coronaMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff8800,
+                    transparent: true,
+                    opacity: 0.15,
+                    side: THREE.DoubleSide
+                });
+                const corona = new THREE.Mesh(coronaGeometry, coronaMaterial);
+                corona.rotation.x = Math.PI / 2;
+                sunGroup.add(corona);
+                
+                this.scene.add(sunGroup);
+                
+                // Sun point light
+                this.sunLight = new THREE.PointLight(0xffffff, 2.5, 2000);
+                this.sunLight.position.set(0, 0, 0);
+                this.sunLight.castShadow = true;
+                this.scene.add(this.sunLight);
+                
+                // Ambient light
+                const ambient = new THREE.AmbientLight(0x111122, 0.3);
+                this.scene.add(ambient);
+            }
+
+            // ============================================
+            // EARTH
+            // ============================================
+
+            createEarth() {
+                // Orbit group (for revolution)
+                this.earthOrbitGroup = new THREE.Group();
+                this.scene.add(this.earthOrbitGroup);
+                
+                // Earth group (for rotation & tilt)
+                this.earthGroup = new THREE.Group();
+                
+                // Create Earth texture
+                const earthTexture = this.createEarthTexture();
+                const nightTexture = this.createNightTexture();
+                
+                // Earth geometry
+                const earthGeometry = new THREE.SphereGeometry(20, 128, 128);
+                
+                // Earth shader material for day/night
+                const earthMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        dayTexture: { value: earthTexture },
+                        nightTexture: { value: nightTexture },
+                        sunDirection: { value: new THREE.Vector3(-1, 0, 0) }
+                    },
+                    vertexShader: `
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        varying vec3 vWorldPosition;
+                        
+                        void main() {
+                            vUv = uv;
+                            vNormal = normalize(normalMatrix * normal);
+                            vec4 worldPos = modelMatrix * vec4(position, 1.0);
+                            vWorldPosition = worldPos.xyz;
+                            gl_Position = projectionMatrix * viewMatrix * worldPos;
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform sampler2D dayTexture;
+                        uniform sampler2D nightTexture;
+                        uniform vec3 sunDirection;
+                        
+                        varying vec2 vUv;
+                        varying vec3 vNormal;
+                        varying vec3 vWorldPosition;
+                        
+                        void main() {
+                            vec3 sunDir = normalize(sunDirection - vWorldPosition);
+                            float intensity = dot(vNormal, sunDir);
+                            
+                            vec4 dayColor = texture2D(dayTexture, vUv);
+                            vec4 nightColor = texture2D(nightTexture, vUv);
+                            
+                            float mixFactor = smoothstep(-0.1, 0.2, intensity);
+                            
+                            vec4 finalColor = mix(nightColor, dayColor, mixFactor);
+                            finalColor.rgb += vec3(0.01, 0.01, 0.02);
+                            
+                            gl_FragColor = finalColor;
+                        }
+                    `
+                });
+                
+                this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
+                this.earthGroup.add(this.earth);
+                
+                // Atmosphere
+                this.atmosphere = this.createAtmosphere();
+                this.earthGroup.add(this.atmosphere);
+                
+                // Clouds
+                this.clouds = this.createClouds();
+                this.earthGroup.add(this.clouds);
+                
+                // Apply axial tilt
+                this.earthGroup.rotation.z = THREE.MathUtils.degToRad(this.axialTilt);
+                
+                // Position Earth in orbit
+                this.earthGroup.position.x = 180;
+                
+                this.earthOrbitGroup.add(this.earthGroup);
+            }
+
+            createEarthTexture() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 2048;
+                canvas.height = 1024;
+                const ctx = canvas.getContext('2d');
+                
+                // Ocean gradient
+                const oceanGradient = ctx.createLinearGradient(0, 0, 0, 1024);
+                oceanGradient.addColorStop(0, '#0a2472');
+                oceanGradient.addColorStop(0.2, '#0d47a1');
+                oceanGradient.addColorStop(0.5, '#1565c0');
+                oceanGradient.addColorStop(0.8, '#0d47a1');
+                oceanGradient.addColorStop(1, '#0a2472');
+                ctx.fillStyle = oceanGradient;
+                ctx.fillRect(0, 0, 2048, 1024);
+                
+                // Continents (simplified)
+                const continents = [
+                    // North America
+                    { x: 150, y: 180, w: 300, h: 220, color: '#228b22' },
+                    // South America
+                    { x: 300, y: 500, w: 180, h: 320, color: '#2d5016' },
+                    // Europe
+                    { x: 950, y: 150, w: 200, h: 180, color: '#3d6b1a' },
+                    // Africa
+                    { x: 1000, y: 350, w: 220, h: 350, color: '#4a7c23' },
+                    // Asia
+                    { x: 1200, y: 100, w: 550, h: 400, color: '#2d5016' },
+                    // India
+                    { x: 1300, y: 350, w: 120, h: 150, color: '#32cd32' },
+                    // Australia
+                    { x: 1650, y: 550, w: 200, h: 180, color: '#8b4513' },
+                    // Greenland
+                    { x: 400, y: 50, w: 150, h: 100, color: '#f0f0f0' },
+                    // Antarctica
+                    { x: 0, y: 920, w: 2048, h: 104, color: '#f8f8ff' }
+                ];
+                
+                continents.forEach(c => {
+                    ctx.fillStyle = c.color;
+                    this.drawContinent(ctx, c.x, c.y, c.w, c.h);
+                });
+                
+                return new THREE.CanvasTexture(canvas);
+            }
+
+            drawContinent(ctx, x, y, w, h) {
+                ctx.beginPath();
+                
+                // Create irregular coastline
+                const points = 30;
+                ctx.moveTo(x, y + h * 0.3);
+                
+                for (let i = 0; i <= points; i++) {
+                    const px = x + (w / points) * i;
+                    const py = y + Math.sin(i * 0.5) * h * 0.15 + (Math.random() - 0.5) * h * 0.1;
+                    ctx.lineTo(px, py);
+                }
+                
+                for (let i = points; i >= 0; i--) {
+                    const px = x + (w / points) * i;
+                    const py = y + h - Math.sin(i * 0.7) * h * 0.15 - (Math.random() - 0.5) * h * 0.1;
+                    ctx.lineTo(px, py);
+                }
+                
+                ctx.closePath();
+                ctx.fill();
+                
+                // Add terrain variation
+                const variations = 8;
+                for (let i = 0; i < variations; i++) {
+                    const vx = x + Math.random() * w * 0.8;
+                    const vy = y + Math.random() * h * 0.8;
+                    const vw = w * (0.1 + Math.random() * 0.15);
+                    const vh = h * (0.1 + Math.random() * 0.15);
+                    
+                    ctx.beginPath();
+                    ctx.ellipse(vx + vw/2, vy + vh/2, vw/2, vh/2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            createNightTexture() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 2048;
+                canvas.height = 1024;
+                const ctx = canvas.getContext('2d');
+                
+                // Dark background
+                ctx.fillStyle = '#000510';
+                ctx.fillRect(0, 0, 2048, 1024);
+                
+                // Add city lights
+                this.cities.forEach(city => {
+                    const x = ((city.lng + 180) / 360) * 2048;
+                    const y = ((90 - city.lat) / 180) * 1024;
+                    
+                    // Glow effect
+                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, 30);
+                    const colorHex = '#' + city.color.toString(16).padStart(6, '0');
+                    gradient.addColorStop(0, colorHex);
+                    gradient.addColorStop(0.3, colorHex + '88');
+                    gradient.addColorStop(1, 'transparent');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(x - 30, y - 30, 60, 60);
+                });
+                
+                // Random city lights
+                for (let i = 0; i < 500; i++) {
+                    const x = Math.random() * 2048;
+                    const y = 200 + Math.random() * 600;
+                    
+                    ctx.fillStyle = `rgba(255, 200, 100, ${0.2 + Math.random() * 0.4})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1 + Math.random() * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                return new THREE.CanvasTexture(canvas);
+            }
+
+            createAtmosphere() {
+                const geometry = new THREE.SphereGeometry(21, 64, 64);
+                const material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        sunDirection: { value: new THREE.Vector3(-1, 0, 0) }
+                    },
+                    vertexShader: `
+                        varying vec3 vNormal;
+                        void main() {
+                            vNormal = normalize(normalMatrix * normal);
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragmentShader: `
+                        varying vec3 vNormal;
+                        void main() {
+                            float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                            gl_FragColor = vec4(0.3, 0.6, 1.0, intensity * 0.5);
+                        }
+                    `,
+                    side: THREE.BackSide,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true
+                });
+                
+                return new THREE.Mesh(geometry, material);
+            }
+
+            createClouds() {
+                const geometry = new THREE.SphereGeometry(20.3, 64, 64);
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = 1024;
+                canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+                
+                // Transparent background
+                ctx.clearRect(0, 0, 1024, 512);
+                
+                // Cloud patterns
+                for (let i = 0; i < 300; i++) {
+                    const x = Math.random() * 1024;
+                    const y = Math.random() * 512;
+                    const radius = 5 + Math.random() * 40;
+                    
+                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+                    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+                    gradient.addColorStop(1, 'transparent');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+                }
+                
+                const texture = new THREE.CanvasTexture(canvas);
+                
+                const material = new THREE.MeshPhongMaterial({
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.35,
+                    depthWrite: false
+                });
+                
+                return new THREE.Mesh(geometry, material);
+            }
+
+            // ============================================
+            // GLOBE LINES (LATITUDE, LONGITUDE, ETC.)
+            // ============================================
+
+            createGlobeLines() {
+                const earthRadius = 20.1;
+                
+                // Equator (0°)
+                this.equatorLine = this.createLatitudeLine(0, 0xfbbf24, 3, 'Equator');
+                this.earthGroup.add(this.equatorLine);
+                
+                // Tropic of Cancer (23.5°N)
+                this.tropicCancer = this.createLatitudeLine(23.5, 0xf97316, 2, 'Tropic of Cancer');
+                this.earthGroup.add(this.tropicCancer);
+                
+                // Tropic of Capricorn (23.5°S)
+                this.tropicCapricorn = this.createLatitudeLine(-23.5, 0xf97316, 2, 'Tropic of Capricorn');
+                this.earthGroup.add(this.tropicCapricorn);
+                
+                // Arctic Circle (66.5°N)
+                this.arcticCircle = this.createLatitudeLine(66.5, 0x06b6d4, 2, 'Arctic Circle');
+                this.earthGroup.add(this.arcticCircle);
+                
+                // Antarctic Circle (66.5°S)
+                this.antarcticCircle = this.createLatitudeLine(-66.5, 0x06b6d4, 2, 'Antarctic Circle');
+                this.earthGroup.add(this.antarcticCircle);
+                
+                // Prime Meridian (0° longitude)
+                this.primeMeridian = this.createLongitudeLine(0, 0xef4444, 2, 'Prime Meridian');
+                this.earthGroup.add(this.primeMeridian);
+                
+                // International Date Line (180°)
+                this.dateLine = this.createLongitudeLine(180, 0xa855f7, 2, 'Date Line');
+                this.earthGroup.add(this.dateLine);
+                
+                // Regular latitude lines (every 30°)
+                const latitudes = [-60, -30, 30, 60];
+                latitudes.forEach(lat => {
+                    const line = this.createLatitudeLine(lat, 0x8b5cf6, 1);
+                    line.visible = this.toggleStates.latitudes;
+                    this.latitudeLines.push(line);
+                    this.earthGroup.add(line);
+                });
+                
+                // Regular longitude lines (every 30°)
+                for (let lng = 30; lng < 180; lng += 30) {
+                    const line1 = this.createLongitudeLine(lng, 0x10b981, 1);
+                    const line2 = this.createLongitudeLine(-lng, 0x10b981, 1);
+                    line1.visible = this.toggleStates.longitudes;
+                    line2.visible = this.toggleStates.longitudes;
+                    this.longitudeLines.push(line1, line2);
+                    this.earthGroup.add(line1);
+                    this.earthGroup.add(line2);
+                }
+            }
+
+            createLatitudeLine(latitude, color, lineWidth = 1, label = null) {
+                const earthRadius = 20.15;
+                const phi = THREE.MathUtils.degToRad(90 - latitude);
+                const radius = earthRadius * Math.sin(phi);
+                const y = earthRadius * Math.cos(phi);
+                
+                const points = [];
+                const segments = 128;
+                
+                for (let i = 0; i <= segments; i++) {
+                    const theta = (i / segments) * Math.PI * 2;
+                    const x = radius * Math.cos(theta);
+                    const z = radius * Math.sin(theta);
+                    points.push(new THREE.Vector3(x, y, z));
+                }
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.9,
+                    linewidth: lineWidth
+                });
+                
+                const line = new THREE.Line(geometry, material);
+                line.userData = { label, latitude };
+                
+                return line;
+            }
+
+            createLongitudeLine(longitude, color, lineWidth = 1, label = null) {
+                const earthRadius = 20.15;
+                const theta = THREE.MathUtils.degToRad(longitude);
+                
+                const points = [];
+                const segments = 128;
+                
+                for (let i = 0; i <= segments; i++) {
+                    const phi = (i / segments) * Math.PI;
+                    const x = earthRadius * Math.sin(phi) * Math.cos(theta);
+                    const y = earthRadius * Math.cos(phi);
+                    const z = earthRadius * Math.sin(phi) * Math.sin(theta);
+                    points.push(new THREE.Vector3(x, y, z));
+                }
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.9,
+                    linewidth: lineWidth
+                });
+                
+                const line = new THREE.Line(geometry, material);
+                line.userData = { label, longitude };
+                
+                return line;
+            }
+
+            // ============================================
+            // ORBIT PATH
+            // ============================================
+
+            createOrbitPath() {
+                const orbitRadius = 180;
+                const points = [];
+                
+                for (let i = 0; i <= 360; i++) {
+                    const angle = THREE.MathUtils.degToRad(i);
+                    // Slight elliptical orbit
+                    const x = orbitRadius * Math.cos(angle);
+                    const z = orbitRadius * 0.98 * Math.sin(angle);
+                    points.push(new THREE.Vector3(x, 0, z));
+                }
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineDashedMaterial({
+                    color: 0x3b82f6,
+                    transparent: true,
+                    opacity: 0.4,
+                    dashSize: 10,
+                    gapSize: 5
+                });
+                
+                this.orbitPath = new THREE.Line(geometry, material);
+                this.orbitPath.computeLineDistances();
+                this.orbitPath.visible = this.toggleStates.orbit;
+                this.scene.add(this.orbitPath);
+            }
+
+            // ============================================
+            // CITY LIGHTS (3D Markers)
+            // ============================================
+
+            createCityLights() {
+                this.cities.forEach(city => {
+                    const phi = THREE.MathUtils.degToRad(90 - city.lat);
+                    const theta = THREE.MathUtils.degToRad(city.lng + 180);
+                    const radius = 20.2;
+                    
+                    const x = radius * Math.sin(phi) * Math.cos(theta);
+                    const y = radius * Math.cos(phi);
+                    const z = radius * Math.sin(phi) * Math.sin(theta);
+                    
+                    // City point
+                    const pointGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+                    const pointMaterial = new THREE.MeshBasicMaterial({
+                        color: city.color,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                    
+                    const point = new THREE.Mesh(pointGeometry, pointMaterial);
+                    point.position.set(x, y, z);
+                    point.userData = { city: city.name, lat: city.lat, lng: city.lng };
+                    
+                    // Glow
+                    const glowGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: city.color,
+                        transparent: true,
+                        opacity: 0.4
+                    });
+                    
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    glow.position.set(x, y, z);
+                    
+                    this.earthGroup.add(point);
+                    this.earthGroup.add(glow);
+                    
+                    this.cityLights.push({ point, glow, city });
+                });
+            }
+
+            // ============================================
+            // CONTROLS & EVENT LISTENERS
+            // ============================================
+
+            setupControls() {
+                // Mode buttons
+                document.querySelectorAll('.control-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const mode = e.currentTarget.dataset.mode;
+                        this.setMode(mode);
+                    });
+                });
+                
+                // Time buttons
+                document.querySelectorAll('.time-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const speed = e.currentTarget.dataset.speed;
+                        this.setTimeSpeed(speed);
+                    });
+                });
+                
+                // Tilt slider
+                document.getElementById('tiltSlider').addEventListener('input', (e) => {
+                    this.setAxialTilt(parseFloat(e.target.value));
+                });
+                
+                // Toggle switches
+                document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                        const toggleType = e.currentTarget.dataset.toggle;
+                        this.handleToggle(toggleType, e.currentTarget);
+                    });
+                });
+            }
+
+            setupEventListeners() {
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    switch (e.key) {
+                        case ' ':
+                            e.preventDefault();
+                            this.setTimeSpeed(this.isPaused ? 'play' : 'pause');
+                            break;
+                        case 'ArrowUp':
+                            this.setTimeSpeed('fast');
+                            break;
+                        case 'ArrowDown':
+                            this.setTimeSpeed('slow');
+                            break;
+                        case 'r':
+                            this.resetView();
+                            break;
+                        case 'g':
+                            this.toggleAllGrids();
+                            break;
+                    }
+                });
+            }
+
+            // ============================================
+            // MODE HANDLERS
+            // ============================================
+
+            setMode(mode) {
+                // Update active button
+                document.querySelectorAll('.control-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+                
+                this.currentMode = mode;
+                
+                // Reset camera for certain modes
+                if (mode === 'seasons' || mode === 'solstice') {
+                    gsap.to(this.camera.position, {
+                        x: 0,
+                        y: 200,
+                        z: 350,
+                        duration: 1.5,
+                        ease: 'power2.out'
+                    });
+                    this.toggleStates.orbit = true;
+                    this.orbitPath.visible = true;
+                    document.querySelector('[data-toggle="orbit"]').classList.add('active');
+                } else if (mode === 'daynight') {
+                    gsap.to(this.camera.position, {
+                        x: 80,
+                        y: 50,
+                        z: 150,
+                        duration: 1.5,
+                        ease: 'power2.out'
+                    });
+                    this.timeSpeed = 0.5;
+                } else {
+                    gsap.to(this.camera.position, {
+                        x: 100,
+                        y: 80,
+                        z: 250,
+                        duration: 1.5,
+                        ease: 'power2.out'
+                    });
+                }
+                
+                // Show info panel
+                this.showModeInfo(mode);
+                
+                // Show/hide season markers
+                const showSeasons = mode === 'seasons' || mode === 'solstice';
+                document.querySelectorAll('.season-marker').forEach(m => {
+                    m.classList.toggle('show', showSeasons);
+                });
+            }
+
+            showModeInfo(mode) {
+                const info = {
+                    default: {
+                        title: '🌍 Earth-Sun System',
+                        content: `
+                            <p>Welcome to the interactive Earth-Sun simulator!</p>
+                            <p>Watch Earth <span class="highlight">rotate</span> on its axis (day/night) and <span class="highlight">revolve</span> around the Sun (seasons).</p>
+                            <p>Use the controls to explore different phenomena.</p>
+                        `
+                    },
+                    daynight: {
+                        title: '🌗 Day & Night Cycle',
+                        content: `
+                            <p>Earth rotates on its axis every <span class="highlight">24 hours</span>.</p>
+                            <p><span class="highlight">Day side:</span> Faces the Sun, receives light</p>
+                            <p><span class="highlight">Night side:</span> Faces away, experiences darkness</p>
+                            <p><span class="highlight">Terminator:</span> The line between day and night</p>
+                            <p>Watch the city lights appear on the night side! 🌃</p>
+                        `
+                    },
+                    seasons: {
+                        title: '🍂 Seasons & Revolution',
+                        content: `
+                            <p>Seasons occur because of Earth's <span class="highlight">23.5° axial tilt</span>.</p>
+                            <p>As Earth orbits the Sun, different hemispheres receive more direct sunlight.</p>
+                            <p><span class="highlight">June:</span> Northern hemisphere tilts toward Sun (summer)</p>
+                            <p><span class="highlight">December:</span> Southern hemisphere tilts toward Sun</p>
+                            <p>Try the tilt slider to see how tilt affects seasons!</p>
+                        `
+                    },
+                    solstice: {
+                        title: '☀️ Solstices & Equinoxes',
+                        content: `
+                            <p><span class="highlight">21 March</span> - Vernal Equinox: Equal day & night</p>
+                            <p><span class="highlight">21 June</span> - Summer Solstice: Longest day (N)</p>
+                            <p><span class="highlight">23 September</span> - Autumn Equinox: Equal day & night</p>
+                            <p><span class="highlight">21 December</span> - Winter Solstice: Shortest day (N)</p>
+                        `
+                    },
+                    pressure: {
+                        title: '💨 Pressure Belts & Winds',
+                        content: `
+                            <p><span class="highlight">Doldrums (ITCZ):</span> Equatorial low pressure</p>
+                            <p><span class="highlight">Horse Latitudes:</span> Subtropical high pressure (30°)</p>
+                            <p><span class="highlight">Trade Winds:</span> Blow toward equator</p>
+                            <p><span class="highlight">Westerlies:</span> Mid-latitude winds (40-60°)</p>
+                            <p><span class="highlight">Polar Easterlies:</span> Cold polar winds</p>
+                        `
+                    },
+                    monsoon: {
+                        title: '🌧️ Indian Monsoon System',
+                        content: `
+                            <p>Monsoons are caused by differential heating of land and sea.</p>
+                            <p><span class="highlight">SW Monsoon (June-Sept):</span> Moisture from Indian Ocean</p>
+                            <p><span class="highlight">Arabian Sea Branch:</span> Hits Western Ghats first</p>
+                            <p><span class="highlight">Bay of Bengal Branch:</span> Northeast India</p>
+                            <p><span class="highlight">NE Monsoon (Oct-Dec):</span> Winds reverse, Tamil Nadu rains</p>
+                        `
+                    }
+                };
+                
+                const data = info[mode] || info.default;
+                document.getElementById('infoPanelTitle').innerHTML = data.title;
+                document.getElementById('infoPanelContent').innerHTML = data.content;
+                document.getElementById('infoPanel').classList.add('show');
+            }
+
+            // ============================================
+            // TIME CONTROL
+            // ============================================
+
+            setTimeSpeed(speed) {
+                document.querySelectorAll('.time-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.speed === speed);
+                });
+                
+                this.isReverse = false;
+                
+                switch (speed) {
+                    case 'reverse':
+                        this.isPaused = false;
+                        this.isReverse = true;
+                        this.timeSpeed = 1;
+                        document.getElementById('speedDisplay').textContent = '-1x';
+                        break;
+                    case 'slow':
+                        this.isPaused = false;
+                        this.timeSpeed = 0.3;
+                        document.getElementById('speedDisplay').textContent = '0.3x';
+                        break;
+                    case 'pause':
+                        this.isPaused = true;
+                        document.getElementById('speedDisplay').textContent = 'Paused';
+                        break;
+                    case 'play':
+                        this.isPaused = false;
+                        this.timeSpeed = 1;
+                        document.getElementById('speedDisplay').textContent = '1x';
+                        break;
+                    case 'fast':
+                        this.isPaused = false;
+                        this.timeSpeed = 3;
+                        document.getElementById('speedDisplay').textContent = '3x';
+                        break;
+                }
+            }
+
+            // ============================================
+            // TILT CONTROL
+            // ============================================
+
+            setAxialTilt(tilt) {
+                this.axialTilt = tilt;
+                document.getElementById('tiltValue').textContent = tilt.toFixed(1);
+                document.getElementById('tiltStat').textContent = tilt.toFixed(1) + '°';
+                
+                if (this.earthGroup) {
+                    gsap.to(this.earthGroup.rotation, {
+                        z: THREE.MathUtils.degToRad(tilt),
+                        duration: 0.5,
+                        ease: 'power2.out'
+                    });
+                }
+                
+                // Update tropic positions
+                this.updateTropicPositions(tilt);
+            }
+
+            updateTropicPositions(tilt) {
+                // Recreate tropics and arctic circles at new positions
+                if (this.tropicCancer) {
+                    this.earthGroup.remove(this.tropicCancer);
+                    this.tropicCancer = this.createLatitudeLine(tilt, 0xf97316, 2, 'Tropic of Cancer');
+                    this.tropicCancer.visible = this.toggleStates.tropics;
+                    this.earthGroup.add(this.tropicCancer);
+                }
+                
+                if (this.tropicCapricorn) {
+                    this.earthGroup.remove(this.tropicCapricorn);
+                    this.tropicCapricorn = this.createLatitudeLine(-tilt, 0xf97316, 2, 'Tropic of Capricorn');
+                    this.tropicCapricorn.visible = this.toggleStates.tropics;
+                    this.earthGroup.add(this.tropicCapricorn);
+                }
+                
+                if (this.arcticCircle) {
+                    this.earthGroup.remove(this.arcticCircle);
+                    this.arcticCircle = this.createLatitudeLine(90 - tilt, 0x06b6d4, 2, 'Arctic Circle');
+                    this.arcticCircle.visible = this.toggleStates.arctic;
+                    this.earthGroup.add(this.arcticCircle);
+                }
+                
+                if (this.antarcticCircle) {
+                    this.earthGroup.remove(this.antarcticCircle);
+                    this.antarcticCircle = this.createLatitudeLine(-(90 - tilt), 0x06b6d4, 2, 'Antarctic Circle');
+                    this.antarcticCircle.visible = this.toggleStates.arctic;
+                    this.earthGroup.add(this.antarcticCircle);
+                }
+            }
+
+            // ============================================
+            // TOGGLE HANDLERS
+            // ============================================
+
+            handleToggle(type, element) {
+                this.toggleStates[type] = !this.toggleStates[type];
+                element.classList.toggle('active', this.toggleStates[type]);
+                
+                switch (type) {
+                    case 'equator':
+                        if (this.equatorLine) this.equatorLine.visible = this.toggleStates[type];
+                        break;
+                    case 'tropics':
+                        if (this.tropicCancer) this.tropicCancer.visible = this.toggleStates[type];
+                        if (this.tropicCapricorn) this.tropicCapricorn.visible = this.toggleStates[type];
+                        break;
+                    case 'arctic':
+                        if (this.arcticCircle) this.arcticCircle.visible = this.toggleStates[type];
+                        if (this.antarcticCircle) this.antarcticCircle.visible = this.toggleStates[type];
+                        break;
+                    case 'latitudes':
+                        this.latitudeLines.forEach(line => line.visible = this.toggleStates[type]);
+                        break;
+                    case 'longitudes':
+                        this.longitudeLines.forEach(line => line.visible = this.toggleStates[type]);
+                        break;
+                    case 'primeMeridian':
+                        if (this.primeMeridian) this.primeMeridian.visible = this.toggleStates[type];
+                        if (this.dateLine) this.dateLine.visible = this.toggleStates[type];
+                        break;
+                    case 'cityLights':
+                        this.cityLights.forEach(cl => {
+                            cl.point.visible = this.toggleStates[type];
+                            cl.glow.visible = this.toggleStates[type];
+                        });
+                        document.getElementById('cityLegend').classList.toggle('show', this.toggleStates[type]);
+                        break;
+                    case 'clouds':
+                        if (this.clouds) this.clouds.visible = this.toggleStates[type];
+                        break;
+                    case 'orbit':
+                        if (this.orbitPath) this.orbitPath.visible = this.toggleStates[type];
+                        break;
+                }
+            }
+
+            toggleAllGrids() {
+                const allVisible = this.toggleStates.latitudes && this.toggleStates.longitudes;
+                
+                this.toggleStates.latitudes = !allVisible;
+                this.toggleStates.longitudes = !allVisible;
+                
+                this.latitudeLines.forEach(line => line.visible = !allVisible);
+                this.longitudeLines.forEach(line => line.visible = !allVisible);
+                
+                document.querySelector('[data-toggle="latitudes"]').classList.toggle('active', !allVisible);
+                document.querySelector('[data-toggle="longitudes"]').classList.toggle('active', !allVisible);
+            }
+
+            // ============================================
+            // UTILITY FUNCTIONS
+            // ============================================
+
+            resetView() {
+                gsap.to(this.camera.position, {
+                    x: 100,
+                    y: 80,
+                    z: 250,
+                    duration: 1.5,
+                    ease: 'power2.out'
+                });
+            }
+
+            showLegend() {
+                document.getElementById('legendPanel').classList.add('show');
+            }
+
+            showCityLegend() {
+                document.getElementById('cityLegend').classList.add('show');
+            }
+
+            onResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            // ============================================
+            // ANIMATION LOOP
+            // ============================================
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                const delta = this.clock.getDelta();
+                const speedMultiplier = this.isReverse ? -this.timeSpeed : this.timeSpeed;
+                
+                if (!this.isPaused && this.earth) {
+                    // Earth rotation (day/night) - 1 rotation = 24 seconds at 1x speed
+                    const rotationSpeed = (Math.PI * 2 / 24) * speedMultiplier;
+                    this.earth.rotation.y += rotationSpeed * delta;
+                    this.rotationAngle = (this.rotationAngle + rotationSpeed * delta * (180 / Math.PI)) % 360;
+                    if (this.rotationAngle < 0) this.rotationAngle += 360;
+                    
+                    // Clouds rotate slightly faster
+                    if (this.clouds) {
+                        this.clouds.rotation.y += rotationSpeed * 1.05 * delta;
+                    }
+                    
+                    // Earth revolution (seasons) - 1 revolution = 90 seconds at 1x speed
+                    const revolutionSpeed = (Math.PI * 2 / 90) * speedMultiplier;
+                    this.earthOrbitGroup.rotation.y += revolutionSpeed * delta;
+                    this.revolutionAngle = (this.revolutionAngle + revolutionSpeed * delta * (180 / Math.PI)) % 360;
+                    if (this.revolutionAngle < 0) this.revolutionAngle += 360;
+                    
+                    // Update sun direction for Earth shader
+                    if (this.earth.material.uniforms) {
+                        const earthWorldPos = new THREE.Vector3();
+                        this.earthGroup.getWorldPosition(earthWorldPos);
+                        this.earth.material.uniforms.sunDirection.value.set(-earthWorldPos.x, 0, -earthWorldPos.z).normalize();
+                    }
+                    
+                    // Update stats
+                    this.updateStats();
+                }
+                
+                // Update controls
+                if (this.controls) {
+                    this.controls.update();
+                }
+                
+                // Render
+                this.renderer.render(this.scene, this.camera);
+            }
+
+            updateStats() {
+                document.getElementById('rotationStat').textContent = Math.abs(this.rotationAngle).toFixed(1) + '°';
+                document.getElementById('revolutionStat').textContent = Math.abs(this.revolutionAngle).toFixed(1) + '°';
+                
+                // Calculate season based on revolution angle
+                const angle = this.revolutionAngle;
+                let season = 'Equinox';
+                let dayLength = '12h';
+                
+                if (angle >= 45 && angle < 135) {
+                    season = 'Summer (N)';
+                    dayLength = '14-16h';
+                } else if (angle >= 135 && angle < 225) {
+                    season = 'Autumn (N)';
+                    dayLength = '12h';
+                } else if (angle >= 225 && angle < 315) {
+                    season = 'Winter (N)';
+                    dayLength = '8-10h';
+                } else {
+                    season = 'Spring (N)';
+                    dayLength = '12h';
+                }
+                
+                document.getElementById('seasonStat').textContent = season;
+                document.getElementById('dayLengthStat').textContent = dayLength;
+            }
+        }
+
+        // Hide info panel
+        function hideInfoPanel() {
+            document.getElementById('infoPanel').classList.remove('show');
+        }
+
+        // Initialize simulator
+        const simulator = new EarthSunSimulator();
+    </script>
+</body>
+</html>
