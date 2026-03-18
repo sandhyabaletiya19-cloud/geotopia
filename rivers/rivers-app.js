@@ -1337,3 +1337,59 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
+
+// ============================================
+// COMING SOON FEATURE
+// ============================================
+
+function getTotalRiversCount() {
+    let total = 0;
+    // Check for all possible data files (up to 50 for future expansion)
+    for (let i = 1; i <= 50; i++) {
+        const dataVar = window['RIVERS_DATA_' + i];
+        if (dataVar && Array.isArray(dataVar)) {
+            total += dataVar.length;
+        }
+    }
+    return total;
+}
+
+function createComingSoonCard() {
+    const totalRivers = getTotalRiversCount();
+    
+    const comingSoonCard = document.createElement('div');
+    comingSoonCard.className = 'river-card coming-soon-card';
+    comingSoonCard.innerHTML = `
+        <div class="coming-soon-content">
+            <div class="coming-soon-icon">🌊</div>
+            <h3>More Rivers Coming Soon!</h3>
+            <p>We're constantly adding new rivers from around the world.</p>
+            <div class="coming-soon-stats">
+                <span class="current-count">${totalRivers} rivers available</span>
+                <span class="separator">→</span>
+                <span class="future-count">1000+ planned</span>
+            </div>
+            <p class="coming-soon-note">Stay tuned for updates!</p>
+        </div>
+    `;
+    return comingSoonCard;
+}
+
+function addComingSoonCard() {
+    // Find your river grid container - adjust selector as needed
+    const riverGrid = document.querySelector('.river-grid') || 
+                      document.querySelector('.rivers-grid') ||
+                      document.querySelector('#river-grid') ||
+                      document.querySelector('#rivers-container');
+    
+    if (riverGrid) {
+        // Remove existing coming soon card if any
+        const existingCard = riverGrid.querySelector('.coming-soon-card');
+        if (existingCard) {
+            existingCard.remove();
+        }
+        
+        // Add new coming soon card at the end
+        riverGrid.appendChild(createComingSoonCard());
+    }
+}
