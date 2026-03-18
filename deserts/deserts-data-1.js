@@ -5,7 +5,7 @@
  * ═══════════════════════════════════════════════════════════
  */
 
-const DESERTS_DATA_1 = [
+const desertsData1 = [
     // ═══════════════════════════════════════════════════════════
     // #1 - ANTARCTIC DESERT (Largest Desert on Earth)
     // ═══════════════════════════════════════════════════════════
@@ -5824,8 +5824,8 @@ const DESERTS_DATA_1 = [
         }
     },
 
-    // ═══════════════════════════════════════════════════════════════════
-    // #10 - GREAT BASIN DESERT
+        // ═══════════════════════════════════════════════════════════════════
+    // #10 - GREAT BASIN DESERT (COMPLETION)
     // ═══════════════════════════════════════════════════════════════════
     {
         id: 'great-basin-desert',
@@ -5845,6 +5845,10 @@ const DESERTS_DATA_1 = [
         
         image: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400',
         backgroundImage: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=800',
+            'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800'
+        ],
         
         geoJSON: {
             type: 'Feature',
@@ -5857,178 +5861,1026 @@ const DESERTS_DATA_1 = [
             }
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Location Branch
+        // ═══════════════════════════════════════════════════════════
         location: {
             continent: 'North America',
             hemispheres: ['Northern', 'Western'],
             latitudeRange: '35°N to 42°N',
             longitudeRange: '120°W to 111°W',
-            states: ['Nevada (most)', 'Utah', 'Oregon', 'Idaho', 'California'],
-            geographicCenter: '40°N, 117°W'
+            geographicCenter: '40°N, 117°W',
+            totalCountries: 1,
+            states: ['Nevada (most)', 'Utah (western)', 'Oregon (southeastern)', 'Idaho (southern)', 'California (eastern)'],
+            percentByState: {
+                nevada: 75,
+                utah: 15,
+                other: 10
+            },
+            borders: ['Sierra Nevada (west)', 'Rocky Mountains (east)', 'Columbia Plateau (north)', 'Mojave Desert (south)'],
+            elevation: '1,200-2,000m average (high desert)'
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Desert Type Branch
+        // ═══════════════════════════════════════════════════════════
         desertClassification: {
             primaryType: 'Cold Desert',
             secondaryType: 'Rain Shadow Desert',
             climateClassification: 'BWk (Cold Desert Climate)',
             formationCauses: [
-                { cause: 'Rain Shadow', explanation: 'Sierra Nevada blocks Pacific moisture' },
-                { cause: 'High Elevation', explanation: 'Average 1,200-2,000m, cold winters' },
-                { cause: 'Basin Topography', explanation: 'Mountain ranges trap dry air' }
-            ]
+                {
+                    cause: 'Rain Shadow Effect',
+                    explanation: 'Sierra Nevada blocks Pacific Ocean moisture, creating rain shadow'
+                },
+                {
+                    cause: 'High Elevation',
+                    explanation: 'Average elevation 1,200-2,000m creates cold winters'
+                },
+                {
+                    cause: 'Basin and Range Topography',
+                    explanation: 'Mountain ranges trap dry air in valleys between'
+                },
+                {
+                    cause: 'Continental Interior',
+                    explanation: 'Distance from ocean reduces moisture'
+                }
+            ],
+            whyItsDesert: 'Sierra Nevada rain shadow combined with high elevation creates cold, dry conditions',
+            uniqueFeature: 'Only true cold desert in North America, defined by sagebrush ecosystem'
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Size & Scale Branch
+        // ═══════════════════════════════════════════════════════════
         size: {
             totalArea: 492000,
             areaUnit: 'km²',
-            ranking: { amongDeserts: 10, usDesertRank: 1 }
+            areaInMiles: 190000,
+            comparisonToCountries: [
+                'Larger than California',
+                'About size of Spain',
+                '2x size of United Kingdom'
+            ],
+            ranking: {
+                amongDeserts: 10,
+                totalDeserts: 50,
+                coldDesertRank: 5,
+                usDesertRank: 1,
+                statement: 'Largest desert in United States, tenth largest in world'
+            },
+            basinDefinition: 'Hydrographic Great Basin extends 540,000 km²'
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Climate Branch
+        // ═══════════════════════════════════════════════════════════
         climate: {
-            overview: 'Cold winters, hot summers, snowy - America\'s only cold desert',
+            overview: 'Cold winters with snow, hot summers, low precipitation - America\'s only cold desert',
             temperatureData: {
-                summerHigh: { typical: '30°C to 38°C' },
-                winterLow: { typical: '-10°C to -20°C' }
+                summerHigh: {
+                    typical: '30°C to 38°C',
+                    extreme: 'Up to 42°C in valleys'
+                },
+                winterLow: {
+                    typical: '-10°C to -20°C',
+                    extreme: '-40°C in higher elevations'
+                },
+                dailySwing: '15°C to 25°C variation common',
+                annualMean: '7°C to 12°C',
+                frostFreeDays: '100-150 days',
+                extremeRecords: {
+                    hottestEver: '53°C (Death Valley, at southern margin)',
+                    coldestEver: '-46°C (various high-elevation sites)',
+                    snowRecord: '200+ cm annually in mountains'
+                }
             },
             precipitation: {
                 annualAverage: '150-300mm',
-                snowfall: 'Common in winter',
-                type: 'Winter snow, summer thunderstorms'
+                valleys: '150-200mm',
+                mountains: '300-500mm',
+                snowfall: 'Significant - 50-150cm per year',
+                type: 'Winter snow dominant, summer thunderstorms',
+                monsoon: 'Minimal influence from Arizona monsoon'
+            },
+            wind: {
+                averageSpeed: '10-20 km/h',
+                dustDevils: 'Common in summer',
+                chinook: 'Warm downslope winds occasionally'
+            },
+            seasons: {
+                summer: 'Hot and dry (June-August)',
+                winter: 'Cold with snow (December-February)',
+                spring: 'Windy, variable (March-May)',
+                fall: 'Clear, cooling (September-November)'
             }
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Landforms Branch
+        // ═══════════════════════════════════════════════════════════
         landforms: [
-            { name: 'Basin and Range', description: 'Parallel mountain ranges with flat valleys between', count: 'Over 300 mountain ranges' },
-            { name: 'Playas', description: 'Dry lake beds, salt flats', examples: ['Bonneville Salt Flats', 'Black Rock Desert'] },
-            { name: 'Endorheic Basin', description: 'Internally draining - no outlet to sea', unique: 'Largest US endorheic basin' }
+            {
+                name: 'Basin and Range Province',
+                description: 'Distinctive topography of parallel mountain ranges separated by flat valleys',
+                characteristics: 'Over 300 mountain ranges, each 50-100 km long',
+                formation: 'Crustal extension stretching Earth\'s crust',
+                elevation: 'Valleys 1,200m, peaks up to 4,000m',
+                uniqueness: 'One of most distinctive geologic provinces on Earth'
+            },
+            {
+                name: 'Playas (Dry Lake Beds)',
+                description: 'Flat, dry lake beds that occasionally flood',
+                examples: ['Bonneville Salt Flats', 'Black Rock Desert', 'Alvord Desert'],
+                characteristics: 'Extremely flat, salt-encrusted surfaces',
+                use: 'Land speed record attempts',
+                formation: 'Remnants of Pleistocene lakes'
+            },
+            {
+                name: 'Endorheic Basin',
+                description: 'Closed drainage basin - no outlet to ocean',
+                significance: 'Largest endorheic basin in North America',
+                consequence: 'All water evaporates or sinks into ground',
+                rivers: 'Humboldt River longest river that never reaches sea'
+            },
+            {
+                name: 'Ancient Lake Beds',
+                description: 'Remnants of massive Pleistocene lakes',
+                lakeBonneville: 'Once size of Lake Michigan, left Great Salt Lake',
+                lakeLahontan: 'Left Pyramid Lake, Walker Lake',
+                evidence: 'Shoreline terraces visible on mountains'
+            },
+            {
+                name: 'Sagebrush Steppe',
+                description: 'Dominant vegetation type covering most of basin',
+                coverage: '40 million hectares',
+                plants: 'Big sagebrush, bunchgrasses',
+                threat: 'Cheatgrass invasion, increased wildfires'
+            },
+            {
+                name: 'Sky Islands',
+                description: 'Isolated mountain ranges with forest ecosystems',
+                characteristics: 'Cooler, wetter peaks surrounded by desert',
+                examples: 'Ruby Mountains, Snake Range, Schell Creek Range',
+                biodiversity: 'Isolated populations of plants and animals'
+            }
         ],
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Key Features & Landmarks
+        // ═══════════════════════════════════════════════════════════
         features: [
             {
                 name: 'Bonneville Salt Flats',
                 type: 'Salt Flat',
                 coordinates: [40.75, -113.9],
                 area: '260 km²',
-                description: 'Land speed record site, remnant of ancient Lake Bonneville',
-                records: 'Over 600 land speed records set here',
-                surface: 'Almost perfectly flat'
+                description: 'World-famous land speed record site, remnant of Lake Bonneville',
+                records: 'Over 600 world land speed records set here',
+                surface: 'So flat you can see curvature of Earth',
+                origin: 'Lake Bonneville evaporated 14,000 years ago',
+                events: 'Speed Week, World Finals annually',
+                record: '763 mph by ThrustSSC (1997) at Black Rock'
             },
             {
                 name: 'Black Rock Desert',
                 type: 'Playa',
                 coordinates: [40.75, -119.0],
                 area: '2,600 km²',
-                description: 'Site of Burning Man festival',
-                records: 'Thrust SSC set 763 mph land speed record (1997)'
+                description: 'Largest playa in North America, Burning Man site',
+                events: 'Burning Man festival (70,000+ attendees)',
+                records: 'ThrustSSC broke sound barrier here (1997)',
+                surface: 'Hard, flat alkaline clay',
+                history: 'Emigrant trail crossing point'
             },
             {
                 name: 'Great Salt Lake',
-                type: 'Lake',
+                type: 'Terminal Lake',
                 coordinates: [41.0, -112.5],
-                area: '4,400 km² (varies)',
-                description: 'Western Hemisphere\'s largest salt lake',
-                salinity: '5-27% (varies)',
+                area: '4,400 km² (varies dramatically)',
+                description: 'Largest salt lake in Western Hemisphere',
+                salinity: '5-27% (varies by area and water level)',
+                depth: 'Average 4m (shallow)',
+                wildlife: 'Millions of migratory birds, brine shrimp',
+                crisis: 'Shrinking rapidly, ecological disaster unfolding',
                 remnant: 'Remnant of Lake Bonneville'
             },
             {
                 name: 'Pyramid Lake',
                 type: 'Lake',
                 coordinates: [40.0, -119.5],
-                description: 'Nevada\'s largest natural lake',
-                significance: 'Paiute sacred site, unique fish species'
+                area: '487 km²',
+                description: 'Nevada\'s largest natural lake, Paiute sacred site',
+                depth: '107m (deep)',
+                significance: 'Cui-ui fish found nowhere else (endangered)',
+                feature: 'Tufa formations including "The Pyramid"',
+                reservation: 'Pyramid Lake Paiute Reservation'
             },
             {
-                name: 'Lehman Caves',
-                type: 'Cave System',
-                coordinates: [39.0, -114.22],
-                description: 'Limestone caves in Great Basin National Park',
-                features: 'Shield formations, stalactites'
+                name: 'Great Basin National Park',
+                type: 'National Park',
+                coordinates: [39.0, -114.3],
+                area: '312 km²',
+                description: 'Protects Wheeler Peak and bristlecone pines',
+                features: ['Wheeler Peak (3,982m)', 'Lehman Caves', 'Bristlecone pines', 'Only glacier in Great Basin'],
+                established: '1986'
             },
             {
                 name: 'Wheeler Peak',
                 type: 'Mountain',
                 coordinates: [38.99, -114.31],
-                height: '3,982m',
-                description: 'Second highest peak in Nevada',
-                feature: 'Only glacier in Great Basin'
+                height: '3,982m (13,065 ft)',
+                description: 'Second highest peak in Nevada, in Great Basin NP',
+                feature: 'Only glacier in Great Basin (small, receding)',
+                hike: 'Popular summit hike'
             },
             {
                 name: 'Bristlecone Pine Forest',
-                type: 'Forest',
+                type: 'Ancient Forest',
                 coordinates: [38.95, -114.28],
-                description: 'Oldest trees on Earth, up to 5,000 years old',
-                location: 'Great Basin National Park',
-                name: 'Methuselah (oldest known tree)'
+                description: 'Home to oldest known living organisms on Earth',
+                age: 'Trees up to 5,000 years old',
+                location: 'Wheeler Peak, Great Basin National Park',
+                famous: 'Prometheus tree (4,900 years, cut down 1964)',
+                living: 'Methuselah (4,850 years, location secret)'
+            },
+            {
+                name: 'Lehman Caves',
+                type: 'Cave System',
+                coordinates: [39.0, -114.22],
+                description: 'Spectacular limestone cave with rare formations',
+                features: 'Shield formations (300+), stalactites, stalagmites',
+                uniqueness: 'More shields than any other cave in world',
+                tours: 'Ranger-guided tours available'
+            },
+            {
+                name: 'Ruby Mountains',
+                type: 'Mountain Range',
+                coordinates: [40.6, -115.5],
+                height: '3,471m (Ruby Dome)',
+                description: '"Alps of Nevada" - dramatic glaciated peaks',
+                features: 'Glacial cirques, alpine lakes',
+                nickname: 'Most scenic range in Nevada'
+            },
+            {
+                name: 'Area 51 (Groom Lake)',
+                type: 'Military Installation',
+                coordinates: [37.24, -115.81],
+                description: 'Classified Air Force facility, UFO conspiracy fame',
+                status: 'Highly restricted, no public access',
+                culture: 'Subject of countless conspiracy theories',
+                reality: 'Aircraft testing facility (U-2, SR-71, stealth aircraft)'
+            },
+            {
+                name: 'Nevada Test Site',
+                type: 'Former Nuclear Test Site',
+                coordinates: [37.0, -116.0],
+                area: '3,500 km²',
+                description: 'Site of 928 nuclear tests (1951-1992)',
+                tests: '100 atmospheric, 828 underground',
+                craters: 'Subsidence craters visible from space',
+                status: 'Now Nevada National Security Site'
             }
         ],
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Water Sources
+        // ═══════════════════════════════════════════════════════════
+        waterSources: [
+            {
+                name: 'Humboldt River',
+                type: 'River',
+                coordinates: [40.7, -117.1],
+                length: '483 km',
+                description: 'Longest river in US that never reaches ocean',
+                terminus: 'Humboldt Sink (evaporates)',
+                significance: 'Emigrant trail followed this river'
+            },
+            {
+                name: 'Great Salt Lake',
+                type: 'Terminal Lake',
+                description: 'Largest terminal lake in Western Hemisphere',
+                status: 'Rapidly shrinking due to water diversion'
+            },
+            {
+                name: 'Pyramid Lake',
+                type: 'Terminal Lake',
+                description: 'Deep, beautiful remnant of Lake Lahontan',
+                fed: 'Truckee River from Lake Tahoe'
+            },
+            {
+                name: 'Walker Lake',
+                type: 'Terminal Lake',
+                coordinates: [38.7, -118.7],
+                description: 'Shrinking lake, Lahontan cutthroat trout',
+                status: 'Critically low, endangered species at risk'
+            },
+            {
+                name: 'Hot Springs',
+                type: 'Geothermal',
+                description: 'Hundreds throughout basin',
+                use: 'Geothermal power, recreation',
+                examples: 'Steamboat Springs, Beowawe'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Cities Branch
+        // ═══════════════════════════════════════════════════════════
+        cities: [
+            {
+                name: 'Reno',
+                coordinates: [39.53, -119.81],
+                country: 'United States',
+                state: 'Nevada',
+                population: 265000,
+                description: 'Largest city in Great Basin, "Biggest Little City in the World"',
+                features: 'Casinos, gateway to Lake Tahoe and desert',
+                economy: 'Gaming, tech hub (Tesla), outdoor recreation'
+            },
+            {
+                name: 'Salt Lake City',
+                coordinates: [40.76, -111.89],
+                country: 'United States',
+                state: 'Utah',
+                population: 200000,
+                metro: '1.2 million',
+                description: 'On eastern edge of Great Basin, Mormon capital',
+                features: 'Temple Square, gateway to desert and mountains',
+                note: 'Technically on basin edge, gateway city'
+            },
+            {
+                name: 'Elko',
+                coordinates: [40.83, -115.76],
+                country: 'United States',
+                state: 'Nevada',
+                population: 20000,
+                description: 'Ranching and mining town, Basque culture',
+                features: 'Cowboy Poetry Gathering, gold mining',
+                culture: 'Strong Basque heritage from sheepherding'
+            },
+            {
+                name: 'Winnemucca',
+                coordinates: [40.97, -117.74],
+                country: 'United States',
+                state: 'Nevada',
+                population: 8000,
+                description: 'Historic railroad and ranching town',
+                history: 'Butch Cassidy robbed bank here (1900)'
+            },
+            {
+                name: 'Ely',
+                coordinates: [39.25, -114.89],
+                country: 'United States',
+                state: 'Nevada',
+                population: 4000,
+                description: 'Gateway to Great Basin National Park',
+                features: 'Nevada Northern Railway, mining history'
+            },
+            {
+                name: 'Wendover',
+                coordinates: [40.74, -114.04],
+                country: 'United States',
+                state: 'Nevada/Utah',
+                population: 3000,
+                description: 'Border town, near Bonneville Salt Flats',
+                history: 'Enola Gay crew trained here for Hiroshima'
+            },
+            {
+                name: 'Battle Mountain',
+                coordinates: [40.64, -116.93],
+                country: 'United States',
+                state: 'Nevada',
+                population: 3500,
+                description: 'Mining town, gold production center',
+                nickname: '"Armpit of America" (won contest)'
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Biodiversity Branch
+        // ═══════════════════════════════════════════════════════════
         biodiversity: {
-            overview: 'Unique high-desert ecosystem with endemic species',
-            animals: [
-                { name: 'Pronghorn', description: 'Fastest North American land animal' },
-                { name: 'Bighorn Sheep', description: 'Desert subspecies' },
-                { name: 'Kit Fox', description: 'Small nocturnal canid' },
-                { name: 'Pygmy Rabbit', description: 'Smallest North American rabbit', status: 'Threatened' },
-                { name: 'Greater Sage-Grouse', description: 'Iconic ground bird, complex mating display', status: 'Near Threatened' },
-                { name: 'Desert Horned Lizard', description: 'Squirts blood from eyes when threatened' },
-                { name: 'Lahontan Cutthroat Trout', description: 'Once 40 pounds, now endangered', status: 'Threatened' }
-            ],
+            overview: 'Unique high-desert sagebrush ecosystem with many endemic species',
+            
             plants: [
-                { name: 'Big Sagebrush', description: 'Dominant plant, covers millions of acres' },
-                { name: 'Bristlecone Pine', description: 'Oldest living organisms on Earth - 5,000+ years' },
-                { name: 'Joshua Tree', description: 'On southern margins' },
-                { name: 'Mormon Tea', description: 'Traditional medicinal plant' }
+                {
+                    name: 'Big Sagebrush',
+                    scientificName: 'Artemisia tridentata',
+                    description: 'Dominant plant, iconic smell of the West',
+                    coverage: 'Over 40 million hectares',
+                    adaptation: 'Deep taproot, aromatic oils deter herbivores',
+                    significance: 'Defines the ecosystem, critical for wildlife',
+                    threat: 'Cheatgrass, altered fire regimes'
+                },
+                {
+                    name: 'Bristlecone Pine',
+                    scientificName: 'Pinus longaeva',
+                    description: 'Oldest living organisms on Earth',
+                    age: 'Up to 5,000 years old',
+                    location: 'High elevations (3,000m+)',
+                    adaptation: 'Dense wood, slow growth, harsh conditions',
+                    famous: 'Methuselah tree (4,850 years)'
+                },
+                {
+                    name: 'Utah Juniper',
+                    scientificName: 'Juniperus osteosperma',
+                    description: 'Common tree in pinyon-juniper woodland',
+                    adaptation: 'Drought-tolerant, berries feed wildlife'
+                },
+                {
+                    name: 'Pinyon Pine',
+                    scientificName: 'Pinus monophylla',
+                    description: 'Single-needle pine with edible nuts',
+                    significance: 'Pine nuts important food for indigenous peoples',
+                    zone: 'Mid-elevation (1,500-2,500m)'
+                },
+                {
+                    name: 'Mormon Tea',
+                    scientificName: 'Ephedra viridis',
+                    description: 'Leafless shrub used for medicinal tea',
+                    use: 'Traditional medicine by pioneers and natives'
+                },
+                {
+                    name: 'Indian Ricegrass',
+                    scientificName: 'Achnatherum hymenoides',
+                    description: 'Important native bunchgrass',
+                    use: 'Seeds were staple food for indigenous peoples'
+                },
+                {
+                    name: 'Cheatgrass (Invasive)',
+                    scientificName: 'Bromus tectorum',
+                    description: 'Highly invasive annual grass',
+                    threat: 'Burns easily, outcompetes native plants',
+                    impact: 'Transforming sagebrush ecosystem'
+                }
             ],
+            
+            animals: [
+                {
+                    name: 'Pronghorn',
+                    scientificName: 'Antilocapra americana',
+                    description: 'Fastest land animal in North America',
+                    speed: 'Up to 90 km/h',
+                    adaptation: 'Evolved speed to escape now-extinct American cheetah',
+                    population: '500,000 in North America',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Greater Sage-Grouse',
+                    scientificName: 'Centrocercus urophasianus',
+                    description: 'Iconic bird with elaborate mating display',
+                    display: 'Males inflate chest sacs, strut on leks',
+                    population: '200,000-500,000 (declined 80%)',
+                    status: 'Near Threatened',
+                    threat: 'Sagebrush habitat loss, energy development'
+                },
+                {
+                    name: 'Bighorn Sheep',
+                    scientificName: 'Ovis canadensis nelsoni',
+                    description: 'Desert subspecies in mountain ranges',
+                    adaptation: 'Specialized hooves for climbing',
+                    status: 'Conservation success, recovering'
+                },
+                {
+                    name: 'Mule Deer',
+                    scientificName: 'Odocoileus hemionus',
+                    description: 'Common deer of western North America',
+                    population: 'Abundant throughout basin',
+                    migration: 'Seasonal movements between elevations'
+                },
+                {
+                    name: 'Kit Fox',
+                    scientificName: 'Vulpes macrotis',
+                    description: 'Small nocturnal desert fox',
+                    adaptation: 'Large ears for heat dissipation and hearing',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Pygmy Rabbit',
+                    scientificName: 'Brachylagus idahoensis',
+                    description: 'Smallest rabbit in North America',
+                    size: '0.5 kg',
+                    dependence: 'Completely dependent on sagebrush',
+                    status: 'Threatened',
+                    population: '<5,000'
+                },
+                {
+                    name: 'Mountain Lion',
+                    scientificName: 'Puma concolor',
+                    description: 'Top predator in the Great Basin',
+                    prey: 'Mule deer, bighorn sheep',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Desert Horned Lizard',
+                    scientificName: 'Phrynosoma platyrhinos',
+                    description: 'Spiny "horny toad" lizard',
+                    defense: 'Squirts blood from eyes when threatened',
+                    diet: 'Primarily harvester ants'
+                },
+                {
+                    name: 'Great Basin Rattlesnake',
+                    scientificName: 'Crotalus lutosus',
+                    description: 'Only rattlesnake species in region',
+                    adaptation: 'Hibernates in communal dens in winter',
+                    status: 'Least Concern'
+                },
+                {
+                    name: 'Lahontan Cutthroat Trout',
+                    scientificName: 'Oncorhynchus clarkii henshawi',
+                    description: 'Largest cutthroat subspecies, once up to 20 kg',
+                    historical: 'Huge runs in Truckee River',
+                    status: 'Threatened',
+                    recovery: 'Reintroduction efforts ongoing'
+                },
+                {
+                    name: 'Cui-ui',
+                    scientificName: 'Chasmistes cujus',
+                    description: 'Large sucker fish found only in Pyramid Lake',
+                    significance: 'Sacred to Paiute people',
+                    status: 'Endangered',
+                    threat: 'Water diversion from Truckee River'
+                },
+                {
+                    name: 'Wild Horse (Feral)',
+                    scientificName: 'Equus caballus',
+                    description: 'Iconic feral horses (mustangs)',
+                    population: '~50,000 in Nevada (controversial)',
+                    status: 'Protected but management debates',
+                    controversy: 'Overgrazing vs. heritage symbol'
+                },
+                {
+                    name: 'Brine Shrimp',
+                    scientificName: 'Artemia franciscana',
+                    description: 'Tiny crustaceans in Great Salt Lake',
+                    industry: 'Harvested for aquarium fish food, brine shrimp eggs',
+                    population: 'Billions in Great Salt Lake'
+                }
+            ],
+            
+            birds: [
+                { name: 'Golden Eagle', description: 'Top avian predator, nests on cliffs' },
+                { name: 'Sage Thrasher', description: 'Sagebrush specialist songbird' },
+                { name: 'Burrowing Owl', description: 'Lives in ground squirrel burrows' },
+                { name: 'California Gull', description: 'Utah state bird, saved Mormon crickets' },
+                { name: 'American White Pelican', description: 'Breeds at Great Salt Lake' }
+            ],
+            
             endangeredSpecies: [
-                { name: 'Greater Sage-Grouse', status: 'Near Threatened', issue: 'Habitat fragmentation' },
-                { name: 'Pygmy Rabbit', status: 'Threatened', population: '<5,000' }
+                { name: 'Greater Sage-Grouse', status: 'Near Threatened', threat: 'Habitat loss, energy development' },
+                { name: 'Pygmy Rabbit', status: 'Threatened', population: '<5,000' },
+                { name: 'Lahontan Cutthroat Trout', status: 'Threatened', threat: 'Dam construction, non-native fish' },
+                { name: 'Cui-ui', status: 'Endangered', threat: 'Water diversion' },
+                { name: 'Desert Tortoise', status: 'Threatened', range: 'Southern margins' }
             ]
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Human Life Branch
+        // ═══════════════════════════════════════════════════════════
         humanLife: {
+            overview: 'Sparsely populated region with mining, ranching, and military presence',
+            
+            population: {
+                total: '1.5 million in Great Basin region',
+                density: '3 people per km²',
+                urban: '85% in Reno-Sparks area',
+                rural: 'Very sparse, ranching communities'
+            },
+            
             indigenousPeoples: [
-                { name: 'Shoshone', description: 'Western Great Basin inhabitants' },
-                { name: 'Paiute', description: 'Northern and Southern groups' },
-                { name: 'Ute', description: 'Eastern Great Basin' }
+                {
+                    name: 'Western Shoshone',
+                    region: 'Central and eastern Nevada',
+                    population: '~11,000 enrolled members',
+                    lifestyle: 'Traditionally hunter-gatherers, pine nut harvesting',
+                    language: 'Shoshone (Uto-Aztecan)',
+                    landClaim: 'Ongoing dispute over treaty lands'
+                },
+                {
+                    name: 'Northern Paiute',
+                    region: 'Western Nevada, Oregon, California',
+                    population: '~7,000',
+                    lifestyle: 'Fishing (Pyramid Lake), gathering',
+                    significance: 'Pyramid Lake Reservation, Walker River Reservation'
+                },
+                {
+                    name: 'Southern Paiute',
+                    region: 'Southern Nevada and Utah',
+                    population: '~2,000',
+                    lifestyle: 'Desert adaptation, gathering'
+                },
+                {
+                    name: 'Goshute',
+                    region: 'Western Utah, eastern Nevada',
+                    population: '~500',
+                    lifestyle: 'Extreme desert adaptation'
+                },
+                {
+                    name: 'Washoe',
+                    region: 'Lake Tahoe area',
+                    population: '~1,500',
+                    significance: 'Lake Tahoe homeland'
+                }
             ],
-            population: '1.5 million in region',
-            cities: ['Reno', 'Salt Lake City (edge)', 'Elko']
+            
+            traditionalLife: {
+                housing: ['Wickiups (brush shelters)', 'Winter camps in canyons'],
+                food: ['Pine nuts (critical staple)', 'Rabbit drives', 'Cui-ui fish', 'Seeds', 'Roots'],
+                technology: ['Rabbit-skin blankets', 'Tule duck decoys', 'Obsidian tools'],
+                cycle: 'Seasonal movement following resources'
+            },
+            
+            modernLife: {
+                economy: ['Mining (gold, copper, lithium)', 'Ranching', 'Gaming (Reno)', 'Military', 'Tech (Tesla Gigafactory)'],
+                culture: 'Cowboy/Western heritage, Basque influence',
+                challenges: ['Water scarcity', 'Boom-bust mining cycles', 'Rural isolation']
+            }
         },
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Economic Importance Branch
+        // ═══════════════════════════════════════════════════════════
         economy: [
-            { sector: 'Mining', description: 'Nevada is largest gold producer in US, 2nd in world' },
-            { sector: 'Gambling', description: 'Reno, small casinos throughout' },
-            { sector: 'Ranching', description: 'Cattle grazing on public lands' },
-            { sector: 'Military', description: 'Nevada Test Site, Area 51, various bases' },
-            { sector: 'Festivals', description: 'Burning Man brings 70,000+ to Black Rock Desert' }
+            {
+                sector: 'Gold Mining',
+                description: 'Nevada is largest US gold producer, 5th in world',
+                production: '170 tonnes annually (75% of US production)',
+                locations: ['Carlin Trend', 'Cortez Hills', 'Goldstrike'],
+                value: 'Billions of dollars annually',
+                method: 'Large-scale open pit and underground'
+            },
+            {
+                sector: 'Lithium Mining',
+                description: 'Critical for electric vehicle batteries',
+                locations: 'Clayton Valley (only US lithium brine operation)',
+                future: 'Thacker Pass may become largest US lithium mine',
+                significance: 'Strategic resource for clean energy transition'
+            },
+            {
+                sector: 'Gaming & Tourism',
+                description: 'Reno casino industry',
+                revenue: '$1+ billion annually',
+                events: ['Burning Man', 'Speed Week', 'Hot August Nights'],
+                outdoor: 'Skiing, hiking, off-roading'
+            },
+            {
+                sector: 'Ranching',
+                description: 'Cattle ranching on public lands',
+                history: 'Dates to 1860s',
+                scale: 'Large ranches, sparse carrying capacity',
+                controversy: 'Grazing fees, wild horse competition'
+            },
+            {
+                sector: 'Military',
+                description: 'Major military presence',
+                facilities: ['Nellis Air Force Base', 'Fallon Naval Air Station', 'Nevada Test Site'],
+                significance: 'Top Gun training, weapons testing'
+            },
+            {
+                sector: 'Technology',
+                description: 'Growing tech sector',
+                example: 'Tesla Gigafactory (largest building by footprint)',
+                reason: 'Low taxes, cheap land, near California talent'
+            },
+            {
+                sector: 'Geothermal Energy',
+                description: 'Significant geothermal resources',
+                production: 'Nevada 2nd in US for geothermal power',
+                potential: 'Major expansion possible'
+            },
+            {
+                sector: 'Brine Shrimp',
+                description: 'Great Salt Lake brine shrimp eggs',
+                value: '$100+ million annually',
+                use: 'Aquarium fish food worldwide',
+                threat: 'Lake shrinkage threatening industry'
+            }
         ],
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Environmental Issues Branch
+        // ═══════════════════════════════════════════════════════════
         environmentalIssues: [
-            { issue: 'Groundwater Depletion', description: 'Las Vegas draws from basin aquifers' },
-            { issue: 'Sagebrush Loss', description: 'Invasive cheatgrass, wildfires increasing' },
-            { issue: 'Great Salt Lake Shrinking', description: 'Down to 1/3 historical size, dust storms, ecosystem collapse' },
-            { issue: 'Nuclear Testing Legacy', description: 'Nevada Test Site conducted 928 tests' }
+            {
+                issue: 'Great Salt Lake Crisis',
+                severity: 'Critical',
+                description: 'Lake has shrunk by 2/3, ecological disaster',
+                cause: 'Water diversion for agriculture, drought, climate change',
+                impacts: [
+                    'Toxic dust from exposed lakebed',
+                    'Migratory bird habitat loss',
+                    'Brine shrimp industry collapse',
+                    'Arsenic in dust affecting Salt Lake City'
+                ],
+                urgency: 'Could dry up within 5 years at current rate'
+            },
+            {
+                issue: 'Sagebrush Ecosystem Decline',
+                severity: 'Critical',
+                description: 'Conversion of sagebrush to cheatgrass',
+                cause: 'Invasive cheatgrass increases fire frequency',
+                cycle: 'Fire kills sagebrush, cheatgrass recovers faster',
+                impacted: ['Greater Sage-Grouse', 'Pygmy Rabbit', 'Many species'],
+                scale: 'Millions of hectares affected'
+            },
+            {
+                issue: 'Wildfire Increase',
+                severity: 'High',
+                description: 'Fire frequency dramatically increased',
+                cause: 'Cheatgrass creates continuous fine fuels',
+                change: 'Fire return interval from 60-100 years to 3-5 years',
+                impact: 'Native vegetation cannot recover'
+            },
+            {
+                issue: 'Groundwater Depletion',
+                severity: 'High',
+                description: 'Aquifers being drawn down faster than recharge',
+                example: 'Las Vegas (south) draws from Great Basin aquifers',
+                rural: 'Agricultural pumping lowering water tables',
+                springs: 'Many springs drying up'
+            },
+            {
+                issue: 'Mining Impacts',
+                severity: 'Moderate',
+                description: 'Large-scale open pit mining environmental effects',
+                issues: ['Groundwater contamination', 'Pit lakes', 'Habitat destruction'],
+                legacy: 'Historic mines left contamination'
+            },
+            {
+                issue: 'Wild Horse Overgrazing',
+                severity: 'Moderate',
+                description: '~50,000 wild horses, no natural predators',
+                impact: 'Compete with native wildlife and cattle',
+                debate: 'Heritage symbol vs. ecological damage',
+                management: 'Controversial roundups'
+            },
+            {
+                issue: 'Nuclear Testing Legacy',
+                severity: 'Legacy',
+                description: '928 nuclear tests left contamination',
+                fallout: 'Atmospheric tests spread radiation downwind',
+                downwinders: 'Cancer clusters in Utah communities',
+                site: 'Nevada Test Site still restricted'
+            },
+            {
+                issue: 'Climate Change',
+                severity: 'High',
+                description: 'Warming and drying trend',
+                impacts: [
+                    'More severe droughts',
+                    'Earlier snowmelt',
+                    'Species range shifts',
+                    'Increased fire risk'
+                ],
+                projection: '2-4°C warming by end of century'
+            }
         ],
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Historical Importance Branch
+        // ═══════════════════════════════════════════════════════════
         historicalImportance: [
-            { era: '10,000 BCE', title: 'First Peoples', description: 'Human habitation begins as glaciers retreat' },
-            { era: '1827', title: 'Jedediah Smith', description: 'First European-American to cross' },
-            { era: '1846', title: 'Donner Party', description: 'Tragic pioneer crossing, cannibalism' },
-            { era: '1869', title: 'Transcontinental Railroad', description: 'Linked at Promontory, Utah' },
-            { era: '1951-1992', title: 'Nuclear Testing', description: '928 nuclear tests at Nevada Test Site' },
-            { era: '1997', title: 'Land Speed Record', description: 'ThrustSSC breaks sound barrier at Black Rock' }
+            {
+                era: '12,000+ years ago',
+                title: 'First Peoples',
+                description: 'Humans arrive as Pleistocene lakes shrink',
+                evidence: 'Spirit Cave mummy (9,400 years old)',
+                lifestyle: 'Hunter-gatherers following game and plants'
+            },
+            {
+                era: '13,000 years ago',
+                title: 'Lake Bonneville Flood',
+                description: 'Catastrophic flood when lake breached',
+                scale: 'One of largest floods in geologic record',
+                evidence: 'Left Great Salt Lake as remnant'
+            },
+            {
+                era: '1827',
+                title: 'Jedediah Smith Crossing',
+                description: 'First European-American to cross Great Basin',
+                description: 'Nearly died of thirst, called it "a country of starvation"'
+            },
+            {
+                era: '1843-1845',
+                title: 'Frémont Expeditions',
+                description: 'John C. Frémont maps and names "Great Basin"',
+                contribution: 'Scientific mapping, promoted Western settlement'
+            },
+            {
+                era: '1846',
+                title: 'Donner Party Tragedy',
+                description: 'Emigrants stranded in Sierra Nevada after crossing Basin',
+                outcome: '48 of 87 died, survivors resorted to cannibalism',
+                legacy: 'Most famous disaster of Western emigration'
+            },
+            {
+                era: '1847',
+                title: 'Mormon Arrival',
+                description: 'Brigham Young leads Mormons to Salt Lake Valley',
+                impact: 'Founded Salt Lake City, irrigation of desert',
+                colonization: 'Mormon settlements throughout Basin'
+            },
+            {
+                era: '1859',
+                title: 'Comstock Lode Discovery',
+                description: 'Massive silver discovery in Virginia City',
+                impact: 'Financed Union in Civil War, created Nevada statehood',
+                value: 'Over $400 million in silver and gold'
+            },
+            {
+                era: '1864',
+                title: 'Nevada Statehood',
+                description: 'Nevada becomes state during Civil War',
+                reason: 'Lincoln needed votes for 13th Amendment',
+                nickname: '"Battle Born" state'
+            },
+            {
+                era: '1869',
+                title: 'Transcontinental Railroad',
+                description: 'Golden spike ceremony at Promontory Summit, Utah',
+                significance: 'First transcontinental railroad completed',
+                date: 'May 10, 1869'
+            },
+            {
+                era: '1900',
+                title: 'Winnemucca Bank Robbery',
+                description: 'Butch Cassidy and Sundance Kid rob bank',
+                haul: '$32,000',
+                legacy: 'Last confirmed Wild West bank robbery'
+            },
+            {
+                era: '1931',
+                title: 'Nevada Legalizes Gambling',
+                description: 'Gambling legalized, shapes state identity',
+                impact: 'Led to Las Vegas, Reno development'
+            },
+            {
+                era: '1951-1992',
+                title: 'Nuclear Testing Era',
+                description: '928 nuclear tests at Nevada Test Site',
+                atmospheric: '100 above-ground tests (1951-1962)',
+                underground: '828 underground tests (1962-1992)',
+                impact: 'Fallout affected "downwinder" communities'
+            },
+            {
+                era: '1986',
+                title: 'Great Basin National Park',
+                description: 'Park established to protect Wheeler Peak and bristlecone pines',
+                previous: 'Lehman Caves National Monument since 1922'
+            },
+            {
+                era: '1997',
+                title: 'Sound Barrier Broken on Land',
+                description: 'ThrustSSC sets 763 mph record at Black Rock Desert',
+                driver: 'Andy Green',
+                significance: 'First supersonic land vehicle'
+            }
         ],
         
+        // ═══════════════════════════════════════════════════════════
+        // MIND MAP DATA - Fun Facts Branch
+        // ═══════════════════════════════════════════════════════════
         funFacts: [
-            { fact: 'The Great Basin is the only true cold desert in North America', category: 'Geography' },
-            { fact: 'No rivers in the Great Basin reach the ocean - all water evaporates or sinks', category: 'Hydrology' },
-            { fact: 'Bristlecone pines here are oldest living organisms - one named Methuselah is 4,850 years old', category: 'Nature' },
-            { fact: 'The Bonneville Salt Flats are so flat you can see the curvature of Earth', category: 'Geography' },
-            { fact: 'Area 51, famous UFO conspiracy site, is in the Great Basin', category: 'Mystery' },
-            { fact: 'Burning Man festival in Black Rock Desert creates one of Nevada\'s largest cities temporarily', category: 'Culture' },
-            { fact: 'Nevada Test Site had 928 nuclear tests, more than anywhere else in US', category: 'History' }
+            {
+                fact: 'The Great Basin is the only true cold desert in North America - it snows here',
+                category: 'Geography'
+            },
+            {
+                fact: 'No rivers in the Great Basin reach the ocean - all water evaporates or sinks into the ground',
+                category: 'Hydrology'
+            },
+            {
+                fact: 'Bristlecone pines in Great Basin are the oldest living organisms on Earth - over 5,000 years old',
+                category: 'Nature'
+            },
+            {
+                fact: 'The Bonneville Salt Flats are so flat you can see the curvature of the Earth',
+                category: 'Geography'
+            },
+            {
+                fact: 'Nevada had more nuclear explosions (928) than any other place on Earth',
+                category: 'History'
+            },
+            {
+                fact: 'The Great Salt Lake is shrinking so fast it could disappear within 5 years',
+                category: 'Crisis'
+            },
+            {
+                fact: 'Area 51, the famous "UFO" site, is in the Great Basin Desert',
+                category: 'Culture'
+            },
+            {
+                fact: 'Burning Man festival temporarily creates Nevada\'s third largest city in the Black Rock Desert',
+                category: 'Events'
+            },
+            {
+                fact: 'The Donner Party tragedy happened after crossing the Great Basin, not in it',
+                category: 'History'
+            },
+            {
+                fact: 'Nevada produces 75% of all US gold - more than most countries',
+                category: 'Economy'
+            },
+            {
+                fact: 'Wild horses (mustangs) roam the Great Basin - about 50,000 of them',
+                category: 'Wildlife'
+            },
+            {
+                fact: 'Pronghorn antelope evolved their speed (90 km/h) to escape a now-extinct American cheetah',
+                category: 'Evolution'
+            }
         ],
         
+        // ═══════════════════════════════════════════════════════════
+        // JOURNEY WAYPOINTS - Cross the Desert Feature
+        // ═══════════════════════════════════════════════════════════
         journeyWaypoints: [
-            { name: 'Reno, Nevada', coordinates: [39.53, -119.81], description: 'Starting at "The Biggest Little City in the World"', type: 'start', duration: 3000 },
-            { name: 'Pyramid Lake', coordinates: [40.0, -119.5], description: 'Sacred Paiute lake with unique fish', type: 'landmark', duration: 3000 },
-            { name: 'Black Rock Desert', coordinates: [40.75, -119.0], description: 'Burning Man playa
+            {
+                name: 'Reno, Nevada',
+                coordinates: [39.53, -119.81],
+                description: 'Starting at "The Biggest Little City in the World" on the Sierra\'s edge',
+                type: 'start',
+                duration: 3000
+            },
+            {
+                name: 'Pyramid Lake',
+                coordinates: [40.0, -119.5],
+                description: 'Sacred Paiute lake, home of the ancient cui-ui fish',
+                type: 'landmark',
+                duration: 3000
+            },
+            {
+                name: 'Black Rock Desert',
+                coordinates: [40.75, -119.0],
+                description: 'The playa where cars break the sound barrier and Burning Man rises',
+                type: 'landmark',
+                duration: 4000
+            },
+            {
+                name: 'Humboldt River Trail',
+                coordinates: [40.8, -117.5],
+                description: 'Following the emigrant trail along America\'s strangest river',
+                type: 'terrain',
+                duration: 3000
+            },
+            {
+                name: 'Ruby Mountains',
+                coordinates: [40.6, -115.5],
+                description: 'The "Alps of Nevada" - glacial peaks rising from desert',
+                type: 'landmark',
+                duration: 3000
+            },
+            {
+                name: 'Great Basin National Park',
+                coordinates: [39.0, -114.3],
+                description: 'Ancient bristlecone pines, 5,000 years old and counting',
+                type: 'landmark',
+                duration: 4000
+            },
+            {
+                name: 'Bonneville Salt Flats',
+                coordinates: [40.75, -113.9],
+                description: 'The flattest place on Earth - where speed records are made',
+                type: 'landmark',
+                duration: 4000
+            },
+            {
+                name: 'Great Salt Lake',
+                coordinates: [41.0, -112.5],
+                description: 'Journey\'s end at the Western Hemisphere\'s largest salt lake',
+                type: 'end',
+                duration: 3000
+            }
+        ],
+        
+        // ═══════════════════════════════════════════════════════════
+        // QUICK FACTS - Profile Page Bottom Panel
+        // ═══════════════════════════════════════════════════════════
+        quickFacts: {
+            area: '492,000 km²',
+            type: 'Cold Desert',
+            avgTemp: '7°C to 12°C',
+            rainfall: '150-300mm/year',
+            countries: 'United States',
+            population: '~1.5 million'
+        }
+    }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORT - Make data available to other modules
+// ═══════════════════════════════════════════════════════════════════════════
+
+// For ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = desertsData1;
+}
+
+// For browser global
+if (typeof window !== 'undefined') {
+    window.desertsData1 = desertsData1;
+}
+
+console.log('✅ deserts-data-1.js loaded: ' + desertsData1.length + ' deserts (1-10)');
