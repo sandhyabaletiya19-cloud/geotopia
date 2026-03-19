@@ -157,6 +157,29 @@ const CoralReefsApp = (function() {
         if (typeof CORAL_REEFS_8 !== 'undefined') state.allReefs.push(...CORAL_REEFS_8);
         if (typeof CORAL_REEFS_9 !== 'undefined') state.allReefs.push(...CORAL_REEFS_9);
         if (typeof CORAL_REEFS_10 !== 'undefined') state.allReefs.push(...CORAL_REEFS_10);
+        
+        // ===== PREMIUM ACCESS CONTROL =====
+if (window.GeoAccess) {
+    var filtered = window.GeoAccess.getFilteredData(state.allReefs, 'coralReefs');
+    state.allReefs = filtered.visible;
+    
+    // Show upgrade prompt after page loads
+    setTimeout(function() {
+        if (filtered.lockedCount > 0) {
+            var container = document.querySelector('.reefs-grid') || 
+                           document.querySelector('.grid') || 
+                           document.querySelector('main');
+            if (container) {
+                var cta = window.GeoAccess.createUpgradeCTA({
+                    lockedCount: filtered.lockedCount,
+                    category: 'Coral Reefs'
+                });
+                container.appendChild(cta);
+            }
+        }
+    }, 1000);
+}
+// ===== END PREMIUM =====
 
         // Sort by size (largest first) by default
         sortReefs('size-desc');
