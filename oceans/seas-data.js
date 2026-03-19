@@ -2704,4 +2704,12 @@ function getSeaByCountry(countryName) {
     return seasData.filter(sea => 
         sea.borderingCountries?.some(country => 
             country.name.toLowerCase() === countryName.toLowerCase()
-        
+        )
+    );
+}
+
+// Log for debugging
+console.log('🌊 Seas Data Loaded!');
+console.log('📊 Total Seas:', seasData.length);
+console.log('🚢 Trade Routes:', globalTradeRoutes.length);
+console.log('⚠️ Chokepoints:', globalChokepoints.length);
