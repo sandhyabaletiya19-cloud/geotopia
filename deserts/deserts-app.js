@@ -853,7 +853,7 @@ function renderProfile(desert) {
     // Hero section
     const heroImage = document.getElementById('heroImage');
     if (heroImage) {
-        heroImage.src = desert.image;
+        heroImage.src = desert.backgroundImage || desert.image;
         heroImage.alt = desert.name;
     }
     
@@ -897,18 +897,175 @@ function renderProfile(desert) {
     }
     if (mindMapTitle) mindMapTitle.textContent = desert.name;
     
-    // Populate mind map branches
-    populateMindMapBranch('featuresContent', desert.features, 'fas fa-mountain');
-    populateMindMapBranch('wildlifeContent', desert.wildlife, 'fas fa-paw');
-    populateMindMapBranch('plantsContent', desert.plants, 'fas fa-leaf');
-    populateMindMapBranch('peoplesContent', desert.peoples, 'fas fa-user');
-    populateMindMapBranch('economyContent', desert.economy, 'fas fa-briefcase');
-    populateMindMapBranch('threatsContent', desert.threats, 'fas fa-exclamation-circle');
+    // ========================================
+    // POPULATE MIND MAP BRANCHES - FIXED
+    // ========================================
     
-    // Landmarks
-    populateLandmarks('landmarksContent', desert.landmarks);
+    // Features (array of objects with name, type, description)
+    const featuresContainer = document.getElementById('featuresContent');
+    if (featuresContainer && desert.features && desert.features.length > 0) {
+        const inner = document.createElement('div');
+        inner.className = 'node-content-inner';
+        
+        desert.features.forEach(feature => {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `
+                <i class="fas fa-mountain"></i>
+                <div>
+                    <strong>${feature.name}</strong>
+                    <span class="item-type" style="color: var(--sand-light-3); font-size: 0.85rem; display: block;">${feature.type}</span>
+                    <p style="color: var(--sand-light-2); margin-top: 0.3rem;">${feature.description}</p>
+                </div>
+            `;
+            inner.appendChild(div);
+        });
+        
+        featuresContainer.appendChild(inner);
+    }
     
-    // Oases
+    // Wildlife (from biodiversity.animals - array of strings)
+    const wildlifeContainer = document.getElementById('wildlifeContent');
+    if (wildlifeContainer && desert.biodiversity && desert.biodiversity.animals) {
+        const inner = document.createElement('div');
+        inner.className = 'node-content-inner';
+        
+        desert.biodiversity.animals.forEach(animal => {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `<i class="fas fa-paw"></i><span>${animal}</span>`;
+            inner.appendChild(div);
+        });
+        
+        // Add endangered species if available
+        if (desert.biodiversity.endangeredSpecies && desert.biodiversity.endangeredSpecies.length > 0) {
+            const endangered = document.createElement('div');
+            endangered.style.marginTop = '1rem';
+            endangered.innerHTML = '<h4 style="color: var(--desert-red-1); font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fas fa-exclamation-triangle"></i> Endangered</h4>';
+            
+            desert.biodiversity.endangeredSpecies.forEach(species => {
+                const div = document.createElement('div');
+                div.className = 'content-item';
+                div.style.color = 'var(--desert-red-1)';
+                div.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${species}</span>`;
+                endangered.appendChild(div);
+            });
+            
+            inner.appendChild(endangered);
+        }
+        
+        wildlifeContainer.appendChild(inner);
+    }
+    
+    // Plants (from biodiversity.plants - array of strings)
+    const plantsContainer = document.getElementById('plantsContent');
+    if (plantsContainer && desert.biodiversity && desert.biodiversity.plants) {
+        const inner = document.createElement('div');
+        inner.className = 'node-content-inner';
+        
+        desert.biodiversity.plants.forEach(plant => {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `<i class="fas fa-leaf"></i><span>${plant}</span>`;
+            inner.appendChild(div);
+        });
+        
+        plantsContainer.appendChild(inner);
+    }
+    
+    // Peoples (from humanLife object)
+    const peoplesContainer = document.getElementById('peoplesContent');
+    if (peoplesContainer && desert.humanLife) {
+        const inner = document.createElement('div');
+        inner.className = 'node-content-inner';
+        
+        // Indigenous peoples
+        if (desert.humanLife.peoples && desert.humanLife.peoples.length > 0) {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `
+                <i class="fas fa-users"></i>
+                <div>
+                    <strong>Indigenous Peoples:</strong>
+                    <p style="color: var(--sand-light-2); margin-top: 0.3rem;">${desert.humanLife.peoples.join(', ')}</p>
+                </div>
+            `;
+            inner.appendChild(div);
+        }
+        
+        // Lifestyle
+        if (desert.humanLife.lifestyle) {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `
+                <i class="fas fa-home"></i>
+                <div>
+                    <strong>Lifestyle:</strong>
+                    <p style="color: var(--sand-light-2); margin-top: 0.3rem;">${desert.humanLife.lifestyle}</p>
+                </div>
+            `;
+            inner.appendChild(div);
+        }
+        
+        // Population
+        if (desert.humanLife.population) {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `<i class="fas fa-user"></i><span><strong>Population:</strong> ${desert.humanLife.population}</span>`;
+            inner.appendChild(div);
+        }
+        
+        peoplesContainer.appendChild(inner);
+    }
+    
+    // Economy (array of objects with label and value)
+    const economyContainer = document.getElementById('economyContent');
+    if (economyContainer && desert.economy && desert.economy.length > 0) {
+        const inner = document.createElement('div');
+        inner.className = 'node-content-inner';
+        
+        desert.economy.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `
+                <i class="fas fa-coins"></i>
+                <div>
+                    <strong>${item.label}:</strong>
+                    <p style="color: var(--sand-light-2); margin-top: 0.3rem;">${item.value}</p>
+                </div>
+            `;
+            inner.appendChild(div);
+        });
+        
+        economyContainer.appendChild(inner);
+    }
+    
+    // Threats/Environmental Issues (array of objects with label and value)
+    const threatsContainer = document.getElementById('threatsContent');
+    if (threatsContainer && desert.environmentalIssues && desert.environmentalIssues.length > 0) {
+        const inner = document.createElement('div');
+        inner.className = 'node-content-inner';
+        
+        desert.environmentalIssues.forEach(issue => {
+            const div = document.createElement('div');
+            div.className = 'content-item';
+            div.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>${issue.label}:</strong>
+                    <p style="color: var(--sand-light-2); margin-top: 0.3rem;">${issue.value}</p>
+                </div>
+            `;
+            inner.appendChild(div);
+        });
+        
+        threatsContainer.appendChild(inner);
+    }
+    
+    // Landmarks (array of objects with name, description, coordinates)
+    populateLandmarks('landmarksContent', desert.features); // Use features as landmarks
+    
+    // Oases (array of objects)
     populateOases('oasesContent', desert.oases);
     
     // Countries grid
@@ -916,173 +1073,6 @@ function renderProfile(desert) {
     
     // Cities grid
     renderCitiesGrid(desert.cities);
-}
-
-function renderLargeCountryFlags(container, countries) {
-    container.innerHTML = '';
-    
-    countries.forEach(country => {
-        const img = document.createElement('img');
-        img.src = `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
-        img.alt = country.name;
-        img.title = country.name;
-        container.appendChild(img);
-    });
-}
-
-function updateHeroStats(desert) {
-    const statArea = document.getElementById('statArea');
-    const statMaxTemp = document.getElementById('statMaxTemp');
-    const statRainfall = document.getElementById('statRainfall');
-    const statCountries = document.getElementById('statCountries');
-    
-    if (statArea) statArea.textContent = formatArea(desert.area, true);
-    if (statMaxTemp) statMaxTemp.textContent = desert.climate?.maxRecorded || '--';
-    if (statRainfall) statRainfall.textContent = desert.climate?.rainfall || '--';
-    if (statCountries) statCountries.textContent = desert.countries.length;
-}
-
-function updateQuickFacts(desert) {
-    const factArea = document.getElementById('factArea');
-    const factSummerTemp = document.getElementById('factSummerTemp');
-    const factWinterTemp = document.getElementById('factWinterTemp');
-    const factMaxRecorded = document.getElementById('factMaxRecorded');
-    const factRainfall = document.getElementById('factRainfall');
-    const factCoordinates = document.getElementById('factCoordinates');
-    
-    if (factArea) factArea.textContent = formatArea(desert.area) + ' km²';
-    if (factSummerTemp) factSummerTemp.textContent = desert.climate?.avgTempSummer || '--';
-    if (factWinterTemp) factWinterTemp.textContent = desert.climate?.avgTempWinter || '--';
-    if (factMaxRecorded) factMaxRecorded.textContent = desert.climate?.maxRecorded || '--';
-    if (factRainfall) factRainfall.textContent = desert.climate?.rainfall || '--';
-    if (factCoordinates && desert.coordinates) {
-        factCoordinates.textContent = `${desert.coordinates[0].toFixed(2)}°, ${desert.coordinates[1].toFixed(2)}°`;
-    }
-}
-
-function populateMindMapBranch(containerId, items, icon) {
-    const container = document.getElementById(containerId);
-    if (!container || !items || items.length === 0) return;
-    
-    const inner = document.createElement('div');
-    inner.className = 'node-content-inner';
-    
-    items.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'content-item';
-        div.innerHTML = `<i class="${icon}"></i><span>${item}</span>`;
-        inner.appendChild(div);
-    });
-    
-    container.appendChild(inner);
-}
-
-function populateLandmarks(containerId, landmarks) {
-    const container = document.getElementById(containerId);
-    if (!container || !landmarks || landmarks.length === 0) return;
-    
-    const inner = document.createElement('div');
-    inner.className = 'node-content-inner';
-    
-    landmarks.forEach(landmark => {
-        const div = document.createElement('div');
-        div.className = 'content-item';
-        div.innerHTML = `
-            <i class="fas fa-map-pin"></i>
-            <span>${landmark.name}</span>
-        `;
-        div.addEventListener('click', () => {
-            if (APP_STATE.map && landmark.coordinates) {
-                APP_STATE.map.setView(landmark.coordinates, 10);
-            }
-        });
-        inner.appendChild(div);
-    });
-    
-    container.appendChild(inner);
-}
-
-function populateOases(containerId, oases) {
-    const container = document.getElementById(containerId);
-    if (!container || !oases || oases.length === 0) return;
-    
-    const inner = document.createElement('div');
-    inner.className = 'node-content-inner';
-    
-    oases.forEach(oasis => {
-        const div = document.createElement('div');
-        div.className = 'content-item';
-        div.innerHTML = `
-            <i class="fas fa-tint"></i>
-            <span>${oasis.name}${oasis.country ? ` (${oasis.country})` : ''}</span>
-        `;
-        div.addEventListener('click', () => {
-            if (APP_STATE.map && oasis.coordinates) {
-                APP_STATE.map.setView(oasis.coordinates, 10);
-            }
-        });
-        inner.appendChild(div);
-    });
-    
-    container.appendChild(inner);
-}
-
-function renderCountriesGrid(countries) {
-    const container = document.getElementById('countriesGrid');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    countries.forEach(country => {
-        const card = document.createElement('div');
-        card.className = 'country-card';
-        card.innerHTML = `
-            <img src="https://flagcdn.com/w80/${country.code.toLowerCase()}.png" 
-                 alt="${country.name}" 
-                 class="country-flag">
-            <span class="country-name">${country.name}</span>
-        `;
-        container.appendChild(card);
-    });
-}
-
-function renderCitiesGrid(cities) {
-    const container = document.getElementById('citiesGrid');
-    if (!container || !cities || cities.length === 0) {
-        if (container) {
-            container.innerHTML = '<p style="color: var(--sand-light-3);">No major cities listed</p>';
-        }
-        return;
-    }
-    
-    container.innerHTML = '';
-    
-    cities.forEach(city => {
-        const card = document.createElement('div');
-        card.className = 'city-card';
-        card.innerHTML = `
-            <div class="city-icon">
-                <i class="fas fa-city"></i>
-            </div>
-            <div class="city-info">
-                <span class="city-name">${city.name}</span>
-                <span class="city-country">${city.country}</span>
-            </div>
-            <button class="city-locate" title="Show on map">
-                <i class="fas fa-map-marker-alt"></i>
-            </button>
-        `;
-        
-        card.querySelector('.city-locate').addEventListener('click', () => {
-            if (APP_STATE.map && city.coordinates) {
-                APP_STATE.map.setView(city.coordinates, 10);
-                // Scroll to map
-                document.querySelector('.map-section').scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-        
-        container.appendChild(card);
-    });
 }
 
 // ==========================================
