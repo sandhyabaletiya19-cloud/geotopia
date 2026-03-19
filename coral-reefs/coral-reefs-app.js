@@ -1,3 +1,60 @@
+// ============================================
+// PREMIUM ACCESS CONTROL WRAPPER
+// ============================================
+(function() {
+    var originalInit = window.initCoralReefs || function() {};
+    
+    window.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.GeoAccess === 'undefined') {
+            console.log('GeoAccess not loaded, running normal mode');
+            originalInit();
+            return;
+        }
+        
+        // Intercept data before rendering
+        var originalData = window.coralReefsData || [];
+        var filteredData = window.GeoAccess.getFilteredData(originalData, 'coralReefs');
+        
+        // Replace original data with filtered visible items
+        window.coralReefsData = filteredData.visible;
+        
+        // Run your original code
+        originalInit();
+        
+        // Add locked preview items after original renders
+        setTimeout(function() {
+            var container = document.querySelector('.grid') || 
+                           document.querySelector('.cards') || 
+                           document.querySelector('.reef-cards') ||
+                           document.querySelector('main');
+            
+            if (container && filteredData.preview) {
+                filteredData.preview.forEach(function(item, index) {
+                    var cards = container.querySelectorAll('.card, .reef-card');
+                    if (cards.length > 0) {
+                        var firstCard = cards[0];
+                        var lockedCard = firstCard.cloneNode(true);
+                        lockedCard.classList.add('geo-locked-item');
+                        
+                        var overlay = window.GeoAccess.createLockedOverlay(item, index);
+                        lockedCard.appendChild(overlay);
+                        container.appendChild(lockedCard);
+                    }
+                });
+                
+                // Add upgrade CTA
+                if (filteredData.lockedCount > 0) {
+                    var cta = window.GeoAccess.createUpgradeCTA({
+                        lockedCount: filteredData.lockedCount,
+                        category: 'Coral Reefs'
+                    });
+                    container.appendChild(cta);
+                }
+            }
+        }, 500);
+    });
+})();
+
 /* ========================================
    CORAL REEFS EXPLORER - MAIN APPLICATION
    ======================================== */
