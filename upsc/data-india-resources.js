@@ -2856,33 +2856,6 @@ const indiaResourcesData = [
                     '',
                     '🧬 TECHNOLOGY:',
                     '  • GM crops: Bt Cotton success',
-                    '  • Biofortified varieties:
-                      // Continuing from "Second Green Revolution" topic...
-    // Starting from where we left off in conceptBlocks:
-
-            {
-                title: 'Second Green Revolution',
-                icon: '🌱',
-                points: [
-                    '📖 CONCEPT:',
-                    '  • Proposed by M.S. Swaminathan',
-                    '  • Also called "Evergreen Revolution"',
-                    '  • Sustainable intensification',
-                    '',
-                    '🎯 FOCUS AREAS:',
-                    '  • EASTERN INDIA:',
-                    '    - Bihar, Jharkhand, Odisha, WB, Eastern UP',
-                    '    - High potential, low current yields',
-                    '    - "Bringing Green Revolution to East"',
-                    '  • RAINFED AREAS:',
-                    '    - 52% of cropped area still rainfed',
-                    '    - Watershed development, drought-proof crops',
-                    '  • PULSES & OILSEEDS:',
-                    '    - Neglected in first GR',
-                    '    - Technology Mission on Pulses (2007)',
-                    '',
-                    '🧬 TECHNOLOGY:',
-                    '  • GM crops: Bt Cotton success',
                     '  • Biofortified varieties:',
                     '    - Iron-rich rice, zinc-rich wheat',
                     '    - Protein-rich pulses',
