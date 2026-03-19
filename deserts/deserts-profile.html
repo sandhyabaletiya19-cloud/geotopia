@@ -8,12 +8,160 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Additional styles for content items */
+        .node-content-inner {
+            padding: 10px;
+        }
+        
+        .content-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .content-item:last-child {
+            border-bottom: none;
+        }
+        
+        .content-item i {
+            color: var(--dune-orange-1, #D2691E);
+            margin-top: 3px;
+            min-width: 20px;
+            flex-shrink: 0;
+        }
+        
+        .content-item .item-details {
+            flex: 1;
+        }
+        
+        .content-item .item-details strong {
+            color: var(--text-cream, #fff);
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .content-item .item-details p,
+        .content-item span {
+            color: var(--sand-light-3, #ccc);
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .content-item .item-type {
+            color: var(--sun-gold-1, #FFD700);
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        .content-item.clickable {
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 0 -10px;
+        }
+        
+        .content-item.clickable:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .content-item.endangered i,
+        .content-item.threat i {
+            color: #e74c3c;
+        }
+        
+        .endangered-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        
+        .endangered-title {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .no-data {
+            color: var(--sand-light-3, #999);
+            font-style: italic;
+            padding: 15px 10px;
+            text-align: center;
+        }
+        
+        .city-population {
+            font-size: 0.8rem;
+            color: var(--sand-light-3, #999);
+            display: block;
+            margin-top: 2px;
+        }
+        
+        .item-country {
+            font-size: 0.85rem;
+            color: var(--sand-light-2, #bbb);
+            margin-left: 5px;
+        }
+        
+        .fun-facts-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .fun-fact-card {
+            min-width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        .error-container i {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        
+        .error-container h2 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .error-container p {
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .error-container a {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #D2691E, #8B4513);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .error-container a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(210, 105, 30, 0.4);
+        }
+    </style>
 </head>
 <body class="profile-page day-mode">
     <!-- Sand Particles Container -->
     <div class="sand-particles" id="sandParticles"></div>
     
-    <!-- Sandstorm Overlay (Intensified) -->
+    <!-- Sandstorm Overlay -->
     <div class="sandstorm-overlay" id="sandstormOverlay"></div>
     
     <!-- Heat Shimmer Overlay -->
@@ -30,7 +178,7 @@
         <div class="campfire-glows" id="campfireGlows"></div>
     </div>
 
-    <!-- Hero Section with Background -->
+    <!-- Hero Section -->
     <section class="profile-hero" id="profileHero">
         <div class="hero-background">
             <img src="" alt="" id="heroImage" class="hero-bg-image">
@@ -46,13 +194,11 @@
             </a>
             
             <div class="nav-controls">
-                <!-- Sandstorm Toggle -->
                 <button class="control-btn sandstorm-btn" id="sandstormToggle" title="Toggle Sandstorm View">
                     <i class="fas fa-wind"></i>
                     <span>Sandstorm</span>
                 </button>
                 
-                <!-- Day/Night Toggle -->
                 <div class="day-night-toggle">
                     <input type="checkbox" id="dayNightToggle" class="toggle-input">
                     <label for="dayNightToggle" class="toggle-label">
@@ -81,7 +227,6 @@
                 </span>
             </div>
 
-            <!-- Quick Stats Bar -->
             <div class="hero-stats">
                 <div class="hero-stat">
                     <i class="fas fa-expand-arrows-alt"></i>
@@ -113,7 +258,6 @@
                 </div>
             </div>
 
-            <!-- Scroll Indicator -->
             <div class="scroll-indicator">
                 <span>Explore Below</span>
                 <i class="fas fa-chevron-down"></i>
@@ -123,7 +267,7 @@
 
     <!-- Main Content -->
     <main class="profile-main">
-        <!-- Quick Facts Panel -->
+        <!-- Quick Facts -->
         <section class="quick-facts-section">
             <div class="section-header">
                 <h2><i class="fas fa-clipboard-list"></i> Quick Facts</h2>
@@ -211,22 +355,19 @@
             </div>
         </section>
 
-        <!-- Mind Map / Expandable Sections -->
+        <!-- Mind Map Section -->
         <section class="mind-map-section">
             <div class="section-header">
                 <h2><i class="fas fa-project-diagram"></i> Explore Desert Details</h2>
             </div>
             
             <div class="mind-map-container">
-                <!-- Central Node -->
                 <div class="mind-map-center" id="mindMapCenter">
                     <img src="" alt="" id="mindMapImage">
                     <span id="mindMapTitle">Desert Name</span>
                 </div>
 
-                <!-- Branch Nodes -->
                 <div class="mind-map-branches">
-                    <!-- Features Branch -->
                     <div class="mind-branch" data-branch="features">
                         <div class="branch-node">
                             <div class="node-header">
@@ -234,14 +375,11 @@
                                 <span>Features</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="featuresContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="featuresContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
 
-                    <!-- Wildlife Branch -->
                     <div class="mind-branch" data-branch="wildlife">
                         <div class="branch-node">
                             <div class="node-header">
@@ -249,14 +387,11 @@
                                 <span>Wildlife</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="wildlifeContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="wildlifeContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
 
-                    <!-- Plants Branch -->
                     <div class="mind-branch" data-branch="plants">
                         <div class="branch-node">
                             <div class="node-header">
@@ -264,14 +399,11 @@
                                 <span>Flora</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="plantsContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="plantsContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
 
-                    <!-- Peoples Branch -->
                     <div class="mind-branch" data-branch="peoples">
                         <div class="branch-node">
                             <div class="node-header">
@@ -279,29 +411,23 @@
                                 <span>Peoples</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="peoplesContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="peoplesContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
 
-                    <!-- Landmarks Branch -->
                     <div class="mind-branch" data-branch="landmarks">
                         <div class="branch-node">
                             <div class="node-header">
                                 <i class="fas fa-landmark"></i>
-                                <span>Landmarks</span>
+                                <span>Landforms</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="landmarksContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="landmarksContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
 
-                    <!-- Oases Branch -->
                     <div class="mind-branch" data-branch="oases">
                         <div class="branch-node">
                             <div class="node-header">
@@ -309,14 +435,11 @@
                                 <span>Oases</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="oasesContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="oasesContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
 
-                    <!-- Economy Branch -->
                     <div class="mind-branch" data-branch="economy">
                         <div class="branch-node">
                             <div class="node-header">
@@ -324,14 +447,11 @@
                                 <span>Economy</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="economyContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="economyContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
 
-                    <!-- Threats Branch -->
                     <div class="mind-branch" data-branch="threats">
                         <div class="branch-node">
                             <div class="node-header">
@@ -339,9 +459,7 @@
                                 <span>Threats</span>
                                 <i class="fas fa-chevron-down expand-icon"></i>
                             </div>
-                            <div class="node-content" id="threatsContent">
-                                <!-- Dynamically populated -->
-                            </div>
+                            <div class="node-content" id="threatsContent"></div>
                         </div>
                         <div class="branch-line"></div>
                     </div>
@@ -354,9 +472,7 @@
             <div class="section-header">
                 <h2><i class="fas fa-flag"></i> Countries</h2>
             </div>
-            <div class="countries-grid" id="countriesGrid">
-                <!-- Dynamically populated -->
-            </div>
+            <div class="countries-grid" id="countriesGrid"></div>
         </section>
 
         <!-- Cities Section -->
@@ -364,9 +480,7 @@
             <div class="section-header">
                 <h2><i class="fas fa-city"></i> Notable Cities</h2>
             </div>
-            <div class="cities-grid" id="citiesGrid">
-                <!-- Dynamically populated -->
-            </div>
+            <div class="cities-grid" id="citiesGrid"></div>
         </section>
 
         <!-- Fun Facts Section -->
@@ -374,9 +488,7 @@
             <div class="section-header">
                 <h2><i class="fas fa-lightbulb"></i> Fun Facts</h2>
             </div>
-            <div class="fun-facts-carousel" id="funFactsCarousel">
-                <!-- Dynamically populated -->
-            </div>
+            <div class="fun-facts-carousel" id="funFactsCarousel"></div>
             <div class="carousel-controls">
                 <button class="carousel-btn prev-btn" id="prevFact">
                     <i class="fas fa-chevron-left"></i>
@@ -388,7 +500,7 @@
             </div>
         </section>
 
-        <!-- Navigation Between Deserts -->
+        <!-- Navigation -->
         <section class="desert-navigation">
             <a href="#" class="nav-desert prev-desert" id="prevDesert">
                 <i class="fas fa-chevron-left"></i>
@@ -420,13 +532,8 @@
                 </svg>
             </div>
             <div class="footer-info">
-                <p>
-                    <i class="fas fa-sun"></i>
-                    Deserts Explorer &copy; 2024
-                </p>
-                <p class="footer-subtitle">
-                    Exploring Earth's magnificent arid landscapes
-                </p>
+                <p><i class="fas fa-sun"></i> Deserts Explorer &copy; 2024</p>
+                <p class="footer-subtitle">Exploring Earth's magnificent arid landscapes</p>
             </div>
         </div>
     </footer>
@@ -434,9 +541,7 @@
     <!-- Image Modal -->
     <div class="image-modal" id="imageModal">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">
-                <i class="fas fa-times"></i>
-            </button>
+            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
             <img src="" alt="" id="modalImage">
             <div class="modal-caption" id="modalCaption"></div>
         </div>
@@ -454,10 +559,8 @@
         </div>
     </div>
 
-    <!-- Scripts - Load Leaflet first -->
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Load data files FIRST (in order 1-8, then the combiner) -->
     <script src="deserts-data-1.js"></script>
     <script src="deserts-data-2.js"></script>
     <script src="deserts-data-3.js"></script>
@@ -467,549 +570,335 @@
     <script src="deserts-data-7.js"></script>
     <script src="deserts-data.js"></script>
     
-    <!-- Profile Page Script (All-in-one) -->
     <script>
-    // ==========================================
-    // DESERT PROFILE PAGE - COMPLETE SCRIPT
-    // ==========================================
-    
-    const ProfileApp = {
+    (function() {
+        'use strict';
+        
         // State
-        state: {
-            desert: null,
-            map: null,
-            isNightMode: false,
-            isSandstormActive: false,
-            currentFactIndex: 0
-        },
+        let desert = null;
+        let map = null;
+        let currentFactIndex = 0;
         
-        // Configuration
-        config: {
-            sandParticleCount: 50,
-            sandstormParticleCount: 150,
-            starCount: 100,
-            campfireCount: 5
-        },
+        // Safe string conversion - handles ALL cases
+        function safeString(value) {
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'string') return value;
+            if (typeof value === 'number') return value.toString();
+            if (Array.isArray(value)) return value.map(safeString).join(', ');
+            if (typeof value === 'object') {
+                if (value.name) return value.name;
+                if (value.label) return value.label;
+                if (value.title) return value.title;
+                return '';
+            }
+            return String(value);
+        }
         
-        // ==========================================
-        // INITIALIZATION
-        // ==========================================
-        init() {
-            console.log('🏜️ Initializing Desert Profile Page...');
+        // Format area
+        function formatArea(area, short) {
+            if (!area) return '--';
+            if (area >= 1000000) return (area / 1000000).toFixed(1) + (short ? 'M' : ' million');
+            if (area >= 1000) return (area / 1000).toFixed(0) + (short ? 'K' : ',000');
+            return area.toLocaleString();
+        }
+        
+        // Get type icon
+        function getTypeIcon(type) {
+            const icons = { 'hot': 'fas fa-fire', 'cold': 'fas fa-snowflake', 'coastal': 'fas fa-water', 'rain-shadow': 'fas fa-mountain' };
+            return icons[type] || 'fas fa-sun';
+        }
+        
+        // Format type
+        function formatType(type) {
+            const types = { 'hot': 'Hot', 'cold': 'Cold', 'coastal': 'Coastal', 'rain-shadow': 'Rain Shadow' };
+            return types[type] || type || 'Desert';
+        }
+        
+        // Get continent icon
+        function getContinentIcon(continent) {
+            const icons = { 'Africa': 'fas fa-globe-africa', 'Asia': 'fas fa-globe-asia', 'Australia': 'fas fa-globe-asia', 'Europe': 'fas fa-globe-europe', 'North America': 'fas fa-globe-americas', 'South America': 'fas fa-globe-americas', 'Antarctica': 'fas fa-snowflake' };
+            return icons[continent] || 'fas fa-globe';
+        }
+        
+        // Create content item HTML
+        function createContentItem(icon, title, description, isEndangered) {
+            return `
+                <div class="content-item${isEndangered ? ' endangered' : ''}">
+                    <i class="${icon}"></i>
+                    <div class="item-details">
+                        ${title ? `<strong>${safeString(title)}</strong>` : ''}
+                        ${description ? `<p>${safeString(description)}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Populate a branch with array data
+        function populateBranch(containerId, data, icon, emptyMessage) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
             
-            // Check if DESERTS_DATA is loaded
-            if (typeof DESERTS_DATA === 'undefined' || !DESERTS_DATA.length) {
-                this.showError('Desert data not loaded');
+            container.innerHTML = '';
+            
+            if (!data || (Array.isArray(data) && data.length === 0)) {
+                container.innerHTML = `<p class="no-data">${emptyMessage}</p>`;
                 return;
             }
             
-            console.log(`📊 Loaded ${DESERTS_DATA.length} deserts`);
+            const inner = document.createElement('div');
+            inner.className = 'node-content-inner';
             
-            // Get desert ID from URL
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    if (typeof item === 'string') {
+                        inner.innerHTML += createContentItem(icon, item, '', false);
+                    } else if (typeof item === 'object' && item !== null) {
+                        const title = item.name || item.label || item.title || '';
+                        const desc = item.description || item.value || item.details || '';
+                        const type = item.type ? ` <span class="item-type">(${item.type})</span>` : '';
+                        inner.innerHTML += `
+                            <div class="content-item">
+                                <i class="${icon}"></i>
+                                <div class="item-details">
+                                    <strong>${safeString(title)}${type}</strong>
+                                    ${desc ? `<p>${safeString(desc)}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            container.appendChild(inner);
+        }
+        
+        // Initialize page
+        function init() {
+            // Check data
+            if (typeof DESERTS_DATA === 'undefined' || !DESERTS_DATA || DESERTS_DATA.length === 0) {
+                showError('Desert data could not be loaded');
+                return;
+            }
+            
+            // Get ID from URL
             const params = new URLSearchParams(window.location.search);
             const desertId = params.get('id');
             
             if (!desertId) {
-                this.showError('No desert ID provided');
+                showError('No desert specified');
                 return;
             }
             
-            // Find the desert
-            this.state.desert = DESERTS_DATA.find(d => d.id === desertId);
+            // Find desert
+            desert = DESERTS_DATA.find(d => d.id === desertId);
             
-            if (!this.state.desert) {
-                this.showError(`Desert "${desertId}" not found`);
+            if (!desert) {
+                showError('Desert not found: ' + desertId);
                 return;
             }
             
-            console.log(`🏜️ Loading profile for: ${this.state.desert.name}`);
-            
-            // Initialize everything
-            this.initSandParticles();
-            this.initDayNightToggle();
-            this.initStars();
-            this.initCampfires();
-            this.initSandstormToggle();
-            this.initMindMap();
-            this.initImageModal();
-            
-            // Render profile
-            this.renderProfile();
-            this.initMap();
-            this.initFunFactsCarousel();
-            this.initDesertNavigation();
+            // Render everything
+            renderHero();
+            renderQuickFacts();
+            renderMindMap();
+            renderCountries();
+            renderCities();
+            renderFunFacts();
+            renderNavigation();
+            initMap();
+            initInteractions();
             
             // Hide loading
-            this.hideLoading();
-        },
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
         
-        // ==========================================
-        // RENDER PROFILE
-        // ==========================================
-        renderProfile() {
-            const desert = this.state.desert;
+        // Render hero section
+        function renderHero() {
+            document.title = desert.name + ' - Deserts Explorer';
             
-            // Update page title
-            document.title = `${desert.name} - Deserts Explorer`;
-            
-            // Hero Image
             const heroImage = document.getElementById('heroImage');
             if (heroImage) {
-                heroImage.src = desert.backgroundImage || desert.image;
+                heroImage.src = desert.backgroundImage || desert.image || '';
                 heroImage.alt = desert.name;
             }
             
-            // Desert Type Badge
             const typeBadge = document.getElementById('desertTypeBadge');
             if (typeBadge) {
-                const icon = this.getTypeIcon(desert.desertType);
-                const text = this.formatDesertType(desert.desertType);
-                typeBadge.className = `desert-type-badge ${desert.desertType}`;
-                typeBadge.innerHTML = `<i class="${icon}"></i><span>${text} Desert</span>`;
+                typeBadge.className = 'desert-type-badge ' + (desert.desertType || 'hot');
+                typeBadge.innerHTML = `<i class="${getTypeIcon(desert.desertType)}"></i><span>${formatType(desert.desertType)} Desert</span>`;
             }
             
-            // Title
-            const title = document.getElementById('desertTitle');
-            if (title) title.textContent = desert.name;
+            document.getElementById('desertTitle').textContent = desert.name;
             
-            // Country Flags
-            this.renderCountryFlags();
+            // Country flags
+            const flagsContainer = document.getElementById('countryFlags');
+            if (flagsContainer && desert.countries) {
+                flagsContainer.innerHTML = '';
+                desert.countries.forEach(country => {
+                    const img = document.createElement('img');
+                    img.src = `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
+                    img.alt = country.name;
+                    img.title = country.name;
+                    flagsContainer.appendChild(img);
+                });
+            }
             
-            // Continent Badge
+            // Continent
             const continentBadge = document.getElementById('continentBadge');
             if (continentBadge) {
-                const icon = this.getContinentIcon(desert.continent);
-                continentBadge.innerHTML = `<i class="${icon}"></i><span>${desert.continent}</span>`;
+                continentBadge.innerHTML = `<i class="${getContinentIcon(desert.continent)}"></i><span>${desert.continent || ''}</span>`;
             }
             
-            // Hero Stats
-            this.updateHeroStats();
+            // Stats
+            document.getElementById('statArea').textContent = formatArea(desert.area, true);
+            document.getElementById('statMaxTemp').textContent = desert.climate?.maxRecorded || desert.climate?.summerTempMax || '--';
+            document.getElementById('statRainfall').textContent = desert.climate?.annualRainfall || '--';
+            document.getElementById('statCountries').textContent = desert.countries?.length || '--';
+        }
+        
+        // Render quick facts
+        function renderQuickFacts() {
+            document.getElementById('factArea').textContent = formatArea(desert.area) + ' km²';
+            document.getElementById('factSummerTemp').textContent = desert.climate?.summerTempAvg || '--';
+            document.getElementById('factWinterTemp').textContent = desert.climate?.winterTempAvg || '--';
+            document.getElementById('factMaxRecorded').textContent = desert.climate?.maxRecorded || '--';
+            document.getElementById('factRainfall').textContent = desert.climate?.annualRainfall || '--';
             
-            // Quick Facts
-            this.updateQuickFacts();
-            
-            // Mind Map Center
+            if (desert.coordinates) {
+                document.getElementById('factCoordinates').textContent = `${desert.coordinates[0].toFixed(2)}°, ${desert.coordinates[1].toFixed(2)}°`;
+            }
+        }
+        
+        // Render mind map
+        function renderMindMap() {
             const mindMapImage = document.getElementById('mindMapImage');
-            const mindMapTitle = document.getElementById('mindMapTitle');
             if (mindMapImage) {
-                mindMapImage.src = desert.image;
+                mindMapImage.src = desert.image || '';
                 mindMapImage.alt = desert.name;
             }
-            if (mindMapTitle) mindMapTitle.textContent = desert.name;
+            document.getElementById('mindMapTitle').textContent = desert.name;
             
-            // Mind Map Branches
-            this.populateFeatures();
-            this.populateWildlife();
-            this.populatePlants();
-            this.populatePeoples();
-            this.populateLandmarks();
-            this.populateOases();
-            this.populateEconomy();
-            this.populateThreats();
+            // Features
+            populateBranch('featuresContent', desert.features, 'fas fa-map-marker-alt', 'No features available');
             
-            // Countries Grid
-            this.renderCountriesGrid();
-            
-            // Cities Grid
-            this.renderCitiesGrid();
-        },
-        
-        // ==========================================
-        // COUNTRY FLAGS
-        // ==========================================
-        renderCountryFlags() {
-            const container = document.getElementById('countryFlags');
-            if (!container || !this.state.desert.countries) return;
-            
-            container.innerHTML = '';
-            this.state.desert.countries.forEach(country => {
-                const img = document.createElement('img');
-                img.src = `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
-                img.alt = country.name;
-                img.title = country.name;
-                container.appendChild(img);
-            });
-        },
-        
-        // ==========================================
-        // HERO STATS
-        // ==========================================
-        updateHeroStats() {
-            const desert = this.state.desert;
-            
-            const statArea = document.getElementById('statArea');
-            const statMaxTemp = document.getElementById('statMaxTemp');
-            const statRainfall = document.getElementById('statRainfall');
-            const statCountries = document.getElementById('statCountries');
-            
-            if (statArea) statArea.textContent = this.formatArea(desert.area, true);
-            if (statMaxTemp) statMaxTemp.textContent = desert.climate?.maxRecorded || desert.climate?.summerTempMax || '--';
-            if (statRainfall) statRainfall.textContent = desert.climate?.annualRainfall || '--';
-            if (statCountries) statCountries.textContent = desert.countries?.length || '--';
-        },
-        
-        // ==========================================
-        // QUICK FACTS
-        // ==========================================
-        updateQuickFacts() {
-            const desert = this.state.desert;
-            
-            const factArea = document.getElementById('factArea');
-            const factSummerTemp = document.getElementById('factSummerTemp');
-            const factWinterTemp = document.getElementById('factWinterTemp');
-            const factMaxRecorded = document.getElementById('factMaxRecorded');
-            const factRainfall = document.getElementById('factRainfall');
-            const factCoordinates = document.getElementById('factCoordinates');
-            
-            if (factArea) factArea.textContent = this.formatArea(desert.area) + ' km²';
-            if (factSummerTemp) factSummerTemp.textContent = desert.climate?.summerTempAvg || '--';
-            if (factWinterTemp) factWinterTemp.textContent = desert.climate?.winterTempAvg || '--';
-            if (factMaxRecorded) factMaxRecorded.textContent = desert.climate?.maxRecorded || '--';
-            if (factRainfall) factRainfall.textContent = desert.climate?.annualRainfall || '--';
-            if (factCoordinates && desert.coordinates) {
-                factCoordinates.textContent = `${desert.coordinates[0].toFixed(2)}°, ${desert.coordinates[1].toFixed(2)}°`;
-            }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - FEATURES
-        // ==========================================
-        populateFeatures() {
-            const container = document.getElementById('featuresContent');
-            const desert = this.state.desert;
-            
-            if (!container) return;
-            
-            // Use features array (array of objects)
-            if (desert.features && desert.features.length > 0) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
+            // Wildlife
+            const wildlifeContainer = document.getElementById('wildlifeContent');
+            if (wildlifeContainer) {
+                wildlifeContainer.innerHTML = '';
+                const animals = desert.biodiversity?.animals || [];
+                const endangered = desert.biodiversity?.endangeredSpecies || [];
                 
-                desert.features.forEach(feature => {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div class="item-details">
-                            <strong>${feature.name}</strong>
-                            ${feature.type ? `<span class="item-type">(${feature.type})</span>` : ''}
-                            ${feature.description ? `<p>${feature.description}</p>` : ''}
-                        </div>
-                    `;
-                    inner.appendChild(div);
-                });
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No features data available</p>';
-            }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - WILDLIFE
-        // ==========================================
-        populateWildlife() {
-            const container = document.getElementById('wildlifeContent');
-            const desert = this.state.desert;
-            
-            if (!container) return;
-            
-            // Use biodiversity.animals (array of strings)
-            if (desert.biodiversity && desert.biodiversity.animals && desert.biodiversity.animals.length > 0) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
-                
-                desert.biodiversity.animals.forEach(animal => {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `<i class="fas fa-paw"></i><span>${animal}</span>`;
-                    inner.appendChild(div);
-                });
-                
-                // Add endangered species
-                if (desert.biodiversity.endangeredSpecies && desert.biodiversity.endangeredSpecies.length > 0) {
-                    const endangeredDiv = document.createElement('div');
-                    endangeredDiv.className = 'endangered-section';
-                    endangeredDiv.innerHTML = '<h4 class="endangered-title"><i class="fas fa-exclamation-triangle"></i> Endangered Species</h4>';
+                if (animals.length === 0 && endangered.length === 0) {
+                    wildlifeContainer.innerHTML = '<p class="no-data">No wildlife data available</p>';
+                } else {
+                    const inner = document.createElement('div');
+                    inner.className = 'node-content-inner';
                     
-                    desert.biodiversity.endangeredSpecies.forEach(species => {
-                        const div = document.createElement('div');
-                        div.className = 'content-item endangered';
-                        div.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${species}</span>`;
-                        endangeredDiv.appendChild(div);
+                    animals.forEach(animal => {
+                        inner.innerHTML += createContentItem('fas fa-paw', safeString(animal), '', false);
                     });
                     
-                    inner.appendChild(endangeredDiv);
-                }
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No wildlife data available</p>';
-            }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - PLANTS/FLORA
-        // ==========================================
-        populatePlants() {
-            const container = document.getElementById('plantsContent');
-            const desert = this.state.desert;
-            
-            if (!container) return;
-            
-            // Use biodiversity.plants (array of strings)
-            if (desert.biodiversity && desert.biodiversity.plants && desert.biodiversity.plants.length > 0) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
-                
-                desert.biodiversity.plants.forEach(plant => {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `<i class="fas fa-leaf"></i><span>${plant}</span>`;
-                    inner.appendChild(div);
-                });
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No flora data available</p>';
-            }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - PEOPLES
-        // ==========================================
-        populatePeoples() {
-            const container = document.getElementById('peoplesContent');
-            const desert = this.state.desert;
-            
-            if (!container) return;
-            
-            // Use humanLife object
-            if (desert.humanLife) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
-                
-                // Indigenous peoples
-                if (desert.humanLife.peoples && desert.humanLife.peoples.length > 0) {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `
-                        <i class="fas fa-users"></i>
-                        <div class="item-details">
-                            <strong>Indigenous Peoples</strong>
-                            <p>${desert.humanLife.peoples.join(', ')}</p>
-                        </div>
-                    `;
-                    inner.appendChild(div);
-                }
-                
-                // Lifestyle
-                if (desert.humanLife.lifestyle) {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `
-                        <i class="fas fa-home"></i>
-                        <div class="item-details">
-                            <strong>Lifestyle</strong>
-                            <p>${desert.humanLife.lifestyle}</p>
-                        </div>
-                    `;
-                    inner.appendChild(div);
-                }
-                
-                // Population
-                if (desert.humanLife.population) {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `
-                        <i class="fas fa-user"></i>
-                        <div class="item-details">
-                            <strong>Population</strong>
-                            <p>${desert.humanLife.population}</p>
-                        </div>
-                    `;
-                    inner.appendChild(div);
-                }
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No peoples data available</p>';
-            }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - LANDMARKS
-        // ==========================================
-        populateLandmarks() {
-            const container = document.getElementById('landmarksContent');
-            const desert = this.state.desert;
-            
-            if (!container) return;
-            
-            // Use landforms array (array of objects with name and description)
-            if (desert.landforms && desert.landforms.length > 0) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
-                
-                desert.landforms.forEach(landform => {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `
-                        <i class="fas fa-mountain"></i>
-                        <div class="item-details">
-                            <strong>${landform.name}</strong>
-                            ${landform.description ? `<p>${landform.description}</p>` : ''}
-                        </div>
-                    `;
-                    inner.appendChild(div);
-                });
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No landmarks data available</p>';
-            }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - OASES
-        // ==========================================
-        populateOases() {
-            const container = document.getElementById('oasesContent');
-            const desert = this.state.desert;
-            
-            if (!container) return;
-            
-            // Use oases array (array of objects)
-            if (desert.oases && desert.oases.length > 0) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
-                
-                desert.oases.forEach(oasis => {
-                    const div = document.createElement('div');
-                    div.className = 'content-item clickable';
-                    div.innerHTML = `
-                        <i class="fas fa-tint"></i>
-                        <div class="item-details">
-                            <strong>${oasis.name}</strong>
-                            ${oasis.country ? `<span class="item-country">${oasis.country}</span>` : ''}
-                            ${oasis.population ? `<p>Population: ${oasis.population.toLocaleString()}</p>` : ''}
-                        </div>
-                    `;
-                    
-                    // Add click to show on map
-                    if (oasis.coordinates && this.state.map) {
-                        div.addEventListener('click', () => {
-                            this.state.map.setView(oasis.coordinates, 10);
-                            document.querySelector('.map-section').scrollIntoView({ behavior: 'smooth' });
+                    if (endangered.length > 0) {
+                        inner.innerHTML += '<div class="endangered-section"><h4 class="endangered-title"><i class="fas fa-exclamation-triangle"></i> Endangered Species</h4></div>';
+                        endangered.forEach(species => {
+                            inner.innerHTML += createContentItem('fas fa-exclamation-circle', safeString(species), '', true);
                         });
                     }
                     
-                    inner.appendChild(div);
-                });
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No oases data available</p>';
+                    wildlifeContainer.appendChild(inner);
+                }
             }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - ECONOMY
-        // ==========================================
-        populateEconomy() {
-            const container = document.getElementById('economyContent');
-            const desert = this.state.desert;
             
-            if (!container) return;
+            // Plants
+            populateBranch('plantsContent', desert.biodiversity?.plants, 'fas fa-leaf', 'No flora data available');
             
-            // Use economy array (array of objects with label and value)
-            if (desert.economy && desert.economy.length > 0) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
+            // Peoples
+            const peoplesContainer = document.getElementById('peoplesContent');
+            if (peoplesContainer) {
+                peoplesContainer.innerHTML = '';
                 
-                desert.economy.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'content-item';
-                    div.innerHTML = `
-                        <i class="fas fa-coins"></i>
-                        <div class="item-details">
-                            <strong>${item.label}</strong>
-                            <p>${item.value}</p>
-                        </div>
-                    `;
-                    inner.appendChild(div);
-                });
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No economy data available</p>';
+                if (desert.humanLife) {
+                    const inner = document.createElement('div');
+                    inner.className = 'node-content-inner';
+                    
+                    if (desert.humanLife.peoples && desert.humanLife.peoples.length > 0) {
+                        const peoplesList = desert.humanLife.peoples.map(safeString).join(', ');
+                        inner.innerHTML += createContentItem('fas fa-users', 'Indigenous Peoples', peoplesList, false);
+                    }
+                    
+                    if (desert.humanLife.lifestyle) {
+                        inner.innerHTML += createContentItem('fas fa-home', 'Lifestyle', desert.humanLife.lifestyle, false);
+                    }
+                    
+                    if (desert.humanLife.population) {
+                        inner.innerHTML += createContentItem('fas fa-user', 'Population', desert.humanLife.population, false);
+                    }
+                    
+                    peoplesContainer.appendChild(inner);
+                } else {
+                    peoplesContainer.innerHTML = '<p class="no-data">No peoples data available</p>';
+                }
             }
-        },
-        
-        // ==========================================
-        // MIND MAP BRANCHES - THREATS
-        // ==========================================
-        populateThreats() {
-            const container = document.getElementById('threatsContent');
-            const desert = this.state.desert;
             
-            if (!container) return;
+            // Landforms
+            populateBranch('landmarksContent', desert.landforms, 'fas fa-mountain', 'No landforms data available');
             
-            // Use environmentalIssues array (array of objects with label and value)
-            if (desert.environmentalIssues && desert.environmentalIssues.length > 0) {
-                const inner = document.createElement('div');
-                inner.className = 'node-content-inner';
+            // Oases
+            const oasesContainer = document.getElementById('oasesContent');
+            if (oasesContainer) {
+                oasesContainer.innerHTML = '';
                 
-                desert.environmentalIssues.forEach(issue => {
-                    const div = document.createElement('div');
-                    div.className = 'content-item threat';
-                    div.innerHTML = `
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <div class="item-details">
-                            <strong>${issue.label}</strong>
-                            <p>${issue.value}</p>
-                        </div>
-                    `;
-                    inner.appendChild(div);
-                });
-                
-                container.appendChild(inner);
-            } else {
-                container.innerHTML = '<p class="no-data">No environmental issues data available</p>';
+                if (desert.oases && desert.oases.length > 0) {
+                    const inner = document.createElement('div');
+                    inner.className = 'node-content-inner';
+                    
+                    desert.oases.forEach(oasis => {
+                        const name = safeString(oasis.name);
+                        const country = oasis.country ? ` (${oasis.country})` : '';
+                        const pop = oasis.population ? `Population: ${oasis.population.toLocaleString()}` : '';
+                        inner.innerHTML += `
+                            <div class="content-item">
+                                <i class="fas fa-tint"></i>
+                                <div class="item-details">
+                                    <strong>${name}${country}</strong>
+                                    ${pop ? `<p>${pop}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    oasesContainer.appendChild(inner);
+                } else {
+                    oasesContainer.innerHTML = '<p class="no-data">No oases data available</p>';
+                }
             }
-        },
+            
+            // Economy
+            populateBranch('economyContent', desert.economy, 'fas fa-coins', 'No economy data available');
+            
+            // Threats
+            populateBranch('threatsContent', desert.environmentalIssues, 'fas fa-exclamation-triangle', 'No environmental issues data available');
+        }
         
-        // ==========================================
-        // COUNTRIES GRID
-        // ==========================================
-        renderCountriesGrid() {
+        // Render countries
+        function renderCountries() {
             const container = document.getElementById('countriesGrid');
-            const desert = this.state.desert;
-            
             if (!container || !desert.countries) return;
             
             container.innerHTML = '';
-            
             desert.countries.forEach(country => {
-                const card = document.createElement('div');
-                card.className = 'country-card';
-                card.innerHTML = `
-                    <img src="https://flagcdn.com/w80/${country.code.toLowerCase()}.png" 
-                         alt="${country.name}" 
-                         class="country-flag">
-                    <span class="country-name">${country.name}</span>
+                container.innerHTML += `
+                    <div class="country-card">
+                        <img src="https://flagcdn.com/w80/${country.code.toLowerCase()}.png" alt="${country.name}" class="country-flag">
+                        <span class="country-name">${country.name}</span>
+                    </div>
                 `;
-                container.appendChild(card);
             });
-        },
+        }
         
-        // ==========================================
-        // CITIES GRID
-        // ==========================================
-        renderCitiesGrid() {
+        // Render cities
+        function renderCities() {
             const container = document.getElementById('citiesGrid');
-            const desert = this.state.desert;
-            
             if (!container) return;
             
             if (!desert.cities || desert.cities.length === 0) {
@@ -1018,637 +907,344 @@
             }
             
             container.innerHTML = '';
-            
             desert.cities.forEach(city => {
-                const card = document.createElement('div');
-                card.className = 'city-card';
-                card.innerHTML = `
-                    <div class="city-icon">
-                        <i class="fas fa-city"></i>
+                const pop = city.population ? city.population.toLocaleString() : '';
+                container.innerHTML += `
+                    <div class="city-card">
+                        <div class="city-icon"><i class="fas fa-city"></i></div>
+                        <div class="city-info">
+                            <span class="city-name">${safeString(city.name)}</span>
+                            <span class="city-country">${safeString(city.country)}</span>
+                            ${pop ? `<span class="city-population">Pop: ${pop}</span>` : ''}
+                        </div>
+                        <button class="city-locate" title="Show on map" data-lat="${city.coordinates?.[0]}" data-lng="${city.coordinates?.[1]}">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </button>
                     </div>
-                    <div class="city-info">
-                        <span class="city-name">${city.name}</span>
-                        <span class="city-country">${city.country}</span>
-                        ${city.population ? `<span class="city-population">Pop: ${city.population.toLocaleString()}</span>` : ''}
-                    </div>
-                    <button class="city-locate" title="Show on map">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </button>
                 `;
-                
-                // Add click handler for map
-                const locateBtn = card.querySelector('.city-locate');
-                locateBtn.addEventListener('click', () => {
-                    if (this.state.map && city.coordinates) {
-                        this.state.map.setView(city.coordinates, 10);
+            });
+            
+            // City locate buttons
+            container.querySelectorAll('.city-locate').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lat = parseFloat(this.dataset.lat);
+                    const lng = parseFloat(this.dataset.lng);
+                    if (map && !isNaN(lat) && !isNaN(lng)) {
+                        map.setView([lat, lng], 10);
                         document.querySelector('.map-section').scrollIntoView({ behavior: 'smooth' });
                     }
                 });
-                
-                container.appendChild(card);
             });
-        },
+        }
         
-        // ==========================================
-        // MAP INITIALIZATION
-        // ==========================================
-        initMap() {
-            const mapContainer = document.getElementById('desertMap');
-            const desert = this.state.desert;
+        // Render fun facts
+        function renderFunFacts() {
+            const carousel = document.getElementById('funFactsCarousel');
+            const dotsContainer = document.getElementById('carouselDots');
             
+            if (!carousel || !desert.funFacts || desert.funFacts.length === 0) {
+                if (carousel) carousel.innerHTML = '<p class="no-data">No fun facts available</p>';
+                return;
+            }
+            
+            const track = document.createElement('div');
+            track.className = 'fun-facts-track';
+            
+            desert.funFacts.forEach(fact => {
+                track.innerHTML += `
+                    <div class="fun-fact-card">
+                        <div class="fact-icon"><i class="fas fa-lightbulb"></i></div>
+                        <p class="fact-text">${safeString(fact)}</p>
+                    </div>
+                `;
+            });
+            
+            carousel.appendChild(track);
+            
+            // Dots
+            desert.funFacts.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                dot.addEventListener('click', () => goToFact(i));
+                dotsContainer.appendChild(dot);
+            });
+            
+            function goToFact(index) {
+                currentFactIndex = index;
+                track.style.transform = `translateX(-${index * 100}%)`;
+                dotsContainer.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === index);
+                });
+            }
+            
+            document.getElementById('prevFact').addEventListener('click', () => {
+                goToFact(currentFactIndex === 0 ? desert.funFacts.length - 1 : currentFactIndex - 1);
+            });
+            
+            document.getElementById('nextFact').addEventListener('click', () => {
+                goToFact(currentFactIndex === desert.funFacts.length - 1 ? 0 : currentFactIndex + 1);
+            });
+            
+            setInterval(() => goToFact((currentFactIndex + 1) % desert.funFacts.length), 8000);
+        }
+        
+        // Render navigation
+        function renderNavigation() {
+            const currentIndex = DESERTS_DATA.findIndex(d => d.id === desert.id);
+            const prev = DESERTS_DATA[currentIndex - 1];
+            const next = DESERTS_DATA[currentIndex + 1];
+            
+            const prevLink = document.getElementById('prevDesert');
+            const nextLink = document.getElementById('nextDesert');
+            
+            if (prev) {
+                prevLink.href = `deserts-profile.html?id=${prev.id}`;
+                document.getElementById('prevDesertName').textContent = prev.name;
+            } else {
+                prevLink.style.visibility = 'hidden';
+            }
+            
+            if (next) {
+                nextLink.href = `deserts-profile.html?id=${next.id}`;
+                document.getElementById('nextDesertName').textContent = next.name;
+            } else {
+                nextLink.style.visibility = 'hidden';
+            }
+        }
+        
+        // Init map
+        function initMap() {
+            const mapContainer = document.getElementById('desertMap');
             if (!mapContainer || !desert.coordinates) return;
             
-            // Initialize map
-            this.state.map = L.map('desertMap', {
+            map = L.map('desertMap', {
                 center: desert.coordinates,
                 zoom: desert.defaultZoom || 5,
                 scrollWheelZoom: true
             });
             
-            // Tile layers
             const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data © OpenStreetMap contributors',
+                attribution: '© OpenStreetMap',
                 maxZoom: 17
             });
             
             const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles © Esri'
+                attribution: '© Esri'
             });
             
-            terrainLayer.addTo(this.state.map);
+            terrainLayer.addTo(map);
             
-            // Map control buttons
-            const mapControls = document.querySelectorAll('.map-control-btn');
-            mapControls.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    mapControls.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+            // Layer controls
+            document.querySelectorAll('.map-control-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.map-control-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
                     
-                    if (btn.dataset.layer === 'terrain') {
-                        this.state.map.removeLayer(satelliteLayer);
-                        this.state.map.addLayer(terrainLayer);
+                    if (this.dataset.layer === 'terrain') {
+                        map.removeLayer(satelliteLayer);
+                        map.addLayer(terrainLayer);
                     } else {
-                        this.state.map.removeLayer(terrainLayer);
-                        this.state.map.addLayer(satelliteLayer);
+                        map.removeLayer(terrainLayer);
+                        map.addLayer(satelliteLayer);
                     }
                 });
             });
             
-            // Add desert polygon if available
+            // GeoJSON boundary
             if (desert.geoJSON) {
                 L.geoJSON(desert.geoJSON, {
-                    style: {
-                        fillColor: '#D2691E',
-                        fillOpacity: 0.3,
-                        color: '#8B4513',
-                        weight: 2
-                    }
-                }).addTo(this.state.map);
+                    style: { fillColor: '#D2691E', fillOpacity: 0.3, color: '#8B4513', weight: 2 }
+                }).addTo(map);
             }
             
             // Center marker
-            const desertIcon = L.divIcon({
-                className: 'desert-marker',
-                html: '<i class="fas fa-sun" style="color: #FFD700; font-size: 24px; text-shadow: 0 0 10px rgba(255,215,0,0.5);"></i>',
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
+            L.marker(desert.coordinates, {
+                icon: L.divIcon({
+                    className: 'desert-marker',
+                    html: '<i class="fas fa-sun" style="color:#FFD700;font-size:24px;text-shadow:0 0 10px rgba(255,215,0,0.5);"></i>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                })
+            }).addTo(map).bindPopup(`<strong>${desert.name}</strong>`);
             
-            L.marker(desert.coordinates, { icon: desertIcon })
-                .addTo(this.state.map)
-                .bindPopup(`<strong>${desert.name}</strong>`);
-            
-            // Add features as markers
+            // Features
             if (desert.features) {
-                const featureIcon = L.divIcon({
-                    className: 'feature-marker',
-                    html: '<i class="fas fa-map-pin" style="color: #FFD700; font-size: 16px;"></i>',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
-                });
-                
-                desert.features.forEach(feature => {
-                    if (feature.coordinates) {
-                        L.marker(feature.coordinates, { icon: featureIcon })
-                            .addTo(this.state.map)
-                            .bindPopup(`<strong>${feature.name}</strong><br>${feature.type || ''}<br>${feature.description || ''}`);
+                desert.features.forEach(f => {
+                    if (f.coordinates) {
+                        L.marker(f.coordinates, {
+                            icon: L.divIcon({
+                                className: 'feature-marker',
+                                html: '<i class="fas fa-map-pin" style="color:#FFD700;font-size:16px;"></i>',
+                                iconSize: [20, 20],
+                                iconAnchor: [10, 10]
+                            })
+                        }).addTo(map).bindPopup(`<strong>${f.name}</strong><br>${f.type || ''}<br>${f.description || ''}`);
                     }
                 });
             }
             
-            // Add oases
+            // Oases
             if (desert.oases) {
-                const oasisIcon = L.divIcon({
-                    className: 'oasis-marker',
-                    html: '<i class="fas fa-tint" style="color: #1ABC9C; font-size: 16px;"></i>',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
-                });
-                
-                desert.oases.forEach(oasis => {
-                    if (oasis.coordinates) {
-                        L.marker(oasis.coordinates, { icon: oasisIcon })
-                            .addTo(this.state.map)
-                            .bindPopup(`<strong>${oasis.name}</strong><br>Oasis${oasis.country ? ` - ${oasis.country}` : ''}`);
+                desert.oases.forEach(o => {
+                    if (o.coordinates) {
+                        L.marker(o.coordinates, {
+                            icon: L.divIcon({
+                                className: 'oasis-marker',
+                                html: '<i class="fas fa-tint" style="color:#1ABC9C;font-size:16px;"></i>',
+                                iconSize: [20, 20],
+                                iconAnchor: [10, 10]
+                            })
+                        }).addTo(map).bindPopup(`<strong>${o.name}</strong><br>Oasis${o.country ? ' - ' + o.country : ''}`);
                     }
                 });
             }
             
-            // Add cities
+            // Cities
             if (desert.cities) {
-                const cityIcon = L.divIcon({
-                    className: 'city-marker',
-                    html: '<i class="fas fa-city" style="color: #A0522D; font-size: 16px;"></i>',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
-                });
-                
-                desert.cities.forEach(city => {
-                    if (city.coordinates) {
-                        L.marker(city.coordinates, { icon: cityIcon })
-                            .addTo(this.state.map)
-                            .bindPopup(`<strong>${city.name}</strong><br>${city.country}${city.population ? `<br>Pop: ${city.population.toLocaleString()}` : ''}`);
+                desert.cities.forEach(c => {
+                    if (c.coordinates) {
+                        L.marker(c.coordinates, {
+                            icon: L.divIcon({
+                                className: 'city-marker',
+                                html: '<i class="fas fa-city" style="color:#A0522D;font-size:16px;"></i>',
+                                iconSize: [20, 20],
+                                iconAnchor: [10, 10]
+                            })
+                        }).addTo(map).bindPopup(`<strong>${c.name}</strong><br>${c.country}${c.population ? '<br>Pop: ' + c.population.toLocaleString() : ''}`);
                     }
                 });
             }
-        },
+        }
         
-        // ==========================================
-        // FUN FACTS CAROUSEL
-        // ==========================================
-        initFunFactsCarousel() {
-            const carousel = document.getElementById('funFactsCarousel');
-            const dotsContainer = document.getElementById('carouselDots');
-            const prevBtn = document.getElementById('prevFact');
-            const nextBtn = document.getElementById('nextFact');
-            const facts = this.state.desert.funFacts;
-            
-            if (!carousel || !facts || facts.length === 0) {
-                if (carousel) carousel.innerHTML = '<p class="no-data">No fun facts available</p>';
-                return;
-            }
-            
-            // Create track
-            const track = document.createElement('div');
-            track.className = 'fun-facts-track';
-            
-            facts.forEach((fact, index) => {
-                const card = document.createElement('div');
-                card.className = 'fun-fact-card';
-                card.innerHTML = `
-                    <div class="fact-icon">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <p class="fact-text">${fact}</p>
-                `;
-                track.appendChild(card);
-            });
-            
-            carousel.appendChild(track);
-            
-            // Create dots
-            facts.forEach((_, index) => {
-                const dot = document.createElement('div');
-                dot.className = `carousel-dot${index === 0 ? ' active' : ''}`;
-                dot.addEventListener('click', () => goToFact(index));
-                dotsContainer.appendChild(dot);
-            });
-            
-            // Navigation functions
-            const self = this;
-            function goToFact(index) {
-                self.state.currentFactIndex = index;
-                track.style.transform = `translateX(-${index * 100}%)`;
-                
-                dotsContainer.querySelectorAll('.carousel-dot').forEach((dot, i) => {
-                    dot.classList.toggle('active', i === index);
-                });
-            }
-            
-            prevBtn.addEventListener('click', () => {
-                const newIndex = this.state.currentFactIndex === 0 
-                    ? facts.length - 1 
-                    : this.state.currentFactIndex - 1;
-                goToFact(newIndex);
-            });
-            
-            nextBtn.addEventListener('click', () => {
-                const newIndex = this.state.currentFactIndex === facts.length - 1 
-                    ? 0 
-                    : this.state.currentFactIndex + 1;
-                goToFact(newIndex);
-            });
-            
-            // Auto-advance
-            setInterval(() => {
-                const newIndex = (this.state.currentFactIndex + 1) % facts.length;
-                goToFact(newIndex);
-            }, 8000);
-        },
-        
-        // ==========================================
-        // DESERT NAVIGATION (PREV/NEXT)
-        // ==========================================
-        initDesertNavigation() {
-            const currentIndex = DESERTS_DATA.findIndex(d => d.id === this.state.desert.id);
-            const prevDesert = DESERTS_DATA[currentIndex - 1];
-            const nextDesert = DESERTS_DATA[currentIndex + 1];
-            
-            const prevLink = document.getElementById('prevDesert');
-            const nextLink = document.getElementById('nextDesert');
-            const prevName = document.getElementById('prevDesertName');
-            const nextName = document.getElementById('nextDesertName');
-            
-            if (prevDesert && prevLink && prevName) {
-                prevLink.href = `deserts-profile.html?id=${prevDesert.id}`;
-                prevName.textContent = prevDesert.name;
-            } else if (prevLink) {
-                prevLink.style.visibility = 'hidden';
-            }
-            
-            if (nextDesert && nextLink && nextName) {
-                nextLink.href = `deserts-profile.html?id=${nextDesert.id}`;
-                nextName.textContent = nextDesert.name;
-            } else if (nextLink) {
-                nextLink.style.visibility = 'hidden';
-            }
-        },
-        
-        // ==========================================
-        // MIND MAP INTERACTIVITY
-        // ==========================================
-        initMindMap() {
-            const branches = document.querySelectorAll('.mind-branch');
-            
-            branches.forEach(branch => {
-                const header = branch.querySelector('.node-header');
-                
-                header.addEventListener('click', () => {
-                    branches.forEach(b => {
-                        if (b !== branch) b.classList.remove('expanded');
-                    });
-                    branch.classList.toggle('expanded');
-                });
-            });
-        },
-        
-        // ==========================================
-        // SANDSTORM TOGGLE
-        // ==========================================
-        initSandstormToggle() {
-            const btn = document.getElementById('sandstormToggle');
-            const overlay = document.getElementById('sandstormOverlay');
-            
-            if (!btn || !overlay) return;
-            
-            btn.addEventListener('click', () => {
-                this.state.isSandstormActive = !this.state.isSandstormActive;
-                btn.classList.toggle('active', this.state.isSandstormActive);
-                overlay.classList.toggle('active', this.state.isSandstormActive);
-                
-                if (this.state.isSandstormActive) {
-                    this.createSandstormParticles(overlay);
-                } else {
-                    overlay.innerHTML = '';
+        // Init interactions
+        function initInteractions() {
+            // Sand particles
+            const sandContainer = document.getElementById('sandParticles');
+            if (sandContainer) {
+                for (let i = 0; i < 50; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'sand-particle';
+                    p.style.cssText = `width:${Math.random()*3+1}px;height:${Math.random()*3+1}px;top:${Math.random()*100}%;left:-10px;animation-duration:${Math.random()*10+15}s;animation-delay:${Math.random()*15}s;`;
+                    sandContainer.appendChild(p);
                 }
-            });
-        },
-        
-        createSandstormParticles(container) {
-            for (let i = 0; i < this.config.sandstormParticleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'sandstorm-particle';
-                
-                const size = Math.random() * 5 + 2;
-                const startY = Math.random() * 100;
-                const duration = Math.random() * 1.5 + 0.5;
-                const delay = Math.random() * 2;
-                
-                particle.style.cssText = `
-                    width: ${size}px;
-                    height: ${size}px;
-                    top: ${startY}%;
-                    left: -20px;
-                    animation-duration: ${duration}s;
-                    animation-delay: ${delay}s;
-                `;
-                
-                container.appendChild(particle);
-            }
-        },
-        
-        // ==========================================
-        // SAND PARTICLES
-        // ==========================================
-        initSandParticles() {
-            const container = document.getElementById('sandParticles');
-            if (!container) return;
-            
-            for (let i = 0; i < this.config.sandParticleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'sand-particle';
-                
-                const size = Math.random() * 3 + 1;
-                const startY = Math.random() * 100;
-                const duration = Math.random() * 10 + 15;
-                const delay = Math.random() * 15;
-                
-                particle.style.cssText = `
-                    width: ${size}px;
-                    height: ${size}px;
-                    top: ${startY}%;
-                    left: -10px;
-                    animation-duration: ${duration}s;
-                    animation-delay: ${delay}s;
-                `;
-                
-                container.appendChild(particle);
-            }
-        },
-        
-        // ==========================================
-        // DAY/NIGHT TOGGLE
-        // ==========================================
-        initDayNightToggle() {
-            const toggle = document.getElementById('dayNightToggle');
-            if (!toggle) return;
-            
-            const savedMode = localStorage.getItem('desertExplorerMode');
-            if (savedMode === 'night') {
-                toggle.checked = true;
-                document.body.classList.remove('day-mode');
-                document.body.classList.add('night-mode');
-                this.state.isNightMode = true;
             }
             
-            toggle.addEventListener('change', () => {
-                this.state.isNightMode = toggle.checked;
-                
-                if (toggle.checked) {
+            // Stars
+            const starsContainer = document.getElementById('stars');
+            if (starsContainer) {
+                for (let i = 0; i < 100; i++) {
+                    const s = document.createElement('div');
+                    s.className = 'star';
+                    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${Math.random()*2+1}px;height:${Math.random()*2+1}px;animation-delay:${Math.random()*3}s;animation-duration:${Math.random()*2+1}s;`;
+                    starsContainer.appendChild(s);
+                }
+            }
+            
+            // Campfires
+            const campContainer = document.getElementById('campfireGlows');
+            if (campContainer) {
+                for (let i = 0; i < 5; i++) {
+                    const g = document.createElement('div');
+                    g.className = 'campfire-glow';
+                    g.style.cssText = `left:${Math.random()*100}%;animation-delay:${Math.random()*2}s;`;
+                    campContainer.appendChild(g);
+                }
+            }
+            
+            // Day/night toggle
+            const dayNightToggle = document.getElementById('dayNightToggle');
+            if (dayNightToggle) {
+                const saved = localStorage.getItem('desertExplorerMode');
+                if (saved === 'night') {
+                    dayNightToggle.checked = true;
                     document.body.classList.remove('day-mode');
                     document.body.classList.add('night-mode');
-                    localStorage.setItem('desertExplorerMode', 'night');
-                } else {
-                    document.body.classList.remove('night-mode');
-                    document.body.classList.add('day-mode');
-                    localStorage.setItem('desertExplorerMode', 'day');
+                }
+                
+                dayNightToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        document.body.classList.remove('day-mode');
+                        document.body.classList.add('night-mode');
+                        localStorage.setItem('desertExplorerMode', 'night');
+                    } else {
+                        document.body.classList.remove('night-mode');
+                        document.body.classList.add('day-mode');
+                        localStorage.setItem('desertExplorerMode', 'day');
+                    }
+                });
+            }
+            
+            // Sandstorm toggle
+            const sandstormBtn = document.getElementById('sandstormToggle');
+            const sandstormOverlay = document.getElementById('sandstormOverlay');
+            if (sandstormBtn && sandstormOverlay) {
+                sandstormBtn.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    sandstormOverlay.classList.toggle('active');
+                    
+                    if (sandstormOverlay.classList.contains('active')) {
+                        for (let i = 0; i < 150; i++) {
+                            const p = document.createElement('div');
+                            p.className = 'sandstorm-particle';
+                            p.style.cssText = `width:${Math.random()*5+2}px;height:${Math.random()*5+2}px;top:${Math.random()*100}%;left:-20px;animation-duration:${Math.random()*1.5+0.5}s;animation-delay:${Math.random()*2}s;`;
+                            sandstormOverlay.appendChild(p);
+                        }
+                    } else {
+                        sandstormOverlay.innerHTML = '';
+                    }
+                });
+            }
+            
+            // Mind map branches
+            document.querySelectorAll('.mind-branch').forEach(branch => {
+                const header = branch.querySelector('.node-header');
+                if (header) {
+                    header.addEventListener('click', function() {
+                        document.querySelectorAll('.mind-branch').forEach(b => {
+                            if (b !== branch) b.classList.remove('expanded');
+                        });
+                        branch.classList.toggle('expanded');
+                    });
                 }
             });
-        },
-        
-        // ==========================================
-        // STARS
-        // ==========================================
-        initStars() {
-            const container = document.getElementById('stars');
-            if (!container) return;
             
-            for (let i = 0; i < this.config.starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                const size = Math.random() * 2 + 1;
-                const delay = Math.random() * 3;
-                const duration = Math.random() * 2 + 1;
-                
-                star.style.cssText = `
-                    left: ${x}%;
-                    top: ${y}%;
-                    width: ${size}px;
-                    height: ${size}px;
-                    animation-delay: ${delay}s;
-                    animation-duration: ${duration}s;
-                `;
-                
-                container.appendChild(star);
-            }
-        },
-        
-        // ==========================================
-        // CAMPFIRES
-        // ==========================================
-        initCampfires() {
-            const container = document.getElementById('campfireGlows');
-            if (!container) return;
-            
-            for (let i = 0; i < this.config.campfireCount; i++) {
-                const glow = document.createElement('div');
-                glow.className = 'campfire-glow';
-                
-                const x = Math.random() * 100;
-                const delay = Math.random() * 2;
-                
-                glow.style.cssText = `
-                    left: ${x}%;
-                    animation-delay: ${delay}s;
-                `;
-                
-                container.appendChild(glow);
-            }
-        },
-        
-        // ==========================================
-        // IMAGE MODAL
-        // ==========================================
-        initImageModal() {
+            // Image modal
             const modal = document.getElementById('imageModal');
             const modalImage = document.getElementById('modalImage');
             const modalCaption = document.getElementById('modalCaption');
-            const closeBtn = document.getElementById('modalClose');
+            const modalClose = document.getElementById('modalClose');
             
-            if (!modal) return;
-            
-            document.addEventListener('click', (e) => {
-                if (e.target.tagName === 'IMG' && 
-                    !e.target.closest('.country-flags') && 
-                    !e.target.closest('.country-flags-large') &&
-                    !e.target.closest('.country-card') &&
-                    !e.target.closest('.countries-grid')) {
+            document.addEventListener('click', function(e) {
+                if (e.target.tagName === 'IMG' && !e.target.closest('.country-flags') && !e.target.closest('.country-flags-large') && !e.target.closest('.countries-grid')) {
                     modalImage.src = e.target.src;
                     modalCaption.textContent = e.target.alt;
                     modal.classList.add('active');
                 }
             });
             
-            closeBtn.addEventListener('click', () => {
-                modal.classList.remove('active');
-            });
-            
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                }
-            });
-            
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    modal.classList.remove('active');
-                }
-            });
-        },
+            modalClose.addEventListener('click', () => modal.classList.remove('active'));
+            modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('active'); });
+        }
         
-        // ==========================================
-        // UTILITY FUNCTIONS
-        // ==========================================
-        formatArea(area, short = false) {
-            if (area >= 1000000) {
-                return (area / 1000000).toFixed(1) + (short ? 'M' : ' million');
-            } else if (area >= 1000) {
-                return (area / 1000).toFixed(0) + (short ? 'K' : ',000');
-            }
-            return area.toLocaleString();
-        },
-        
-        formatDesertType(type) {
-            const types = {
-                'hot': 'Hot',
-                'cold': 'Cold',
-                'coastal': 'Coastal',
-                'rain-shadow': 'Rain Shadow'
-            };
-            return types[type] || type;
-        },
-        
-        getTypeIcon(type) {
-            const icons = {
-                'hot': 'fas fa-fire',
-                'cold': 'fas fa-snowflake',
-                'coastal': 'fas fa-water',
-                'rain-shadow': 'fas fa-mountain'
-            };
-            return icons[type] || 'fas fa-globe';
-        },
-        
-        getContinentIcon(continent) {
-            const icons = {
-                'Africa': 'fas fa-globe-africa',
-                'Asia': 'fas fa-globe-asia',
-                'Australia': 'fas fa-globe-asia',
-                'Europe': 'fas fa-globe-europe',
-                'North America': 'fas fa-globe-americas',
-                'South America': 'fas fa-globe-americas',
-                'Antarctica': 'fas fa-snowflake'
-            };
-            return icons[continent] || 'fas fa-globe';
-        },
-        
-        hideLoading() {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.classList.remove('active');
-            }
-        },
-        
-        showError(message) {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.innerHTML = `
-                    <div class="loading-content">
-                        <div class="error-icon">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #e74c3c;"></i>
-                        </div>
-                        <h3 style="color: #fff; margin-top: 1rem;">Error</h3>
-                        <p style="color: #ccc; margin: 1rem 0;">${message}</p>
-                        <a href="deserts.html" style="display: inline-block; padding: 10px 20px; background: #D2691E; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 1rem;">
-                            <i class="fas fa-arrow-left"></i> Back to Explorer
-                        </a>
+        // Show error
+        function showError(message) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.innerHTML = `
+                    <div class="error-container">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Error</h2>
+                        <p>${message}</p>
+                        <a href="deserts.html"><i class="fas fa-arrow-left"></i> Back to Explorer</a>
                     </div>
                 `;
             }
         }
-    };
-    
-    // Initialize when DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        ProfileApp.init();
-    });
-    
-    // Add some additional styles for the content items
-    const additionalStyles = document.createElement('style');
-    additionalStyles.textContent = `
-        .node-content-inner {
-            padding: 10px;
-        }
         
-        .content-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .content-item:last-child {
-            border-bottom: none;
-        }
-        
-        .content-item i {
-            color: var(--dune-orange-1, #D2691E);
-            margin-top: 3px;
-            min-width: 20px;
-        }
-        
-        .content-item .item-details {
-            flex: 1;
-        }
-        
-        .content-item .item-details strong {
-            color: var(--text-cream, #fff);
-            display: block;
-        }
-        
-        .content-item .item-details p {
-            color: var(--sand-light-3, #ccc);
-            margin: 5px 0 0 0;
-            font-size: 0.9rem;
-        }
-        
-        .content-item .item-type,
-        .content-item .item-country {
-            color: var(--sand-light-3, #999);
-            font-size: 0.85rem;
-        }
-        
-        .content-item.clickable {
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        
-        .content-item.clickable:hover {
-            background: rgba(255,255,255,0.05);
-        }
-        
-        .content-item.endangered i,
-        .content-item.threat i {
-            color: #e74c3c;
-        }
-        
-        .endangered-section {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .endangered-title {
-            color: #e74c3c;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        
-        .no-data {
-            color: var(--sand-light-3, #999);
-            font-style: italic;
-            padding: 10px;
-        }
-        
-        .city-population {
-            font-size: 0.8rem;
-            color: var(--sand-light-3, #999);
-        }
-    `;
-    document.head.appendChild(additionalStyles);
+        // Start
+        document.addEventListener('DOMContentLoaded', init);
+    })();
     </script>
 </body>
 </html>
