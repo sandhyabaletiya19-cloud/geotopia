@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forests of the World 🌲</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== ALL CSS HERE ===== */
+        :root {
+            --deep-forest: #1a4d2e;
+            --moss-green: #2d5016;
+            --canopy-green: #4f772d;
+            --light-foliage: #90a955;
+            --spring-leaf: #a7c957;
+            --cream: #f5f5dc;
+            --soft-white: #fafaf5;
+            --warm-white: #f8f6f0;
+            --text-dark: #1a1a1a;
+            --text-medium: #4a4a4a;
+            --shadow-md: 0 4px 16px rgba(29, 53, 29, 0.15);
+            --shadow-lg: 0 8px 32px rgba(29, 53, 29, 0.2);
+            --glow-green: 0 0 20px rgba(144, 169, 85, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--warm-white);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        img { max-width: 100%; height: auto; display: block; }
+        a { text-decoration: none; color: inherit; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        /* Preloader */
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--deep-forest), var(--moss-green));
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s, visibility 0.5s;
+        }
+        .preloader.hidden { opacity: 0; visibility: hidden; }
+        .leaf-loader { display: flex; gap: 15px; margin-bottom: 20px; }
+        .leaf { font-size: 2.5rem; animation: leafFloat 1.5s ease-in-out infinite; }
+        .leaf:nth-child(2) { animation-delay: 0.2s; }
+        .leaf:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes leafFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        .loading-text { color: var(--cream); font-size: 1.1rem; }
+
+        /* Navigation */
+        .main-nav {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            padding: 15px 0; background: rgba(26, 77, 46, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .nav-container {
+            max-width: 1400px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            color: var(--cream); font-weight: 700; font-size: 1.25rem;
+        }
+        .nav-links { display: flex; gap: 25px; }
+        .nav-link {
+            color: var(--cream); font-weight: 500; padding: 8px 15px;
+            border-radius: 8px; transition: 0.3s;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.15); color: var(--spring-leaf); }
+
+        /* Hero */
+        .hero-section {
+            position: relative; min-height: 70vh; display: flex;
+            align-items: center; justify-content: center; text-align: center;
+            background: url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80') center/cover;
+        }
+        .hero-section::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(13,40,24,0.7), rgba(26,77,46,0.6), rgba(13,40,24,0.8));
+        }
+        .hero-content { position: relative; z-index: 2; padding: 40px 20px; max-width: 900px; }
+        .hero-title {
+            color: var(--cream); font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800; margin-bottom: 15px;
+        }
+        .hero-subtitle { color: var(--spring-leaf); font-size: 1.5rem; margin-bottom: 20px; }
+        .hero-description { color: rgba(255,255,255,0.85); font-size: 1.1rem; margin-bottom: 30px; }
+        .btn {
+            display: inline-block; padding: 14px 30px; border-radius: 25px;
+            font-weight: 600; transition: 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--deep-forest), var(--moss-green));
+            color: var(--cream); box-shadow: var(--shadow-md);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg), var(--glow-green); }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--soft-white); padding: 25px 0;
+            border-bottom: 1px solid rgba(45,80,22,0.1);
+            position: sticky; top: 60px; z-index: 100;
+        }
+        .filter-wrapper { display: flex; flex-wrap: wrap; gap: 25px; align-items: flex-start; }
+        .filter-group { flex: 1; min-width: 200px; }
+        .filter-label {
+            display: block; font-size: 0.85rem; font-weight: 600;
+            color: var(--text-medium); margin-bottom: 10px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .filter-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+        .filter-btn {
+            padding: 8px 16px; background: white; border: 2px solid rgba(45,80,22,0.2);
+            border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+            color: var(--text-medium); transition: 0.2s;
+        }
+        .filter-btn:hover { border-color: var(--canopy-green); color: var(--canopy-green); }
+        .filter-btn.active { background: var(--canopy-green); border-color: var(--canopy-green); color: white; }
+        .sort-select {
+            padding: 10px 15px; border: 2px solid rgba(45,80,22,0.2);
+            border-radius: 8px; background: white; font-size: 0.9rem;
+        }
+        .results-info { margin-top: 15px; font-size: 0.9rem; color: #6b6b6b; }
+        .results-info span { font-weight: 600; color: var(--canopy-green); }
+
+        /* Forests Grid */
+        .forests-section { padding: 60px 0; min-height: 80vh; }
+        .section-header { text-align: center; margin-bottom: 40px; }
+        .section-title { font-size: clamp(1.75rem, 4vw, 2.5rem); color: var(--deep-forest); margin-bottom: 10px; }
+        .section-subtitle { color: var(--text-medium); font-size: 1.1rem; }
+        .forests-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 30px; justify-items: center;
+        }
+
+        /* Forest Card */
+        .forest-card {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; cursor: pointer; transition: 0.3s;
+            padding: 15px; border-radius: 20px; width: 100%; max-width: 220px;
+        }
+        .forest-card:hover { transform: translateY(-8px); }
+        .forest-card:hover .card-image-wrapper { box-shadow: var(--shadow-lg), var(--glow-green); }
+        .forest-card:hover .card-image { transform: scale(1.1); }
+        .card-image-wrapper {
+            position: relative; width: 150px; height: 150px;
+            border-radius: 50%; overflow: hidden; box-shadow: var(--shadow-md);
+            border: 4px solid var(--canopy-green); transition: 0.3s;
+        }
+        .card-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .card-rank {
+            position: absolute; top: 5px; left: 5px; width: 30px; height: 30px;
+            background: var(--deep-forest); color: var(--cream); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700;
+        }
+        .card-badge {
+            position: absolute; bottom: 5px; right: 5px;
+            background: rgba(144,169,85,0.9); color: white;
+            padding: 2px 8px; border-radius: 6px; font-size: 0.6rem;
+            font-weight: 600; text-transform: uppercase;
+        }
+        .card-content { padding-top: 15px; }
+        .card-name { font-size: 1rem; font-weight: 600; color: var(--deep-forest); margin-bottom: 5px; }
+        .card-region { font-size: 0.8rem; color: var(--text-medium); margin-bottom: 5px; }
+        .card-area { font-size: 0.75rem; color: var(--canopy-green); font-weight: 600; }
+        .card-area::before { content: '🌲 '; }
+
+        /* No Results */
+        .no-results { text-align: center; padding: 60px 20px; display: none; }
+        .no-results.show { display: block; }
+        .no-results-icon { font-size: 4rem; margin-bottom: 15px; opacity: 0.5; }
+
+        /* Coming Soon */
+        .coming-soon-card { display: flex; justify-content: center; padding: 40px 0; margin-top: 30px; }
+        .coming-soon-inner {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--deep-forest), var(--moss-green));
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; color: var(--cream);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(79,119,45,0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(79,119,45,0); }
+        }
+        .coming-soon-icon { font-size: 3rem; margin-bottom: 10px; }
+
+        /* Stats Section */
+        .stats-section {
+            position: relative; padding: 80px 0;
+            background: url('https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=1920&q=80') center/cover;
+        }
+        .stats-section::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(26,77,46,0.9), rgba(45,80,22,0.85));
+        }
+        .stats-section .container { position: relative; z-index: 2; }
+        .stats-section .section-title { color: var(--cream); margin-bottom: 50px; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+        .stat-card {
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border-radius: 20px; padding: 30px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.15); transition: 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.15); }
+        .stat-card .stat-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .stat-card .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--spring-leaf); margin-bottom: 10px; }
+        .stat-card .stat-description { color: rgba(255,255,255,0.8); font-size: 0.95rem; }
+
+        /* Footer */
+        .main-footer { background: #0d2818; color: var(--cream); padding: 40px 0 20px; text-align: center; }
+        .footer-logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 30px; font-size: 0.85rem; color: rgba(255,255,255,0.5); }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
+            background: linear-gradient(135deg, var(--deep-forest), var(--moss-green));
+            color: var(--cream); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 1.5rem;
+            box-shadow: var(--shadow-lg); opacity: 0; visibility: hidden;
+            transform: translateY(20px); transition: 0.3s; z-index: 999;
+        }
+        .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+        .back-to-top:hover { transform: translateY(-5px); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .forests-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+            .card-image-wrapper { width: 120px; height: 120px; }
+            .filter-section { position: relative; top: 0; }
+        }
+        @media (max-width: 480px) {
+            .card-image-wrapper { width: 100px; height: 100px; }
+            .card-name { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="leaf-loader">
+            <div class="leaf">🍃</div>
+            <div class="leaf">🌿</div>
+            <div class="leaf">🍂</div>
+        </div>
+        <p class="loading-text">Exploring the Canopy...</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span>🌲</span>
+                <span>Forests Explorer</span>
+            </a>
+            <div class="nav-links">
+                <a href="#forests-grid" class="nav-link">All Forests</a>
+                <a href="#stats" class="nav-link">Statistics</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Forests of the World 🌲</h1>
+            <p class="hero-subtitle">Explore Earth's Lungs</p>
+            <p class="hero-description">
+                Journey through over 50 magnificent forests spanning every continent.
+            </p>
+            <a href="#forests-grid" class="btn btn-primary">Start Exploring ↓</a>
+        </div>
+    </header>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-wrapper">
+                <div class="filter-group">
+                    <label class="filter-label">Filter by Type</label>
+                    <div class="filter-buttons" id="typeFilters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="tropical">Tropical</button>
+                        <button class="filter-btn" data-filter="temperate">Temperate</button>
+                        <button class="filter-btn" data-filter="boreal">Boreal</button>
+                        <button class="filter-btn" data-filter="mangrove">Mangrove</button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Sort by</label>
+                    <select id="sortSelect" class="sort-select">
+                        <option value="area-desc">Area (Largest)</option>
+                        <option value="area-asc">Area (Smallest)</option>
+                        <option value="name-asc">Name (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="results-info">
+                Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> forests
+            </div>
+        </div>
+    </section>
+
+    <!-- Forests Grid -->
+    <main class="forests-section" id="forests-grid">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">🌳 Explore All Forests</h2>
+                <p class="section-subtitle">Click on any forest to learn more</p>
+            </div>
+            <div class="forests-grid" id="forestsGrid"></div>
+            <div class="no-results" id="noResults">
+                <div class="no-results-icon">🔍</div>
+                <h3>No forests found</h3>
+                <p>Try different filters</p>
+            </div>
+            <div class="coming-soon-card">
+                <div class="coming-soon-inner">
+                    <div class="coming-soon-icon">🌱</div>
+                    <h3>More Forests</h3>
+                    <p>Coming Soon</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Stats Section -->
+    <section class="stats-section" id="stats">
+        <div class="container">
+            <h2 class="section-title">📊 Forest Facts</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🌍</div>
+                    <div class="stat-value">31%</div>
+                    <div class="stat-description">of Earth covered by forests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌳</div>
+                    <div class="stat-value">3 Trillion</div>
+                    <div class="stat-description">trees on our planet</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🦎</div>
+                    <div class="stat-value">80%</div>
+                    <div class="stat-description">of land biodiversity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value">10M</div>
+                    <div class="stat-description">hectares lost yearly</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-logo">🌲 Forests Explorer</div>
+            <p>Connecting people with Earth's magnificent forests</p>
+            <div class="footer-bottom">
+                <p>© 2024 Forests Explorer | Photos from Unsplash</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">↑</button>
+
+    <script>
+        // ===== FOREST DATA =====
+        var forestsData = [
+            { id: 1, name: "Amazon Rainforest", region: "South America", area: 5500000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800&q=80" },
+            { id: 2, name: "Congo Rainforest", region: "Central Africa", area: 2000000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80" },
+            { id: 3, name: "Taiga (Boreal Forest)", region: "Northern Hemisphere", area: 17000000, type: "Boreal Forest", image: "https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=800&q=80" },
+            { id: 4, name: "Southeast Asian Rainforest", region: "Southeast Asia", area: 2480000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1588392382834-a891154bca4d?w=800&q=80" },
+            { id: 5, name: "North American Temperate", region: "North America", area: 3100000, type: "Temperate Forest", image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80" },
+            { id: 6, name: "Tongass National Forest", region: "Alaska, USA", area: 68000, type: "Temperate Rainforest", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80" },
+            { id: 7, name: "Daintree Rainforest", region: "Australia", area: 1200, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=800&q=80" },
+            { id: 8, name: "Sundarbans", region: "Bangladesh & India", area: 10000, type: "Mangrove Forest", image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80" },
+            { id: 9, name: "Black Forest", region: "Germany", area: 6009, type: "Temperate Mixed Forest", image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&q=80" },
+            { id: 10, name: "Valdivian Rainforest", region: "Chile & Argentina", area: 248100, type: "Temperate Rainforest", image: "https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=800&q=80" },
+            { id: 11, name: "Great Bear Rainforest", region: "Canada", area: 64000, type: "Temperate Rainforest", image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80" },
+            { id: 12, name: "Monteverde Cloud Forest", region: "Costa Rica", area: 105, type: "Cloud Forest", image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80" },
+            { id: 13, name: "Białowieża Forest", region: "Poland & Belarus", area: 1500, type: "Temperate Forest", image: "https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=800&q=80" },
+            { id: 14, name: "Sinharaja Forest", region: "Sri Lanka", area: 189, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1588392382834-a891154bca4d?w=800&q=80" },
+            { id: 15, name: "New Guinea Rainforest", region: "Papua New Guinea", area: 288000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1470058869958-2a77ade41c02?w=800&q=80" },
+            { id: 16, name: "Yakushima Forest", region: "Japan", area: 200, type: "Temperate Forest", image: "https://images.unsplash.com/photo-1531804055935-76f44d7c3621?w=800&q=80" },
+            { id: 17, name: "Atlantic Forest", region: "Brazil", area: 150000, type: "Tropical Forest", image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80" },
+            { id: 18, name: "Redwood Forest", region: "California, USA", area: 540, type: "Temperate Coniferous", image: "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?w=800&q=80" },
+            { id: 19, name: "Tarkine Rainforest", region: "Tasmania, Australia", area: 3500, type: "Temperate Rainforest", image: "https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=800&q=80" },
+            { id: 20, name: "Western Ghats", region: "India", area: 160000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80" },
+            { id: 21, name: "Sherwood Forest", region: "England", area: 423, type: "Temperate Forest", image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80" },
+            { id: 22, name: "Borneo Rainforest", region: "Malaysia & Indonesia", area: 530000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1588392382834-a891154bca4d?w=800&q=80" },
+            { id: 23, name: "Lacandon Jungle", region: "Mexico", area: 18000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800&q=80" },
+            { id: 24, name: "Hoh Rainforest", region: "Washington, USA", area: 370, type: "Temperate Rainforest", image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80" },
+            { id: 25, name: "Madagascar Rainforest", region: "Madagascar", area: 85000, type: "Tropical Rainforest", image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80" }
+        ];
+
+        // ===== APP =====
+        var allForests = forestsData;
+        var filteredForests = forestsData.slice();
+        var currentFilter = 'all';
+        var currentSort = 'area-desc';
+
+        // Elements
+        var grid = document.getElementById('forestsGrid');
+        var visibleCount = document.getElementById('visibleCount');
+        var totalCount = document.getElementById('totalCount');
+        var noResults = document.getElementById('noResults');
+        var preloader = document.getElementById('preloader');
+        var backToTop = document.getElementById('backToTop');
+
+        // Initialize
+        function init() {
+            totalCount.textContent = allForests.length;
+            sortForests();
+            renderForests();
+            hidePreloader();
+            bindEvents();
+        }
+
+        // Bind Events
+        function bindEvents() {
+            // Filter buttons
+            document.getElementById('typeFilters').addEventListener('click', function(e) {
+                if (e.target.classList.contains('filter-btn')) {
+                    document.querySelectorAll('#typeFilters .filter-btn').forEach(function(btn) {
+                        btn.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.filter;
+                    applyFilters();
+                }
+            });
+
+            // Sort
+            document.getElementById('sortSelect').addEventListener('change', function() {
+                currentSort = this.value;
+                sortForests();
+                renderForests();
+            });
+
+            // Scroll
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 500) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+
+            // Back to top
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Apply Filters
+        function applyFilters() {
+            if (currentFilter === 'all') {
+                filteredForests = allForests.slice();
+            } else {
+                filteredForests = allForests.filter(function(forest) {
+                    return forest.type.toLowerCase().indexOf(currentFilter) !== -1;
+                });
+            }
+            sortForests();
+            renderForests();
+        }
+
+        // Sort Forests
+        function sortForests() {
+            filteredForests.sort(function(a, b) {
+                if (currentSort === 'area-desc') return b.area - a.area;
+                if (currentSort === 'area-asc') return a.area - b.area;
+                if (currentSort === 'name-asc') return a.name.localeCompare(b.name);
+                return 0;
+            });
+        }
+
+        // Render Forests
+        function renderForests() {
+            grid.innerHTML = '';
+            visibleCount.textContent = filteredForests.length;
+
+            if (filteredForests.length === 0) {
+                noResults.classList.add('show');
+                return;
+            }
+            noResults.classList.remove('show');
+
+            filteredForests.forEach(function(forest, index) {
+                var card = document.createElement('div');
+                card.className = 'forest-card';
+                card.innerHTML = 
+                    '<div class="card-image-wrapper">' +
+                        '<img class="card-image" src="' + forest.image + '" alt="' + forest.name + '">' +
+                        '<span class="card-rank">#' + (index + 1) + '</span>' +
+                        '<span class="card-badge">' + getTypeBadge(forest.type) + '</span>' +
+                    '</div>' +
+                    '<div class="card-content">' +
+                        '<h3 class="card-name">' + forest.name + '</h3>' +
+                        '<p class="card-region">' + forest.region + '</p>' +
+                        '<p class="card-area">' + formatArea(forest.area) + '</p>' +
+                    '</div>';
+                grid.appendChild(card);
+            });
+        }
+
+        // Format Area
+        function formatArea(area) {
+            if (area >= 1000000) return (area / 1000000).toFixed(2) + 'M km²';
+            if (area >= 1000) return (area / 1000).toFixed(1) + 'K km²';
+            return area + ' km²';
+        }
+
+        // Get Type Badge
+        function getTypeBadge(type) {
+            if (type.indexOf('Tropical') !== -1 && type.indexOf('Rain') !== -1) return 'Tropical';
+            if (type.indexOf('Temperate') !== -1 && type.indexOf('Rain') !== -1) return 'Temp Rain';
+            if (type.indexOf('Boreal') !== -1) return 'Boreal';
+            if (type.indexOf('Mangrove') !== -1) return 'Mangrove';
+            if (type.indexOf('Temperate') !== -1) return 'Temperate';
+            if (type.indexOf('Tropical') !== -1) return 'Tropical';
+            return 'Forest';
+        }
+
+        // Hide Preloader
+        function hidePreloader() {
+            setTimeout(function() {
+                preloader.classList.add('hidden');
+            }, 1000);
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
