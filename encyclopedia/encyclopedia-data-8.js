@@ -1,7 +1,7 @@
 // encyclopedia-data-8.js
 // Countries 141-160: Uruguay to Timor-Leste
 
-const ENCYCLOPEDIA_DATA_8 = {
+const CountriesData8 = {
     "uruguay": {
         name: "Uruguay",
         officialName: "Oriental Republic of Uruguay",
@@ -3621,7 +3621,7 @@ const ENCYCLOPEDIA_DATA_8 = {
 
 // Export data for use in main application
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = defined_EncyclopediaData8;
+    module.exports = defined_CountriesData8;
 } else if (typeof window !== 'undefined') {
     window.defined_EncyclopediaData8 = defined_EncyclopediaData8;
 }
