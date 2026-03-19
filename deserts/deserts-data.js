@@ -27,15 +27,6 @@ const DESERTS_DATA = [
     
     // Data from deserts-data-7.js (Deserts 61-70)
     ...(typeof DESERTS_DATA_7 !== 'undefined' ? DESERTS_DATA_7 : []),
-    
-    // Data from deserts-data-8.js (Deserts 71-80)
-    ...(typeof DESERTS_DATA_8 !== 'undefined' ? DESERTS_DATA_8 : []),
-    
-    // Data from deserts-data-9.js (Deserts 81-90)
-    ...(typeof DESERTS_DATA_9 !== 'undefined' ? DESERTS_DATA_9 : []),
-    
-    // Data from deserts-data-10.js (Deserts 91-100)
-    ...(typeof DESERTS_DATA_10 !== 'undefined' ? DESERTS_DATA_10 : [])
 ];
 
 // ==========================================
