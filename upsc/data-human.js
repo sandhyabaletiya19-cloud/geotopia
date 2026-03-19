@@ -1853,10 +1853,10 @@ const humanData = [
                     '  • Expanding to 50+ cities',
                     '  • MRTS in various cities',
                     '',
-                    '📌 JNNURM (2005-2014):'
+                    '📌 JNNURM (2005-2014):',
                     '  • Predecessor program',
                     '  • Infrastructure focus',
-                    '  • 65 mission cities'
+                    '  • 65 mission cities',
                 ]
             }
         ],
