@@ -552,7 +552,7 @@ const seasData = [
             spillAmount: '4.9 million barrels (210 million gallons)',
             duration: '87 days',
             cost: '$65 billion total (BP)',
-            deaths: 11 workers killed,
+            deaths: '11 workers killed',
             impact: 'Largest marine oil spill in history',
             recovery: 'Ongoing - some areas still affected'
         },
