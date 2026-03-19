@@ -4,7 +4,7 @@
  * Version: 1.0
  */
 
-const CountryData4 = [
+const CountriesData4 = [
     // 61. VENEZUELA
     {
         id: "VEN",
@@ -1889,5 +1889,5 @@ const CountryData4 = [
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CountryData4;
+    module.exports = CountriesData4;
 }
