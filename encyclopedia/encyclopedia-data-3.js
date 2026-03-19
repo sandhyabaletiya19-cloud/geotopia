@@ -4,7 +4,7 @@
  * Version: 1.0
  */
 
-const CountryData3 = [
+const CountriesData3 = [
     // 41. GREECE
     {
         id: "GRC",
@@ -2322,5 +2322,5 @@ const CountryData3 = [
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CountryData3;
+    module.exports = CountriesData3;
 }
