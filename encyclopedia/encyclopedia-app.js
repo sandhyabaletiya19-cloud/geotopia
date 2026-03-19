@@ -45,21 +45,17 @@ class EncyclopediaApp {
     // ============================================
 
     loadAllData() {
-        // Combine all country data from separate files
-        this.allCountries = [];
-        
-        // Load from encyclopedia-data-1.js, encyclopedia-data-2.js, etc.
-        if (typeof CountriesData1 !== 'undefined') {
-            this.allCountries = this.allCountries.concat(CountriesData1);
+    this.allCountries = [];
+    
+    for (let i = 1; i <= 10; i++) {
+        if (typeof window['CountriesData' + i] !== 'undefined') {
+            this.allCountries = this.allCountries.concat(window['CountriesData' + i]);
         }
-        if (typeof CountriesData2 !== 'undefined') {
-            this.allCountries = this.allCountries.concat(CountriesData2);
-        }
-        if (typeof CountriesData3 !== 'undefined') {
-            this.allCountries = this.allCountries.concat(CountriesData3);
-        }
-        
-        this.filteredCountries = [...this.allCountries];
+    }
+    
+    this.filteredCountries = [...this.allCountries];
+    this.updateCountryCount();
+}
         
         // Update country count
         this.updateCountryCount();
