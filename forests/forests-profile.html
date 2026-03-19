@@ -3,1104 +3,532 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore detailed information about this forest - biodiversity, climate, conservation efforts, and more.">
     <title>Forest Profile | Forests Explorer</title>
     
-    <!-- Fonts -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="forests-style.css">
+    <link rel="stylesheet" href="forests-profile-style.css">
     
-    <!-- Profile Page Specific Styles -->
-    <style>
-        /* ===== PROFILE PAGE STYLES ===== */
-        
-        .profile-hero {
-            position: relative;
-            height: 70vh;
-            min-height: 500px;
-            display: flex;
-            align-items: flex-end;
-            overflow: hidden;
-        }
-        
-        .profile-hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        .profile-hero-bg img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .profile-hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to top,
-                rgba(13, 40, 24, 0.95) 0%,
-                rgba(26, 77, 46, 0.6) 40%,
-                rgba(26, 77, 46, 0.3) 100%
-            );
-        }
-        
-        .profile-hero-content {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            padding: var(--space-2xl);
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            color: var(--spring-leaf);
-            font-weight: 500;
-            margin-bottom: var(--space-lg);
-            transition: all var(--transition-fast);
-        }
-        
-        .back-link:hover {
-            color: var(--cream);
-            transform: translateX(-5px);
-        }
-        
-        .profile-title {
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            font-weight: 800;
-            color: var(--cream);
-            margin-bottom: var(--space-md);
-            text-shadow: 2px 4px 8px rgba(0,0,0,0.3);
-        }
-        
-        .profile-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-lg);
-            margin-bottom: var(--space-lg);
-        }
-        
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            color: rgba(255,255,255,0.9);
-            font-size: 1rem;
-        }
-        
-        .meta-icon {
-            font-size: 1.25rem;
-        }
-        
-        .profile-type-badge {
-            display: inline-block;
-            background: var(--canopy-green);
-            color: white;
-            padding: var(--space-sm) var(--space-lg);
-            border-radius: var(--radius-xl);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        /* Profile Actions */
-        .profile-actions {
-            display: flex;
-            gap: var(--space-md);
-            flex-wrap: wrap;
-            margin-top: var(--space-lg);
-        }
-        
-        .action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-md) var(--space-xl);
-            border-radius: var(--radius-xl);
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all var(--transition-normal);
-            cursor: pointer;
-        }
-        
-        .action-btn.primary {
-            background: var(--spring-leaf);
-            color: var(--forest-shadow);
-        }
-        
-        .action-btn.primary:hover {
-            background: var(--light-foliage);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .action-btn.secondary {
-            background: rgba(255,255,255,0.15);
-            color: var(--cream);
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        
-        .action-btn.secondary:hover {
-            background: rgba(255,255,255,0.25);
-            border-color: var(--spring-leaf);
-        }
-        
-        /* Main Content Area */
-        .profile-main {
-            background: var(--warm-white);
-            padding: var(--space-3xl) 0;
-        }
-        
-        .profile-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 var(--space-lg);
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: var(--space-2xl);
-        }
-        
-        /* Map Section */
-        .map-section {
-            background: white;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .map-header {
-            padding: var(--space-lg);
-            background: var(--deep-forest);
-            color: var(--cream);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .map-header h3 {
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-        }
-        
-        .map-controls {
-            display: flex;
-            gap: var(--space-sm);
-        }
-        
-        .map-control-btn {
-            padding: var(--space-sm) var(--space-md);
-            background: rgba(255,255,255,0.2);
-            border-radius: var(--radius-md);
-            color: var(--cream);
-            font-size: 0.85rem;
-            transition: all var(--transition-fast);
-        }
-        
-        .map-control-btn:hover,
-        .map-control-btn.active {
-            background: var(--spring-leaf);
-            color: var(--forest-shadow);
-        }
-        
-        #forestMap {
-            height: 500px;
-            width: 100%;
-        }
-        
-        .map-legend {
-            padding: var(--space-md);
-            background: var(--soft-white);
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-md);
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-xs);
-            font-size: 0.85rem;
-            color: var(--text-medium);
-        }
-        
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-        }
-        
-        /* Info Cards */
-        .info-section {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-lg);
-        }
-        
-        .info-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .info-card-header {
-            padding: var(--space-md) var(--space-lg);
-            background: var(--canopy-green);
-            color: white;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-        
-        .info-card-header:hover {
-            background: var(--deep-forest);
-        }
-        
-        .info-card-header .icon {
-            font-size: 1.25rem;
-        }
-        
-        .info-card-header .toggle {
-            margin-left: auto;
-            transition: transform var(--transition-fast);
-        }
-        
-        .info-card.collapsed .toggle {
-            transform: rotate(-90deg);
-        }
-        
-        .info-card-content {
-            padding: var(--space-lg);
-            max-height: 500px;
-            overflow-y: auto;
-            transition: all var(--transition-normal);
-        }
-        
-        .info-card.collapsed .info-card-content {
-            max-height: 0;
-            padding: 0 var(--space-lg);
-            overflow: hidden;
-        }
-        
-        .info-list {
-            list-style: none;
-        }
-        
-        .info-list li {
-            padding: var(--space-sm) 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            align-items: flex-start;
-            gap: var(--space-sm);
-        }
-        
-        .info-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .info-list .emoji {
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-        
-        /* Mind Map Section */
-        .mindmap-section {
-            grid-column: 1 / -1;
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            box-shadow: var(--shadow-lg);
-            margin-top: var(--space-lg);
-        }
-        
-        .mindmap-header {
-            text-align: center;
-            margin-bottom: var(--space-xl);
-        }
-        
-        .mindmap-header h2 {
-            color: var(--deep-forest);
-            font-size: 1.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-sm);
-        }
-        
-        .mindmap-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-lg);
-        }
-        
-        .mindmap-branch {
-            background: var(--soft-white);
-            border-radius: var(--radius-lg);
-            padding: var(--space-lg);
-            border-left: 4px solid var(--canopy-green);
-            transition: all var(--transition-normal);
-        }
-        
-        .mindmap-branch:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border-left-color: var(--spring-leaf);
-        }
-        
-        .branch-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--deep-forest);
-            margin-bottom: var(--space-md);
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-        }
-        
-        .branch-content {
-            color: var(--text-medium);
-            font-size: 0.95rem;
-            line-height: 1.7;
-        }
-        
-        .branch-content ul {
-            list-style: none;
-            margin-top: var(--space-sm);
-        }
-        
-        .branch-content li {
-            padding: var(--space-xs) 0;
-            padding-left: var(--space-md);
-            position: relative;
-        }
-        
-        .branch-content li::before {
-            content: '🌿';
-            position: absolute;
-            left: 0;
-            font-size: 0.8rem;
-        }
-        
-        /* Before/After Comparison */
-        .comparison-section {
-            grid-column: 1 / -1;
-            background: var(--forest-shadow);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            margin-top: var(--space-lg);
-        }
-        
-        .comparison-header {
-            text-align: center;
-            margin-bottom: var(--space-xl);
-            color: var(--cream);
-        }
-        
-        .comparison-header h2 {
-            font-size: 1.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-sm);
-        }
-        
-        .comparison-header p {
-            color: rgba(255,255,255,0.7);
-            margin-top: var(--space-sm);
-        }
-        
-        .comparison-slider {
-            position: relative;
-            max-width: 900px;
-            margin: 0 auto;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-        }
-        
-        .comparison-images {
-            position: relative;
-            height: 450px;
-        }
-        
-        .comparison-images img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .before-image {
-            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
-            z-index: 2;
-        }
-        
-        .slider-handle {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 4px;
-            height: 100%;
-            background: white;
-            z-index: 10;
-            cursor: ew-resize;
-            transform: translateX(-50%);
-        }
-        
-        .slider-handle::before {
-            content: '⟺';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            color: var(--deep-forest);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .comparison-labels {
-            position: absolute;
-            top: var(--space-md);
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 var(--space-lg);
-            z-index: 5;
-        }
-        
-        .comparison-label {
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: var(--space-sm) var(--space-md);
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .comparison-label.before {
-            background: var(--canopy-green);
-        }
-        
-        .comparison-label.after {
-            background: var(--bark-brown);
-        }
-        
-        /* Explore Button */
-        .explore-section {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: var(--space-2xl);
-            background: var(--forest-gradient);
-            border-radius: var(--radius-lg);
-            margin-top: var(--space-lg);
-        }
-        
-        .explore-section h2 {
-            color: var(--cream);
-            font-size: 1.75rem;
-            margin-bottom: var(--space-md);
-        }
-        
-        .explore-section p {
-            color: rgba(255,255,255,0.8);
-            margin-bottom: var(--space-xl);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .explore-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-lg) var(--space-2xl);
-            background: white;
-            color: var(--deep-forest);
-            border-radius: var(--radius-xl);
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all var(--transition-normal);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .explore-btn:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-xl), var(--glow-green);
-        }
-        
-        .explore-btn .icon {
-            font-size: 1.5rem;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-        
-        /* Climate View Toggle */
-        .climate-toggle {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-            padding: var(--space-md);
-            background: rgba(255,255,255,0.1);
-            border-radius: var(--radius-md);
-            margin-top: var(--space-md);
-        }
-        
-        .climate-toggle label {
-            color: var(--cream);
-            font-weight: 500;
-        }
-        
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 26px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 13px;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-        
-        .toggle-switch.active {
-            background: var(--spring-leaf);
-        }
-        
-        .toggle-switch::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            transition: all var(--transition-fast);
-        }
-        
-        .toggle-switch.active::after {
-            left: 27px;
-        }
-        
-        /* Responsive */
-        @media (max-width: 992px) {
-            .profile-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .mindmap-section,
-            .comparison-section,
-            .explore-section {
-                grid-column: 1;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .profile-hero {
-                height: 60vh;
-                min-height: 400px;
-            }
-            
-            .profile-title {
-                font-size: 2rem;
-            }
-            
-            .profile-meta {
-                flex-direction: column;
-                gap: var(--space-sm);
-            }
-            
-            #forestMap {
-                height: 350px;
-            }
-            
-            .comparison-images {
-                height: 300px;
-            }
-        }
-    </style>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>">
 </head>
-<body>
+<body class="profile-page">
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="leaf-loader">
+                <svg class="leaf" viewBox="0 0 100 100" width="60" height="60">
+                    <path d="M50 10 C20 30, 10 60, 50 90 C90 60, 80 30, 50 10" fill="#4f772d"/>
+                </svg>
+            </div>
+            <p class="preloader-text">Loading Forest Data...</p>
+        </div>
+    </div>
+
     <!-- Navigation -->
-    <nav class="main-nav scrolled" id="mainNav">
+    <nav class="main-nav profile-nav" id="mainNav">
         <div class="nav-container">
             <a href="forests.html" class="nav-logo">
                 <span class="logo-icon">🌲</span>
                 <span class="logo-text">Forests Explorer</span>
             </a>
+            
             <div class="nav-links">
-                <a href="forests.html" class="nav-link">All Forests</a>
-                <a href="forests.html#stats" class="nav-link">Statistics</a>
-                <a href="forests.html#about" class="nav-link">About</a>
+                <a href="forests.html" class="nav-link">
+                    <span class="nav-icon">🏠</span>
+                    <span>All Forests</span>
+                </a>
+                <a href="forests-education.html" class="nav-link">
+                    <span class="nav-icon">📚</span>
+                    <span>Learn</span>
+                </a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="btn-icon" id="shareBtn" aria-label="Share">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"/>
+                        <circle cx="6" cy="12" r="3"/>
+                        <circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Profile Hero -->
+    <!-- Hero Section with Forest Image -->
     <header class="profile-hero" id="profileHero">
-        <div class="profile-hero-bg">
-            <img id="heroImage" src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80" alt="Forest view">
-            <div class="profile-hero-overlay"></div>
+        <div class="hero-background">
+            <img src="" alt="" class="hero-image" id="heroImage" loading="eager">
+            <div class="hero-overlay"></div>
         </div>
         
-        <div class="profile-hero-content">
-            <a href="forests.html" class="back-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Back to All Forests
-            </a>
+        <div class="hero-content">
+            <div class="breadcrumb">
+                <a href="forests.html">Forests</a>
+                <span class="separator">›</span>
+                <span id="breadcrumbRegion">Loading...</span>
+            </div>
             
-            <h1 class="profile-title" id="forestName">Amazon Rainforest</h1>
+            <h1 class="forest-title" id="forestTitle">Loading...</h1>
             
-            <div class="profile-meta">
-                <span class="meta-item">
+            <div class="forest-meta">
+                <span class="meta-item" id="forestType">
+                    <span class="meta-icon">🌳</span>
+                    <span class="meta-text">--</span>
+                </span>
+                <span class="meta-item" id="forestRegion">
                     <span class="meta-icon">📍</span>
-                    <span id="forestRegion">South America</span>
+                    <span class="meta-text">--</span>
                 </span>
-                <span class="meta-item">
-                    <span class="meta-icon">🌍</span>
-                    <span id="forestCountries">Brazil, Peru, Colombia</span>
-                </span>
-                <span class="meta-item">
+                <span class="meta-item" id="forestArea">
                     <span class="meta-icon">📐</span>
-                    <span id="forestArea">5,500,000 km²</span>
+                    <span class="meta-text">--</span>
                 </span>
             </div>
             
-            <span class="profile-type-badge" id="forestType">Tropical Rainforest</span>
-            
-            <div class="profile-actions">
-                <button class="action-btn primary" id="exploreBtn">
-                    <span>🚀</span>
+            <div class="hero-actions">
+                <button class="btn btn-primary" id="exploreBtn">
+                    <span>🎥</span>
                     <span>Explore Forest</span>
                 </button>
-                <button class="action-btn secondary" id="climateViewBtn">
-                    <span>🌡️</span>
-                    <span>Climate View</span>
-                </button>
-                <button class="action-btn secondary" id="compareBtn">
-                    <span>⚖️</span>
-                    <span>Before & After</span>
+                <button class="btn btn-secondary" id="mapViewBtn">
+                    <span>🗺️</span>
+                    <span>View on Map</span>
                 </button>
             </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <div class="mouse"><div class="wheel"></div></div>
+            <span>Scroll to Learn More</span>
         </div>
     </header>
 
+    <!-- Quick Stats Bar -->
+    <section class="quick-stats-bar">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🌡️</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statTemp">--</span>
+                        <span class="stat-label">Temperature</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌧️</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statRainfall">--</span>
+                        <span class="stat-label">Annual Rainfall</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💧</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statHumidity">--</span>
+                        <span class="stat-label">Humidity</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🦎</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statSpecies">--</span>
+                        <span class="stat-label">Known Species</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Main Content -->
     <main class="profile-main">
-        <div class="profile-container">
-            <!-- Map Section -->
-            <section class="map-section">
-                <div class="map-header">
-                    <h3><span>🗺️</span> Interactive Map</h3>
-                    <div class="map-controls">
-                        <button class="map-control-btn active" data-layer="satellite">Satellite</button>
-                        <button class="map-control-btn" data-layer="terrain">Terrain</button>
-                        <button class="map-control-btn" data-layer="density">Density</button>
-                    </div>
-                </div>
-                <div id="forestMap"></div>
-                <div class="map-legend">
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #2d5016;"></span>
-                        <span>Dense Forest</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #4f772d;"></span>
-                        <span>Moderate</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #219ebc;"></span>
-                        <span>Rivers</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #bc6c25;"></span>
-                        <span>Protected Areas</span>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Info Cards -->
-            <aside class="info-section">
-                <!-- Climate Card -->
-                <div class="info-card" id="climateCard">
-                    <div class="info-card-header">
-                        <span class="icon">🌡️</span>
-                        <span>Climate</span>
-                        <span class="toggle">▼</span>
-                    </div>
-                    <div class="info-card-content">
-                        <ul class="info-list" id="climateList">
-                            <li><span class="emoji">🌧️</span> <span>Rainfall: 2000-3000mm annually</span></li>
-                            <li><span class="emoji">🌡️</span> <span>Temperature: 25-28°C average</span></li>
-                            <li><span class="emoji">💧</span> <span>Humidity: 77-88%</span></li>
-                        </ul>
-                    </div>
-                </div>
+        <div class="container">
+            <div class="profile-grid">
                 
-                <!-- Biodiversity Card -->
-                <div class="info-card" id="biodiversityCard">
-                    <div class="info-card-header">
-                        <span class="icon">🦜</span>
-                        <span>Biodiversity</span>
-                        <span class="toggle">▼</span>
-                    </div>
-                    <div class="info-card-content">
-                        <ul class="info-list" id="biodiversityList">
-                            <li><span class="emoji">🐆</span> <span>Jaguar, Sloth, Anaconda</span></li>
-                            <li><span class="emoji">🦜</span> <span>Macaw, Toucan, Harpy Eagle</span></li>
-                            <li><span class="emoji">🌳</span> <span>Brazil Nut, Rubber Tree, Kapok</span></li>
-                        </ul>
-                    </div>
+                <!-- Left Column - Map & Info -->
+                <div class="profile-left">
+                    
+                    <!-- Interactive Map -->
+                    <section class="profile-section map-section">
+                        <div class="section-header">
+                            <h2><span class="section-icon">🗺️</span> Forest Location</h2>
+                            <div class="map-controls">
+                                <button class="map-control-btn active" data-layer="satellite">Satellite</button>
+                                <button class="map-control-btn" data-layer="terrain">Terrain</button>
+                                <button class="map-control-btn" data-layer="density">Forest Density</button>
+                            </div>
+                        </div>
+                        <div class="map-container">
+                            <div id="forestMap" class="forest-map"></div>
+                            <div class="map-info-overlay" id="mapInfoOverlay">
+                                <h4 id="mapForestName">--</h4>
+                                <p id="mapCoordinates">--</p>
+                            </div>
+                        </div>
+                        <div class="map-legend" id="mapLegend">
+                            <div class="legend-title">Countries Covered:</div>
+                            <div class="legend-countries" id="legendCountries"></div>
+                        </div>
+                    </section>
+
+                    <!-- Description -->
+                    <section class="profile-section description-section">
+                        <div class="section-header">
+                            <h2><span class="section-icon">📖</span> About This Forest</h2>
+                        </div>
+                        <div class="description-content">
+                            <p id="forestDescription">Loading description...</p>
+                        </div>
+                    </section>
+
+                    <!-- Before & After Deforestation View -->
+                    <section class="profile-section comparison-section">
+                        <div class="section-header">
+                            <h2><span class="section-icon">🌿</span> Before vs After</h2>
+                            <span class="section-badge">Deforestation Impact</span>
+                        </div>
+                        <div class="comparison-container">
+                            <div class="comparison-slider" id="comparisonSlider">
+                                <div class="comparison-image before">
+                                    <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80" alt="Dense forest - before deforestation">
+                                    <span class="comparison-label">Dense Forest</span>
+                                </div>
+                                <div class="comparison-image after">
+                                    <img src="https://images.unsplash.com/photo-1605001011156-cbf0b0f67a51?w=800&q=80" alt="Deforested area">
+                                    <span class="comparison-label">Deforested Area</span>
+                                </div>
+                                <div class="comparison-handle" id="comparisonHandle">
+                                    <div class="handle-line"></div>
+                                    <div class="handle-circle">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 8L22 12L18 16"/>
+                                            <path d="M6 8L2 12L6 16"/>
+                                        </svg>
+                                    </div>
+                                    <div class="handle-line"></div>
+                                </div>
+                            </div>
+                            <p class="comparison-info">
+                                <strong>⚠️ Impact:</strong> Drag the slider to see the devastating effects of deforestation on forest ecosystems.
+                            </p>
+                        </div>
+                    </section>
+
                 </div>
-                
-                <!-- Rivers Card -->
-                <div class="info-card" id="riversCard">
-                    <div class="info-card-header">
-                        <span class="icon">🏞️</span>
-                        <span>Rivers</span>
-                        <span class="toggle">▼</span>
-                    </div>
-                    <div class="info-card-content">
-                        <ul class="info-list" id="riversList">
-                            <li><span class="emoji">🌊</span> <span>Amazon River</span></li>
-                            <li><span class="emoji">🌊</span> <span>Rio Negro</span></li>
-                            <li><span class="emoji">🌊</span> <span>Madeira River</span></li>
-                        </ul>
-                    </div>
+
+                <!-- Right Column - Mind Map Style Info -->
+                <div class="profile-right">
+                    
+                    <!-- Mind Map Tree -->
+                    <section class="profile-section mindmap-section">
+                        <div class="section-header">
+                            <h2><span class="section-icon">🧠</span> Forest Information</h2>
+                        </div>
+                        
+                        <div class="mindmap-container" id="mindmapContainer">
+                            
+                            <!-- Central Node -->
+                            <div class="mindmap-center">
+                                <div class="center-node" id="centerNode">
+                                    <span class="node-icon">🌲</span>
+                                    <span class="node-name" id="centerNodeName">Forest Name</span>
+                                </div>
+                            </div>
+
+                            <!-- Branches -->
+                            <div class="mindmap-branches">
+                                
+                                <!-- Location Branch -->
+                                <div class="mindmap-branch" data-branch="location">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">📍</span>
+                                        <span class="branch-title">Location</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Continent:</span>
+                                            <span class="item-value" id="infoContinent">--</span>
+                                        </div>
+                                        <div class="branch-item">
+                                            <span class="item-label">Countries:</span>
+                                            <div class="item-tags" id="infoCountries"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Forest Type Branch -->
+                                <div class="mindmap-branch" data-branch="type">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">🌳</span>
+                                        <span class="branch-title">Forest Type</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Classification:</span>
+                                            <span class="item-value" id="infoType">--</span>
+                                        </div>
+                                        <div class="branch-item">
+                                            <span class="item-label">Characteristics:</span>
+                                            <span class="item-value" id="infoCharacteristics">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Area Branch -->
+                                <div class="mindmap-branch" data-branch="area">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">📐</span>
+                                        <span class="branch-title">Area & Size</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Total Area:</span>
+                                            <span class="item-value" id="infoArea">--</span>
+                                        </div>
+                                        <div class="branch-item">
+                                            <span class="item-label">Comparison:</span>
+                                            <span class="item-value" id="infoComparison">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Climate Branch -->
+                                <div class="mindmap-branch" data-branch="climate">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">🌡️</span>
+                                        <span class="branch-title">Climate</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Temperature:</span>
+                                            <span class="item-value" id="infoTemp">--</span>
+                                        </div>
+                                        <div class="branch-item">
+                                            <span class="item-label">Rainfall:</span>
+                                            <span class="item-value" id="infoRainfall">--</span>
+                                        </div>
+                                        <div class="branch-item">
+                                            <span class="item-label">Humidity:</span>
+                                            <span class="item-value" id="infoHumidity">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Biodiversity Branch -->
+                                <div class="mindmap-branch expanded" data-branch="biodiversity">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">🦎</span>
+                                        <span class="branch-title">Biodiversity</span>
+                                        <span class="branch-toggle">−</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">🐆 Animals:</span>
+                                            <div class="item-tags" id="infoAnimals"></div>
+                                        </div>
+                                        <div class="branch-item">
+                                            <span class="item-label">🦜 Birds:</span>
+                                            <div class="item-tags" id="infoBirds"></div>
+                                        </div>
+                                        <div class="branch-item">
+                                            <span class="item-label">🌿 Trees:</span>
+                                            <div class="item-tags" id="infoTrees"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Rivers Branch -->
+                                <div class="mindmap-branch" data-branch="rivers">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">🏞️</span>
+                                        <span class="branch-title">Rivers & Water</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Major Rivers:</span>
+                                            <div class="item-tags" id="infoRivers"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Indigenous Branch -->
+                                <div class="mindmap-branch" data-branch="indigenous">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">👥</span>
+                                        <span class="branch-title">Indigenous Communities</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Tribes & Peoples:</span>
+                                            <div class="item-tags" id="infoIndigenous"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Issues Branch -->
+                                <div class="mindmap-branch" data-branch="issues">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">⚠️</span>
+                                        <span class="branch-title">Environmental Issues</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Threats:</span>
+                                            <div class="item-tags danger" id="infoIssues"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Conservation Branch -->
+                                <div class="mindmap-branch" data-branch="conservation">
+                                    <div class="branch-header">
+                                        <span class="branch-icon">🛡️</span>
+                                        <span class="branch-title">Conservation Efforts</span>
+                                        <span class="branch-toggle">+</span>
+                                    </div>
+                                    <div class="branch-content">
+                                        <div class="branch-item">
+                                            <span class="item-label">Protected Areas:</span>
+                                            <div class="item-tags success" id="infoConservation"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Climate Mode Toggle -->
+                    <section class="profile-section climate-section">
+                        <div class="section-header">
+                            <h2><span class="section-icon">🌤️</span> Climate View</h2>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="climateToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="climate-content" id="climateContent">
+                            <div class="climate-grid">
+                                <div class="climate-card">
+                                    <div class="climate-icon">🌧️</div>
+                                    <div class="climate-bar">
+                                        <div class="bar-fill rainfall" id="rainfallBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="climate-label">Rainfall Intensity</span>
+                                </div>
+                                <div class="climate-card">
+                                    <div class="climate-icon">🌡️</div>
+                                    <div class="climate-bar">
+                                        <div class="bar-fill temperature" id="temperatureBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="climate-label">Temperature Range</span>
+                                </div>
+                                <div class="climate-card">
+                                    <div class="climate-icon">🌲</div>
+                                    <div class="climate-bar">
+                                        <div class="bar-fill density" id="densityBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="climate-label">Forest Density</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                 </div>
-                
-                <!-- Indigenous Card -->
-                <div class="info-card" id="indigenousCard">
-                    <div class="info-card-header">
-                        <span class="icon">👥</span>
-                        <span>Indigenous Communities</span>
-                        <span class="toggle">▼</span>
-                    </div>
-                    <div class="info-card-content">
-                        <ul class="info-list" id="indigenousList">
-                            <li><span class="emoji">🏘️</span> <span>Yanomami, Kayapo, Ashaninka</span></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Issues Card -->
-                <div class="info-card" id="issuesCard">
-                    <div class="info-card-header">
-                        <span class="icon">⚠️</span>
-                        <span>Environmental Issues</span>
-                        <span class="toggle">▼</span>
-                    </div>
-                    <div class="info-card-content">
-                        <ul class="info-list" id="issuesList">
-                            <li><span class="emoji">🪓</span> <span>Deforestation</span></li>
-                            <li><span class="emoji">🔥</span> <span>Forest Fires</span></li>
-                            <li><span class="emoji">⛏️</span> <span>Illegal Mining</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </aside>
-            
-            <!-- Mind Map Section -->
-            <section class="mindmap-section">
-                <div class="mindmap-header">
-                    <h2><span>🧠</span> Forest Knowledge Tree</h2>
-                </div>
-                <div class="mindmap-container" id="mindmapContainer">
-                    <!-- Mind map branches will be dynamically generated -->
-                </div>
-            </section>
-            
-            <!-- Before/After Comparison -->
-            <section class="comparison-section" id="comparisonSection">
-                <div class="comparison-header">
-                    <h2><span>🌿</span> Before vs After - Deforestation Impact</h2>
-                    <p>Slide to compare the forest's pristine state with areas affected by deforestation</p>
-                </div>
-                <div class="comparison-slider" id="comparisonSlider">
-                    <div class="comparison-images">
-                        <img class="after-image" id="afterImage" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80" alt="After deforestation">
-                        <img class="before-image" id="beforeImage" src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800&q=80" alt="Before - Dense forest">
-                    </div>
-                    <div class="slider-handle" id="sliderHandle"></div>
-                    <div class="comparison-labels">
-                        <span class="comparison-label before">🌳 Dense Forest</span>
-                        <span class="comparison-label after">🏜️ Deforested</span>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Explore Section -->
-            <section class="explore-section">
-                <h2>🚀 Take a Virtual Journey</h2>
-                <p>Experience an immersive fly-through of the forest canopy, rivers, and biodiversity hotspots</p>
-                <button class="explore-btn" id="startExploreBtn">
-                    <span class="icon">🌲</span>
-                    <span>Start Exploration</span>
-                </button>
-            </section>
+            </div>
         </div>
     </main>
 
+    <!-- Explore Forest Modal -->
+    <div class="explore-modal" id="exploreModal">
+        <div class="explore-content">
+            <button class="explore-close" id="exploreClose">&times;</button>
+            <div class="explore-viewer">
+                <div class="explore-stage" id="exploreStage">
+                    <div class="explore-scene canopy">
+                        <img src="" alt="Forest canopy view" id="exploreImage1">
+                        <div class="scene-label">Aerial Canopy View</div>
+                    </div>
+                    <div class="explore-scene jungle">
+                        <img src="" alt="Dense jungle" id="exploreImage2">
+                        <div class="scene-label">Dense Forest Interior</div>
+                    </div>
+                    <div class="explore-scene river">
+                        <img src="" alt="Forest river" id="exploreImage3">
+                        <div class="scene-label">River System</div>
+                    </div>
+                    <div class="explore-scene wildlife">
+                        <img src="" alt="Wildlife" id="exploreImage4">
+                        <div class="scene-label">Wildlife Hotspot</div>
+                    </div>
+                </div>
+                <div class="explore-progress">
+                    <div class="progress-bar" id="exploreProgress"></div>
+                </div>
+                <div class="explore-info" id="exploreInfo">
+                    <h3>Exploring the Forest Canopy</h3>
+                    <p>Starting aerial view of the forest...</p>
+                </div>
+            </div>
+            <div class="explore-controls">
+                <button class="btn btn-secondary" id="explorePrev">← Previous</button>
+                <button class="btn btn-primary" id="exploreNext">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Forests -->
+    <section class="related-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><span class="section-icon">🌍</span> Similar Forests to Explore</h2>
+            </div>
+            <div class="related-grid" id="relatedForests">
+                <!-- Dynamically loaded -->
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="main-footer">
-        <div class="container">
-            <div class="footer-bottom">
-                <p class="copyright">© 2024 Forests Explorer. Educational purposes only.</p>
-                <p class="credits">
-                    Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a> & 
-                    <a href="https://pixabay.com" target="_blank">Pixabay</a>
-                </p>
+        <div class="footer-bottom">
+            <div class="container">
+                <p class="copyright">© 2024 Forests Explorer. Made with 💚 for our planet.</p>
+                <a href="forests.html" class="btn btn-outline-light btn-sm">← Back to All Forests</a>
             </div>
         </div>
     </footer>
 
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="forests-data1.js"></script>
-    <script src="forests-data2.js"></script>
-    <script src="forests-data3.js"></script>
-    <script src="forests-data4.js"></script>
-    <script src="forests-data5.js"></script>
-    
-    <script>
-        // Forest Profile Page JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get forest ID from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const forestId = parseInt(urlParams.get('forest')) || 1;
-            
-            // Combine all forest data
-            const allForests = [
-                ...(typeof forestsData1 !== 'undefined' ? forestsData1 : []),
-                ...(typeof forestsData2 !== 'undefined' ? forestsData2 : []),
-                ...(typeof forestsData3 !== 'undefined' ? forestsData3 : []),
-                ...(typeof forestsData4 !== 'undefined' ? forestsData4 : []),
-                ...(typeof forestsData5 !== 'undefined' ? forestsData5 : [])
-            ];
-            
-            // Find the forest
-            const forest = allForests.find(f => f.id === forestId) || allForests[0];
-            
-            // Update page content
-            document.title = `${forest.name} | Forests Explorer`;
-            document.getElementById('forestName').textContent = forest.name;
-            document.getElementById('forestRegion').textContent = forest.region;
-            document.getElementById('forestCountries').textContent = forest.countries ? forest.countries.join(', ') : forest.region;
-            document.getElementById('forestArea').textContent = formatArea(forest.area);
-            document.getElementById('forestType').textContent = forest.type || 'Forest';
-            
-            // Update hero image
-            const heroImg = document.getElementById('heroImage');
-            heroImg.src = forest.heroImage || forest.image;
-            heroImg.alt = `${forest.name} aerial view`;
-            
-            // Update info cards
-            updateInfoCards(forest);
-            
-            // Generate mind map
-            generateMindMap(forest);
-            
-            // Update comparison images
-            if (forest.beforeAfter) {
-                document.getElementById('beforeImage').src = forest.beforeAfter.before;
-                document.getElementById('afterImage').src = forest.beforeAfter.after;
-            }
-            
-            // Initialize map
-            initMap(forest);
-            
-            // Initialize comparison slider
-            initComparisonSlider();
-            
-            // Collapsible cards
-            document.querySelectorAll('.info-card-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    this.parentElement.classList.toggle('collapsed');
-                });
-            });
-            
-            // Smooth scroll to comparison
-            document.getElementById('compareBtn').addEventListener('click', function() {
-                document.getElementById('comparisonSection').scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-        
-        function formatArea(area) {
-            if (!area) return 'Area TBD';
-            if (area >= 1000000) return `${(area / 1000000).toFixed(2)}M km²`;
-            if (area >= 1000) return `${(area / 1000).toFixed(1)}K km²`;
-            return `${area.toLocaleString()} km²`;
-        }
-        
-        function updateInfoCards(forest) {
-            // Climate
-            if (forest.climate) {
-                const climateList = document.getElementById('climateList');
-                climateList.innerHTML = `
-                    <li><span class="emoji">🌧️</span> <span>Rainfall: ${forest.climate.rainfall || 'N/A'}</span></li>
-                    <li><span class="emoji">🌡️</span> <span>Temperature: ${forest.climate.temperature || 'N/A'}</span></li>
-                    <li><span class="emoji">💧</span> <span>Humidity: ${forest.climate.humidity || 'N/A'}</span></li>
-                `;
-            }
-            
-            // Biodiversity
-            if (forest.biodiversity) {
-                const bioList = document.getElementById('biodiversityList');
-                let bioHTML = '';
-                if (forest.biodiversity.animals) {
-                    bioHTML += `<li><span class="emoji">🐆</span> <span>${forest.biodiversity.animals.slice(0, 4).join(', ')}</span></li>`;
-                }
-                if (forest.biodiversity.birds) {
-                    bioHTML += `<li><span class="emoji">🦜</span> <span>${forest.biodiversity.birds.slice(0, 3).join(', ')}</span></li>`;
-                }
-                if (forest.biodiversity.trees) {
-                    bioHTML += `<li><span class="emoji">🌳</span> <span>${forest.biodiversity.trees.slice(0, 3).join(', ')}</span></li>`;
-                }
-                bioList.innerHTML = bioHTML;
-            }
-            
-            // Rivers
-            if (forest.rivers) {
-                const riversList = document.getElementById('riversList');
-                riversList.innerHTML = forest.rivers.map(r => 
-                    `<li><span class="emoji">🌊</span> <span>${r}</span></li>`
-                ).join('');
-            }
-            
-            // Indigenous
-            if (forest.indigenous) {
-                const indList = document.getElementById('indigenousList');
-                const tribes = forest.indigenous.tribes || forest.indigenous;
-                indList.innerHTML = `<li><span class="emoji">🏘️</span> <span>${Array.isArray(tribes) ? tribes.join(', ') : tribes}</span></li>`;
-            }
-            
-            // Issues
-            if (forest.issues) {
-                const issuesList = document.getElementById('issuesList');
-                const icons = ['🪓', '🔥', '⛏️', '🏭', '🌡️'];
-                issuesList.innerHTML = forest.issues.map((issue, i) => 
-                    `<li><span class="emoji">${icons[i % icons.length]}</span> <span>${issue}</span></li>`
-                ).join('');
-            }
-        }
-        
-        function generateMindMap(forest) {
-            const container = document.getElementById('mindmapContainer');
-            const branches = [
-                { icon: '📍', title: 'Location', content: `${forest.region}<br>Countries: ${forest.countries ? forest.countries.join(', ') : 'N/A'}` },
-                { icon: '🌲', title: 'Forest Type', content: forest.type || 'Mixed Forest' },
-                { icon: '📐', title: 'Area', content: formatArea(forest.area) },
-                { icon: '🌡️', title: 'Climate', content: forest.climate ? `${forest.climate.temperature}<br>Rainfall: ${forest.climate.rainfall}` : 'Varies' },
-                { icon: '🦁', title: 'Wildlife', content: forest.biodiversity?.animals ? forest.biodiversity.animals.slice(0, 5).join(', ') : 'Diverse species' },
-                { icon: '🌳', title: 'Vegetation', content: forest.biodiversity?.trees ? forest.biodiversity.trees.join(', ') : 'Various tree species' },
-                { icon: '💨', title: 'Environmental Role', content: forest.environmentalImportance?.carbonStorage || 'Major carbon sink and oxygen producer' },
-                { icon: '⚠️', title: 'Threats', content: forest.issues ? forest.issues.slice(0, 3).join(', ') : 'Various environmental threats' },
-                { icon: '🛡️', title: 'Conservation', content: forest.conservation?.protectedAreas ? forest.conservation.protectedAreas[0] : 'Protected areas established' }
-            ];
-            
-            container.innerHTML = branches.map(branch => `
-                <div class="mindmap-branch">
-                    <h4 class="branch-title"><span>${branch.icon}</span> ${branch.title}</h4>
-                    <div class="branch-content">${branch.content}</div>
-                </div>
-            `).join('');
-        }
-        
-        function initMap(forest) {
-            const coords = forest.coordinates || { lat: 0, lng: 0 };
-            const map = L.map('forestMap').setView([coords.lat, coords.lng], 6);
-            
-            // Satellite layer
-            const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri'
-            }).addTo(map);
-            
-            // Add marker
-            const forestIcon = L.divIcon({
-                html: '🌲',
-                className: 'forest-marker',
-                iconSize: [30, 30]
-            });
-            
-            L.marker([coords.lat, coords.lng], { icon: forestIcon })
-                .addTo(map)
-                .bindPopup(`<strong>${forest.name}</strong><br>${forest.type || 'Forest'}`);
-            
-            // Map control buttons
-            document.querySelectorAll('.map-control-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.map-control-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        }
-        
-        function initComparisonSlider() {
-            const slider = document.getElementById('comparisonSlider');
-            const handle = document.getElementById('sliderHandle');
-            const beforeImage = document.getElementById('beforeImage');
-            let isDragging = false;
-            
-            function updateSlider(x) {
-                const rect = slider.getBoundingClientRect();
-                let position = (x - rect.left) / rect.width * 100;
-                position = Math.max(0, Math.min(100, position));
-                
-                handle.style.left = position + '%';
-                beforeImage.style.clipPath = `polygon(0 0, ${position}% 0, ${position}% 100%, 0 100%)`;
-            }
-            
-            handle.addEventListener('mousedown', () => isDragging = true);
-            document.addEventListener('mouseup', () => isDragging = false);
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) updateSlider(e.clientX);
-            });
-            
-            // Touch support
-            handle.addEventListener('touchstart', () => isDragging = true);
-            document.addEventListener('touchend', () => isDragging = false);
-            document.addEventListener('touchmove', (e) => {
-                if (isDragging) updateSlider(e.touches[0].clientX);
-            });
-            
-            // Click on slider
-            slider.addEventListener('click', (e) => updateSlider(e.clientX));
-        }
-    </script>
+    <script src="forests-data-1.js"></script>
+    <script src="forests-data-2.js"></script>
+    <script src="forests-profile-app.js"></script>
 </body>
 </html>
