@@ -1,7 +1,7 @@
 // encyclopedia-data-6.js
 // Countries 101-120: Azerbaijan to Barbados
 
-const ENCYCLOPEDIA_DATA_6 = {
+const CountriesData6 = {
     "azerbaijan": {
         name: "Azerbaijan",
         officialName: "Republic of Azerbaijan",
@@ -3949,5 +3949,5 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ENCYCLOPEDIA_DATA_6;
+    module.exports = CountriesData6;
 }
