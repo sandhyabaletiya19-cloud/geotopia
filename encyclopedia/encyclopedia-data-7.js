@@ -1,7 +1,7 @@
 // encyclopedia-data-7.js
 // Countries 121-140: Grenada to Paraguay
 
-const ENCYCLOPEDIA_DATA_7 = {
+const CountriesData7 = {
     "grenada": {
         name: "Grenada",
         officialName: "Grenada",
@@ -3826,5 +3826,5 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ENCYCLOPEDIA_DATA_7;
+    module.exports = CountriesData7;
 }
