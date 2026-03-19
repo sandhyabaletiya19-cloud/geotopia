@@ -442,7 +442,17 @@ function renderCountryFlags(container, countries) {
         container.appendChild(more);
     }
 }
-
+function renderLargeCountryFlags(container, countries) {
+    container.innerHTML = '';
+    
+    countries.forEach(country => {
+        const img = document.createElement('img');
+        img.src = `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
+        img.alt = country.name;
+        img.title = country.name;
+        container.appendChild(img);
+    });
+}
 // ==========================================
 // SEARCH FUNCTIONALITY
 // ==========================================
