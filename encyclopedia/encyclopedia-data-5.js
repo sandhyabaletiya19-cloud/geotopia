@@ -1,7 +1,7 @@
 // encyclopedia-data-5.js
 // Countries 81-100: Serbia to Georgia
 
-const ENCYCLOPEDIA_DATA_5 = {
+const CountriesData5 = {
     "serbia": {
         name: "Serbia",
         officialName: "Republic of Serbia",
@@ -3958,5 +3958,5 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ENCYCLOPEDIA_DATA_5;
+    module.exports = CountriesData5;
 }
