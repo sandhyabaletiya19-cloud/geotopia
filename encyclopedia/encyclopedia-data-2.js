@@ -4,7 +4,7 @@
  * Version: 1.0
  */
 
-const CountryData2 = [
+const CountriesData2 = [
     // 21. PAKISTAN
     {
         id: "PAK",
@@ -2751,5 +2751,5 @@ const CountryData2 = [
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CountryData2;
+    module.exports = CountriesData2;
 }
