@@ -2117,7 +2117,7 @@ const CountriesData3 = [
         disputes: [
             { name: "Civil War", description: "Ongoing conflict with Houthi rebels", type: "Internal" },
             { name: "Maritime Border", description: "Disputes with Eritrea", type: "Maritime" }
-        },
+        ],
 
         quickFacts: [
             { icon: "coffee", title: "Coffee Origin", text: "Coffee (Mocha) originated here" },
