@@ -166,7 +166,7 @@ const seasData = [
                 control: 'China (since 2012)',
                 claimants: ['Philippines', 'China', 'Taiwan'],
                 
-                2012Standoff: {
+                Standoff2012: {
                     trigger: 'Philippine arrest of Chinese fishers',
                     outcome: 'China established permanent presence',
                     philippineResponse: '2013 arbitration case filed'
