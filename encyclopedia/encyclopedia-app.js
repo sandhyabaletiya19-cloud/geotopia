@@ -75,6 +75,21 @@ if (window.GeoAccess) {
 }
 // ===== END PREMIUM =====
 
+// Show upgrade button
+if (window.GeoAccess && filtered && filtered.lockedCount > 0) {
+    setTimeout(function() {
+        var container = document.querySelector('.countries-grid') || 
+                       document.querySelector('.grid') || 
+                       document.querySelector('.countries-container') ||
+                       document.querySelector('main');
+        if (container && !document.querySelector('.geo-upgrade-cta')) {
+            container.appendChild(window.GeoAccess.createUpgradeCTA({
+                lockedCount: filtered.lockedCount,
+                category: 'Encyclopedia'
+            }));
+        }
+    }, 1500);
+}
 this.filteredCountries = [...this.allCountries];
 this.updateCountryCount();
 }
