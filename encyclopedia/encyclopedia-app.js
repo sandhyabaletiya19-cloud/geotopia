@@ -44,13 +44,30 @@ class EncyclopediaApp {
     // DATA LOADING
     // ============================================
 
-    loadAllData() {
-   this.allCountries = [];
-
-for (let i = 1; i <= 10; i++) {
-    if (typeof window['CountriesData' + i] !== 'undefined') {
-        this.allCountries = this.allCountries.concat(window['CountriesData' + i]);
-    }
+   loadAllData() {
+    this.allCountries = [];
+    
+    // Directly reference the datasets by name
+    const datasets = [
+        typeof CountriesData1 !== 'undefined' ? CountriesData1 : [],
+        typeof CountriesData2 !== 'undefined' ? CountriesData2 : [],
+        typeof CountriesData3 !== 'undefined' ? CountriesData3 : [],
+        typeof CountriesData4 !== 'undefined' ? CountriesData4 : [],
+        typeof CountriesData5 !== 'undefined' ? CountriesData5 : [],
+        typeof CountriesData6 !== 'undefined' ? CountriesData6 : [],
+        typeof CountriesData7 !== 'undefined' ? CountriesData7 : [],
+        typeof CountriesData8 !== 'undefined' ? CountriesData8 : [],
+        typeof CountriesData9 !== 'undefined' ? CountriesData9 : [],
+        typeof CountriesData10 !== 'undefined' ? CountriesData10 : []
+    ];
+    
+    datasets.forEach(dataset => {
+        if (dataset && dataset.length > 0) {
+            this.allCountries = this.allCountries.concat(dataset);
+        }
+    });
+    
+    console.log(`Loaded ${this.allCountries.length} countries`);
 }
 
     // ============================================
