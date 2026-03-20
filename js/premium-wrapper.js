@@ -52,6 +52,7 @@
         if (path.includes('rivers')) return 'rivers';
         if (path.includes('upsc')) return 'upsc';
         if (path.includes('volcanoes')) return 'volcanoes';
+        if (path.includes('atlas')) return 'atlas';
         
         return null;
     }
@@ -64,6 +65,8 @@
             console.log('⚠️ No data found for:', category);
             return;
         }
+
+        console.log('📊 Total data found:', allData.length);
 
         var filtered = window.GeoAccess.getFilteredData(allData, category);
         
@@ -80,110 +83,120 @@
     function getAllData(category) {
         var data = [];
 
-        // RIVERS - 10 files
-        if (category === 'rivers') {
+        // ENCYCLOPEDIA - CountriesData1 to CountriesData10
+        if (category === 'encyclopedia') {
             for (var i = 1; i <= 10; i++) {
+                if (window['CountriesData' + i]) data = data.concat(window['CountriesData' + i]);
+            }
+            if (window.CountriesData) data = data.concat(window.CountriesData);
+            if (window.DisputesData) data = data.concat(window.DisputesData);
+            if (window.ClimateData) data = data.concat(window.ClimateData);
+            if (window.EarthSystemsData) data = data.concat(window.EarthSystemsData);
+        }
+
+        // DESERTS - DESERTS_DATA
+        if (category === 'deserts') {
+            if (window.DESERTS_DATA) data = data.concat(window.DESERTS_DATA);
+            if (window.desertsData) data = data.concat(window.desertsData);
+        }
+
+        // FORESTS - forestsData1, forestsData2
+        if (category === 'forests') {
+            if (window.forestsData1) data = data.concat(window.forestsData1);
+            if (window.forestsData2) data = data.concat(window.forestsData2);
+            if (window.forestsData) data = data.concat(window.forestsData);
+        }
+
+        // LAKES - getAllLakesData function
+        if (category === 'lakes') {
+            if (typeof window.getAllLakesData === 'function') {
+                data = data.concat(window.getAllLakesData());
+            }
+            if (window.LAKES_DATA) data = data.concat(window.LAKES_DATA);
+            if (window.lakesData) data = data.concat(window.lakesData);
+        }
+
+        // ISLANDS - getAllIslands function
+        if (category === 'islands') {
+            if (typeof window.getAllIslands === 'function') {
+                data = data.concat(window.getAllIslands());
+            }
+            if (window.ISLANDS_DATA) data = data.concat(window.ISLANDS_DATA);
+            if (window.islandsData) data = data.concat(window.islandsData);
+        }
+
+        // MOUNTAINS - MOUNTAINS_DATA_1 to MOUNTAINS_DATA_10
+        if (category === 'mountains') {
+            for (var i = 1; i <= 10; i++) {
+                if (window['MOUNTAINS_DATA_' + i]) data = data.concat(window['MOUNTAINS_DATA_' + i]);
+            }
+            if (window.MOUNTAINS_DATA) data = data.concat(window.MOUNTAINS_DATA);
+            if (window.mountainsData) data = data.concat(window.mountainsData);
+        }
+
+        // RIVERS - RIVERS_DATA
+        if (category === 'rivers') {
+            if (window.RIVERS_DATA) data = data.concat(window.RIVERS_DATA);
+            for (var i = 1; i <= 10; i++) {
+                if (window['RIVERS_DATA_' + i]) data = data.concat(window['RIVERS_DATA_' + i]);
                 if (window['riversData' + i]) data = data.concat(window['riversData' + i]);
             }
             if (window.riversData) data = data.concat(window.riversData);
         }
 
-        // DESERTS - 7 files
-        if (category === 'deserts') {
-            for (var i = 1; i <= 7; i++) {
-                if (window['desertsData' + i]) data = data.concat(window['desertsData' + i]);
-            }
-            if (window.desertsData) data = data.concat(window.desertsData);
-        }
-
-        // ENCYCLOPEDIA - 11 files
-        if (category === 'encyclopedia') {
-            for (var i = 1; i <= 11; i++) {
-                if (window['encyclopediaData' + i]) data = data.concat(window['encyclopediaData' + i]);
-            }
-            if (window.encyclopediaData) data = data.concat(window.encyclopediaData);
-            if (window.countriesData) data = data.concat(window.countriesData);
-            if (window.allCountries) data = data.concat(window.allCountries);
-        }
-
-        // FORESTS - 2 files
-        if (category === 'forests') {
-            for (var i = 1; i <= 2; i++) {
-                if (window['forestsData' + i]) data = data.concat(window['forestsData' + i]);
-            }
-            if (window.forestsData) data = data.concat(window.forestsData);
-        }
-
-        // GAMES - 1 file
-        if (category === 'games') {
-            if (window.gamesData1) data = data.concat(window.gamesData1);
-            if (window.gamesData) data = data.concat(window.gamesData);
-        }
-
-        // ISLANDS - 10 files
-        if (category === 'islands') {
-            for (var i = 1; i <= 10; i++) {
-                if (window['islandsData' + i]) data = data.concat(window['islandsData' + i]);
-            }
-            if (window.islandsData) data = data.concat(window.islandsData);
-        }
-
-        // LAKES - 10 files
-        if (category === 'lakes') {
-            for (var i = 1; i <= 10; i++) {
-                if (window['lakesData' + i]) data = data.concat(window['lakesData' + i]);
-            }
-            if (window.lakesData) data = data.concat(window.lakesData);
-        }
-
-        // MOUNTAINS - 10 files
-        if (category === 'mountains') {
-            for (var i = 1; i <= 10; i++) {
-                if (window['mountainsData' + i]) data = data.concat(window['mountainsData' + i]);
-            }
-            if (window.mountainsData) data = data.concat(window.mountainsData);
-        }
-
-        // OCEANS - 1 file
-        if (category === 'oceans') {
-            if (window.oceansData1) data = data.concat(window.oceansData1);
-            if (window.oceansData) data = data.concat(window.oceansData);
-        }
-
-        // VOLCANOES - 10 files
+        // VOLCANOES - volcanoesData1 to volcanoesData5
         if (category === 'volcanoes') {
-            for (var i = 1; i <= 10; i++) {
+            for (var i = 1; i <= 5; i++) {
                 if (window['volcanoesData' + i]) data = data.concat(window['volcanoesData' + i]);
             }
             if (window.volcanoesData) data = data.concat(window.volcanoesData);
+            if (window.VOLCANOES_DATA) data = data.concat(window.VOLCANOES_DATA);
         }
 
-        // CORAL REEFS - 10 files
+        // CORAL REEFS
         if (category === 'coralReefs') {
             for (var i = 1; i <= 10; i++) {
                 if (window['coralReefsData' + i]) data = data.concat(window['coralReefsData' + i]);
             }
             if (window.coralReefsData) data = data.concat(window.coralReefsData);
+            if (window.CORAL_REEFS_DATA) data = data.concat(window.CORAL_REEFS_DATA);
         }
 
-        // UPSC - Multiple specific files
+        // OCEANS
+        if (category === 'oceans') {
+            if (window.OCEANS_DATA) data = data.concat(window.OCEANS_DATA);
+            if (window.oceansData) data = data.concat(window.oceansData);
+            if (window.oceansData1) data = data.concat(window.oceansData1);
+        }
+
+        // UPSC - Multiple specific data sources
         if (category === 'upsc') {
-            if (window.upscDataBase) data = data.concat(window.upscDataBase);
-            if (window.upscDataBiogeography) data = data.concat(window.upscDataBiogeography);
-            if (window.upscDataClimatology1) data = data.concat(window.upscDataClimatology1);
-            if (window.upscDataClimatology2) data = data.concat(window.upscDataClimatology2);
-            if (window.upscDataEconomic) data = data.concat(window.upscDataEconomic);
-            if (window.upscDataEnvironment) data = data.concat(window.upscDataEnvironment);
-            if (window.upscDataGeomorphology) data = data.concat(window.upscDataGeomorphology);
-            if (window.upscDataHuman) data = data.concat(window.upscDataHuman);
-            if (window.upscDataIndiaClimate) data = data.concat(window.upscDataIndiaClimate);
-            if (window.upscDataIndiaDrainage) data = data.concat(window.upscDataIndiaDrainage);
-            if (window.upscDataIndiaPhysical) data = data.concat(window.upscDataIndiaPhysical);
-            if (window.upscDataIndiaResources) data = data.concat(window.upscDataIndiaResources);
-            if (window.upscDataLandforms) data = data.concat(window.upscDataLandforms);
-            if (window.upscDataModels) data = data.concat(window.upscDataModels);
-            if (window.upscDataOceanography) data = data.concat(window.upscDataOceanography);
-            if (window.upscData) data = data.concat(window.upscData);
+            if (window.geomorphologyData) data = data.concat(window.geomorphologyData);
+            if (window.climatology1Data) data = data.concat(window.climatology1Data);
+            if (window.climatology2Data) data = data.concat(window.climatology2Data);
+            if (window.oceanographyData) data = data.concat(window.oceanographyData);
+            if (window.biogeographyData) data = data.concat(window.biogeographyData);
+            if (window.landformsData) data = data.concat(window.landformsData);
+            if (window.indiaPhysicalData) data = data.concat(window.indiaPhysicalData);
+            if (window.indiaClimateData) data = data.concat(window.indiaClimateData);
+            if (window.indiaDrainageData) data = data.concat(window.indiaDrainageData);
+            if (window.indiaResourcesData) data = data.concat(window.indiaResourcesData);
+            if (window.humanData) data = data.concat(window.humanData);
+            if (window.economicData) data = data.concat(window.economicData);
+            if (window.modelsData) data = data.concat(window.modelsData);
+            if (window.environmentData) data = data.concat(window.environmentData);
+        }
+
+        // GAMES
+        if (category === 'games') {
+            if (window.gamesData) data = data.concat(window.gamesData);
+            if (window.GAMES_DATA) data = data.concat(window.GAMES_DATA);
+        }
+
+        // ATLAS
+        if (category === 'atlas') {
+            if (window.atlasData) data = data.concat(window.atlasData);
+            if (window.ATLAS_DATA) data = data.concat(window.ATLAS_DATA);
         }
 
         return data;
@@ -215,23 +228,17 @@
         }
 
         // Desert App
-        if (window.DesertApp) {
-            if (window.DesertApp.state) {
+        if (window.DesertApp || window.APP_STATE) {
+            if (window.APP_STATE) {
+                window.APP_STATE.desertsData = filtered.visible;
+                window.APP_STATE.filteredDeserts = filtered.visible;
+            }
+            if (window.DesertApp && window.DesertApp.state) {
                 window.DesertApp.state.allDeserts = filtered.visible;
                 window.DesertApp.state.filteredDeserts = filtered.visible;
             }
-            if (window.DesertApp.renderDeserts) window.DesertApp.renderDeserts();
-            if (window.DesertApp.render) window.DesertApp.render();
-        }
-
-        // Ocean App
-        if (window.OceanApp) {
-            if (window.OceanApp.state) {
-                window.OceanApp.state.allOceans = filtered.visible;
-                window.OceanApp.state.filteredOceans = filtered.visible;
-            }
-            if (window.OceanApp.renderOceans) window.OceanApp.renderOceans();
-            if (window.OceanApp.render) window.OceanApp.render();
+            if (window.renderDeserts) window.renderDeserts();
+            if (window.DesertApp && window.DesertApp.render) window.DesertApp.render();
         }
 
         // Mountain App
@@ -246,11 +253,12 @@
 
         // Island App
         if (window.IslandApp) {
-            if (window.IslandApp.state) {
-                window.IslandApp.state.allIslands = filtered.visible;
-                window.IslandApp.state.filteredIslands = filtered.visible;
+            if (window.IslandApp.islands) {
+                window.IslandApp.islands = filtered.visible;
             }
-            if (window.IslandApp.renderIslands) window.IslandApp.renderIslands();
+            if (window.IslandApp.filteredIslands) {
+                window.IslandApp.filteredIslands = filtered.visible;
+            }
             if (window.IslandApp.render) window.IslandApp.render();
         }
 
@@ -284,24 +292,22 @@
             if (window.VolcanoApp.render) window.VolcanoApp.render();
         }
 
+        // Ocean App
+        if (window.OceanApp) {
+            if (window.OceanApp.state) {
+                window.OceanApp.state.allOceans = filtered.visible;
+                window.OceanApp.state.filteredOceans = filtered.visible;
+            }
+            if (window.OceanApp.render) window.OceanApp.render();
+        }
+
         // Coral Reef App
         if (window.CoralReefApp) {
             if (window.CoralReefApp.state) {
                 window.CoralReefApp.state.allReefs = filtered.visible;
                 window.CoralReefApp.state.filteredReefs = filtered.visible;
             }
-            if (window.CoralReefApp.renderReefs) window.CoralReefApp.renderReefs();
             if (window.CoralReefApp.render) window.CoralReefApp.render();
-        }
-
-        // Games App
-        if (window.GamesApp) {
-            if (window.GamesApp.state) {
-                window.GamesApp.state.allGames = filtered.visible;
-                window.GamesApp.state.filteredGames = filtered.visible;
-            }
-            if (window.GamesApp.renderGames) window.GamesApp.renderGames();
-            if (window.GamesApp.render) window.GamesApp.render();
         }
 
         // UPSC App
@@ -310,8 +316,15 @@
                 window.UpscApp.state.allItems = filtered.visible;
                 window.UpscApp.state.filteredItems = filtered.visible;
             }
-            if (window.UpscApp.renderItems) window.UpscApp.renderItems();
             if (window.UpscApp.render) window.UpscApp.render();
+        }
+
+        // Games App
+        if (window.GamesApp) {
+            if (window.GamesApp.state) {
+                window.GamesApp.state.allGames = filtered.visible;
+            }
+            if (window.GamesApp.render) window.GamesApp.render();
         }
     }
 
@@ -344,7 +357,21 @@
             '.grid',
             '.countries-grid',
             '.forests-grid',
+            '.islands-grid',
+            '.lakes-grid',
+            '.mountains-grid',
+            '.rivers-grid',
+            '.deserts-grid',
+            '.volcanoes-grid',
             '.items-grid',
+            '#forestsGrid',
+            '#desertsGrid',
+            '#lakesGrid',
+            '#islandsGrid',
+            '#mountainsGrid',
+            '#riversGrid',
+            '#volcanoesGrid',
+            '#countriesGrid',
             '[id*="Grid"]',
             '[id*="grid"]',
             '[class*="grid"]',
@@ -364,9 +391,9 @@
         var card = document.createElement('div');
         card.className = 'card locked-card geo-locked-item';
         
-        var imageSrc = item.image || item.flag || item.img || item.thumbnail || '';
+        var imageSrc = item.image || item.flag || item.img || item.thumbnail || item.photo || '';
         var name = item.name || item.title || 'Premium Content';
-        var subtitle = item.region || item.country || item.location || '';
+        var subtitle = item.region || item.country || item.location || item.continent || '';
 
         card.innerHTML = 
             '<div class="card-image-wrapper" style="position: relative; overflow: hidden;">' +
