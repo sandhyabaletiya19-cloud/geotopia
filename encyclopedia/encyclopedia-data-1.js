@@ -2800,3 +2800,8 @@ const CountriesData1 = [
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CountriesData1;
 }
+
+// Make available in browser
+if (typeof window !== 'undefined') {
+    window.CountriesData1 = CountriesData1;
+}
