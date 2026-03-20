@@ -2324,3 +2324,7 @@ const CountriesData3 = [
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CountriesData3;
 }
+// Make available in browser
+if (typeof window !== 'undefined') {
+    window.CountriesData3 = CountriesData3;
+}
