@@ -1,833 +1,853 @@
 /**
  * GeoVerse Encyclopedia - Country Data File 2
- * Contains: Countries 21-40 (Detailed Information)
- * Version: 1.0
+ * Contains: Southeast Asia (11) + East Asia (5) = 16 Countries
+ * Version: 2.0 - Clean Data
+ * Special: South Korea includes BTS content
  */
 
 const CountriesData2 = [
-    // 21. PAKISTAN
+    // 1. BRUNEI
     {
-        id: "PAK",
-        name: "Pakistan",
-        officialName: "Islamic Republic of Pakistan",
-        flag: "https://flagcdn.com/w320/pk.png",
+        id: "BRN",
+        name: "Brunei",
+        officialName: "Nation of Brunei, the Abode of Peace",
+        flag: "https://flagcdn.com/w320/bn.png",
         
         images: {
-            hero: "https://images.unsplash.com/photo-1566873535350-a3f5d4a804b7?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1586076156389-6b1d1fab90c0?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1567157577867-05ccb1388e66?w=1920&q=80"
+            hero: "https://images.unsplash.com/photo-1580913428023-02c695666d61?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1591183978963-e4a8bf757991?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1580913428706-c311e67898b3?w=1920&q=80"
         },
 
         basic: {
-            capital: "Islamabad",
+            capital: "Bandar Seri Begawan",
             continent: "Asia",
-            region: "South Asia",
-            subregion: "Southern Asia",
-            population: 240485658,
-            area: 881913,
-            populationDensity: 287,
-            independence: "1947",
-            callingCode: "+92",
-            tld: ".pk",
+            region: "Southeast Asia",
+            subregion: "South-Eastern Asia",
+            population: 449002,
+            area: 5765,
+            populationDensity: 78,
+            independence: "1984",
+            callingCode: "+673",
+            tld: ".bn",
             drivingSide: "Left",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [30.3753, 69.3451],
-            timezone: "UTC+5 (PKT)",
-            neighbors: ["India", "Afghanistan", "Iran", "China"],
-            borders: 7257,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Federal Parliamentary Republic",
-            headOfState: "President Asif Ali Zardari",
-            headOfGovernment: "Prime Minister Shehbaz Sharif",
-            legislature: "Parliament (Senate & National Assembly)",
-            legalSystem: "Common Law with Islamic Law influence",
-            states: 4,
-            provinces: 4,
-            territories: 2,
-            largestCity: "Karachi",
-            organizations: ["UN", "OIC", "Commonwealth", "SCO", "SAARC", "D-8", "WTO"]
-        },
-
-        economy: {
-            gdp: "$376 Billion",
-            gdpPPP: "$1.51 Trillion",
-            gdpPerCapita: "$1,562",
-            gdpRank: "#41",
-            gdpGrowth: "-0.2%",
-            currency: "Pakistani Rupee",
-            currencyCode: "PKR",
-            currencySymbol: "₨",
-            inflation: "29.2%",
-            unemployment: "8.5%",
-            majorSectors: ["Services (52%)", "Industry (19%)", "Agriculture (22%)"],
-            industries: ["Textiles", "Food Processing", "Pharmaceuticals", "Construction", "Steel"],
-            exports: ["Textiles", "Rice", "Leather", "Sports Goods", "Surgical Instruments"],
-            imports: ["Crude Petroleum", "Refined Petroleum", "Natural Gas", "Palm Oil", "Machinery"]
-        },
-
-        geography: {
-            climate: "Varies from Tropical to Temperate to Arctic (North)",
-            avgTemperature: "22.2°C",
-            annualRainfall: "494 mm",
-            highestPoint: "K2 (8,611 m) - World's 2nd highest",
-            lowestPoint: "Indian Ocean (0 m)",
-            coastline: "1,046 km",
-            forestCover: "4.8%",
-            arableLand: "27.6%",
-            terrain: "Mountains, plateaus, plains, coastal areas",
-            naturalResources: ["Natural Gas", "Petroleum", "Coal", "Iron Ore", "Copper", "Salt", "Limestone"]
-        },
-
-        geography_links: {
-            rivers: ["Indus River", "Jhelum", "Chenab", "Ravi", "Sutlej"],
-            mountains: ["Karakoram", "Himalayas", "Hindu Kush", "K2", "Nanga Parbat"],
-            deserts: ["Thar Desert", "Cholistan Desert"],
-            forests: ["Juniper Forests (Ziarat)", "Margalla Hills"],
-            oceans: ["Arabian Sea", "Indian Ocean"]
-        },
-
-        culture: {
-            officialLanguages: ["Urdu", "English"],
-            languages: ["Urdu", "Punjabi", "Sindhi", "Pashto", "Balochi", "Saraiki"],
-            religions: ["Islam (96.5% - Sunni 85%, Shia 15%)", "Hinduism (1.9%)", "Christianity (1.6%)"],
-            heritageSites: ["Mohenjo-daro", "Taxila", "Lahore Fort & Shalimar Gardens", "Makli Necropolis", "Rohtas Fort"],
-            festivals: ["Eid al-Fitr", "Eid al-Adha", "Independence Day", "Basant", "Urs"],
-            cuisine: ["Biryani", "Nihari", "Karahi", "Chapli Kebab", "Haleem", "Seekh Kebab", "Paya"],
-            arts: ["Qawwali", "Ghazal", "Sufi Music", "Truck Art", "Carpet Weaving"],
-            sports: ["Cricket", "Hockey", "Football", "Squash", "Polo"]
-        },
-
-        symbols: {
-            bird: "Chukar Partridge",
-            animal: "Markhor",
-            flower: "Jasmine",
-            tree: "Deodar Cedar",
-            anthem: "Qaumi Taranah",
-            motto: "Iman, Ittihad, Nazm (Faith, Unity, Discipline)"
-        },
-
-        demographics: {
-            lifeExpectancy: 67.79,
-            literacyRate: "59.1%",
-            urbanPopulation: "37.4%",
-            medianAge: 22.8
-        },
-
-        history: {
-            timeline: [
-                { year: "2500 BCE", title: "Indus Valley", description: "Mohenjo-daro and Harappa civilizations flourished" },
-                { year: "711 CE", title: "Arab Conquest", description: "Muhammad bin Qasim conquered Sindh" },
-                { year: "1526", title: "Mughal Empire", description: "Mughal rule began in the region" },
-                { year: "1857", title: "British Rule", description: "British Crown took direct control" },
-                { year: "1947", title: "Independence", description: "Pakistan created from partition of British India" },
-                { year: "1971", title: "Bangladesh", description: "East Pakistan became Bangladesh" }
-            ],
-            notableFigures: ["Muhammad Ali Jinnah", "Allama Iqbal", "Liaquat Ali Khan", "Benazir Bhutto"]
-        },
-
-        disputes: [
-            { name: "Kashmir", description: "Disputed territory with India", type: "Border" },
-            { name: "Siachen Glacier", description: "Disputed with India", type: "Border" }
-        ],
-
-        quickFacts: [
-            { icon: "mountain", title: "K2", text: "World's second-highest peak (8,611 m)" },
-            { icon: "users", title: "Population", text: "5th most populous country" },
-            { icon: "atom", title: "Nuclear Power", text: "One of 9 nuclear-armed states" },
-            { icon: "mosque", title: "Faisal Mosque", text: "One of world's largest mosques" }
-        ]
-    },
-
-    // 22. NIGERIA
-    {
-        id: "NGA",
-        name: "Nigeria",
-        officialName: "Federal Republic of Nigeria",
-        flag: "https://flagcdn.com/w320/ng.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1618828665011-0abd973f7bb8?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1591099715367-3e24c5e99a12?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1599930113854-d6d7fd521f10?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Abuja",
-            continent: "Africa",
-            region: "West Africa",
-            subregion: "Western Africa",
-            population: 223804632,
-            area: 923768,
-            populationDensity: 226,
-            independence: "1960",
-            callingCode: "+234",
-            tld: ".ng",
-            drivingSide: "Right",
             electricity: "240V, 50Hz"
         },
 
         location: {
-            coordinates: [9.0820, 8.6753],
-            timezone: "UTC+1 (WAT)",
-            neighbors: ["Benin", "Niger", "Chad", "Cameroon"],
-            borders: 4477,
+            coordinates: [4.5353, 114.7277],
+            timezone: "UTC+8 (BNT)",
+            neighbors: ["Malaysia"],
+            borders: 266,
             hemispheres: ["Northern", "Eastern"]
         },
 
         political: {
-            government: "Federal Presidential Constitutional Republic",
-            headOfState: "President Bola Tinubu",
-            headOfGovernment: "President Bola Tinubu",
-            legislature: "National Assembly (Senate & House of Representatives)",
-            legalSystem: "Mixed (Common Law, Customary Law, Sharia)",
-            states: 36,
-            federalCapitalTerritory: 1,
-            largestCity: "Lagos",
-            organizations: ["UN", "African Union", "OPEC", "Commonwealth", "ECOWAS", "WTO"]
+            government: "Unitary Islamic Absolute Monarchy",
+            headOfState: "Sultan Hassanal Bolkiah",
+            headOfGovernment: "Sultan Hassanal Bolkiah",
+            legislature: "Legislative Council",
+            legalSystem: "Mixed (English Common Law and Sharia Law)",
+            states: 4,
+            districts: 4,
+            largestCity: "Bandar Seri Begawan",
+            organizations: ["UN", "ASEAN", "Commonwealth", "OIC", "APEC", "WTO"]
         },
 
         economy: {
-            gdp: "$477 Billion",
-            gdpPPP: "$1.27 Trillion",
-            gdpPerCapita: "$2,184",
-            gdpRank: "#27",
-            gdpGrowth: "2.9%",
-            currency: "Nigerian Naira",
-            currencyCode: "NGN",
-            currencySymbol: "₦",
-            inflation: "28.9%",
-            unemployment: "33.3%",
-            majorSectors: ["Services (52%)", "Industry (23%)", "Agriculture (22%)"],
-            industries: ["Petroleum", "Mining", "Agriculture", "Telecommunications", "Manufacturing"],
-            exports: ["Crude Petroleum", "Natural Gas", "Cocoa", "Rubber"],
-            imports: ["Refined Petroleum", "Wheat", "Cars", "Pharmaceuticals"]
+            gdp: "$14.01 Billion",
+            gdpPPP: "$36.85 Billion",
+            gdpPerCapita: "$31,086",
+            gdpRank: "#126",
+            gdpGrowth: "1.3%",
+            currency: "Brunei Dollar",
+            currencyCode: "BND",
+            currencySymbol: "B$",
+            inflation: "0.4%",
+            unemployment: "4.9%",
+            majorSectors: ["Industry (Oil & Gas 60%)", "Services (37%)", "Agriculture (1%)"],
+            industries: ["Petroleum", "Natural Gas", "Petroleum Refining", "Liquefied Natural Gas", "Construction", "Agriculture"],
+            exports: ["Crude Petroleum", "Natural Gas", "Refined Petroleum", "Methanol"],
+            imports: ["Machinery", "Vehicles", "Iron & Steel", "Food Products", "Chemicals"]
         },
 
         geography: {
-            climate: "Tropical in South, Arid in North",
-            avgTemperature: "27.2°C",
-            annualRainfall: "1,150 mm",
-            highestPoint: "Chappal Waddi (2,419 m)",
-            lowestPoint: "Atlantic Ocean (0 m)",
-            coastline: "853 km",
-            forestCover: "7.7%",
-            arableLand: "37.3%",
-            terrain: "Lowlands, plateaus, mountains, coastal plains",
-            naturalResources: ["Petroleum", "Natural Gas", "Tin", "Iron Ore", "Coal", "Limestone", "Lead", "Zinc"]
-        },
-
-        geography_links: {
-            rivers: ["Niger River", "Benue River", "Cross River"],
-            mountains: ["Mandara Mountains", "Jos Plateau", "Adamawa Highlands"],
-            deserts: [],
-            forests: ["Cross River National Park", "Gashaka-Gumti"],
-            oceans: ["Gulf of Guinea", "Atlantic Ocean"]
-        },
-
-        culture: {
-            officialLanguages: ["English"],
-            languages: ["Hausa", "Yoruba", "Igbo", "Fulani", "500+ languages"],
-            religions: ["Islam (53%)", "Christianity (46%)", "Traditional (1%)"],
-            heritageSites: ["Sukur Cultural Landscape", "Osun-Osogbo Sacred Grove"],
-            festivals: ["Durbar", "Osun-Osogbo", "New Yam Festival", "Eyo Festival"],
-            cuisine: ["Jollof Rice", "Suya", "Egusi Soup", "Pounded Yam", "Pepper Soup"],
-            arts: ["Nollywood (Film)", "Afrobeats Music", "Traditional Art", "Literature"],
-            sports: ["Football", "Basketball", "Athletics", "Boxing"]
-        },
-
-        symbols: {
-            bird: "Black Crowned Crane",
-            animal: "N/A",
-            flower: "Costus Spectabilis (Yellow Trumpet)",
-            tree: "N/A",
-            anthem: "Arise, O Compatriots",
-            motto: "Unity and Faith, Peace and Progress"
-        },
-
-        demographics: {
-            lifeExpectancy: 53.87,
-            literacyRate: "62%",
-            urbanPopulation: "52.7%",
-            medianAge: 18.1
-        },
-
-        history: {
-            timeline: [
-                { year: "500 BCE", title: "Nok Culture", description: "Early iron-working civilization" },
-                { year: "1000 CE", title: "Kanem-Bornu", description: "Islamic empire flourished" },
-                { year: "1914", title: "Amalgamation", description: "British unified Northern and Southern Nigeria" },
-                { year: "1960", title: "Independence", description: "Nigeria gained independence from Britain" },
-                { year: "1967-1970", title: "Biafra War", description: "Civil war in southeastern region" },
-                { year: "1999", title: "Democracy", description: "Return to civilian rule" }
-            ],
-            notableFigures: ["Nnamdi Azikiwe", "Obafemi Awolowo", "Ahmadu Bello", "Chinua Achebe", "Wole Soyinka"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "users", title: "Africa's Giant", text: "Most populous country in Africa" },
-            { icon: "oil-can", title: "Oil Producer", text: "Africa's largest oil producer" },
-            { icon: "film", title: "Nollywood", text: "2nd largest film industry by volume" },
-            { icon: "music", title: "Afrobeats", text: "Birthplace of Afrobeats music" }
-        ]
-    },
-
-    // 23. BANGLADESH
-    {
-        id: "BGD",
-        name: "Bangladesh",
-        officialName: "People's Republic of Bangladesh",
-        flag: "https://flagcdn.com/w320/bd.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1606567595334-d39972c85dfd?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1609859445463-6d67e63a6f35?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Dhaka",
-            continent: "Asia",
-            region: "South Asia",
-            subregion: "Southern Asia",
-            population: 172954319,
-            area: 147570,
-            populationDensity: 1265,
-            independence: "1971",
-            callingCode: "+880",
-            tld: ".bd",
-            drivingSide: "Left",
-            electricity: "220V, 50Hz"
-        },
-
-        location: {
-            coordinates: [23.6850, 90.3563],
-            timezone: "UTC+6 (BST)",
-            neighbors: ["India", "Myanmar"],
-            borders: 4413,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Unitary Parliamentary Republic",
-            headOfState: "President Mohammed Shahabuddin",
-            headOfGovernment: "Chief Adviser Muhammad Yunus",
-            legislature: "Jatiya Sangsad (National Parliament)",
-            legalSystem: "Common Law (British influence)",
-            states: 8,
-            divisions: 8,
-            districts: 64,
-            largestCity: "Dhaka",
-            organizations: ["UN", "Commonwealth", "SAARC", "OIC", "D-8", "WTO"]
-        },
-
-        economy: {
-            gdp: "$460 Billion",
-            gdpPPP: "$1.35 Trillion",
-            gdpPerCapita: "$2,688",
-            gdpRank: "#35",
-            gdpGrowth: "5.8%",
-            currency: "Bangladeshi Taka",
-            currencyCode: "BDT",
-            currencySymbol: "৳",
-            inflation: "9.6%",
-            unemployment: "5.3%",
-            majorSectors: ["Services (53%)", "Industry (33%)", "Agriculture (12%)"],
-            industries: ["Garments", "Textiles", "Pharmaceuticals", "Shipbuilding", "Jute"],
-            exports: ["Clothing", "Textiles", "Footwear", "Jute", "Leather"],
-            imports: ["Refined Petroleum", "Cotton", "Machinery", "Iron", "Plastics"]
-        },
-
-        geography: {
-            climate: "Tropical Monsoon",
-            avgTemperature: "25.1°C",
-            annualRainfall: "2,666 mm",
-            highestPoint: "Keokradong (1,230 m)",
-            lowestPoint: "Bay of Bengal (0 m)",
-            coastline: "580 km",
-            forestCover: "11%",
-            arableLand: "59%",
-            terrain: "Flat alluvial plain, Chittagong Hill Tracts",
-            naturalResources: ["Natural Gas", "Arable Land", "Timber", "Coal"]
-        },
-
-        geography_links: {
-            rivers: ["Ganges (Padma)", "Brahmaputra (Jamuna)", "Meghna", "Surma"],
-            mountains: ["Chittagong Hill Tracts"],
-            deserts: [],
-            forests: ["Sundarbans", "Chittagong Hill Forests"],
-            oceans: ["Bay of Bengal", "Indian Ocean"]
-        },
-
-        culture: {
-            officialLanguages: ["Bengali"],
-            languages: ["Bengali", "Chittagonian", "Sylheti"],
-            religions: ["Islam (91%)", "Hinduism (8%)", "Buddhism (0.6%)", "Christianity (0.4%)"],
-            heritageSites: ["Historic Mosque City of Bagerhat", "Ruins of the Buddhist Vihara at Paharpur", "The Sundarbans"],
-            festivals: ["Pohela Boishakh (Bengali New Year)", "Eid al-Fitr", "Durga Puja", "Pohela Falgun"],
-            cuisine: ["Hilsa Fish", "Biryani", "Pitha", "Mishti Doi", "Bhuna Khichuri"],
-            arts: ["Baul Music", "Nakshi Kantha", "Bengal Renaissance Literature"],
-            sports: ["Cricket", "Football", "Kabaddi", "Volleyball"]
-        },
-
-        symbols: {
-            bird: "Oriental Magpie-robin (Doyel)",
-            animal: "Royal Bengal Tiger",
-            flower: "Water Lily (Shapla)",
-            tree: "Mango Tree",
-            anthem: "Amar Shonar Bangla",
-            motto: "N/A"
-        },
-
-        demographics: {
-            lifeExpectancy: 73.53,
-            literacyRate: "74.7%",
-            urbanPopulation: "39.4%",
-            medianAge: 27.9
-        },
-
-        history: {
-            timeline: [
-                { year: "300 BCE", title: "Maurya Empire", description: "Region part of Mauryan Empire" },
-                { year: "1757", title: "British Rule", description: "Battle of Plassey, British control began" },
-                { year: "1947", title: "Partition", description: "East Bengal became part of Pakistan" },
-                { year: "1971", title: "Liberation War", description: "Bangladesh gained independence from Pakistan" },
-                { year: "2021", title: "Golden Jubilee", description: "50 years of independence celebrated" }
-            ],
-            notableFigures: ["Sheikh Mujibur Rahman", "Rabindranath Tagore", "Kazi Nazrul Islam", "Muhammad Yunus"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "industry", title: "Garments", text: "2nd largest garment exporter globally" },
-            { icon: "users", title: "Density", text: "One of most densely populated countries" },
-            { icon: "tree", title: "Sundarbans", text: "World's largest mangrove forest" },
-            { icon: "tiger", title: "Bengal Tiger", text: "Home to Royal Bengal Tiger" }
-        ]
-    },
-
-    // 24. VIETNAM
-    {
-        id: "VNM",
-        name: "Vietnam",
-        officialName: "Socialist Republic of Vietnam",
-        flag: "https://flagcdn.com/w320/vn.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1528127269322-539801943592?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Hanoi",
-            continent: "Asia",
-            region: "Southeast Asia",
-            subregion: "Southeastern Asia",
-            population: 98858950,
-            area: 331212,
-            populationDensity: 314,
-            independence: "1945",
-            callingCode: "+84",
-            tld: ".vn",
-            drivingSide: "Right",
-            electricity: "220V, 50Hz"
-        },
-
-        location: {
-            coordinates: [14.0583, 108.2772],
-            timezone: "UTC+7 (ICT)",
-            neighbors: ["China", "Laos", "Cambodia"],
-            borders: 4616,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Unitary Marxist-Leninist One-Party Socialist Republic",
-            headOfState: "President Lương Cường",
-            headOfGovernment: "Prime Minister Phạm Minh Chính",
-            legislature: "National Assembly",
-            legalSystem: "Civil Law (Socialist influence)",
-            states: 58,
-            provinces: 58,
-            municipalities: 5,
-            largestCity: "Ho Chi Minh City",
-            organizations: ["UN", "ASEAN", "APEC", "WTO"]
-        },
-
-        economy: {
-            gdp: "$433 Billion",
-            gdpPPP: "$1.45 Trillion",
-            gdpPerCapita: "$4,317",
-            gdpRank: "#36",
-            gdpGrowth: "5.05%",
-            currency: "Vietnamese Dong",
-            currencyCode: "VND",
-            currencySymbol: "₫",
-            inflation: "3.3%",
-            unemployment: "2.3%",
-            majorSectors: ["Services (41%)", "Industry (38%)", "Agriculture (12%)"],
-            industries: ["Electronics", "Textiles", "Food Processing", "Machinery", "Footwear"],
-            exports: ["Broadcasting Equipment", "Computers", "Telephones", "Footwear", "Textiles"],
-            imports: ["Integrated Circuits", "Telephones", "Refined Petroleum", "Textile Fabrics", "Steel"]
-        },
-
-        geography: {
-            climate: "Tropical Monsoon (South), Subtropical (North)",
-            avgTemperature: "25.6°C",
-            annualRainfall: "1,821 mm",
-            highestPoint: "Fansipan (3,143 m)",
+            climate: "Tropical Equatorial",
+            avgTemperature: "27.5°C",
+            annualRainfall: "2,920 mm",
+            highestPoint: "Bukit Pagon (1,850 m)",
             lowestPoint: "South China Sea (0 m)",
-            coastline: "3,444 km",
-            forestCover: "47.6%",
-            arableLand: "22.6%",
-            terrain: "Low delta in south and north, central highlands, hilly mountains",
-            naturalResources: ["Phosphates", "Coal", "Manganese", "Rare Earth Elements", "Bauxite", "Chromate", "Offshore Oil & Gas"]
+            coastline: "161 km",
+            forestCover: "72.1%",
+            arableLand: "2.5%",
+            terrain: "Flat coastal plain; mountains in east; hilly lowlands in west",
+            naturalResources: ["Petroleum", "Natural Gas", "Timber"]
         },
 
         geography_links: {
-            rivers: ["Mekong River", "Red River", "Perfume River"],
-            mountains: ["Annamite Range", "Hoàng Liên Sơn (Fansipan)"],
+            rivers: ["Belait River", "Tutong River", "Brunei River", "Temburong River", "Pandaruan River"],
+            mountains: ["Bukit Pagon", "Bukit Batu Patam", "Bukit Teraja"],
             deserts: [],
-            forests: ["Cat Tien National Park", "Phong Nha-Ke Bang"],
-            oceans: ["South China Sea", "Gulf of Thailand", "Gulf of Tonkin"]
+            forests: ["Ulu Temburong National Park", "Tropical Rainforest", "Mangrove Forests"],
+            oceans: ["South China Sea", "Brunei Bay"]
         },
 
         culture: {
-            officialLanguages: ["Vietnamese"],
-            languages: ["Vietnamese", "Khmer", "Chinese", "Cham"],
-            religions: ["Buddhism (14%)", "Catholicism (7%)", "Cao Dai", "Hoa Hao", "Folk Religions"],
-            heritageSites: ["Ha Long Bay", "Hoi An Ancient Town", "Hue Imperial City", "Phong Nha-Ke Bang", "Trang An Complex"],
-            festivals: ["Tet (Lunar New Year)", "Mid-Autumn Festival", "Hung Kings Festival"],
-            cuisine: ["Pho", "Banh Mi", "Spring Rolls", "Bun Cha", "Com Tam", "Cao Lau"],
-            arts: ["Water Puppetry", "Ca Trù", "Áo Dài (traditional dress)", "Lacquerware"],
-            sports: ["Football", "Badminton", "Martial Arts (Vovinam)", "Table Tennis"]
+            officialLanguages: ["Malay"],
+            languages: ["Malay", "English", "Chinese (Hokkien, Mandarin)", "Tamil"],
+            religions: ["Islam (78.8%)", "Buddhism (8.7%)", "Christianity (7.8%)", "Others (4.7%)"],
+            heritageSites: [],
+            festivals: ["Hari Raya Aidilfitri", "Hari Raya Aidiladha", "Sultan's Birthday", "National Day", "Maulidur Rasul"],
+            cuisine: ["Ambuyat", "Nasi Katok", "Soto", "Rendang", "Satay", "Kelupis"],
+            arts: ["Silver Smithing", "Bronze Casting", "Weaving", "Wood Carving", "Songket"],
+            sports: ["Football", "Badminton", "Sepak Takraw", "Golf", "Squash"]
         },
 
         symbols: {
-            bird: "N/A",
-            animal: "Water Buffalo",
-            flower: "Lotus",
-            tree: "Bamboo",
-            anthem: "Tiến Quân Ca (Army March)",
-            motto: "Độc lập – Tự do – Hạnh phúc (Independence – Freedom – Happiness)"
+            bird: "White-bellied Sea Eagle",
+            animal: "None Official",
+            flower: "Simpor (Dillenia suffruticosa)",
+            tree: "None Official",
+            anthem: "Allah Peliharakan Sultan",
+            motto: "Always in service with God's guidance"
         },
 
         demographics: {
-            lifeExpectancy: 75.77,
-            literacyRate: "95.8%",
-            urbanPopulation: "39.4%",
-            medianAge: 32.5
+            lifeExpectancy: 76.18,
+            literacyRate: "97.2%",
+            urbanPopulation: "78.3%",
+            medianAge: 31.1
         },
 
         history: {
             timeline: [
-                { year: "2879 BCE", title: "Hồng Bàng Dynasty", description: "Legendary founding of Vietnam" },
-                { year: "111 BCE", title: "Chinese Rule", description: "1000 years of Chinese domination began" },
-                { year: "938 CE", title: "Independence", description: "Ngô Quyền defeated Chinese, independence restored" },
-                { year: "1858", title: "French Colonization", description: "France began colonizing Vietnam" },
-                { year: "1954", title: "First Indochina War End", description: "Vietnam divided at 17th parallel" },
-                { year: "1975", title: "Reunification", description: "Fall of Saigon, Vietnam reunified" },
-                { year: "1986", title: "Đổi Mới", description: "Economic reforms began" }
+                { year: "7th Century", title: "Early Kingdom", description: "Early Brunei Kingdom established" },
+                { year: "15th Century", title: "Golden Age", description: "Brunei Empire at its peak, controlled Borneo and Philippines" },
+                { year: "1888", title: "British Protectorate", description: "Became British protectorate" },
+                { year: "1929", title: "Oil Discovery", description: "Oil discovered at Seria" },
+                { year: "1984", title: "Independence", description: "Full independence from Britain" }
             ],
-            notableFigures: ["Ho Chi Minh", "Trưng Sisters", "Lê Lợi", "Võ Nguyên Giáp"]
+            notableFigures: ["Sultan Bolkiah (5th Sultan)", "Sultan Omar Ali Saifuddien III", "Sultan Hassanal Bolkiah"]
         },
 
         disputes: [
-            { name: "South China Sea", description: "Disputes over Paracel and Spratly Islands", type: "Maritime" }
+            { name: "South China Sea", description: "Overlapping claims in Spratly Islands", type: "Maritime" }
         ],
 
         quickFacts: [
-            { icon: "motorbike", title: "Motorbikes", text: "Over 45 million registered motorbikes" },
-            { icon: "coffee", title: "Coffee", text: "World's 2nd largest coffee exporter" },
-            { icon: "water", title: "Ha Long Bay", text: "UNESCO World Heritage Site with 1,600+ islands" },
-            { icon: "bowl-food", title: "Pho", text: "National dish recognized worldwide" }
+            { icon: "crown", title: "Rich Sultan", text: "Sultan is one of the world's wealthiest monarchs" },
+            { icon: "gas-pump", title: "Oil Wealth", text: "Oil & gas account for 90% of exports" },
+            { icon: "ban", title: "No Alcohol", text: "Sale of alcohol is banned" },
+            { icon: "graduation-cap", title: "Free Education", text: "Free education and healthcare for citizens" },
+            { icon: "mosque", title: "Omar Ali Mosque", text: "Iconic golden-domed mosque on water" }
         ]
     },
 
-    // 25. THAILAND
+    // 2. CAMBODIA
     {
-        id: "THA",
-        name: "Thailand",
-        officialName: "Kingdom of Thailand",
-        flag: "https://flagcdn.com/w320/th.png",
+        id: "KHM",
+        name: "Cambodia",
+        officialName: "Kingdom of Cambodia",
+        flag: "https://flagcdn.com/w320/kh.png",
         
         images: {
-            hero: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1920&q=80"
+            hero: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1570366583862-f91883984fde?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1601285133037-4409e0e7f142?w=1920&q=80"
         },
 
         basic: {
-            capital: "Bangkok",
+            capital: "Phnom Penh",
             continent: "Asia",
             region: "Southeast Asia",
-            subregion: "Southeastern Asia",
-            population: 71801279,
-            area: 513120,
-            populationDensity: 137,
-            independence: "Never colonized",
-            callingCode: "+66",
-            tld: ".th",
-            drivingSide: "Left",
-            electricity: "220V, 50Hz"
+            subregion: "South-Eastern Asia",
+            population: 16944826,
+            area: 181035,
+            populationDensity: 96,
+            independence: "1953",
+            callingCode: "+855",
+            tld: ".kh",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
 
         location: {
-            coordinates: [15.8700, 100.9925],
+            coordinates: [12.5657, 104.9910],
             timezone: "UTC+7 (ICT)",
-            neighbors: ["Myanmar", "Laos", "Cambodia", "Malaysia"],
-            borders: 5673,
+            neighbors: ["Thailand", "Laos", "Vietnam"],
+            borders: 2530,
             hemispheres: ["Northern", "Eastern"]
         },
 
         political: {
             government: "Unitary Parliamentary Constitutional Monarchy",
-            headOfState: "King Maha Vajiralongkorn (Rama X)",
-            headOfGovernment: "Prime Minister Paetongtarn Shinawatra",
-            legislature: "National Assembly (Senate & House of Representatives)",
-            legalSystem: "Civil Law with Common Law influences",
-            states: 76,
-            provinces: 76,
-            specialAdministration: 1,
-            largestCity: "Bangkok",
-            organizations: ["UN", "ASEAN", "APEC", "WTO"]
+            headOfState: "King Norodom Sihamoni",
+            headOfGovernment: "Prime Minister Hun Manet",
+            legislature: "Parliament (Senate & National Assembly)",
+            legalSystem: "Civil Law (French influence)",
+            states: 25,
+            provinces: 25,
+            largestCity: "Phnom Penh",
+            organizations: ["UN", "ASEAN", "WTO", "NAM", "ADB", "Francophonie"]
         },
 
         economy: {
-            gdp: "$514 Billion",
-            gdpPPP: "$1.49 Trillion",
-            gdpPerCapita: "$7,336",
-            gdpRank: "#26",
-            gdpGrowth: "1.9%",
-            currency: "Thai Baht",
-            currencyCode: "THB",
-            currencySymbol: "฿",
-            inflation: "1.2%",
-            unemployment: "1.0%",
-            majorSectors: ["Services (58%)", "Industry (35%)", "Agriculture (8%)"],
-            industries: ["Tourism", "Electronics", "Automotive", "Agriculture", "Textiles"],
-            exports: ["Machinery", "Electronics", "Vehicles", "Rubber", "Plastics", "Seafood"],
-            imports: ["Machinery", "Crude Oil", "Electronics", "Chemicals", "Iron & Steel"]
+            gdp: "$29.96 Billion",
+            gdpPPP: "$83.56 Billion",
+            gdpPerCapita: "$1,758",
+            gdpRank: "#107",
+            gdpGrowth: "5.3%",
+            currency: "Cambodian Riel",
+            currencyCode: "KHR",
+            currencySymbol: "៛",
+            inflation: "2.2%",
+            unemployment: "0.3%",
+            majorSectors: ["Services (38%)", "Industry (35%)", "Agriculture (22%)"],
+            industries: ["Tourism", "Garments", "Rice Milling", "Fishing", "Wood Products", "Rubber", "Cement", "Gem Mining"],
+            exports: ["Clothing", "Rice", "Rubber", "Fish", "Timber", "Footwear"],
+            imports: ["Petroleum", "Fabrics", "Vehicles", "Machinery", "Pharmaceuticals"]
         },
 
         geography: {
-            climate: "Tropical (Wet & Dry)",
-            avgTemperature: "27.2°C",
-            annualRainfall: "1,622 mm",
-            highestPoint: "Doi Inthanon (2,565 m)",
+            climate: "Tropical Monsoon",
+            avgTemperature: "27.5°C",
+            annualRainfall: "1,400-4,000 mm",
+            highestPoint: "Phnum Aoral (1,810 m)",
             lowestPoint: "Gulf of Thailand (0 m)",
-            coastline: "3,219 km",
-            forestCover: "38.8%",
-            arableLand: "32.9%",
-            terrain: "Central plain, mountains in north and west, Khorat Plateau in northeast",
-            naturalResources: ["Tin", "Rubber", "Natural Gas", "Tungsten", "Tantalum", "Timber", "Lead", "Fish", "Gypsum", "Lignite", "Fluorite"]
+            coastline: "443 km",
+            forestCover: "46.3%",
+            arableLand: "22.7%",
+            terrain: "Mostly low flat plains; mountains in southwest and north",
+            naturalResources: ["Oil", "Gas", "Timber", "Gemstones", "Iron Ore", "Manganese", "Phosphates", "Hydropower"]
         },
 
         geography_links: {
-            rivers: ["Chao Phraya", "Mekong", "Salween", "Mun River"],
-            mountains: ["Thai Highlands", "Doi Inthanon", "Tenasserim Hills"],
+            rivers: ["Mekong River", "Tonle Sap River", "Bassac River", "Stung Sen", "Stung Sangker"],
+            mountains: ["Cardamom Mountains", "Elephant Mountains", "Dangrek Mountains", "Phnum Aoral"],
             deserts: [],
-            forests: ["Khao Sok National Park", "Doi Inthanon"],
-            oceans: ["Gulf of Thailand", "Andaman Sea", "Indian Ocean"]
+            forests: ["Cardamom Rainforest", "Central Plains Dry Forest", "Prey Lang Forest"],
+            oceans: ["Gulf of Thailand"]
         },
 
         culture: {
-            officialLanguages: ["Thai"],
-            languages: ["Thai", "Isan", "Southern Thai", "Northern Thai", "Malay"],
-            religions: ["Buddhism (94.6%)", "Islam (4.3%)", "Christianity (1.0%)"],
-            heritageSites: ["Historic Ayutthaya", "Sukhothai Historical Park", "Ban Chiang", "Dong Phayayen-Khao Yai"],
-            festivals: ["Songkran (Thai New Year)", "Loy Krathong", "Vegetarian Festival"],
-            cuisine: ["Pad Thai", "Tom Yum", "Green Curry", "Som Tam", "Massaman Curry", "Mango Sticky Rice"],
-            arts: ["Thai Classical Dance", "Muay Thai", "Thai Silk Weaving", "Temple Architecture"],
-            sports: ["Muay Thai", "Football", "Badminton", "Volleyball", "Takraw"]
+            officialLanguages: ["Khmer"],
+            languages: ["Khmer", "French", "English", "Chinese", "Vietnamese"],
+            religions: ["Buddhism (97.9%)", "Islam (1.1%)", "Christianity (0.5%)", "Others (0.5%)"],
+            heritageSites: ["Angkor", "Temple of Preah Vihear", "Sambor Prei Kuk"],
+            festivals: ["Khmer New Year (Choul Chnam Thmey)", "Water Festival (Bon Om Touk)", "Pchum Ben", "Royal Ploughing Ceremony"],
+            cuisine: ["Amok", "Lok Lak", "Bai Sach Chrouk", "Kuy Teav", "Nom Banh Chok", "Prahok", "Samlor Korkor"],
+            arts: ["Apsara Dance", "Khmer Classical Dance", "Shadow Puppetry", "Silver Work", "Silk Weaving", "Stone Carving"],
+            sports: ["Football", "Pradal Serey (Kickboxing)", "Volleyball", "Sepak Takraw", "Bokator"]
         },
 
         symbols: {
-            bird: "Siamese Fireback",
-            animal: "Thai Elephant",
-            flower: "Ratchaphruek (Golden Shower Tree)",
-            tree: "Ratchaphruek",
-            anthem: "Phleng Chat Thai",
-            motto: "Chat, Satsana, Phra Mahakasat (Nation, Religion, King)"
+            bird: "Giant Ibis",
+            animal: "Kouprey (Wild Ox)",
+            flower: "Rumdul",
+            tree: "Palmyra Palm",
+            anthem: "Nokoreach",
+            motto: "Nation, Religion, King"
         },
 
         demographics: {
-            lifeExpectancy: 79.27,
-            literacyRate: "94.1%",
-            urbanPopulation: "52.9%",
-            medianAge: 40.1
+            lifeExpectancy: 70.09,
+            literacyRate: "80.5%",
+            urbanPopulation: "24.7%",
+            medianAge: 26.4
         },
 
         history: {
             timeline: [
-                { year: "1238", title: "Sukhothai Kingdom", description: "First major Thai kingdom established" },
-                { year: "1351", title: "Ayutthaya Kingdom", description: "Powerful kingdom that lasted 417 years" },
-                { year: "1782", title: "Chakri Dynasty", description: "Current ruling dynasty established" },
-                { year: "1932", title: "Constitutional Monarchy", description: "Transition from absolute to constitutional monarchy" },
-                { year: "1939", title: "Name Change", description: "Siam renamed to Thailand" }
+                { year: "1st Century", title: "Funan Kingdom", description: "Early Indianized kingdom established" },
+                { year: "802", title: "Khmer Empire", description: "Jayavarman II founded Khmer Empire" },
+                { year: "1113-1150", title: "Angkor Wat", description: "Angkor Wat temple complex built" },
+                { year: "1863", title: "French Protectorate", description: "Became French protectorate" },
+                { year: "1953", title: "Independence", description: "Independence from France" },
+                { year: "1975-1979", title: "Khmer Rouge", description: "Genocide under Pol Pot regime" },
+                { year: "1993", title: "Kingdom Restored", description: "Constitutional monarchy restored" }
             ],
-            notableFigures: ["King Rama I", "King Chulalongkorn (Rama V)", "King Bhumibol (Rama IX)"]
+            notableFigures: ["Jayavarman II", "Jayavarman VII", "King Norodom Sihanouk", "Hun Sen"]
         },
 
-        disputes: [],
+        disputes: [
+            { name: "Preah Vihear Temple", description: "Border dispute with Thailand near temple", type: "Border" }
+        ],
 
         quickFacts: [
-            { icon: "crown", title: "Never Colonized", text: "Only Southeast Asian country never colonized" },
-            { icon: "utensils", title: "Thai Cuisine", text: "Ranked among world's best cuisines" },
-            { icon: "pray", title: "Buddhism", text: "95% Buddhist - temples everywhere" },
-            { icon: "users", title: "Tourism", text: "One of world's most visited countries" }
+            { icon: "monument", title: "Angkor Wat", text: "World's largest religious monument" },
+            { icon: "water", title: "Tonle Sap", text: "Largest freshwater lake in Southeast Asia" },
+            { icon: "skull", title: "Khmer Rouge", text: "2 million died under Pol Pot (1975-79)" },
+            { icon: "building", title: "Only Flag", text: "Only national flag featuring a building" },
+            { icon: "fish", title: "Fish Production", text: "One of world's largest freshwater fish catches" }
         ]
     },
 
-    // Continue with more countries...
-    // 26. IRAN
+    // 3. INDONESIA
     {
-        id: "IRN",
-        name: "Iran",
-        officialName: "Islamic Republic of Iran",
-        flag: "https://flagcdn.com/w320/ir.png",
+        id: "IDN",
+        name: "Indonesia",
+        officialName: "Republic of Indonesia",
+        flag: "https://flagcdn.com/w320/id.png",
         
         images: {
-            hero: "https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1553017141-4f38aca48d7e?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1920&q=80"
+            hero: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1555899434-94d1368aa7af?w=1920&q=80"
         },
 
         basic: {
-            capital: "Tehran",
+            capital: "Jakarta (moving to Nusantara)",
             continent: "Asia",
-            region: "Middle East",
-            subregion: "Western Asia",
-            population: 89172767,
-            area: 1648195,
-            populationDensity: 52,
-            independence: "550 BCE (Persian Empire)",
-            callingCode: "+98",
-            tld: ".ir",
-            drivingSide: "Right",
-            electricity: "220V, 50Hz"
+            region: "Southeast Asia",
+            subregion: "South-Eastern Asia",
+            population: 277534122,
+            area: 1904569,
+            populationDensity: 151,
+            independence: "1945",
+            callingCode: "+62",
+            tld: ".id",
+            drivingSide: "Left",
+            electricity: "230V, 50Hz"
         },
 
         location: {
-            coordinates: [32.4279, 53.6880],
-            timezone: "UTC+3:30 (IRST)",
-            neighbors: ["Turkey", "Iraq", "Armenia", "Azerbaijan", "Turkmenistan", "Afghanistan", "Pakistan"],
-            borders: 5894,
+            coordinates: [-0.7893, 113.9213],
+            timezone: "UTC+7 to UTC+9 (WIB, WITA, WIT)",
+            neighbors: ["Malaysia", "Papua New Guinea", "Timor-Leste"],
+            borders: 2958,
+            hemispheres: ["Northern", "Southern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Presidential Constitutional Republic",
+            headOfState: "President Prabowo Subianto",
+            headOfGovernment: "President Prabowo Subianto",
+            legislature: "People's Consultative Assembly (MPR)",
+            legalSystem: "Civil Law (Dutch influence)",
+            states: 38,
+            provinces: 38,
+            largestCity: "Jakarta",
+            organizations: ["UN", "ASEAN", "G20", "OPEC", "APEC", "WTO", "OIC", "NAM"]
+        },
+
+        economy: {
+            gdp: "$1.42 Trillion",
+            gdpPPP: "$4.02 Trillion",
+            gdpPerCapita: "$5,108",
+            gdpRank: "#16",
+            gdpGrowth: "5.0%",
+            currency: "Indonesian Rupiah",
+            currencyCode: "IDR",
+            currencySymbol: "Rp",
+            inflation: "3.7%",
+            unemployment: "5.3%",
+            majorSectors: ["Services (44%)", "Industry (40%)", "Agriculture (13%)"],
+            industries: ["Petroleum & Natural Gas", "Textiles", "Automotive", "Electrical Appliances", "Mining", "Cement", "Palm Oil", "Rubber"],
+            exports: ["Palm Oil", "Coal", "Petroleum Gas", "Gold", "Rubber", "Nickel", "Vehicles"],
+            imports: ["Refined Petroleum", "Crude Petroleum", "Machinery", "Chemicals", "Plastics"]
+        },
+
+        geography: {
+            climate: "Tropical (Hot and Humid)",
+            avgTemperature: "26.5°C",
+            annualRainfall: "2,702 mm",
+            highestPoint: "Puncak Jaya (4,884 m)",
+            lowestPoint: "Indian Ocean (0 m)",
+            coastline: "54,716 km",
+            forestCover: "49.1%",
+            arableLand: "13%",
+            terrain: "Coastal lowlands; mountainous interiors on larger islands",
+            naturalResources: ["Petroleum", "Tin", "Natural Gas", "Nickel", "Timber", "Bauxite", "Copper", "Coal", "Gold", "Silver"],
+            islands: 17508
+        },
+
+        geography_links: {
+            rivers: ["Kapuas River", "Mahakam River", "Barito River", "Musi River", "Bengawan Solo"],
+            mountains: ["Puncak Jaya", "Mount Semeru", "Mount Rinjani", "Mount Kerinci", "Mount Bromo", "Mount Krakatoa"],
+            deserts: [],
+            forests: ["Borneo Rainforest", "Sumatran Rainforest", "Papua Rainforest", "Mangroves"],
+            oceans: ["Indian Ocean", "Pacific Ocean", "Java Sea", "Banda Sea", "Celebes Sea", "Flores Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Indonesian (Bahasa Indonesia)"],
+            languages: ["Indonesian", "Javanese", "Sundanese", "Madurese", "Minangkabau", "Balinese", "700+ regional languages"],
+            religions: ["Islam (87.2%)", "Protestantism (7%)", "Catholicism (2.9%)", "Hinduism (1.7%)", "Buddhism (0.7%)", "Confucianism (0.05%)"],
+            heritageSites: ["Borobudur Temple", "Prambanan Temple", "Komodo National Park", "Tropical Rainforest Heritage of Sumatra", "Sangiran Early Man Site", "Cultural Landscape of Bali"],
+            festivals: ["Eid al-Fitr", "Nyepi (Balinese New Year)", "Waisak", "Independence Day", "Galungan", "Ramadan"],
+            cuisine: ["Nasi Goreng", "Rendang", "Satay", "Gado-Gado", "Soto", "Bakso", "Nasi Padang", "Tempeh", "Sambal"],
+            arts: ["Batik", "Wayang (Puppet Theatre)", "Gamelan Music", "Pencak Silat", "Balinese Dance", "Wood Carving"],
+            sports: ["Football", "Badminton", "Sepak Takraw", "Pencak Silat", "Basketball"]
+        },
+
+        symbols: {
+            bird: "Javan Hawk-Eagle (Garuda)",
+            animal: "Komodo Dragon",
+            flower: "Moon Orchid (Puspa Pesona), Jasmine (Puspa Bangsa), Rafflesia (Puspa Langka)",
+            tree: "Teak",
+            anthem: "Indonesia Raya",
+            motto: "Bhinneka Tunggal Ika (Unity in Diversity)"
+        },
+
+        demographics: {
+            lifeExpectancy: 72.32,
+            literacyRate: "96%",
+            urbanPopulation: "57.9%",
+            medianAge: 30.2
+        },
+
+        history: {
+            timeline: [
+                { year: "7th Century", title: "Srivijaya Empire", description: "Maritime empire based in Sumatra" },
+                { year: "8th-9th Century", title: "Borobudur & Prambanan", description: "Great temples constructed" },
+                { year: "13th Century", title: "Majapahit Empire", description: "Largest pre-colonial Indonesian empire" },
+                { year: "1602", title: "Dutch VOC", description: "Dutch East India Company established" },
+                { year: "1942-1945", title: "Japanese Occupation", description: "Japan occupied during WWII" },
+                { year: "1945", title: "Independence", description: "Sukarno declared independence" },
+                { year: "1998", title: "Reformasi", description: "End of Suharto's 32-year rule" }
+            ],
+            notableFigures: ["Sukarno", "Suharto", "Gajah Mada", "Diponegoro", "Kartini", "B.J. Habibie"]
+        },
+
+        disputes: [
+            { name: "South China Sea", description: "Claims overlap with China's nine-dash line", type: "Maritime" },
+            { name: "Ambalat Block", description: "Maritime dispute with Malaysia", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "globe", title: "Largest Archipelago", text: "17,508 islands - world's largest archipelago" },
+            { icon: "users", title: "4th Most Populous", text: "277+ million people" },
+            { icon: "dragon", title: "Komodo Dragons", text: "Only place with wild Komodo dragons" },
+            { icon: "mosque", title: "Most Muslims", text: "World's largest Muslim-majority country" },
+            { icon: "fire", title: "Ring of Fire", text: "130+ active volcanoes" },
+            { icon: "language", title: "Languages", text: "Over 700 languages spoken" }
+        ]
+    },
+
+    // 4. LAOS
+    {
+        id: "LAO",
+        name: "Laos",
+        officialName: "Lao People's Democratic Republic",
+        flag: "https://flagcdn.com/w320/la.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1570366805048-2d8e22de8e13?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1540611025311-01df3cef54b5?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Vientiane",
+            continent: "Asia",
+            region: "Southeast Asia",
+            subregion: "South-Eastern Asia",
+            population: 7529475,
+            area: 236800,
+            populationDensity: 32,
+            independence: "1953",
+            callingCode: "+856",
+            tld: ".la",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [19.8563, 102.4955],
+            timezone: "UTC+7 (ICT)",
+            neighbors: ["China", "Myanmar", "Thailand", "Vietnam", "Cambodia"],
+            borders: 5274,
             hemispheres: ["Northern", "Eastern"]
         },
 
         political: {
-            government: "Unitary Islamic Republic (Theocratic-Presidential)",
-            headOfState: "Supreme Leader Ali Khamenei",
-            headOfGovernment: "President Masoud Pezeshkian",
-            legislature: "Islamic Consultative Assembly (Majlis)",
-            legalSystem: "Islamic Law (Sharia)",
-            states: 31,
-            provinces: 31,
-            largestCity: "Tehran",
-            organizations: ["UN", "OPEC", "OIC", "ECO", "NAM"]
+            government: "Unitary Marxist-Leninist One-Party Socialist Republic",
+            headOfState: "President Thongloun Sisoulith",
+            headOfGovernment: "Prime Minister Sonexay Siphandone",
+            legislature: "National Assembly",
+            legalSystem: "Civil Law (French influence)",
+            states: 18,
+            provinces: 17,
+            prefecture: 1,
+            largestCity: "Vientiane",
+            organizations: ["UN", "ASEAN", "WTO", "Francophonie", "NAM"]
         },
 
         economy: {
-            gdp: "$401 Billion",
-            gdpPPP: "$1.59 Trillion",
-            gdpPerCapita: "$4,757",
-            gdpRank: "#37",
-            gdpGrowth: "5.0%",
-            currency: "Iranian Rial",
-            currencyCode: "IRR",
-            currencySymbol: "﷼",
-            inflation: "40%",
-            unemployment: "9.2%",
-            majorSectors: ["Services (54%)", "Industry (35%)", "Agriculture (10%)"],
-            industries: ["Petroleum", "Petrochemicals", "Steel", "Textiles", "Cement", "Automotive"],
-            exports: ["Crude Petroleum", "Refined Petroleum", "Polymers", "Iron", "Chemicals"],
-            imports: ["Machinery", "Foodstuffs", "Technical Services", "Chemicals"]
+            gdp: "$14.34 Billion",
+            gdpPPP: "$64.95 Billion",
+            gdpPerCapita: "$1,903",
+            gdpRank: "#119",
+            gdpGrowth: "3.3%",
+            currency: "Lao Kip",
+            currencyCode: "LAK",
+            currencySymbol: "₭",
+            inflation: "23%",
+            unemployment: "1.4%",
+            majorSectors: ["Services (42%)", "Industry (32%)", "Agriculture (15%)"],
+            industries: ["Mining (Copper, Gold)", "Timber", "Hydropower", "Garments", "Cement", "Tourism", "Agriculture"],
+            exports: ["Electricity", "Copper", "Gold", "Wood Products", "Coffee", "Cassava"],
+            imports: ["Machinery", "Vehicles", "Fuel", "Consumer Goods"]
         },
 
         geography: {
-            climate: "Mostly Arid, Subtropical along Caspian",
-            avgTemperature: "17.5°C",
-            annualRainfall: "228 mm",
-            highestPoint: "Mount Damavand (5,610 m)",
-            lowestPoint: "Caspian Sea (-28 m)",
-            coastline: "2,440 km",
-            forestCover: "6.8%",
-            arableLand: "10.8%",
-            terrain: "Rugged mountains, high central basin, deserts",
-            naturalResources: ["Petroleum", "Natural Gas", "Coal", "Chromium", "Copper", "Iron Ore", "Lead", "Manganese", "Zinc", "Sulfur"]
+            climate: "Tropical Monsoon",
+            avgTemperature: "26.4°C",
+            annualRainfall: "1,834 mm",
+            highestPoint: "Phou Bia (2,817 m)",
+            lowestPoint: "Mekong River (70 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "58%",
+            arableLand: "6.2%",
+            terrain: "Mostly rugged mountains; some plains and plateaus",
+            naturalResources: ["Timber", "Hydropower", "Gypsum", "Tin", "Gold", "Gemstones", "Copper"]
         },
 
         geography_links: {
-            rivers: ["Karun River", "Zayanderud", "Sefid Rud"],
-            mountains: ["Zagros Mountains", "Alborz Mountains", "Mount Damavand"],
-            deserts: ["Dasht-e Kavir", "Dasht-e Lut"],
-            forests: ["Caspian Hyrcanian Forests"],
-            oceans: ["Persian Gulf", "Gulf of Oman", "Caspian Sea"]
+            rivers: ["Mekong River", "Nam Ou", "Nam Khan", "Nam Ngum", "Se Kong", "Xe Banghiang"],
+            mountains: ["Annamite Range", "Phou Bia", "Phou Khao Khuay", "Luang Prabang Range"],
+            deserts: [],
+            forests: ["Tropical Monsoon Forests", "Deciduous Forests", "Pine Forests", "Bamboo Forests"],
+            oceans: []
         },
 
         culture: {
-            officialLanguages: ["Persian (Farsi)"],
-            languages: ["Persian", "Azerbaijani", "Kurdish", "Luri", "Gilaki", "Mazandarani", "Arabic", "Balochi"],
-            religions: ["Islam (99.6% - Shia 90%, Sunni 9%)", "Other (0.4%)"],
-            heritageSites: ["Persepolis", "Naqsh-e Jahan Square", "Pasargadae", "Tchogha Zanbil", "Golestan Palace", "Shushtar Historical Hydraulic System", "Tabriz Historic Bazaar"],
-            festivals: ["Nowruz (Persian New Year)", "Chaharshanbe Suri", "Yalda Night", "Tirgan"],
-            cuisine: ["Chelo Kebab", "Ghormeh Sabzi", "Tahdig", "Fesenjan", "Zereshk Polo", "Ash Reshteh"],
-            arts: ["Persian Calligraphy", "Miniature Painting", "Carpet Weaving", "Persian Poetry", "Traditional Music"],
-            sports: ["Football", "Wrestling", "Volleyball", "Weightlifting", "Martial Arts"]
+            officialLanguages: ["Lao"],
+            languages: ["Lao", "French", "English", "Hmong", "Khmu"],
+            religions: ["Buddhism (64.7%)", "Animism (31.4%)", "Christianity (1.7%)", "Others (2.2%)"],
+            heritageSites: ["Town of Luang Prabang", "Vat Phou and Associated Ancient Settlements", "Megalithic Jar Sites in Xiengkhuang (Plain of Jars)"],
+            festivals: ["Pi Mai Lao (Lao New Year)", "Boun Bang Fai (Rocket Festival)", "That Luang Festival", "Boun Ok Phansa"],
+            cuisine: ["Larb", "Sticky Rice", "Tam Mak Hoong (Papaya Salad)", "Khao Piak Sen", "Ping Kai", "Or Lam", "Sai Oua"],
+            arts: ["Lao Classical Music", "Mor Lam (Folk Music)", "Silk Weaving", "Gold/Silver Smithing", "Temple Architecture"],
+            sports: ["Muay Lao", "Football", "Petanque", "Sepak Takraw", "Volleyball"]
         },
 
         symbols: {
-            bird: "Common Nightingale",
-            animal: "Asiatic Lion (historical)",
-            flower: "Red Rose",
-            tree: "Cypress",
-            anthem: "Soroud-e Melli-e Jomhouri-e Eslami-e Iran",
-            motto: "Independence, Freedom, Islamic Republic"
+            bird: "Siamese Fireback",
+            animal: "Asian Elephant",
+            flower: "Dok Champa (Plumeria)",
+            tree: "None Official",
+            anthem: "Pheng Xat Lao",
+            motto: "Peace, Independence, Democracy, Unity and Prosperity"
         },
 
         demographics: {
-            lifeExpectancy: 77.33,
-            literacyRate: "85.5%",
-            urbanPopulation: "76.3%",
-            medianAge: 32.4
+            lifeExpectancy: 68.89,
+            literacyRate: "84.7%",
+            urbanPopulation: "37.6%",
+            medianAge: 24.4
         },
 
         history: {
             timeline: [
-                { year: "550 BCE", title: "Persian Empire", description: "Cyrus the Great founded Achaemenid Empire" },
-                { year: "330 BCE", title: "Alexander's Conquest", description: "Alexander the Great conquered Persia" },
-                { year: "224 CE", title: "Sasanian Empire", description: "Last pre-Islamic Persian Empire" },
-                { year: "651 CE", title: "Islamic Conquest", description: "Arab conquest introduced Islam" },
-                { year: "1501", title: "Safavid Dynasty", description: "Shia Islam became state religion" },
-                { year: "1925", title: "Pahlavi Dynasty", description: "Reza Shah established modern Iran" },
-                { year: "1979", title: "Islamic Revolution", description: "Ayatollah Khomeini established Islamic Republic" }
+                { year: "1353", title: "Lan Xang Kingdom", description: "Fa Ngum founded Lane Xang Kingdom" },
+                { year: "1707-1713", title: "Division", description: "Kingdom split into three parts" },
+                { year: "1893", title: "French Protectorate", description: "Became part of French Indochina" },
+                { year: "1953", title: "Independence", description: "Gained independence from France" },
+                { year: "1964-1973", title: "Secret War", description: "US bombing during Vietnam War era" },
+                { year: "1975", title: "Communist Rule", description: "Pathet Lao established socialist state" }
             ],
-            notableFigures: ["Cyrus the Great", "Darius I", "Ferdowsi", "Hafez", "Rumi", "Ayatollah Khomeini"]
+            notableFigures: ["Fa Ngum", "Kaysone Phomvihane", "Souphanouvong"]
         },
 
         disputes: [
-            { name: "Persian Gulf Islands", description: "Dispute with UAE over Abu Musa and Tunbs", type: "Border" }
+            { name: "Border with Thailand", description: "Minor unresolved border issues", type: "Border" }
         ],
 
         quickFacts: [
-            { icon: "oil-can", title: "Oil Reserves", text: "4th largest proven oil reserves" },
-            { icon: "scroll", title: "Persian Empire", text: "One of world's oldest civilizations (7,000+ years)" },
-            { icon: "book", title: "Poetry", text: "Birthplace of Rumi, Hafez, and Ferdowsi" },
-            { icon: "calendar", title: "Nowruz", text: "Persian New Year celebrated by 300M+ people" }
+            { icon: "bomb", title: "Most Bombed", text: "Most heavily bombed country per capita in history" },
+            { icon: "mountain", title: "Landlocked", text: "Only landlocked country in Southeast Asia" },
+            { icon: "bolt", title: "Battery of Asia", text: "Major hydropower exporter to neighbors" },
+            { icon: "water", title: "Mekong River", text: "1,898 km of Mekong flows through Laos" },
+            { icon: "jar-wheat", title: "Plain of Jars", text: "Mysterious ancient stone jars site" }
+        ]
+    },
+        // 5. MALAYSIA
+    {
+        id: "MYS",
+        name: "Malaysia",
+        officialName: "Malaysia",
+        flag: "https://flagcdn.com/w320/my.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1609946860441-a51ffcf22208?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1508084451219-386f9b673db2?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Kuala Lumpur (Federal), Putrajaya (Administrative)",
+            continent: "Asia",
+            region: "Southeast Asia",
+            subregion: "South-Eastern Asia",
+            population: 34308525,
+            area: 330803,
+            populationDensity: 99,
+            independence: "1957",
+            callingCode: "+60",
+            tld: ".my",
+            drivingSide: "Left",
+            electricity: "240V, 50Hz"
+        },
+
+        location: {
+            coordinates: [4.2105, 101.9758],
+            timezone: "UTC+8 (MYT)",
+            neighbors: ["Thailand", "Brunei", "Indonesia", "Singapore"],
+            borders: 2742,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Federal Parliamentary Constitutional Elective Monarchy",
+            headOfState: "Yang di-Pertuan Agong Ibrahim Iskandar",
+            headOfGovernment: "Prime Minister Anwar Ibrahim",
+            legislature: "Parliament (Dewan Negara & Dewan Rakyat)",
+            legalSystem: "Mixed (Common Law and Islamic Law)",
+            states: 13,
+            federalTerritories: 3,
+            largestCity: "Kuala Lumpur",
+            organizations: ["UN", "ASEAN", "Commonwealth", "OIC", "APEC", "WTO", "NAM", "D-8"]
+        },
+
+        economy: {
+            gdp: "$430.9 Billion",
+            gdpPPP: "$1.13 Trillion",
+            gdpPerCapita: "$12,570",
+            gdpRank: "#34",
+            gdpGrowth: "3.7%",
+            currency: "Malaysian Ringgit",
+            currencyCode: "MYR",
+            currencySymbol: "RM",
+            inflation: "2.5%",
+            unemployment: "3.4%",
+            majorSectors: ["Services (55%)", "Industry (37%)", "Agriculture (7%)"],
+            industries: ["Electronics", "Petroleum", "Palm Oil", "Rubber", "Timber", "Automotive", "Financial Services", "Tourism"],
+            exports: ["Electronics", "Petroleum", "Palm Oil", "Natural Gas", "Rubber", "Chemicals", "Machinery"],
+            imports: ["Electronics", "Machinery", "Petroleum", "Plastics", "Vehicles", "Iron & Steel"]
+        },
+
+        geography: {
+            climate: "Tropical Equatorial",
+            avgTemperature: "27°C",
+            annualRainfall: "2,500 mm",
+            highestPoint: "Mount Kinabalu (4,095 m)",
+            lowestPoint: "Indian Ocean (0 m)",
+            coastline: "4,675 km",
+            forestCover: "54.6%",
+            arableLand: "5.5%",
+            terrain: "Coastal plains; hills and mountains interior",
+            naturalResources: ["Tin", "Petroleum", "Timber", "Copper", "Iron Ore", "Natural Gas", "Bauxite"]
+        },
+
+        geography_links: {
+            rivers: ["Rajang River", "Kinabatangan River", "Pahang River", "Perak River", "Kelantan River"],
+            mountains: ["Mount Kinabalu", "Mount Tahan", "Mount Korbu", "Mount Mulu", "Crocker Range"],
+            deserts: [],
+            forests: ["Borneo Rainforest", "Taman Negara", "Belum-Temengor", "Danum Valley", "Kinabalu Park"],
+            oceans: ["South China Sea", "Strait of Malacca", "Sulu Sea", "Celebes Sea", "Andaman Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Malay"],
+            languages: ["Malay", "English", "Mandarin", "Tamil", "Indigenous Languages"],
+            religions: ["Islam (63.5%)", "Buddhism (18.7%)", "Christianity (9.1%)", "Hinduism (6.1%)", "Others (2.6%)"],
+            heritageSites: ["Kinabalu Park", "Gunung Mulu National Park", "Melaka and George Town", "Lenggong Valley"],
+            festivals: ["Hari Raya Aidilfitri", "Chinese New Year", "Deepavali", "Thaipusam", "Hari Gawai", "Kaamatan"],
+            cuisine: ["Nasi Lemak", "Satay", "Rendang", "Char Kway Teow", "Roti Canai", "Laksa", "Hainanese Chicken Rice", "Cendol"],
+            arts: ["Batik", "Songket", "Wayang Kulit", "Silat", "Dikir Barat", "Gamelan"],
+            sports: ["Football", "Badminton", "Sepak Takraw", "Hockey", "Squash"]
+        },
+
+        symbols: {
+            bird: "Rhinoceros Hornbill",
+            animal: "Malayan Tiger",
+            flower: "Hibiscus (Bunga Raya)",
+            tree: "None Official",
+            anthem: "Negaraku",
+            motto: "Bersekutu Bertambah Mutu (Unity is Strength)"
+        },
+
+        demographics: {
+            lifeExpectancy: 76.88,
+            literacyRate: "95%",
+            urbanPopulation: "78%",
+            medianAge: 30.3
+        },
+
+        history: {
+            timeline: [
+                { year: "100 CE", title: "Early Kingdoms", description: "Hindu-Buddhist kingdoms established" },
+                { year: "1400", title: "Malacca Sultanate", description: "Rise of Malacca as trading power" },
+                { year: "1511", title: "Portuguese Conquest", description: "Portuguese captured Malacca" },
+                { year: "1824", title: "British Control", description: "Anglo-Dutch Treaty gave British control" },
+                { year: "1942-1945", title: "Japanese Occupation", description: "Japanese occupation during WWII" },
+                { year: "1957", title: "Independence", description: "Malaya gained independence" },
+                { year: "1963", title: "Malaysia Formed", description: "Federation of Malaysia formed with Sabah, Sarawak, Singapore" },
+                { year: "1965", title: "Singapore Left", description: "Singapore separated from Malaysia" }
+            ],
+            notableFigures: ["Tunku Abdul Rahman", "Mahathir Mohamad", "Parameswara", "Hang Tuah"]
+        },
+
+        disputes: [
+            { name: "Spratly Islands", description: "Overlapping claims in South China Sea", type: "Maritime" },
+            { name: "Sabah", description: "Claimed by Philippines", type: "Territory" },
+            { name: "Pedra Branca", description: "Maritime dispute with Singapore", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "building", title: "Petronas Towers", text: "Were world's tallest buildings 1998-2004" },
+            { icon: "tree", title: "Ancient Rainforest", text: "130 million year old Taman Negara rainforest" },
+            { icon: "crown", title: "Rotating Monarchy", text: "Only country with rotating monarchy among 9 sultans" },
+            { icon: "palm-tree", title: "Palm Oil", text: "World's 2nd largest palm oil producer" },
+            { icon: "flag", title: "Two Parts", text: "Only country split between Asian mainland and island" }
         ]
     },
 
-    // 27. PHILIPPINES
+    // 6. MYANMAR
+    {
+        id: "MMR",
+        name: "Myanmar",
+        officialName: "Republic of the Union of Myanmar",
+        flag: "https://flagcdn.com/w320/mm.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1534642566602-9cf787a39c87?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1540466809213-dcfed0fe33bc?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Naypyidaw",
+            continent: "Asia",
+            region: "Southeast Asia",
+            subregion: "South-Eastern Asia",
+            population: 54577997,
+            area: 676578,
+            populationDensity: 83,
+            independence: "1948",
+            callingCode: "+95",
+            tld: ".mm",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [21.9162, 95.9560],
+            timezone: "UTC+6:30 (MMT)",
+            neighbors: ["Bangladesh", "India", "China", "Laos", "Thailand"],
+            borders: 6522,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Military Junta (State Administration Council)",
+            headOfState: "SAC Chairman Min Aung Hlaing",
+            headOfGovernment: "SAC Chairman Min Aung Hlaing",
+            legislature: "Suspended (Assembly of the Union - bicameral)",
+            legalSystem: "Mixed (Common Law, Customary Law, and Codes)",
+            states: 7,
+            regions: 7,
+            selfAdministeredZones: 6,
+            largestCity: "Yangon",
+            organizations: ["UN", "ASEAN", "BIMSTEC", "NAM"]
+        },
+
+        economy: {
+            gdp: "$58.8 Billion",
+            gdpPPP: "$256.7 Billion",
+            gdpPerCapita: "$1,095",
+            gdpRank: "#71",
+            gdpGrowth: "3.0%",
+            currency: "Myanmar Kyat",
+            currencyCode: "MMK",
+            currencySymbol: "K",
+            inflation: "8.8%",
+            unemployment: "2.2%",
+            majorSectors: ["Agriculture (22%)", "Industry (35%)", "Services (42%)"],
+            industries: ["Agricultural Processing", "Textiles & Apparel", "Wood Products", "Mining (Copper, Tin, Tungsten, Iron)", "Jade & Gems", "Oil & Natural Gas", "Construction"],
+            exports: ["Natural Gas", "Jade & Gems", "Beans & Pulses", "Fish", "Rice", "Timber", "Garments"],
+            imports: ["Fabric", "Petroleum", "Fertilizer", "Plastics", "Machinery", "Transport Equipment"]
+        },
+
+        geography: {
+            climate: "Tropical Monsoon; Temperate in highlands",
+            avgTemperature: "27.4°C",
+            annualRainfall: "2,365 mm",
+            highestPoint: "Hkakabo Razi (5,881 m)",
+            lowestPoint: "Andaman Sea (0 m)",
+            coastline: "1,930 km",
+            forestCover: "42.9%",
+            arableLand: "16.5%",
+            terrain: "Central lowlands; mountains in west and north",
+            naturalResources: ["Petroleum", "Timber", "Tin", "Antimony", "Zinc", "Copper", "Tungsten", "Lead", "Coal", "Marble", "Limestone", "Precious Stones", "Natural Gas", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Irrawaddy River", "Salween River", "Chindwin River", "Sittaung River"],
+            mountains: ["Hkakabo Razi", "Mount Popa", "Rakhine Mountains", "Chin Hills", "Shan Plateau"],
+            deserts: ["Dry Zone (Central Myanmar)"],
+            forests: ["Northern Rainforests", "Teak Forests", "Mangroves", "Hukaung Valley"],
+            oceans: ["Andaman Sea", "Bay of Bengal"]
+        },
+
+        culture: {
+            officialLanguages: ["Burmese"],
+            languages: ["Burmese", "Shan", "Karen", "Rakhine", "Chin", "Kachin", "Mon", "English"],
+            religions: ["Buddhism (87.9%)", "Christianity (6.2%)", "Islam (4.3%)", "Hinduism (0.5%)", "Animism (0.8%)"],
+            heritageSites: ["Bagan", "Pyu Ancient Cities"],
+            festivals: ["Thingyan (Water Festival/New Year)", "Thadingyut (Festival of Lights)", "Tazaungdaing", "Kahtein"],
+            cuisine: ["Mohinga", "Shan Noodles", "Tea Leaf Salad (Lahpet)", "Ohn No Khao Swe", "Nan Gyi Thoke", "Mont Di"],
+            arts: ["Puppetry (Yoke Thé)", "Lacquerware", "Thanaka", "Longyi", "Traditional Dance", "Bronze Casting"],
+            sports: ["Chinlone", "Football", "Lethwei (Burmese Boxing)", "Sepak Takraw"]
+        },
+
+        symbols: {
+            bird: "Grey Peacock-Pheasant",
+            animal: "Tiger",
+            flower: "Padauk (Pterocarpus macrocarpus)",
+            tree: "Padauk",
+            anthem: "Kaba Ma Kyei",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 67.78,
+            literacyRate: "89.1%",
+            urbanPopulation: "31.4%",
+            medianAge: 28.8
+        },
+
+        history: {
+            timeline: [
+                { year: "849", title: "Pagan Kingdom", description: "First Burmese unified kingdom" },
+                { year: "1287", title: "Mongol Invasion", description: "Mongols invaded, kingdom fragmented" },
+                { year: "1752", title: "Konbaung Dynasty", description: "Last Burmese dynasty established" },
+                { year: "1885", title: "British Rule", description: "Third Anglo-Burmese War, British annexation" },
+                { year: "1942-1945", title: "Japanese Occupation", description: "Japanese occupation during WWII" },
+                { year: "1948", title: "Independence", description: "Independence from Britain" },
+                { year: "1962", title: "Military Coup", description: "Military coup began decades of military rule" },
+                { year: "2011", title: "Civilian Government", description: "Transition to civilian-military government" },
+                { year: "2021", title: "Military Coup", description: "Military seized power again" }
+            ],
+            notableFigures: ["Aung San", "Aung San Suu Kyi", "King Anawrahta", "King Bayinnaung", "U Thant"]
+        },
+
+        disputes: [
+            { name: "Rohingya Crisis", description: "Ethnic conflict and refugee crisis", type: "Internal" },
+            { name: "Border with Bangladesh", description: "Minor border issues and Rohingya refugees", type: "Border" }
+        ],
+
+        quickFacts: [
+            { icon: "monument", title: "Bagan", text: "Over 2,000 ancient Buddhist temples" },
+            { icon: "gem", title: "Jade & Ruby", text: "World's largest producer of jade and rubies" },
+            { icon: "clock", title: "Unique Timezone", text: "UTC+6:30 - one of few half-hour timezones" },
+            { icon: "dragon", title: "Golden Land", text: "Called 'Golden Land' for its temples" },
+            { icon: "water", title: "Inle Lake", text: "Unique leg-rowing fishermen" }
+        ]
+    },
+
+    // 7. PHILIPPINES
     {
         id: "PHL",
         name: "Philippines",
@@ -836,15 +856,15 @@ const CountriesData2 = [
         
         images: {
             hero: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1523592121529-f6dde35f079e?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1493375366763-3ed5e0e6d8ec?w=1920&q=80"
+            landscape: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1562639299-1ad36b1ebce5?w=1920&q=80"
         },
 
         basic: {
             capital: "Manila",
             continent: "Asia",
             region: "Southeast Asia",
-            subregion: "Southeastern Asia",
+            subregion: "South-Eastern Asia",
             population: 117337368,
             area: 300000,
             populationDensity: 368,
@@ -867,65 +887,64 @@ const CountriesData2 = [
 
         political: {
             government: "Unitary Presidential Constitutional Republic",
-            headOfState: "President Ferdinand Marcos Jr.",
-            headOfGovernment: "President Ferdinand Marcos Jr.",
+            headOfState: "President Bongbong Marcos",
+            headOfGovernment: "President Bongbong Marcos",
             legislature: "Congress (Senate & House of Representatives)",
-            legalSystem: "Mixed (Civil Law, Common Law)",
-            states: 81,
-            provinces: 81,
+            legalSystem: "Mixed (Civil Law and Common Law)",
+            states: 82,
+            provinces: 82,
             regions: 17,
-            largestCity: "Quezon City (Metro Manila)",
-            organizations: ["UN", "ASEAN", "APEC", "WTO"]
+            largestCity: "Quezon City",
+            organizations: ["UN", "ASEAN", "APEC", "WTO", "G24", "NAM"]
         },
 
         economy: {
-            gdp: "$435 Billion",
-            gdpPPP: "$1.23 Trillion",
-            gdpPerCapita: "$3,859",
-            gdpRank: "#34",
+            gdp: "$404.3 Billion",
+            gdpPPP: "$1.14 Trillion",
+            gdpPerCapita: "$3,498",
+            gdpRank: "#32",
             gdpGrowth: "5.6%",
             currency: "Philippine Peso",
             currencyCode: "PHP",
             currencySymbol: "₱",
             inflation: "6.0%",
-            unemployment: "4.3%",
-            majorSectors: ["Services (61%)", "Industry (29%)", "Agriculture (9%)"],
-            industries: ["Electronics", "BPO Services", "Food Processing", "Garments", "Shipbuilding"],
-            exports: ["Electronics", "Machinery", "Copper", "Coconut Oil", "Fruits"],
-            imports: ["Electronic Products", "Mineral Fuels", "Machinery", "Transport Equipment", "Iron & Steel"]
+            unemployment: "4.4%",
+            majorSectors: ["Services (61%)", "Industry (28%)", "Agriculture (9%)"],
+            industries: ["Electronics Assembly", "Business Process Outsourcing", "Shipbuilding", "Pharmaceuticals", "Chemicals", "Food Processing", "Garments", "Petroleum Refining"],
+            exports: ["Electronics", "Machinery", "Transport Equipment", "Coconut Oil", "Fruits", "Copper"],
+            imports: ["Electronic Products", "Mineral Fuels", "Machinery", "Iron & Steel", "Vehicles", "Plastics"]
         },
 
         geography: {
-            climate: "Tropical Maritime",
+            climate: "Tropical Marine",
             avgTemperature: "26.6°C",
             annualRainfall: "2,348 mm",
             highestPoint: "Mount Apo (2,954 m)",
             lowestPoint: "Philippine Sea (0 m)",
             coastline: "36,289 km",
-            forestCover: "27.6%",
-            arableLand: "19.1%",
-            terrain: "Mountainous volcanic islands, coastal lowlands",
-            naturalResources: ["Timber", "Petroleum", "Nickel", "Cobalt", "Silver", "Gold", "Salt", "Copper"],
-            typhoonProne: true
+            forestCover: "23%",
+            arableLand: "18.2%",
+            terrain: "Mountainous with narrow coastal lowlands",
+            naturalResources: ["Timber", "Petroleum", "Nickel", "Cobalt", "Silver", "Gold", "Salt", "Copper"]
         },
 
         geography_links: {
-            rivers: ["Cagayan River", "Agusan River", "Pampanga River", "Pasig River"],
-            mountains: ["Sierra Madre", "Cordillera Central", "Mount Apo", "Mount Pinatubo", "Mayon Volcano"],
+            rivers: ["Cagayan River", "Rio Grande de Mindanao", "Agusan River", "Pampanga River", "Pasig River"],
+            mountains: ["Mount Apo", "Mount Pulag", "Mount Mayon", "Mount Pinatubo", "Mount Kanlaon", "Cordillera Central"],
             deserts: [],
-            forests: ["Sierra Madre Natural Park", "Mt. Pulag National Park"],
-            oceans: ["Pacific Ocean", "Philippine Sea", "South China Sea", "Celebes Sea", "Sulu Sea"]
+            forests: ["Sierra Madre", "Palawan Rainforests", "Mindanao Rainforests"],
+            oceans: ["Philippine Sea", "South China Sea (West Philippine Sea)", "Sulu Sea", "Celebes Sea", "Pacific Ocean"]
         },
 
         culture: {
-            officialLanguages: ["Filipino", "English"],
-            languages: ["Filipino (Tagalog)", "English", "Cebuano", "Ilocano", "Hiligaynon", "180+ languages"],
-            religions: ["Roman Catholicism (79%)", "Islam (6%)", "Iglesia ni Cristo (2.6%)", "Other Christian (10%)"],
-            heritageSites: ["Baroque Churches", "Rice Terraces of the Philippine Cordilleras", "Puerto-Princesa Subterranean River", "Historic Vigan", "Mount Hamiguitan"],
-            festivals: ["Sinulog", "Ati-Atihan", "Pahiyas", "MassKara", "Panagbenga"],
-            cuisine: ["Adobo", "Lechon", "Sinigang", "Kare-Kare", "Lumpia", "Halo-Halo", "Pancit"],
-            arts: ["Filipino Literature", "OPM (Original Pilipino Music)", "Folk Dance", "Weaving"],
-            sports: ["Basketball", "Boxing", "Volleyball", "Billiards", "Martial Arts (Arnis)"]
+            officialLanguages: ["Filipino (Tagalog)", "English"],
+            languages: ["Filipino", "English", "Cebuano", "Ilocano", "Hiligaynon", "Bicolano", "Waray", "180+ languages"],
+            religions: ["Roman Catholicism (79%)", "Islam (6%)", "Iglesia ni Cristo (2.6%)", "Evangelical (2.4%)", "Others (10%)"],
+            heritageSites: ["Baroque Churches", "Rice Terraces of Philippine Cordilleras", "Vigan", "Puerto Princesa Subterranean River", "Mount Hamiguitan", "Tubbataha Reefs"],
+            festivals: ["Sinulog", "Ati-Atihan", "Pahiyas", "Panagbenga", "Kadayawan", "MassKara", "Christmas Season"],
+            cuisine: ["Adobo", "Sinigang", "Lechon", "Kare-Kare", "Lumpia", "Sisig", "Halo-Halo", "Balut", "Pancit"],
+            arts: ["Tinikling Dance", "Kundiman Music", "Jeepney Art", "Bamboo Craft", "T'nalak Weaving", "Parol Making"],
+            sports: ["Basketball", "Boxing", "Volleyball", "Billiards", "Arnis", "Football"]
         },
 
         symbols: {
@@ -939,1403 +958,41 @@ const CountriesData2 = [
 
         demographics: {
             lifeExpectancy: 72.13,
-            literacyRate: "96.3%",
+            literacyRate: "98.2%",
             urbanPopulation: "47.7%",
             medianAge: 25.7
         },
 
         history: {
             timeline: [
-                { year: "900 CE", title: "Laguna Copperplate", description: "Oldest known written document in Philippines" },
-                { year: "1521", title: "Spanish Arrival", description: "Ferdinand Magellan arrived" },
+                { year: "900", title: "Laguna Copperplate", description: "Earliest written record in Philippines" },
+                { year: "1521", title: "Spanish Arrival", description: "Magellan arrived, Spanish colonization began" },
                 { year: "1898", title: "Independence Declared", description: "Independence from Spain declared" },
-                { year: "1898-1946", title: "American Period", description: "US colonization after Spanish-American War" },
+                { year: "1898", title: "American Rule", description: "Spanish-American War, US took control" },
+                { year: "1942-1945", title: "Japanese Occupation", description: "Japanese occupied during WWII" },
                 { year: "1946", title: "Independence", description: "Full independence from United States" },
-                { year: "1986", title: "People Power", description: "EDSA Revolution ousted Marcos dictatorship" }
+                { year: "1972-1986", title: "Martial Law", description: "Marcos martial law era" },
+                { year: "1986", title: "People Power", description: "EDSA Revolution ousted Marcos" }
             ],
             notableFigures: ["José Rizal", "Andrés Bonifacio", "Emilio Aguinaldo", "Corazon Aquino", "Manny Pacquiao"]
         },
 
         disputes: [
-            { name: "South China Sea", description: "Disputes with China over Spratly Islands and Scarborough Shoal", type: "Maritime" }
+            { name: "South China Sea", description: "Spratly Islands and Scarborough Shoal disputes with China", type: "Maritime" },
+            { name: "Sabah", description: "Claim over Sabah, Malaysia", type: "Territory" }
         ],
 
         quickFacts: [
-            { icon: "islands", title: "Archipelago", text: "7,641 islands (only 2,000 inhabited)" },
-            { icon: "users", title: "OFWs", text: "10+ million overseas Filipino workers" },
-            { icon: "comments", title: "English", text: "3rd largest English-speaking country" },
-            { icon: "cross", title: "Catholic", text: "Asia's largest Catholic nation" }
+            { icon: "island-tropical", title: "7,641 Islands", text: "Archipelago nation with over 7,600 islands" },
+            { icon: "cross", title: "Catholic Nation", text: "Only predominantly Catholic country in Asia" },
+            { icon: "comment", title: "English Speakers", text: "3rd largest English-speaking country" },
+            { icon: "phone", title: "Texting Capital", text: "Known as 'texting capital of the world'" },
+            { icon: "hand-sparkles", title: "OFW", text: "10+ million Filipinos work overseas" },
+            { icon: "tree", title: "Biodiversity", text: "One of 18 mega-diverse countries" }
         ]
     },
 
-    // 28. POLAND
-    {
-        id: "POL",
-        name: "Poland",
-        officialName: "Republic of Poland",
-        flag: "https://flagcdn.com/w320/pl.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1519197924294-4ba991a11128?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1565684939498-161fd9c8c72a?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1607427293702-036933bbf746?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Warsaw",
-            continent: "Europe",
-            region: "Central Europe",
-            subregion: "Eastern Europe",
-            population: 41026067,
-            area: 312696,
-            populationDensity: 124,
-            independence: "1918 (restored)",
-            callingCode: "+48",
-            tld: ".pl",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [51.9194, 19.1451],
-            timezone: "UTC+1 (CET) / UTC+2 (CEST)",
-            neighbors: ["Germany", "Czech Republic", "Slovakia", "Ukraine", "Belarus", "Lithuania", "Russia (Kaliningrad)"],
-            borders: 3071,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Unitary Parliamentary Republic",
-            headOfState: "President Andrzej Duda",
-            headOfGovernment: "Prime Minister Donald Tusk",
-            legislature: "Parliament (Senate & Sejm)",
-            legalSystem: "Civil Law",
-            states: 16,
-            voivodeships: 16,
-            largestCity: "Warsaw",
-            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Schengen Area"]
-        },
-
-        economy: {
-            gdp: "$811 Billion",
-            gdpPPP: "$1.65 Trillion",
-            gdpPerCapita: "$21,452",
-            gdpRank: "#21",
-            gdpGrowth: "0.2%",
-            currency: "Polish Złoty",
-            currencyCode: "PLN",
-            currencySymbol: "zł",
-            inflation: "11.4%",
-            unemployment: "2.8%",
-            majorSectors: ["Services (64%)", "Industry (29%)", "Agriculture (3%)"],
-            industries: ["Machinery", "Iron & Steel", "Coal Mining", "Chemicals", "Shipbuilding", "Food Processing", "Glass", "Beverages", "Textiles"],
-            exports: ["Machinery", "Vehicles", "Furniture", "Plastics", "Iron & Steel"],
-            imports: ["Machinery", "Vehicles", "Crude Petroleum", "Pharmaceuticals", "Plastics"]
-        },
-
-        geography: {
-            climate: "Temperate Continental",
-            avgTemperature: "8.5°C",
-            annualRainfall: "600 mm",
-            highestPoint: "Rysy (2,499 m)",
-            lowestPoint: "Żuławy Wiślane (-1.8 m)",
-            coastline: "440 km",
-            forestCover: "30.9%",
-            arableLand: "36.2%",
-            terrain: "Mostly flat plain, mountains along southern border",
-            naturalResources: ["Coal", "Sulfur", "Copper", "Natural Gas", "Silver", "Lead", "Salt", "Amber"]
-        },
-
-        geography_links: {
-            rivers: ["Vistula", "Oder", "Warta", "Bug"],
-            mountains: ["Tatras", "Sudetes", "Carpathians", "Bieszczady"],
-            deserts: [],
-            forests: ["Białowieża Forest", "Kampinos National Park"],
-            oceans: ["Baltic Sea"]
-        },
-
-        culture: {
-            officialLanguages: ["Polish"],
-            languages: ["Polish", "Silesian", "Kashubian"],
-            religions: ["Roman Catholicism (87%)", "Orthodox (1.3%)", "Other (11.7%)"],
-            heritageSites: ["Historic Centre of Kraków", "Wieliczka Salt Mine", "Auschwitz-Birkenau", "Historic Warsaw", "Białowieża Forest", "Malbork Castle"],
-            festivals: ["Wianki", "Juwenalia", "Pierogi Festival", "All Saints' Day"],
-            cuisine: ["Pierogi", "Bigos", "Żurek", "Kiełbasa", "Kotlet Schabowy", "Barszcz"],
-            arts: ["Chopin's Music", "Polish Literature", "Folk Art (Wycinanki)"],
-            sports: ["Football", "Volleyball", "Ski Jumping", "Speedway", "Athletics"]
-        },
-
-        symbols: {
-            bird: "White-tailed Eagle",
-            animal: "European Bison",
-            flower: "Red Poppy (unofficial)",
-            tree: "Oak",
-            anthem: "Mazurek Dąbrowskiego",
-            motto: "Bóg, Honor, Ojczyzna (God, Honour, Fatherland)"
-        },
-
-        demographics: {
-            lifeExpectancy: 78.73,
-            literacyRate: "99.8%",
-            urbanPopulation: "60%",
-            medianAge: 42.2
-        },
-
-        history: {
-            timeline: [
-                { year: "966", title: "Baptism of Poland", description: "Mieszko I adopted Christianity" },
-                { year: "1569", title: "Polish-Lithuanian Commonwealth", description: "Union of Poland and Lithuania" },
-                { year: "1795", title: "Partitions", description: "Poland partitioned between Russia, Prussia, Austria" },
-                { year: "1918", title: "Independence Restored", description: "Poland regained independence after WWI" },
-                { year: "1939", title: "WWII", description: "German and Soviet invasion" },
-                { year: "1989", title: "End of Communism", description: "First free elections, Solidarity movement" },
-                { year: "2004", title: "EU Membership", description: "Poland joined European Union" }
-            ],
-            notableFigures: ["Fryderyk Chopin", "Marie Curie", "Pope John Paul II", "Lech Wałęsa", "Nicolaus Copernicus"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "bison", title: "European Bison", text: "Home to last wild European bison in Białowieża" },
-            { icon: "music", title: "Chopin", text: "Birthplace of Fryderyk Chopin" },
-            { icon: "atom", title: "Marie Curie", text: "Birthplace of two-time Nobel laureate" },
-            { icon: "cross", title: "Catholic", text: "One of Europe's most Catholic countries" }
-        ]
-    },
-
-    // 29. ARGENTINA
-    {
-        id: "ARG",
-        name: "Argentina",
-        officialName: "Argentine Republic",
-        flag: "https://flagcdn.com/w320/ar.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Buenos Aires",
-            continent: "South America",
-            region: "South America",
-            subregion: "Southern South America",
-            population: 45773884,
-            area: 2780400,
-            populationDensity: 17,
-            independence: "1816",
-            callingCode: "+54",
-            tld: ".ar",
-            drivingSide: "Right",
-            electricity: "220V, 50Hz"
-        },
-
-        location: {
-            coordinates: [-38.4161, -63.6167],
-            timezone: "UTC-3 (ART)",
-            neighbors: ["Chile", "Bolivia", "Paraguay", "Brazil", "Uruguay"],
-            borders: 11968,
-            hemispheres: ["Southern", "Western"]
-        },
-
-        political: {
-            government: "Federal Presidential Constitutional Republic",
-            headOfState: "President Javier Milei",
-            headOfGovernment: "President Javier Milei",
-            legislature: "Congress (Senate & Chamber of Deputies)",
-            legalSystem: "Civil Law",
-            states: 23,
-            provinces: 23,
-            autonomousCity: 1,
-            largestCity: "Buenos Aires",
-            organizations: ["UN", "G20", "Mercosur", "OAS", "WTO"]
-        },
-
-        economy: {
-            gdp: "$641 Billion",
-            gdpPPP: "$1.24 Trillion",
-            gdpPerCapita: "$13,709",
-            gdpRank: "#22",
-            gdpGrowth: "-1.6%",
-            currency: "Argentine Peso",
-            currencyCode: "ARS",
-            currencySymbol: "$",
-            inflation: "211.4%",
-            unemployment: "5.7%",
-            majorSectors: ["Services (60%)", "Industry (23%)", "Agriculture (7%)"],
-            industries: ["Food Processing", "Automobiles", "Textiles", "Chemicals", "Petrochemicals", "Steel"],
-            exports: ["Soybean Meal", "Corn", "Soybean Oil", "Wheat", "Vehicles", "Beef"],
-            imports: ["Cars", "Refined Petroleum", "Vehicle Parts", "Natural Gas", "Soybeans"]
-        },
-
-        geography: {
-            climate: "Varied: Subtropical (North) to Subpolar (South)",
-            avgTemperature: "14.8°C",
-            annualRainfall: "591 mm",
-            highestPoint: "Aconcagua (6,962 m) - Highest in Americas",
-            lowestPoint: "Laguna del Carbón (-105 m)",
-            coastline: "4,989 km",
-            forestCover: "9.9%",
-            arableLand: "14.3%",
-            terrain: "Pampas plains, Patagonian plateau, Andes mountains",
-            naturalResources: ["Lead", "Zinc", "Tin", "Copper", "Iron Ore", "Manganese", "Petroleum", "Uranium", "Lithium"]
-        },
-
-        geography_links: {
-            rivers: ["Paraná River", "Uruguay River", "Colorado River", "Río de la Plata"],
-            mountains: ["Andes", "Aconcagua", "Cerro Fitz Roy"],
-            deserts: ["Patagonian Desert", "Monte Desert"],
-            forests: ["Valdivian Temperate Rainforest", "Yungas"],
-            oceans: ["Atlantic Ocean", "Argentine Sea"]
-        },
-
-        culture: {
-            officialLanguages: ["Spanish"],
-            languages: ["Spanish", "Italian dialects", "German", "Quechua", "Guaraní"],
-            religions: ["Roman Catholicism (63%)", "No Religion (19%)", "Evangelicalism (15%)"],
-            heritageSites: ["Los Glaciares National Park", "Iguazu National Park", "Jesuit Missions of the Guaranís", "Quebrada de Humahuaca", "Valdés Peninsula"],
-            festivals: ["Carnival", "Tango Festival", "Vendimia (Grape Harvest)", "Day of Tradition"],
-            cuisine: ["Asado", "Empanadas", "Milanesa", "Dulce de Leche", "Alfajores", "Mate"],
-            arts: ["Tango", "Argentine Literature (Borges)", "Cinema"],
-            sports: ["Football", "Rugby", "Polo", "Tennis", "Basketball", "Field Hockey"]
-        },
-
-        symbols: {
-            bird: "Rufous Hornero",
-            animal: "Puma",
-            flower: "Ceibo",
-            tree: "Ceibo",
-            anthem: "Himno Nacional Argentino",
-            motto: "En unión y libertad (In Union and Freedom)"
-        },
-
-        demographics: {
-            lifeExpectancy: 77.17,
-            literacyRate: "99%",
-            urbanPopulation: "92.1%",
-            medianAge: 32.4
-        },
-
-        history: {
-            timeline: [
-                { year: "1516", title: "Spanish Arrival", description: "Juan Díaz de Solís explored Río de la Plata" },
-                { year: "1816", title: "Independence", description: "Independence declared from Spain" },
-                { year: "1946-1955", title: "Perón Era", description: "Juan Perón's presidency transformed politics" },
-                { year: "1976-1983", title: "Military Junta", description: "Military dictatorship period" },
-                { year: "1982", title: "Falklands War", description: "War with UK over Malvinas/Falkland Islands" },
-                { year: "2001", title: "Economic Crisis", description: "Major economic collapse" }
-            ],
-            notableFigures: ["José de San Martín", "Eva Perón", "Jorge Luis Borges", "Diego Maradona", "Lionel Messi"]
-        },
-
-        disputes: [
-            { name: "Falkland Islands", description: "Territorial dispute with UK over Malvinas", type: "Border" }
-        ],
-
-        quickFacts: [
-            { icon: "mountain", title: "Aconcagua", text: "Highest peak in the Americas (6,962 m)" },
-            { icon: "futbol", title: "Football", text: "3-time FIFA World Cup winners" },
-            { icon: "music", title: "Tango", text: "Birthplace of tango dance and music" },
-            { icon: "wine-glass", title: "Wine", text: "5th largest wine producer in the world" }
-        ]
-    },
-
-    // 30. NETHERLANDS
-    {
-        id: "NLD",
-        name: "Netherlands",
-        officialName: "Kingdom of the Netherlands",
-        flag: "https://flagcdn.com/w320/nl.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Amsterdam (constitutional), The Hague (government)",
-            continent: "Europe",
-            region: "Western Europe",
-            subregion: "Western Europe",
-            population: 17618299,
-            area: 41850,
-            populationDensity: 508,
-            independence: "1581 (de facto), 1648 (recognized)",
-            callingCode: "+31",
-            tld: ".nl",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [52.1326, 5.2913],
-            timezone: "UTC+1 (CET) / UTC+2 (CEST)",
-            neighbors: ["Belgium", "Germany"],
-            borders: 1053,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Unitary Parliamentary Constitutional Monarchy",
-            headOfState: "King Willem-Alexander",
-            headOfGovernment: "Prime Minister Dick Schoof",
-            legislature: "States-General (Senate & House of Representatives)",
-            legalSystem: "Civil Law",
-            states: 12,
-            provinces: 12,
-            largestCity: "Amsterdam",
-            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Benelux", "Schengen Area"]
-        },
-
-        economy: {
-            gdp: "$1.01 Trillion",
-            gdpPPP: "$1.17 Trillion",
-            gdpPerCapita: "$57,025",
-            gdpRank: "#18",
-            gdpGrowth: "0.1%",
-            currency: "Euro",
-            currencyCode: "EUR",
-            currencySymbol: "€",
-            inflation: "4.1%",
-            unemployment: "3.6%",
-            majorSectors: ["Services (79%)", "Industry (18%)", "Agriculture (2%)"],
-            industries: ["Agrifood", "Chemicals", "Petroleum Refining", "Electronics", "Machinery", "Financial Services"],
-            exports: ["Refined Petroleum", "Machinery", "Pharmaceuticals", "Vegetables", "Cheese"],
-            imports: ["Crude Petroleum", "Computers", "Cars", "Refined Petroleum", "Broadcasting Equipment"]
-        },
-
-        geography: {
-            climate: "Maritime Temperate",
-            avgTemperature: "10.5°C",
-            annualRainfall: "838 mm",
-            highestPoint: "Vaalserberg (322.4 m)",
-            lowestPoint: "Zuidplaspolder (-7 m)",
-            coastline: "451 km",
-            forestCover: "11.2%",
-            arableLand: "29.2%",
-            terrain: "Mostly flat, reclaimed land (polders), coastal lowlands",
-            belowSeaLevel: "26% of land below sea level",
-            naturalResources: ["Natural Gas", "Petroleum", "Peat", "Limestone", "Salt", "Sand & Gravel"]
-        },
-
-        geography_links: {
-            rivers: ["Rhine", "Meuse", "Scheldt", "IJssel"],
-            mountains: [],
-            deserts: [],
-            forests: ["Veluwe", "Hoge Veluwe National Park"],
-            oceans: ["North Sea"]
-        },
-
-        culture: {
-            officialLanguages: ["Dutch"],
-            languages: ["Dutch", "Frisian", "Limburgish", "Low Saxon"],
-            religions: ["No Religion (55%)", "Roman Catholicism (20%)", "Protestantism (15%)", "Islam (5%)"],
-            heritageSites: ["Canal Ring of Amsterdam", "Schokland", "Windmills at Kinderdijk", "Rietveld Schröder House", "Van Nellefabriek"],
-            festivals: ["King's Day", "Sinterklaas", "Carnival", "Liberation Day"],
-            cuisine: ["Stroopwafels", "Bitterballen", "Herring", "Cheese (Gouda, Edam)", "Poffertjes", "Stamppot"],
-            arts: ["Dutch Masters (Rembrandt, Vermeer, Van Gogh)", "Architecture", "Design"],
-            sports: ["Football", "Ice Skating", "Field Hockey", "Cycling", "Volleyball"]
-        },
-
-        symbols: {
-            bird: "Black-tailed Godwit",
-            animal: "Lion (heraldic)",
-            flower: "Tulip",
-            tree: "N/A",
-            anthem: "Wilhelmus",
-            motto: "Je maintiendrai (I will maintain)"
-        },
-
-        demographics: {
-            lifeExpectancy: 82.28,
-            literacyRate: "99%",
-            urbanPopulation: "92.6%",
-            medianAge: 43.3
-        },
-
-        history: {
-            timeline: [
-                { year: "1568", title: "Dutch Revolt", description: "War of independence from Spain began" },
-                { year: "1602", title: "Dutch East India Company", description: "First multinational corporation founded" },
-                { year: "1648", title: "Independence", description: "Peace of Westphalia recognized Dutch independence" },
-                { year: "17th Century", title: "Dutch Golden Age", description: "Era of trade, science, and art dominance" },
-                { year: "1940-1945", title: "WWII Occupation", description: "Nazi Germany occupied Netherlands" },
-                { year: "1957", title: "EU Founding", description: "Netherlands co-founded European Community" }
-            ],
-            notableFigures: ["William of Orange", "Rembrandt", "Vincent van Gogh", "Anne Frank", "Johan Cruyff"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "water", title: "Below Sea Level", text: "26% of country is below sea level" },
-            { icon: "bicycle", title: "Cycling", text: "More bicycles than people (23M vs 17M)" },
-            { icon: "flower", title: "Tulips", text: "Exports 2 billion tulip bulbs annually" },
-            { icon: "building", title: "Port of Rotterdam", text: "Europe's largest port" }
-        ]
-    },
-
-    // 31. SWITZERLAND
-    {
-        id: "CHE",
-        name: "Switzerland",
-        officialName: "Swiss Confederation",
-        flag: "https://flagcdn.com/w320/ch.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Bern (de facto)",
-            continent: "Europe",
-            region: "Western Europe",
-            subregion: "Western Europe",
-            population: 8796669,
-            area: 41284,
-            populationDensity: 219,
-            independence: "1291 (founding)",
-            callingCode: "+41",
-            tld: ".ch",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [46.8182, 8.2275],
-            timezone: "UTC+1 (CET) / UTC+2 (CEST)",
-            neighbors: ["Germany", "France", "Italy", "Austria", "Liechtenstein"],
-            borders: 1852,
-            hemispheres: ["Northern", "Eastern"],
-            landlocked: true
-        },
-
-        political: {
-            government: "Federal Semi-Direct Democracy under a Directorial Republic",
-            headOfState: "Federal Council (7 members)",
-            headOfGovernment: "Federal Council (rotating presidency)",
-            legislature: "Federal Assembly (National Council & Council of States)",
-            legalSystem: "Civil Law",
-            states: 26,
-            cantons: 26,
-            largestCity: "Zürich",
-            organizations: ["UN", "EFTA", "Schengen Area", "WTO", "OECD", "Council of Europe"]
-        },
-
-        economy: {
-            gdp: "$884 Billion",
-            gdpPPP: "$731 Billion",
-            gdpPerCapita: "$99,994",
-            gdpRank: "#20",
-            gdpGrowth: "0.7%",
-            currency: "Swiss Franc",
-            currencyCode: "CHF",
-            currencySymbol: "Fr.",
-            inflation: "2.1%",
-            unemployment: "2.0%",
-            majorSectors: ["Services (74%)", "Industry (25%)", "Agriculture (1%)"],
-            industries: ["Machinery", "Chemicals", "Watches", "Textiles", "Precision Instruments", "Tourism", "Banking", "Insurance", "Pharmaceuticals"],
-            exports: ["Gold", "Packaged Medicines", "Watches", "Medical Instruments", "Precious Metals"],
-            imports: ["Gold", "Packaged Medicines", "Cars", "Jewellery", "Refined Petroleum"]
-        },
-
-        geography: {
-            climate: "Temperate to Alpine",
-            avgTemperature: "6.4°C",
-            annualRainfall: "1,537 mm",
-            highestPoint: "Dufourspitze (4,634 m)",
-            lowestPoint: "Lake Maggiore (193 m)",
-            coastline: "0 km (landlocked)",
-            forestCover: "31.7%",
-            arableLand: "10.2%",
-            terrain: "Alps (60%), Swiss Plateau (30%), Jura Mountains (10%)",
-            naturalResources: ["Hydropower", "Timber", "Salt"]
-        },
-
-        geography_links: {
-            rivers: ["Rhine", "Rhône", "Aare", "Inn"],
-            mountains: ["Swiss Alps", "Matterhorn", "Jungfrau", "Eiger", "Monte Rosa"],
-            deserts: [],
-            forests: ["Swiss National Park"],
-            oceans: []
-        },
-
-        culture: {
-            officialLanguages: ["German", "French", "Italian", "Romansh"],
-            languages: ["Swiss German", "French", "Italian", "Romansh"],
-            religions: ["Roman Catholicism (35%)", "Reformed Protestant (23%)", "No Religion (30%)", "Islam (5%)"],
-            heritageSites: ["Old City of Bern", "Abbey of St Gall", "Three Castles of Bellinzona", "Swiss Alps Jungfrau-Aletsch", "La Chaux-de-Fonds"],
-            festivals: ["Fasnacht (Carnival)", "Swiss National Day", "Montreux Jazz Festival", "Zürich Street Parade"],
-            cuisine: ["Fondue", "Raclette", "Rösti", "Swiss Chocolate", "Swiss Cheese"],
-            arts: ["Watch Making", "Swiss Design", "Architecture", "Banking"],
-            sports: ["Skiing", "Ice Hockey", "Football", "Tennis", "Cycling", "Hiking"]
-        },
-
-        symbols: {
-            bird: "N/A",
-            animal: "N/A (Cow is iconic)",
-            flower: "Edelweiss",
-            tree: "N/A",
-            anthem: "Swiss Psalm",
-            motto: "Unus pro omnibus, omnes pro uno (One for all, all for one)"
-        },
-
-        demographics: {
-            lifeExpectancy: 84.25,
-            literacyRate: "99%",
-            urbanPopulation: "74.0%",
-            medianAge: 43.1
-        },
-
-        history: {
-            timeline: [
-                { year: "1291", title: "Swiss Confederation", description: "Three cantons formed initial alliance" },
-                { year: "1499", title: "Independence", description: "De facto independence from Holy Roman Empire" },
-                { year: "1648", title: "Formal Independence", description: "Peace of Westphalia recognized Swiss independence" },
-                { year: "1815", title: "Neutrality", description: "Congress of Vienna established Swiss neutrality" },
-                { year: "1848", title: "Federal State", description: "Modern federal constitution adopted" },
-                { year: "2002", title: "UN Membership", description: "Switzerland joined United Nations" }
-            ],
-            notableFigures: ["William Tell (legendary)", "Jean-Jacques Rousseau", "Albert Einstein (naturalized)", "Roger Federer"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "shield", title: "Neutrality", text: "Neutral since 1515, no wars since 1847" },
-            { icon: "clock", title: "Watches", text: "Produces 50% of world's luxury watches" },
-            { icon: "bank", title: "Banking", text: "Global center for private banking" },
-            { icon: "mountain", title: "Alps", text: "1,800+ peaks over 2,000m" },
-            { icon: "flag", title: "Languages", text: "4 official languages" }
-        ]
-    },
-
-    // 32. BELGIUM
-    {
-        id: "BEL",
-        name: "Belgium",
-        officialName: "Kingdom of Belgium",
-        flag: "https://flagcdn.com/w320/be.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1559113513-d5e09c78b9dd?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1588970698421-fb11f17d8bea?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1491557345352-5929e343eb89?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Brussels",
-            continent: "Europe",
-            region: "Western Europe",
-            subregion: "Western Europe",
-            population: 11697557,
-            area: 30528,
-            populationDensity: 383,
-            independence: "1830",
-            callingCode: "+32",
-            tld: ".be",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [50.5039, 4.4699],
-            timezone: "UTC+1 (CET) / UTC+2 (CEST)",
-            neighbors: ["France", "Luxembourg", "Germany", "Netherlands"],
-            borders: 1297,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Federal Parliamentary Constitutional Monarchy",
-            headOfState: "King Philippe",
-            headOfGovernment: "Prime Minister Alexander De Croo",
-            legislature: "Federal Parliament (Senate & Chamber of Representatives)",
-            legalSystem: "Civil Law",
-            states: 3,
-            regions: 3,
-            communities: 3,
-            largestCity: "Brussels",
-            organizations: ["UN", "EU (HQ)", "NATO (HQ)", "OECD", "WTO", "Benelux", "Schengen Area"]
-        },
-
-        economy: {
-            gdp: "$632 Billion",
-            gdpPPP: "$727 Billion",
-            gdpPerCapita: "$53,657",
-            gdpRank: "#24",
-            gdpGrowth: "1.4%",
-            currency: "Euro",
-            currencyCode: "EUR",
-            currencySymbol: "€",
-            inflation: "4.1%",
-            unemployment: "5.5%",
-            majorSectors: ["Services (78%)", "Industry (21%)", "Agriculture (1%)"],
-            industries: ["Engineering", "Chemicals", "Motor Vehicles", "Processed Food", "Pharmaceuticals", "Diamond Trade"],
-            exports: ["Cars", "Refined Petroleum", "Packaged Medicines", "Blood Products", "Diamonds"],
-            imports: ["Cars", "Refined Petroleum", "Crude Petroleum", "Packaged Medicines", "Natural Gas"]
-        },
-
-        geography: {
-            climate: "Maritime Temperate",
-            avgTemperature: "10.5°C",
-            annualRainfall: "852 mm",
-            highestPoint: "Signal de Botrange (694 m)",
-            lowestPoint: "North Sea (0 m)",
-            coastline: "66 km",
-            forestCover: "22.6%",
-            arableLand: "27.1%",
-            terrain: "Flat coastal plains, central plateau, Ardennes hills"
-        },
-
-        geography_links: {
-            rivers: ["Meuse", "Scheldt", "Sambre"],
-            mountains: ["Ardennes"],
-            deserts: [],
-            forests: ["Ardennes Forest", "Sonian Forest"],
-            oceans: ["North Sea"]
-        },
-
-        culture: {
-            officialLanguages: ["Dutch", "French", "German"],
-            languages: ["Dutch (Flemish)", "French", "German"],
-            religions: ["Roman Catholicism (50%)", "No Religion (33%)", "Islam (7%)", "Other Christian (5%)"],
-            heritageSites: ["Grand-Place Brussels", "Historic Centre of Bruges", "Flemish Béguinages", "Plantin-Moretus Museum", "Horta Houses"],
-            festivals: ["Carnival of Binche", "Ommegang", "Ghent Festivities", "Tomorrowland"],
-            cuisine: ["Belgian Waffles", "Moules-Frites", "Belgian Chocolate", "Belgian Beer", "Speculoos", "Carbonade Flamande"],
-            arts: ["Flemish Masters (van Eyck, Rubens, Bruegel)", "Art Nouveau", "Comics (Tintin, Smurfs)"],
-            sports: ["Football", "Cycling", "Tennis", "Field Hockey"]
-        },
-
-        symbols: {
-            bird: "Common Kestrel",
-            animal: "Lion (heraldic)",
-            flower: "Red Poppy",
-            tree: "N/A",
-            anthem: "La Brabançonne",
-            motto: "L'union fait la force (Unity makes strength)"
-        },
-
-        demographics: {
-            lifeExpectancy: 82.17,
-            literacyRate: "99%",
-            urbanPopulation: "98.1%",
-            medianAge: 41.9
-        },
-
-        history: {
-            timeline: [
-                { year: "57 BCE", title: "Roman Conquest", description: "Julius Caesar conquered Belgae tribes" },
-                { year: "1830", title: "Independence", description: "Belgian Revolution, independence from Netherlands" },
-                { year: "1914-1918", title: "WWI", description: "German occupation, Flanders fields battles" },
-                { year: "1940-1944", title: "WWII", description: "German occupation" },
-                { year: "1957", title: "EU Founding", description: "Belgium co-founded European Community" },
-                { year: "1967", title: "NATO HQ", description: "NATO headquarters moved to Brussels" }
-            ],
-            notableFigures: ["King Leopold I", "René Magritte", "Hergé", "Audrey Hepburn (born)", "Eddy Merckx"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "building", title: "EU & NATO", text: "Headquarters of both EU and NATO" },
-            { icon: "chocolate", title: "Chocolate", text: "Produces 220,000 tonnes of chocolate annually" },
-            { icon: "beer", title: "Beer", text: "1,500+ unique beers, UNESCO heritage" },
-            { icon: "diamond", title: "Diamonds", text: "Antwerp: 80% of world's rough diamonds" }
-        ]
-    },
-
-    // 33. SWEDEN
-    {
-        id: "SWE",
-        name: "Sweden",
-        officialName: "Kingdom of Sweden",
-        flag: "https://flagcdn.com/w320/se.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1484924331917-88c2e108d86d?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1577587230708-187fdbef4d91?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Stockholm",
-            continent: "Europe",
-            region: "Northern Europe",
-            subregion: "Scandinavia",
-            population: 10551707,
-            area: 450295,
-            populationDensity: 25,
-            independence: "1523 (from Kalmar Union)",
-            callingCode: "+46",
-            tld: ".se",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [60.1282, 18.6435],
-            timezone: "UTC+1 (CET) / UTC+2 (CEST)",
-            neighbors: ["Norway", "Finland"],
-            borders: 2211,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Unitary Parliamentary Constitutional Monarchy",
-            headOfState: "King Carl XVI Gustaf",
-            headOfGovernment: "Prime Minister Ulf Kristersson",
-            legislature: "Riksdag",
-            legalSystem: "Civil Law",
-            states: 21,
-            counties: 21,
-            largestCity: "Stockholm",
-            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Nordic Council", "Schengen Area"]
-        },
-
-        economy: {
-            gdp: "$593 Billion",
-            gdpPPP: "$687 Billion",
-            gdpPerCapita: "$55,566",
-            gdpRank: "#23",
-            gdpGrowth: "-0.2%",
-            currency: "Swedish Krona",
-            currencyCode: "SEK",
-            currencySymbol: "kr",
-            inflation: "5.9%",
-            unemployment: "7.5%",
-            majorSectors: ["Services (65%)", "Industry (24%)", "Agriculture (1.6%)"],
-            industries: ["Iron & Steel", "Precision Equipment", "Wood Pulp & Paper", "Automotive", "Telecommunications", "Pharmaceuticals"],
-            exports: ["Refined Petroleum", "Cars", "Packaged Medicines", "Vehicle Parts", "Electrical Power Equipment"],
-            imports: ["Cars", "Crude Petroleum", "Refined Petroleum", "Broadcasting Equipment", "Computers"]
-        },
-
-        geography: {
-            climate: "Temperate in South, Subarctic in North",
-            avgTemperature: "5.1°C",
-            annualRainfall: "624 mm",
-            highestPoint: "Kebnekaise (2,097 m)",
-            lowestPoint: "Lake Hammarsjön (-2.4 m)",
-            coastline: "3,218 km",
-            forestCover: "68.9%",
-            arableLand: "6.4%",
-            terrain: "Flat lowlands in south, mountains in west",
-            naturalResources: ["Iron Ore", "Copper", "Lead", "Zinc", "Gold", "Silver", "Tungsten", "Uranium", "Arsenic", "Feldspar", "Timber", "Hydropower"]
-        },
-
-        geography_links: {
-            rivers: ["Klarälven", "Dalälven", "Ångermanälven", "Torneälven"],
-            mountains: ["Scandinavian Mountains", "Kebnekaise"],
-            deserts: [],
-            forests: ["Boreal Forest (Taiga)"],
-            oceans: ["Baltic Sea", "Gulf of Bothnia", "Kattegat"]
-        },
-
-        culture: {
-            officialLanguages: ["Swedish"],
-            languages: ["Swedish", "Finnish", "Sami", "Meänkieli", "Romani", "Yiddish"],
-            religions: ["Church of Sweden (Lutheran) (57%)", "No Religion (34%)", "Islam (2%)", "Other (7%)"],
-            heritageSites: ["Royal Domain of Drottningholm", "Birka and Hovgården", "Skogskyrkogården", "Laponian Area", "Hanseatic Town of Visby"],
-            festivals: ["Midsummer", "Lucia", "Walpurgis Night", "Nobel Prize Ceremony"],
-            cuisine: ["Swedish Meatballs", "Gravlax", "Surströmming", "Knäckebröd", "Lingonberry", "Kanelbullar"],
-            arts: ["ABBA", "Swedish Design", "Literature (Selma Lagerlöf)", "Cinema (Ingmar Bergman)"],
-            sports: ["Ice Hockey", "Football", "Skiing", "Handball", "Bandy", "Orienteering"]
-        },
-
-        symbols: {
-            bird: "Common Blackbird",
-            animal: "Eurasian Elk (Moose)",
-            flower: "Linnaea",
-            tree: "N/A",
-            anthem: "Du gamla, Du fria",
-            motto: "För Sverige – i tiden (For Sweden – With the Times)"
-        },
-
-        demographics: {
-            lifeExpectancy: 83.22,
-            literacyRate: "99%",
-            urbanPopulation: "88.5%",
-            medianAge: 41.1
-        },
-
-        history: {
-            timeline: [
-                { year: "800-1050", title: "Viking Age", description: "Vikings explored and traded across Europe" },
-                { year: "1397", title: "Kalmar Union", description: "Union with Denmark and Norway" },
-                { year: "1523", title: "Independence", description: "Gustav Vasa became king" },
-                { year: "1611-1721", title: "Swedish Empire", description: "Major European power" },
-                { year: "1814", title: "Union with Norway", description: "Personal union until 1905" },
-                { year: "1995", title: "EU Membership", description: "Sweden joined European Union" },
-                { year: "2024", title: "NATO Membership", description: "Sweden joined NATO" }
-            ],
-            notableFigures: ["Gustav Vasa", "Alfred Nobel", "Greta Thunberg", "ABBA", "Zlatan Ibrahimović"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "award", title: "Nobel Prize", text: "Home of Nobel Prize (since 1901)" },
-            { icon: "tree", title: "Forests", text: "69% forest cover, one of Europe's highest" },
-            { icon: "music", title: "Music", text: "3rd largest music exporter globally" },
-            { icon: "baby", title: "Parental Leave", text: "480 days shared parental leave" }
-        ]
-    },
-
-    // 34. AUSTRIA
-    {
-        id: "AUT",
-        name: "Austria",
-        officialName: "Republic of Austria",
-        flag: "https://flagcdn.com/w320/at.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1516550893923-42d28e5677af?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1532186773960-85649e5cb70b?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1609856878074-cf31e21ccb6b?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Vienna",
-            continent: "Europe",
-            region: "Central Europe",
-            subregion: "Western Europe",
-            population: 9104772,
-            area: 83879,
-            populationDensity: 109,
-            independence: "1918 (First Republic), 1955 (Second Republic)",
-            callingCode: "+43",
-            tld: ".at",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [47.5162, 14.5501],
-            timezone: "UTC+1 (CET) / UTC+2 (CEST)",
-            neighbors: ["Germany", "Czech Republic", "Slovakia", "Hungary", "Slovenia", "Italy", "Switzerland", "Liechtenstein"],
-            borders: 2524,
-            hemispheres: ["Northern", "Eastern"],
-            landlocked: true
-        },
-
-        political: {
-            government: "Federal Parliamentary Republic",
-            headOfState: "President Alexander Van der Bellen",
-            headOfGovernment: "Chancellor Karl Nehammer",
-            legislature: "Parliament (National Council & Federal Council)",
-            legalSystem: "Civil Law",
-            states: 9,
-            bundesländer: 9,
-            largestCity: "Vienna",
-            organizations: ["UN", "EU", "OECD", "WTO", "Council of Europe", "Schengen Area"]
-        },
-
-        economy: {
-            gdp: "$515 Billion",
-            gdpPPP: "$594 Billion",
-            gdpPerCapita: "$56,802",
-            gdpRank: "#25",
-            gdpGrowth: "-0.7%",
-            currency: "Euro",
-            currencyCode: "EUR",
-            currencySymbol: "€",
-            inflation: "7.8%",
-            unemployment: "5.1%",
-            majorSectors: ["Services (70%)", "Industry (28%)", "Agriculture (1%)"],
-            industries: ["Construction", "Machinery", "Vehicles", "Food", "Metals", "Chemicals", "Lumber", "Paper", "Tourism"],
-            exports: ["Cars", "Packaged Medicines", "Vehicle Parts", "Blood Products", "Electrical Equipment"],
-            imports: ["Cars", "Crude Petroleum", "Packaged Medicines", "Vehicle Parts", "Broadcasting Equipment"]
-        },
-
-        geography: {
-            climate: "Temperate Continental",
-            avgTemperature: "7.4°C",
-            annualRainfall: "1,110 mm",
-            highestPoint: "Großglockner (3,798 m)",
-            lowestPoint: "Lake Neusiedl (115 m)",
-            coastline: "0 km (landlocked)",
-            forestCover: "47.3%",
-            arableLand: "16.3%",
-            terrain: "Alps (western 2/3), Danube valley (eastern 1/3)",
-            naturalResources: ["Oil", "Coal", "Lignite", "Timber", "Iron Ore", "Copper", "Zinc", "Antimony", "Magnesite", "Tungsten", "Graphite", "Salt", "Hydropower"]
-        },
-
-        geography_links: {
-            rivers: ["Danube", "Inn", "Drau", "Mur"],
-            mountains: ["Alps", "Großglockner", "Wilder Kaiser"],
-            deserts: [],
-            forests: ["Austrian Alps forests", "Vienna Woods"],
-            oceans: []
-        },
-
-        culture: {
-            officialLanguages: ["German"],
-            languages: ["German (Austrian)", "Croatian", "Hungarian", "Slovene"],
-            religions: ["Roman Catholicism (55%)", "No Religion (23%)", "Islam (8%)", "Orthodox (5%)", "Protestantism (4%)"],
-            heritageSites: ["Historic Centre of Vienna", "Palace and Gardens of Schönbrunn", "Historic Centre of Salzburg", "Hallstatt-Dachstein", "Semmering Railway", "Wachau Cultural Landscape"],
-            festivals: ["Vienna Opera Ball", "Salzburg Festival", "Christmas Markets", "Wiener Festwochen"],
-            cuisine: ["Wiener Schnitzel", "Sachertorte", "Apfelstrudel", "Tafelspitz", "Käsespätzle"],
-            arts: ["Classical Music (Mozart, Strauss, Haydn)", "Vienna Secession", "Architecture"],
-            sports: ["Skiing", "Football", "Ice Hockey", "Tennis", "Motorsports"]
-        },
-
-        symbols: {
-            bird: "Barn Swallow",
-            animal: "Black Eagle (heraldic)",
-            flower: "Edelweiss",
-            tree: "N/A",
-            anthem: "Land der Berge, Land am Strome",
-            motto: "N/A"
-        },
-
-        demographics: {
-            lifeExpectancy: 82.05,
-            literacyRate: "99%",
-            urbanPopulation: "59.3%",
-            medianAge: 44.5
-        },
-
-        history: {
-            timeline: [
-                { year: "976", title: "Margraviate", description: "Austrian march established" },
-                { year: "1273", title: "Habsburg Rule", description: "Rudolf I began Habsburg dynasty" },
-                { year: "1867", title: "Austro-Hungarian Empire", description: "Dual monarchy established" },
-                { year: "1918", title: "First Republic", description: "Empire collapsed after WWI" },
-                { year: "1938", title: "Anschluss", description: "Nazi Germany annexed Austria" },
-                { year: "1955", title: "State Treaty", description: "Independence restored, neutrality declared" },
-                { year: "1995", title: "EU Membership", description: "Austria joined European Union" }
-            ],
-            notableFigures: ["Wolfgang Amadeus Mozart", "Sigmund Freud", "Gustav Klimt", "Arnold Schwarzenegger", "Franz Joseph I"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "music", title: "Classical Music", text: "Birthplace of Mozart, Haydn, Schubert, Strauss" },
-            { icon: "mountain", title: "Alps", text: "62% of country covered by Alps" },
-            { icon: "coffee", title: "Coffee Culture", text: "Viennese coffee house culture is UNESCO heritage" },
-            { icon: "skiing", title: "Skiing", text: "One of world's top ski destinations" }
-        ]
-    },
-
-    // 35. NORWAY
-    {
-        id: "NOR",
-        name: "Norway",
-        officialName: "Kingdom of Norway",
-        flag: "https://flagcdn.com/w320/no.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1520769669658-f07657f5a307?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1603053700007-7c56a28a7edc?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Oslo",
-            continent: "Europe",
-            region: "Northern Europe",
-            subregion: "Scandinavia",
-            population: 5474360,
-            area: 385207,
-            populationDensity: 15,
-            independence: "1905 (from Sweden)",
-            callingCode: "+47",
-            tld: ".no",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [60.4720, 8.4689],
-            timezone: "UTC+1 (CET) / UTC+2 (CEST)",
-            neighbors: ["Sweden", "Finland", "Russia"],
-            borders: 2566,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Unitary Parliamentary Constitutional Monarchy",
-            headOfState: "King Harald V",
-            headOfGovernment: "Prime Minister Jonas Gahr Støre",
-            legislature: "Storting",
-            legalSystem: "Civil Law",
-            states: 15,
-            counties: 15,
-            largestCity: "Oslo",
-            organizations: ["UN", "NATO", "EFTA", "Nordic Council", "WTO", "OECD", "Council of Europe", "Schengen Area"]
-        },
-
-        economy: {
-            gdp: "$485 Billion",
-            gdpPPP: "$425 Billion",
-            gdpPerCapita: "$87,962",
-            gdpRank: "#28",
-            gdpGrowth: "0.5%",
-            currency: "Norwegian Krone",
-            currencyCode: "NOK",
-            currencySymbol: "kr",
-            inflation: "5.5%",
-            unemployment: "3.6%",
-            majorSectors: ["Services (59%)", "Industry (30%)", "Agriculture (2%)"],
-            industries: ["Petroleum & Gas", "Shipping", "Fishing", "Aquaculture", "Mining", "Chemicals", "Metals"],
-            exports: ["Crude Petroleum", "Natural Gas", "Fish", "Aluminum", "Nickel"],
-            imports: ["Cars", "Refined Petroleum", "Broadcasting Equipment", "Computers", "Vehicle Parts"]
-        },
-
-        geography: {
-            climate: "Temperate along coast, Colder inland, Arctic in north",
-            avgTemperature: "3.8°C",
-            annualRainfall: "1,414 mm",
-            highestPoint: "Galdhøpiggen (2,469 m)",
-            lowestPoint: "Norwegian Sea (0 m)",
-            coastline: "25,148 km (including fjords)",
-            forestCover: "33.2%",
-            arableLand: "2.2%",
-            terrain: "Glacial mountains, plateaus, fertile valleys, fjords",
-            naturalResources: ["Petroleum", "Natural Gas", "Iron Ore", "Copper", "Lead", "Zinc", "Titanium", "Pyrites", "Nickel", "Fish", "Timber", "Hydropower"]
-        },
-
-        geography_links: {
-            rivers: ["Glomma", "Drammenselva", "Numedalslågen"],
-            mountains: ["Scandinavian Mountains", "Jotunheimen", "Galdhøpiggen"],
-            deserts: [],
-            forests: ["Boreal forests"],
-            oceans: ["Norwegian Sea", "North Sea", "Barents Sea", "Arctic Ocean"]
-        },
-
-        culture: {
-            officialLanguages: ["Norwegian (Bokmål, Nynorsk)", "Sami"],
-            languages: ["Norwegian", "Sami", "Kven"],
-            religions: ["Church of Norway (Lutheran) (64%)", "No Religion (20%)", "Islam (3%)", "Roman Catholicism (3%)"],
-            heritageSites: ["Bryggen", "Urnes Stave Church", "Røros Mining Town", "Alta Rock Art", "West Norwegian Fjords"],
-            festivals: ["Constitution Day (May 17)", "Midsummer", "Northern Lights Season"],
-            cuisine: ["Rakfisk", "Lutefisk", "Brunost", "Kjøttkaker", "Smørbrød", "Multekrem"],
-            arts: ["Edvard Munch", "Henrik Ibsen", "Edvard Grieg", "Viking Art"],
-            sports: ["Cross-country Skiing", "Biathlon", "Football", "Handball", "Ice Hockey"]
-        },
-
-        symbols: {
-            bird: "White-throated Dipper",
-            animal: "Lion (heraldic), Elk (unofficial)",
-            flower: "Purple Heather",
-            tree: "Norway Spruce",
-            anthem: "Ja, vi elsker dette landet",
-            motto: "Alt for Norge (Everything for Norway)"
-        },
-
-        demographics: {
-            lifeExpectancy: 83.16,
-            literacyRate: "99%",
-            urbanPopulation: "83.7%",
-            medianAge: 39.8
-        },
-
-        history: {
-            timeline: [
-                { year: "800-1066", title: "Viking Age", description: "Vikings explored, traded, and settled across Europe" },
-                { year: "1397", title: "Kalmar Union", description: "Union with Denmark and Sweden" },
-                { year: "1814", title: "Constitution", description: "Constitution written, union with Sweden" },
-                { year: "1905", title: "Independence", description: "Peaceful separation from Sweden" },
-                { year: "1969", title: "Oil Discovery", description: "North Sea oil discovered" },
-                { year: "1994", title: "EU Referendum", description: "Voted against EU membership" }
-            ],
-            notableFigures: ["Harald Fairhair", "Leif Erikson", "Edvard Grieg", "Henrik Ibsen", "Roald Amundsen", "Edvard Munch"]
-        },
-
-        disputes: [],
-
-        quickFacts: [
-            { icon: "water", title: "Fjords", text: "Over 1,000 fjords, longest is Sognefjord (204 km)" },
-            { icon: "oil-can", title: "Wealth Fund", text: "World's largest sovereign wealth fund ($1.4T+)" },
-            { icon: "chart-line", title: "HDI", text: "Consistently ranked #1 in Human Development Index" },
-            { icon: "sun", title: "Midnight Sun", text: "24-hour daylight in summer above Arctic Circle" }
-        ]
-    },
-
-    // 36. ISRAEL
-    {
-        id: "ISR",
-        name: "Israel",
-        officialName: "State of Israel",
-        flag: "https://flagcdn.com/w320/il.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1547483238-f400e65ccd56?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Jerusalem (disputed, Tel Aviv recognized by most)",
-            continent: "Asia",
-            region: "Middle East",
-            subregion: "Western Asia",
-            population: 9364000,
-            area: 20770,
-            populationDensity: 423,
-            independence: "1948",
-            callingCode: "+972",
-            tld: ".il",
-            drivingSide: "Right",
-            electricity: "230V, 50Hz"
-        },
-
-        location: {
-            coordinates: [31.0461, 34.8516],
-            timezone: "UTC+2 (IST) / UTC+3 (IDT)",
-            neighbors: ["Lebanon", "Syria", "Jordan", "Egypt", "Palestine"],
-            borders: 1068,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Unitary Parliamentary Republic",
-            headOfState: "President Isaac Herzog",
-            headOfGovernment: "Prime Minister Benjamin Netanyahu",
-            legislature: "Knesset",
-            legalSystem: "Mixed (Common Law, Civil Law, Jewish Law)",
-            states: 6,
-            districts: 6,
-            largestCity: "Jerusalem",
-            organizations: ["UN", "OECD", "WTO"]
-        },
-
-        economy: {
-            gdp: "$521 Billion",
-            gdpPPP: "$464 Billion",
-            gdpPerCapita: "$54,930",
-            gdpRank: "#29",
-            gdpGrowth: "2.0%",
-            currency: "Israeli New Shekel",
-            currencyCode: "ILS",
-            currencySymbol: "₪",
-            inflation: "4.3%",
-            unemployment: "3.4%",
-            majorSectors: ["Services (72%)", "Industry (17%)", "Agriculture (1%)"],
-            industries: ["High-technology", "Diamonds", "Chemicals", "Pharmaceuticals", "Electronics", "Defense"],
-            exports: ["Diamonds", "Pharmaceuticals", "Machinery", "Electronics", "Chemicals"],
-            imports: ["Crude Petroleum", "Diamonds", "Cars", "Machinery", "Electronics"]
-        },
-
-        geography: {
-            climate: "Mediterranean to Arid",
-            avgTemperature: "20°C",
-            annualRainfall: "435 mm",
-            highestPoint: "Mount Meron (1,208 m)",
-            lowestPoint: "Dead Sea (-431 m, lowest point on Earth)",
-            coastline: "273 km",
-            forestCover: "7.6%",
-            arableLand: "13.7%",
-            terrain: "Negev desert, central mountains, coastal plain",
-            naturalResources: ["Timber", "Potash", "Copper Ore", "Natural Gas", "Phosphate Rock", "Magnesium Bromide", "Clays", "Sand"]
-        },
-
-        geography_links: {
-            rivers: ["Jordan River", "Yarkon River"],
-            mountains: ["Mount Carmel", "Mount Meron", "Golan Heights"],
-            deserts: ["Negev Desert", "Judean Desert"],
-            forests: ["Carmel Forest"],
-            oceans: ["Mediterranean Sea", "Red Sea (Gulf of Aqaba)"]
-        },
-
-        culture: {
-            officialLanguages: ["Hebrew", "Arabic"],
-            languages: ["Hebrew", "Arabic", "English", "Russian", "Amharic"],
-            religions: ["Judaism (74%)", "Islam (18%)", "Christianity (2%)", "Druze (1.6%)"],
-            heritageSites: ["Old City of Jerusalem", "Masada", "Acre", "Tel Aviv White City", "Negev Incense Route", "Caves of Maresha"],
-            festivals: ["Passover", "Rosh Hashanah", "Yom Kippur", "Hanukkah", "Purim", "Sukkot"],
-            cuisine: ["Falafel", "Hummus", "Shakshuka", "Sabich", "Israeli Salad", "Schnitzel"],
-            arts: ["Israeli Literature", "Film", "Contemporary Art", "Music"],
-            sports: ["Football", "Basketball", "Tennis", "Swimming", "Judo"]
-        },
-
-        symbols: {
-            bird: "Hoopoe",
-            animal: "Israeli Gazelle",
-            flower: "Anemone (Kalanit)",
-            tree: "Olive Tree",
-            anthem: "Hatikvah (The Hope)",
-            motto: "N/A"
-        },
-
-        demographics: {
-            lifeExpectancy: 83.49,
-            literacyRate: "97.8%",
-            urbanPopulation: "92.8%",
-            medianAge: 30.4
-        },
-
-        history: {
-            timeline: [
-                { year: "1000 BCE", title: "Kingdom of Israel", description: "United monarchy under David and Solomon" },
-                { year: "70 CE", title: "Temple Destruction", description: "Romans destroyed Second Temple, diaspora began" },
-                { year: "1897", title: "First Zionist Congress", description: "Modern Zionist movement began" },
-                { year: "1948", title: "Independence", description: "State of Israel declared" },
-                { year: "1967", title: "Six-Day War", description: "Israel captured Sinai, West Bank, Gaza, Golan" },
-                { year: "1979", title: "Peace with Egypt", description: "Camp David Accords signed" }
-            ],
-            notableFigures: ["David Ben-Gurion", "Golda Meir", "Theodor Herzl", "Yitzhak Rabin", "Albert Einstein (related)"]
-        },
-
-        disputes: [
-            { name: "Palestinian Territories", description: "Ongoing conflict over West Bank and Gaza", type: "Border" },
-            { name: "Golan Heights", description: "Disputed with Syria", type: "Border" },
-            { name: "Jerusalem", description: "Status disputed internationally", type: "Political" }
-        ],
-
-        quickFacts: [
-            { icon: "microchip", title: "Start-up Nation", text: "Highest number of startups per capita" },
-            { icon: "water", title: "Dead Sea", text: "Lowest point on Earth (-431m)" },
-            { icon: "recycle", title: "Recycled Water", text: "90% of wastewater recycled (world's highest)" },
-            { icon: "satellite", title: "R&D", text: "4.9% of GDP spent on R&D (world's highest)" }
-        ]
-    },
-
-    // 37. UNITED ARAB EMIRATES
-    {
-        id: "ARE",
-        name: "United Arab Emirates",
-        officialName: "United Arab Emirates",
-        flag: "https://flagcdn.com/w320/ae.png",
-        
-        images: {
-            hero: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1920&q=80"
-        },
-
-        basic: {
-            capital: "Abu Dhabi",
-            continent: "Asia",
-            region: "Middle East",
-            subregion: "Western Asia",
-            population: 9516871,
-            area: 83600,
-            populationDensity: 118,
-            independence: "1971",
-            callingCode: "+971",
-            tld: ".ae",
-            drivingSide: "Right",
-            electricity: "220V, 50Hz"
-        },
-
-        location: {
-            coordinates: [23.4241, 53.8478],
-            timezone: "UTC+4 (GST)",
-            neighbors: ["Saudi Arabia", "Oman"],
-            borders: 1066,
-            hemispheres: ["Northern", "Eastern"]
-        },
-
-        political: {
-            government: "Federal Constitutional Monarchy (Federation of Emirates)",
-            headOfState: "President Mohamed bin Zayed Al Nahyan",
-            headOfGovernment: "Prime Minister Mohammed bin Rashid Al Maktoum",
-            legislature: "Federal National Council",
-            legalSystem: "Mixed (Islamic Law, Civil Law)",
-            states: 7,
-            emirates: 7,
-            largestCity: "Dubai",
-            organizations: ["UN", "Arab League", "GCC", "OPEC", "OIC", "WTO"]
-        },
-
-        economy: {
-            gdp: "$509 Billion",
-            gdpPPP: "$775 Billion",
-            gdpPerCapita: "$53,708",
-            gdpRank: "#30",
-            gdpGrowth: "3.4%",
-            currency: "UAE Dirham",
-            currencyCode: "AED",
-            currencySymbol: "د.إ",
-            inflation: "4.8%",
-            unemployment: "2.9%",
-            majorSectors: ["Services (53%)", "Industry (44%)", "Agriculture (1%)"],
-            industries: ["Petroleum & Petrochemicals", "Fishing", "Aluminum", "Cement", "Fertilizers", "Commercial Ship Repair", "Construction", "Tourism", "Finance"],
-            exports: ["Crude Petroleum", "Refined Petroleum", "Gold", "Aluminum", "Broadcasting Equipment"],
-            imports: ["Gold", "Broadcasting Equipment", "Cars", "Jewelry", "Diamonds"]
-        },
-
-        geography: {
-            climate: "Arid Desert",
-            avgTemperature: "28°C",
-            annualRainfall: "78 mm",
-            highestPoint: "Jabal Yibir (1,527 m)",
-            lowestPoint: "Persian Gulf (0 m)",
-            coastline: "1,318 km",
-            forestCover: "4.5%",
-            arableLand: "0.5%",
-            terrain: "Flat desert, mountains in east",
-            naturalResources: ["Petroleum", "Natural Gas"]
-        },
-
-        geography_links: {
-            rivers: [],
-            mountains: ["Hajar Mountains"],
-            deserts: ["Rub' al Khali (Empty Quarter)", "Arabian Desert"],
-            forests: [],
-            oceans: ["Persian Gulf", "Gulf of Oman"]
-        },
-
-        culture: {
-            officialLanguages: ["Arabic"],
-            languages: ["Arabic", "English", "Hindi", "Urdu", "Malayalam", "Tagalog"],
-            religions: ["Islam (76%)", "Christianity (9%)", "Hinduism (6%)", "Buddhism (2%)"],
-            heritageSites: ["Cultural Sites of Al Ain"],
-            festivals: ["Eid al-Fitr", "Eid al-Adha", "UAE National Day", "Dubai Shopping Festival"],
-            cuisine: ["Machboos", "Harees", "Al Harees", "Luqaimat", "Shawarma", "Dates"],
-            arts: ["Calligraphy", "Traditional Music", "Pearl Diving Heritage", "Modern Architecture"],
-            sports: ["Football", "Camel Racing", "Falconry", "Horse Racing", "Cricket", "Golf"]
-        },
-
-        symbols: {
-            bird: "Falcon",
-            animal: "Arabian Oryx",
-            flower: "Tribulus (Arabic Samhar)",
-            tree: "Ghaf Tree",
-            anthem: "Ishy Bilady",
-            motto: "God, Nation, President"
-        },
-
-        demographics: {
-            lifeExpectancy: 78.93,
-            literacyRate: "97.6%",
-            urbanPopulation: "87.8%",
-            medianAge: 33.5,
-            expatriatePopulation: "88.5%"
-        },
-
-        history: {
-            timeline: [
-                { year: "7th Century", title: "Islam", description: "Islam spread to the region" },
-                { year: "1820", title: "Trucial States", description: "Treaties with Britain began" },
-                { year: "1958", title: "Oil Discovery", description: "Oil discovered in Abu Dhabi" },
-                { year: "1971", title: "Independence", description: "UAE formed from seven emirates" },
-                { year: "2010", title: "Burj Khalifa", description: "World's tallest building opened" },
-                { year: "2020", title: "Mars Mission", description: "Hope Probe reached Mars" }
-            ],
-            notableFigures: ["Sheikh Zayed bin Sultan Al Nahyan", "Sheikh Rashid bin Saeed Al Maktoum"]
-        },
-
-        disputes: [
-            { name: "Abu Musa & Tunbs", description: "Dispute with Iran over islands", type: "Border" }
-        ],
-
-        quickFacts: [
-            { icon: "building", title: "Burj Khalifa", text: "World's tallest building (828 m)" },
-            { icon: "plane", title: "Aviation Hub", text: "Dubai is world's busiest international airport" },
-            { icon: "users", title: "Expats", text: "88% of population are expatriates" },
-            { icon: "island", title: "Palm Islands", text: "Largest man-made islands in the world" }
-        ]
-    },
-
-    // 38. SINGAPORE
+    // 8. SINGAPORE
     {
         id: "SGP",
         name: "Singapore",
@@ -2344,16 +1001,16 @@ const CountriesData2 = [
         
         images: {
             hero: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1508964942454-1a56651d54ac?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1565967511849-76a60a516170?w=1920&q=80"
+            landscape: "https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1508964942454-1a56651d54ac?w=1920&q=80"
         },
 
         basic: {
-            capital: "Singapore (City-State)",
+            capital: "Singapore",
             continent: "Asia",
             region: "Southeast Asia",
-            subregion: "Southeastern Asia",
-            population: 5917648,
+            subregion: "South-Eastern Asia",
+            population: 5637022,
             area: 733,
             populationDensity: 8358,
             independence: "1965",
@@ -2366,10 +1023,10 @@ const CountriesData2 = [
         location: {
             coordinates: [1.3521, 103.8198],
             timezone: "UTC+8 (SGT)",
-            neighbors: ["Malaysia (across causeway)", "Indonesia (across strait)"],
+            neighbors: ["Malaysia", "Indonesia"],
             borders: 0,
             hemispheres: ["Northern", "Eastern"],
-            cityState: true
+            islandNation: true
         },
 
         political: {
@@ -2377,68 +1034,68 @@ const CountriesData2 = [
             headOfState: "President Tharman Shanmugaratnam",
             headOfGovernment: "Prime Minister Lawrence Wong",
             legislature: "Parliament",
-            legalSystem: "Common Law (English influence)",
+            legalSystem: "Common Law (British influence)",
             states: 0,
-            constituencies: 31,
+            districts: 5,
+            planningAreas: 55,
             largestCity: "Singapore",
-            organizations: ["UN", "ASEAN", "APEC", "Commonwealth", "WTO"]
+            organizations: ["UN", "ASEAN", "Commonwealth", "APEC", "WTO", "G20 (Guest)", "NAM"]
         },
 
         economy: {
-            gdp: "$501 Billion",
-            gdpPPP: "$704 Billion",
-            gdpPerCapita: "$84,734",
-            gdpRank: "#31",
+            gdp: "$501.4 Billion",
+            gdpPPP: "$725.2 Billion",
+            gdpPerCapita: "$87,884",
+            gdpRank: "#33",
             gdpGrowth: "1.1%",
             currency: "Singapore Dollar",
             currencyCode: "SGD",
             currencySymbol: "S$",
             inflation: "4.8%",
             unemployment: "1.9%",
-            majorSectors: ["Services (70%)", "Industry (25%)", "Agriculture (0%)"],
-            industries: ["Electronics", "Chemicals", "Financial Services", "Pharmaceuticals", "Biomedical Sciences", "Petroleum Refining", "Ship Repair"],
-            exports: ["Integrated Circuits", "Refined Petroleum", "Computers", "Gold", "Packaged Medicines"],
-            imports: ["Integrated Circuits", "Refined Petroleum", "Crude Petroleum", "Gold", "Computers"]
+            majorSectors: ["Services (70%)", "Industry (25%)", "Agriculture (<1%)"],
+            industries: ["Electronics", "Chemicals", "Financial Services", "Oil Drilling Equipment", "Petroleum Refining", "Biotechnology", "Pharmaceuticals", "Processed Food & Beverages", "Ship Repair"],
+            exports: ["Machinery", "Electronics", "Refined Petroleum", "Chemicals", "Pharmaceutical Products"],
+            imports: ["Machinery", "Petroleum", "Electronics", "Chemicals", "Food Products"]
         },
 
         geography: {
-            climate: "Tropical Rainforest (Equatorial)",
+            climate: "Tropical Equatorial",
             avgTemperature: "27.5°C",
             annualRainfall: "2,340 mm",
-            highestPoint: "Bukit Timah (163 m)",
+            highestPoint: "Bukit Timah Hill (164 m)",
             lowestPoint: "Singapore Strait (0 m)",
             coastline: "193 km",
             forestCover: "23%",
             arableLand: "0.9%",
-            terrain: "Lowland, gently undulating central plateau",
-            islands: 63,
-            naturalResources: ["Fish", "Deepwater ports"]
+            terrain: "Lowland; gently undulating central plateau",
+            naturalResources: ["Fish", "Deepwater Ports"]
         },
 
         geography_links: {
-            rivers: ["Singapore River", "Kallang River"],
+            rivers: ["Singapore River", "Kallang River", "Rochor River", "Geylang River"],
             mountains: [],
             deserts: [],
-            forests: ["Bukit Timah Nature Reserve", "Singapore Botanic Gardens"],
-            oceans: ["Strait of Singapore", "Strait of Malacca", "South China Sea"]
+            forests: ["Bukit Timah Nature Reserve", "Central Catchment Nature Reserve", "Sungei Buloh Wetland Reserve"],
+            oceans: ["Singapore Strait", "Johor Strait", "South China Sea"]
         },
 
         culture: {
             officialLanguages: ["English", "Malay", "Mandarin", "Tamil"],
-            languages: ["English", "Mandarin", "Malay", "Tamil", "Singlish"],
-            religions: ["Buddhism (31%)", "Christianity (19%)", "Islam (15%)", "Taoism (9%)", "Hinduism (5%)", "No Religion (20%)"],
+            languages: ["English", "Mandarin", "Malay", "Tamil", "Hokkien", "Teochew", "Cantonese", "Singlish"],
+            religions: ["Buddhism (31.1%)", "Christianity (18.9%)", "No Religion (20%)", "Islam (15.6%)", "Taoism (8.8%)", "Hinduism (5%)"],
             heritageSites: ["Singapore Botanic Gardens"],
-            festivals: ["Chinese New Year", "Hari Raya", "Deepavali", "Christmas", "National Day"],
-            cuisine: ["Hainanese Chicken Rice", "Chilli Crab", "Laksa", "Satay", "Kaya Toast", "Char Kway Teow"],
-            arts: ["Multicultural Arts", "Contemporary Art", "Street Art"],
+            festivals: ["Chinese New Year", "Hari Raya Puasa", "Deepavali", "Christmas", "National Day", "Vesak Day", "Thaipusam"],
+            cuisine: ["Hainanese Chicken Rice", "Chilli Crab", "Laksa", "Satay", "Char Kway Teow", "Bak Kut Teh", "Roti Prata", "Kaya Toast"],
+            arts: ["Contemporary Art", "Theatre", "Street Art", "Peranakan Culture", "Chinese Opera"],
             sports: ["Football", "Swimming", "Badminton", "Table Tennis", "Sailing"]
         },
 
         symbols: {
-            bird: "Crimson Sunbird (unofficial)",
-            animal: "Lion (Merlion)",
+            bird: "Crimson Sunbird",
+            animal: "Merlion (Mythical)",
             flower: "Vanda Miss Joaquim (Orchid)",
-            tree: "Rain Tree (unofficial)",
+            tree: "Tembusu",
             anthem: "Majulah Singapura",
             motto: "Majulah Singapura (Onward Singapore)"
         },
@@ -2452,308 +1109,1470 @@ const CountriesData2 = [
 
         history: {
             timeline: [
-                { year: "1299", title: "Singapura", description: "Prince Sang Nila Utama founded Singapura" },
-                { year: "1819", title: "British Colony", description: "Stamford Raffles established trading post" },
-                { year: "1942-1945", title: "Japanese Occupation", description: "WWII occupation" },
-                { year: "1959", title: "Self-Government", description: "Lee Kuan Yew became first PM" },
-                { year: "1963", title: "Malaysia", description: "Merged with Malaysia" },
-                { year: "1965", title: "Independence", description: "Separated from Malaysia" }
+                { year: "1299", title: "Singapura", description: "Singapore founded according to legend" },
+                { year: "1819", title: "British Trading Post", description: "Sir Stamford Raffles established trading post" },
+                { year: "1867", title: "Crown Colony", description: "Became British Crown Colony" },
+                { year: "1942-1945", title: "Japanese Occupation", description: "Fall of Singapore to Japan" },
+                { year: "1959", title: "Self-Governance", description: "Achieved self-governance" },
+                { year: "1963", title: "Joined Malaysia", description: "Merged with Malaysia" },
+                { year: "1965", title: "Independence", description: "Separated from Malaysia, became independent" }
             ],
-            notableFigures: ["Lee Kuan Yew", "Stamford Raffles", "Goh Chok Tong", "Lee Hsien Loong"]
+            notableFigures: ["Lee Kuan Yew", "Sir Stamford Raffles", "Yusof Ishak", "Goh Chok Tong", "Lee Hsien Loong"]
         },
 
-        disputes: [],
+        disputes: [
+            { name: "Pedra Branca", description: "Maritime boundary with Malaysia resolved in 2008", type: "Maritime" }
+        ],
 
         quickFacts: [
-            { icon: "city", title: "City-State", text: "One of only 3 remaining city-states" },
-            { icon: "plane", title: "Changi Airport", text: "Consistently ranked world's best airport" },
-            { icon: "ship", title: "Port", text: "World's 2nd busiest container port" },
-            { icon: "graduation-cap", title: "Education", text: "Top PISA rankings globally" },
-            { icon: "ban", title: "Clean City", text: "Chewing gum banned since 1992" }
+            { icon: "city", title: "City-State", text: "One of only three city-states in the world" },
+            { icon: "plane", title: "Best Airport", text: "Changi Airport consistently rated world's best" },
+            { icon: "ship", title: "Busiest Port", text: "One of world's busiest ports" },
+            { icon: "ban", title: "Chewing Gum", text: "Chewing gum sales banned since 1992" },
+            { icon: "seedling", title: "Garden City", text: "Known as 'Garden City' - 50% green cover" },
+            { icon: "money-bill", title: "Wealthy", text: "Among highest GDP per capita globally" }
         ]
     },
-
-    // 39. MALAYSIA
+        // 9. THAILAND
     {
-        id: "MYS",
-        name: "Malaysia",
-        officialName: "Malaysia",
-        flag: "https://flagcdn.com/w320/my.png",
+        id: "THA",
+        name: "Thailand",
+        officialName: "Kingdom of Thailand",
+        flag: "https://flagcdn.com/w320/th.png",
         
         images: {
-            hero: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1508062878650-88b52897f298?w=1920&q=80"
+            hero: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1920&q=80"
         },
 
         basic: {
-            capital: "Kuala Lumpur (official), Putrajaya (administrative)",
+            capital: "Bangkok",
             continent: "Asia",
             region: "Southeast Asia",
-            subregion: "Southeastern Asia",
-            population: 34308525,
-            area: 330803,
-            populationDensity: 99,
-            independence: "1957 (Malaya), 1963 (Malaysia)",
-            callingCode: "+60",
-            tld: ".my",
+            subregion: "South-Eastern Asia",
+            population: 71801279,
+            area: 513120,
+            populationDensity: 137,
+            independence: "Never Colonized",
+            callingCode: "+66",
+            tld: ".th",
             drivingSide: "Left",
-            electricity: "240V, 50Hz"
+            electricity: "220V, 50Hz"
         },
 
         location: {
-            coordinates: [4.2105, 101.9758],
-            timezone: "UTC+8 (MYT)",
-            neighbors: ["Thailand", "Indonesia", "Brunei", "Singapore"],
-            borders: 2742,
+            coordinates: [15.8700, 100.9925],
+            timezone: "UTC+7 (ICT)",
+            neighbors: ["Myanmar", "Laos", "Cambodia", "Malaysia"],
+            borders: 5673,
             hemispheres: ["Northern", "Eastern"]
         },
 
         political: {
-            government: "Federal Parliamentary Constitutional Elective Monarchy",
-            headOfState: "Yang di-Pertuan Agong Sultan Ibrahim",
-            headOfGovernment: "Prime Minister Anwar Ibrahim",
-            legislature: "Parliament (Senate & House of Representatives)",
-            legalSystem: "Mixed (Common Law, Islamic Law, Customary Law)",
-            states: 13,
-            federalTerritories: 3,
-            largestCity: "Kuala Lumpur",
-            organizations: ["UN", "ASEAN", "APEC", "Commonwealth", "OIC", "D-8", "WTO"]
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "King Maha Vajiralongkorn (Rama X)",
+            headOfGovernment: "Prime Minister Paetongtarn Shinawatra",
+            legislature: "National Assembly (Senate & House of Representatives)",
+            legalSystem: "Civil Law (German & Swiss influence)",
+            states: 77,
+            provinces: 76,
+            specialDistrict: 1,
+            largestCity: "Bangkok",
+            organizations: ["UN", "ASEAN", "APEC", "WTO", "NAM", "BIMSTEC"]
         },
 
         economy: {
-            gdp: "$430 Billion",
-            gdpPPP: "$1.08 Trillion",
-            gdpPerCapita: "$12,570",
-            gdpRank: "#35",
-            gdpGrowth: "3.7%",
-            currency: "Malaysian Ringgit",
-            currencyCode: "MYR",
-            currencySymbol: "RM",
-            inflation: "2.5%",
-            unemployment: "3.3%",
-            majorSectors: ["Services (55%)", "Industry (37%)", "Agriculture (8%)"],
-            industries: ["Electronics", "Palm Oil", "Rubber", "Petroleum", "Tourism", "Automotive"],
-            exports: ["Integrated Circuits", "Refined Petroleum", "Palm Oil", "Rubber", "Machinery"],
-            imports: ["Integrated Circuits", "Refined Petroleum", "Crude Petroleum", "Machinery", "Iron & Steel"]
+            gdp: "$514.9 Billion",
+            gdpPPP: "$1.56 Trillion",
+            gdpPerCapita: "$7,233",
+            gdpRank: "#26",
+            gdpGrowth: "2.6%",
+            currency: "Thai Baht",
+            currencyCode: "THB",
+            currencySymbol: "฿",
+            inflation: "1.2%",
+            unemployment: "0.9%",
+            majorSectors: ["Services (58%)", "Industry (33%)", "Agriculture (8%)"],
+            industries: ["Tourism", "Textiles & Garments", "Agricultural Processing", "Electronics", "Automobiles & Parts", "Cement", "World's 2nd Largest Tungsten Producer"],
+            exports: ["Electronics", "Vehicles", "Machinery", "Rubber", "Plastics", "Seafood", "Rice"],
+            imports: ["Machinery", "Crude Oil", "Electronics", "Chemicals", "Iron & Steel"]
         },
 
         geography: {
-            climate: "Tropical Equatorial",
-            avgTemperature: "27°C",
-            annualRainfall: "2,875 mm",
-            highestPoint: "Mount Kinabalu (4,095 m)",
-            lowestPoint: "Indian Ocean (0 m)",
-            coastline: "4,675 km",
-            forestCover: "54.6%",
-            arableLand: "5.6%",
-            terrain: "Coastal plains, mountains, rainforests",
-            naturalResources: ["Tin", "Petroleum", "Timber", "Copper", "Iron Ore", "Natural Gas", "Bauxite"]
+            climate: "Tropical; Rainy, Warm, Cloudy",
+            avgTemperature: "28°C",
+            annualRainfall: "1,622 mm",
+            highestPoint: "Doi Inthanon (2,565 m)",
+            lowestPoint: "Gulf of Thailand (0 m)",
+            coastline: "3,219 km",
+            forestCover: "31.6%",
+            arableLand: "32.9%",
+            terrain: "Central plain; mountains elsewhere",
+            naturalResources: ["Tin", "Rubber", "Natural Gas", "Tungsten", "Tantalum", "Timber", "Lead", "Fish", "Gypsum", "Lignite", "Fluorite"]
         },
 
         geography_links: {
-            rivers: ["Rajang River", "Kinabatangan River", "Pahang River"],
-            mountains: ["Titiwangsa Mountains", "Mount Kinabalu", "Crocker Range"],
+            rivers: ["Chao Phraya River", "Mekong River", "Mun River", "Chi River", "Nan River", "Ping River"],
+            mountains: ["Doi Inthanon", "Doi Phu Kha", "Thanon Thong Chai Range", "Tenasserim Hills"],
             deserts: [],
-            forests: ["Taman Negara", "Borneo Rainforest", "Kinabalu National Park"],
-            oceans: ["South China Sea", "Strait of Malacca", "Sulu Sea", "Celebes Sea"]
+            forests: ["Thungyai-Huai Kha Khaeng", "Khao Sok National Park", "Doi Suthep-Pui", "Kaeng Krachan"],
+            oceans: ["Gulf of Thailand", "Andaman Sea", "Indian Ocean"]
         },
 
         culture: {
-            officialLanguages: ["Malay (Bahasa Malaysia)"],
-            languages: ["Malay", "English", "Mandarin", "Tamil", "Indigenous languages"],
-            religions: ["Islam (61%)", "Buddhism (20%)", "Christianity (9%)", "Hinduism (6%)", "Confucianism/Taoism (1%)"],
-            heritageSites: ["Kinabalu Park", "Gunung Mulu National Park", "Melaka and George Town", "Archaeological Heritage of Lenggong Valley"],
-            festivals: ["Hari Raya", "Chinese New Year", "Deepavali", "Thaipusam", "Harvest Festival"],
-            cuisine: ["Nasi Lemak", "Satay", "Laksa", "Rendang", "Roti Canai", "Char Kway Teow"],
-            arts: ["Batik", "Wayang Kulit", "Silat", "Traditional Music"],
-            sports: ["Football", "Badminton", "Sepak Takraw", "Hockey", "Rugby"]
+            officialLanguages: ["Thai"],
+            languages: ["Thai", "Isan", "Northern Thai", "Southern Thai", "Chinese", "Malay", "English"],
+            religions: ["Buddhism (94.5%)", "Islam (4.3%)", "Christianity (1.2%)"],
+            heritageSites: ["Historic City of Ayutthaya", "Historic Town of Sukhothai", "Thungyai-Huai Kha Khaeng Wildlife Sanctuaries", "Ban Chiang Archaeological Site", "Dong Phayayen-Khao Yai Forest Complex"],
+            festivals: ["Songkran (Thai New Year/Water Festival)", "Loy Krathong", "Yi Peng", "Royal Ploughing Ceremony", "Vegetarian Festival"],
+            cuisine: ["Pad Thai", "Tom Yum", "Green Curry", "Massaman Curry", "Som Tum (Papaya Salad)", "Khao Pad", "Mango Sticky Rice", "Satay"],
+            arts: ["Muay Thai", "Thai Classical Dance", "Silk Weaving", "Temple Architecture", "Fruit Carving", "Khon (Mask Dance Drama)"],
+            sports: ["Muay Thai", "Football", "Sepak Takraw", "Badminton", "Golf", "Tennis"]
         },
 
         symbols: {
-            bird: "Rhinoceros Hornbill",
-            animal: "Malayan Tiger",
-            flower: "Hibiscus (Bunga Raya)",
-            tree: "N/A",
-            anthem: "Negaraku",
-            motto: "Bersekutu Bertambah Mutu (Unity is Strength)"
+            bird: "Siamese Fireback",
+            animal: "Elephant",
+            flower: "Ratchaphruek (Golden Shower Tree)",
+            tree: "Ratchaphruek",
+            anthem: "Phleng Chat Thai",
+            motto: "Chat, Satsana, Phra Maha Kasat (Nation, Religion, King)"
         },
 
         demographics: {
-            lifeExpectancy: 76.88,
-            literacyRate: "95%",
-            urbanPopulation: "78.2%",
-            medianAge: 30.3
+            lifeExpectancy: 79.27,
+            literacyRate: "93.8%",
+            urbanPopulation: "52.9%",
+            medianAge: 40.1
         },
 
         history: {
             timeline: [
-                { year: "1400", title: "Malacca Sultanate", description: "Powerful maritime empire established" },
-                { year: "1511", title: "Portuguese Conquest", description: "Portuguese captured Malacca" },
-                { year: "1824", title: "British Rule", description: "Anglo-Dutch Treaty established British control" },
-                { year: "1957", title: "Independence", description: "Federation of Malaya gained independence" },
-                { year: "1963", title: "Malaysia Formed", description: "Singapore, Sabah, Sarawak joined Malaya" },
-                { year: "1998", title: "Petronas Towers", description: "World's tallest buildings completed" }
+                { year: "1238", title: "Sukhothai Kingdom", description: "First Thai kingdom established" },
+                { year: "1351", title: "Ayutthaya Kingdom", description: "Ayutthaya founded, lasted 417 years" },
+                { year: "1767", title: "Fall of Ayutthaya", description: "Burma destroyed Ayutthaya" },
+                { year: "1782", title: "Chakri Dynasty", description: "Current dynasty founded, Bangkok established" },
+                { year: "1932", title: "Constitutional Monarchy", description: "Bloodless revolution ended absolute monarchy" },
+                { year: "1939", title: "Thailand", description: "Name changed from Siam to Thailand" },
+                { year: "2016", title: "King's Passing", description: "King Bhumibol Adulyadej died after 70-year reign" }
             ],
-            notableFigures: ["Tunku Abdul Rahman", "Mahathir Mohamad", "Hang Tuah"]
+            notableFigures: ["King Ramkhamhaeng", "King Naresuan", "King Chulalongkorn (Rama V)", "King Bhumibol Adulyadej (Rama IX)"]
         },
 
         disputes: [
-            { name: "South China Sea", description: "Disputes over Spratly Islands", type: "Maritime" },
-            { name: "Sabah", description: "Claimed by Philippines", type: "Border" }
+            { name: "Preah Vihear Temple", description: "Border area dispute with Cambodia", type: "Border" }
         ],
 
         quickFacts: [
-            { icon: "building", title: "Petronas Towers", text: "World's tallest twin towers (452 m)" },
-            { icon: "palm", title: "Palm Oil", text: "World's 2nd largest palm oil producer" },
-            { icon: "tree", title: "Rainforest", text: "130 million-year-old rainforest" },
-            { icon: "flag", title: "Elective Monarchy", text: "Unique rotational monarchy system" }
+            { icon: "crown", title: "Never Colonized", text: "Only Southeast Asian country never colonized" },
+            { icon: "elephant", title: "Land of Elephants", text: "National symbol; once called 'Land of White Elephants'" },
+            { icon: "umbrella-beach", title: "Tourism", text: "Among world's most visited countries (40M+/year)" },
+            { icon: "utensils", title: "Thai Cuisine", text: "Consistently ranked among world's best cuisines" },
+            { icon: "pray", title: "Buddhist Nation", text: "95% Buddhist, over 40,000 temples" },
+            { icon: "rice", title: "Rice Exporter", text: "One of world's largest rice exporters" }
         ]
     },
 
-    // 40. NEW ZEALAND
+    // 10. TIMOR-LESTE
     {
-        id: "NZL",
-        name: "New Zealand",
-        officialName: "New Zealand / Aotearoa",
-        flag: "https://flagcdn.com/w320/nz.png",
+        id: "TLS",
+        name: "Timor-Leste",
+        officialName: "Democratic Republic of Timor-Leste",
+        flag: "https://flagcdn.com/w320/tl.png",
         
         images: {
-            hero: "https://images.unsplash.com/photo-1507699622108-4be3abd695ad?w=1920&q=80",
-            landscape: "https://images.unsplash.com/photo-1469521669194-babb45599def?w=1920&q=80",
-            city: "https://images.unsplash.com/photo-1595125990323-885cec5217ff?w=1920&q=80"
+            hero: "https://images.unsplash.com/photo-1580394693539-af044a59b65c?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1624007730573-f8afa96bb4c3?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1602154355891-c7dd73f0f6b7?w=1920&q=80"
         },
 
         basic: {
-            capital: "Wellington",
-            continent: "Oceania",
-            region: "Oceania",
-            subregion: "Polynesia",
-            population: 5185288,
-            area: 270467,
-            populationDensity: 19,
-            independence: "1907 (Dominion), 1947 (full)",
-            callingCode: "+64",
-            tld: ".nz",
+            capital: "Dili",
+            continent: "Asia",
+            region: "Southeast Asia",
+            subregion: "South-Eastern Asia",
+            population: 1360596,
+            area: 14874,
+            populationDensity: 89,
+            independence: "2002",
+            callingCode: "+670",
+            tld: ".tl",
             drivingSide: "Left",
-            electricity: "230V, 50Hz"
+            electricity: "220V, 50Hz"
         },
 
         location: {
-            coordinates: [-40.9006, 174.8860],
-            timezone: "UTC+12 (NZST) / UTC+13 (NZDT)",
+            coordinates: [-8.8742, 125.7275],
+            timezone: "UTC+9 (TLT)",
+            neighbors: ["Indonesia"],
+            borders: 253,
+            hemispheres: ["Southern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Semi-Presidential Republic",
+            headOfState: "President José Ramos-Horta",
+            headOfGovernment: "Prime Minister Xanana Gusmão",
+            legislature: "National Parliament",
+            legalSystem: "Civil Law (Portuguese and Indonesian influence)",
+            states: 13,
+            municipalities: 13,
+            largestCity: "Dili",
+            organizations: ["UN", "ASEAN (Applicant)", "CPLP", "ACP", "G7+", "NAM"]
+        },
+
+        economy: {
+            gdp: "$3.03 Billion",
+            gdpPPP: "$7.05 Billion",
+            gdpPerCapita: "$2,162",
+            gdpRank: "#161",
+            gdpGrowth: "3.1%",
+            currency: "United States Dollar",
+            currencyCode: "USD",
+            currencySymbol: "$",
+            inflation: "8.3%",
+            unemployment: "4.4%",
+            majorSectors: ["Services (70%)", "Industry (15%)", "Agriculture (10%)"],
+            industries: ["Oil & Gas", "Coffee", "Sandalwood", "Marble", "Printing", "Soap Manufacturing", "Handicrafts", "Textiles"],
+            exports: ["Crude Petroleum", "Natural Gas", "Coffee", "Sandalwood"],
+            imports: ["Food", "Gasoline", "Vehicles", "Machinery", "Building Materials"]
+        },
+
+        geography: {
+            climate: "Tropical; Hot, Humid",
+            avgTemperature: "26.8°C",
+            annualRainfall: "1,500 mm",
+            highestPoint: "Foho Tatamailau (2,963 m)",
+            lowestPoint: "Timor Sea (0 m)",
+            coastline: "706 km",
+            forestCover: "46.1%",
+            arableLand: "10.1%",
+            terrain: "Mountainous",
+            naturalResources: ["Oil", "Natural Gas", "Gold", "Marble", "Manganese", "Sandalwood"]
+        },
+
+        geography_links: {
+            rivers: ["Laclo River", "Loes River", "Seical River", "Tafara River"],
+            mountains: ["Foho Tatamailau", "Foho Ramelau", "Mount Mundo Perdido", "Mount Matebian"],
+            deserts: [],
+            forests: ["Tropical Dry Forests", "Montane Forests", "Nino Konis Santana National Park"],
+            oceans: ["Timor Sea", "Banda Sea", "Savu Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Portuguese", "Tetum"],
+            languages: ["Tetum", "Portuguese", "Indonesian", "English", "Mambae", "Makasae", "Fataluku", "30+ indigenous languages"],
+            religions: ["Roman Catholicism (97.6%)", "Protestantism (2%)", "Islam (0.2%)", "Traditional Beliefs"],
+            heritageSites: [],
+            festivals: ["Independence Day (May 20)", "Restoration of Independence Day (Nov 28)", "Santa Cruz Day", "Liberation Day"],
+            cuisine: ["Ikan Sabuko", "Batar Da'an", "Tapai", "Budu", "Caril", "Tukir", "Ikan Pepes"],
+            arts: ["Tais Weaving", "Traditional Dance", "Wood Carving", "Pottery", "Basketry"],
+            sports: ["Football", "Martial Arts", "Volleyball", "Athletics"]
+        },
+
+        symbols: {
+            bird: "Timor Imperial Pigeon",
+            animal: "Crocodile",
+            flower: "Sandalwood Flower",
+            tree: "Sandalwood",
+            anthem: "Pátria",
+            motto: "Unidade, Acção, Progresso (Unity, Action, Progress)"
+        },
+
+        demographics: {
+            lifeExpectancy: 70.18,
+            literacyRate: "68.1%",
+            urbanPopulation: "31.3%",
+            medianAge: 21.2
+        },
+
+        history: {
+            timeline: [
+                { year: "1515", title: "Portuguese Arrival", description: "Portuguese traders arrived" },
+                { year: "1702", title: "Portuguese Colony", description: "Officially became Portuguese Timor" },
+                { year: "1975", title: "Independence Declared", description: "Brief independence from Portugal" },
+                { year: "1975", title: "Indonesian Invasion", description: "Indonesia invaded and occupied" },
+                { year: "1999", title: "UN Referendum", description: "Voted for independence from Indonesia" },
+                { year: "2002", title: "Independence", description: "Full independence, newest nation in Asia" }
+            ],
+            notableFigures: ["Xanana Gusmão", "José Ramos-Horta", "Nicolau Lobato", "Dom Boaventura"]
+        },
+
+        disputes: [
+            { name: "Maritime Boundary", description: "Maritime boundaries with Australia resolved in 2018", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "calendar", title: "Newest Asian Nation", text: "Gained independence in 2002, Asia's youngest country" },
+            { icon: "cross", title: "Catholic Nation", text: "Over 97% Roman Catholic, one of most Catholic nations" },
+            { icon: "oil-can", title: "Oil Dependent", text: "90% of government revenue from oil & gas" },
+            { icon: "coffee", title: "Organic Coffee", text: "Known for high-quality organic Arabica coffee" },
+            { icon: "flag", title: "Portuguese Speaking", text: "Only Portuguese-speaking nation in Asia" }
+        ]
+    },
+
+    // 11. VIETNAM
+    {
+        id: "VNM",
+        name: "Vietnam",
+        officialName: "Socialist Republic of Vietnam",
+        flag: "https://flagcdn.com/w320/vn.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1555921015-5532091f6026?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1528127269322-539801943592?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Hanoi",
+            continent: "Asia",
+            region: "Southeast Asia",
+            subregion: "South-Eastern Asia",
+            population: 100987686,
+            area: 331212,
+            populationDensity: 314,
+            independence: "1945",
+            callingCode: "+84",
+            tld: ".vn",
+            drivingSide: "Right",
+            electricity: "220V, 50Hz"
+        },
+
+        location: {
+            coordinates: [14.0583, 108.2772],
+            timezone: "UTC+7 (ICT)",
+            neighbors: ["China", "Laos", "Cambodia"],
+            borders: 4616,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Marxist-Leninist One-Party Socialist Republic",
+            headOfState: "President Lương Cường",
+            headOfGovernment: "Prime Minister Phạm Minh Chính",
+            cpGenSecretary: "General Secretary Tô Lâm",
+            legislature: "National Assembly",
+            legalSystem: "Civil Law (French influence) and Socialist Legal Theory",
+            states: 63,
+            provinces: 58,
+            municipalities: 5,
+            largestCity: "Ho Chi Minh City",
+            organizations: ["UN", "ASEAN", "APEC", "WTO", "Francophonie", "NAM"]
+        },
+
+        economy: {
+            gdp: "$449.1 Billion",
+            gdpPPP: "$1.35 Trillion",
+            gdpPerCapita: "$4,475",
+            gdpRank: "#35",
+            gdpGrowth: "5.0%",
+            currency: "Vietnamese Đồng",
+            currencyCode: "VND",
+            currencySymbol: "₫",
+            inflation: "3.3%",
+            unemployment: "2.3%",
+            majorSectors: ["Services (42%)", "Industry (38%)", "Agriculture (12%)"],
+            industries: ["Electronics", "Textiles & Garments", "Food Processing", "Machinery", "Mining", "Steel", "Cement", "Chemical Fertilizer", "Glass", "Tires", "Oil & Gas", "Furniture", "Footwear"],
+            exports: ["Electronics", "Textiles", "Footwear", "Machinery", "Seafood", "Crude Petroleum", "Rice", "Coffee", "Wooden Products"],
+            imports: ["Machinery & Equipment", "Petroleum", "Steel", "Fabric", "Plastics", "Electronics"]
+        },
+
+        geography: {
+            climate: "Tropical in South, Monsoonal in North",
+            avgTemperature: "24.4°C",
+            annualRainfall: "1,821 mm",
+            highestPoint: "Fansipan (3,147 m)",
+            lowestPoint: "South China Sea (0 m)",
+            coastline: "3,444 km",
+            forestCover: "42%",
+            arableLand: "22.6%",
+            terrain: "Low flat delta in south and north; central highlands; hilly mountains in far north and northwest",
+            naturalResources: ["Phosphates", "Coal", "Manganese", "Rare Earth Elements", "Bauxite", "Chromate", "Offshore Oil & Gas", "Timber", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Mekong River (Cửu Long)", "Red River (Sông Hồng)", "Đồng Nai River", "Mã River", "Cả River"],
+            mountains: ["Fansipan", "Hoang Lien Son Range", "Annamite Range", "Central Highlands", "Ngọc Linh"],
+            deserts: [],
+            forests: ["Phong Nha-Kẻ Bàng", "Cát Tiên National Park", "Cúc Phương National Park", "Ba Vì National Park"],
+            oceans: ["South China Sea (East Sea)", "Gulf of Thailand", "Gulf of Tonkin"]
+        },
+
+        culture: {
+            officialLanguages: ["Vietnamese"],
+            languages: ["Vietnamese", "English", "French", "Chinese", "Khmer", "Mountain Area Languages"],
+            religions: ["Folk Religion (45%)", "Buddhism (16%)", "Christianity (8%)", "Cao Dai (4%)", "Hoa Hao (2%)", "No Religion (30%)"],
+            heritageSites: ["Ha Long Bay", "Hoi An Ancient Town", "My Son Sanctuary", "Complex of Hué Monuments", "Phong Nha-Kẻ Bàng National Park", "Imperial Citadel of Thăng Long", "Citadel of the Hồ Dynasty", "Tràng An Landscape Complex"],
+            festivals: ["Tết (Lunar New Year)", "Mid-Autumn Festival", "Hùng Kings Festival", "Vesak", "Liberation Day", "National Day"],
+            cuisine: ["Phở", "Bánh Mì", "Bún Chả", "Gỏi Cuốn (Spring Rolls)", "Cơm Tấm", "Bánh Xèo", "Cà Phê Sữa Đá", "Chả Cá"],
+            arts: ["Water Puppetry (Múa Rối Nước)", "Cải Lương (Folk Opera)", "Áo Dài", "Lacquerware", "Silk Painting", "Traditional Music", "Đờn Ca Tài Tử"],
+            sports: ["Football", "Martial Arts (Vovinam)", "Badminton", "Table Tennis", "Swimming", "Chess"]
+        },
+
+        symbols: {
+            bird: "None Official",
+            animal: "Water Buffalo",
+            flower: "Lotus",
+            tree: "Bamboo",
+            anthem: "Tiến Quân Ca (The Song of the Marching Troops)",
+            motto: "Độc lập – Tự do – Hạnh phúc (Independence – Freedom – Happiness)"
+        },
+
+        demographics: {
+            lifeExpectancy: 75.77,
+            literacyRate: "95.8%",
+            urbanPopulation: "38.8%",
+            medianAge: 32.5
+        },
+
+        history: {
+            timeline: [
+                { year: "2879 BCE", title: "Hồng Bàng Dynasty", description: "Legendary founding of Vietnam" },
+                { year: "111 BCE", title: "Chinese Rule", description: "1,000 years of Chinese domination began" },
+                { year: "938", title: "Independence", description: "Ngô Quyền defeated Chinese, independence restored" },
+                { year: "1862", title: "French Colonization", description: "France began colonizing Vietnam" },
+                { year: "1945", title: "Independence Declared", description: "Ho Chi Minh declared independence" },
+                { year: "1954", title: "Điện Biên Phủ", description: "French defeat, Vietnam divided" },
+                { year: "1955-1975", title: "Vietnam War", description: "War between North and South Vietnam" },
+                { year: "1975", title: "Reunification", description: "North captured Saigon, country reunified" },
+                { year: "1986", title: "Đổi Mới", description: "Economic reforms began" }
+            ],
+            notableFigures: ["Hồ Chí Minh", "Võ Nguyên Giáp", "Trần Hưng Đạo", "Lê Lợi", "Nguyễn Huệ", "Trưng Sisters"]
+        },
+
+        disputes: [
+            { name: "South China Sea", description: "Spratly Islands and Paracel Islands disputes with China", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "coffee", title: "Coffee Giant", text: "World's 2nd largest coffee exporter" },
+            { icon: "motorcycle", title: "Motorbike Nation", text: "Over 45 million motorbikes, most per capita" },
+            { icon: "water", title: "Ha Long Bay", text: "UNESCO site with 1,600+ limestone islands" },
+            { icon: "seedling", title: "Rice Exporter", text: "Top 5 global rice exporter" },
+            { icon: "money-bill", title: "Economic Growth", text: "One of fastest growing economies globally" },
+            { icon: "utensils", title: "Phở", text: "National dish recognized worldwide" }
+        ]
+    },
+        // 12. CHINA
+    {
+        id: "CHN",
+        name: "China",
+        officialName: "People's Republic of China",
+        flag: "https://flagcdn.com/w320/cn.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1513415756790-2ac1db1297d0?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Beijing",
+            continent: "Asia",
+            region: "East Asia",
+            subregion: "Eastern Asia",
+            population: 1425671352,
+            area: 9596960,
+            populationDensity: 153,
+            independence: "221 BCE (Unified)",
+            callingCode: "+86",
+            tld: ".cn",
+            drivingSide: "Right",
+            electricity: "220V, 50Hz"
+        },
+
+        location: {
+            coordinates: [35.8617, 104.1954],
+            timezone: "UTC+8 (CST - All China)",
+            neighbors: ["Russia", "Mongolia", "North Korea", "Vietnam", "Laos", "Myanmar", "India", "Bhutan", "Nepal", "Pakistan", "Afghanistan", "Tajikistan", "Kyrgyzstan", "Kazakhstan"],
+            borders: 22147,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Marxist-Leninist One-Party Socialist Republic",
+            headOfState: "President Xi Jinping",
+            headOfGovernment: "Premier Li Qiang",
+            cpGenSecretary: "General Secretary Xi Jinping",
+            legislature: "National People's Congress",
+            legalSystem: "Socialist Legal System with Chinese Characteristics",
+            provinces: 23,
+            autonomousRegions: 5,
+            municipalities: 4,
+            specialAdminRegions: 2,
+            largestCity: "Shanghai",
+            organizations: ["UN (P5)", "BRICS", "SCO", "G20", "WTO", "APEC", "AIIB"]
+        },
+
+        economy: {
+            gdp: "$18.53 Trillion",
+            gdpPPP: "$33.01 Trillion",
+            gdpPerCapita: "$12,970",
+            gdpRank: "#2",
+            gdpGrowth: "5.2%",
+            currency: "Renminbi (Chinese Yuan)",
+            currencyCode: "CNY",
+            currencySymbol: "¥",
+            inflation: "0.2%",
+            unemployment: "5.2%",
+            majorSectors: ["Services (54%)", "Industry (39%)", "Agriculture (7%)"],
+            industries: ["Mining", "Iron & Steel", "Aluminum", "Coal", "Machinery", "Textiles & Apparel", "Petroleum", "Cement", "Chemicals", "Fertilizers", "Consumer Electronics", "Automobiles", "Ships", "Trains", "Telecommunications", "Commercial Space Launch"],
+            exports: ["Electronics", "Machinery", "Textiles", "Furniture", "Plastics", "Vehicles", "Iron & Steel", "Optical & Medical Equipment"],
+            imports: ["Crude Petroleum", "Integrated Circuits", "Iron Ore", "Natural Gas", "Soybeans", "Copper"]
+        },
+
+        geography: {
+            climate: "Extremely Diverse: Tropical to Subarctic",
+            avgTemperature: "6.9°C (varies widely)",
+            annualRainfall: "645 mm (varies widely)",
+            highestPoint: "Mount Everest (8,848.86 m) - with Nepal",
+            lowestPoint: "Turpan Pendi (-154 m)",
+            coastline: "14,500 km",
+            forestCover: "23%",
+            arableLand: "11.3%",
+            terrain: "Mountains, high plateaus, deserts in west; plains, deltas, hills in east",
+            naturalResources: ["Coal", "Iron Ore", "Petroleum", "Natural Gas", "Mercury", "Tin", "Tungsten", "Antimony", "Manganese", "Molybdenum", "Vanadium", "Magnetite", "Aluminum", "Lead", "Zinc", "Rare Earth Elements", "Uranium", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Yangtze River", "Yellow River (Huang He)", "Pearl River", "Mekong (Lancang)", "Heilongjiang (Amur)", "Brahmaputra (Yarlung Tsangpo)"],
+            mountains: ["Himalayas", "Kunlun Mountains", "Tian Shan", "Karakoram", "Altai Mountains", "Qinling Mountains", "Hengduan Mountains"],
+            deserts: ["Gobi Desert", "Taklamakan Desert", "Badain Jaran Desert", "Tengger Desert", "Ordos Desert"],
+            forests: ["Northeast China Forests", "Tropical Rainforests (Yunnan)", "Bamboo Forests", "Temperate Forests"],
+            oceans: ["Pacific Ocean", "East China Sea", "South China Sea", "Yellow Sea", "Bohai Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Standard Chinese (Mandarin)"],
+            languages: ["Mandarin", "Cantonese", "Wu (Shanghainese)", "Min", "Hakka", "Tibetan", "Uyghur", "Mongolian", "300+ languages"],
+            religions: ["Folk Religion (21%)", "Buddhism (18%)", "Christianity (5%)", "Islam (2%)", "No Religion (52%)"],
+            heritageSites: ["Great Wall of China", "Forbidden City", "Terracotta Army", "Potala Palace", "Summer Palace", "Temple of Heaven", "Mogao Caves", "Mount Huangshan", "Jiuzhaigou Valley", "Guilin Karst", "Giant Panda Sanctuaries"],
+            festivals: ["Chinese New Year (Spring Festival)", "Mid-Autumn Festival", "Dragon Boat Festival", "Qingming Festival", "Lantern Festival", "National Day"],
+            cuisine: ["Peking Duck", "Dim Sum", "Hot Pot", "Kung Pao Chicken", "Mapo Tofu", "Xiaolongbao", "Sweet and Sour Pork", "Chow Mein", "Dumplings (Jiaozi)", "Wonton"],
+            arts: ["Chinese Calligraphy", "Brush Painting", "Peking Opera", "Chinese Martial Arts (Wushu)", "Silk Weaving", "Porcelain", "Paper Cutting", "Dragon Dance", "Tai Chi"],
+            sports: ["Table Tennis", "Basketball", "Badminton", "Football", "Diving", "Gymnastics", "Martial Arts", "Volleyball"]
+        },
+
+        symbols: {
+            bird: "Red-crowned Crane",
+            animal: "Giant Panda",
+            flower: "Plum Blossom (unofficial), Peony",
+            tree: "Ginkgo",
+            anthem: "March of the Volunteers",
+            motto: "Serve the People"
+        },
+
+        demographics: {
+            lifeExpectancy: 78.21,
+            literacyRate: "96.8%",
+            urbanPopulation: "64.7%",
+            medianAge: 38.4
+        },
+
+        history: {
+            timeline: [
+                { year: "2070 BCE", title: "Xia Dynasty", description: "First Chinese dynasty (semi-legendary)" },
+                { year: "221 BCE", title: "Qin Dynasty", description: "First unified Chinese empire under Qin Shi Huang" },
+                { year: "206 BCE - 220 CE", title: "Han Dynasty", description: "Golden age, Silk Road established" },
+                { year: "618-907", title: "Tang Dynasty", description: "Cultural and artistic golden age" },
+                { year: "1271-1368", title: "Yuan Dynasty", description: "Mongol rule under Kublai Khan" },
+                { year: "1368-1644", title: "Ming Dynasty", description: "Great Wall rebuilt, Forbidden City built" },
+                { year: "1644-1912", title: "Qing Dynasty", description: "Last imperial dynasty" },
+                { year: "1912", title: "Republic", description: "Republic of China established" },
+                { year: "1949", title: "PRC Founded", description: "People's Republic of China established" },
+                { year: "1978", title: "Economic Reform", description: "Deng Xiaoping's reform and opening up" }
+            ],
+            notableFigures: ["Qin Shi Huang", "Confucius", "Laozi", "Sun Yat-sen", "Mao Zedong", "Deng Xiaoping", "Zheng He", "Li Bai", "Du Fu"]
+        },
+
+        disputes: [
+            { name: "Taiwan", description: "Claims Taiwan as part of China", type: "Territory" },
+            { name: "South China Sea", description: "Nine-dash line claims disputed by multiple nations", type: "Maritime" },
+            { name: "Aksai Chin", description: "Controlled by China, claimed by India", type: "Territory" },
+            { name: "Arunachal Pradesh", description: "Claimed by China as South Tibet", type: "Border" },
+            { name: "Senkaku/Diaoyu Islands", description: "Dispute with Japan", type: "Territory" }
+        ],
+
+        quickFacts: [
+            { icon: "users", title: "Most Populous", text: "World's most populous country (1.4+ billion)" },
+            { icon: "industry", title: "Manufacturing", text: "World's largest manufacturer and exporter" },
+            { icon: "monument", title: "Great Wall", text: "21,196 km total length, built over 2,000 years" },
+            { icon: "panda", title: "Giant Panda", text: "Native habitat of giant pandas" },
+            { icon: "train", title: "High-Speed Rail", text: "World's largest high-speed rail network (45,000+ km)" },
+            { icon: "rocket", title: "Space Power", text: "3rd country to independently send humans to space" },
+            { icon: "history", title: "Ancient Civilization", text: "5,000+ years of continuous civilization" }
+        ]
+    },
+
+    // 13. JAPAN
+    {
+        id: "JPN",
+        name: "Japan",
+        officialName: "Japan",
+        flag: "https://flagcdn.com/w320/jp.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Tokyo",
+            continent: "Asia",
+            region: "East Asia",
+            subregion: "Eastern Asia",
+            population: 123294513,
+            area: 377975,
+            populationDensity: 347,
+            independence: "660 BCE (Traditional)",
+            callingCode: "+81",
+            tld: ".jp",
+            drivingSide: "Left",
+            electricity: "100V, 50/60Hz"
+        },
+
+        location: {
+            coordinates: [36.2048, 138.2529],
+            timezone: "UTC+9 (JST)",
             neighbors: [],
             borders: 0,
-            hemispheres: ["Southern", "Eastern"],
-            islandNation: true
+            hemispheres: ["Northern", "Eastern"],
+            islandNation: true,
+            islands: 6852
         },
 
         political: {
             government: "Unitary Parliamentary Constitutional Monarchy",
-            headOfState: "King Charles III (represented by Governor-General)",
-            headOfGovernment: "Prime Minister Christopher Luxon",
-            legislature: "Parliament (House of Representatives)",
-            legalSystem: "Common Law",
-            states: 0,
-            regions: 16,
-            largestCity: "Auckland",
-            organizations: ["UN", "Commonwealth", "OECD", "APEC", "Pacific Islands Forum", "Five Eyes"]
+            headOfState: "Emperor Naruhito",
+            headOfGovernment: "Prime Minister Shigeru Ishiba",
+            legislature: "National Diet (House of Councillors & House of Representatives)",
+            legalSystem: "Civil Law (German influence)",
+            prefectures: 47,
+            largestCity: "Tokyo",
+            organizations: ["UN", "G7", "G20", "OECD", "APEC", "WTO", "ASEAN+3"]
         },
 
         economy: {
-            gdp: "$252 Billion",
-            gdpPPP: "$264 Billion",
-            gdpPerCapita: "$48,781",
-            gdpRank: "#51",
-            gdpGrowth: "0.6%",
-            currency: "New Zealand Dollar",
-            currencyCode: "NZD",
-            currencySymbol: "NZ$",
-            inflation: "5.6%",
-            unemployment: "4.0%",
-            majorSectors: ["Services (72%)", "Industry (19%)", "Agriculture (7%)"],
-            industries: ["Agriculture", "Forestry", "Tourism", "Food Processing", "Manufacturing", "Mining"],
-            exports: ["Milk Products", "Meat", "Wood", "Wine", "Kiwifruit", "Fish"],
-            imports: ["Machinery", "Vehicles", "Petroleum", "Electronics", "Textiles", "Plastics"]
+            gdp: "$4.23 Trillion",
+            gdpPPP: "$6.49 Trillion",
+            gdpPerCapita: "$33,950",
+            gdpRank: "#4",
+            gdpGrowth: "1.9%",
+            currency: "Japanese Yen",
+            currencyCode: "JPY",
+            currencySymbol: "¥",
+            inflation: "3.3%",
+            unemployment: "2.6%",
+            majorSectors: ["Services (70%)", "Industry (29%)", "Agriculture (1%)"],
+            industries: ["Motor Vehicles", "Electronic Equipment", "Machine Tools", "Steel & Nonferrous Metals", "Ships", "Chemicals", "Textiles", "Processed Foods", "Robotics", "Semiconductors", "Optical Instruments"],
+            exports: ["Motor Vehicles", "Machinery", "Electronics", "Iron & Steel Products", "Plastics", "Optical & Medical Instruments"],
+            imports: ["Petroleum", "Liquefied Natural Gas", "Clothing", "Semiconductors", "Coal", "Pharmaceuticals", "Food"]
         },
 
         geography: {
-            climate: "Temperate Oceanic",
-            avgTemperature: "12.1°C",
-            annualRainfall: "1,732 mm",
-            highestPoint: "Aoraki/Mount Cook (3,724 m)",
-            lowestPoint: "Pacific Ocean (0 m)",
-            coastline: "15,134 km",
-            forestCover: "37.6%",
-            arableLand: "1.8%",
-            terrain: "Mountains, plains, forests, volcanoes, geothermal areas",
-            naturalResources: ["Natural Gas", "Iron Ore", "Sand", "Coal", "Timber", "Hydropower", "Gold", "Limestone"]
+            climate: "Varies from Cool Temperate to Subtropical",
+            avgTemperature: "15.3°C",
+            annualRainfall: "1,668 mm",
+            highestPoint: "Mount Fuji (3,776 m)",
+            lowestPoint: "Hachirōgata (-4 m)",
+            coastline: "29,751 km",
+            forestCover: "68.5%",
+            arableLand: "11.7%",
+            terrain: "Mostly rugged and mountainous",
+            naturalResources: ["Fish", "Limited Mineral Resources", "Small amounts of Coal, Oil, Iron Ore, Copper, Sulfur, Gold"]
         },
 
         geography_links: {
-            rivers: ["Waikato River", "Clutha River", "Whanganui River"],
-            mountains: ["Southern Alps", "Aoraki/Mount Cook", "Mount Ruapehu", "Mount Taranaki"],
+            rivers: ["Shinano River", "Tone River", "Ishikari River", "Kitakami River", "Mogami River"],
+            mountains: ["Mount Fuji", "Japanese Alps (Hida, Kiso, Akaishi)", "Mount Hotaka", "Mount Kita", "Mount Yari"],
             deserts: [],
-            forests: ["Fiordland", "Waipoua Forest", "Whakarewarewa Forest"],
-            oceans: ["Pacific Ocean", "Tasman Sea"]
+            forests: ["Temperate Rainforests", "Coniferous Forests", "Yakushima Cedar Forest", "Shirakami-Sanchi"],
+            oceans: ["Pacific Ocean", "Sea of Japan", "East China Sea", "Philippine Sea", "Sea of Okhotsk"]
         },
 
         culture: {
-            officialLanguages: ["English", "Māori", "New Zealand Sign Language"],
-            languages: ["English", "Māori", "Samoan", "Hindi", "Mandarin"],
-            religions: ["Christianity (37%)", "No Religion (49%)", "Hinduism (2.6%)", "Islam (1.3%)", "Buddhism (1.1%)"],
-            heritageSites: ["Te Wahipounamu", "Tongariro National Park", "New Zealand Sub-Antarctic Islands"],
-            festivals: ["Waitangi Day", "Matariki (Māori New Year)", "ANZAC Day"],
-            cuisine: ["Lamb", "Pavlova", "Hangi", "Fish and Chips", "Meat Pie", "Kiwifruit", "L&P (Lemon & Paeroa)"],
-            arts: ["Māori Art & Carving", "Haka", "Film Industry", "Music"],
-            sports: ["Rugby Union", "Cricket", "Netball", "Football", "Sailing", "Skiing"]
+            officialLanguages: ["Japanese"],
+            languages: ["Japanese", "Ryukyuan Languages", "Ainu"],
+            religions: ["Shinto (70% practice)", "Buddhism (67% practice)", "Christianity (1.5%)", "No Religion (62% identify)"],
+            heritageSites: ["Historic Monuments of Ancient Kyoto", "Hiroshima Peace Memorial", "Historic Villages of Shirakawa-go", "Himeji Castle", "Itsukushima Shrine", "Mount Fuji", "Nara", "Nikko", "Sacred Sites of Kii Mountains"],
+            festivals: ["Gion Matsuri", "Awa Odori", "Nebuta Matsuri", "Hanami (Cherry Blossom)", "Obon", "Tanabata", "New Year (Shogatsu)"],
+            cuisine: ["Sushi", "Ramen", "Tempura", "Udon", "Sashimi", "Tonkatsu", "Okonomiyaki", "Takoyaki", "Miso Soup", "Wagyu Beef", "Matcha"],
+            arts: ["Ikebana", "Origami", "Kabuki", "Noh Theatre", "Ukiyo-e", "Calligraphy", "Bonsai", "Anime & Manga", "Tea Ceremony (Sadō)"],
+            sports: ["Baseball", "Sumo", "Football", "Martial Arts (Judo, Karate, Kendo, Aikido)", "Tennis", "Figure Skating"]
         },
 
         symbols: {
-            bird: "Kiwi",
-            animal: "Kiwi",
-            flower: "Kowhai",
-            tree: "Silver Fern (Ponga)",
-            anthem: "God Defend New Zealand / God Save the King",
-            motto: "N/A (unofficial: Kia Kaha - Be Strong)"
+            bird: "Green Pheasant",
+            animal: "None Official (Japanese Macaque often associated)",
+            flower: "Cherry Blossom (Sakura), Chrysanthemum (Imperial)",
+            tree: "Cherry Tree (Sakura)",
+            anthem: "Kimigayo",
+            motto: "None Official"
         },
 
         demographics: {
-            lifeExpectancy: 82.80,
+            lifeExpectancy: 84.62,
             literacyRate: "99%",
-            urbanPopulation: "86.9%",
-            medianAge: 37.2
+            urbanPopulation: "91.8%",
+            medianAge: 48.6
         },
 
         history: {
             timeline: [
-                { year: "1250-1300", title: "Māori Arrival", description: "Polynesian settlers arrived" },
-                { year: "1642", title: "European Discovery", description: "Abel Tasman first European to sight NZ" },
-                { year: "1769", title: "Cook's Voyage", description: "Captain James Cook mapped coastline" },
-                { year: "1840", title: "Treaty of Waitangi", description: "Treaty signed between Māori and British" },
-                { year: "1893", title: "Women's Suffrage", description: "First country to grant women the vote" },
-                { year: "1907", title: "Dominion", description: "Became Dominion of New Zealand" }
+                { year: "660 BCE", title: "Foundation", description: "Traditional founding by Emperor Jimmu" },
+                { year: "710", title: "Nara Period", description: "First permanent capital at Nara" },
+                { year: "794", title: "Heian Period", description: "Capital moved to Kyoto (Heian-kyō)" },
+                { year: "1185", title: "Kamakura Shogunate", description: "Samurai rule began" },
+                { year: "1603", title: "Edo Period", description: "Tokugawa Shogunate, 250 years of peace" },
+                { year: "1868", title: "Meiji Restoration", description: "Modernization and industrialization began" },
+                { year: "1945", title: "WWII End", description: "Atomic bombs; Japan surrendered" },
+                { year: "1947", title: "New Constitution", description: "Democratic constitution adopted" },
+                { year: "1964", title: "Tokyo Olympics", description: "First Olympics in Asia" }
             ],
-            notableFigures: ["Kate Sheppard", "Sir Edmund Hillary", "Peter Jackson", "Jacinda Ardern"]
+            notableFigures: ["Emperor Meiji", "Tokugawa Ieyasu", "Oda Nobunaga", "Toyotomi Hideyoshi", "Matsuo Bashō", "Hokusai", "Kurosawa Akira", "Miyazaki Hayao"]
+        },
+
+        disputes: [
+            { name: "Kuril Islands", description: "Northern Territories dispute with Russia", type: "Territory" },
+            { name: "Senkaku/Diaoyu Islands", description: "Dispute with China and Taiwan", type: "Territory" },
+            { name: "Takeshima/Dokdo", description: "Dispute with South Korea", type: "Territory" }
+        ],
+
+        quickFacts: [
+            { icon: "train", title: "Shinkansen", text: "Bullet trains reach 320 km/h, 99.3% punctual" },
+            { icon: "sun", title: "Land of Rising Sun", text: "Called Nihon/Nippon meaning 'sun origin'" },
+            { icon: "mountain", title: "Mount Fuji", text: "Iconic sacred volcano, 3,776 m high" },
+            { icon: "gamepad", title: "Gaming Giant", text: "Birthplace of Nintendo, Sony PlayStation, Sega" },
+            { icon: "book", title: "Manga & Anime", text: "$25+ billion industry with global influence" },
+            { icon: "robot", title: "Robotics Leader", text: "World's largest industrial robot manufacturer" },
+            { icon: "clock", title: "Aging Population", text: "World's oldest population (median age 48.6)" }
+        ]
+    },
+
+    // 14. MONGOLIA
+    {
+        id: "MNG",
+        name: "Mongolia",
+        officialName: "Mongolia",
+        flag: "https://flagcdn.com/w320/mn.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1545708644-23f3b8c12aef?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1575408264798-b50b252663e6?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1586698020893-6337c191e0e6?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Ulaanbaatar",
+            continent: "Asia",
+            region: "East Asia",
+            subregion: "Eastern Asia",
+            population: 3447157,
+            area: 1564116,
+            populationDensity: 2.2,
+            independence: "1921",
+            callingCode: "+976",
+            tld: ".mn",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [46.8625, 103.8467],
+            timezone: "UTC+7/+8 (HOVT/ULAT)",
+            neighbors: ["Russia", "China"],
+            borders: 8082,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Semi-Presidential Republic",
+            headOfState: "President Ukhnaagiin Khürelsükh",
+            headOfGovernment: "Prime Minister Luvsannamsrai Oyun-Erdene",
+            legislature: "State Great Khural",
+            legalSystem: "Civil Law",
+            aimags: 21,
+            capital: 1,
+            largestCity: "Ulaanbaatar",
+            organizations: ["UN", "WTO", "OSCE (Partner)", "SCO (Observer)", "NAM"]
+        },
+
+        economy: {
+            gdp: "$19.87 Billion",
+            gdpPPP: "$54.02 Billion",
+            gdpPerCapita: "$5,731",
+            gdpRank: "#117",
+            gdpGrowth: "7.0%",
+            currency: "Mongolian Tögrög",
+            currencyCode: "MNT",
+            currencySymbol: "₮",
+            inflation: "10.3%",
+            unemployment: "5.1%",
+            majorSectors: ["Services (47%)", "Industry (34%)", "Agriculture (11%)"],
+            industries: ["Mining (Coal, Copper, Molybdenum, Gold, Tin)", "Oil", "Food & Beverages", "Processing of Animal Products", "Construction Materials"],
+            exports: ["Copper", "Gold", "Coal", "Iron Ore", "Crude Petroleum", "Fluorspar", "Zinc", "Cashmere"],
+            imports: ["Machinery", "Fuel", "Cars", "Food Products", "Industrial Consumer Goods", "Chemicals"]
+        },
+
+        geography: {
+            climate: "Continental; Extreme Temperature Variations",
+            avgTemperature: "-0.4°C",
+            annualRainfall: "241 mm",
+            highestPoint: "Khüiten Peak (4,374 m)",
+            lowestPoint: "Hoh Nuur (560 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "8.1%",
+            arableLand: "0.4%",
+            terrain: "Vast semidesert and desert plains; grassy steppe; mountains in west and southwest; Gobi Desert in south-central",
+            naturalResources: ["Oil", "Coal", "Copper", "Molybdenum", "Tungsten", "Phosphates", "Tin", "Nickel", "Zinc", "Fluorspar", "Gold", "Silver", "Iron"]
+        },
+
+        geography_links: {
+            rivers: ["Selenge River", "Orkhon River", "Tuul River", "Kherlen River", "Onon River"],
+            mountains: ["Altai Mountains", "Khangai Mountains", "Khentii Mountains", "Sayan Mountains", "Khüiten Peak"],
+            deserts: ["Gobi Desert"],
+            forests: ["Siberian Taiga (Northern Mongolia)", "Larch Forests", "Mountain Forests"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["Mongolian"],
+            languages: ["Mongolian", "Kazakh", "Russian", "English"],
+            religions: ["Buddhism (53%)", "Non-Religious (39%)", "Islam (3%)", "Shamanism (2.9%)", "Christianity (2.1%)"],
+            heritageSites: ["Orkhon Valley Cultural Landscape", "Great Burkhan Khaldun Mountain and Surrounding Sacred Landscape", "Petroglyphic Complexes of the Mongolian Altai"],
+            festivals: ["Naadam Festival", "Tsagaan Sar (Lunar New Year)", "Eagle Festival", "Ice Festival"],
+            cuisine: ["Khorkhog", "Buuz", "Khuushuur", "Airag (Fermented Mare's Milk)", "Boodog", "Tsuivan", "Aaruul"],
+            arts: ["Throat Singing (Khoomei)", "Morin Khuur (Horse-head Fiddle)", "Traditional Long Song (Urtyn Duu)", "Felt Making", "Traditional Dance"],
+            sports: ["Wrestling (Bökh)", "Horse Racing", "Archery", "Basketball", "Football"]
+        },
+
+        symbols: {
+            bird: "Saker Falcon",
+            animal: "Przewalski's Horse (Takhi)",
+            flower: "Scabiosa",
+            tree: "None Official",
+            anthem: "Mongol Ulsyn Töriin Duulal",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 71.08,
+            literacyRate: "98.4%",
+            urbanPopulation: "68.8%",
+            medianAge: 29.8
+        },
+
+        history: {
+            timeline: [
+                { year: "209 BCE", title: "Xiongnu Empire", description: "First nomadic empire in Central Asia" },
+                { year: "1206", title: "Mongol Empire", description: "Genghis Khan unified Mongol tribes" },
+                { year: "1279", title: "Yuan Dynasty", description: "Kublai Khan conquered China" },
+                { year: "1368", title: "Fall of Yuan", description: "Mongols expelled from China" },
+                { year: "1691", title: "Qing Rule", description: "Outer Mongolia under Qing China" },
+                { year: "1911", title: "Independence Declared", description: "Declared independence from China" },
+                { year: "1921", title: "Mongolian Revolution", description: "With Soviet help, established independence" },
+                { year: "1924", title: "MPR Founded", description: "Mongolian People's Republic declared" },
+                { year: "1990", title: "Democratic Revolution", description: "Peaceful transition to democracy" }
+            ],
+            notableFigures: ["Genghis Khan", "Kublai Khan", "Ögedei Khan", "Sukhbaatar", "Choibalsan"]
         },
 
         disputes: [],
 
         quickFacts: [
-            { icon: "bird", title: "Kiwi", text: "National symbol, flightless bird unique to NZ" },
-            { icon: "female", title: "Women's Vote", text: "First country to grant women's suffrage (1893)" },
-            { icon: "sheep", title: "Sheep", text: "About 6 sheep per person" },
-            { icon: "film", title: "Middle-earth", text: "Filming location for Lord of the Rings" },
-            { icon: "rugby", title: "All Blacks", text: "Most successful rugby team in history" }
+            { icon: "users", title: "Least Dense", text: "World's least densely populated country (2.2/km²)" },
+            { icon: "horse", title: "Horse Culture", text: "More horses than people (4+ million horses)" },
+            { icon: "tent", title: "Nomadic Heritage", text: "30% still live nomadic or semi-nomadic lifestyle" },
+            { icon: "crown", title: "Genghis Khan", text: "Birthplace of Genghis Khan and Mongol Empire" },
+            { icon: "wind", title: "Blue Sky", text: "Called 'Land of the Eternal Blue Sky' (250+ sunny days)" },
+            { icon: "map", title: "Landlocked", text: "World's 2nd largest landlocked country" }
+        ]
+    },
+        // 15. NORTH KOREA
+    {
+        id: "PRK",
+        name: "North Korea",
+        officialName: "Democratic People's Republic of Korea",
+        flag: "https://flagcdn.com/w320/kp.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1581512050157-584b8e11e1d6?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1558167789-5c5c3c8c1e29?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1547388461-a5e6d0d5a5c3?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Pyongyang",
+            continent: "Asia",
+            region: "East Asia",
+            subregion: "Eastern Asia",
+            population: 26072217,
+            area: 120538,
+            populationDensity: 214,
+            independence: "1948",
+            callingCode: "+850",
+            tld: ".kp",
+            drivingSide: "Right",
+            electricity: "220V, 50Hz"
+        },
+
+        location: {
+            coordinates: [40.3399, 127.5101],
+            timezone: "UTC+9 (KST)",
+            neighbors: ["South Korea", "China", "Russia"],
+            borders: 1607,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary One-Party Socialist Republic (Juche ideology)",
+            headOfState: "Supreme Leader Kim Jong-un",
+            headOfGovernment: "Premier Kim Tok-hun",
+            legislature: "Supreme People's Assembly",
+            legalSystem: "Civil Law (Korean and Communist influence)",
+            provinces: 9,
+            municipalities: 3,
+            largestCity: "Pyongyang",
+            organizations: ["UN", "NAM", "G77"]
+        },
+
+        economy: {
+            gdp: "$18 Billion (estimated)",
+            gdpPPP: "$40 Billion (estimated)",
+            gdpPerCapita: "$700 (estimated)",
+            gdpRank: "#Unknown",
+            gdpGrowth: "-0.1% (estimated)",
+            currency: "North Korean Won",
+            currencyCode: "KPW",
+            currencySymbol: "₩",
+            inflation: "Unknown",
+            unemployment: "Unknown",
+            majorSectors: ["Industry (47%)", "Services (34%)", "Agriculture (22%)"],
+            industries: ["Military Products", "Mining (Coal, Iron Ore, Limestone, Magnesite, Graphite, Copper, Zinc, Lead)", "Metallurgy", "Textiles", "Food Processing", "Machine Building", "Cement"],
+            exports: ["Minerals", "Metallurgical Products", "Textiles", "Agricultural & Fishery Products"],
+            imports: ["Petroleum", "Coking Coal", "Machinery & Equipment", "Textiles", "Grain"]
+        },
+
+        geography: {
+            climate: "Temperate; Rainy Season (Summer)",
+            avgTemperature: "9.5°C",
+            annualRainfall: "1,054 mm",
+            highestPoint: "Paektu Mountain (2,744 m)",
+            lowestPoint: "Sea of Japan (0 m)",
+            coastline: "2,495 km",
+            forestCover: "39.6%",
+            arableLand: "19.5%",
+            terrain: "Mostly hills and mountains; coastal plains in west",
+            naturalResources: ["Coal", "Iron Ore", "Limestone", "Magnesite", "Graphite", "Copper", "Zinc", "Lead", "Precious Metals", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Yalu River (Amnok)", "Tumen River (Tuman)", "Taedong River", "Chongchon River"],
+            mountains: ["Paektu Mountain", "Myohyang Mountains", "Kumgang Mountains", "Taebaek Mountains", "Rangrim Mountains"],
+            deserts: [],
+            forests: ["Temperate Mixed Forests", "Coniferous Forests", "Mount Paektu Forest"],
+            oceans: ["Sea of Japan (East Sea)", "Yellow Sea", "Korea Bay"]
+        },
+
+        culture: {
+            officialLanguages: ["Korean"],
+            languages: ["Korean"],
+            religions: ["State Atheism (Officially)", "Traditional Korean Religion", "Chondoism", "Buddhism (Historically)"],
+            heritageSites: ["Complex of Koguryo Tombs", "Historic Monuments and Sites in Kaesong"],
+            festivals: ["Day of the Sun (Kim Il-sung Birthday)", "Day of the Shining Star (Kim Jong-il Birthday)", "Foundation Day", "Victory Day", "Party Foundation Day"],
+            cuisine: ["Naengmyeon (Cold Noodles)", "Kimchi", "Japchae", "Mandu", "Bibimbap", "Sinsollo"],
+            arts: ["Revolutionary Opera", "Mass Games (Arirang)", "Mansudae Art Studio", "Korean Folk Music", "Revolutionary Literature"],
+            sports: ["Football", "Table Tennis", "Weightlifting", "Gymnastics", "Wrestling", "Mass Games"]
+        },
+
+        symbols: {
+            bird: "Northern Goshawk",
+            animal: "Chollima (Mythical Winged Horse)",
+            flower: "Magnolia (Mokran)",
+            tree: "Pine",
+            anthem: "Aegukka (Patriotic Song)",
+            motto: "Powerful and Prosperous Nation"
+        },
+
+        demographics: {
+            lifeExpectancy: 72.89,
+            literacyRate: "100% (claimed)",
+            urbanPopulation: "62.9%",
+            medianAge: 35.3
+        },
+
+        history: {
+            timeline: [
+                { year: "2333 BCE", title: "Gojoseon", description: "Legendary founding of first Korean kingdom" },
+                { year: "37 BCE", title: "Goguryeo", description: "Goguryeo kingdom founded" },
+                { year: "918", title: "Goryeo", description: "Korean peninsula unified under Goryeo" },
+                { year: "1392", title: "Joseon Dynasty", description: "Joseon dynasty began, lasted 500 years" },
+                { year: "1910", title: "Japanese Rule", description: "Japan annexed Korea" },
+                { year: "1945", title: "Division", description: "Korea divided at 38th parallel" },
+                { year: "1948", title: "DPRK Founded", description: "Kim Il-sung established DPRK" },
+                { year: "1950-1953", title: "Korean War", description: "Korean War, 3 million+ died" },
+                { year: "2006", title: "Nuclear Test", description: "First nuclear test conducted" }
+            ],
+            notableFigures: ["Kim Il-sung", "Kim Jong-il", "Kim Jong-un", "Kim Gu"]
+        },
+
+        disputes: [
+            { name: "Korean Peninsula", description: "Technically still at war with South Korea (1953 armistice)", type: "Territory" },
+            { name: "Northern Limit Line", description: "Maritime boundary dispute with South Korea", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "lock", title: "Most Isolated", text: "World's most isolated country, 'Hermit Kingdom'" },
+            { icon: "user-secret", title: "Cult of Personality", text: "Kim family worshipped as divine rulers" },
+            { icon: "bomb", title: "Nuclear State", text: "Declared nuclear weapons state" },
+            { icon: "mountain", title: "Paektu Mountain", text: "Sacred mountain, claimed birthplace of Kim Jong-il" },
+            { icon: "ban", title: "No Internet", text: "No public internet access; internal intranet only" },
+            { icon: "flag", title: "DMZ", text: "Korean DMZ is most heavily militarized border" }
+        ]
+    },
+
+    // 16. SOUTH KOREA (WITH BTS SPECIAL CONTENT)
+    {
+        id: "KOR",
+        name: "South Korea",
+        officialName: "Republic of Korea",
+        flag: "https://flagcdn.com/w320/kr.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1562673797-7b189fbc6f20?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1920&q=80",
+            bts_group: "https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=1920&q=80",
+            bts_concert: "https://images.unsplash.com/photo-1619229725920-ac8bf37bb4aa?w=1920&q=80",
+            kpop_culture: "https://images.unsplash.com/photo-1617886322168-72b886573c5d?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Seoul",
+            continent: "Asia",
+            region: "East Asia",
+            subregion: "Eastern Asia",
+            population: 51784059,
+            area: 100210,
+            populationDensity: 527,
+            independence: "1945 (Liberation), 1948 (Republic)",
+            callingCode: "+82",
+            tld: ".kr",
+            drivingSide: "Right",
+            electricity: "220V, 60Hz"
+        },
+
+        location: {
+            coordinates: [35.9078, 127.7669],
+            timezone: "UTC+9 (KST)",
+            neighbors: ["North Korea"],
+            borders: 237,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Presidential Constitutional Republic",
+            headOfState: "President Yoon Suk-yeol",
+            headOfGovernment: "Prime Minister Han Duck-soo",
+            legislature: "National Assembly",
+            legalSystem: "Mixed (Civil Law and Common Law)",
+            provinces: 9,
+            metropolitanCities: 6,
+            specialCities: 1,
+            specialSelfGoverning: 2,
+            largestCity: "Seoul",
+            organizations: ["UN", "G20", "OECD", "APEC", "WTO", "ASEAN+3", "MIKTA"]
+        },
+
+        economy: {
+            gdp: "$1.71 Trillion",
+            gdpPPP: "$2.92 Trillion",
+            gdpPerCapita: "$33,147",
+            gdpRank: "#12",
+            gdpGrowth: "1.4%",
+            currency: "South Korean Won",
+            currencyCode: "KRW",
+            currencySymbol: "₩",
+            inflation: "3.6%",
+            unemployment: "2.6%",
+            majorSectors: ["Services (57%)", "Industry (33%)", "Agriculture (2%)"],
+            industries: ["Electronics", "Telecommunications", "Automobile Production", "Chemicals", "Shipbuilding", "Steel", "Semiconductors", "Display Technology", "Robotics", "K-Pop & Entertainment"],
+            exports: ["Semiconductors", "Automobiles", "Petroleum Products", "Ships", "Electronics", "Wireless Communication Equipment", "Steel", "Plastics"],
+            imports: ["Crude Petroleum", "Semiconductors", "Natural Gas", "Coal", "Refined Petroleum", "Computers"]
+        },
+
+        geography: {
+            climate: "Temperate with Four Distinct Seasons",
+            avgTemperature: "13°C",
+            annualRainfall: "1,274 mm",
+            highestPoint: "Hallasan (1,950 m)",
+            lowestPoint: "Sea of Japan (0 m)",
+            coastline: "2,413 km",
+            forestCover: "63.9%",
+            arableLand: "15.3%",
+            terrain: "Mostly hills and mountains; wide coastal plains in west and south",
+            naturalResources: ["Coal", "Tungsten", "Graphite", "Molybdenum", "Lead", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Han River", "Nakdong River", "Geum River", "Yeongsan River", "Seomjin River"],
+            mountains: ["Hallasan", "Jirisan", "Seoraksan", "Taebaek Mountains", "Sobaek Mountains"],
+            deserts: [],
+            forests: ["Temperate Forests", "Seoraksan National Park", "Jirisan National Park", "Hallasan National Park"],
+            oceans: ["Yellow Sea", "Sea of Japan (East Sea)", "Korea Strait"]
+        },
+
+        culture: {
+            officialLanguages: ["Korean"],
+            languages: ["Korean", "English (widely studied)"],
+            religions: ["No Religion (56%)", "Protestantism (20%)", "Buddhism (16%)", "Catholicism (8%)"],
+            heritageSites: ["Changdeokgung Palace", "Hwaseong Fortress", "Jongmyo Shrine", "Bulguksa Temple", "Seokguram Grotto", "Haeinsa Temple", "Gochang, Hwasun, and Ganghwa Dolmen Sites", "Gyeongju Historic Areas", "Jeju Volcanic Island and Lava Tubes", "Historic Villages of Korea: Hahoe and Yangdong"],
+            festivals: ["Seollal (Lunar New Year)", "Chuseok (Harvest Festival)", "Boryeong Mud Festival", "Jinju Lantern Festival", "Seoul Lantern Festival", "KCON"],
+            cuisine: ["Kimchi", "Bibimbap", "Bulgogi", "Samgyeopsal", "Korean BBQ", "Japchae", "Tteokbokki", "Samgyetang", "Jjajangmyeon", "Korean Fried Chicken", "Soju"],
+            arts: ["K-Pop", "K-Drama", "K-Cinema", "Traditional Pansori", "Gayageum", "Taekwondo", "Hanbok", "Celadon Pottery", "Buddhist Art"],
+            sports: ["Taekwondo", "Baseball", "Football", "Golf", "Esports", "Basketball", "Archery", "Short Track Speed Skating"]
+        },
+
+        // ============================================
+        // BTS SPECIAL SECTION
+        // ============================================
+        bts: {
+            introduction: {
+                name: "BTS (방탄소년단)",
+                fullName: "Bangtan Sonyeondan / Beyond The Scene",
+                formed: "June 13, 2013",
+                company: "Big Hit Entertainment (now HYBE Corporation)",
+                fandomName: "ARMY (Adorable Representative M.C. for Youth)",
+                description: "BTS is a South Korean boy band that has achieved unprecedented global success, breaking numerous records and becoming cultural ambassadors for Korea worldwide.",
+                globalImpact: "First K-pop act to top Billboard Hot 100, Grammy-nominated artists, UN speakers, and cultural phenomenon bridging East and West"
+            },
+
+            members: [
+                {
+                    stageName: "RM",
+                    realName: "Kim Nam-joon (김남준)",
+                    birthDate: "September 12, 1994",
+                    birthPlace: "Ilsan, Goyang, South Korea",
+                    position: ["Leader", "Main Rapper"],
+                    height: "181 cm",
+                    image: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800&q=80",
+                    facts: [
+                        "IQ of 148 (genius level)",
+                        "Self-taught English from watching 'Friends'",
+                        "Art and museum enthusiast",
+                        "Solo album 'Indigo' released 2022",
+                        "Environmental advocate",
+                        "Known for philosophical lyrics",
+                        "UN General Assembly speaker (multiple times)",
+                        "Loves cycling and visiting art galleries"
+                    ],
+                    soloWorks: ["mono.", "Indigo", "Right Place, Wrong Person"],
+                    quote: "I have come to love myself for who I am, for who I was, and for who I hope to become."
+                },
+                {
+                    stageName: "Jin",
+                    realName: "Kim Seok-jin (김석진)",
+                    birthDate: "December 4, 1992",
+                    birthPlace: "Gwacheon, Gyeonggi Province, South Korea",
+                    position: ["Vocalist", "Visual"],
+                    height: "179 cm",
+                    image: "https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=800&q=80",
+                    facts: [
+                        "Eldest member (worldwide handsome)",
+                        "Graduated from Konkuk University (Film major)",
+                        "Master of dad jokes",
+                        "Excellent cook and fishing enthusiast",
+                        "First member to enlist in military (December 2022)",
+                        "Owns a Japanese restaurant 'Ossu Seiromushi'",
+                        "Known for broad shoulders",
+                        "Gaming enthusiast (MapleStory)"
+                    ],
+                    soloWorks: ["Awake", "Epiphany", "Moon", "Abyss", "The Astronaut", "Super Tuna"],
+                    quote: "Even if it's a road of thorns, we still run."
+                },
+                {
+                    stageName: "Suga",
+                    realName: "Min Yoon-gi (민윤기)",
+                    birthDate: "March 9, 1993",
+                    birthPlace: "Daegu, South Korea",
+                    position: ["Lead Rapper", "Producer"],
+                    alsoKnownAs: "Agust D",
+                    height: "174 cm",
+                    image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80",
+                    facts: [
+                        "Prolific producer and songwriter",
+                        "Battle rap background before BTS",
+                        "Worked through poverty and depression",
+                        "Piano prodigy since childhood",
+                        "Known for savage wit",
+                        "NBA basketball fan",
+                        "Collaborated with Halsey, IU, PSY",
+                        "First BTS member solo world tour (D-DAY)"
+                    ],
+                    soloWorks: ["Agust D", "D-2", "D-DAY", "Daechwita", "Haegeum"],
+                    quote: "Dream, though your beginnings may be humble, may the end be prosperous."
+                },
+                {
+                    stageName: "J-Hope",
+                    realName: "Jung Ho-seok (정호석)",
+                    birthDate: "February 18, 1994",
+                    birthPlace: "Gwangju, South Korea",
+                    position: ["Main Dancer", "Sub Rapper", "Sub Vocalist"],
+                    height: "177 cm",
+                    image: "https://images.unsplash.com/photo-1611162618479-ee4d14736a91?w=800&q=80",
+                    facts: [
+                        "Sunshine of the group",
+                        "Champion street dancer before BTS",
+                        "Fashion icon with unique style",
+                        "First Korean solo to headline Lollapalooza",
+                        "Known for positive energy",
+                        "Dance teacher for other members",
+                        "Donated over $1 million to charity",
+                        "Nicknamed 'Dance Machine'"
+                    ],
+                    soloWorks: ["Hope World", "Jack In The Box", "Chicken Noodle Soup ft. Becky G", "Arson", "MORE"],
+                    quote: "I'm your hope, you're my hope, I'm J-Hope!"
+                },
+                {
+                    stageName: "Jimin",
+                    realName: "Park Ji-min (박지민)",
+                    birthDate: "October 13, 1995",
+                    birthPlace: "Busan, South Korea",
+                    position: ["Main Dancer", "Lead Vocalist"],
+                    height: "173.6 cm",
+                    image: "https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=800&q=80",
+                    facts: [
+                        "Contemporary dance background",
+                        "Graduated top of Busan High School of Arts",
+                        "Known for stunning stage presence",
+                        "First Korean soloist to top Billboard Hot 100 ('Like Crazy')",
+                        "Most followed K-pop idol on Instagram",
+                        "Perfectionist in performances",
+                        "Famous for 'Jimin effect' (items he wears sell out)",
+                        "Deeply caring personality"
+                    ],
+                    soloWorks: ["FACE", "Like Crazy", "Set Me Free Pt. 2", "Lie", "Serendipity", "Filter"],
+                    quote: "Go on your path, even if you live for a day."
+                },
+                {
+                    stageName: "V",
+                    realName: "Kim Tae-hyung (김태형)",
+                    birthDate: "December 30, 1995",
+                    birthPlace: "Daegu, South Korea",
+                    position: ["Lead Dancer", "Sub Vocalist", "Visual"],
+                    height: "179 cm",
+                    image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80",
+                    facts: [
+                        "Known for unique deep voice",
+                        "Actor in K-drama 'Hwarang'",
+                        "Professional photographer",
+                        "Art collector and enthusiast",
+                        "Has pet dog named Yeontan",
+                        "Close friends with Wooga Squad (Park Seo-joon, etc.)",
+                        "Named 'Most Handsome Face' multiple times",
+                        "Jazz and classical music lover"
+                    ],
+                    soloWorks: ["Layover", "Slow Dancing", "Rainy Days", "Stigma", "Singularity", "Winter Bear", "Sweet Night", "FRI(END)S"],
+                    quote: "I want to be someone who is genuinely happy and makes others happy."
+                },
+                {
+                    stageName: "Jungkook",
+                    realName: "Jeon Jung-kook (전정국)",
+                    birthDate: "September 1, 1997",
+                    birthPlace: "Busan, South Korea",
+                    position: ["Main Vocalist", "Lead Dancer", "Sub Rapper", "Center", "Maknae"],
+                    height: "179 cm",
+                    image: "https://images.unsplash.com/photo-1611162618758-c6b97bb82b5e?w=800&q=80",
+                    facts: [
+                        "Youngest member (Golden Maknae)",
+                        "Multi-talented: singing, dancing, sports, art",
+                        "FIFA World Cup Qatar 2022 performer ('Dreamers')",
+                        "Most followed person on Instagram (50M+)",
+                        "Trained at Big Hit since age 15",
+                        "Tattoo enthusiast",
+                        "Boxing and workout enthusiast",
+                        "First Korean solo artist to reach #1 in UK"
+                    ],
+                    soloWorks: ["GOLDEN", "Seven ft. Latto", "3D ft. Jack Harlow", "Standing Next to You", "Euphoria", "My Time", "Still With You", "Dreamers"],
+                    quote: "Rather than worrying about the future, live in the present."
+                }
+            ],
+
+            achievements: [
+                { year: "2013", achievement: "Debut with single '2 Cool 4 Skool'" },
+                { year: "2016", achievement: "First Korean act to win Billboard Music Award" },
+                { year: "2017", achievement: "First K-pop act to perform at American Music Awards" },
+                { year: "2018", achievement: "First K-pop act to top Billboard 200 ('Love Yourself: Tear')" },
+                { year: "2018", achievement: "Spoke at United Nations General Assembly" },
+                { year: "2019", achievement: "First K-pop act to present at Grammy Awards" },
+                { year: "2020", achievement: "First K-pop act to top Billboard Hot 100 ('Dynamite')" },
+                { year: "2020", achievement: "First Korean Grammy nomination (Best Pop Duo/Group)" },
+                { year: "2021", achievement: "Three #1 Billboard Hot 100 songs in one year" },
+                { year: "2021", achievement: "UN Special Presidential Envoy for Future Generations and Culture" },
+                { year: "2022", achievement: "White House visit to discuss anti-Asian hate" },
+                { year: "2022", achievement: "Free concert in Busan to support World Expo bid (52,000 attendees)" },
+                { year: "2023", achievement: "All members enlisted for military service" },
+                { year: "2023-2024", achievement: "Solo member activities with multiple Billboard #1s" }
+            ],
+
+            discography: {
+                koreanAlbums: [
+                    "2 Cool 4 Skool (2013)",
+                    "O!RUL8,2? (2013)",
+                    "Skool Luv Affair (2014)",
+                    "Dark&Wild (2014)",
+                    "The Most Beautiful Moment in Life, Pt. 1 (2015)",
+                    "The Most Beautiful Moment in Life, Pt. 2 (2015)",
+                    "The Most Beautiful Moment in Life: Young Forever (2016)",
+                    "Wings (2016)",
+                    "You Never Walk Alone (2017)",
+                    "Love Yourself: Her (2017)",
+                    "Love Yourself: Tear (2018)",
+                    "Love Yourself: Answer (2018)",
+                    "Map of the Soul: Persona (2019)",
+                    "Map of the Soul: 7 (2020)",
+                    "BE (2020)",
+                    "Proof (2022)"
+                ],
+                iconicSongs: [
+                    "Dynamite (First English single, Billboard #1)",
+                    "Butter (10 weeks at Billboard #1)",
+                    "Boy With Luv ft. Halsey",
+                    "Blood Sweat & Tears",
+                    "DNA",
+                    "Fake Love",
+                    "IDOL",
+                    "Spring Day",
+                    "Black Swan",
+                    "Life Goes On",
+                    "Permission to Dance",
+                    "Yet To Come"
+                ]
+            },
+
+            records: [
+                "Most streamed group on Spotify",
+                "Most YouTube subscribers for any music act",
+                "Fastest to reach 10 million followers on TikTok",
+                "Most Twitter engagements for any music group",
+                "Best-selling artists in South Korean history",
+                "First Asian act to be nominated for main Grammy categories",
+                "Most wins at Billboard Music Awards (24)",
+                "Most streamed K-pop act on Apple Music",
+                "Highest-grossing concert tour by Korean act",
+                "First K-pop act on Spotify's top 5 most-streamed artists globally"
+            ],
+
+            militaryService: {
+                announcement: "October 2022 - All members to complete mandatory military service",
+                schedule: [
+                    { member: "Jin", enlisted: "December 13, 2022", expectedDischarge: "June 2024", status: "Discharged June 12, 2024" },
+                    { member: "J-Hope", enlisted: "April 18, 2023", expectedDischarge: "October 2024", status: "Active" },
+                    { member: "Suga", enlisted: "September 22, 2023", expectedDischarge: "June 2025", status: "Active (Social Service)" },
+                    { member: "RM", enlisted: "December 11, 2023", expectedDischarge: "June 2025", status: "Active" },
+                    { member: "V", enlisted: "December 11, 2023", expectedDischarge: "June 2025", status: "Active" },
+                    { member: "Jimin", enlisted: "December 12, 2023", expectedDischarge: "June 2025", status: "Active" },
+                    { member: "Jungkook", enlisted: "December 12, 2023", expectedDischarge: "June 2025", status: "Active" }
+                ],
+                expectedGroupReunion: "2025"
+            },
+
+            socialImpact: [
+                "UNICEF 'Love Myself' campaign - donated $3.6 million to end violence",
+                "Black Lives Matter donation - matched $1 million from ARMY",
+                "COVID-19 relief donations",
+                "Anti-Asian hate awareness at White House",
+                "Environmental advocacy",
+                "Mental health awareness through music",
+                "Youth empowerment messages",
+                "Korean language learning boom (Hallyu effect)"
+            ],
+
+            economicImpact: {
+                annualContribution: "$5 billion to South Korean economy",
+                tourismBoost: "800,000+ tourists visit Korea due to BTS",
+                jobsCreated: "8,000+ direct jobs",
+                brandValue: "Estimated $10+ billion brand value",
+                stockImpact: "HYBE market cap $8+ billion"
+            }
+        },
+
+        symbols: {
+            bird: "Korean Magpie",
+            animal: "Siberian Tiger",
+            flower: "Rose of Sharon (Mugunghwa)",
+            tree: "Pine Tree",
+            anthem: "Aegukga (Patriotic Song)",
+            motto: "Hongik Ingan (Benefit Broadly the Human World)"
+        },
+
+        demographics: {
+            lifeExpectancy: 83.73,
+            literacyRate: "99%",
+            urbanPopulation: "81.4%",
+            medianAge: 44.9
+        },
+
+        history: {
+            timeline: [
+                { year: "2333 BCE", title: "Gojoseon", description: "Legendary founding of first Korean kingdom" },
+                { year: "57 BCE", title: "Three Kingdoms", description: "Goguryeo, Baekje, and Silla period began" },
+                { year: "668", title: "Silla Unification", description: "Silla unified Korean peninsula" },
+                { year: "918", title: "Goryeo Dynasty", description: "Origin of name 'Korea'" },
+                { year: "1392", title: "Joseon Dynasty", description: "500-year dynasty; Hangul created" },
+                { year: "1910", title: "Japanese Occupation", description: "Japan annexed Korea" },
+                { year: "1945", title: "Liberation", description: "Korea liberated from Japan" },
+                { year: "1948", title: "Republic Founded", description: "Republic of Korea established" },
+                { year: "1950-1953", title: "Korean War", description: "Devastating war; remains divided" },
+                { year: "1960s-1990s", title: "Miracle on Han River", description: "Rapid industrialization" },
+                { year: "1988", title: "Seoul Olympics", description: "Showcased Korea to the world" },
+                { year: "2002", title: "FIFA World Cup", description: "Co-hosted with Japan, reached semifinals" },
+                { year: "2018", title: "PyeongChang Olympics", description: "Hosted Winter Olympics" }
+            ],
+            notableFigures: ["King Sejong the Great", "Admiral Yi Sun-sin", "Syngman Rhee", "Park Chung-hee", "Kim Dae-jung", "Ban Ki-moon"]
+        },
+
+        kpopCulture: {
+            overview: "K-pop is a major cultural export and cornerstone of the Korean Wave (Hallyu)",
+            majorLabels: ["HYBE (Big Hit)", "SM Entertainment", "JYP Entertainment", "YG Entertainment"],
+            globalImpact: [
+                "K-pop industry worth $10+ billion",
+                "Korean Wave contributes $12.3 billion annually",
+                "150+ million K-pop fans worldwide",
+                "K-pop academies in 30+ countries",
+                "Korean language learning increased 40% due to K-pop"
+            ],
+            otherNotableActs: ["BLACKPINK", "EXO", "TWICE", "Stray Kids", "SEVENTEEN", "NewJeans", "aespa", "NCT", "Red Velvet", "Girls' Generation", "BIGBANG", "2NE1", "PSY"]
+        },
+
+        disputes: [
+            { name: "Korean Peninsula", description: "Technically still at war with North Korea", type: "Territory" },
+            { name: "Dokdo/Takeshima", description: "Dispute with Japan over islands", type: "Territory" },
+            { name: "KADIZ", description: "Air defense zone overlaps with China and Japan", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "music", title: "K-Pop & BTS", text: "Home of BTS, the world's biggest boy band" },
+            { icon: "microchip", title: "Tech Giant", text: "Samsung, LG, Hyundai headquarters" },
+            { icon: "graduation-cap", title: "Education", text: "Highest tertiary education rate globally" },
+            { icon: "bolt", title: "Internet Speed", text: "Among fastest internet speeds in world" },
+            { icon: "gamepad", title: "Esports Capital", text: "Birthplace of professional esports" },
+            { icon: "utensils", title: "Korean Cuisine", text: "Kimchi, Korean BBQ, and K-food global phenomenon" },
+            { icon: "tv", title: "K-Drama", text: "Korean dramas watched by 100M+ worldwide" },
+            { icon: "spa", title: "K-Beauty", text: "$10 billion K-beauty industry" }
         ]
     }
 ];
 
-// Export for use in other files
+// Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CountriesData2;
 }
-// Make available in browser
+
+// Export for Browser
 if (typeof window !== 'undefined') {
     window.CountriesData2 = CountriesData2;
 }
