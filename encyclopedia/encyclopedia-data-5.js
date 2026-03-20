@@ -1,3965 +1,2686 @@
 /**
- * GeoVerse Encyclopedia - Country Data File 5
- * Contains: Countries 81-100 (Detailed Information)
- * Version: 1.0
+ * Encyclopedia Data - File 5
+ * Contains: Northern Europe (10) + Balkans (9) = 19 Countries
+ * Version: 2.0 - Clean Data
  */
 
-const CountriesData5 = {
-    "serbia": {
-        name: "Serbia",
-        officialName: "Republic of Serbia",
-        nativeName: "Република Србија (Republika Srbija)",
-        iso3: "SRB",
-        iso2: "RS",
-        flag: "🇷🇸",
+const CountriesData5 = [
+    // 1. DENMARK
+    {
+        id: "DNK",
+        name: "Denmark",
+        officialName: "Kingdom of Denmark",
+        flag: "https://flagcdn.com/w320/dk.png",
         
-        capital: {
-            name: "Belgrade",
-            population: 1400000,
-            coordinates: { lat: 44.8176, lng: 20.4633 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1552560880-2482cef14240?w=1920&q=80"
         },
-        largestCity: "Belgrade",
-        population: {
-            total: 6664000,
-            year: 2024,
-            density: 75,
-            growth: -0.5
-        },
-        area: {
-            total: 88361,
-            land: 87460,
-            water: 901,
-            rank: 113
-        },
-        
-        continent: "Europe",
-        region: "Balkans",
-        subregion: "Southeast Europe",
-        coordinates: { lat: 44.0165, lng: 21.0059 },
-        borders: ["Hungary", "Romania", "Bulgaria", "North Macedonia", "Kosovo", "Montenegro", "Bosnia and Herzegovina", "Croatia"],
-        coastline: 0,
-        timezone: ["UTC+1"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Aleksandar Vučić",
-            headOfGovernment: "Prime Minister Miloš Vučević"
-        },
-        independence: {
-            date: "June 5, 2006",
-            from: "State Union of Serbia and Montenegro"
-        },
-        nationalDay: { name: "Statehood Day", date: "February 15" },
-        divisions: {
-            type: "districts",
-            count: 29,
-            major: ["Belgrade", "Vojvodina", "Šumadija", "South and East Serbia"]
-        },
-        
-        economy: {
-            gdpTotal: 75000000000,
-            gdpPerCapita: 11300,
-            gdpGrowth: 2.5,
-            currency: { name: "Serbian dinar", code: "RSD", symbol: "дин." },
-            mainIndustries: ["automotive", "food processing", "machinery", "electronics", "pharmaceuticals"],
-            exports: ["automobiles", "iron and steel", "rubber", "electrical equipment", "cereals"],
-            imports: ["machinery", "fuels", "chemicals", "vehicles", "plastics"],
-            majorPartners: ["Germany", "Italy", "Bosnia", "Romania", "Russia"]
-        },
-        hdi: 0.802,
-        
-        geography_links: {
-            rivers: [
-                { name: "Danube", description: "Major river forming border with Croatia and Romania" },
-                { name: "Sava", description: "Major tributary joining Danube at Belgrade" },
-                { name: "Morava", description: "Principal river of central Serbia" },
-                { name: "Tisa", description: "Important river in Vojvodina region" },
-                { name: "Drina", description: "River forming border with Bosnia" }
-            ],
-            mountains: [
-                { name: "Kopaonik", description: "Highest mountain range, major ski resort" },
-                { name: "Tara", description: "Mountain with ancient Serbian spruce forest" },
-                { name: "Zlatibor", description: "Popular mountain resort area" },
-                { name: "Fruška Gora", description: "Low mountain range in Vojvodina" },
-                { name: "Stara Planina", description: "Balkan Mountains along Bulgarian border" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Tara National Park", description: "UNESCO protected old-growth forest" },
-                { name: "Fruška Gora forests", description: "Linden and oak forests with monasteries" },
-                { name: "Kopaonik forests", description: "Spruce and beech mountain forests" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Đerdap Lake", description: "Reservoir on Danube with Iron Gates" },
-                { name: "Silver Lake", description: "Popular recreational lake" },
-                { name: "Palić Lake", description: "Natural lake near Subotica" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Serbian"],
-                regional: ["Hungarian", "Bosnian", "Romanian", "Albanian", "Croatian"],
-                spoken: ["Serbian", "Hungarian", "Romani"]
-            },
-            religions: {
-                dominant: "Serbian Orthodox Christianity",
-                breakdown: {
-                    "Serbian Orthodox": 84.6,
-                    "Catholic": 5.0,
-                    "Islam": 3.1,
-                    "Protestant": 1.0,
-                    "Other": 6.3
-                }
-            },
-            heritageSites: [
-                { name: "Stari Ras and Sopoćani", type: "Cultural", year: 1979, description: "Medieval capital and monastery" },
-                { name: "Studenica Monastery", type: "Cultural", year: 1986, description: "12th century Orthodox monastery" },
-                { name: "Medieval Monuments in Kosovo", type: "Cultural", year: 2004, description: "Serbian Orthodox monasteries" },
-                { name: "Gamzigrad-Romuliana", type: "Cultural", year: 2007, description: "Roman palace of Emperor Galerius" }
-            ],
-            festivals: [
-                { name: "EXIT Festival", date: "July", description: "Major European music festival in Novi Sad" },
-                { name: "Trumpet Festival", date: "August", description: "Guča brass music celebration" },
-                { name: "Slava", date: "Various", description: "Family patron saint day celebrations" },
-                { name: "Orthodox Christmas", date: "January 7", description: "Traditional Christmas celebration" }
-            ],
-            cuisine: [
-                { name: "Ćevapi", description: "Grilled minced meat sausages" },
-                { name: "Pljeskavica", description: "Serbian spiced meat patty" },
-                { name: "Ajvar", description: "Roasted red pepper spread" },
-                { name: "Sarma", description: "Stuffed cabbage rolls" },
-                { name: "Kajmak", description: "Creamy dairy spread" }
-            ],
-            arts: [
-                { type: "Music", description: "Brass bands, folk music, turbo-folk" },
-                { type: "Literature", description: "Rich tradition from Ivo Andrić to modern writers" },
-                { type: "Visual Arts", description: "Byzantine icon tradition, modern art scene" },
-                { type: "Film", description: "Award-winning directors like Kusturica" }
-            ],
-            sports: {
-                popular: ["Football", "Basketball", "Tennis", "Water polo", "Volleyball"],
-                achievements: ["2006 FIBA World Champions", "Olympic tennis medals", "Water polo world champions"],
-                venues: ["Red Star Stadium", "Partizan Stadium", "Štark Arena"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "6th century", event: "Slavic settlement in Balkans" },
-                { year: "1166", event: "Stefan Nemanja founds Nemanjić dynasty" },
-                { year: "1346", event: "Serbian Empire at peak under Stefan Dušan" },
-                { year: "1389", event: "Battle of Kosovo against Ottoman Empire" },
-                { year: "1459", event: "Fall to Ottoman rule" },
-                { year: "1804", event: "First Serbian Uprising begins" },
-                { year: "1878", event: "Independence recognized at Congress of Berlin" },
-                { year: "1918", event: "Kingdom of Serbs, Croats and Slovenes formed" },
-                { year: "1945", event: "Socialist Yugoslavia established" },
-                { year: "1991-1999", event: "Yugoslav Wars period" },
-                { year: "2006", event: "Independence after Montenegro separation" },
-                { year: "2012", event: "EU candidate status granted" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Kingdom of Serbia", "Serbian Empire", "Yugoslavia"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Serbs": 83.3,
-                "Hungarians": 3.5,
-                "Roma": 2.1,
-                "Bosniaks": 2.0,
-                "Others": 9.1
-            },
-            ageStructure: {
-                "0-14": 14.5,
-                "15-64": 65.0,
-                "65+": 20.5
-            },
-            urbanization: 56.4,
-            lifeExpectancy: 76.0,
-            fertilityRate: 1.5,
-            literacyRate: 98.1
-        },
-        
-        quickFacts: {
-            internet: { tld: ".rs", penetration: 78.4 },
-            calling: { code: "+381" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "192/193/194"
-        },
-        
-        disputes: [
-            {
-                type: "territorial",
-                description: "Kosovo independence not recognized by Serbia",
-                parties: ["Serbia", "Kosovo"],
-                status: "Ongoing negotiations"
-            }
-        ],
-        
-        funFacts: [
-            "Belgrade is one of Europe's oldest continuously inhabited cities",
-            "Nikola Tesla was of Serbian heritage",
-            "Serbia has the most UNESCO intangible cultural heritage items in Europe",
-            "The Cyrillic alphabet was created by Serbian monks"
-        ]
-    },
 
-    "bulgaria": {
-        name: "Bulgaria",
-        officialName: "Republic of Bulgaria",
-        nativeName: "Република България",
-        iso3: "BGR",
-        iso2: "BG",
-        flag: "🇧🇬",
-        
-        capital: {
-            name: "Sofia",
-            population: 1310000,
-            coordinates: { lat: 42.6977, lng: 23.3219 }
+        basic: {
+            capital: "Copenhagen",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Scandinavia",
+            population: 5932654,
+            area: 43094,
+            populationDensity: 137,
+            independence: "965 (Unified)",
+            callingCode: "+45",
+            tld: ".dk",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        largestCity: "Sofia",
-        population: {
-            total: 6520000,
-            year: 2024,
-            density: 59,
-            growth: -0.7
+
+        location: {
+            coordinates: [56.2639, 9.5018],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Germany"],
+            borders: 140,
+            hemispheres: ["Northern", "Eastern"]
         },
-        area: {
-            total: 110879,
-            land: 108489,
-            water: 2390,
-            rank: 103
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "King Frederik X",
+            headOfGovernment: "Prime Minister Mette Frederiksen",
+            legislature: "Folketing (Parliament)",
+            legalSystem: "Civil Law (Scandinavian)",
+            states: 5,
+            regions: 5,
+            municipalities: 98,
+            largestCity: "Copenhagen",
+            organizations: ["UN", "EU", "NATO", "Nordic Council", "OECD", "WTO", "Schengen Area"]
         },
-        
-        continent: "Europe",
-        region: "Balkans",
-        subregion: "Southeast Europe",
-        coordinates: { lat: 42.7339, lng: 25.4858 },
-        borders: ["Romania", "Serbia", "North Macedonia", "Greece", "Turkey"],
-        coastline: 354,
-        timezone: ["UTC+2"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Rumen Radev",
-            headOfGovernment: "Prime Minister Dimitar Glavchev"
-        },
-        independence: {
-            date: "September 22, 1908",
-            from: "Ottoman Empire"
-        },
-        nationalDay: { name: "Liberation Day", date: "March 3" },
-        divisions: {
-            type: "provinces",
-            count: 28,
-            major: ["Sofia City", "Plovdiv", "Varna", "Burgas"]
-        },
-        
+
         economy: {
-            gdpTotal: 95000000000,
-            gdpPerCapita: 14500,
-            gdpGrowth: 3.4,
-            currency: { name: "Bulgarian lev", code: "BGN", symbol: "лв" },
-            mainIndustries: ["IT services", "machinery", "food processing", "tourism", "metals"],
-            exports: ["refined petroleum", "copper", "wheat", "machinery", "pharmaceuticals"],
-            imports: ["crude petroleum", "copper ore", "cars", "pharmaceuticals", "natural gas"],
-            majorPartners: ["Germany", "Romania", "Italy", "Turkey", "Greece"]
+            gdp: "$404 Billion",
+            gdpPPP: "$395 Billion",
+            gdpPerCapita: "$67,803",
+            gdpRank: "#36",
+            gdpGrowth: "1.9%",
+            currency: "Danish Krone",
+            currencyCode: "DKK",
+            currencySymbol: "kr",
+            inflation: "3.4%",
+            unemployment: "2.7%",
+            majorSectors: ["Services (75%)", "Industry (22%)", "Agriculture (1%)"],
+            industries: ["Wind Turbines", "Pharmaceuticals", "Medical Equipment", "Shipbuilding", "Food Processing", "Machinery", "Furniture", "Electronics"],
+            exports: ["Pharmaceuticals", "Machinery", "Wind Turbines", "Meat Products", "Dairy", "Fish"],
+            imports: ["Machinery", "Chemicals", "Grain", "Foodstuffs", "Electronics", "Vehicles"]
         },
-        hdi: 0.795,
-        
+
+        geography: {
+            climate: "Temperate; Humid and Overcast; Mild, Windy Winters; Cool Summers",
+            avgTemperature: "9.1°C",
+            annualRainfall: "765 mm",
+            highestPoint: "Møllehøj (170.86 m)",
+            lowestPoint: "Lammefjord (-7 m)",
+            coastline: "7,314 km",
+            forestCover: "14.6%",
+            arableLand: "58.9%",
+            terrain: "Low and flat to gently rolling plains",
+            naturalResources: ["Petroleum", "Natural Gas", "Fish", "Arable Land", "Salt", "Limestone", "Chalk", "Stone", "Gravel", "Sand"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Danube", description: "Forms northern border with Romania" },
-                { name: "Maritsa", description: "Longest river entirely in Bulgaria" },
-                { name: "Iskar", description: "River flowing through Sofia" },
-                { name: "Struma", description: "River in southwestern Bulgaria" }
-            ],
-            mountains: [
-                { name: "Rila", description: "Highest mountains in Balkans, includes Musala peak" },
-                { name: "Pirin", description: "UNESCO World Heritage mountain range" },
-                { name: "Rhodope", description: "Ancient mountains on Greek border" },
-                { name: "Balkan Mountains", description: "Central mountain range crossing country" },
-                { name: "Vitosha", description: "Mountain overlooking Sofia" }
-            ],
+            rivers: ["Gudenå", "Storå", "Skjern Å", "Varde Å"],
+            mountains: [],
             deserts: [],
-            forests: [
-                { name: "Pirin National Park", description: "Ancient conifer forests" },
-                { name: "Strandzha forests", description: "Unique oak forests near Black Sea" },
-                { name: "Central Balkan forests", description: "Beech and fir old-growth" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Black Sea", description: "Eastern coast with resort towns" }
-            ],
-            lakes: [
-                { name: "Seven Rila Lakes", description: "Glacial lakes in Rila Mountains" },
-                { name: "Lake Srebarna", description: "UNESCO biosphere reserve" },
-                { name: "Black Sea coastal lakes", description: "Lagoons along coast" }
-            ]
+            forests: ["Rold Skov", "Gribskov", "Silkeborg Forests"],
+            oceans: ["North Sea", "Baltic Sea", "Skagerrak", "Kattegat"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Bulgarian"],
-                regional: ["Turkish", "Romani"],
-                spoken: ["Bulgarian", "Turkish", "Russian"]
-            },
-            religions: {
-                dominant: "Eastern Orthodox Christianity",
-                breakdown: {
-                    "Eastern Orthodox": 59.4,
-                    "Islam": 7.8,
-                    "Protestant": 1.6,
-                    "Catholic": 0.8,
-                    "Unaffiliated": 30.4
-                }
-            },
-            heritageSites: [
-                { name: "Boyana Church", type: "Cultural", year: 1979, description: "Medieval church with remarkable frescoes" },
-                { name: "Rila Monastery", type: "Cultural", year: 1983, description: "Largest Orthodox monastery in Bulgaria" },
-                { name: "Rock-Hewn Churches of Ivanovo", type: "Cultural", year: 1979, description: "Medieval rock churches" },
-                { name: "Thracian Tomb of Kazanlak", type: "Cultural", year: 1979, description: "4th century BC burial site" },
-                { name: "Ancient City of Nessebar", type: "Cultural", year: 1983, description: "Historic Black Sea town" },
-                { name: "Pirin National Park", type: "Natural", year: 1983, description: "Mountain wilderness area" }
-            ],
-            festivals: [
-                { name: "Kukeri", date: "January-March", description: "Ancient masked ritual to scare evil spirits" },
-                { name: "Martenitsa", date: "March 1", description: "Red and white spring celebration" },
-                { name: "Rose Festival", date: "June", description: "Celebration in Rose Valley" },
-                { name: "Nestinarstvo", date: "June", description: "Barefoot fire-dancing ritual" }
-            ],
-            cuisine: [
-                { name: "Shopska Salad", description: "Tomato, cucumber, peppers with white cheese" },
-                { name: "Banitsa", description: "Filo pastry with cheese" },
-                { name: "Tarator", description: "Cold yogurt and cucumber soup" },
-                { name: "Kebapche", description: "Grilled minced meat" },
-                { name: "Kiselo Mlyako", description: "Famous Bulgarian yogurt" }
-            ],
-            arts: [
-                { type: "Music", description: "Distinctive folk music, famous women's choirs" },
-                { type: "Dance", description: "Horo folk dances" },
-                { type: "Crafts", description: "Rose oil production, pottery, woodcarving" },
-                { type: "Literature", description: "Rich tradition from Ivan Vazov to modern" }
-            ],
-            sports: {
-                popular: ["Football", "Volleyball", "Wrestling", "Weightlifting", "Rhythmic gymnastics"],
-                achievements: ["Olympic wrestling gold medals", "Rhythmic gymnastics world champions", "Strong weightlifting tradition"],
-                venues: ["Vasil Levski National Stadium", "Arena Armeec"]
-            }
+            officialLanguages: ["Danish"],
+            languages: ["Danish", "Faroese", "Greenlandic", "German", "English"],
+            religions: ["Evangelical Lutheran (74.7%)", "Islam (5.5%)", "Other Christian (3%)", "None (19%)"],
+            heritageSites: ["Jelling Mounds", "Roskilde Cathedral", "Kronborg Castle", "Ilulissat Icefjord (Greenland)", "Stevns Klint", "Wadden Sea", "Christiansfeld"],
+            festivals: ["Roskilde Festival", "Copenhagen Jazz Festival", "Aarhus Festuge", "Tivoli Christmas", "Sankt Hans Aften"],
+            cuisine: ["Smørrebrød", "Frikadeller", "Flæskesteg", "Æbleskiver", "Rødgrød med Fløde", "Danish Pastry"],
+            arts: ["Danish Design", "Architecture", "Literature", "Film (Dogme 95)", "Ceramics"],
+            sports: ["Football", "Handball", "Cycling", "Badminton", "Sailing", "Ice Hockey"]
         },
-        
+
+        symbols: {
+            bird: "Mute Swan",
+            animal: "Red Squirrel",
+            flower: "Marguerite Daisy",
+            tree: "European Beech",
+            anthem: "Der er et yndigt land",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 81.40,
+            literacyRate: "99%",
+            urbanPopulation: "88.2%",
+            medianAge: 42.0
+        },
+
         history: {
             timeline: [
-                { year: "681", event: "First Bulgarian Empire established" },
-                { year: "893", event: "Golden Age under Simeon I" },
-                { year: "1018", event: "Byzantine conquest" },
-                { year: "1185", event: "Second Bulgarian Empire" },
-                { year: "1396", event: "Ottoman conquest begins" },
-                { year: "1878", event: "Liberation from Ottoman rule" },
-                { year: "1908", event: "Full independence declared" },
-                { year: "1944", event: "Soviet occupation, communist rule" },
-                { year: "1989", event: "Fall of communist regime" },
-                { year: "2004", event: "NATO membership" },
-                { year: "2007", event: "European Union membership" }
+                { year: "793", title: "Viking Age", description: "Viking raids began from Denmark" },
+                { year: "965", title: "Unification", description: "Denmark unified under Harald Bluetooth" },
+                { year: "1397", title: "Kalmar Union", description: "United Scandinavian kingdoms" },
+                { year: "1536", title: "Reformation", description: "Lutheranism became state religion" },
+                { year: "1849", title: "Constitutional Monarchy", description: "First constitution adopted" },
+                { year: "1940-1945", title: "WWII Occupation", description: "Nazi Germany occupation" },
+                { year: "1973", title: "EU Membership", description: "Joined European Communities" }
             ],
-            colonialHistory: null,
-            historicalNames: ["First Bulgarian Empire", "Second Bulgarian Empire", "People's Republic of Bulgaria"]
+            notableFigures: ["Harald Bluetooth", "Hans Christian Andersen", "Søren Kierkegaard", "Niels Bohr", "Karen Blixen"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Bulgarians": 84.8,
-                "Turks": 8.8,
-                "Roma": 4.9,
-                "Others": 1.5
-            },
-            ageStructure: {
-                "0-14": 14.2,
-                "15-64": 63.0,
-                "65+": 22.8
-            },
-            urbanization: 76.0,
-            lifeExpectancy: 75.0,
-            fertilityRate: 1.6,
-            literacyRate: 98.4
-        },
-        
-        quickFacts: {
-            internet: { tld: ".bg", penetration: 71.0 },
-            calling: { code: "+359" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Bulgaria is the oldest country in Europe that hasn't changed its name",
-            "Bulgarians shake their head for yes and nod for no",
-            "Bulgarian yogurt contains unique bacteria named after the country",
-            "The Cyrillic alphabet was created in Bulgaria"
+
+        quickFacts: [
+            { icon: "smile", title: "Happiest Country", text: "Consistently ranked among happiest countries" },
+            { icon: "bicycle", title: "Cycling Culture", text: "Copenhagen: World's most bike-friendly city" },
+            { icon: "wind", title: "Wind Power", text: "World leader in wind energy (50%+ electricity)" },
+            { icon: "crown", title: "Oldest Monarchy", text: "World's oldest continuous monarchy" },
+            { icon: "building", title: "LEGO", text: "Birthplace of LEGO" },
+            { icon: "flag", title: "Oldest Flag", text: "World's oldest continuously used national flag" }
         ]
     },
 
-    "croatia": {
-        name: "Croatia",
-        officialName: "Republic of Croatia",
-        nativeName: "Republika Hrvatska",
-        iso3: "HRV",
-        iso2: "HR",
-        flag: "🇭🇷",
-        
-        capital: {
-            name: "Zagreb",
-            population: 807000,
-            coordinates: { lat: 45.8150, lng: 15.9819 }
-        },
-        largestCity: "Zagreb",
-        population: {
-            total: 3850000,
-            year: 2024,
-            density: 68,
-            growth: -0.5
-        },
-        area: {
-            total: 56594,
-            land: 55974,
-            water: 620,
-            rank: 127
-        },
-        
-        continent: "Europe",
-        region: "Balkans",
-        subregion: "Southeast Europe",
-        coordinates: { lat: 45.1000, lng: 15.2000 },
-        borders: ["Slovenia", "Hungary", "Serbia", "Bosnia and Herzegovina", "Montenegro"],
-        coastline: 5835,
-        timezone: ["UTC+1"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Zoran Milanović",
-            headOfGovernment: "Prime Minister Andrej Plenković"
-        },
-        independence: {
-            date: "June 25, 1991",
-            from: "Yugoslavia"
-        },
-        nationalDay: { name: "Statehood Day", date: "May 30" },
-        divisions: {
-            type: "counties",
-            count: 21,
-            major: ["Zagreb", "Split-Dalmatia", "Primorje-Gorski Kotar", "Osijek-Baranja"]
-        },
-        
-        economy: {
-            gdpTotal: 78000000000,
-            gdpPerCapita: 20200,
-            gdpGrowth: 3.0,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["tourism", "shipbuilding", "food processing", "pharmaceuticals", "IT"],
-            exports: ["machinery", "transport equipment", "textiles", "chemicals", "food"],
-            imports: ["machinery", "transport equipment", "fuels", "chemicals", "food"],
-            majorPartners: ["Germany", "Italy", "Slovenia", "Bosnia", "Austria"]
-        },
-        hdi: 0.858,
-        
-        geography_links: {
-            rivers: [
-                { name: "Danube", description: "Eastern border river" },
-                { name: "Drava", description: "Major river in northern Croatia" },
-                { name: "Sava", description: "Flows through Zagreb to Serbia" },
-                { name: "Neretva", description: "River in Dalmatia with delta" },
-                { name: "Krka", description: "Famous for waterfalls national park" }
-            ],
-            mountains: [
-                { name: "Dinaric Alps", description: "Mountain chain along Adriatic coast" },
-                { name: "Velebit", description: "Largest mountain range in Croatia" },
-                { name: "Dinara", description: "Highest peak at 1831m" },
-                { name: "Učka", description: "Mountain overlooking Kvarner" },
-                { name: "Biokovo", description: "Dramatic coastal mountains" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Plitvice Lakes forests", description: "Beech and fir forests around lakes" },
-                { name: "Northern Velebit forests", description: "Primeval beech forests" },
-                { name: "Paklenica forests", description: "Black pine forests in mountains" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Adriatic Sea", description: "Extensive coastline with over 1000 islands" }
-            ],
-            lakes: [
-                { name: "Plitvice Lakes", description: "UNESCO World Heritage cascading lakes" },
-                { name: "Vransko Lake", description: "Largest natural lake" },
-                { name: "Lake Jarun", description: "Recreational lake in Zagreb" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Croatian"],
-                regional: ["Italian", "Serbian", "Hungarian"],
-                spoken: ["Croatian", "English", "German", "Italian"]
-            },
-            religions: {
-                dominant: "Roman Catholicism",
-                breakdown: {
-                    "Catholic": 86.3,
-                    "Orthodox": 4.4,
-                    "Islam": 1.5,
-                    "Other": 7.8
-                }
-            },
-            heritageSites: [
-                { name: "Plitvice Lakes National Park", type: "Natural", year: 1979, description: "Cascading lakes and waterfalls" },
-                { name: "Diocletian's Palace", type: "Cultural", year: 1979, description: "Roman emperor's palace in Split" },
-                { name: "Old City of Dubrovnik", type: "Cultural", year: 1979, description: "Pearl of the Adriatic" },
-                { name: "Euphrasian Basilica", type: "Cultural", year: 1997, description: "Byzantine cathedral in Poreč" },
-                { name: "Stari Grad Plain", type: "Cultural", year: 2008, description: "Ancient Greek agricultural landscape" },
-                { name: "Trogir", type: "Cultural", year: 1997, description: "Medieval town" }
-            ],
-            festivals: [
-                { name: "Dubrovnik Summer Festival", date: "July-August", description: "Theatre and music festival" },
-                { name: "Sinjska Alka", date: "August", description: "Medieval knights tournament" },
-                { name: "Ultra Europe", date: "July", description: "Electronic music festival in Split" },
-                { name: "Zagreb Advent", date: "December", description: "Best Christmas market in Europe" }
-            ],
-            cuisine: [
-                { name: "Peka", description: "Meat and vegetables cooked under bell-shaped lid" },
-                { name: "Ćevapi", description: "Grilled meat sausages" },
-                { name: "Pršut", description: "Dalmatian dry-cured ham" },
-                { name: "Black Risotto", description: "Squid ink risotto" },
-                { name: "Strukli", description: "Cheese-filled pastry from Zagorje" }
-            ],
-            arts: [
-                { type: "Music", description: "Klapa a cappella singing, folk music" },
-                { type: "Architecture", description: "Roman, Venetian, and Habsburg influences" },
-                { type: "Visual Arts", description: "Naïve art tradition, Ivan Meštrović sculpture" },
-                { type: "Literature", description: "Rich literary tradition" }
-            ],
-            sports: {
-                popular: ["Football", "Basketball", "Handball", "Water polo", "Tennis"],
-                achievements: ["FIFA World Cup finalists 2018", "Olympic handball, water polo medals", "Wimbledon champions"],
-                venues: ["Maksimir Stadium", "Poljud Stadium", "Arena Zagreb"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "7th century", event: "Croats settle in region" },
-                { year: "925", event: "Kingdom of Croatia established" },
-                { year: "1102", event: "Personal union with Hungary" },
-                { year: "1527", event: "Habsburg rule begins" },
-                { year: "1918", event: "Joins Kingdom of Serbs, Croats and Slovenes" },
-                { year: "1941-1945", event: "Independent State of Croatia (Nazi puppet state)" },
-                { year: "1945", event: "Part of Socialist Yugoslavia" },
-                { year: "1991", event: "Independence declared, war begins" },
-                { year: "1995", event: "War ends, full territorial control" },
-                { year: "2009", event: "NATO membership" },
-                { year: "2013", event: "European Union membership" },
-                { year: "2023", event: "Joins Eurozone and Schengen Area" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Kingdom of Croatia", "Kingdom of the Serbs, Croats and Slovenes", "Socialist Republic of Croatia"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Croats": 90.4,
-                "Serbs": 4.4,
-                "Bosniaks": 0.7,
-                "Others": 4.5
-            },
-            ageStructure: {
-                "0-14": 14.0,
-                "15-64": 63.5,
-                "65+": 22.5
-            },
-            urbanization: 58.0,
-            lifeExpectancy: 78.4,
-            fertilityRate: 1.5,
-            literacyRate: 99.3
-        },
-        
-        quickFacts: {
-            internet: { tld: ".hr", penetration: 80.0 },
-            calling: { code: "+385" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "The necktie (cravat) was invented in Croatia",
-            "Croatia has over 1,000 islands along its coast",
-            "Dubrovnik was a filming location for Game of Thrones",
-            "The Dalmatian dog breed originated in Croatia"
-        ]
-    },
-
-    "slovakia": {
-        name: "Slovakia",
-        officialName: "Slovak Republic",
-        nativeName: "Slovenská republika",
-        iso3: "SVK",
-        iso2: "SK",
-        flag: "🇸🇰",
-        
-        capital: {
-            name: "Bratislava",
-            population: 440000,
-            coordinates: { lat: 48.1486, lng: 17.1077 }
-        },
-        largestCity: "Bratislava",
-        population: {
-            total: 5430000,
-            year: 2024,
-            density: 111,
-            growth: 0.0
-        },
-        area: {
-            total: 49035,
-            land: 48088,
-            water: 947,
-            rank: 129
-        },
-        
-        continent: "Europe",
-        region: "Central Europe",
-        subregion: "Central Europe",
-        coordinates: { lat: 48.6690, lng: 19.6990 },
-        borders: ["Poland", "Ukraine", "Hungary", "Austria", "Czech Republic"],
-        coastline: 0,
-        timezone: ["UTC+1"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Peter Pellegrini",
-            headOfGovernment: "Prime Minister Robert Fico"
-        },
-        independence: {
-            date: "January 1, 1993",
-            from: "Czechoslovakia"
-        },
-        nationalDay: { name: "Constitution Day", date: "September 1" },
-        divisions: {
-            type: "regions",
-            count: 8,
-            major: ["Bratislava", "Košice", "Prešov", "Žilina"]
-        },
-        
-        economy: {
-            gdpTotal: 128000000000,
-            gdpPerCapita: 23600,
-            gdpGrowth: 1.7,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["automobiles", "electronics", "machinery", "steel", "chemicals"],
-            exports: ["vehicles", "machinery", "electrical equipment", "iron and steel", "plastics"],
-            imports: ["machinery", "vehicles", "fuels", "electrical equipment", "chemicals"],
-            majorPartners: ["Germany", "Czech Republic", "Poland", "France", "Hungary"]
-        },
-        hdi: 0.848,
-        
-        geography_links: {
-            rivers: [
-                { name: "Danube", description: "Forms part of southern border with Hungary" },
-                { name: "Váh", description: "Longest Slovak river" },
-                { name: "Hron", description: "Central Slovak river" },
-                { name: "Hornád", description: "River flowing to Hungary" },
-                { name: "Morava", description: "Border river with Austria" }
-            ],
-            mountains: [
-                { name: "High Tatras", description: "Smallest high mountain range in the world" },
-                { name: "Low Tatras", description: "Second highest Slovak mountains" },
-                { name: "Malá Fatra", description: "Popular mountain range with resorts" },
-                { name: "Slovenský Raj", description: "Slovak Paradise National Park" },
-                { name: "Carpathians", description: "Arc of mountains across Slovakia" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Primeval Beech Forests", description: "UNESCO World Heritage forests" },
-                { name: "Poloniny forests", description: "Wild forests in eastern Slovakia" },
-                { name: "Tatra forests", description: "Mountain spruce forests" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Štrbské Pleso", description: "Glacial lake in High Tatras" },
-                { name: "Sĺňava", description: "Large reservoir" },
-                { name: "Zemplínska Šírava", description: "Largest Slovak reservoir" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Slovak"],
-                regional: ["Hungarian", "Romani", "Ruthenian", "Ukrainian"],
-                spoken: ["Slovak", "Hungarian", "Czech", "English"]
-            },
-            religions: {
-                dominant: "Roman Catholicism",
-                breakdown: {
-                    "Catholic": 62.0,
-                    "Protestant": 5.9,
-                    "Greek Catholic": 3.8,
-                    "Orthodox": 0.9,
-                    "Unaffiliated": 23.8
-                }
-            },
-            heritageSites: [
-                { name: "Vlkolínec", type: "Cultural", year: 1993, description: "Preserved medieval village" },
-                { name: "Banská Štiavnica", type: "Cultural", year: 1993, description: "Historic mining town" },
-                { name: "Spiš Castle", type: "Cultural", year: 1993, description: "One of largest castle complexes in Europe" },
-                { name: "Wooden Churches of Slovak Carpathians", type: "Cultural", year: 2008, description: "Historic wooden churches" },
-                { name: "Caves of Slovak Karst", type: "Natural", year: 1995, description: "Extensive cave system" },
-                { name: "Primeval Beech Forests", type: "Natural", year: 2007, description: "Ancient forests" }
-            ],
-            festivals: [
-                { name: "Východná Folklore Festival", date: "July", description: "Largest folk festival" },
-                { name: "Pohoda", date: "July", description: "Major music festival" },
-                { name: "Christmas Markets", date: "December", description: "Traditional markets in major cities" },
-                { name: "Grape Harvest Festivals", date: "September", description: "Wine region celebrations" }
-            ],
-            cuisine: [
-                { name: "Bryndzové Halušky", description: "National dish - potato dumplings with sheep cheese" },
-                { name: "Kapustnica", description: "Traditional sauerkraut soup" },
-                { name: "Pirohy", description: "Filled dumplings" },
-                { name: "Trdelník", description: "Sweet pastry cooked over open flame" },
-                { name: "Lokše", description: "Potato pancakes" }
-            ],
-            arts: [
-                { type: "Music", description: "Rich folk music tradition, fujara instrument" },
-                { type: "Crafts", description: "Folk costumes, pottery, woodcarving" },
-                { type: "Dance", description: "Traditional folk dances" },
-                { type: "Literature", description: "Slovak romantic and modern literature" }
-            ],
-            sports: {
-                popular: ["Ice hockey", "Football", "Biathlon", "Alpine skiing"],
-                achievements: ["Ice hockey world champions", "Olympic biathlon medals", "Strong hockey tradition"],
-                venues: ["Ondrej Nepela Arena", "Tehelné Pole"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "5th-6th century", event: "Slavic settlement" },
-                { year: "833", event: "Great Moravia established" },
-                { year: "907", event: "Hungarian conquest begins" },
-                { year: "1000s-1918", event: "Part of Kingdom of Hungary" },
-                { year: "1918", event: "Czechoslovakia formed" },
-                { year: "1939-1945", event: "Slovak Republic (Nazi client state)" },
-                { year: "1945", event: "Czechoslovakia restored" },
-                { year: "1948", event: "Communist rule begins" },
-                { year: "1968", event: "Prague Spring crushed" },
-                { year: "1989", event: "Velvet Revolution" },
-                { year: "1993", event: "Peaceful separation from Czech Republic" },
-                { year: "2004", event: "EU and NATO membership" },
-                { year: "2009", event: "Eurozone membership" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Upper Hungary", "Czechoslovakia", "Slovak Socialist Republic"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Slovaks": 83.8,
-                "Hungarians": 7.8,
-                "Roma": 2.0,
-                "Czechs": 0.6,
-                "Others": 5.8
-            },
-            ageStructure: {
-                "0-14": 15.5,
-                "15-64": 67.0,
-                "65+": 17.5
-            },
-            urbanization: 53.8,
-            lifeExpectancy: 77.5,
-            fertilityRate: 1.5,
-            literacyRate: 99.6
-        },
-        
-        quickFacts: {
-            internet: { tld: ".sk", penetration: 85.0 },
-            calling: { code: "+421" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, E" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Slovakia has more castles per capita than any other country",
-            "The fujara shepherd's flute is UNESCO intangible heritage",
-            "Slovakia produces more cars per capita than any other country",
-            "Andy Warhol's parents were from Slovakia"
-        ]
-    },
-
-    "lithuania": {
-        name: "Lithuania",
-        officialName: "Republic of Lithuania",
-        nativeName: "Lietuvos Respublika",
-        iso3: "LTU",
-        iso2: "LT",
-        flag: "🇱🇹",
-        
-        capital: {
-            name: "Vilnius",
-            population: 592000,
-            coordinates: { lat: 54.6872, lng: 25.2797 }
-        },
-        largestCity: "Vilnius",
-        population: {
-            total: 2794000,
-            year: 2024,
-            density: 43,
-            growth: -0.5
-        },
-        area: {
-            total: 65300,
-            land: 62680,
-            water: 2620,
-            rank: 123
-        },
-        
-        continent: "Europe",
-        region: "Baltic States",
-        subregion: "Northern Europe",
-        coordinates: { lat: 55.1694, lng: 23.8813 },
-        borders: ["Latvia", "Belarus", "Poland", "Russia (Kaliningrad)"],
-        coastline: 90,
-        timezone: ["UTC+2"],
-        drivingSide: "right",
-        
-        governmentType: "Semi-presidential republic",
-        leader: {
-            headOfState: "President Gitanas Nausėda",
-            headOfGovernment: "Prime Minister Ingrida Šimonytė"
-        },
-        independence: {
-            date: "March 11, 1990",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Restoration of Independence Day", date: "March 11" },
-        divisions: {
-            type: "counties",
-            count: 10,
-            major: ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai"]
-        },
-        
-        economy: {
-            gdpTotal: 74000000000,
-            gdpPerCapita: 26400,
-            gdpGrowth: 1.8,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["food processing", "electronics", "chemicals", "machinery", "textiles"],
-            exports: ["refined petroleum", "furniture", "chemicals", "machinery", "plastics"],
-            imports: ["crude petroleum", "natural gas", "machinery", "vehicles", "chemicals"],
-            majorPartners: ["Latvia", "Germany", "Poland", "Russia", "Estonia"]
-        },
-        hdi: 0.875,
-        
-        geography_links: {
-            rivers: [
-                { name: "Nemunas", description: "Largest river, flows to Curonian Lagoon" },
-                { name: "Neris", description: "River flowing through Vilnius" },
-                { name: "Venta", description: "River in western Lithuania" },
-                { name: "Šešupė", description: "River on border regions" }
-            ],
-            mountains: [
-                { name: "Aukštojas Hill", description: "Highest point at 294m" },
-                { name: "Juozapinė Hill", description: "Second highest point" },
-                { name: "Baltic Highlands", description: "Hilly region in east" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Labanoras Forest", description: "One of largest forests" },
-                { name: "Dzūkija forests", description: "Pine forests in south" },
-                { name: "Žemaitija forests", description: "Mixed forests in west" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Baltic Sea", description: "Western coastline with Curonian Spit" }
-            ],
-            lakes: [
-                { name: "Lake Drūkšiai", description: "Largest lake" },
-                { name: "Aukštaitija lakes", description: "Lake region with over 100 lakes" },
-                { name: "Curonian Lagoon", description: "Large lagoon behind Curonian Spit" },
-                { name: "Lake Tauragnas", description: "Deepest lake at 60.5m" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Lithuanian"],
-                regional: ["Polish", "Russian"],
-                spoken: ["Lithuanian", "Russian", "Polish", "English"]
-            },
-            religions: {
-                dominant: "Roman Catholicism",
-                breakdown: {
-                    "Catholic": 77.2,
-                    "Orthodox": 4.1,
-                    "Old Believers": 0.8,
-                    "Lutheran": 0.6,
-                    "Unaffiliated": 16.1
-                }
-            },
-            heritageSites: [
-                { name: "Vilnius Historic Centre", type: "Cultural", year: 1994, description: "Medieval old town" },
-                { name: "Curonian Spit", type: "Cultural", year: 2000, description: "Sand dune peninsula" },
-                { name: "Kernavė", type: "Cultural", year: 2004, description: "Medieval capital site" }
-            ],
-            festivals: [
-                { name: "Joninės", date: "June 24", description: "Midsummer celebration" },
-                { name: "Kaziuko Mugė", date: "March", description: "Traditional crafts fair" },
-                { name: "Song Festival", date: "Every 4 years", description: "UNESCO recognized tradition" },
-                { name: "Užgavėnės", date: "February", description: "Pre-Lent carnival" }
-            ],
-            cuisine: [
-                { name: "Cepelinai", description: "Potato dumplings stuffed with meat" },
-                { name: "Šaltibarščiai", description: "Cold beet soup" },
-                { name: "Kugelis", description: "Potato pudding" },
-                { name: "Kibinai", description: "Pastries from Karaite tradition" },
-                { name: "Šakotis", description: "Traditional tree cake" }
-            ],
-            arts: [
-                { type: "Music", description: "Sutartinės polyphonic songs (UNESCO)" },
-                { type: "Crafts", description: "Amber jewelry, wood carving, weaving" },
-                { type: "Literature", description: "Strong poetic tradition" },
-                { type: "Dance", description: "Traditional folk dances" }
-            ],
-            sports: {
-                popular: ["Basketball", "Football", "Ice hockey", "Athletics"],
-                achievements: ["Multiple European basketball champions", "Olympic basketball medals"],
-                venues: ["Žalgiris Arena", "S. Dariaus ir S. Girėno Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "1009", event: "First mention in written sources" },
-                { year: "1253", event: "Coronation of Mindaugas, Kingdom established" },
-                { year: "1386", event: "Union with Poland begins" },
-                { year: "1569", event: "Polish-Lithuanian Commonwealth formed" },
-                { year: "1795", event: "Russian Empire annexation" },
-                { year: "1918", event: "Independence declared" },
-                { year: "1940", event: "Soviet occupation" },
-                { year: "1941-1944", event: "Nazi German occupation" },
-                { year: "1944-1990", event: "Soviet occupation resumed" },
-                { year: "1990", event: "First Soviet republic to declare independence" },
-                { year: "1991", event: "Soviet recognition, January Events" },
-                { year: "2004", event: "EU and NATO membership" },
-                { year: "2015", event: "Eurozone membership" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Grand Duchy of Lithuania", "Polish-Lithuanian Commonwealth", "Lithuanian SSR"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Lithuanians": 84.6,
-                "Poles": 6.5,
-                "Russians": 5.0,
-                "Belarusians": 1.1,
-                "Others": 2.8
-            },
-            ageStructure: {
-                "0-14": 15.0,
-                "15-64": 65.0,
-                "65+": 20.0
-            },
-            urbanization: 68.0,
-            lifeExpectancy: 75.5,
-            fertilityRate: 1.6,
-            literacyRate: 99.8
-        },
-        
-        quickFacts: {
-            internet: { tld: ".lt", penetration: 82.0 },
-            calling: { code: "+370" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Lithuanian is one of the oldest surviving languages in the world",
-            "Basketball is considered the second religion in Lithuania",
-            "The geographical center of Europe is near Vilnius",
-            "Lithuania was the last pagan nation in Europe to be Christianized"
-        ]
-    },
-
-    "slovenia": {
-        name: "Slovenia",
-        officialName: "Republic of Slovenia",
-        nativeName: "Republika Slovenija",
-        iso3: "SVN",
-        iso2: "SI",
-        flag: "🇸🇮",
-        
-        capital: {
-            name: "Ljubljana",
-            population: 295000,
-            coordinates: { lat: 46.0569, lng: 14.5058 }
-        },
-        largestCity: "Ljubljana",
-        population: {
-            total: 2119000,
-            year: 2024,
-            density: 104,
-            growth: 0.2
-        },
-        area: {
-            total: 20273,
-            land: 20151,
-            water: 122,
-            rank: 153
-        },
-        
-        continent: "Europe",
-        region: "Central Europe",
-        subregion: "Central Europe",
-        coordinates: { lat: 46.1512, lng: 14.9955 },
-        borders: ["Italy", "Austria", "Hungary", "Croatia"],
-        coastline: 47,
-        timezone: ["UTC+1"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Nataša Pirc Musar",
-            headOfGovernment: "Prime Minister Robert Golob"
-        },
-        independence: {
-            date: "June 25, 1991",
-            from: "Yugoslavia"
-        },
-        nationalDay: { name: "Statehood Day", date: "June 25" },
-        divisions: {
-            type: "municipalities",
-            count: 212,
-            major: ["Ljubljana", "Maribor", "Kranj", "Celje"]
-        },
-        
-        economy: {
-            gdpTotal: 68000000000,
-            gdpPerCapita: 32100,
-            gdpGrowth: 2.5,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["automobiles", "pharmaceuticals", "electric equipment", "tourism", "chemicals"],
-            exports: ["vehicles", "pharmaceuticals", "machinery", "furniture", "aluminum"],
-            imports: ["machinery", "vehicles", "fuels", "chemicals", "food"],
-            majorPartners: ["Germany", "Italy", "Croatia", "Austria", "France"]
-        },
-        hdi: 0.918,
-        
-        geography_links: {
-            rivers: [
-                { name: "Sava", description: "Longest Slovenian river" },
-                { name: "Drava", description: "River in northeastern Slovenia" },
-                { name: "Soča", description: "Famous emerald-green river" },
-                { name: "Mura", description: "River in Prekmurje region" },
-                { name: "Krka", description: "Karst river with waterfalls" }
-            ],
-            mountains: [
-                { name: "Julian Alps", description: "Highest mountains including Triglav" },
-                { name: "Karavanke", description: "Mountain range on Austrian border" },
-                { name: "Kamnik-Savinja Alps", description: "Central Slovenian Alps" },
-                { name: "Pohorje", description: "Large forested massif" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Kočevje forests", description: "Largest virgin forests in Europe" },
-                { name: "Triglav forests", description: "Alpine forests in national park" },
-                { name: "Pohorje forests", description: "Extensive spruce forests" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Adriatic Sea", description: "Short coastal stretch near Italy" }
-            ],
-            lakes: [
-                { name: "Lake Bled", description: "Iconic glacial lake with island church" },
-                { name: "Lake Bohinj", description: "Largest permanent lake" },
-                { name: "Lake Cerknica", description: "Intermittent karst lake" }
-            ],
-            caves: [
-                { name: "Postojna Cave", description: "Largest show cave in Europe" },
-                { name: "Škocjan Caves", description: "UNESCO World Heritage caves" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Slovenian"],
-                regional: ["Italian", "Hungarian"],
-                spoken: ["Slovenian", "English", "German", "Croatian"]
-            },
-            religions: {
-                dominant: "Roman Catholicism",
-                breakdown: {
-                    "Catholic": 57.8,
-                    "Islam": 2.4,
-                    "Orthodox": 2.3,
-                    "Protestant": 0.8,
-                    "Unaffiliated": 30.0
-                }
-            },
-            heritageSites: [
-                { name: "Škocjan Caves", type: "Natural", year: 1986, description: "Massive underground chambers" },
-                { name: "Prehistoric Pile Dwellings", type: "Cultural", year: 2011, description: "Ancient lake dwellings" },
-                { name: "Heritage of Mercury", type: "Cultural", year: 2012, description: "Idrija mining heritage" },
-                { name: "Ancient Beech Forests", type: "Natural", year: 2017, description: "Primeval forests" }
-            ],
-            festivals: [
-                { name: "Kurentovanje", date: "February", description: "UNESCO carnival in Ptuj" },
-                { name: "Ljubljana Festival", date: "July-August", description: "Cultural festival" },
-                { name: "Lent Festival", date: "June-July", description: "Maribor cultural event" },
-                { name: "Martinovanje", date: "November 11", description: "Wine festival" }
-            ],
-            cuisine: [
-                { name: "Potica", description: "Rolled pastry with various fillings" },
-                { name: "Kranjska Klobasa", description: "Carniolan sausage" },
-                { name: "Štruklji", description: "Rolled dumplings" },
-                { name: "Idrijski Žlikrofi", description: "Potato-filled pasta parcels" },
-                { name: "Prekmurska Gibanica", description: "Layered pastry" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Jože Plečnik's distinctive style" },
-                { type: "Music", description: "Folk tradition and classical" },
-                { type: "Literature", description: "France Prešeren national poet" },
-                { type: "Beekeeping", description: "Unique painted beehive panels" }
-            ],
-            sports: {
-                popular: ["Skiing", "Basketball", "Football", "Handball", "Cycling"],
-                achievements: ["Olympic skiing medals", "European basketball champions 2017", "Tour de France winners"],
-                venues: ["Stožice Arena", "Planica ski jumping venue"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "6th century", event: "Slavic settlement" },
-                { year: "623-658", event: "Samo's Empire includes Slovenian lands" },
-                { year: "745", event: "Carantania falls under Frankish rule" },
-                { year: "1335", event: "Habsburg rule begins" },
-                { year: "1918", event: "Joins Kingdom of Serbs, Croats and Slovenes" },
-                { year: "1945", event: "Part of Socialist Yugoslavia" },
-                { year: "1991", event: "Ten-Day War, independence from Yugoslavia" },
-                { year: "2004", event: "EU and NATO membership" },
-                { year: "2007", event: "Eurozone membership" },
-                { year: "2007", event: "Schengen Area membership" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Carantania", "Carniola", "Socialist Republic of Slovenia"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Slovenes": 83.1,
-                "Serbs": 2.0,
-                "Croats": 1.8,
-                "Bosniaks": 1.1,
-                "Others": 12.0
-            },
-            ageStructure: {
-                "0-14": 15.0,
-                "15-64": 64.0,
-                "65+": 21.0
-            },
-            urbanization: 55.4,
-            lifeExpectancy: 81.5,
-            fertilityRate: 1.6,
-            literacyRate: 99.7
-        },
-        
-        quickFacts: {
-            internet: { tld: ".si", penetration: 86.0 },
-            calling: { code: "+386" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Slovenia is one of the most biodiverse countries in Europe",
-            "60% of Slovenia is covered by forest",
-            "The country has one of the oldest vines in the world (400+ years)",
-            "Slovenia introduced the 'bee' as official protected animal"
-        ]
-    },
-
-    "latvia": {
-        name: "Latvia",
-        officialName: "Republic of Latvia",
-        nativeName: "Latvijas Republika",
-        iso3: "LVA",
-        iso2: "LV",
-        flag: "🇱🇻",
-        
-        capital: {
-            name: "Riga",
-            population: 614000,
-            coordinates: { lat: 56.9496, lng: 24.1052 }
-        },
-        largestCity: "Riga",
-        population: {
-            total: 1830000,
-            year: 2024,
-            density: 28,
-            growth: -0.8
-        },
-        area: {
-            total: 64589,
-            land: 62249,
-            water: 2340,
-            rank: 124
-        },
-        
-        continent: "Europe",
-        region: "Baltic States",
-        subregion: "Northern Europe",
-        coordinates: { lat: 56.8796, lng: 24.6032 },
-        borders: ["Estonia", "Lithuania", "Belarus", "Russia"],
-        coastline: 498,
-        timezone: ["UTC+2"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Edgars Rinkēvičs",
-            headOfGovernment: "Prime Minister Evika Siliņa"
-        },
-        independence: {
-            date: "August 21, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "November 18" },
-        divisions: {
-            type: "municipalities",
-            count: 43,
-            major: ["Riga", "Daugavpils", "Liepāja", "Jelgava"]
-        },
-        
-        economy: {
-            gdpTotal: 44000000000,
-            gdpPerCapita: 23900,
-            gdpGrowth: 2.0,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["food processing", "wood processing", "textiles", "telecommunications", "transport"],
-            exports: ["wood products", "food products", "metals", "machinery", "textiles"],
-            imports: ["machinery", "vehicles", "petroleum", "chemicals", "food"],
-            majorPartners: ["Lithuania", "Estonia", "Germany", "Russia", "Sweden"]
-        },
-        hdi: 0.863,
-        
-        geography_links: {
-            rivers: [
-                { name: "Daugava", description: "Largest river, flows through Riga" },
-                { name: "Gauja", description: "Most scenic river in national park" },
-                { name: "Lielupe", description: "River in central Latvia" },
-                { name: "Venta", description: "River with widest waterfall in Europe" }
-            ],
-            mountains: [
-                { name: "Gaiziņkalns", description: "Highest point at 312m" },
-                { name: "Vidzeme Upland", description: "Hilly highland region" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Gauja National Park forests", description: "Mixed forests along river valley" },
-                { name: "Slītere National Park", description: "Coastal forests with rare species" },
-                { name: "Kemeri forests", description: "Swamp forests" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Baltic Sea", description: "Western and northern coastline" },
-                { name: "Gulf of Riga", description: "Large bay on northern coast" }
-            ],
-            lakes: [
-                { name: "Lake Lubāns", description: "Largest lake" },
-                { name: "Lake Rāzna", description: "Second largest lake" },
-                { name: "Lake Engure", description: "Important bird habitat" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Latvian"],
-                regional: ["Latgalian", "Russian"],
-                spoken: ["Latvian", "Russian", "English"]
-            },
-            religions: {
-                dominant: "Christianity",
-                breakdown: {
-                    "Lutheran": 34.2,
-                    "Catholic": 24.1,
-                    "Orthodox": 17.8,
-                    "Old Believers": 1.6,
-                    "Unaffiliated": 20.0
-                }
-            },
-            heritageSites: [
-                { name: "Historic Centre of Riga", type: "Cultural", year: 1997, description: "Art Nouveau architecture" },
-                { name: "Struve Geodetic Arc", type: "Cultural", year: 2005, description: "Survey points" }
-            ],
-            festivals: [
-                { name: "Latvian Song and Dance Festival", date: "Every 5 years", description: "UNESCO heritage mass cultural event" },
-                { name: "Jāņi", date: "June 23-24", description: "Midsummer celebration" },
-                { name: "Riga City Festival", date: "August", description: "City birthday celebration" },
-                { name: "Staro Rīga", date: "November", description: "Light festival" }
-            ],
-            cuisine: [
-                { name: "Grey Peas with Bacon", description: "Traditional peasant dish" },
-                { name: "Rupjmaize", description: "Dark rye bread" },
-                { name: "Sklandrausis", description: "Sweet carrot-potato pie" },
-                { name: "Piragi", description: "Bacon-filled pastries" },
-                { name: "Kvass", description: "Fermented rye drink" }
-            ],
-            arts: [
-                { type: "Music", description: "Choral tradition, kokle instrument" },
-                { type: "Architecture", description: "Art Nouveau capital of Europe" },
-                { type: "Crafts", description: "Amber work, linen weaving, ceramics" },
-                { type: "Folk Tradition", description: "Dainas folk songs" }
-            ],
-            sports: {
-                popular: ["Ice hockey", "Basketball", "Football", "Bobsled", "Athletics"],
-                achievements: ["Olympic bobsled medals", "Strong hockey tradition", "BMX world champions"],
-                venues: ["Arena Riga", "Daugava Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "9th century", event: "Baltic tribes established" },
-                { year: "1201", event: "Riga founded by German crusaders" },
-                { year: "1282", event: "Riga joins Hanseatic League" },
-                { year: "1561", event: "Livonian War ends, territories divided" },
-                { year: "1721", event: "Russian Empire gains control" },
-                { year: "1918", event: "Independence declared" },
-                { year: "1940", event: "Soviet occupation" },
-                { year: "1941-1944", event: "Nazi German occupation" },
-                { year: "1944-1991", event: "Soviet occupation resumed" },
-                { year: "1991", event: "Independence restored" },
-                { year: "2004", event: "EU and NATO membership" },
-                { year: "2014", event: "Eurozone membership" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Livonia", "Courland", "Latvian SSR"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Latvians": 62.7,
-                "Russians": 24.5,
-                "Belarusians": 3.1,
-                "Ukrainians": 2.2,
-                "Poles": 2.0,
-                "Others": 5.5
-            },
-            ageStructure: {
-                "0-14": 16.0,
-                "15-64": 63.0,
-                "65+": 21.0
-            },
-            urbanization: 68.3,
-            lifeExpectancy: 75.5,
-            fertilityRate: 1.6,
-            literacyRate: 99.9
-        },
-        
-        quickFacts: {
-            internet: { tld: ".lv", penetration: 84.0 },
-            calling: { code: "+371" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Riga has the largest collection of Art Nouveau buildings in the world",
-            "Latvia has more than 2,000 lakes",
-            "The first Christmas tree was decorated in Riga in 1510",
-            "Ventas Rumba is the widest waterfall in Europe"
-        ]
-    },
-
-    "estonia": {
+    // 2. ESTONIA
+    {
+        id: "EST",
         name: "Estonia",
         officialName: "Republic of Estonia",
-        nativeName: "Eesti Vabariik",
-        iso3: "EST",
-        iso2: "EE",
-        flag: "🇪🇪",
+        flag: "https://flagcdn.com/w320/ee.png",
         
-        capital: {
-            name: "Tallinn",
-            population: 454000,
-            coordinates: { lat: 59.4370, lng: 24.7536 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1565008576549-57569a49371d?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1560930950-5cc20e80e392?w=1920&q=80"
         },
-        largestCity: "Tallinn",
-        population: {
-            total: 1366000,
-            year: 2024,
-            density: 30,
-            growth: 0.1
+
+        basic: {
+            capital: "Tallinn",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Baltic States",
+            population: 1366491,
+            area: 45228,
+            populationDensity: 30,
+            independence: "1918 (from Russia), 1991 (from USSR)",
+            callingCode: "+372",
+            tld: ".ee",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 45228,
-            land: 42388,
-            water: 2840,
-            rank: 132
+
+        location: {
+            coordinates: [58.5953, 25.0136],
+            timezone: "UTC+2 (EET)",
+            neighbors: ["Russia", "Latvia"],
+            borders: 657,
+            hemispheres: ["Northern", "Eastern"]
         },
-        
-        continent: "Europe",
-        region: "Baltic States",
-        subregion: "Northern Europe",
-        coordinates: { lat: 58.5953, lng: 25.0136 },
-        borders: ["Latvia", "Russia"],
-        coastline: 3794,
-        timezone: ["UTC+2"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
+
+        political: {
+            government: "Unitary Parliamentary Republic",
             headOfState: "President Alar Karis",
-            headOfGovernment: "Prime Minister Kristen Michal"
+            headOfGovernment: "Prime Minister Kristen Michal",
+            legislature: "Riigikogu (Parliament)",
+            legalSystem: "Civil Law",
+            states: 15,
+            counties: 15,
+            municipalities: 79,
+            largestCity: "Tallinn",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Schengen Area", "Eurozone"]
         },
-        independence: {
-            date: "August 20, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "February 24" },
-        divisions: {
-            type: "counties",
-            count: 15,
-            major: ["Harju", "Tartu", "Ida-Viru", "Pärnu"]
-        },
-        
-        economy: {
-            gdpTotal: 41000000000,
-            gdpPerCapita: 30000,
-            gdpGrowth: 1.5,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["IT services", "electronics", "wood processing", "telecommunications", "food processing"],
-            exports: ["machinery", "wood products", "metals", "food", "vehicles"],
-            imports: ["machinery", "vehicles", "fuels", "food", "chemicals"],
-            majorPartners: ["Finland", "Latvia", "Germany", "Sweden", "Lithuania"]
-        },
-        hdi: 0.890,
-        
-        geography_links: {
-            rivers: [
-                { name: "Narva", description: "Eastern border river with Russia" },
-                { name: "Pärnu", description: "River flowing to resort city" },
-                { name: "Emajõgi", description: "River connecting two largest lakes" },
-                { name: "Kasari", description: "Western Estonian river" }
-            ],
-            mountains: [
-                { name: "Suur Munamägi", description: "Highest point at 318m" },
-                { name: "Haanja Upland", description: "Hilly region in southeast" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Lahemaa forests", description: "Coastal forests in national park" },
-                { name: "Alutaguse forests", description: "Wild forests in northeast" },
-                { name: "Soomaa forests", description: "Bog and swamp forests" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Baltic Sea", description: "Western coastline" },
-                { name: "Gulf of Finland", description: "Northern coast" },
-                { name: "Gulf of Riga", description: "Southwestern coast" }
-            ],
-            lakes: [
-                { name: "Lake Peipus", description: "Fifth largest lake in Europe, border with Russia" },
-                { name: "Lake Võrtsjärv", description: "Largest lake entirely in Estonia" }
-            ],
-            islands: [
-                { name: "Saaremaa", description: "Largest island" },
-                { name: "Hiiumaa", description: "Second largest island" },
-                { name: "Muhu", description: "Third largest island" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Estonian"],
-                regional: ["Russian"],
-                spoken: ["Estonian", "Russian", "English", "Finnish"]
-            },
-            religions: {
-                dominant: "Unaffiliated",
-                breakdown: {
-                    "Unaffiliated": 54.1,
-                    "Orthodox": 16.2,
-                    "Lutheran": 9.9,
-                    "Other Christian": 2.3,
-                    "Other": 17.5
-                }
-            },
-            heritageSites: [
-                { name: "Historic Centre of Tallinn", type: "Cultural", year: 1997, description: "Medieval old town" },
-                { name: "Struve Geodetic Arc", type: "Cultural", year: 2005, description: "Survey points" }
-            ],
-            festivals: [
-                { name: "Estonian Song Festival", date: "Every 5 years", description: "UNESCO mass singing event" },
-                { name: "Jaanipäev", date: "June 23-24", description: "Midsummer celebration" },
-                { name: "Tallinn Music Week", date: "May", description: "Music industry showcase" },
-                { name: "Tartu Love Film Festival", date: "October", description: "International film event" }
-            ],
-            cuisine: [
-                { name: "Verivorst", description: "Blood sausage, Christmas tradition" },
-                { name: "Mulgipuder", description: "Traditional potato-barley porridge" },
-                { name: "Kama", description: "Traditional grain mixture" },
-                { name: "Sült", description: "Meat jelly" },
-                { name: "Kohuke", description: "Curd snack bar" }
-            ],
-            arts: [
-                { type: "Music", description: "Choral tradition, electronic music scene" },
-                { type: "Architecture", description: "Medieval old towns, modern design" },
-                { type: "Digital Art", description: "Strong tech-art intersection" },
-                { type: "Literature", description: "Epic Kalevipoeg, modern writers" }
-            ],
-            sports: {
-                popular: ["Basketball", "Football", "Cross-country skiing", "Athletics", "Cycling"],
-                achievements: ["Olympic medals in various sports", "Strong Nordic skiing tradition", "Rally champions"],
-                venues: ["A. Le Coq Arena", "Saku Suurhall"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "9000 BC", event: "First human settlement" },
-                { year: "1219", event: "Danish conquest, Tallinn founded" },
-                { year: "1346", event: "Sold to Teutonic Order" },
-                { year: "1561", event: "Swedish rule begins" },
-                { year: "1721", event: "Russian Empire gains control" },
-                { year: "1918", event: "Independence declared" },
-                { year: "1940", event: "Soviet occupation" },
-                { year: "1941-1944", event: "Nazi German occupation" },
-                { year: "1944-1991", event: "Soviet occupation resumed" },
-                { year: "1989", event: "Baltic Way human chain protest" },
-                { year: "1991", event: "Independence restored" },
-                { year: "2004", event: "EU and NATO membership" },
-                { year: "2011", event: "Eurozone membership" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Livonia", "Estonian SSR"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Estonians": 68.5,
-                "Russians": 24.2,
-                "Ukrainians": 1.8,
-                "Belarusians": 0.9,
-                "Finns": 0.6,
-                "Others": 4.0
-            },
-            ageStructure: {
-                "0-14": 16.5,
-                "15-64": 63.0,
-                "65+": 20.5
-            },
-            urbanization: 69.5,
-            lifeExpectancy: 79.0,
-            fertilityRate: 1.6,
-            literacyRate: 99.8
-        },
-        
-        quickFacts: {
-            internet: { tld: ".ee", penetration: 91.0 },
-            calling: { code: "+372" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Estonia is the most digitally advanced country in the world",
-            "Skype was invented in Estonia",
-            "Estonia offers e-Residency to anyone in the world",
-            "Estonia has more than 2,000 islands",
-            "99% of government services are available online"
-        ]
-    },
 
-    "cyprus": {
-        name: "Cyprus",
-        officialName: "Republic of Cyprus",
-        nativeName: "Κυπριακή Δημοκρατία / Kıbrıs Cumhuriyeti",
-        iso3: "CYP",
-        iso2: "CY",
-        flag: "🇨🇾",
-        
-        capital: {
-            name: "Nicosia",
-            population: 341000,
-            coordinates: { lat: 35.1856, lng: 33.3823 }
-        },
-        largestCity: "Nicosia",
-        population: {
-            total: 1260000,
-            year: 2024,
-            density: 136,
-            growth: 0.8
-        },
-        area: {
-            total: 9251,
-            land: 9241,
-            water: 10,
-            rank: 168
-        },
-        
-        continent: "Europe",
-        region: "Mediterranean",
-        subregion: "Eastern Mediterranean",
-        coordinates: { lat: 35.1264, lng: 33.4299 },
-        borders: ["UK Sovereign Base Areas"],
-        coastline: 648,
-        timezone: ["UTC+2"],
-        drivingSide: "left",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Nikos Christodoulides",
-            headOfGovernment: "President Nikos Christodoulides"
-        },
-        independence: {
-            date: "August 16, 1960",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "October 1" },
-        divisions: {
-            type: "districts",
-            count: 6,
-            major: ["Nicosia", "Limassol", "Larnaca", "Paphos", "Famagusta", "Kyrenia"]
-        },
-        
         economy: {
-            gdpTotal: 31000000000,
-            gdpPerCapita: 35000,
-            gdpGrowth: 2.5,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["tourism", "financial services", "shipping", "food processing", "pharmaceuticals"],
-            exports: ["pharmaceuticals", "cement", "clothing", "citrus fruits", "potatoes"],
-            imports: ["consumer goods", "petroleum", "machinery", "vehicles", "food"],
-            majorPartners: ["Greece", "UK", "Germany", "Israel", "Italy"]
+            gdp: "$41.8 Billion",
+            gdpPPP: "$60.9 Billion",
+            gdpPerCapita: "$31,452",
+            gdpRank: "#98",
+            gdpGrowth: "-3.0%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "9.1%",
+            unemployment: "6.8%",
+            majorSectors: ["Services (70%)", "Industry (26%)", "Agriculture (3%)"],
+            industries: ["Information Technology", "Electronics", "Telecommunications", "Engineering", "Timber", "Textiles", "Food Processing", "Chemicals"],
+            exports: ["Machinery", "Electronics", "Wood Products", "Metals", "Furniture", "Food Products"],
+            imports: ["Machinery", "Vehicles", "Metals", "Chemicals", "Textiles", "Foodstuffs"]
         },
-        hdi: 0.896,
-        
+
+        geography: {
+            climate: "Maritime; Wet, Moderate Winters; Cool Summers",
+            avgTemperature: "6.4°C",
+            annualRainfall: "650 mm",
+            highestPoint: "Suur Munamägi (318 m)",
+            lowestPoint: "Baltic Sea (0 m)",
+            coastline: "3,794 km",
+            forestCover: "52.1%",
+            arableLand: "14.9%",
+            terrain: "Marshy, lowlands; flat in the north, hilly in the south",
+            naturalResources: ["Oil Shale", "Peat", "Rare Earth Elements", "Phosphorite", "Clay", "Limestone", "Sand", "Dolomite", "Arable Land"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Pedieos", description: "Longest river, usually seasonal" },
-                { name: "Yialias", description: "Seasonal river in Larnaca" }
-            ],
-            mountains: [
-                { name: "Troodos Mountains", description: "Main mountain range with Olympus peak" },
-                { name: "Kyrenia Range", description: "Northern coastal mountains" }
-            ],
+            rivers: ["Narva River", "Emajõgi", "Pärnu River", "Kasari River"],
+            mountains: ["Suur Munamägi", "Haanja Upland"],
             deserts: [],
-            forests: [
-                { name: "Troodos forests", description: "Pine and cedar forests in mountains" },
-                { name: "Paphos Forest", description: "Cedar and pine woods" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Mediterranean Sea", description: "Surrounds the island" }
-            ],
-            lakes: [
-                { name: "Larnaca Salt Lake", description: "Important flamingo habitat" },
-                { name: "Paralimni Lake", description: "Freshwater lake" }
-            ]
+            forests: ["Estonian Forests", "Alutaguse National Park", "Soomaa National Park"],
+            oceans: ["Baltic Sea", "Gulf of Finland", "Gulf of Riga"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Greek", "Turkish"],
-                regional: ["Armenian"],
-                spoken: ["Greek", "Turkish", "English", "Russian"]
-            },
-            religions: {
-                dominant: "Greek Orthodox Christianity",
-                breakdown: {
-                    "Greek Orthodox": 78.0,
-                    "Islam": 18.0,
-                    "Maronite": 0.5,
-                    "Armenian Apostolic": 0.3,
-                    "Other": 3.2
-                }
-            },
-            heritageSites: [
-                { name: "Paphos", type: "Cultural", year: 1980, description: "Ancient city with mosaics and tombs" },
-                { name: "Painted Churches of Troodos", type: "Cultural", year: 1985, description: "Byzantine churches with frescoes" },
-                { name: "Choirokoitia", type: "Cultural", year: 1998, description: "Neolithic settlement" }
-            ],
-            festivals: [
-                { name: "Limassol Carnival", date: "February-March", description: "Largest carnival in Cyprus" },
-                { name: "Kataklysmos", date: "June", description: "Festival of the Flood" },
-                { name: "Limassol Wine Festival", date: "September", description: "Celebration of wine heritage" },
-                { name: "Anthestiria Flower Festival", date: "May", description: "Spring flower celebration" }
-            ],
-            cuisine: [
-                { name: "Halloumi", description: "Famous Cypriot cheese" },
-                { name: "Souvlaki", description: "Grilled meat skewers" },
-                { name: "Meze", description: "Multiple small dish feast" },
-                { name: "Kleftiko", description: "Slow-cooked lamb" },
-                { name: "Koupepia", description: "Stuffed vine leaves" }
-            ],
-            arts: [
-                { type: "Music", description: "Traditional folk music, bouzouki" },
-                { type: "Dance", description: "Traditional dances like syrtos" },
-                { type: "Crafts", description: "Lefkara lace, pottery, basketry" },
-                { type: "Architecture", description: "Byzantine churches, traditional villages" }
-            ],
-            sports: {
-                popular: ["Football", "Basketball", "Tennis", "Volleyball", "Swimming"],
-                achievements: ["Rally champions", "Growing football league"],
-                venues: ["GSP Stadium", "AEK Arena"]
-            }
+            officialLanguages: ["Estonian"],
+            languages: ["Estonian", "Russian", "English", "Finnish"],
+            religions: ["None (64%)", "Orthodox Christianity (16%)", "Lutheranism (10%)", "Others (10%)"],
+            heritageSites: ["Historic Centre of Tallinn", "Struve Geodetic Arc"],
+            festivals: ["Song and Dance Celebration", "Viljandi Folk Music Festival", "Tallinn Music Week", "Jazzkaar", "PÖFF Film Festival"],
+            cuisine: ["Verivorst (Blood Sausage)", "Mulgipuder", "Kiluvõileib", "Kama", "Sült", "Rosolje"],
+            arts: ["Choral Music", "Folk Dance", "Digital Art", "Contemporary Art", "Textile Arts"],
+            sports: ["Basketball", "Football", "Cross-Country Skiing", "Ice Hockey", "Athletics", "Cycling"]
         },
-        
+
+        symbols: {
+            bird: "Barn Swallow",
+            animal: "Wolf",
+            flower: "Cornflower",
+            tree: "Oak",
+            anthem: "Mu isamaa, mu õnn ja rõõm",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 78.74,
+            literacyRate: "99.8%",
+            urbanPopulation: "69.4%",
+            medianAge: 42.7
+        },
+
         history: {
             timeline: [
-                { year: "10000 BC", event: "First human settlement" },
-                { year: "1500 BC", event: "Mycenaean Greek colonization" },
-                { year: "58 BC", event: "Roman rule begins" },
-                { year: "395 AD", event: "Byzantine Empire rule" },
-                { year: "1191", event: "Richard I conquers during Crusade" },
-                { year: "1489", event: "Venetian rule begins" },
-                { year: "1571", event: "Ottoman conquest" },
-                { year: "1878", event: "British administration begins" },
-                { year: "1960", event: "Independence from Britain" },
-                { year: "1974", event: "Turkish invasion and division" },
-                { year: "2004", event: "EU membership" },
-                { year: "2008", event: "Eurozone membership" }
+                { year: "1200s", title: "Northern Crusades", description: "German and Danish conquest" },
+                { year: "1561", title: "Swedish Rule", description: "Northern Estonia under Sweden" },
+                { year: "1710", title: "Russian Empire", description: "Incorporated into Russian Empire" },
+                { year: "1918", title: "Independence", description: "Declared independence from Russia" },
+                { year: "1940", title: "Soviet Occupation", description: "Annexed by Soviet Union" },
+                { year: "1991", title: "Restored Independence", description: "Independence restored from USSR" },
+                { year: "2004", title: "EU & NATO", description: "Joined European Union and NATO" }
             ],
-            colonialHistory: "British colony 1914-1960",
-            historicalNames: ["Alashiya", "Kypros"]
+            notableFigures: ["Lennart Meri", "Konstantin Päts", "Arvo Pärt", "Kersti Kaljulaid"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Greek Cypriots": 77.0,
-                "Turkish Cypriots": 18.0,
-                "Maronites": 0.5,
-                "Armenians": 0.3,
-                "Others": 4.2
-            },
-            ageStructure: {
-                "0-14": 15.5,
-                "15-64": 68.0,
-                "65+": 16.5
-            },
-            urbanization: 67.0,
-            lifeExpectancy: 81.5,
-            fertilityRate: 1.3,
-            literacyRate: 99.1
-        },
-        
-        quickFacts: {
-            internet: { tld: ".cy", penetration: 86.0 },
-            calling: { code: "+357" },
-            electricity: { voltage: "240V", frequency: "50Hz", plugType: "G" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
+
         disputes: [
-            {
-                type: "territorial",
-                description: "Island divided since 1974; Northern Cyprus recognized only by Turkey",
-                parties: ["Republic of Cyprus", "Northern Cyprus", "Turkey", "Greece"],
-                status: "Ongoing UN-mediated negotiations"
-            }
+            { name: "Border with Russia", description: "Unratified border treaty with Russia", type: "Border" }
         ],
-        
-        funFacts: [
-            "Cyprus is the legendary birthplace of Aphrodite, goddess of love",
-            "Halloumi cheese has EU protected designation of origin",
-            "Nicosia is the world's last divided capital city",
-            "Cyprus has some of the oldest water wells in the world"
+
+        quickFacts: [
+            { icon: "laptop", title: "E-Estonia", text: "World's most advanced digital society" },
+            { icon: "wifi", title: "Free WiFi", text: "Free public WiFi throughout country" },
+            { icon: "vote-yea", title: "E-Voting", text: "First country with nationwide internet voting" },
+            { icon: "rocket", title: "Skype", text: "Skype was developed in Estonia" },
+            { icon: "tree", title: "Forest Coverage", text: "Over 50% covered by forests" },
+            { icon: "music", title: "Singing Revolution", text: "Gained independence through song" }
         ]
     },
 
-    "luxembourg": {
-        name: "Luxembourg",
-        officialName: "Grand Duchy of Luxembourg",
-        nativeName: "Groussherzogtum Lëtzebuerg",
-        iso3: "LUX",
-        iso2: "LU",
-        flag: "🇱🇺",
+    // 3. FINLAND
+    {
+        id: "FIN",
+        name: "Finland",
+        officialName: "Republic of Finland",
+        flag: "https://flagcdn.com/w320/fi.png",
         
-        capital: {
-            name: "Luxembourg City",
-            population: 132000,
-            coordinates: { lat: 49.6116, lng: 6.1319 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1538332576228-eb5b4c4de6f5?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1559511260-66a68e7e9d89?w=1920&q=80"
         },
-        largestCity: "Luxembourg City",
-        population: {
-            total: 672000,
-            year: 2024,
-            density: 260,
-            growth: 1.8
+
+        basic: {
+            capital: "Helsinki",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Scandinavia",
+            population: 5545475,
+            area: 338424,
+            populationDensity: 18,
+            independence: "1917",
+            callingCode: "+358",
+            tld: ".fi",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 2586,
-            land: 2586,
-            water: 0,
-            rank: 175
+
+        location: {
+            coordinates: [61.9241, 25.7482],
+            timezone: "UTC+2 (EET)",
+            neighbors: ["Sweden", "Norway", "Russia"],
+            borders: 2563,
+            hemispheres: ["Northern", "Eastern"]
         },
-        
-        continent: "Europe",
-        region: "Western Europe",
-        subregion: "Western Europe",
-        coordinates: { lat: 49.8153, lng: 6.1296 },
-        borders: ["Belgium", "Germany", "France"],
-        coastline: 0,
-        timezone: ["UTC+1"],
-        drivingSide: "right",
-        
-        governmentType: "Constitutional monarchy",
-        leader: {
-            headOfState: "Grand Duke Henri",
-            headOfGovernment: "Prime Minister Luc Frieden"
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Alexander Stubb",
+            headOfGovernment: "Prime Minister Petteri Orpo",
+            legislature: "Eduskunta (Parliament)",
+            legalSystem: "Civil Law",
+            states: 19,
+            regions: 19,
+            municipalities: 309,
+            largestCity: "Helsinki",
+            organizations: ["UN", "EU", "NATO", "Nordic Council", "OECD", "WTO", "Schengen Area", "Eurozone"]
         },
-        independence: {
-            date: "1839",
-            from: "Netherlands"
-        },
-        nationalDay: { name: "Grand Duke's Official Birthday", date: "June 23" },
-        divisions: {
-            type: "cantons",
-            count: 12,
-            major: ["Luxembourg", "Esch-sur-Alzette", "Diekirch", "Grevenmacher"]
-        },
-        
+
         economy: {
-            gdpTotal: 87000000000,
-            gdpPerCapita: 128000,
-            gdpGrowth: 1.5,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["banking", "steel", "information technology", "telecommunications", "tourism"],
-            exports: ["machinery", "steel products", "chemicals", "rubber products", "glass"],
-            imports: ["minerals", "metals", "food", "machinery", "vehicles"],
-            majorPartners: ["Germany", "Belgium", "France", "Netherlands", "Italy"]
+            gdp: "$301 Billion",
+            gdpPPP: "$317 Billion",
+            gdpPerCapita: "$54,507",
+            gdpRank: "#46",
+            gdpGrowth: "-1.0%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.3%",
+            unemployment: "7.2%",
+            majorSectors: ["Services (70%)", "Industry (27%)", "Agriculture (2%)"],
+            industries: ["Electronics", "Machinery", "Vehicles", "Metal Products", "Pulp & Paper", "Chemicals", "Textiles", "Clothing"],
+            exports: ["Paper Products", "Machinery", "Chemicals", "Metals", "Electronics", "Timber"],
+            imports: ["Foodstuffs", "Petroleum", "Chemicals", "Transport Equipment", "Iron & Steel", "Machinery"]
         },
-        hdi: 0.930,
-        
+
+        geography: {
+            climate: "Cold Temperate; Potentially Subarctic but Comparatively Mild",
+            avgTemperature: "5.9°C",
+            annualRainfall: "601 mm",
+            highestPoint: "Haltitunturi (1,324 m)",
+            lowestPoint: "Baltic Sea (0 m)",
+            coastline: "1,250 km",
+            forestCover: "73.1%",
+            arableLand: "7.4%",
+            terrain: "Mostly low, flat to rolling plains interspersed with lakes and low hills",
+            naturalResources: ["Timber", "Iron Ore", "Copper", "Lead", "Zinc", "Chromite", "Nickel", "Gold", "Silver", "Limestone"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Moselle", description: "Wine region river on German border" },
-                { name: "Sauer", description: "Major river in north" },
-                { name: "Our", description: "River forming part of German border" },
-                { name: "Alzette", description: "River through Luxembourg City" }
-            ],
-            mountains: [
-                { name: "Kneiff", description: "Highest point at 560m" },
-                { name: "Ardennes", description: "Forested highland in north" },
-                { name: "Oesling", description: "Hilly northern region" }
-            ],
+            rivers: ["Kemijoki", "Oulujoki", "Tornionjoki", "Kokemäenjoki"],
+            mountains: ["Haltitunturi", "Saana", "Pallastunturi"],
             deserts: [],
-            forests: [
-                { name: "Ardennes forests", description: "Dense forests in northern region" },
-                { name: "Müllerthal forests", description: "Little Switzerland region" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Upper Sûre Lake", description: "Largest lake, reservoir" }
-            ]
+            forests: ["Boreal Forests", "Taiga", "Nuuksio National Park", "Urho Kekkonen National Park"],
+            oceans: ["Baltic Sea", "Gulf of Bothnia", "Gulf of Finland"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Luxembourgish", "French", "German"],
-                regional: [],
-                spoken: ["Luxembourgish", "French", "German", "Portuguese", "English"]
-            },
-            religions: {
-                dominant: "Roman Catholicism",
-                breakdown: {
-                    "Catholic": 70.4,
-                    "Protestant": 1.8,
-                    "Orthodox": 1.7,
-                    "Islam": 2.3,
-                    "Unaffiliated": 23.0
-                }
-            },
-            heritageSites: [
-                { name: "City of Luxembourg", type: "Cultural", year: 1994, description: "Old quarters and fortifications" }
-            ],
-            festivals: [
-                { name: "Schueberfouer", date: "August-September", description: "Ancient fun fair since 1340" },
-                { name: "National Day", date: "June 23", description: "Grand Duke's birthday celebration" },
-                { name: "Éimaischen", date: "Easter Monday", description: "Pottery and bird whistle market" },
-                { name: "Buergbrennen", date: "First Sunday of Lent", description: "Bonfire tradition" }
-            ],
-            cuisine: [
-                { name: "Judd mat Gaardebounen", description: "Smoked pork collar with broad beans" },
-                { name: "Bouneschlupp", description: "Green bean soup" },
-                { name: "Gromperekichelcher", description: "Potato fritters" },
-                { name: "Quetschentaart", description: "Plum tart" },
-                { name: "Rieslingspaschtéit", description: "Meat pie with Riesling" }
-            ],
-            arts: [
-                { type: "Music", description: "Classical tradition, Eurovision winners" },
-                { type: "Architecture", description: "Medieval fortifications, modern European institutions" },
-                { type: "Museums", description: "MUDAM contemporary art museum" },
-                { type: "Literature", description: "Multilingual literary tradition" }
-            ],
-            sports: {
-                popular: ["Football", "Cycling", "Tennis", "Basketball"],
-                achievements: ["Tour de France stages", "Andy Schleck cycling victories"],
-                venues: ["Stade de Luxembourg", "Coque arena"]
-            }
+            officialLanguages: ["Finnish", "Swedish"],
+            languages: ["Finnish", "Swedish", "Sámi", "English", "Russian"],
+            religions: ["Evangelical Lutheran (66.6%)", "Orthodox (1.1%)", "None (29.4%)", "Others (2.9%)"],
+            heritageSites: ["Fortress of Suomenlinna", "Old Rauma", "Petäjävesi Old Church", "Verla Groundwood and Board Mill", "Bronze Age Burial Site of Sammallahdenmäki", "Struve Geodetic Arc"],
+            festivals: ["Midsummer (Juhannus)", "Vappu (May Day)", "Independence Day", "Christmas", "Savonlinna Opera Festival", "Flow Festival"],
+            cuisine: ["Karjalanpiirakka", "Kalakukko", "Poronkäristys", "Graavilohi", "Korvapuusti", "Leipäjuusto"],
+            arts: ["Design", "Architecture", "Literature", "Classical Music", "Heavy Metal Music", "Glass Art"],
+            sports: ["Ice Hockey", "Football", "Cross-Country Skiing", "Ski Jumping", "Pesäpallo", "Formula 1"]
         },
-        
+
+        symbols: {
+            bird: "Whooper Swan",
+            animal: "Brown Bear",
+            flower: "Lily of the Valley",
+            tree: "Silver Birch",
+            anthem: "Maamme",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.13,
+            literacyRate: "99%",
+            urbanPopulation: "85.6%",
+            medianAge: 43.1
+        },
+
         history: {
             timeline: [
-                { year: "963", event: "County of Luxembourg founded" },
-                { year: "1354", event: "Elevated to Duchy" },
-                { year: "1443", event: "Burgundian rule" },
-                { year: "1477", event: "Habsburg rule begins" },
-                { year: "1815", event: "Grand Duchy created" },
-                { year: "1839", event: "Full independence from Netherlands" },
-                { year: "1867", event: "Neutrality guaranteed by London Treaty" },
-                { year: "1914", event: "German occupation in WWI" },
-                { year: "1940", event: "German occupation in WWII" },
-                { year: "1945", event: "Liberation and end of neutrality" },
-                { year: "1949", event: "NATO founding member" },
-                { year: "1957", event: "Founding member of EEC" },
-                { year: "1999", event: "Eurozone membership" }
+                { year: "1155", title: "Swedish Crusade", description: "Finland became part of Sweden" },
+                { year: "1809", title: "Russian Rule", description: "Grand Duchy under Russian Empire" },
+                { year: "1917", title: "Independence", description: "Declared independence from Russia" },
+                { year: "1939-1940", title: "Winter War", description: "War with Soviet Union" },
+                { year: "1995", title: "EU Membership", description: "Joined European Union" },
+                { year: "2023", title: "NATO Membership", description: "Joined NATO" }
             ],
-            colonialHistory: null,
-            historicalNames: ["County of Luxembourg", "Duchy of Luxembourg"]
+            notableFigures: ["Carl Gustaf Emil Mannerheim", "Jean Sibelius", "Alvar Aalto", "Tove Jansson", "Linus Torvalds"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Luxembourgers": 52.1,
-                "Portuguese": 15.7,
-                "French": 7.5,
-                "Italians": 3.4,
-                "Belgians": 3.3,
-                "Germans": 2.2,
-                "Others": 15.8
-            },
-            ageStructure: {
-                "0-14": 16.5,
-                "15-64": 68.5,
-                "65+": 15.0
-            },
-            urbanization: 91.5,
-            lifeExpectancy: 82.5,
-            fertilityRate: 1.4,
-            literacyRate: 99.9
-        },
-        
-        quickFacts: {
-            internet: { tld: ".lu", penetration: 98.0 },
-            calling: { code: "+352" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Luxembourg has the highest GDP per capita in the world",
-            "It's the only Grand Duchy remaining in the world",
-            "Almost half the population are foreign nationals",
-            "Luxembourg is one of the three capitals of the EU"
+
+        quickFacts: [
+            { icon: "smile", title: "Happiest Country", text: "Ranked world's happiest country multiple times" },
+            { icon: "graduation-cap", title: "Education", text: "World-renowned education system (PISA)" },
+            { icon: "tree", title: "Land of Lakes", text: "188,000 lakes ('Land of a Thousand Lakes')" },
+            { icon: "hot-tub", title: "Saunas", text: "3.3 million saunas (population 5.5 million)" },
+            { icon: "snowflake", title: "Santa Claus", text: "Official home of Santa Claus in Lapland" },
+            { icon: "wifi", title: "Nokia", text: "Birthplace of Nokia" }
         ]
     },
 
-    "malta": {
-        name: "Malta",
-        officialName: "Republic of Malta",
-        nativeName: "Repubblika ta' Malta",
-        iso3: "MLT",
-        iso2: "MT",
-        flag: "🇲🇹",
-        
-        capital: {
-            name: "Valletta",
-            population: 6000,
-            coordinates: { lat: 35.8989, lng: 14.5146 }
-        },
-        largestCity: "Birkirkara",
-        population: {
-            total: 542000,
-            year: 2024,
-            density: 1714,
-            growth: 0.9
-        },
-        area: {
-            total: 316,
-            land: 316,
-            water: 0,
-            rank: 186
-        },
-        
-        continent: "Europe",
-        region: "Mediterranean",
-        subregion: "Southern Europe",
-        coordinates: { lat: 35.9375, lng: 14.3754 },
-        borders: [],
-        coastline: 196,
-        timezone: ["UTC+1"],
-        drivingSide: "left",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Myriam Spiteri Debono",
-            headOfGovernment: "Prime Minister Robert Abela"
-        },
-        independence: {
-            date: "September 21, 1964",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "September 21" },
-        divisions: {
-            type: "local councils",
-            count: 68,
-            major: ["Birkirkara", "Qormi", "Mosta", "Żabbar", "Sliema"]
-        },
-        
-        economy: {
-            gdpTotal: 20000000000,
-            gdpPerCapita: 37000,
-            gdpGrowth: 5.0,
-            currency: { name: "Euro", code: "EUR", symbol: "€" },
-            mainIndustries: ["tourism", "financial services", "gaming", "electronics", "ship repair"],
-            exports: ["machinery", "pharmaceuticals", "electronic equipment", "aircraft parts", "toys"],
-            imports: ["mineral fuels", "aircraft equipment", "machinery", "food", "beverages"],
-            majorPartners: ["Germany", "France", "Italy", "UK", "Singapore"]
-        },
-        hdi: 0.918,
-        
-        geography_links: {
-            rivers: [],
-            mountains: [
-                { name: "Ta' Dmejrek", description: "Highest point at 253m" }
-            ],
-            deserts: [],
-            forests: [],
-            oceans: [],
-            seas: [
-                { name: "Mediterranean Sea", description: "Surrounds the archipelago" }
-            ],
-            lakes: [],
-            islands: [
-                { name: "Malta", description: "Main island" },
-                { name: "Gozo", description: "Second largest island" },
-                { name: "Comino", description: "Small island with Blue Lagoon" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Maltese", "English"],
-                regional: [],
-                spoken: ["Maltese", "English", "Italian"]
-            },
-            religions: {
-                dominant: "Roman Catholicism",
-                breakdown: {
-                    "Catholic": 88.6,
-                    "Other Christian": 2.0,
-                    "Islam": 0.3,
-                    "Unaffiliated": 8.0
-                }
-            },
-            heritageSites: [
-                { name: "City of Valletta", type: "Cultural", year: 1980, description: "Renaissance city built by Knights" },
-                { name: "Ħal Saflieni Hypogeum", type: "Cultural", year: 1980, description: "Underground prehistoric temple" },
-                { name: "Megalithic Temples", type: "Cultural", year: 1980, description: "Oldest freestanding structures" }
-            ],
-            festivals: [
-                { name: "Carnival", date: "February", description: "Traditional pre-Lent celebration" },
-                { name: "Village Festas", date: "Summer", description: "Parish patron saint celebrations" },
-                { name: "Notte Bianca", date: "October", description: "Cultural night in Valletta" },
-                { name: "Malta International Fireworks Festival", date: "April", description: "International competition" }
-            ],
-            cuisine: [
-                { name: "Pastizzi", description: "Flaky pastries with ricotta or peas" },
-                { name: "Rabbit Stew", description: "National dish" },
-                { name: "Ftira", description: "Traditional Maltese bread" },
-                { name: "Ħobż biż-żejt", description: "Bread with tomato and oil" },
-                { name: "Kannoli", description: "Sweet ricotta-filled pastry" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Baroque churches, Knights' palaces" },
-                { type: "Music", description: "Ghana folk singing" },
-                { type: "Crafts", description: "Lace-making, filigree, glass-blowing" },
-                { type: "Stone Carving", description: "Traditional Maltese craft" }
-            ],
-            sports: {
-                popular: ["Football", "Water polo", "Swimming", "Rugby", "Sailing"],
-                achievements: ["Strong water polo tradition", "Mediterranean Games hosts"],
-                venues: ["Ta' Qali National Stadium", "National Pool Complex"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "5900 BC", event: "First human settlement" },
-                { year: "3600 BC", event: "Megalithic temples built" },
-                { year: "800 BC", event: "Phoenician colonization" },
-                { year: "218 BC", event: "Roman rule begins" },
-                { year: "60 AD", event: "St. Paul shipwrecked in Malta" },
-                { year: "870", event: "Arab conquest" },
-                { year: "1091", event: "Norman conquest" },
-                { year: "1530", event: "Knights of St. John arrive" },
-                { year: "1565", event: "Great Siege against Ottomans" },
-                { year: "1798", event: "Napoleon seizes Malta" },
-                { year: "1800", event: "British rule begins" },
-                { year: "1942", event: "George Cross awarded during WWII" },
-                { year: "1964", event: "Independence from Britain" },
-                { year: "2004", event: "EU membership" },
-                { year: "2008", event: "Eurozone membership" }
-            ],
-            colonialHistory: "British colony 1800-1964",
-            historicalNames: ["Melita"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Maltese": 95.3,
-                "British": 1.6,
-                "Others": 3.1
-            },
-            ageStructure: {
-                "0-14": 13.0,
-                "15-64": 66.0,
-                "65+": 21.0
-            },
-            urbanization: 94.7,
-            lifeExpectancy: 82.5,
-            fertilityRate: 1.2,
-            literacyRate: 94.5
-        },
-        
-        quickFacts: {
-            internet: { tld: ".mt", penetration: 87.0 },
-            calling: { code: "+356" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "G" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Malta has the oldest freestanding structures in the world",
-            "Maltese is the only Semitic language written in Latin script",
-            "Malta was awarded the George Cross for WWII bravery",
-            "The country is one of the most densely populated in the world"
-        ]
-    },
-
-    "iceland": {
+    // 4. ICELAND
+    {
+        id: "ISL",
         name: "Iceland",
-        officialName: "Republic of Iceland",
-        nativeName: "Ísland",
-        iso3: "ISL",
-        iso2: "IS",
-        flag: "🇮🇸",
+        officialName: "Iceland",
+        flag: "https://flagcdn.com/w320/is.png",
         
-        capital: {
-            name: "Reykjavik",
-            population: 140000,
-            coordinates: { lat: 64.1466, lng: -21.9426 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1504829857797-ddff29c27927?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1520769945061-0a448c463865?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1529963183134-61a90db47eaf?w=1920&q=80"
         },
-        largestCity: "Reykjavik",
-        population: {
-            total: 393000,
-            year: 2024,
-            density: 4,
-            growth: 1.0
+
+        basic: {
+            capital: "Reykjavik",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Nordic Countries",
+            population: 393396,
+            area: 103000,
+            populationDensity: 4,
+            independence: "1944",
+            callingCode: "+354",
+            tld: ".is",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 103000,
-            land: 100250,
-            water: 2750,
-            rank: 108
+
+        location: {
+            coordinates: [64.9631, -19.0208],
+            timezone: "UTC+0 (GMT)",
+            neighbors: [],
+            borders: 0,
+            hemispheres: ["Northern", "Western"],
+            islandNation: true
         },
-        
-        continent: "Europe",
-        region: "Nordic",
-        subregion: "Northern Europe",
-        coordinates: { lat: 64.9631, lng: -19.0208 },
-        borders: [],
-        coastline: 4970,
-        timezone: ["UTC+0"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
+
+        political: {
+            government: "Unitary Parliamentary Republic",
             headOfState: "President Halla Tómasdóttir",
-            headOfGovernment: "Prime Minister Bjarni Benediktsson"
+            headOfGovernment: "Prime Minister Bjarni Benediktsson",
+            legislature: "Althing (Parliament)",
+            legalSystem: "Civil Law (Germanic traditions)",
+            states: 8,
+            regions: 8,
+            municipalities: 64,
+            largestCity: "Reykjavik",
+            organizations: ["UN", "NATO", "EFTA", "EEA", "Nordic Council", "OECD", "Schengen Area"]
         },
-        independence: {
-            date: "June 17, 1944",
-            from: "Denmark"
-        },
-        nationalDay: { name: "Independence Day", date: "June 17" },
-        divisions: {
-            type: "regions",
-            count: 8,
-            major: ["Capital Region", "Southern Peninsula", "West", "North"]
-        },
-        
-        economy: {
-            gdpTotal: 28000000000,
-            gdpPerCapita: 71000,
-            gdpGrowth: 4.5,
-            currency: { name: "Icelandic króna", code: "ISK", symbol: "kr" },
-            mainIndustries: ["tourism", "fishing", "aluminum smelting", "geothermal power", "software"],
-            exports: ["fish products", "aluminum", "ferrosilicon", "machinery", "animal products"],
-            imports: ["machinery", "petroleum products", "food", "textiles", "vehicles"],
-            majorPartners: ["Netherlands", "UK", "Germany", "USA", "Norway"]
-        },
-        hdi: 0.959,
-        
-        geography_links: {
-            rivers: [
-                { name: "Þjórsá", description: "Longest river" },
-                { name: "Jökulsá á Fjöllum", description: "Glacial river with Dettifoss" },
-                { name: "Ölfusá", description: "Largest river by volume" }
-            ],
-            mountains: [
-                { name: "Hvannadalshnjúkur", description: "Highest peak at 2110m" },
-                { name: "Snæfellsjökull", description: "Glacier-capped volcano" },
-                { name: "Hekla", description: "Famous active volcano" },
-                { name: "Eyjafjallajökull", description: "Volcano that erupted in 2010" }
-            ],
-            deserts: [
-                { name: "Highland Desert", description: "Vast volcanic interior desert" }
-            ],
-            forests: [
-                { name: "Þórsmörk", description: "Protected mountain forest" },
-                { name: "Hallormsstađaskógur", description: "Largest forest" }
-            ],
-            oceans: [
-                { name: "Atlantic Ocean", description: "Southern coast" },
-                { name: "Arctic Ocean", description: "Touches northern coast" }
-            ],
-            seas: [
-                { name: "Greenland Sea", description: "Northwestern waters" },
-                { name: "Norwegian Sea", description: "Eastern waters" }
-            ],
-            glaciers: [
-                { name: "Vatnajökull", description: "Largest glacier in Europe" },
-                { name: "Langjökull", description: "Second largest glacier" },
-                { name: "Hofsjökull", description: "Third largest glacier" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Icelandic"],
-                regional: [],
-                spoken: ["Icelandic", "English", "Danish", "Polish"]
-            },
-            religions: {
-                dominant: "Evangelical Lutheran",
-                breakdown: {
-                    "Evangelical Lutheran": 62.0,
-                    "Other Christian": 8.0,
-                    "Ásatrú": 1.5,
-                    "Unaffiliated": 27.0
-                }
-            },
-            heritageSites: [
-                { name: "Þingvellir National Park", type: "Cultural", year: 2004, description: "Site of medieval parliament" },
-                { name: "Surtsey", type: "Natural", year: 2008, description: "Island formed by volcanic eruption" }
-            ],
-            festivals: [
-                { name: "Þorrablót", date: "January-February", description: "Midwinter festival with traditional food" },
-                { name: "Reykjavik Arts Festival", date: "May-June", description: "Major cultural event" },
-                { name: "Independence Day", date: "June 17", description: "National celebration" },
-                { name: "Secret Solstice", date: "June", description: "Music festival during midnight sun" }
-            ],
-            cuisine: [
-                { name: "Hákarl", description: "Fermented shark" },
-                { name: "Hangikjöt", description: "Smoked lamb" },
-                { name: "Skyr", description: "Traditional dairy product" },
-                { name: "Plokkfiskur", description: "Mashed fish and potatoes" },
-                { name: "Hot dogs", description: "Famous Icelandic lamb hot dogs" }
-            ],
-            arts: [
-                { type: "Literature", description: "Medieval sagas, Nobel laureate Halldór Laxness" },
-                { type: "Music", description: "Björk, Sigur Rós, vibrant scene" },
-                { type: "Design", description: "Nordic design, wool products" },
-                { type: "Film", description: "Growing film industry" }
-            ],
-            sports: {
-                popular: ["Football", "Handball", "Swimming", "Golf", "Horse riding"],
-                achievements: ["Euro 2016 quarter-finals", "Strong handball tradition", "Strongman champions"],
-                venues: ["Laugardalsvöllur", "Laugardalshöll"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "874", event: "Settlement by Norse Vikings" },
-                { year: "930", event: "Alþingi parliament established" },
-                { year: "1000", event: "Christianity adopted" },
-                { year: "1262", event: "Union with Norway" },
-                { year: "1380", event: "Under Danish rule" },
-                { year: "1783", event: "Laki volcanic eruption" },
-                { year: "1874", event: "Constitution granted" },
-                { year: "1918", event: "Sovereignty under Danish crown" },
-                { year: "1940", event: "British occupation during WWII" },
-                { year: "1944", event: "Republic declared" },
-                { year: "1949", event: "NATO founding member" },
-                { year: "2008", event: "Financial crisis" },
-                { year: "2010", event: "Eyjafjallajökull eruption" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Island"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Icelandic": 81.0,
-                "Polish": 5.5,
-                "Lithuanian": 1.0,
-                "Others": 12.5
-            },
-            ageStructure: {
-                "0-14": 19.5,
-                "15-64": 65.5,
-                "65+": 15.0
-            },
-            urbanization: 94.0,
-            lifeExpectancy: 83.0,
-            fertilityRate: 1.7,
-            literacyRate: 99.9
-        },
-        
-        quickFacts: {
-            internet: { tld: ".is", penetration: 99.0 },
-            calling: { code: "+354" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Iceland has the oldest parliament in the world (Alþingi, 930 AD)",
-            "There are no mosquitoes in Iceland",
-            "More books are published per capita than any other country",
-            "100% of electricity comes from renewable sources",
-            "Icelanders believe in elves - construction plans are changed to avoid disturbing them"
-        ]
-    },
 
-    "brunei": {
-        name: "Brunei",
-        officialName: "Nation of Brunei, the Abode of Peace",
-        nativeName: "Negara Brunei Darussalam",
-        iso3: "BRN",
-        iso2: "BN",
-        flag: "🇧🇳",
-        
-        capital: {
-            name: "Bandar Seri Begawan",
-            population: 50000,
-            coordinates: { lat: 4.9031, lng: 114.9398 }
-        },
-        largestCity: "Bandar Seri Begawan",
-        population: {
-            total: 453000,
-            year: 2024,
-            density: 79,
-            growth: 0.9
-        },
-        area: {
-            total: 5765,
-            land: 5270,
-            water: 495,
-            rank: 173
-        },
-        
-        continent: "Asia",
-        region: "Southeast Asia",
-        subregion: "Maritime Southeast Asia",
-        coordinates: { lat: 4.5353, lng: 114.7277 },
-        borders: ["Malaysia"],
-        coastline: 161,
-        timezone: ["UTC+8"],
-        drivingSide: "left",
-        
-        governmentType: "Absolute monarchy",
-        leader: {
-            headOfState: "Sultan Hassanal Bolkiah",
-            headOfGovernment: "Sultan Hassanal Bolkiah"
-        },
-        independence: {
-            date: "January 1, 1984",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "National Day", date: "February 23" },
-        divisions: {
-            type: "districts",
-            count: 4,
-            major: ["Brunei-Muara", "Belait", "Tutong", "Temburong"]
-        },
-        
         economy: {
-            gdpTotal: 15000000000,
-            gdpPerCapita: 34000,
-            gdpGrowth: 1.5,
-            currency: { name: "Brunei dollar", code: "BND", symbol: "B$" },
-            mainIndustries: ["petroleum", "natural gas", "petroleum refining", "liquefied natural gas"],
-            exports: ["crude oil", "natural gas", "refined products", "petrochemicals"],
-            imports: ["machinery", "transport equipment", "food", "chemicals"],
-            majorPartners: ["Japan", "South Korea", "Australia", "India", "Malaysia"]
+            gdp: "$31.0 Billion",
+            gdpPPP: "$24.5 Billion",
+            gdpPerCapita: "$78,837",
+            gdpRank: "#106",
+            gdpGrowth: "4.1%",
+            currency: "Icelandic Króna",
+            currencyCode: "ISK",
+            currencySymbol: "kr",
+            inflation: "8.9%",
+            unemployment: "3.4%",
+            majorSectors: ["Services (73%)", "Industry (23%)", "Agriculture (4%)"],
+            industries: ["Tourism", "Fishing", "Aluminum Smelting", "Geothermal Power", "Software Production", "Biotechnology"],
+            exports: ["Fish Products", "Aluminum", "Animal Products", "Ferrosilicon", "Diatomite"],
+            imports: ["Machinery", "Petroleum Products", "Foodstuffs", "Textiles"]
         },
-        hdi: 0.829,
-        
-        geography_links: {
-            rivers: [
-                { name: "Belait River", description: "Longest river" },
-                { name: "Temburong River", description: "River in eastern district" },
-                { name: "Brunei River", description: "River flowing through capital" }
-            ],
-            mountains: [
-                { name: "Bukit Pagon", description: "Highest point at 1850m" },
-                { name: "Bukit Teraja", description: "Mountain in Temburong" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Ulu Temburong rainforest", description: "Pristine primary rainforest" },
-                { name: "Mangrove forests", description: "Coastal mangroves" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "South China Sea", description: "Northern coastline" }
-            ],
-            lakes: []
-        },
-        
-        culture: {
-            languages: {
-                official: ["Malay"],
-                regional: ["English", "Chinese dialects"],
-                spoken: ["Malay", "English", "Mandarin", "Hokkien"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Islam": 78.8,
-                    "Buddhism": 7.8,
-                    "Christianity": 8.7,
-                    "Other": 4.7
-                }
-            },
-            heritageSites: [],
-            festivals: [
-                { name: "Hari Raya Aidilfitri", date: "After Ramadan", description: "End of fasting celebration" },
-                { name: "National Day", date: "February 23", description: "Independence celebration" },
-                { name: "Sultan's Birthday", date: "July 15", description: "Royal celebration" },
-                { name: "Maulidur Rasul", date: "Islamic calendar", description: "Prophet's birthday" }
-            ],
-            cuisine: [
-                { name: "Ambuyat", description: "Starchy staple from sago palm" },
-                { name: "Nasi Katok", description: "Simple rice with fried chicken" },
-                { name: "Soto", description: "Aromatic soup" },
-                { name: "Kuih", description: "Traditional cakes and sweets" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Islamic architecture, royal mosques" },
-                { type: "Music", description: "Traditional Malay music" },
-                { type: "Crafts", description: "Silverwork, brass casting, weaving" },
-                { type: "Textiles", description: "Jong Sarat royal cloth" }
-            ],
-            sports: {
-                popular: ["Football", "Badminton", "Sepak Takraw", "Golf"],
-                achievements: ["Southeast Asian Games medals"],
-                venues: ["Hassanal Bolkiah National Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "7th century", event: "Buddhist empire influence" },
-                { year: "15th century", event: "Brunei Sultanate established" },
-                { year: "16th century", event: "Golden age, control over Borneo and Philippines" },
-                { year: "1888", event: "British protectorate" },
-                { year: "1929", event: "Oil discovered" },
-                { year: "1941-1945", event: "Japanese occupation" },
-                { year: "1959", event: "Constitution written" },
-                { year: "1962", event: "Rebellion crushed" },
-                { year: "1984", event: "Full independence from Britain" },
-                { year: "2014", event: "Sharia law phases introduced" }
-            ],
-            colonialHistory: "British protectorate 1888-1984",
-            historicalNames: ["Brunei Sultanate"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Malay": 65.7,
-                "Chinese": 10.3,
-                "Other indigenous": 3.4,
-                "Others": 20.6
-            },
-            ageStructure: {
-                "0-14": 22.0,
-                "15-64": 71.0,
-                "65+": 7.0
-            },
-            urbanization: 78.3,
-            lifeExpectancy: 76.0,
-            fertilityRate: 1.8,
-            literacyRate: 97.2
-        },
-        
-        quickFacts: {
-            internet: { tld: ".bn", penetration: 95.0 },
-            calling: { code: "+673" },
-            electricity: { voltage: "240V", frequency: "50Hz", plugType: "G" },
-            measurement: "Metric",
-            emergencyNumber: "993"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "The Sultan of Brunei is one of the wealthiest people in the world",
-            "Brunei has no income tax",
-            "The Istana Nurul Iman is the world's largest residential palace",
-            "70% of Brunei is covered by rainforest",
-            "Alcohol is banned for Muslims and cannot be sold publicly"
-        ]
-    },
 
-    "bahrain": {
-        name: "Bahrain",
-        officialName: "Kingdom of Bahrain",
-        nativeName: "مملكة البحرين",
-        iso3: "BHR",
-        iso2: "BH",
-        flag: "🇧🇭",
-        
-        capital: {
-            name: "Manama",
-            population: 200000,
-            coordinates: { lat: 26.2285, lng: 50.5860 }
+        geography: {
+            climate: "Temperate; Moderated by North Atlantic Current; Mild, Windy Winters; Damp, Cool Summers",
+            avgTemperature: "5.5°C",
+            annualRainfall: "1,940 mm",
+            highestPoint: "Hvannadalshnúkur (2,110 m)",
+            lowestPoint: "Atlantic Ocean (0 m)",
+            coastline: "4,970 km",
+            forestCover: "0.5%",
+            arableLand: "1.2%",
+            terrain: "Mostly plateau interspersed with mountain peaks, icefields; coast deeply indented by bays and fiords",
+            naturalResources: ["Fish", "Hydropower", "Geothermal Power", "Diatomite"]
         },
-        largestCity: "Manama",
-        population: {
-            total: 1540000,
-            year: 2024,
-            density: 2013,
-            growth: 1.0
-        },
-        area: {
-            total: 765,
-            land: 765,
-            water: 0,
-            rank: 188
-        },
-        
-        continent: "Asia",
-        region: "Middle East",
-        subregion: "Persian Gulf",
-        coordinates: { lat: 26.0667, lng: 50.5577 },
-        borders: [],
-        coastline: 161,
-        timezone: ["UTC+3"],
-        drivingSide: "right",
-        
-        governmentType: "Constitutional monarchy",
-        leader: {
-            headOfState: "King Hamad bin Isa Al Khalifa",
-            headOfGovernment: "Prime Minister Crown Prince Salman bin Hamad Al Khalifa"
-        },
-        independence: {
-            date: "August 15, 1971",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "National Day", date: "December 16" },
-        divisions: {
-            type: "governorates",
-            count: 4,
-            major: ["Capital", "Muharraq", "Northern", "Southern"]
-        },
-        
-        economy: {
-            gdpTotal: 45000000000,
-            gdpPerCapita: 29000,
-            gdpGrowth: 3.0,
-            currency: { name: "Bahraini dinar", code: "BHD", symbol: ".د.ب" },
-            mainIndustries: ["petroleum", "aluminum", "financial services", "construction", "tourism"],
-            exports: ["petroleum products", "aluminum", "textiles"],
-            imports: ["crude oil", "machinery", "chemicals", "food"],
-            majorPartners: ["Saudi Arabia", "UAE", "USA", "China", "Japan"]
-        },
-        hdi: 0.875,
-        
-        geography_links: {
-            rivers: [],
-            mountains: [
-                { name: "Jabal ad Dukhan", description: "Highest point at 134m" }
-            ],
-            deserts: [
-                { name: "Interior desert", description: "Arid interior of main island" }
-            ],
-            forests: [],
-            oceans: [],
-            seas: [
-                { name: "Persian Gulf", description: "Surrounds the archipelago" }
-            ],
-            lakes: [],
-            islands: [
-                { name: "Bahrain Island", description: "Main island" },
-                { name: "Muharraq Island", description: "Location of airport" },
-                { name: "Umm an Nasan", description: "Royal island" },
-                { name: "Hawar Islands", description: "Southern archipelago" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Arabic"],
-                regional: [],
-                spoken: ["Arabic", "English", "Farsi", "Urdu", "Hindi"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Shia Islam": 70.0,
-                    "Sunni Islam": 15.0,
-                    "Christianity": 10.0,
-                    "Other": 5.0
-                }
-            },
-            heritageSites: [
-                { name: "Qal'at al-Bahrain", type: "Cultural", year: 2005, description: "Ancient harbor and capital" },
-                { name: "Pearling Trail", type: "Cultural", year: 2012, description: "Pearl diving heritage" },
-                { name: "Dilmun Burial Mounds", type: "Cultural", year: 2019, description: "Ancient burial sites" }
-            ],
-            festivals: [
-                { name: "Bahrain Grand Prix", date: "March", description: "Formula 1 racing event" },
-                { name: "Spring of Culture", date: "February-April", description: "Arts and culture festival" },
-                { name: "National Day", date: "December 16-17", description: "National celebration" },
-                { name: "Eid celebrations", date: "Islamic calendar", description: "Religious festivals" }
-            ],
-            cuisine: [
-                { name: "Machboos", description: "Spiced rice with meat" },
-                { name: "Muhammar", description: "Sweet rice dish" },
-                { name: "Balaleet", description: "Sweet vermicelli with eggs" },
-                { name: "Halwa", description: "Traditional sweet" },
-                { name: "Shawarma", description: "Popular street food" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Traditional wind towers, modern landmarks" },
-                { type: "Music", description: "Khaleeji music, pearl diving songs" },
-                { type: "Crafts", description: "Pottery, pearl jewelry, textile weaving" },
-                { type: "Calligraphy", description: "Arabic calligraphy tradition" }
-            ],
-            sports: {
-                popular: ["Football", "Formula 1", "Horse racing", "Pearl diving"],
-                achievements: ["Home of Bahrain Grand Prix", "Growing football tradition"],
-                venues: ["Bahrain International Circuit", "National Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "3000 BC", event: "Center of ancient Dilmun civilization" },
-                { year: "1521", event: "Portuguese arrival" },
-                { year: "1602", event: "Persian conquest" },
-                { year: "1783", event: "Al Khalifa family takes control" },
-                { year: "1861", event: "British protectorate begins" },
-                { year: "1932", event: "Oil discovered" },
-                { year: "1971", event: "Independence from Britain" },
-                { year: "2002", event: "Constitutional monarchy established" },
-                { year: "2004", event: "First Formula 1 race in Middle East" },
-                { year: "2011", event: "Arab Spring protests" }
-            ],
-            colonialHistory: "British protectorate 1861-1971",
-            historicalNames: ["Dilmun"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Bahraini": 46.0,
-                "Asian": 45.5,
-                "Other Arab": 4.7,
-                "African": 1.6,
-                "European": 1.0
-            },
-            ageStructure: {
-                "0-14": 18.0,
-                "15-64": 79.0,
-                "65+": 3.0
-            },
-            urbanization: 89.5,
-            lifeExpectancy: 77.5,
-            fertilityRate: 1.8,
-            literacyRate: 97.5
-        },
-        
-        quickFacts: {
-            internet: { tld: ".bh", penetration: 99.0 },
-            calling: { code: "+973" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "G" },
-            measurement: "Metric",
-            emergencyNumber: "999"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Bahrain means 'two seas' in Arabic",
-            "It was the site of the ancient Dilmun civilization",
-            "Bahrain was the first Gulf state to discover oil",
-            "The Tree of Life survives in the desert with no visible water source",
-            "Bahrain is connected to Saudi Arabia by the King Fahd Causeway"
-        ]
-    },
 
-    "qatar": {
-        name: "Qatar",
-        officialName: "State of Qatar",
-        nativeName: "دولة قطر",
-        iso3: "QAT",
-        iso2: "QA",
-        flag: "🇶🇦",
-        
-        capital: {
-            name: "Doha",
-            population: 1000000,
-            coordinates: { lat: 25.2854, lng: 51.5310 }
-        },
-        largestCity: "Doha",
-        population: {
-            total: 2930000,
-            year: 2024,
-            density: 253,
-            growth: 1.5
-        },
-        area: {
-            total: 11586,
-            land: 11586,
-            water: 0,
-            rank: 165
-        },
-        
-        continent: "Asia",
-        region: "Middle East",
-        subregion: "Persian Gulf",
-        coordinates: { lat: 25.3548, lng: 51.1839 },
-        borders: ["Saudi Arabia"],
-        coastline: 563,
-        timezone: ["UTC+3"],
-        drivingSide: "right",
-        
-        governmentType: "Absolute monarchy",
-        leader: {
-            headOfState: "Emir Sheikh Tamim bin Hamad Al Thani",
-            headOfGovernment: "Prime Minister Sheikh Mohammed bin Abdulrahman Al Thani"
-        },
-        independence: {
-            date: "September 3, 1971",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "National Day", date: "December 18" },
-        divisions: {
-            type: "municipalities",
-            count: 8,
-            major: ["Doha", "Al Wakrah", "Al Khor", "Al Rayyan"]
-        },
-        
-        economy: {
-            gdpTotal: 220000000000,
-            gdpPerCapita: 84000,
-            gdpGrowth: 4.0,
-            currency: { name: "Qatari riyal", code: "QAR", symbol: "ر.ق" },
-            mainIndustries: ["liquefied natural gas", "petroleum", "petrochemicals", "fertilizers", "steel"],
-            exports: ["liquefied natural gas", "petroleum", "fertilizers", "steel"],
-            imports: ["machinery", "transport equipment", "food", "chemicals"],
-            majorPartners: ["Japan", "South Korea", "India", "China", "Singapore"]
-        },
-        hdi: 0.855,
-        
         geography_links: {
-            rivers: [],
-            mountains: [
-                { name: "Qurayn Abu al Bawl", description: "Highest point at 103m" }
-            ],
-            deserts: [
-                { name: "Qatar desert", description: "Entire country is largely desert" },
-                { name: "Khor Al Adaid", description: "Inland sea and sand dunes" }
-            ],
-            forests: [],
-            oceans: [],
-            seas: [
-                { name: "Persian Gulf", description: "Surrounds the peninsula" }
-            ],
-            lakes: []
+            rivers: ["Þjórsá", "Jökulsá á Fjöllum", "Ölfusá", "Skjálfandafljót"],
+            mountains: ["Hvannadalshnúkur", "Bárðarbunga", "Kverkfjöll", "Snæfellsjökull"],
+            deserts: ["Highlands (volcanic desert)"],
+            forests: ["Hallormsstaðaskógur"],
+            oceans: ["Atlantic Ocean", "Arctic Ocean", "Greenland Sea", "Norwegian Sea"]
         },
-        
-        culture: {
-            languages: {
-                official: ["Arabic"],
-                regional: [],
-                spoken: ["Arabic", "English", "Hindi", "Urdu", "Tagalog", "Nepali"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Islam": 67.7,
-                    "Christianity": 13.8,
-                    "Hinduism": 13.8,
-                    "Buddhism": 3.1,
-                    "Other": 1.6
-                }
-            },
-            heritageSites: [
-                { name: "Al Zubarah Archaeological Site", type: "Cultural", year: 2013, description: "Pearl diving and trading town" }
-            ],
-            festivals: [
-                { name: "Qatar National Day", date: "December 18", description: "National celebration" },
-                { name: "Eid al-Fitr", date: "After Ramadan", description: "End of fasting celebration" },
-                { name: "Eid al-Adha", date: "Islamic calendar", description: "Festival of sacrifice" },
-                { name: "Doha Tribeca Film Festival", date: "November", description: "Cultural film event" }
-            ],
-            cuisine: [
-                { name: "Machboos", description: "Spiced rice with meat or fish" },
-                { name: "Harees", description: "Wheat and meat porridge" },
-                { name: "Thareed", description: "Bread and meat stew" },
-                { name: "Madrooba", description: "Fish and rice dish" },
-                { name: "Karak tea", description: "Popular spiced tea" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Modern landmarks like Museum of Islamic Art" },
-                { type: "Music", description: "Traditional Gulf music, modern scene" },
-                { type: "Calligraphy", description: "Arabic calligraphy" },
-                { type: "Falconry", description: "Traditional hunting practice" }
-            ],
-            sports: {
-                popular: ["Football", "Camel racing", "Falconry", "Tennis", "Golf"],
-                achievements: ["2022 FIFA World Cup hosts", "2019 Asian Cup champions"],
-                venues: ["Lusail Stadium", "Khalifa International Stadium", "Education City Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "4000 BC", event: "Early human settlement" },
-                { year: "1766", event: "Al Khalifa family settles" },
-                { year: "1868", event: "Treaty with Britain, independence from Bahrain" },
-                { year: "1916", event: "British protectorate" },
-                { year: "1939", event: "Oil discovered" },
-                { year: "1971", event: "Independence from Britain" },
-                { year: "1995", event: "Sheikh Hamad assumes power" },
-                { year: "2006", event: "Asian Games hosted" },
-                { year: "2010", event: "FIFA World Cup 2022 awarded" },
-                { year: "2017-2021", event: "Diplomatic crisis with neighbors" },
-                { year: "2022", event: "FIFA World Cup hosted" }
-            ],
-            colonialHistory: "British protectorate 1916-1971",
-            historicalNames: ["Qatar"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Qatari": 10.0,
-                "Indian": 25.0,
-                "Nepali": 16.0,
-                "Filipino": 11.0,
-                "Bangladeshi": 10.0,
-                "Sri Lankan": 5.0,
-                "Egyptian": 5.0,
-                "Other": 18.0
-            },
-            ageStructure: {
-                "0-14": 12.5,
-                "15-64": 86.0,
-                "65+": 1.5
-            },
-            urbanization: 99.2,
-            lifeExpectancy: 80.0,
-            fertilityRate: 1.9,
-            literacyRate: 97.8
-        },
-        
-        quickFacts: {
-            internet: { tld: ".qa", penetration: 99.0 },
-            calling: { code: "+974" },
-            electricity: { voltage: "240V", frequency: "50Hz", plugType: "G" },
-            measurement: "Metric",
-            emergencyNumber: "999"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Qatar is one of the richest countries in the world per capita",
-            "Only about 10% of the population are Qatari citizens",
-            "Qatar has the world's largest reserves of natural gas",
-            "Qatar hosted the first FIFA World Cup in the Middle East",
-            "The country has no rivers or lakes"
-        ]
-    },
 
-    "kuwait": {
-        name: "Kuwait",
-        officialName: "State of Kuwait",
-        nativeName: "دولة الكويت",
-        iso3: "KWT",
-        iso2: "KW",
-        flag: "🇰🇼",
-        
-        capital: {
-            name: "Kuwait City",
-            population: 60000,
-            coordinates: { lat: 29.3759, lng: 47.9774 }
-        },
-        largestCity: "Kuwait City",
-        population: {
-            total: 4310000,
-            year: 2024,
-            density: 242,
-            growth: 1.3
-        },
-        area: {
-            total: 17818,
-            land: 17818,
-            water: 0,
-            rank: 157
-        },
-        
-        continent: "Asia",
-        region: "Middle East",
-        subregion: "Persian Gulf",
-        coordinates: { lat: 29.3117, lng: 47.4818 },
-        borders: ["Iraq", "Saudi Arabia"],
-        coastline: 499,
-        timezone: ["UTC+3"],
-        drivingSide: "right",
-        
-        governmentType: "Constitutional monarchy",
-        leader: {
-            headOfState: "Emir Sheikh Mishal Al-Ahmad Al-Jaber Al-Sabah",
-            headOfGovernment: "Prime Minister Sheikh Ahmad Abdullah Al-Ahmad Al-Sabah"
-        },
-        independence: {
-            date: "June 19, 1961",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "National Day", date: "February 25" },
-        divisions: {
-            type: "governorates",
-            count: 6,
-            major: ["Al Asimah", "Hawalli", "Farwaniya", "Ahmadi"]
-        },
-        
-        economy: {
-            gdpTotal: 140000000000,
-            gdpPerCapita: 32500,
-            gdpGrowth: 2.5,
-            currency: { name: "Kuwaiti dinar", code: "KWD", symbol: "د.ك" },
-            mainIndustries: ["petroleum", "petrochemicals", "cement", "shipbuilding", "fishing"],
-            exports: ["petroleum", "petrochemicals", "fertilizers"],
-            imports: ["food", "construction materials", "vehicles", "clothing"],
-            majorPartners: ["South Korea", "China", "Japan", "India", "USA"]
-        },
-        hdi: 0.831,
-        
-        geography_links: {
-            rivers: [],
-            mountains: [],
-            deserts: [
-                { name: "Arabian Desert", description: "Covers most of country" }
-            ],
-            forests: [],
-            oceans: [],
-            seas: [
-                { name: "Persian Gulf", description: "Eastern coastline" }
-            ],
-            lakes: [],
-            islands: [
-                { name: "Bubiyan Island", description: "Largest island" },
-                { name: "Failaka Island", description: "Historic island with archaeology" }
-            ]
-        },
-        
         culture: {
-            languages: {
-                official: ["Arabic"],
-                regional: [],
-                spoken: ["Arabic", "English", "Hindi", "Tagalog"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Islam": 74.6,
-                    "Christianity": 18.2,
-                    "Hinduism": 2.3,
-                    "Other": 4.9
-                }
-            },
-            heritageSites: [],
-            festivals: [
-                { name: "Liberation Day", date: "February 26", description: "Liberation from Iraq" },
-                { name: "National Day", date: "February 25", description: "Independence celebration" },
-                { name: "Hala February", date: "February", description: "Shopping and cultural festival" },
-                { name: "Eid celebrations", date: "Islamic calendar", description: "Religious holidays" }
-            ],
-            cuisine: [
-                { name: "Machboos", description: "Spiced rice with meat" },
-                { name: "Harees", description: "Wheat and meat porridge" },
-                { name: "Gabout", description: "Lamb and rice balls" },
-                { name: "Gers Ogaily", description: "Traditional cake" },
-                { name: "Jireesh", description: "Crushed wheat dish" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Kuwait Towers, modern landmarks" },
-                { type: "Music", description: "Traditional Gulf music, sawt" },
-                { type: "Weaving", description: "Al Sadu traditional weaving" },
-                { type: "Shipbuilding", description: "Traditional dhow construction" }
-            ],
-            sports: {
-                popular: ["Football", "Basketball", "Swimming", "Motorsport"],
-                achievements: ["Asian Games medals", "Gulf Cup champions"],
-                venues: ["Kuwait Sports Club Stadium", "Jaber Al-Ahmad International Stadium"]
-            }
+            officialLanguages: ["Icelandic"],
+            languages: ["Icelandic", "English", "Danish", "German"],
+            religions: ["Evangelical Lutheran (62.3%)", "Catholic (3.9%)", "Ásatrú (1.4%)", "None (27.8%)", "Others (4.6%)"],
+            heritageSites: ["Þingvellir National Park", "Surtsey"],
+            festivals: ["Þorrablót", "Independence Day", "Verslunarmannahelgi", "Iceland Airwaves", "Reykjavik Arts Festival"],
+            cuisine: ["Hákarl (Fermented Shark)", "Hangikjöt", "Plokkfiskur", "Skyr", "Pylsur", "Kleinur"],
+            arts: ["Sagas", "Literature", "Music (Björk, Sigur Rós)", "Design", "Film"],
+            sports: ["Football", "Handball", "Basketball", "Swimming", "Horseback Riding", "CrossFit"]
         },
-        
-        history: {
-            timeline: [
-                { year: "1613", event: "Kuwait City founded" },
-                { year: "1756", event: "Al-Sabah family comes to power" },
-                { year: "1899", event: "British protectorate" },
-                { year: "1938", event: "Oil discovered" },
-                { year: "1961", event: "Independence from Britain" },
-                { year: "1990", event: "Iraqi invasion" },
-                { year: "1991", event: "Liberation in Gulf War" },
-                { year: "2003", event: "Staging ground for Iraq War" },
-                { year: "2005", event: "Women gain right to vote" },
-                { year: "2020", event: "Emir Sheikh Sabah dies" }
-            ],
-            colonialHistory: "British protectorate 1899-1961",
-            historicalNames: ["Kuwait"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Kuwaiti": 30.0,
-                "Other Arab": 27.0,
-                "South Asian": 37.0,
-                "Other": 6.0
-            },
-            ageStructure: {
-                "0-14": 20.0,
-                "15-64": 77.0,
-                "65+": 3.0
-            },
-            urbanization: 100.0,
-            lifeExpectancy: 78.5,
-            fertilityRate: 2.0,
-            literacyRate: 96.5
-        },
-        
-        quickFacts: {
-            internet: { tld: ".kw", penetration: 99.0 },
-            calling: { code: "+965" },
-            electricity: { voltage: "240V", frequency: "50Hz", plugType: "G" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "The Kuwaiti dinar is the highest-valued currency in the world",
-            "Kuwait has no natural water sources - all water is desalinated",
-            "Kuwait was the first Arab Gulf country to have an elected parliament",
-            "The Kuwait Towers are the country's most recognizable landmark",
-            "Summer temperatures can exceed 50°C (122°F)"
-        ]
-    },
-  
-    "oman": {
-        name: "Oman",
-        officialName: "Sultanate of Oman",
-        nativeName: "سلطنة عُمان (Salṭanat ʻUmān)",
-        iso3: "OMN",
-        iso2: "OM",
-        flag: "🇴🇲",
-        
-        capital: {
-            name: "Muscat",
-            population: 1550000,
-            coordinates: { lat: 23.5880, lng: 58.3829 }
-        },
-        largestCity: "Muscat",
-        population: {
-            total: 4650000,
-            year: 2024,
-            density: 15,
-            growth: 2.0
-        },
-        area: {
-            total: 309500,
-            land: 309500,
-            water: 0,
-            rank: 70
-        },
-        
-        continent: "Asia",
-        region: "Middle East",
-        subregion: "Arabian Peninsula",
-        coordinates: { lat: 21.4735, lng: 55.9754 },
-        borders: ["United Arab Emirates", "Saudi Arabia", "Yemen"],
-        coastline: 2092,
-        timezone: ["UTC+4"],
-        drivingSide: "right",
-        
-        governmentType: "Absolute monarchy",
-        leader: {
-            headOfState: "Sultan Haitham bin Tariq Al Said",
-            headOfGovernment: "Sultan Haitham bin Tariq Al Said"
-        },
-        independence: {
-            date: "1650",
-            from: "Portugal"
-        },
-        nationalDay: { name: "National Day", date: "November 18" },
-        divisions: {
-            type: "governorates",
-            count: 11,
-            major: ["Muscat", "Dhofar", "Al Batinah North", "Al Dakhiliyah"]
-        },
-        
-        economy: {
-            gdpTotal: 105000000000,
-            gdpPerCapita: 22500,
-            gdpGrowth: 3.0,
-            currency: { name: "Omani rial", code: "OMR", symbol: "ر.ع." },
-            mainIndustries: ["petroleum", "natural gas", "tourism", "construction", "petrochemicals"],
-            exports: ["petroleum", "natural gas", "fish", "metals", "textiles"],
-            imports: ["machinery", "transport equipment", "food", "consumer goods"],
-            majorPartners: ["China", "India", "UAE", "Saudi Arabia", "Japan"]
-        },
-        hdi: 0.816,
-        
-        geography_links: {
-            rivers: [],
-            mountains: [
-                { name: "Al Hajar Mountains", description: "Major mountain range" },
-                { name: "Jebel Shams", description: "Highest peak at 3028m" },
-                { name: "Jebel Akhdar", description: "Green Mountain with terraced farms" }
-            ],
-            deserts: [
-                { name: "Rub' al Khali", description: "Empty Quarter extends into Oman" },
-                { name: "Wahiba Sands", description: "Famous sand desert" }
-            ],
-            forests: [
-                { name: "Dhofar forests", description: "Monsoon forests with frankincense trees" }
-            ],
-            oceans: [
-                { name: "Indian Ocean", description: "Southern and eastern coast" },
-                { name: "Arabian Sea", description: "Southeastern coast" }
-            ],
-            seas: [
-                { name: "Gulf of Oman", description: "Northern coast" }
-            ],
-            lakes: []
-        },
-        
-        culture: {
-            languages: {
-                official: ["Arabic"],
-                regional: ["Baluchi", "Swahili", "Urdu"],
-                spoken: ["Arabic", "English", "Baluchi", "Hindi"]
-            },
-            religions: {
-                dominant: "Ibadi Islam",
-                breakdown: {
-                    "Ibadi Islam": 45.0,
-                    "Sunni Islam": 45.0,
-                    "Shia Islam": 5.0,
-                    "Other": 5.0
-                }
-            },
-            heritageSites: [
-                { name: "Bahla Fort", type: "Cultural", year: 1987, description: "Medieval fort and oasis" },
-                { name: "Archaeological Sites of Bat", type: "Cultural", year: 1988, description: "Bronze Age settlement" },
-                { name: "Land of Frankincense", type: "Cultural", year: 2000, description: "Frankincense trading heritage" },
-                { name: "Aflaj Irrigation Systems", type: "Cultural", year: 2006, description: "Ancient water channels" }
-            ],
-            festivals: [
-                { name: "National Day", date: "November 18", description: "Independence celebration" },
-                { name: "Muscat Festival", date: "January-February", description: "Cultural celebration" },
-                { name: "Khareef Festival", date: "July-September", description: "Monsoon season in Salalah" },
-                { name: "Eid celebrations", date: "Islamic calendar", description: "Religious holidays" }
-            ],
-            cuisine: [
-                { name: "Shuwa", description: "Slow-cooked marinated lamb" },
-                { name: "Majboos", description: "Spiced rice with meat" },
-                { name: "Mashuai", description: "Whole roasted kingfish" },
-                { name: "Halwa", description: "Traditional sweet" },
-                { name: "Kahwa", description: "Omani coffee with dates" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Forts, old towns, Sultan Qaboos Mosque" },
-                { type: "Music", description: "Traditional music, drums, singing" },
-                { type: "Crafts", description: "Silver jewelry, pottery, weaving" },
-                { type: "Shipbuilding", description: "Traditional dhow construction" }
-            ],
-            sports: {
-                popular: ["Football", "Camel racing", "Horse racing", "Dhow racing"],
-                achievements: ["Gulf Cup hosts", "Asian Beach Games hosts"],
-                venues: ["Sultan Qaboos Sports Complex"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "3000 BC", event: "Magan civilization flourishes" },
-                { year: "6th century", event: "Islam arrives" },
-                { year: "751", event: "Imamate of Oman established" },
-                { year: "1507", event: "Portuguese conquest" },
-                { year: "1650", event: "Portuguese expelled" },
-                { year: "1698", event: "Omani empire extends to East Africa" },
-                { year: "1856", event: "Zanzibar separates" },
-                { year: "1891", event: "British protectorate begins" },
-                { year: "1970", event: "Sultan Qaboos takes power, modernization begins" },
-                { year: "2020", event: "Sultan Haitham succeeds Sultan Qaboos" }
-            ],
-            colonialHistory: "Portuguese rule 1507-1650, British protectorate 1891-1971",
-            historicalNames: ["Magan", "Mazun"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Arab": 56.0,
-                "Baluchi": 15.0,
-                "South Asian": 20.0,
-                "African": 5.0,
-                "Other": 4.0
-            },
-            ageStructure: {
-                "0-14": 26.0,
-                "15-64": 70.0,
-                "65+": 4.0
-            },
-            urbanization: 87.0,
-            lifeExpectancy: 78.0,
-            fertilityRate: 2.8,
-            literacyRate: 95.7
-        },
-        
-        quickFacts: {
-            internet: { tld: ".om", penetration: 95.0 },
-            calling: { code: "+968" },
-            electricity: { voltage: "240V", frequency: "50Hz", plugType: "G" },
-            measurement: "Metric",
-            emergencyNumber: "9999"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Oman is the only country with Ibadi Islam as the dominant faith",
-            "The country was once a powerful maritime empire controlling Zanzibar",
-            "Oman is the birthplace of frankincense",
-            "Sultan Qaboos ruled for 50 years and transformed the country",
-            "Oman has no railway system"
-        ]
-    },
 
-   // encyclopedia-data-5.js (continued)
-// Continuing from Lebanon's heritageSites section
+        symbols: {
+            bird: "Gyrfalcon",
+            animal: "Arctic Fox",
+            flower: "Mountain Avens",
+            tree: "Rowan",
+            anthem: "Lofsöngur",
+            motto: "None Official"
+        },
 
-    "lebanon": {
-        name: "Lebanon",
-        officialName: "Lebanese Republic",
-        nativeName: "الجمهورية اللبنانية (Al-Jumhūrīyah al-Lubnānīyah)",
-        iso3: "LBN",
-        iso2: "LB",
-        flag: "🇱🇧",
-        
-        capital: {
-            name: "Beirut",
-            population: 2400000,
-            coordinates: { lat: 33.8938, lng: 35.5018 }
+        demographics: {
+            lifeExpectancy: 83.30,
+            literacyRate: "99%",
+            urbanPopulation: "93.9%",
+            medianAge: 37.5
         },
-        largestCity: "Beirut",
-        population: {
-            total: 5490000,
-            year: 2024,
-            density: 528,
-            growth: -0.5
-        },
-        area: {
-            total: 10400,
-            land: 10230,
-            water: 170,
-            rank: 166
-        },
-        
-        continent: "Asia",
-        region: "Middle East",
-        subregion: "Levant",
-        coordinates: { lat: 33.8547, lng: 35.8623 },
-        borders: ["Syria", "Israel"],
-        coastline: 225,
-        timezone: ["UTC+2"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President (vacant/interim)",
-            headOfGovernment: "Prime Minister Najib Mikati"
-        },
-        independence: {
-            date: "November 22, 1943",
-            from: "France"
-        },
-        nationalDay: { name: "Independence Day", date: "November 22" },
-        divisions: {
-            type: "governorates",
-            count: 8,
-            major: ["Beirut", "Mount Lebanon", "North", "Beqaa", "South"]
-        },
-        
-        economy: {
-            gdpTotal: 20000000000,
-            gdpPerCapita: 3600,
-            gdpGrowth: -10.0,
-            currency: { name: "Lebanese pound", code: "LBP", symbol: "ل.ل" },
-            mainIndustries: ["banking", "tourism", "food processing", "jewelry", "cement"],
-            exports: ["jewelry", "base metals", "chemicals", "food", "electrical equipment"],
-            imports: ["petroleum", "cars", "medicine", "clothing", "food"],
-            majorPartners: ["UAE", "Saudi Arabia", "Syria", "China", "Turkey"]
-        },
-        hdi: 0.706,
-        
-        geography_links: {
-            rivers: [
-                { name: "Litani River", description: "Longest river entirely in Lebanon" },
-                { name: "Orontes River", description: "Flows north to Syria" },
-                { name: "Beirut River", description: "River flowing through capital" }
-            ],
-            mountains: [
-                { name: "Mount Lebanon", description: "Coastal mountain range" },
-                { name: "Anti-Lebanon Mountains", description: "Eastern range on Syrian border" },
-                { name: "Qurnat as Sawda", description: "Highest peak at 3088m" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Cedars of Lebanon", description: "Ancient cedar forests" },
-                { name: "Horsh Ehden", description: "Protected cedar reserve" },
-                { name: "Chouf Cedar Reserve", description: "Largest nature reserve" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Mediterranean Sea", description: "Western coastline" }
-            ],
-            valleys: [
-                { name: "Beqaa Valley", description: "Fertile valley between mountain ranges" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Arabic"],
-                regional: ["French", "English", "Armenian"],
-                spoken: ["Arabic", "French", "English", "Armenian"]
-            },
-            religions: {
-                dominant: "Multi-confessional",
-                breakdown: {
-                    "Islam (Shia)": 27.0,
-                    "Islam (Sunni)": 27.0,
-                    "Maronite Christian": 21.0,
-                    "Greek Orthodox": 8.0,
-                    "Druze": 5.0,
-                    "Other Christian": 7.0,
-                    "Other": 5.0
-                }
-            },
-            heritageSites: [
-                { name: "Anjar", type: "Cultural", year: 1984, description: "Umayyad city ruins" },
-                { name: "Baalbek", type: "Cultural", year: 1984, description: "Roman temple complex" },
-                { name: "Byblos", type: "Cultural", year: 1984, description: "One of the oldest continuously inhabited cities" },
-                { name: "Tyre", type: "Cultural", year: 1984, description: "Ancient Phoenician city" },
-                { name: "Ouadi Qadisha and Cedars of God", type: "Cultural", year: 1998, description: "Holy valley and ancient cedars" }
-            ],
-            festivals: [
-                { name: "Baalbek International Festival", date: "July-August", description: "Arts and music festival in Roman ruins" },
-                { name: "Beiteddine Art Festival", date: "July-August", description: "Cultural festival in palace" },
-                { name: "Independence Day", date: "November 22", description: "National celebration" },
-                { name: "Eid al-Fitr", date: "After Ramadan", description: "Islamic celebration" },
-                { name: "Easter", date: "Spring", description: "Christian celebration" }
-            ],
-            cuisine: [
-                { name: "Kibbeh", description: "National dish - bulgur and meat" },
-                { name: "Tabbouleh", description: "Parsley and bulgur salad" },
-                { name: "Hummus", description: "Chickpea dip" },
-                { name: "Fattoush", description: "Salad with toasted bread" },
-                { name: "Shawarma", description: "Wrapped meat sandwich" },
-                { name: "Baklava", description: "Sweet pastry with nuts" }
-            ],
-            arts: [
-                { type: "Music", description: "Fairuz, Arabic pop, traditional music" },
-                { type: "Architecture", description: "Phoenician, Roman, Ottoman, French influences" },
-                { type: "Literature", description: "Khalil Gibran, rich literary tradition" },
-                { type: "Dance", description: "Dabke traditional folk dance" }
-            ],
-            sports: {
-                popular: ["Football", "Basketball", "Skiing", "Swimming", "Tennis"],
-                achievements: ["Strong basketball tradition", "Winter sports in mountains"],
-                venues: ["Camille Chamoun Sports City Stadium", "Beirut Sports City"]
-            }
-        },
-        
+
         history: {
             timeline: [
-                { year: "5000 BC", event: "Byblos established as settlement" },
-                { year: "1500 BC", event: "Phoenician civilization flourishes" },
-                { year: "64 BC", event: "Roman rule begins" },
-                { year: "636 AD", event: "Arab conquest" },
-                { year: "1516", event: "Ottoman rule begins" },
-                { year: "1861", event: "Mount Lebanon gains autonomy" },
-                { year: "1920", event: "Greater Lebanon under French mandate" },
-                { year: "1943", event: "Independence from France" },
-                { year: "1975-1990", event: "Lebanese Civil War" },
-                { year: "2005", event: "Cedar Revolution" },
-                { year: "2006", event: "Lebanon War with Israel" },
-                { year: "2019", event: "Economic crisis begins" },
-                { year: "2020", event: "Beirut port explosion" }
+                { year: "874", title: "Settlement", description: "Norse settlement began" },
+                { year: "930", title: "Althing Founded", description: "World's oldest parliament established" },
+                { year: "1262", title: "Norwegian Rule", description: "Came under Norwegian crown" },
+                { year: "1380", title: "Danish Rule", description: "Union with Denmark" },
+                { year: "1918", title: "Sovereignty", description: "Sovereign state in union with Denmark" },
+                { year: "1944", title: "Republic", description: "Full independence; Republic declared" },
+                { year: "2008", title: "Financial Crisis", description: "Banking system collapse" }
             ],
-            colonialHistory: "French mandate 1920-1943",
-            historicalNames: ["Phoenicia", "Greater Lebanon"]
+            notableFigures: ["Leif Erikson", "Snorri Sturluson", "Vigdís Finnbogadóttir", "Halldór Laxness", "Björk"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Arab": 95.0,
-                "Armenian": 4.0,
-                "Other": 1.0
-            },
-            ageStructure: {
-                "0-14": 21.0,
-                "15-64": 69.0,
-                "65+": 10.0
-            },
-            urbanization: 89.0,
-            lifeExpectancy: 79.0,
-            fertilityRate: 2.1,
-            literacyRate: 95.0
-        },
-        
-        quickFacts: {
-            internet: { tld: ".lb", penetration: 78.0 },
-            calling: { code: "+961" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "A, B, C, D, G" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
+
         disputes: [
-            {
-                type: "territorial",
-                description: "Shebaa Farms disputed with Israel",
-                parties: ["Lebanon", "Israel", "Syria"],
-                status: "Ongoing"
-            },
-            {
-                type: "maritime",
-                description: "Maritime border with Israel recently demarcated (2022)",
-                parties: ["Lebanon", "Israel"],
-                status: "Agreement reached 2022"
-            }
+            { name: "Rockall", description: "Disputed rock in North Atlantic", type: "Maritime" }
         ],
-        
-        funFacts: [
-            "Lebanon is home to some of the oldest cities in the world (Byblos, Tyre)",
-            "The word 'alphabet' comes from the first two Phoenician letters invented in Lebanon",
-            "Lebanon has 18 recognized religious sects",
-            "The Cedar of Lebanon is mentioned 75 times in the Bible",
-            "Lebanon is the only Arab country without a desert",
-            "Skiing and swimming can be done on the same day"
+
+        quickFacts: [
+            { icon: "gavel", title: "Oldest Parliament", text: "Althing - world's oldest parliament (930 AD)" },
+            { icon: "volcano", title: "Land of Fire & Ice", text: "130 volcanoes, 10% covered by glaciers" },
+            { icon: "bolt", title: "Renewable Energy", text: "100% electricity from renewable sources" },
+            { icon: "book", title: "Most Published", text: "Most books published per capita" },
+            { icon: "peace", title: "No Army", text: "No standing military forces" },
+            { icon: "venus", title: "Gender Equality", text: "World leader in gender equality" }
         ]
     },
 
-    "armenia": {
-        name: "Armenia",
-        officialName: "Republic of Armenia",
-        nativeName: "Հայաdelays Հdelays (Hayastani Hanrapetut'yun)",
-        iso3: "ARM",
-        iso2: "AM",
-        flag: "🇦🇲",
+    // 5. IRELAND
+    {
+        id: "IRL",
+        name: "Ireland",
+        officialName: "Republic of Ireland",
+        flag: "https://flagcdn.com/w320/ie.png",
         
-        capital: {
-            name: "Yerevan",
-            population: 1093000,
-            coordinates: { lat: 40.1792, lng: 44.4991 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1590089415225-401ed6f9db8e?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1564959130747-897a8e0a7f68?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1549918864-48ac978761a4?w=1920&q=80"
         },
-        largestCity: "Yerevan",
-        population: {
-            total: 2780000,
-            year: 2024,
-            density: 93,
-            growth: -0.3
+
+        basic: {
+            capital: "Dublin",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "British Isles",
+            population: 5194336,
+            area: 70273,
+            populationDensity: 74,
+            independence: "1922",
+            callingCode: "+353",
+            tld: ".ie",
+            drivingSide: "Left",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 29743,
-            land: 28203,
-            water: 1540,
-            rank: 143
+
+        location: {
+            coordinates: [53.1424, -7.6921],
+            timezone: "UTC+0 (GMT/IST)",
+            neighbors: ["United Kingdom (Northern Ireland)"],
+            borders: 490,
+            hemispheres: ["Northern", "Western"]
         },
-        
-        continent: "Asia",
-        region: "Caucasus",
-        subregion: "South Caucasus",
-        coordinates: { lat: 40.0691, lng: 45.0382 },
-        borders: ["Georgia", "Azerbaijan", "Iran", "Turkey"],
-        coastline: 0,
-        timezone: ["UTC+4"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Vahagn Khachaturyan",
-            headOfGovernment: "Prime Minister Nikol Pashinyan"
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Michael D. Higgins",
+            headOfGovernment: "Taoiseach Simon Harris",
+            legislature: "Oireachtas (Dáil Éireann & Seanad Éireann)",
+            legalSystem: "Common Law",
+            states: 4,
+            provinces: 4,
+            counties: 26,
+            largestCity: "Dublin",
+            organizations: ["UN", "EU", "OECD", "WTO", "Schengen Area (partial)", "Eurozone"]
         },
-        independence: {
-            date: "September 21, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "September 21" },
-        divisions: {
-            type: "provinces",
-            count: 11,
-            major: ["Yerevan", "Shirak", "Lori", "Kotayk", "Ararat"]
-        },
-        
+
         economy: {
-            gdpTotal: 20000000000,
-            gdpPerCapita: 7200,
-            gdpGrowth: 8.0,
-            currency: { name: "Armenian dram", code: "AMD", symbol: "֏" },
-            mainIndustries: ["diamond processing", "metal processing", "brandy", "mining", "IT"],
-            exports: ["copper", "gold", "diamonds", "brandy", "cigarettes"],
-            imports: ["natural gas", "petroleum", "machinery", "food", "diamonds"],
-            majorPartners: ["Russia", "Switzerland", "China", "Bulgaria", "Germany"]
+            gdp: "$594 Billion",
+            gdpPPP: "$607 Billion",
+            gdpPerCapita: "$114,581",
+            gdpRank: "#27",
+            gdpGrowth: "-3.2%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.0%",
+            unemployment: "4.3%",
+            majorSectors: ["Services (57%)", "Industry (40%)", "Agriculture (1%)"],
+            industries: ["Pharmaceuticals", "Medical Devices", "Technology", "Food Products", "Beverages", "Financial Services", "Chemicals"],
+            exports: ["Pharmaceuticals", "Medical Equipment", "Computers", "Chemicals", "Machinery", "Food"],
+            imports: ["Machinery", "Vehicles", "Chemicals", "Petroleum", "Textiles", "Clothing"]
         },
-        hdi: 0.759,
-        
+
+        geography: {
+            climate: "Temperate Maritime; Modified by North Atlantic Current; Mild Winters, Cool Summers",
+            avgTemperature: "10.0°C",
+            annualRainfall: "1,118 mm",
+            highestPoint: "Carrauntoohil (1,038 m)",
+            lowestPoint: "Irish Sea (0 m)",
+            coastline: "1,448 km",
+            forestCover: "11%",
+            arableLand: "15.4%",
+            terrain: "Mostly flat to rolling interior plain surrounded by rugged hills and low mountains",
+            naturalResources: ["Natural Gas", "Peat", "Copper", "Lead", "Zinc", "Silver", "Barite", "Gypsum", "Limestone", "Dolomite"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Araxes River", description: "Forms border with Turkey and Iran" },
-                { name: "Hrazdan River", description: "Flows from Lake Sevan through Yerevan" },
-                { name: "Debed River", description: "Northern river to Georgia" },
-                { name: "Vorotan River", description: "Major river in south" }
-            ],
-            mountains: [
-                { name: "Mount Aragats", description: "Highest peak at 4090m" },
-                { name: "Lesser Caucasus", description: "Mountain range covering country" },
-                { name: "Mount Ararat", description: "Historic symbol, now in Turkey" },
-                { name: "Geghama Mountains", description: "Central mountain range" }
-            ],
+            rivers: ["Shannon", "Liffey", "Blackwater", "Barrow", "Suir", "Boyne"],
+            mountains: ["Carrauntoohil", "MacGillycuddy's Reeks", "Wicklow Mountains", "Mourne Mountains"],
             deserts: [],
-            forests: [
-                { name: "Dilijan forests", description: "Rich deciduous forests" },
-                { name: "Khosrov Forest", description: "One of oldest nature reserves" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Lake Sevan", description: "One of largest high-altitude lakes in the world" },
-                { name: "Lake Arpi", description: "Wetland in northwestern Armenia" }
-            ]
+            forests: ["Killarney National Park", "Glenveagh National Park"],
+            oceans: ["Atlantic Ocean", "Irish Sea", "Celtic Sea"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Armenian"],
-                regional: ["Russian", "Yezidi", "Assyrian"],
-                spoken: ["Armenian", "Russian", "English"]
-            },
-            religions: {
-                dominant: "Armenian Apostolic Christianity",
-                breakdown: {
-                    "Armenian Apostolic": 92.6,
-                    "Evangelical": 1.0,
-                    "Other Christian": 0.4,
-                    "Yezidi": 1.2,
-                    "Other": 4.8
-                }
-            },
-            heritageSites: [
-                { name: "Monasteries of Haghpat and Sanahin", type: "Cultural", year: 1996, description: "Medieval monastery complex" },
-                { name: "Cathedral and Churches of Echmiatsin", type: "Cultural", year: 2000, description: "Spiritual center of Armenian Church" },
-                { name: "Monastery of Geghard and Azat Valley", type: "Cultural", year: 2000, description: "Medieval cliff monastery" },
-                { name: "Temple of Garni", type: "Cultural", year: 2000, description: "Hellenistic pagan temple" }
-            ],
-            festivals: [
-                { name: "Vardavar", date: "July", description: "Water festival with ancient pagan roots" },
-                { name: "Armenian Independence Day", date: "September 21", description: "National celebration" },
-                { name: "Genocide Remembrance Day", date: "April 24", description: "Commemoration of 1915 genocide" },
-                { name: "Navasard", date: "August 11", description: "Ancient new year celebration" }
-            ],
-            cuisine: [
-                { name: "Khorovats", description: "Armenian barbecue" },
-                { name: "Dolma", description: "Stuffed grape leaves" },
-                { name: "Lavash", description: "Traditional flatbread (UNESCO heritage)" },
-                { name: "Harissa", description: "Wheat and meat porridge" },
-                { name: "Gata", description: "Sweet bread pastry" },
-                { name: "Armenian brandy", description: "Famous cognac-style spirit" }
-            ],
-            arts: [
-                { type: "Music", description: "Duduk instrument (UNESCO), folk and classical" },
-                { type: "Architecture", description: "Ancient churches and monasteries" },
-                { type: "Khachkar", description: "Carved stone cross monuments (UNESCO)" },
-                { type: "Literature", description: "Ancient manuscript tradition, Mesrop Mashtots" },
-                { type: "Carpet weaving", description: "Traditional Armenian rug making" }
-            ],
-            sports: {
-                popular: ["Football", "Wrestling", "Chess", "Weightlifting", "Boxing"],
-                achievements: ["Chess Olympiad champions", "Olympic wrestling and weightlifting medals"],
-                venues: ["Vazgen Sargsyan Republican Stadium", "Karen Demirchyan Sports Complex"]
-            }
+            officialLanguages: ["Irish (Gaelic)", "English"],
+            languages: ["English", "Irish", "Ulster Scots", "Shelta"],
+            religions: ["Roman Catholicism (69%)", "None (14%)", "Church of Ireland (3%)", "Islam (1.4%)", "Others (12.6%)"],
+            heritageSites: ["Brú na Bóinne", "Skellig Michael", "Sceilg Mhichíl"],
+            festivals: ["St. Patrick's Day", "Bloomsday", "Galway Arts Festival", "Electric Picnic", "Fleadh Cheoil"],
+            cuisine: ["Irish Stew", "Colcannon", "Boxty", "Soda Bread", "Full Irish Breakfast", "Black Pudding"],
+            arts: ["Irish Literature", "Traditional Music", "Irish Dance", "Celtic Art", "Storytelling"],
+            sports: ["Gaelic Football", "Hurling", "Rugby", "Football", "Golf", "Horse Racing"]
         },
-        
+
+        symbols: {
+            bird: "Northern Lapwing",
+            animal: "Irish Hare",
+            flower: "Shamrock",
+            tree: "Sessile Oak",
+            anthem: "Amhrán na bhFiann",
+            motto: "Ireland Forever"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.81,
+            literacyRate: "99%",
+            urbanPopulation: "64.2%",
+            medianAge: 38.8
+        },
+
         history: {
             timeline: [
-                { year: "782 BC", event: "Erebuni fortress founded (Yerevan)" },
-                { year: "301 AD", event: "First nation to adopt Christianity as state religion" },
-                { year: "405 AD", event: "Armenian alphabet created" },
-                { year: "885", event: "Bagratid Armenia established" },
-                { year: "1045", event: "Byzantine conquest" },
-                { year: "1375", event: "Last Armenian kingdom falls" },
-                { year: "1828", event: "Eastern Armenia to Russian Empire" },
-                { year: "1915", event: "Armenian Genocide under Ottoman Empire" },
-                { year: "1918", event: "First Republic of Armenia" },
-                { year: "1920", event: "Soviet rule begins" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "1992-1994", event: "Nagorno-Karabakh War" },
-                { year: "2018", event: "Velvet Revolution" },
-                { year: "2020", event: "Second Nagorno-Karabakh War" }
+                { year: "432", title: "St. Patrick", description: "Christianity brought to Ireland" },
+                { year: "795", title: "Viking Raids", description: "Viking invasions began" },
+                { year: "1169", title: "Norman Invasion", description: "Anglo-Norman conquest" },
+                { year: "1801", title: "Union with Britain", description: "Act of Union with United Kingdom" },
+                { year: "1916", title: "Easter Rising", description: "Armed rebellion against British rule" },
+                { year: "1922", title: "Irish Free State", description: "Independence from UK (26 counties)" },
+                { year: "1937", title: "Constitution", description: "New constitution; name changed to Ireland" },
+                { year: "1973", title: "EEC Membership", description: "Joined European Economic Community" }
             ],
-            colonialHistory: null,
-            historicalNames: ["Urartu", "Kingdom of Armenia", "Armenian SSR"]
+            notableFigures: ["St. Patrick", "Brian Boru", "Daniel O'Connell", "Michael Collins", "Éamon de Valera", "Mary Robinson"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Armenian": 98.1,
-                "Yezidi": 1.2,
-                "Russian": 0.4,
-                "Other": 0.3
-            },
-            ageStructure: {
-                "0-14": 18.0,
-                "15-64": 69.0,
-                "65+": 13.0
-            },
-            urbanization: 63.3,
-            lifeExpectancy: 75.5,
-            fertilityRate: 1.6,
-            literacyRate: 99.7
-        },
-        
-        quickFacts: {
-            internet: { tld: ".am", penetration: 79.0 },
-            calling: { code: "+374" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "911"
-        },
-        
-        disputes: [
-            {
-                type: "territorial",
-                description: "Nagorno-Karabakh conflict with Azerbaijan",
-                parties: ["Armenia", "Azerbaijan"],
-                status: "Azerbaijan recaptured region in 2023"
-            },
-            {
-                type: "closed border",
-                description: "Closed border with Turkey since 1993",
-                parties: ["Armenia", "Turkey"],
-                status: "Ongoing diplomatic efforts"
-            }
-        ],
-        
-        funFacts: [
-            "Armenia was the first country to adopt Christianity as a state religion (301 AD)",
-            "The Armenian alphabet has 39 letters and was created in 405 AD",
-            "Yerevan is older than Rome by 29 years",
-            "Armenia is known as the 'Land of Churches'",
-            "Armenians consider chess a national sport - it's mandatory in schools",
-            "The apricot is considered the national fruit"
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "shamrock", title: "Emerald Isle", text: "Known as 'Emerald Isle' for green landscape" },
+            { icon: "beer", title: "Guinness", text: "Home of Guinness brewery (since 1759)" },
+            { icon: "book", title: "Literary Giants", text: "4 Nobel Prize winners in Literature" },
+            { icon: "building", title: "Tech Hub", text: "European HQ for Apple, Google, Facebook, etc." },
+            { icon: "music", title: "Traditional Music", text: "Rich tradition of folk and traditional music" },
+            { icon: "users", title: "Diaspora", text: "70 million people worldwide claim Irish ancestry" }
         ]
     },
 
-    "georgia": {
-        name: "Georgia",
-        officialName: "Georgia",
-        nativeName: "საქართველო (Sakartvelo)",
-        iso3: "GEO",
-        iso2: "GE",
-        flag: "🇬🇪",
+    // 6. LATVIA
+    {
+        id: "LVA",
+        name: "Latvia",
+        officialName: "Republic of Latvia",
+        flag: "https://flagcdn.com/w320/lv.png",
         
-        capital: {
-            name: "Tbilisi",
-            population: 1170000,
-            coordinates: { lat: 41.7151, lng: 44.8271 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1588420343618-6141b3784bce?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1563804951831-7d28841b4567?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1558029137-4c6d87c48287?w=1920&q=80"
         },
-        largestCity: "Tbilisi",
-        population: {
-            total: 3710000,
-            year: 2024,
-            density: 53,
-            growth: -0.2
+
+        basic: {
+            capital: "Riga",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Baltic States",
+            population: 1842226,
+            area: 64559,
+            populationDensity: 29,
+            independence: "1918 (from Russia), 1991 (from USSR)",
+            callingCode: "+371",
+            tld: ".lv",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 69700,
-            land: 69490,
-            water: 210,
-            rank: 121
+
+        location: {
+            coordinates: [56.8796, 24.6032],
+            timezone: "UTC+2 (EET)",
+            neighbors: ["Estonia", "Lithuania", "Belarus", "Russia"],
+            borders: 1370,
+            hemispheres: ["Northern", "Eastern"]
         },
-        
-        continent: "Asia",
-        region: "Caucasus",
-        subregion: "South Caucasus",
-        coordinates: { lat: 42.3154, lng: 43.3569 },
-        borders: ["Russia", "Azerbaijan", "Armenia", "Turkey"],
-        coastline: 310,
-        timezone: ["UTC+4"],
-        drivingSide: "right",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Salome Zourabichvili",
-            headOfGovernment: "Prime Minister Irakli Kobakhidze"
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Edgars Rinkēvičs",
+            headOfGovernment: "Prime Minister Evika Siliņa",
+            legislature: "Saeima (Parliament)",
+            legalSystem: "Civil Law",
+            states: 36,
+            municipalities: 36,
+            cities: 7,
+            largestCity: "Riga",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Schengen Area", "Eurozone"]
         },
-        independence: {
-            date: "April 9, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "May 26" },
-        divisions: {
-            type: "regions",
-            count: 9,
-            major: ["Tbilisi", "Adjara", "Imereti", "Samegrelo-Zemo Svaneti", "Kvemo Kartli"]
-        },
-        
+
         economy: {
-            gdpTotal: 27000000000,
-            gdpPerCapita: 7200,
-            gdpGrowth: 7.5,
-            currency: { name: "Georgian lari", code: "GEL", symbol: "₾" },
-            mainIndustries: ["steel", "machine tools", "textiles", "wine", "tourism"],
-            exports: ["copper", "ferroalloys", "vehicles", "wine", "mineral waters"],
-            imports: ["fuels", "vehicles", "machinery", "food", "pharmaceuticals"],
-            majorPartners: ["Russia", "Turkey", "China", "Azerbaijan", "Bulgaria"]
+            gdp: "$43.6 Billion",
+            gdpPPP: "$70.0 Billion",
+            gdpPerCapita: "$23,723",
+            gdpRank: "#100",
+            gdpGrowth: "-0.3%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "8.9%",
+            unemployment: "6.6%",
+            majorSectors: ["Services (74%)", "Industry (21%)", "Agriculture (4%)"],
+            industries: ["Food Products", "Processed Wood", "Textiles", "Metals", "Pharmaceuticals", "Machinery", "Transport"],
+            exports: ["Timber", "Food Products", "Metals", "Machinery", "Textiles", "Pharmaceuticals"],
+            imports: ["Machinery", "Consumer Goods", "Chemicals", "Fuels", "Vehicles"]
         },
-        hdi: 0.802,
-        
+
+        geography: {
+            climate: "Maritime; Wet, Moderate Winters",
+            avgTemperature: "6.8°C",
+            annualRainfall: "641 mm",
+            highestPoint: "Gaiziņkalns (312 m)",
+            lowestPoint: "Baltic Sea (0 m)",
+            coastline: "498 km",
+            forestCover: "54%",
+            arableLand: "18.6%",
+            terrain: "Low plain",
+            naturalResources: ["Peat", "Limestone", "Dolomite", "Amber", "Hydropower", "Wood", "Arable Land"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Mtkvari (Kura)", description: "Longest river, flows through Tbilisi" },
-                { name: "Rioni", description: "Major western river" },
-                { name: "Enguri", description: "River with famous high dam" },
-                { name: "Alazani", description: "River in wine region" }
-            ],
-            mountains: [
-                { name: "Greater Caucasus", description: "Northern mountain range" },
-                { name: "Mount Shkhara", description: "Highest peak at 5193m" },
-                { name: "Mount Kazbek", description: "Iconic volcanic peak at 5047m" },
-                { name: "Lesser Caucasus", description: "Southern mountains" }
-            ],
+            rivers: ["Daugava", "Gauja", "Lielupe", "Venta"],
+            mountains: ["Gaiziņkalns", "Vidzeme Upland"],
             deserts: [],
-            forests: [
-                { name: "Colchic rainforests", description: "Unique subtropical forests" },
-                { name: "Borjomi-Kharagauli forests", description: "European-protected forests" },
-                { name: "Tusheti forests", description: "Mountain forests in northeast" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Black Sea", description: "Western coastline with resorts" }
-            ],
-            lakes: [
-                { name: "Lake Paravani", description: "Largest lake" },
-                { name: "Lake Tabatskuri", description: "High-altitude lake" },
-                { name: "Lake Ritsa", description: "Famous lake in Abkhazia" }
-            ],
-            caves: [
-                { name: "Krubera Cave", description: "One of deepest caves in the world" },
-                { name: "Prometheus Cave", description: "Tourist cave with formations" }
-            ]
+            forests: ["Latvian Forests", "Kemeri National Park", "Gauja National Park"],
+            oceans: ["Baltic Sea", "Gulf of Riga"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Georgian"],
-                regional: ["Abkhaz", "Ossetian", "Mingrelian", "Svan"],
-                spoken: ["Georgian", "Russian", "English", "Azerbaijani"]
-            },
-            religions: {
-                dominant: "Georgian Orthodox Christianity",
-                breakdown: {
-                    "Georgian Orthodox": 83.4,
-                    "Islam": 10.7,
-                    "Armenian Apostolic": 2.9,
-                    "Catholic": 0.5,
-                    "Other": 2.5
-                }
-            },
-            heritageSites: [
-                { name: "Historical Monuments of Mtskheta", type: "Cultural", year: 1994, description: "Ancient capital with churches" },
-                { name: "Bagrati Cathedral and Gelati Monastery", type: "Cultural", year: 1994, description: "Medieval religious architecture" },
-                { name: "Upper Svaneti", type: "Cultural", year: 1996, description: "Medieval tower villages" },
-                { name: "Colchic Rainforests", type: "Natural", year: 2021, description: "Ancient temperate forests" }
-            ],
-            festivals: [
-                { name: "Tbilisoba", date: "October", description: "Tbilisi city festival" },
-                { name: "Rtveli", date: "September-October", description: "Wine harvest celebration" },
-                { name: "Independence Day", date: "May 26", description: "National holiday" },
-                { name: "Alilo", date: "January 7", description: "Orthodox Christmas procession" }
-            ],
-            cuisine: [
-                { name: "Khachapuri", description: "Cheese-filled bread (various styles)" },
-                { name: "Khinkali", description: "Soup dumplings" },
-                { name: "Mtsvadi", description: "Grilled meat skewers" },
-                { name: "Satsivi", description: "Walnut sauce with poultry" },
-                { name: "Pkhali", description: "Vegetable pâtés with walnut" },
-                { name: "Churchkhela", description: "Grape and nut candy" }
-            ],
-            arts: [
-                { type: "Polyphonic singing", description: "UNESCO intangible heritage, unique harmonies" },
-                { type: "Dance", description: "Traditional ensemble dances" },
-                { type: "Architecture", description: "Medieval churches, tower houses" },
-                { type: "Winemaking", description: "8000-year tradition using qvevri vessels" },
-                { type: "Script", description: "Unique Georgian alphabet" }
-            ],
-            sports: {
-                popular: ["Football", "Rugby", "Wrestling", "Basketball", "Judo"],
-                achievements: ["Olympic wrestling and judo champions", "Strong rugby union"],
-                venues: ["Boris Paichadze Stadium", "Tbilisi Arena"]
-            }
+            officialLanguages: ["Latvian"],
+            languages: ["Latvian", "Russian", "English", "German"],
+            religions: ["Lutheran (36%)", "Roman Catholic (22%)", "Orthodox (19%)", "None (17%)", "Others (6%)"],
+            heritageSites: ["Historic Centre of Riga", "Struve Geodetic Arc"],
+            festivals: ["Song and Dance Celebration", "Midsummer (Jāņi)", "Latvian Independence Day", "Riga City Festival"],
+            cuisine: ["Rupjmaize (Dark Rye Bread)", "Pelēkie Zirņi", "Sklandrausis", "Piragi", "Karbonāde", "Jāņu Siers"],
+            arts: ["Choral Music", "Folk Dancing", "Amber Jewelry", "Weaving", "Woodwork"],
+            sports: ["Ice Hockey", "Basketball", "Football", "Athletics", "Cycling", "Bobsled"]
         },
-        
+
+        symbols: {
+            bird: "White Wagtail",
+            animal: "Two-spotted Ladybird",
+            flower: "Oxeye Daisy",
+            tree: "Oak & Linden",
+            anthem: "Dievs, svētī Latviju!",
+            motto: "For Fatherland and Freedom"
+        },
+
+        demographics: {
+            lifeExpectancy: 75.70,
+            literacyRate: "99.9%",
+            urbanPopulation: "68.5%",
+            medianAge: 44.6
+        },
+
         history: {
             timeline: [
-                { year: "1500 BC", event: "Colchis kingdom (Golden Fleece legend)" },
-                { year: "302 BC", event: "Iberia kingdom established" },
-                { year: "337 AD", event: "Christianity adopted as state religion" },
-                { year: "1008", event: "Kingdom of Georgia unified" },
-                { year: "1184-1213", event: "Golden Age under Queen Tamar" },
-                { year: "1226", event: "Mongol invasions begin" },
-                { year: "1801", event: "Russian Empire annexation" },
-                { year: "1918", event: "First Georgian Republic declared" },
-                { year: "1921", event: "Soviet occupation" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "1992-1993", event: "War in Abkhazia" },
-                { year: "2003", event: "Rose Revolution" },
-                { year: "2008", event: "War with Russia over South Ossetia" },
-                { year: "2023", event: "EU candidate status granted" }
+                { year: "1200s", title: "Livonian Order", description: "German crusaders conquered region" },
+                { year: "1561", title: "Polish-Lithuanian Rule", description: "Part of Polish-Lithuanian Commonwealth" },
+                { year: "1710", title: "Russian Empire", description: "Incorporated into Russian Empire" },
+                { year: "1918", title: "Independence", description: "Declared independence from Russia" },
+                { year: "1940", title: "Soviet Occupation", description: "Annexed by Soviet Union" },
+                { year: "1991", title: "Restored Independence", description: "Independence restored from USSR" },
+                { year: "2004", title: "EU & NATO", description: "Joined European Union and NATO" }
             ],
-            colonialHistory: null,
-            historicalNames: ["Iberia", "Colchis", "Kingdom of Georgia", "Georgian SSR"]
+            notableFigures: ["Kārlis Ulmanis", "Vaira Vīķe-Freiberga", "Rainis", "Mikhail Baryshnikov"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Georgian": 86.8,
-                "Azerbaijani": 6.3,
-                "Armenian": 4.5,
-                "Russian": 0.7,
-                "Other": 1.7
-            },
-            ageStructure: {
-                "0-14": 18.5,
-                "15-64": 65.0,
-                "65+": 16.5
-            },
-            urbanization: 60.0,
-            lifeExpectancy: 74.5,
-            fertilityRate: 2.0,
-            literacyRate: 99.6
-        },
-        
-        quickFacts: {
-            internet: { tld: ".ge", penetration: 76.0 },
-            calling: { code: "+995" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
+
         disputes: [
-            {
-                type: "territorial",
-                description: "South Ossetia under Russian occupation since 2008",
-                parties: ["Georgia", "Russia", "South Ossetia"],
-                status: "De facto independent, recognized by few countries"
-            },
-            {
-                type: "territorial",
-                description: "Abkhazia under Russian occupation since 2008",
-                parties: ["Georgia", "Russia", "Abkhazia"],
-                status: "De facto independent, recognized by few countries"
-            }
+            { name: "Abrene", description: "Former Latvian territory in Russia", type: "Border" }
         ],
+
+        quickFacts: [
+            { icon: "tree", title: "Forest Country", text: "Over 54% covered by forests" },
+            { icon: "music", title: "Song Festivals", text: "UNESCO-recognized Song and Dance Celebration" },
+            { icon: "building", title: "Art Nouveau", text: "Riga has largest collection of Art Nouveau buildings" },
+            { icon: "gem", title: "Amber", text: "Rich in Baltic amber deposits" },
+            { icon: "wifi", title: "Internet", text: "One of fastest internet speeds in Europe" }
+        ]
+    },
+
+    // 7. LITHUANIA
+    {
+        id: "LTU",
+        name: "Lithuania",
+        officialName: "Republic of Lithuania",
+        flag: "https://flagcdn.com/w320/lt.png",
         
-        funFacts: [
-            "Georgia is one of the oldest wine-making regions in the world (8000 years)",
-            "The Georgian alphabet is one of only 14 unique scripts in use today",
-            "Georgian polyphonic singing is UNESCO intangible heritage",
-            "Georgia claims to be the birthplace of wine",
-            "Tbilisi means 'warm place' due to its natural hot springs",
-            "Georgia was the homeland of Joseph Stalin"
+        images: {
+            hero: "https://images.unsplash.com/photo-1562347727-d1f85a1449fb?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1577624528828-c21b6e7e0b8e?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1549989476-69a92fa57c36?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Vilnius",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Baltic States",
+            population: 2859239,
+            area: 65300,
+            populationDensity: 42,
+            independence: "1918 (from Russia), 1990 (from USSR)",
+            callingCode: "+370",
+            tld: ".lt",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [55.1694, 23.8813],
+            timezone: "UTC+2 (EET)",
+            neighbors: ["Latvia", "Belarus", "Poland", "Russia (Kaliningrad)"],
+            borders: 1574,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Semi-Presidential Republic",
+            headOfState: "President Gitanas Nausėda",
+            headOfGovernment: "Prime Minister Gintautas Paluckas",
+            legislature: "Seimas (Parliament)",
+            legalSystem: "Civil Law",
+            states: 10,
+            counties: 10,
+            municipalities: 60,
+            largestCity: "Vilnius",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Schengen Area", "Eurozone"]
+        },
+
+        economy: {
+            gdp: "$77.8 Billion",
+            gdpPPP: "$127.0 Billion",
+            gdpPerCapita: "$27,269",
+            gdpRank: "#82",
+            gdpGrowth: "-0.3%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "8.7%",
+            unemployment: "6.9%",
+            majorSectors: ["Services (66%)", "Industry (28%)", "Agriculture (3%)"],
+            industries: ["Metal-cutting Machine Tools", "Electric Motors", "Refrigerators & Freezers", "Petroleum Refining", "Food Processing", "Textiles", "Furniture", "Lasers"],
+            exports: ["Refined Petroleum", "Furniture", "Chemicals", "Machinery", "Plastics", "Food"],
+            imports: ["Crude Petroleum", "Natural Gas", "Machinery", "Transport Equipment", "Chemicals"]
+        },
+
+        geography: {
+            climate: "Transitional; Maritime to Continental",
+            avgTemperature: "7.6°C",
+            annualRainfall: "686 mm",
+            highestPoint: "Aukštojas Hill (294 m)",
+            lowestPoint: "Nemunas Delta (-5 m)",
+            coastline: "90 km",
+            forestCover: "35%",
+            arableLand: "33.5%",
+            terrain: "Lowland, many scattered small lakes, fertile soil",
+            naturalResources: ["Peat", "Arable Land", "Amber"]
+        },
+
+        geography_links: {
+            rivers: ["Nemunas", "Neris", "Venta", "Šešupė"],
+            mountains: ["Aukštojas Hill", "Medvėgalis"],
+            deserts: [],
+            forests: ["Lithuanian Forests", "Dzūkija National Park", "Aukštaitija National Park"],
+            oceans: ["Baltic Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Lithuanian"],
+            languages: ["Lithuanian", "Russian", "Polish", "English"],
+            religions: ["Roman Catholic (77%)", "Orthodox (4%)", "None (6%)", "Others (13%)"],
+            heritageSites: ["Vilnius Historic Centre", "Curonian Spit", "Kernavė Archaeological Site", "Struve Geodetic Arc"],
+            festivals: ["Užgavėnės (Shrove Tuesday)", "Joninės (Midsummer)", "Song Celebration", "Vilnius Festival"],
+            cuisine: ["Cepelinai", "Kugelis", "Šaltibarščiai", "Kibinai", "Šakotis", "Skilandis"],
+            arts: ["Folk Art", "Wood Carving", "Amber Crafts", "Choral Music", "Literature"],
+            sports: ["Basketball", "Football", "Ice Hockey", "Athletics", "Cycling"]
+        },
+
+        symbols: {
+            bird: "White Stork",
+            animal: "European Bison",
+            flower: "Rue",
+            tree: "Oak",
+            anthem: "Tautiška giesmė",
+            motto: "The Nation's Strength is in National Unity"
+        },
+
+        demographics: {
+            lifeExpectancy: 76.41,
+            literacyRate: "99.8%",
+            urbanPopulation: "68.3%",
+            medianAge: 45.1
+        },
+
+        history: {
+            timeline: [
+                { year: "1253", title: "Kingdom", description: "Mindaugas crowned King of Lithuania" },
+                { year: "1386", title: "Union with Poland", description: "Personal union with Poland" },
+                { year: "1569", title: "Commonwealth", description: "Polish-Lithuanian Commonwealth formed" },
+                { year: "1795", title: "Partitions", description: "Absorbed into Russian Empire" },
+                { year: "1918", title: "Independence", description: "Declared independence" },
+                { year: "1940", title: "Soviet Occupation", description: "Annexed by Soviet Union" },
+                { year: "1990", title: "Independence Restored", description: "First Soviet republic to declare independence" },
+                { year: "2004", title: "EU & NATO", description: "Joined European Union and NATO" }
+            ],
+            notableFigures: ["Mindaugas", "Vytautas the Great", "Valdas Adamkus", "Arvydas Sabonis"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "basketball-ball", title: "Basketball Nation", text: "Basketball is the national sport (semi-religion)" },
+            { icon: "sun", title: "Geographic Center", text: "Geographical center of Europe (by some calculations)" },
+            { icon: "tree", title: "Hill of Crosses", text: "Pilgrimage site with over 100,000 crosses" },
+            { icon: "language", title: "Ancient Language", text: "Lithuanian is one of oldest Indo-European languages" },
+            { icon: "flag", title: "First Independence", text: "First country to break from Soviet Union (1990)" },
+            { icon: "rocket", title: "Lasers", text: "World leader in laser technology production" }
+        ]
+    },
+
+    // 8. NORWAY
+    {
+        id: "NOR",
+        name: "Norway",
+        officialName: "Kingdom of Norway",
+        flag: "https://flagcdn.com/w320/no.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1508189860359-777d945909ef?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1558687942-85eb3c61e5a3?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Oslo",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Scandinavia",
+            population: 5474360,
+            area: 385207,
+            populationDensity: 14,
+            independence: "1905",
+            callingCode: "+47",
+            tld: ".no",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [60.4720, 8.4689],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Sweden", "Finland", "Russia"],
+            borders: 2566,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "King Harald V",
+            headOfGovernment: "Prime Minister Jonas Gahr Støre",
+            legislature: "Storting (Parliament)",
+            legalSystem: "Civil Law (Scandinavian)",
+            states: 11,
+            counties: 11,
+            municipalities: 356,
+            largestCity: "Oslo",
+            organizations: ["UN", "NATO", "Nordic Council", "EFTA", "EEA", "OECD", "WTO", "Schengen Area"]
+        },
+
+        economy: {
+            gdp: "$579 Billion",
+            gdpPPP: "$426 Billion",
+            gdpPerCapita: "$105,826",
+            gdpRank: "#28",
+            gdpGrowth: "0.5%",
+            currency: "Norwegian Krone",
+            currencyCode: "NOK",
+            currencySymbol: "kr",
+            inflation: "5.5%",
+            unemployment: "3.5%",
+            majorSectors: ["Services (58%)", "Industry (38%)", "Agriculture (2%)"],
+            industries: ["Petroleum & Gas", "Shipping", "Fishing", "Aquaculture", "Food Processing", "Shipbuilding", "Pulp & Paper Products", "Metals", "Chemicals", "Timber", "Mining"],
+            exports: ["Crude Petroleum", "Natural Gas", "Fish", "Aluminum", "Machinery", "Chemicals"],
+            imports: ["Machinery", "Vehicles", "Chemicals", "Metals", "Foodstuffs"]
+        },
+
+        geography: {
+            climate: "Temperate along coast; Colder interior with increased precipitation and colder summers",
+            avgTemperature: "5.7°C",
+            annualRainfall: "1,414 mm",
+            highestPoint: "Galdhøpiggen (2,469 m)",
+            lowestPoint: "Norwegian Sea (0 m)",
+            coastline: "25,148 km",
+            forestCover: "37%",
+            arableLand: "2.2%",
+            terrain: "Glaciated; Mostly high plateaus and rugged mountains broken by fertile valleys; small, scattered plains; coastline deeply indented by fjords",
+            naturalResources: ["Petroleum", "Natural Gas", "Iron Ore", "Copper", "Lead", "Zinc", "Titanium", "Pyrites", "Nickel", "Fish", "Timber", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Glomma", "Drammenselva", "Numedalslågen", "Otra"],
+            mountains: ["Galdhøpiggen", "Glittertind", "Jotunheimen", "Scandinavian Mountains"],
+            deserts: [],
+            forests: ["Norwegian Forests", "Boreal Forests", "Hardangervidda"],
+            oceans: ["Norwegian Sea", "North Sea", "Barents Sea", "Arctic Ocean"]
+        },
+
+        culture: {
+            officialLanguages: ["Norwegian (Bokmål)", "Norwegian (Nynorsk)"],
+            languages: ["Norwegian", "Sámi", "Kven", "English"],
+            religions: ["Church of Norway (Lutheran) (68%)", "None (20%)", "Islam (3%)", "Catholic (3%)", "Others (6%)"],
+            heritageSites: ["Bryggen in Bergen", "Urnes Stave Church", "Røros Mining Town", "Rock Art of Alta", "Geirangerfjord and Nærøyfjord", "Struve Geodetic Arc", "Rjukan-Notodden Industrial Heritage Site"],
+            festivals: ["Constitution Day (May 17)", "Christmas", "St. Olav's Day", "Midsummer", "Bergen International Festival"],
+            cuisine: ["Rakfisk", "Lutefisk", "Kjøttkaker", "Fårikål", "Brunost", "Lefse", "Smørbrød"],
+            arts: ["Viking Art", "Literature (Ibsen)", "Munch Paintings", "Traditional Music", "Wood Carving"],
+            sports: ["Cross-Country Skiing", "Ski Jumping", "Biathlon", "Football", "Handball", "Ice Hockey"]
+        },
+
+        symbols: {
+            bird: "White-throated Dipper",
+            animal: "Lion (Heraldic)",
+            flower: "Purple Heather",
+            tree: "Norway Spruce",
+            anthem: "Ja, vi elsker dette landet",
+            motto: "All for Norway"
+        },
+
+        demographics: {
+            lifeExpectancy: 83.23,
+            literacyRate: "99%",
+            urbanPopulation: "83.7%",
+            medianAge: 40.1
+        },
+
+        history: {
+            timeline: [
+                { year: "872", title: "Unification", description: "Harald Fairhair unified Norway" },
+                { year: "793-1066", title: "Viking Age", description: "Viking expansion and raids" },
+                { year: "1397", title: "Kalmar Union", description: "United with Denmark and Sweden" },
+                { year: "1814", title: "Constitution", description: "Constitution adopted; Union with Sweden" },
+                { year: "1905", title: "Independence", description: "Peaceful dissolution of union with Sweden" },
+                { year: "1940-1945", title: "WWII", description: "Nazi Germany occupation" },
+                { year: "1969", title: "Oil Discovery", description: "Major oil discovery in North Sea" }
+            ],
+            notableFigures: ["Harald Fairhair", "Henrik Ibsen", "Edvard Munch", "Roald Amundsen", "Fridtjof Nansen", "Edvard Grieg"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "oil-can", title: "Oil Wealth", text: "World's largest sovereign wealth fund ($1.4 trillion)" },
+            { icon: "water", title: "Fjords", text: "Home to spectacular fjords (UNESCO)" },
+            { icon: "medal", title: "Winter Olympics", text: "Most Winter Olympic medals ever won" },
+            { icon: "peace", title: "Nobel Peace Prize", text: "Awards Nobel Peace Prize annually" },
+            { icon: "sun", title: "Midnight Sun", text: "Sun doesn't set in summer in northern regions" },
+            { icon: "bolt", title: "Hydropower", text: "98% electricity from hydropower" }
+        ]
+    },
+
+    // 9. SWEDEN
+    {
+        id: "SWE",
+        name: "Sweden",
+        officialName: "Kingdom of Sweden",
+        flag: "https://flagcdn.com/w320/se.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1530841377377-3ff06c0ca713?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1572435555646-7ad9a149ad91?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Stockholm",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "Scandinavia",
+            population: 10612086,
+            area: 450295,
+            populationDensity: 25,
+            independence: "1523",
+            callingCode: "+46",
+            tld: ".se",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [60.1282, 18.6435],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Norway", "Finland"],
+            borders: 2211,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "King Carl XVI Gustaf",
+            headOfGovernment: "Prime Minister Ulf Kristersson",
+            legislature: "Riksdag (Parliament)",
+            legalSystem: "Civil Law (Scandinavian)",
+            states: 21,
+            counties: 21,
+            municipalities: 290,
+            largestCity: "Stockholm",
+            organizations: ["UN", "EU", "NATO", "Nordic Council", "OECD", "WTO", "Schengen Area"]
+        },
+
+        economy: {
+            gdp: "$593 Billion",
+            gdpPPP: "$683 Billion",
+            gdpPerCapita: "$55,873",
+            gdpRank: "#25",
+            gdpGrowth: "-0.2%",
+            currency: "Swedish Krona",
+            currencyCode: "SEK",
+            currencySymbol: "kr",
+            inflation: "5.9%",
+            unemployment: "7.5%",
+            majorSectors: ["Services (65%)", "Industry (33%)", "Agriculture (1%)"],
+            industries: ["Iron & Steel", "Precision Equipment", "Wood Pulp & Paper Products", "Processed Foods", "Motor Vehicles", "Telecommunications", "Pharmaceuticals"],
+            exports: ["Machinery", "Motor Vehicles", "Paper Products", "Pulp & Wood", "Iron & Steel", "Chemicals", "Pharmaceuticals"],
+            imports: ["Machinery", "Petroleum Products", "Chemicals", "Motor Vehicles", "Food", "Clothing"]
+        },
+
+        geography: {
+            climate: "Temperate in south; Subarctic in north",
+            avgTemperature: "6.1°C",
+            annualRainfall: "624 mm",
+            highestPoint: "Kebnekaise (2,097 m)",
+            lowestPoint: "Reclaimed bay of Lake Hammarsjon (-2.4 m)",
+            coastline: "3,218 km",
+            forestCover: "68.9%",
+            arableLand: "6.4%",
+            terrain: "Mostly flat or gently rolling lowlands; mountains in west",
+            naturalResources: ["Iron Ore", "Copper", "Lead", "Zinc", "Gold", "Silver", "Tungsten", "Uranium", "Arsenic", "Feldspar", "Timber", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Klarälven", "Dalälven", "Göta älv", "Torne älv"],
+            mountains: ["Kebnekaise", "Sarektjåkkå", "Scandinavian Mountains"],
+            deserts: [],
+            forests: ["Swedish Forests", "Laponia Wilderness", "Muddus National Park"],
+            oceans: ["Baltic Sea", "Gulf of Bothnia", "North Sea", "Skagerrak"]
+        },
+
+        culture: {
+            officialLanguages: ["Swedish"],
+            languages: ["Swedish", "Finnish", "Sámi", "Meänkieli", "Yiddish", "Romani", "English"],
+            religions: ["Church of Sweden (Lutheran) (57%)", "None (34%)", "Islam (2%)", "Catholic (1%)", "Others (6%)"],
+            heritageSites: ["Royal Domain of Drottningholm", "Birka and Hovgården", "Engelsberg Ironworks", "Rock Carvings in Tanum", "Skogskyrkogården", "Hanseatic Town of Visby", "Laponian Area", "Church Town of Gammelstad", "Naval Port of Karlskrona", "High Coast / Kvarken Archipelago"],
+            festivals: ["Midsummer", "Lucia (St. Lucy's Day)", "Walpurgis Night", "National Day", "Crayfish Party"],
+            cuisine: ["Swedish Meatballs", "Gravlax", "Surströmming", "Knäckebröd", "Janssons Frestelse", "Smörgåsbord", "Semla"],
+            arts: ["Design", "Music (ABBA, Swedish House Mafia)", "Film (Ingmar Bergman)", "Literature (Astrid Lindgren)", "Glass Art"],
+            sports: ["Ice Hockey", "Football", "Handball", "Cross-Country Skiing", "Tennis", "Bandy"]
+        },
+
+        symbols: {
+            bird: "Eurasian Blackbird",
+            animal: "Eurasian Elk (Moose)",
+            flower: "Twinflower",
+            tree: "None Official",
+            anthem: "Du gamla, Du fria",
+            motto: "For Sweden - With the Times"
+        },
+
+        demographics: {
+            lifeExpectancy: 83.22,
+            literacyRate: "99%",
+            urbanPopulation: "88.7%",
+            medianAge: 41.0
+        },
+
+        history: {
+            timeline: [
+                { year: "800s", title: "Viking Age", description: "Swedish Vikings explored eastward" },
+                { year: "1397", title: "Kalmar Union", description: "United with Denmark and Norway" },
+                { year: "1523", title: "Independence", description: "Gustav Vasa elected king" },
+                { year: "1630-1648", title: "Great Power Era", description: "Swedish Empire expanded" },
+                { year: "1809", title: "Lost Finland", description: "Finland ceded to Russia" },
+                { year: "1905", title: "Norway Independence", description: "Peaceful dissolution of union" },
+                { year: "1995", title: "EU Membership", description: "Joined European Union" },
+                { year: "2024", title: "NATO Membership", description: "Joined NATO" }
+            ],
+            notableFigures: ["Gustav Vasa", "Alfred Nobel", "ABBA", "Ingmar Bergman", "Astrid Lindgren", "Greta Garbo"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "award", title: "Nobel Prize", text: "Home of Nobel Prize (founded 1895)" },
+            { icon: "store", title: "IKEA", text: "Birthplace of IKEA (and H&M, Spotify, Volvo)" },
+            { icon: "balance-scale", title: "Gender Equality", text: "World leader in gender equality" },
+            { icon: "leaf", title: "Sustainability", text: "Leader in environmental sustainability" },
+            { icon: "music", title: "Music Exports", text: "3rd largest music exporter globally" },
+            { icon: "tree", title: "Forests", text: "Nearly 70% covered by forests" }
+        ]
+    },
+
+    // 10. UNITED KINGDOM
+    {
+        id: "GBR",
+        name: "United Kingdom",
+        officialName: "United Kingdom of Great Britain and Northern Ireland",
+        flag: "https://flagcdn.com/w320/gb.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1543425377-cb76d4c0b92d?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "London",
+            continent: "Europe",
+            region: "Northern Europe",
+            subregion: "British Isles",
+            population: 67736802,
+            area: 242495,
+            populationDensity: 281,
+            independence: "N/A (Continuous Sovereignty)",
+            callingCode: "+44",
+            tld: ".uk",
+            drivingSide: "Left",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [55.3781, -3.4360],
+            timezone: "UTC+0 (GMT)",
+            neighbors: ["Ireland"],
+            borders: 443,
+            hemispheres: ["Northern", "Western"],
+            islandNation: true
+        },
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "King Charles III",
+            headOfGovernment: "Prime Minister Keir Starmer",
+            legislature: "Parliament (House of Lords & House of Commons)",
+            legalSystem: "Common Law",
+            states: 4,
+            countries: 4,
+            regions: 12,
+            largestCity: "London",
+            organizations: ["UN", "NATO", "G7", "G20", "Commonwealth", "OECD", "WTO", "Five Eyes"]
+        },
+
+        economy: {
+            gdp: "$3.34 Trillion",
+            gdpPPP: "$3.87 Trillion",
+            gdpPerCapita: "$49,350",
+            gdpRank: "#6",
+            gdpGrowth: "0.1%",
+            currency: "Pound Sterling",
+            currencyCode: "GBP",
+            currencySymbol: "£",
+            inflation: "4.0%",
+            unemployment: "4.2%",
+            majorSectors: ["Services (81%)", "Industry (18%)", "Agriculture (1%)"],
+            industries: ["Machine Tools", "Electric Power Equipment", "Automation Equipment", "Railroad Equipment", "Shipbuilding", "Aircraft", "Motor Vehicles", "Electronics", "Chemicals", "Pharmaceuticals", "Financial Services", "Tourism"],
+            exports: ["Machinery", "Vehicles", "Pharmaceuticals", "Precious Metals", "Chemicals", "Fuels"],
+            imports: ["Machinery", "Vehicles", "Crude Petroleum", "Pharmaceuticals", "Gems", "Clothing"]
+        },
+
+        geography: {
+            climate: "Temperate; Moderated by prevailing southwest winds; More than half of days are overcast",
+            avgTemperature: "9.6°C",
+            annualRainfall: "1,154 mm",
+            highestPoint: "Ben Nevis (1,345 m)",
+            lowestPoint: "The Fens (-4 m)",
+            coastline: "12,429 km",
+            forestCover: "13%",
+            arableLand: "25.1%",
+            terrain: "Mostly rugged hills and low mountains; level to rolling plains in east and southeast",
+            naturalResources: ["Coal", "Petroleum", "Natural Gas", "Iron Ore", "Lead", "Zinc", "Gold", "Tin", "Limestone", "Salt", "Clay", "Chalk", "Gypsum", "Silica", "Arable Land"]
+        },
+
+        geography_links: {
+            rivers: ["Thames", "Severn", "Trent", "Great Ouse", "Wye", "Tyne", "Clyde"],
+            mountains: ["Ben Nevis", "Snowdon", "Scafell Pike", "Scottish Highlands", "Pennines", "Lake District"],
+            deserts: [],
+            forests: ["New Forest", "Sherwood Forest", "Forest of Dean", "Caledonian Forest"],
+            oceans: ["Atlantic Ocean", "North Sea", "Irish Sea", "English Channel", "Celtic Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["English"],
+            languages: ["English", "Welsh", "Scottish Gaelic", "Irish", "Scots", "Cornish"],
+            religions: ["Christianity (46%)", "None (37%)", "Islam (6.5%)", "Hinduism (1.7%)", "Sikhism (0.9%)", "Judaism (0.5%)", "Others (7.4%)"],
+            heritageSites: ["Tower of London", "Westminster Abbey", "Stonehenge", "Blenheim Palace", "City of Bath", "Canterbury Cathedral", "Edinburgh Old and New Towns", "Giant's Causeway", "Hadrian's Wall"],
+            festivals: ["Christmas", "Easter", "Bonfire Night", "St. George's Day", "Notting Hill Carnival", "Edinburgh Festival Fringe", "Glastonbury Festival"],
+            cuisine: ["Fish and Chips", "Sunday Roast", "Full English Breakfast", "Shepherd's Pie", "Bangers and Mash", "Afternoon Tea", "Haggis", "Cornish Pasty"],
+            arts: ["Literature (Shakespeare, Dickens)", "Music (Beatles, Rolling Stones)", "Theatre (West End)", "Art (Turner, Hockney)", "Film", "Fashion"],
+            sports: ["Football", "Rugby", "Cricket", "Tennis", "Golf", "Rowing", "Horse Racing"]
+        },
+
+        symbols: {
+            bird: "European Robin",
+            animal: "Lion",
+            flower: "Tudor Rose",
+            tree: "Oak",
+            anthem: "God Save the King",
+            motto: "Dieu et mon droit (God and my right)"
+        },
+
+        demographics: {
+            lifeExpectancy: 81.77,
+            literacyRate: "99%",
+            urbanPopulation: "84.4%",
+            medianAge: 40.6
+        },
+
+        history: {
+            timeline: [
+                { year: "43", title: "Roman Britain", description: "Roman conquest of Britain" },
+                { year: "1066", title: "Norman Conquest", description: "William the Conqueror became king" },
+                { year: "1215", title: "Magna Carta", description: "Limited power of monarchy" },
+                { year: "1707", title: "Act of Union", description: "Great Britain formed (England + Scotland)" },
+                { year: "1801", title: "United Kingdom", description: "UK formed with Ireland" },
+                { year: "1837-1901", title: "Victorian Era", description: "Height of British Empire" },
+                { year: "1922", title: "Irish Independence", description: "Irish Free State created" },
+                { year: "2020", title: "Brexit", description: "UK left European Union" }
+            ],
+            notableFigures: ["William Shakespeare", "Winston Churchill", "Queen Victoria", "Isaac Newton", "Charles Darwin", "The Beatles", "Princess Diana"]
+        },
+
+        disputes: [
+            { name: "Gibraltar", description: "Disputed with Spain", type: "Territory" },
+            { name: "Falkland Islands", description: "Disputed with Argentina", type: "Territory" },
+            { name: "Northern Ireland", description: "Complex political status", type: "Political" }
+        ],
+
+        quickFacts: [
+            { icon: "crown", title: "Royal Family", text: "World's most famous monarchy" },
+            { icon: "language", title: "English Language", text: "Birthplace of English - spoken by 1.5 billion" },
+            { icon: "university", title: "Oxford & Cambridge", text: "Home to world's oldest English-speaking universities" },
+            { icon: "clock", title: "Greenwich", text: "Location of Prime Meridian (0° longitude)" },
+            { icon: "futbol", title: "Football", text: "Invented modern football (1863)" },
+            { icon: "book", title: "Literature", text: "Shakespeare, Dickens, Harry Potter" }
+        ]
+    },
+
+        // 11. ALBANIA (continued)
+    {
+        id: "ALB",
+        name: "Albania",
+        officialName: "Republic of Albania",
+        flag: "https://flagcdn.com/w320/al.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1569431328518-e1a2e5ff4b6a?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1580564186067-5e7f31ac2c59?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1569431832969-37dbb66e5abe?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Tirana",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 2854191,
+            area: 28748,
+            populationDensity: 105,
+            independence: "1912",
+            callingCode: "+355",
+            tld: ".al",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [41.1533, 20.1683],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Montenegro", "Kosovo", "North Macedonia", "Greece"],
+            borders: 691,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Bajram Begaj",
+            headOfGovernment: "Prime Minister Edi Rama",
+            legislature: "Kuvendi (Assembly)",
+            legalSystem: "Civil Law",
+            states: 12,
+            counties: 12,
+            municipalities: 61,
+            largestCity: "Tirana",
+            organizations: ["UN", "NATO", "OSCE", "WTO", "OIC (Observer)", "EU Candidate"]
+        },
+
+        economy: {
+            gdp: "$22.97 Billion",
+            gdpPPP: "$46.3 Billion",
+            gdpPerCapita: "$8,050",
+            gdpRank: "#124",
+            gdpGrowth: "3.6%",
+            currency: "Albanian Lek",
+            currencyCode: "ALL",
+            currencySymbol: "L",
+            inflation: "4.8%",
+            unemployment: "11.0%",
+            majorSectors: ["Services (54%)", "Industry (21%)", "Agriculture (19%)"],
+            industries: ["Food Processing", "Textiles & Clothing", "Lumber", "Oil", "Cement", "Chemicals", "Mining", "Basic Metals", "Hydropower"],
+            exports: ["Footwear", "Textiles", "Asphalt", "Metals", "Crude Oil", "Vegetables", "Fruits", "Tobacco"],
+            imports: ["Machinery", "Foodstuffs", "Textiles", "Chemicals"]
+        },
+
+        geography: {
+            climate: "Mild Temperate; Cool, Cloudy, Wet Winters; Hot, Clear, Dry Summers",
+            avgTemperature: "15.2°C",
+            annualRainfall: "1,485 mm",
+            highestPoint: "Korab (2,764 m)",
+            lowestPoint: "Adriatic Sea (0 m)",
+            coastline: "362 km",
+            forestCover: "28.1%",
+            arableLand: "22.3%",
+            terrain: "Mostly mountains and hills; small plains along coast",
+            naturalResources: ["Petroleum", "Natural Gas", "Coal", "Bauxite", "Chromite", "Copper", "Iron Ore", "Nickel", "Salt", "Timber", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Drin", "Vjosa", "Seman", "Shkumbin", "Mat"],
+            mountains: ["Albanian Alps", "Korab", "Grammos", "Ceraunian Mountains"],
+            deserts: [],
+            forests: ["Albanian Forests", "Llogara National Park", "Theth National Park"],
+            oceans: ["Adriatic Sea", "Ionian Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Albanian"],
+            languages: ["Albanian (Gheg & Tosk)", "Greek", "Macedonian", "Romani"],
+            religions: ["Islam (58.8%)", "Christianity (16.9%)", "None (16.8%)", "Others (7.5%)"],
+            heritageSites: ["Butrint", "Historic Centres of Berat and Gjirokastra", "Natural and Cultural Heritage of the Ohrid Region"],
+            festivals: ["Dita e Verës (Summer Day)", "Independence Day", "Gjirokastra National Folklore Festival", "Kala Festival"],
+            cuisine: ["Tavë Kosi", "Byrek", "Fërgesë", "Qofte", "Pite", "Baklava", "Raki"],
+            arts: ["Iso-Polyphony", "Folk Dance", "Wood Carving", "Silver Filigree", "Traditional Costumes"],
+            sports: ["Football", "Basketball", "Volleyball", "Weightlifting", "Swimming"]
+        },
+
+        symbols: {
+            bird: "Golden Eagle",
+            animal: "Golden Eagle",
+            flower: "Red Poppy",
+            tree: "Olive Tree",
+            anthem: "Himni i Flamurit",
+            motto: "Ti Shqipëri, më jep nder, më jep emrin Shqipëtar"
+        },
+
+        demographics: {
+            lifeExpectancy: 79.00,
+            literacyRate: "98.1%",
+            urbanPopulation: "63.8%",
+            medianAge: 36.4
+        },
+
+        history: {
+            timeline: [
+                { year: "168 BCE", title: "Roman Rule", description: "Became part of Roman Empire" },
+                { year: "1190", title: "Principality", description: "First Albanian state established" },
+                { year: "1385", title: "Ottoman Rule", description: "Ottoman conquest began" },
+                { year: "1443", title: "Skanderbeg", description: "National hero resisted Ottomans" },
+                { year: "1912", title: "Independence", description: "Declared independence from Ottoman Empire" },
+                { year: "1944-1991", title: "Communist Era", description: "Enver Hoxha's isolationist regime" },
+                { year: "1991", title: "Democracy", description: "Communist regime collapsed" },
+                { year: "2009", title: "NATO", description: "Joined NATO" }
+            ],
+            notableFigures: ["Skanderbeg", "Mother Teresa", "Ismail Kadare", "Enver Hoxha", "Fan Noli"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "eagle", title: "Land of Eagles", text: "Albania means 'Land of Eagles'" },
+            { icon: "pray", title: "Mother Teresa", text: "Birthplace of Mother Teresa (ethnic Albanian)" },
+            { icon: "fortress", title: "Bunkers", text: "Over 750,000 bunkers built during communist era" },
+            { icon: "coffee", title: "Coffee Culture", text: "Highest number of cafés per capita in world" },
+            { icon: "handshake", title: "Besa", text: "Cultural code of honor and hospitality" },
+            { icon: "umbrella-beach", title: "Albanian Riviera", text: "Beautiful Mediterranean coastline" }
+        ]
+    },
+
+    // 12. BOSNIA AND HERZEGOVINA
+    {
+        id: "BIH",
+        name: "Bosnia and Herzegovina",
+        officialName: "Bosnia and Herzegovina",
+        flag: "https://flagcdn.com/w320/ba.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1586859062834-91c55a58dd06?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1590142033636-c6d5b5f6a6ff?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1557149769-1f1e1c3e4c0c?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Sarajevo",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 3210847,
+            area: 51197,
+            populationDensity: 64,
+            independence: "1992",
+            callingCode: "+387",
+            tld: ".ba",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [43.9159, 17.6791],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Croatia", "Serbia", "Montenegro"],
+            borders: 1543,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Federal Parliamentary Republic",
+            headOfState: "Presidency Council (3 members rotating)",
+            headOfGovernment: "Chairman of Council of Ministers Borjana Krišto",
+            legislature: "Parliamentary Assembly (House of Peoples & House of Representatives)",
+            legalSystem: "Civil Law",
+            states: 2,
+            entities: 2,
+            cantons: 10,
+            largestCity: "Sarajevo",
+            organizations: ["UN", "OSCE", "WTO", "Council of Europe", "EU Candidate"]
+        },
+
+        economy: {
+            gdp: "$24.16 Billion",
+            gdpPPP: "$60.0 Billion",
+            gdpPerCapita: "$7,528",
+            gdpRank: "#115",
+            gdpGrowth: "1.7%",
+            currency: "Convertible Mark",
+            currencyCode: "BAM",
+            currencySymbol: "KM",
+            inflation: "6.1%",
+            unemployment: "14.9%",
+            majorSectors: ["Services (60%)", "Industry (26%)", "Agriculture (6%)"],
+            industries: ["Steel", "Mining", "Vehicle Assembly", "Textiles", "Tobacco Products", "Wooden Furniture", "Domestic Appliances", "Oil Refining"],
+            exports: ["Metals", "Clothing", "Wood Products", "Electrical Equipment", "Minerals & Fuels"],
+            imports: ["Machinery", "Chemicals", "Fuels", "Foodstuffs"]
+        },
+
+        geography: {
+            climate: "Continental; Moderate with Hot Summers and Cold Winters",
+            avgTemperature: "10.8°C",
+            annualRainfall: "1,028 mm",
+            highestPoint: "Maglić (2,386 m)",
+            lowestPoint: "Adriatic Sea (0 m)",
+            coastline: "20 km",
+            forestCover: "42.7%",
+            arableLand: "19.7%",
+            terrain: "Mountains and valleys",
+            naturalResources: ["Coal", "Iron Ore", "Lead", "Zinc", "Manganese", "Bauxite", "Vehicle Assembly", "Timber", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Bosna", "Neretva", "Drina", "Sava", "Una", "Vrbas"],
+            mountains: ["Dinaric Alps", "Maglić", "Bjelašnica", "Jahorina", "Vlašić"],
+            deserts: [],
+            forests: ["Perućica (Primeval Forest)", "Sutjeska National Park", "Una National Park"],
+            oceans: ["Adriatic Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Bosnian", "Croatian", "Serbian"],
+            languages: ["Bosnian", "Croatian", "Serbian"],
+            religions: ["Islam (51%)", "Serbian Orthodox (31%)", "Roman Catholicism (15%)", "Others (3%)"],
+            heritageSites: ["Mehmed Paša Sokolović Bridge in Višegrad", "Old Bridge Area of Mostar", "Stećci Medieval Tombstones", "Ancient and Primeval Beech Forests"],
+            festivals: ["Sarajevo Film Festival", "Baščaršija Nights", "Mostar Summer Festival", "Jajce Theater Festival"],
+            cuisine: ["Ćevapi", "Burek", "Bosanski Lonac", "Dolma", "Baklava", "Tufahija", "Begova Čorba"],
+            arts: ["Sevdalinka (Traditional Music)", "Folk Dance", "Carpet Weaving", "Coppersmithing", "Calligraphy"],
+            sports: ["Football", "Basketball", "Handball", "Volleyball", "Chess"]
+        },
+
+        symbols: {
+            bird: "None Official",
+            animal: "None Official",
+            flower: "Lily",
+            tree: "None Official",
+            anthem: "Državna himna Bosne i Hercegovine",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 77.74,
+            literacyRate: "98.5%",
+            urbanPopulation: "49.4%",
+            medianAge: 43.3
+        },
+
+        history: {
+            timeline: [
+                { year: "1154", title: "Banate of Bosnia", description: "First Bosnian state" },
+                { year: "1377", title: "Kingdom", description: "Kingdom of Bosnia established" },
+                { year: "1463", title: "Ottoman Rule", description: "Ottoman conquest" },
+                { year: "1878", title: "Austro-Hungarian Rule", description: "Austro-Hungarian occupation" },
+                { year: "1914", title: "WWI Trigger", description: "Assassination of Archduke Franz Ferdinand in Sarajevo" },
+                { year: "1918", title: "Yugoslavia", description: "Became part of Yugoslavia" },
+                { year: "1992-1995", title: "Bosnian War", description: "Independence war and ethnic conflict" },
+                { year: "1995", title: "Dayton Agreement", description: "Peace agreement signed" }
+            ],
+            notableFigures: ["Tvrtko I", "Ivo Andrić", "Gavrilo Princip", "Meša Selimović"]
+        },
+
+        disputes: [
+            { name: "Political Structure", description: "Complex ethnic division and governance issues", type: "Political" }
+        ],
+
+        quickFacts: [
+            { icon: "bridge", title: "Stari Most", text: "Iconic 16th-century bridge in Mostar (rebuilt)" },
+            { icon: "crosshairs", title: "WWI Start", text: "WWI started with assassination in Sarajevo (1914)" },
+            { icon: "mountain", title: "Olympic Mountains", text: "Hosted 1984 Winter Olympics" },
+            { icon: "tree", title: "Primeval Forest", text: "One of last primeval forests in Europe (Perućica)" },
+            { icon: "water", title: "Neretva", text: "Crystal-clear emerald rivers" },
+            { icon: "coffee", title: "Bosnian Coffee", text: "Unique coffee culture and tradition" }
+        ]
+    },
+
+    // 13. CROATIA
+    {
+        id: "HRV",
+        name: "Croatia",
+        officialName: "Republic of Croatia",
+        flag: "https://flagcdn.com/w320/hr.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1555990538-c86c6819875b?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1504109586057-7a2ae83d1338?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1559591937-2d6a18a9b31e?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Zagreb",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 3855641,
+            area: 56594,
+            populationDensity: 68,
+            independence: "1991",
+            callingCode: "+385",
+            tld: ".hr",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [45.1000, 15.2000],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Slovenia", "Hungary", "Serbia", "Bosnia and Herzegovina", "Montenegro"],
+            borders: 2237,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Zoran Milanović",
+            headOfGovernment: "Prime Minister Andrej Plenković",
+            legislature: "Sabor (Parliament)",
+            legalSystem: "Civil Law",
+            states: 21,
+            counties: 20,
+            cities: 1,
+            largestCity: "Zagreb",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Schengen Area", "Eurozone"]
+        },
+
+        economy: {
+            gdp: "$78.9 Billion",
+            gdpPPP: "$154.5 Billion",
+            gdpPerCapita: "$20,478",
+            gdpRank: "#77",
+            gdpGrowth: "2.8%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "8.4%",
+            unemployment: "6.1%",
+            majorSectors: ["Services (70%)", "Industry (26%)", "Agriculture (3%)"],
+            industries: ["Chemicals & Plastics", "Machine Tools", "Electronics", "Iron & Steel", "Petroleum & Natural Gas", "Food & Beverages", "Tourism", "Shipbuilding"],
+            exports: ["Transport Equipment", "Machinery", "Textiles", "Chemicals", "Foodstuffs", "Fuels"],
+            imports: ["Machinery", "Transport Equipment", "Fuels", "Chemicals", "Food Products"]
+        },
+
+        geography: {
+            climate: "Mediterranean and Continental",
+            avgTemperature: "13.1°C",
+            annualRainfall: "1,113 mm",
+            highestPoint: "Dinara (1,831 m)",
+            lowestPoint: "Adriatic Sea (0 m)",
+            coastline: "5,835 km",
+            forestCover: "34.3%",
+            arableLand: "16.7%",
+            terrain: "Geographically diverse; flat plains along Hungarian border, low mountains and highlands near Adriatic coast and islands",
+            naturalResources: ["Oil", "Coal", "Bauxite", "Iron Ore", "Calcium", "Gypsum", "Natural Asphalt", "Silica", "Mica", "Clays", "Salt", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Danube", "Sava", "Drava", "Mura", "Kupa"],
+            mountains: ["Dinaric Alps", "Dinara", "Biokovo", "Velebit"],
+            deserts: [],
+            forests: ["Plitvice Lakes National Park", "Risnjak National Park", "Northern Velebit National Park"],
+            oceans: ["Adriatic Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Croatian"],
+            languages: ["Croatian", "Serbian", "Italian", "Hungarian", "Czech"],
+            religions: ["Roman Catholicism (86.3%)", "Orthodox (4.4%)", "Islam (1.5%)", "None (5.2%)", "Others (2.6%)"],
+            heritageSites: ["Plitvice Lakes National Park", "Historical Complex of Split with Diocletian's Palace", "Old City of Dubrovnik", "Episcopal Complex of Euphrasius Basilica in Poreč", "Historic City of Trogir", "Cathedral of St James in Šibenik", "Stari Grad Plain", "Ancient and Primeval Beech Forests"],
+            festivals: ["Dubrovnik Summer Festival", "Ultra Europe", "INmusic", "Špancirfest", "Rijeka Carnival"],
+            cuisine: ["Ćevapi", "Peka", "Crni Rižot", "Pršut", "Strukli", "Fritule", "Soparnik"],
+            arts: ["Klapa Singing", "Lacemaking", "Naive Art", "Folk Dance", "Traditional Costumes"],
+            sports: ["Football", "Water Polo", "Handball", "Basketball", "Tennis", "Sailing"]
+        },
+
+        symbols: {
+            bird: "Nightingale",
+            animal: "Pine Marten (Kuna)",
+            flower: "Iris croatica",
+            tree: "Slavonian Oak",
+            anthem: "Lijepa naša domovino",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 78.44,
+            literacyRate: "99.3%",
+            urbanPopulation: "58.2%",
+            medianAge: 44.0
+        },
+
+        history: {
+            timeline: [
+                { year: "925", title: "Kingdom", description: "Tomislav became first King of Croatia" },
+                { year: "1102", title: "Personal Union", description: "Union with Kingdom of Hungary" },
+                { year: "1527", title: "Habsburg Rule", description: "Croatian nobility elected Habsburg king" },
+                { year: "1918", title: "Yugoslavia", description: "Became part of Yugoslavia" },
+                { year: "1991", title: "Independence", description: "Declared independence from Yugoslavia" },
+                { year: "1991-1995", title: "Croatian War", description: "War of independence" },
+                { year: "2013", title: "EU Membership", description: "Joined European Union" },
+                { year: "2023", title: "Eurozone & Schengen", description: "Joined Eurozone and Schengen Area" }
+            ],
+            notableFigures: ["Tomislav", "Josip Jelačić", "Nikola Tesla", "Franjo Tuđman", "Luka Modrić"]
+        },
+
+        disputes: [
+            { name: "Bay of Piran", description: "Maritime border dispute with Slovenia", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "water", title: "Plitvice Lakes", text: "Stunning cascading lakes (UNESCO site)" },
+            { icon: "film", title: "Game of Thrones", text: "Dubrovnik was King's Landing filming location" },
+            { icon: "trophy", title: "Football", text: "Reached FIFA World Cup Final 2018" },
+            { icon: "island-tropical", title: "Islands", text: "Over 1,200 islands along Adriatic coast" },
+            { icon: "tie", title: "Necktie Origin", text: "Necktie (cravat) originated in Croatia" },
+            { icon: "pen", title: "Inventions", text: "Birthplace of Nikola Tesla" }
+        ]
+    },
+
+    // 14. GREECE
+    {
+        id: "GRC",
+        name: "Greece",
+        officialName: "Hellenic Republic",
+        flag: "https://flagcdn.com/w320/gr.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1503152394-c571994fd383?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1555993539-1732b0258235?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Athens",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 10341277,
+            area: 131957,
+            populationDensity: 79,
+            independence: "1821",
+            callingCode: "+30",
+            tld: ".gr",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [39.0742, 21.8243],
+            timezone: "UTC+2 (EET)",
+            neighbors: ["Albania", "North Macedonia", "Bulgaria", "Turkey"],
+            borders: 1110,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Katerina Sakellaropoulou",
+            headOfGovernment: "Prime Minister Kyriakos Mitsotakis",
+            legislature: "Hellenic Parliament",
+            legalSystem: "Civil Law",
+            states: 13,
+            regions: 13,
+            municipalities: 332,
+            largestCity: "Athens",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Schengen Area", "Eurozone", "Council of Europe"]
+        },
+
+        economy: {
+            gdp: "$239 Billion",
+            gdpPPP: "$378 Billion",
+            gdpPerCapita: "$23,107",
+            gdpRank: "#51",
+            gdpGrowth: "2.0%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.2%",
+            unemployment: "11.1%",
+            majorSectors: ["Services (80%)", "Industry (15%)", "Agriculture (4%)"],
+            industries: ["Tourism", "Food & Tobacco Processing", "Textiles", "Chemicals", "Metal Products", "Mining", "Petroleum", "Shipping"],
+            exports: ["Refined Petroleum", "Packaged Medicines", "Aluminum", "Electrical Products", "Fruits"],
+            imports: ["Crude Petroleum", "Refined Petroleum", "Packaged Medicines", "Passenger & Cargo Ships", "Vehicles"]
+        },
+
+        geography: {
+            climate: "Mediterranean; Mild Wet Winters, Hot Dry Summers",
+            avgTemperature: "17.9°C",
+            annualRainfall: "652 mm",
+            highestPoint: "Mount Olympus (2,917 m)",
+            lowestPoint: "Mediterranean Sea (0 m)",
+            coastline: "13,676 km",
+            forestCover: "30.3%",
+            arableLand: "19.7%",
+            terrain: "Mountainous with ranges extending into the sea as peninsulas or chains of islands",
+            naturalResources: ["Lignite", "Petroleum", "Iron Ore", "Bauxite", "Lead", "Zinc", "Nickel", "Magnesite", "Marble", "Salt", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Aliakmon", "Achelous", "Pinios", "Evros", "Nestos"],
+            mountains: ["Mount Olympus", "Mount Parnassus", "Mount Athos", "Pindus Mountains", "Taygetus"],
+            deserts: [],
+            forests: ["Rhodope Forests", "Pindus Forests", "Mount Athos Forests"],
+            oceans: ["Mediterranean Sea", "Aegean Sea", "Ionian Sea", "Sea of Crete"]
+        },
+
+        culture: {
+            officialLanguages: ["Greek"],
+            languages: ["Greek", "English", "French", "German"],
+            religions: ["Greek Orthodox (90%)", "Islam (2%)", "Others (8%)"],
+            heritageSites: ["Acropolis of Athens", "Delphi", "Meteora", "Mount Athos", "Olympia", "Epidaurus", "Delos", "Mystras", "Medieval City of Rhodes", "Sanctuary of Asklepios at Epidaurus", "Temple of Apollo Epicurius at Bassae"],
+            festivals: ["Easter", "Apokries (Carnival)", "Panigiri", "Athens Epidaurus Festival", "Thessaloniki Film Festival"],
+            cuisine: ["Moussaka", "Souvlaki", "Gyros", "Spanakopita", "Tzatziki", "Feta Cheese", "Greek Salad", "Baklava"],
+            arts: ["Ancient Greek Theatre", "Byzantine Art", "Rebetiko Music", "Traditional Dance (Sirtaki, Kalamatianos)", "Pottery"],
+            sports: ["Football", "Basketball", "Water Polo", "Sailing", "Athletics", "Wrestling"]
+        },
+
+        symbols: {
+            bird: "Phoenix (Mythological)",
+            animal: "Dolphin",
+            flower: "Bear's Breech (Acanthus)",
+            tree: "Olive Tree",
+            anthem: "Ýmnos is tin Eleftherían",
+            motto: "Freedom or Death"
+        },
+
+        demographics: {
+            lifeExpectancy: 81.28,
+            literacyRate: "97.9%",
+            urbanPopulation: "80.1%",
+            medianAge: 45.6
+        },
+
+        history: {
+            timeline: [
+                { year: "3000 BCE", title: "Minoan Civilization", description: "First advanced civilization in Europe" },
+                { year: "800 BCE", title: "Ancient Greece", description: "Greek city-states flourished" },
+                { year: "776 BCE", title: "Olympics", description: "First Olympic Games held" },
+                { year: "508 BCE", title: "Democracy", description: "Democracy established in Athens" },
+                { year: "146 BCE", title: "Roman Rule", description: "Conquered by Rome" },
+                { year: "1453", title: "Ottoman Rule", description: "Fall of Constantinople; Ottoman period began" },
+                { year: "1821", title: "Independence", description: "Greek War of Independence began" },
+                { year: "1981", title: "EU Membership", description: "Joined European Communities" }
+            ],
+            notableFigures: ["Alexander the Great", "Socrates", "Plato", "Aristotle", "Homer", "Pericles", "Eleftherios Venizelos"]
+        },
+
+        disputes: [
+            { name: "Aegean Sea", description: "Maritime disputes with Turkey", type: "Maritime" },
+            { name: "Cyprus", description: "Division of Cyprus issue", type: "Political" }
+        ],
+
+        quickFacts: [
+            { icon: "landmark", title: "Cradle of Civilization", text: "Birthplace of democracy, Western philosophy, Olympics" },
+            { icon: "running", title: "Olympics", text: "Originated Olympic Games (776 BCE)" },
+            { icon: "island-tropical", title: "Islands", text: "6,000 islands (227 inhabited)" },
+            { icon: "ship", title: "Shipping", text: "World's largest merchant shipping fleet" },
+            { icon: "sun", title: "Sunshine", text: "Over 250 days of sunshine per year" },
+            { icon: "scroll", title: "Philosophy", text: "Home of Socrates, Plato, Aristotle" }
+        ]
+    },
+
+    // 15. KOSOVO
+    {
+        id: "XKX",
+        name: "Kosovo",
+        officialName: "Republic of Kosovo",
+        flag: "https://flagcdn.com/w320/xk.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1592906209472-a36b1f3782ef?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1597220869811-9eb689342f09?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1580400224591-35f5fbb46eb8?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Pristina",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 1761985,
+            area: 10887,
+            populationDensity: 159,
+            independence: "2008 (Declared)",
+            callingCode: "+383",
+            tld: ".xk",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [42.6026, 20.9020],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Serbia", "Montenegro", "Albania", "North Macedonia"],
+            borders: 714,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Vjosa Osmani",
+            headOfGovernment: "Prime Minister Albin Kurti",
+            legislature: "Assembly of Kosovo",
+            legalSystem: "Civil Law",
+            states: 7,
+            districts: 7,
+            municipalities: 38,
+            largestCity: "Pristina",
+            organizations: ["IMF", "World Bank", "EBRD", "Partial UN Recognition"]
+        },
+
+        economy: {
+            gdp: "$9.41 Billion",
+            gdpPPP: "$23.3 Billion",
+            gdpPerCapita: "$5,340",
+            gdpRank: "#143",
+            gdpGrowth: "3.5%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.9%",
+            unemployment: "25.0%",
+            majorSectors: ["Services (65%)", "Industry (22%)", "Agriculture (8%)"],
+            industries: ["Mining", "Construction Materials", "Base Metals", "Leather", "Machinery", "Appliances", "Food Processing"],
+            exports: ["Mining Products", "Metals", "Minerals", "Plastics", "Machinery"],
+            imports: ["Foodstuffs", "Petroleum", "Chemicals", "Machinery"]
+        },
+
+        geography: {
+            climate: "Continental; Influenced by Mediterranean; Cold Snowy Winters, Hot Dry Summers",
+            avgTemperature: "10.4°C",
+            annualRainfall: "600 mm",
+            highestPoint: "Đeravica (2,656 m)",
+            lowestPoint: "White Drin (297 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "44.7%",
+            arableLand: "27.4%",
+            terrain: "Flat fluvial basin surrounded by mountains",
+            naturalResources: ["Nickel", "Lead", "Zinc", "Magnesium", "Lignite", "Kaolin", "Chrome", "Bauxite"]
+        },
+
+        geography_links: {
+            rivers: ["White Drin", "Sitnica", "Ibar", "Lepenc"],
+            mountains: ["Šar Mountains", "Kopaonik", "Prokletije", "Đeravica"],
+            deserts: [],
+            forests: ["Sharr Mountains National Park", "Bjeshkët e Nemuna National Park"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["Albanian", "Serbian"],
+            languages: ["Albanian", "Serbian", "Bosnian", "Turkish", "Romani"],
+            religions: ["Islam (96%)", "Serbian Orthodox (2%)", "Roman Catholicism (2%)"],
+            heritageSites: ["Medieval Monuments in Kosovo (UNESCO, in danger)"],
+            festivals: ["Dokufest", "PriFilmFest", "Hardh Fest", "Chopin Piano Fest"],
+            cuisine: ["Flia", "Pite", "Tavë Kosi", "Sarma", "Qebapa", "Pershuta", "Baklava"],
+            arts: ["Folk Music", "Traditional Dance", "Filigree", "Woodwork", "Embroidery"],
+            sports: ["Football", "Basketball", "Handball", "Wrestling", "Judo"]
+        },
+
+        symbols: {
+            bird: "None Official",
+            animal: "None Official",
+            flower: "None Official",
+            tree: "None Official",
+            anthem: "Europe",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 72.70,
+            literacyRate: "91.9%",
+            urbanPopulation: "42.0%",
+            medianAge: 30.5
+        },
+
+        history: {
+            timeline: [
+                { year: "1389", title: "Battle of Kosovo", description: "Ottoman victory; significant Serbian historical event" },
+                { year: "1912", title: "Balkan Wars", description: "Serbia took control from Ottomans" },
+                { year: "1945", title: "Yugoslavia", description: "Autonomous region within Yugoslavia" },
+                { year: "1999", title: "NATO Intervention", description: "NATO bombing of Serbia; UN administration began" },
+                { year: "2008", title: "Independence", description: "Declared independence from Serbia" },
+                { year: "2023", title: "Tensions", description: "Ongoing tensions with Serbia" }
+            ],
+            notableFigures: ["Mother Teresa (Albanian)", "Ibrahim Rugova", "Hashim Thaçi", "Vjosa Osmani"]
+        },
+
+        disputes: [
+            { name: "Serbia", description: "Serbia does not recognize Kosovo's independence", type: "Territory" },
+            { name: "Northern Kosovo", description: "Ethnic Serb-majority municipalities tensions", type: "Political" }
+        ],
+
+        quickFacts: [
+            { icon: "flag", title: "Youngest Nation", text: "One of world's youngest nations (2008)" },
+            { icon: "user-check", title: "Partial Recognition", text: "Recognized by 104 UN member states" },
+            { icon: "users", title: "Young Population", text: "One of Europe's youngest populations (median 30.5)" },
+            { icon: "plane", title: "Diaspora", text: "Large diaspora in Germany, Switzerland, UK" },
+            { icon: "landmark", title: "Medieval Heritage", text: "Serbian Orthodox medieval monasteries (UNESCO)" }
+        ]
+    },
+
+    // 16. MONTENEGRO
+    {
+        id: "MNE",
+        name: "Montenegro",
+        officialName: "Montenegro",
+        flag: "https://flagcdn.com/w320/me.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1555990538-c86c6819875b?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1602606837917-f7f7f0fd0a54?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1586699253884-e199770f63b9?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Podgorica",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 616695,
+            area: 13812,
+            populationDensity: 45,
+            independence: "2006",
+            callingCode: "+382",
+            tld: ".me",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [42.7087, 19.3744],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Bosnia and Herzegovina", "Serbia", "Kosovo", "Albania", "Croatia"],
+            borders: 680,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Jakov Milatović",
+            headOfGovernment: "Prime Minister Milojko Spajić",
+            legislature: "Skupština (Parliament)",
+            legalSystem: "Civil Law",
+            states: 24,
+            municipalities: 24,
+            largestCity: "Podgorica",
+            organizations: ["UN", "NATO", "OSCE", "WTO", "Council of Europe", "EU Candidate"]
+        },
+
+        economy: {
+            gdp: "$6.96 Billion",
+            gdpPPP: "$16.2 Billion",
+            gdpPerCapita: "$11,295",
+            gdpRank: "#151",
+            gdpGrowth: "6.0%",
+            currency: "Euro (unilateral)",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "8.6%",
+            unemployment: "14.5%",
+            majorSectors: ["Services (70%)", "Industry (20%)", "Agriculture (7%)"],
+            industries: ["Steelmaking", "Aluminum", "Agriculture Processing", "Consumer Goods", "Tourism"],
+            exports: ["Aluminum", "Electricity", "Metal Products", "Bauxite", "Wine"],
+            imports: ["Fuels", "Automobiles", "Foodstuffs", "Chemicals"]
+        },
+
+        geography: {
+            climate: "Mediterranean on coast; Continental in interior",
+            avgTemperature: "11.8°C",
+            annualRainfall: "1,798 mm",
+            highestPoint: "Bobotov Kuk (2,522 m)",
+            lowestPoint: "Adriatic Sea (0 m)",
+            coastline: "293 km",
+            forestCover: "61.5%",
+            arableLand: "12.5%",
+            terrain: "Highly indented coastline with narrow coastal plain backed by rugged high limestone mountains and plateaus",
+            naturalResources: ["Bauxite", "Hydroelectric Power", "Forests"]
+        },
+
+        geography_links: {
+            rivers: ["Tara", "Morača", "Zeta", "Lim", "Piva"],
+            mountains: ["Durmitor", "Lovćen", "Prokletije", "Komovi", "Bobotov Kuk"],
+            deserts: [],
+            forests: ["Biogradska Gora", "Durmitor National Park", "Prokletije National Park"],
+            oceans: ["Adriatic Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Montenegrin"],
+            languages: ["Montenegrin", "Serbian", "Bosnian", "Albanian", "Croatian"],
+            religions: ["Serbian Orthodox (72%)", "Islam (19%)", "Roman Catholicism (3%)", "Others (6%)"],
+            heritageSites: ["Natural and Culturo-Historical Region of Kotor", "Durmitor National Park", "Stećci Medieval Tombstones"],
+            festivals: ["Kotor Carnival", "Sea Dance Festival", "Guitar Art Summer Fest", "Mimosa Festival"],
+            cuisine: ["Njeguški Pršut", "Kačamak", "Cicvara", "Riblji Brodet", "Pljeskavica", "Kajmak"],
+            arts: ["Gusle (Traditional Instrument)", "Oro Dance", "Poetry", "Stone Carving"],
+            sports: ["Football", "Water Polo", "Basketball", "Handball", "Swimming"]
+        },
+
+        symbols: {
+            bird: "Golden Eagle",
+            animal: "None Official",
+            flower: "Mimosa",
+            tree: "Laurel",
+            anthem: "Oj, svijetla majska zoro",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 77.33,
+            literacyRate: "98.8%",
+            urbanPopulation: "68.2%",
+            medianAge: 39.5
+        },
+
+        history: {
+            timeline: [
+                { year: "1042", title: "Duklja", description: "First independent Montenegrin state" },
+                { year: "1516", title: "Theocracy", description: "Prince-Bishops ruled Montenegro" },
+                { year: "1878", title: "International Recognition", description: "Recognized at Congress of Berlin" },
+                { year: "1918", title: "Yugoslavia", description: "Merged into Kingdom of Yugoslavia" },
+                { year: "2006", title: "Independence", description: "Independence restored via referendum" },
+                { year: "2017", title: "NATO", description: "Joined NATO" }
+            ],
+            notableFigures: ["Petar II Petrović-Njegoš", "Nikola I", "Josip Broz Tito (Yugoslav)"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "mountain", title: "Black Mountain", text: "Name means 'Black Mountain' in Venetian" },
+            { icon: "water", title: "Bay of Kotor", text: "Stunning fjord-like bay (UNESCO site)" },
+            { icon: "tree", title: "Eco-State", text: "Declared 'Ecological State' in 1991" },
+            { icon: "water", title: "Tara Canyon", text: "Europe's deepest canyon (1,300m)" },
+            { icon: "euro-sign", title: "Euro User", text: "Uses Euro without being EU/Eurozone member" }
+        ]
+    },
+
+    // 17. NORTH MACEDONIA
+    {
+        id: "MKD",
+        name: "North Macedonia",
+        officialName: "Republic of North Macedonia",
+        flag: "https://flagcdn.com/w320/mk.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1597220869811-9eb689342f09?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1596476047199-82da6b23f24a?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1579814270124-16c4ea3c5b91?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Skopje",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 2085679,
+            area: 25713,
+            populationDensity: 82,
+            independence: "1991",
+            callingCode: "+389",
+            tld: ".mk",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [41.5124, 21.7465],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Kosovo", "Serbia", "Bulgaria", "Greece", "Albania"],
+            borders: 838,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Gordana Siljanovska-Davkova",
+            headOfGovernment: "Prime Minister Hristijan Mickoski",
+            legislature: "Sobranie (Assembly)",
+            legalSystem: "Civil Law",
+            states: 8,
+            statisticalRegions: 8,
+            municipalities: 80,
+            largestCity: "Skopje",
+            organizations: ["UN", "NATO", "OSCE", "WTO", "Council of Europe", "EU Candidate"]
+        },
+
+        economy: {
+            gdp: "$14.18 Billion",
+            gdpPPP: "$42.1 Billion",
+            gdpPerCapita: "$6,806",
+            gdpRank: "#128",
+            gdpGrowth: "1.0%",
+            currency: "Macedonian Denar",
+            currencyCode: "MKD",
+            currencySymbol: "ден",
+            inflation: "9.4%",
+            unemployment: "14.4%",
+            majorSectors: ["Services (59%)", "Industry (29%)", "Agriculture (9%)"],
+            industries: ["Food Processing", "Beverages", "Textiles", "Chemicals", "Iron & Steel", "Cement", "Energy", "Pharmaceuticals", "Automotive Parts"],
+            exports: ["Metals", "Chemicals", "Machinery", "Food & Beverages", "Automotive Parts"],
+            imports: ["Machinery", "Chemicals", "Fuels", "Food Products"]
+        },
+
+        geography: {
+            climate: "Continental; Warm Dry Summers, Cold Winters",
+            avgTemperature: "11.5°C",
+            annualRainfall: "660 mm",
+            highestPoint: "Golem Korab (2,764 m)",
+            lowestPoint: "Vardar River (50 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "39.6%",
+            arableLand: "16.4%",
+            terrain: "Mountainous with deep basins and valleys; three large lakes",
+            naturalResources: ["Iron Ore", "Copper", "Lead", "Zinc", "Chromite", "Manganese", "Nickel", "Tungsten", "Gold", "Silver", "Asbestos", "Gypsum", "Timber"]
+        },
+
+        geography_links: {
+            rivers: ["Vardar", "Treska", "Crna Reka", "Bregalnica", "Pčinja"],
+            mountains: ["Korab", "Šar Mountains", "Osogovo", "Bistra", "Pelister"],
+            deserts: [],
+            forests: ["Mavrovo National Park", "Pelister National Park", "Galičica National Park"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["Macedonian", "Albanian"],
+            languages: ["Macedonian", "Albanian", "Turkish", "Romani", "Serbian"],
+            religions: ["Macedonian Orthodox (65%)", "Islam (32%)", "Others (3%)"],
+            heritageSites: ["Natural and Cultural Heritage of the Ohrid Region", "Ancient and Primeval Beech Forests"],
+            festivals: ["Ohrid Summer Festival", "Skopje Jazz Festival", "Taksirat Music Festival", "Balkan Folklore Festival"],
+            cuisine: ["Tavče Gravče", "Ajvar", "Pastrmajlija", "Kebapi", "Šopska Salata", "Burek"],
+            arts: ["Orthodox Icons", "Folk Music & Dance", "Woodwork", "Traditional Costumes", "Ohrid Pearls"],
+            sports: ["Football", "Handball", "Basketball", "Wrestling", "Volleyball"]
+        },
+
+        symbols: {
+            bird: "None Official",
+            animal: "Lynx",
+            flower: "Poppy",
+            tree: "Oak",
+            anthem: "Denes nad Makedonija",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 76.33,
+            literacyRate: "97.8%",
+            urbanPopulation: "58.8%",
+            medianAge: 39.3
+        },
+
+        history: {
+            timeline: [
+                { year: "148 BCE", title: "Roman Province", description: "Became Roman province of Macedonia" },
+                { year: "1014", title: "Byzantine Rule", description: "Bulgarian Empire fell to Byzantium" },
+                { year: "1392", title: "Ottoman Rule", description: "Ottoman conquest" },
+                { year: "1912", title: "Balkan Wars", description: "Divided between Serbia and Greece" },
+                { year: "1944", title: "Yugoslav Republic", description: "Socialist Republic of Macedonia" },
+                { year: "1991", title: "Independence", description: "Independence from Yugoslavia" },
+                { year: "2019", title: "Name Change", description: "Name changed to North Macedonia (Prespa Agreement)" },
+                { year: "2020", title: "NATO", description: "Joined NATO" }
+            ],
+            notableFigures: ["Samuel of Bulgaria", "Goce Delčev", "Kiro Gligorov", "Mother Teresa (ethnic Albanian, born Skopje)"]
+        },
+
+        disputes: [
+            { name: "Name Issue", description: "Historical name dispute with Greece (resolved 2019)", type: "Political" }
+        ],
+
+        quickFacts: [
+            { icon: "water", title: "Lake Ohrid", text: "One of Europe's oldest and deepest lakes" },
+            { icon: "cross", title: "Early Christianity", text: "One of first regions to adopt Christianity" },
+            { icon: "mountain", title: "Alexander's Land", text: "Birthplace of Alexander the Great (disputed)" },
+            { icon: "pray", title: "Mother Teresa", text: "Mother Teresa born in Skopje (1910)" },
+            { icon: "handshake", title: "Prespa Agreement", text: "Resolved name dispute with Greece (2019)" }
+        ]
+    },
+
+    // 18. SERBIA
+    {
+        id: "SRB",
+        name: "Serbia",
+        officialName: "Republic of Serbia",
+        flag: "https://flagcdn.com/w320/rs.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1555990538-c86c6819875b?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1592906209472-a36b1f3782ef?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1580820726786-e6ec8c8f6eb5?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Belgrade",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Balkans",
+            population: 6647003,
+            area: 88361,
+            populationDensity: 77,
+            independence: "2006",
+            callingCode: "+381",
+            tld: ".rs",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [44.0165, 21.0059],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Hungary", "Romania", "Bulgaria", "North Macedonia", "Kosovo", "Montenegro", "Bosnia and Herzegovina", "Croatia"],
+            borders: 2322,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Aleksandar Vučić",
+            headOfGovernment: "Prime Minister Miloš Vučević",
+            legislature: "National Assembly",
+            legalSystem: "Civil Law",
+            states: 5,
+            statisticalRegions: 5,
+            districts: 29,
+            largestCity: "Belgrade",
+            organizations: ["UN", "OSCE", "Council of Europe", "EU Candidate", "CEFTA"]
+        },
+
+        economy: {
+            gdp: "$75.5 Billion",
+            gdpPPP: "$183 Billion",
+            gdpPerCapita: "$11,350",
+            gdpRank: "#79",
+            gdpGrowth: "2.5%",
+            currency: "Serbian Dinar",
+            currencyCode: "RSD",
+            currencySymbol: "дин",
+            inflation: "12.4%",
+            unemployment: "9.4%",
+            majorSectors: ["Services (55%)", "Industry (32%)", "Agriculture (6%)"],
+            industries: ["Automobiles", "Base Metals", "Furniture", "Food Processing", "Machinery", "Chemicals", "Sugar", "Tires", "Clothes", "Pharmaceuticals"],
+            exports: ["Automobiles", "Insulated Wire", "Tires", "Raspberries", "Corn", "Wheat"],
+            imports: ["Machinery", "Petroleum Products", "Vehicles", "Chemicals", "Pharmaceuticals"]
+        },
+
+        geography: {
+            climate: "Continental; Cold Winters, Hot Humid Summers",
+            avgTemperature: "11.4°C",
+            annualRainfall: "686 mm",
+            highestPoint: "Midžor (2,169 m)",
+            lowestPoint: "Danube/Timok River (35 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "31.1%",
+            arableLand: "37.7%",
+            terrain: "Extremely varied; rich plains of Vojvodina in north, mountains and large limestone regions in east and southwest",
+            naturalResources: ["Oil", "Gas", "Coal", "Iron Ore", "Copper", "Zinc", "Antimony", "Chromite", "Gold", "Silver", "Magnesium", "Pyrite", "Limestone", "Marble", "Salt", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Danube", "Sava", "Morava", "Drina", "Tisza", "Timok"],
+            mountains: ["Dinaric Alps", "Carpathians", "Balkan Mountains", "Kopaonik", "Tara", "Zlatibor"],
+            deserts: [],
+            forests: ["Tara National Park", "Kopaonik National Park", "Đerdap National Park", "Fruška Gora National Park"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["Serbian"],
+            languages: ["Serbian", "Hungarian", "Bosnian", "Romani", "Romanian", "Slovak", "Albanian"],
+            religions: ["Serbian Orthodox (84.6%)", "Roman Catholicism (5%)", "Islam (3%)", "Protestantism (1%)", "Others (6.4%)"],
+            heritageSites: ["Stari Ras and Sopoćani", "Studenica Monastery", "Medieval Monuments in Kosovo", "Gamzigrad-Romuliana", "Stećci Medieval Tombstones"],
+            festivals: ["EXIT Festival", "Guča Trumpet Festival", "Belgrade Beer Fest", "Nišville Jazz Festival"],
+            cuisine: ["Ćevapi", "Pljeskavica", "Sarma", "Ražnjići", "Gibanica", "Kajmak", "Ajvar", "Proja"],
+            arts: ["Medieval Frescoes", "Byzantine Architecture", "Brass Music", "Folk Dancing (Kolo)", "Embroidery"],
+            sports: ["Football", "Basketball", "Tennis", "Water Polo", "Volleyball", "Handball"]
+        },
+
+        symbols: {
+            bird: "White Eagle",
+            animal: "Wolf",
+            flower: "Lilac",
+            tree: "Oak",
+            anthem: "Bože pravde",
+            motto: "Only Unity Saves the Serbs"
+        },
+
+        demographics: {
+            lifeExpectancy: 76.50,
+            literacyRate: "98.8%",
+            urbanPopulation: "56.9%",
+            medianAge: 43.4
+        },
+
+        history: {
+            timeline: [
+                { year: "1217", title: "Kingdom", description: "Kingdom of Serbia established" },
+                { year: "1389", title: "Battle of Kosovo", description: "Defeat to Ottoman Empire" },
+                { year: "1817", title: "Principality", description: "Principality of Serbia established" },
+                { year: "1878", title: "Independence", description: "Full independence recognized" },
+                { year: "1918", title: "Yugoslavia", description: "Kingdom of Yugoslavia formed" },
+                { year: "1999", title: "NATO Bombing", description: "NATO intervention over Kosovo" },
+                { year: "2006", title: "Independence", description: "Montenegro separated; Serbia independent" }
+            ],
+            notableFigures: ["Stefan Nemanja", "Tsar Dušan", "Nikola Tesla", "Novak Djokovic", "Mihajlo Pupin"]
+        },
+
+        disputes: [
+            { name: "Kosovo", description: "Does not recognize Kosovo's independence", type: "Territory" }
+        ],
+
+        quickFacts: [
+            { icon: "star", title: "Nikola Tesla", text: "Birthplace of inventor Nikola Tesla" },
+            { icon: "trophy", title: "Tennis Power", text: "Home of Novak Djokovic (most Grand Slams)" },
+            { icon: "music", title: "EXIT Festival", text: "Major European music festival in Novi Sad" },
+            { icon: "pepper-hot", title: "Raspberries", text: "World's largest raspberry exporter" },
+            { icon: "water", title: "Danube", text: "Danube flows 588 km through Serbia" }
+        ]
+    },
+
+    // 19. SLOVENIA
+    {
+        id: "SVN",
+        name: "Slovenia",
+        officialName: "Republic of Slovenia",
+        flag: "https://flagcdn.com/w320/si.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1551867633-194f125bddfa?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1508189860359-777d945909ef?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1569139476647-b53d5b5c8f0c?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Ljubljana",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Central Europe",
+            population: 2119675,
+            area: 20273,
+            populationDensity: 104,
+            independence: "1991",
+            callingCode: "+386",
+            tld: ".si",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [46.1512, 14.9955],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Italy", "Austria", "Hungary", "Croatia"],
+            borders: 1211,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Nataša Pirc Musar",
+            headOfGovernment: "Prime Minister Robert Golob",
+            legislature: "National Assembly",
+            legalSystem: "Civil Law",
+            states: 12,
+            statisticalRegions: 12,
+            municipalities: 212,
+            largestCity: "Ljubljana",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Schengen Area", "Eurozone"]
+        },
+
+        economy: {
+            gdp: "$68.1 Billion",
+            gdpPPP: "$104.5 Billion",
+            gdpPerCapita: "$32,214",
+            gdpRank: "#81",
+            gdpGrowth: "1.6%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "7.4%",
+            unemployment: "4.0%",
+            majorSectors: ["Services (63%)", "Industry (33%)", "Agriculture (2%)"],
+            industries: ["Metallurgy", "Electronics", "Trucks", "Electric Power Equipment", "Wood Products", "Textiles", "Chemicals", "Machine Tools", "Tourism"],
+            exports: ["Manufactured Goods", "Machinery & Transport Equipment", "Chemicals", "Food"],
+            imports: ["Machinery & Transport Equipment", "Manufactured Goods", "Chemicals", "Fuels"]
+        },
+
+        geography: {
+            climate: "Mediterranean coast; Continental interior with Mild to Hot Summers and Cold Winters",
+            avgTemperature: "9.8°C",
+            annualRainfall: "1,162 mm",
+            highestPoint: "Triglav (2,864 m)",
+            lowestPoint: "Adriatic Sea (0 m)",
+            coastline: "47 km",
+            forestCover: "62%",
+            arableLand: "8.3%",
+            terrain: "Short Adriatic coast; Alpine mountains near Italy and Austria; mixed mountains and valleys with numerous rivers in east",
+            naturalResources: ["Lignite", "Lead", "Zinc", "Building Stone", "Hydropower", "Forests"]
+        },
+
+        geography_links: {
+            rivers: ["Sava", "Drava", "Soča", "Mura", "Krka"],
+            mountains: ["Julian Alps", "Triglav", "Kamnik-Savinja Alps", "Karawanks", "Pohorje"],
+            deserts: [],
+            forests: ["Triglav National Park", "Slovenian Forests", "Kočevje Primeval Forest"],
+            oceans: ["Adriatic Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Slovenian"],
+            languages: ["Slovenian", "Italian", "Hungarian", "English", "German", "Croatian", "Serbian"],
+            religions: ["Roman Catholicism (57.8%)", "Islam (2.4%)", "Orthodox (2.3%)", "None (18.3%)", "Others (19.2%)"],
+            heritageSites: ["Škocjan Caves", "Ancient and Primeval Beech Forests", "Works of Jože Plečnik in Ljubljana", "The Mercury Heritage of Almadén and Idrija"],
+            festivals: ["Kurentovanje", "Ljubljana Festival", "Lent Festival", "Pivo in Cvetje"],
+            cuisine: ["Potica", "Štruklji", "Žganci", "Kraška Pršut", "Jota", "Idrijski Žlikrofi", "Prekmurska Gibanica"],
+            arts: ["Architecture (Jože Plečnik)", "Folk Dance", "Traditional Music", "Lace Making", "Painted Beehive Panels"],
+            sports: ["Football", "Basketball", "Skiing", "Ice Hockey", "Cycling", "Handball"]
+        },
+
+        symbols: {
+            bird: "None Official",
+            animal: "Lipizzan Horse",
+            flower: "Carnation",
+            tree: "Linden",
+            anthem: "Zdravljica",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 81.86,
+            literacyRate: "99.7%",
+            urbanPopulation: "55.6%",
+            medianAge: 45.1
+        },
+
+        history: {
+            timeline: [
+                { year: "623", title: "Samo's Empire", description: "First Slavic state" },
+                { year: "745", title: "Carantania", description: "Early Slovenian territory" },
+                { year: "1335", title: "Habsburg Rule", description: "Came under Habsburg dominion" },
+                { year: "1918", title: "Yugoslavia", description: "Joined Kingdom of Yugoslavia" },
+                { year: "1991", title: "Independence", description: "Independence from Yugoslavia (Ten-Day War)" },
+                { year: "2004", title: "EU & NATO", description: "Joined European Union and NATO" },
+                { year: "2007", title: "Eurozone", description: "First ex-Yugoslav country to join Eurozone" }
+            ],
+            notableFigures: ["France Prešeren", "Jože Plečnik", "Slavoj Žižek", "Melania Trump", "Luka Dončić"]
+        },
+
+        disputes: [
+            { name: "Bay of Piran", description: "Maritime border dispute with Croatia", type: "Maritime" }
+        ],
+
+        quickFacts: [
+            { icon: "mountain", title: "Triglav", text: "Triglav peak appears on national flag and coat of arms" },
+            { icon: "tree", title: "Forests", text: "Third most forested country in Europe (62%)" },
+            { icon: "water", title: "Caves", text: "Over 10,000 caves (Postojna, Škocjan)" },
+            { icon: "leaf", title: "Green Capital", text: "Ljubljana named European Green Capital 2016" },
+            { icon: "horse", title: "Lipizzan", text: "Origin of Lipizzan horses (Lipica)" },
+            { icon: "basketball-ball", title: "Sports", text: "Home of Luka Dončić (NBA star)" }
         ]
     }
-};
+];
 
-// Export for use in other files
+// Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CountriesData5;
 }
-// Make available in browser
+
+// Export for Browser
 if (typeof window !== 'undefined') {
     window.CountriesData5 = CountriesData5;
 }
