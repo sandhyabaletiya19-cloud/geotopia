@@ -2753,3 +2753,7 @@ const CountriesData2 = [
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CountriesData2;
 }
+// Make available in browser
+if (typeof window !== 'undefined') {
+    window.CountriesData2 = CountriesData2;
+}
