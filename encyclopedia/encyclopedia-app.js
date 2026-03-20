@@ -904,74 +904,76 @@ class EncyclopediaApp {
     // ============================================
     // EARTH SYSTEMS
     // ============================================
-
-    // ============================================
-// EARTH SYSTEMS
-// ============================================
-
+   
 renderEarthSystems() {
     const container = document.getElementById('earthSystemsGrid');
     if (!container) return;
 
-    if (typeof EarthSystemsData === 'undefined' || !EarthSystemsData || EarthSystemsData.length === 0) {
+    if (typeof EarthSystemsData === 'undefined') {
         container.innerHTML = this.createComingSoonCard('Earth Systems', 'Interactive systems coming soon');
         return;
     }
 
-    container.innerHTML = `
-        <div class="earth-systems-grid">
-            ${EarthSystemsData.map(system => {
-                // Handle both keyPoints and key_points
-                const points = system.keyPoints || system.key_points || [];
-                return `
-                    <a href="earth-simulator.html?mode=${system.id.toLowerCase()}" class="system-card">
-                        <div class="system-visual">${system.icon || '🌍'}</div>
-                        <h3>${system.name}</h3>
-                        <p>${system.description || (points[0] || '')}</p>
-                        <ul class="system-points">
-                            ${points.slice(0, 3).map(point => `<li>${point}</li>`).join('')}
-                        </ul>
-                        ${system.interactive ? '<span class="system-badge interactive">Interactive 3D</span>' : ''}
-                    </a>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
-
-        // Add styles
-        if (!document.getElementById('earth-systems-full-styles')) {
-            const style = document.createElement('style');
-            style.id = 'earth-systems-full-styles';
-            style.textContent = `
-                .earth-systems-full .earth-systems-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                    gap: var(--spacing-lg);
-                }
-                .system-points {
-                    list-style: none;
-                    padding: 0;
-                    margin: var(--spacing-md) 0;
-                }
-                .system-points li {
-                    font-size: 0.85rem;
-                    color: var(--color-text-muted);
-                    padding: 4px 0;
-                    padding-left: 20px;
-                    position: relative;
-                }
-                .system-points li::before {
-                    content: '→';
-                    position: absolute;
-                    left: 0;
-                    color: var(--color-accent-cyan);
-                }
-            `;
-            document.head.appendChild(style);
-        }
+    if (!EarthSystemsData || EarthSystemsData.length === 0) {
+        container.innerHTML = this.createComingSoonCard('Earth Systems', 'Interactive systems coming soon');
+        return;
     }
 
+    let systemsHTML = '<div class="earth-systems-grid">';
+    
+    EarthSystemsData.forEach(system => {
+        const points = system.keyPoints || system.key_points || [];
+        const icon = system.icon || '🌍';
+        
+        systemsHTML += `
+            <a href="earth-simulator.html?mode=${system.id.toLowerCase()}" class="system-card">
+                <div class="system-visual">${icon}</div>
+                <h3>${system.name}</h3>
+                <p>${system.description || ''}</p>
+                <ul class="system-points">
+                    ${points.slice(0, 3).map(point => `<li>${point}</li>`).join('')}
+                </ul>
+                ${system.interactive ? '<span class="system-badge interactive">Interactive 3D</span>' : ''}
+            </a>
+        `;
+    });
+    
+    systemsHTML += '</div>';
+    container.innerHTML = systemsHTML;
+
+    // Add styles (fixed closing)
+    if (!document.getElementById('earth-systems-full-styles')) {
+        const style = document.createElement('style');
+        style.id = 'earth-systems-full-styles';
+        style.textContent = `
+            .earth-systems-full .earth-systems-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: var(--spacing-lg);
+            }
+            .system-points {
+                list-style: none;
+                padding: 0;
+                margin: var(--spacing-md) 0;
+            }
+            .system-points li {
+                font-size: 0.85rem;
+                color: var(--color-text-muted);
+                padding: 4px 0;
+                padding-left: 20px;
+                position: relative;
+            }
+            .system-points li::before {
+                content: '→';
+                position: absolute;
+                left: 0;
+                color: var(--color-accent-cyan);
+            }
+        `;  
+        document.head.appendChild(style);
+    }
+}
+   
     // ============================================
     // UTILITIES
     // ============================================
