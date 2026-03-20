@@ -3822,7 +3822,7 @@ const CountriesData7 = {
 
 // Make available globally
 if (typeof window !== 'undefined') {
-    window.ENCYCLOPEDIA_DATA_7 = ENCYCLOPEDIA_DATA_7;
+    window.CountriesData7 = CountriesData7;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
