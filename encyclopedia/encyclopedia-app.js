@@ -53,47 +53,6 @@ for (let i = 1; i <= 10; i++) {
     }
 }
 
-// ===== PREMIUM ACCESS CONTROL =====
-if (window.GeoAccess) {
-    var filtered = window.GeoAccess.getFilteredData(this.allCountries, 'encyclopedia');
-    this.allCountries = filtered.visible;
-    
-    var self = this;
-    setTimeout(function() {
-        if (filtered.lockedCount > 0) {
-            var container = document.querySelector('.countries-grid') || 
-                           document.querySelector('.grid') || 
-                           document.querySelector('main');
-            if (container) {
-                container.appendChild(window.GeoAccess.createUpgradeCTA({
-                    lockedCount: filtered.lockedCount,
-                    category: 'Encyclopedia'
-                }));
-            }
-        }
-    }, 1000);
-}
-// ===== END PREMIUM =====
-
-// Show upgrade button
-if (window.GeoAccess && filtered && filtered.lockedCount > 0) {
-    setTimeout(function() {
-        var container = document.querySelector('.countries-grid') || 
-                       document.querySelector('.grid') || 
-                       document.querySelector('.countries-container') ||
-                       document.querySelector('main');
-        if (container && !document.querySelector('.geo-upgrade-cta')) {
-            container.appendChild(window.GeoAccess.createUpgradeCTA({
-                lockedCount: filtered.lockedCount,
-                category: 'Encyclopedia'
-            }));
-        }
-    }, 1500);
-}
-this.filteredCountries = [...this.allCountries];
-this.updateCountryCount();
-}
-   
     // ============================================
     // EVENT LISTENERS
     // ============================================
