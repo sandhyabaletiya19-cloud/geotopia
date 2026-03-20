@@ -3619,9 +3619,11 @@ const CountriesData8 = {
     }
 };
 
-// Export data for use in main application
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = defined_CountriesData8;
-} else if (typeof window !== 'undefined') {
-    window.defined_EncyclopediaData8 = defined_EncyclopediaData8;
+      // Export data for use in main application
+      if (typeof module !== 'undefined' && module.exports) {
+      module.exports = defined_CountriesData8;
+  }  
+    // Make available in browser
+    if (typeof window !== 'undefined') {
+    window.CountriesData8 = CountriesData8;
 }
