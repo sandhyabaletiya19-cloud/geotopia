@@ -2423,7 +2423,7 @@ const globalChokepoints = [
             totalImpact: '$60 billion trade delayed'
         },
         
-        2024Disruption: {
+        Disruption2024: {
             cause: 'Houthi attacks on Red Sea shipping',
             response: 'Major shipping lines rerouting to Cape',
             impact: 'Suez traffic down 40%+',
