@@ -2,18 +2,23 @@
 (function() {
     console.log('🔵 auto-inject.js loaded!');
     
-    // Detect if we're in a subfolder
-    var currentPath = window.location.pathname;
-    var basePath = currentPath.includes('/forests/') || 
-                   currentPath.includes('/deserts/') || 
-                   currentPath.includes('/oceans/') ||
-                   currentPath.includes('/mountains/') ||
-                   currentPath.includes('/islands/') ||
-                   currentPath.includes('/lakes/') ||
-                   currentPath.includes('/rivers/') ||
-                   currentPath.includes('/volcanoes/') ||
-                   currentPath.includes('/coral-reefs/')
-                   ? '../js/' : 'js/';
+    // Auto-detect path based on current location
+    var path = window.location.pathname;
+    var basePath = 'js/';
+    
+    // If we're in a subfolder, adjust path
+    if (path.includes('/forests/') || 
+        path.includes('/deserts/') || 
+        path.includes('/oceans/') ||
+        path.includes('/mountains/') ||
+        path.includes('/islands/') ||
+        path.includes('/lakes/') ||
+        path.includes('/rivers/') ||
+        path.includes('/volcanoes/') ||
+        path.includes('/coral-reefs/') ||
+        path.includes('/encyclopedia/')) {
+        basePath = '../js/';
+    }
     
     var scriptsToLoad = [
         basePath + 'config/plans-config.js',
