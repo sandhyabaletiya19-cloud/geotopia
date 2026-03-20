@@ -78,11 +78,7 @@ if (window.GeoAccess) {
 this.filteredCountries = [...this.allCountries];
 this.updateCountryCount();
 }
-        
-        // Update country count
-        this.updateCountryCount();
-    }
-
+   
     // ============================================
     // EVENT LISTENERS
     // ============================================
