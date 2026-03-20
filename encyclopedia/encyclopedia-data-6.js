@@ -1,3953 +1,2244 @@
-// encyclopedia-data-6.js
-// Countries 101-120: Azerbaijan to Barbados
+/**
+ * ENCYCLOPEDIA DATA FILE 6
+ * Contains: Southern Europe (6) + Western Europe (10) = 16 Countries
+ * Version: 2.0 - Clean Data
+ */
 
-const CountriesData6 = {
-    "azerbaijan": {
-        name: "Azerbaijan",
-        officialName: "Republic of Azerbaijan",
-        nativeName: "Azərbaycan Respublikası",
-        iso3: "AZE",
-        iso2: "AZ",
-        flag: "🇦🇿",
+const CountriesData6 = [
+    // 1. ITALY
+    {
+        id: "ITA",
+        name: "Italy",
+        officialName: "Italian Republic",
+        flag: "https://flagcdn.com/w320/it.png",
         
-        capital: {
-            name: "Baku",
-            population: 2300000,
-            coordinates: { lat: 40.4093, lng: 49.8671 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1534445867742-43195f401b6c?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1920&q=80"
         },
-        largestCity: "Baku",
-        population: {
-            total: 10140000,
-            year: 2024,
-            density: 117,
-            growth: 0.8
+
+        basic: {
+            capital: "Rome",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Southern Europe",
+            population: 58870762,
+            area: 301340,
+            populationDensity: 206,
+            independence: "1861",
+            callingCode: "+39",
+            tld: ".it",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 86600,
-            land: 82629,
-            water: 3971,
-            rank: 114
+
+        location: {
+            coordinates: [41.8719, 12.5674],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["France", "Switzerland", "Austria", "Slovenia", "San Marino", "Vatican City"],
+            borders: 1836,
+            hemispheres: ["Northern", "Eastern"]
         },
-        
-        continent: "Asia",
-        region: "Caucasus",
-        subregion: "South Caucasus",
-        coordinates: { lat: 40.1431, lng: 47.5769 },
-        borders: ["Russia", "Georgia", "Armenia", "Iran", "Turkey"],
-        coastline: 0,
-        timezone: ["UTC+4"],
-        drivingSide: "right",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Ilham Aliyev",
-            headOfGovernment: "Prime Minister Ali Asadov"
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Sergio Mattarella",
+            headOfGovernment: "Prime Minister Giorgia Meloni",
+            legislature: "Parliament (Senate & Chamber of Deputies)",
+            legalSystem: "Civil Law",
+            states: 20,
+            regions: 20,
+            provinces: 107,
+            largestCity: "Rome",
+            organizations: ["UN", "EU", "NATO", "G7", "G20", "OECD", "WTO", "Council of Europe", "Schengen Area"]
         },
-        independence: {
-            date: "October 18, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Republic Day", date: "May 28" },
-        divisions: {
-            type: "districts",
-            count: 66,
-            major: ["Baku", "Ganja", "Sumgait", "Mingachevir", "Lankaran"]
-        },
-        
+
         economy: {
-            gdpTotal: 78000000000,
-            gdpPerCapita: 7700,
-            gdpGrowth: 4.6,
-            currency: { name: "Azerbaijani manat", code: "AZN", symbol: "₼" },
-            mainIndustries: ["petroleum", "natural gas", "petrochemicals", "textiles", "machinery"],
-            exports: ["crude oil", "natural gas", "petroleum products", "cotton", "machinery"],
-            imports: ["machinery", "food", "metals", "chemicals"],
-            majorPartners: ["Italy", "Turkey", "Israel", "Germany", "Russia"]
+            gdp: "$2.19 Trillion",
+            gdpPPP: "$3.18 Trillion",
+            gdpPerCapita: "$37,146",
+            gdpRank: "#8",
+            gdpGrowth: "0.7%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "5.9%",
+            unemployment: "7.6%",
+            majorSectors: ["Services (74%)", "Industry (24%)", "Agriculture (2%)"],
+            industries: ["Tourism", "Machinery", "Iron", "Steel", "Chemicals", "Food Processing", "Textiles", "Motor Vehicles", "Clothing", "Footwear", "Ceramics"],
+            exports: ["Machinery", "Pharmaceuticals", "Vehicles", "Refined Petroleum", "Clothing", "Footwear", "Wine", "Olive Oil"],
+            imports: ["Crude Petroleum", "Natural Gas", "Cars", "Pharmaceuticals", "Machinery"]
         },
-        hdi: 0.745,
-        
+
+        geography: {
+            climate: "Mediterranean in south; Alpine in north",
+            avgTemperature: "13.5°C",
+            annualRainfall: "832 mm",
+            highestPoint: "Monte Bianco (Mont Blanc) (4,809 m)",
+            lowestPoint: "Jolanda di Savoia (-3.4 m)",
+            coastline: "7,600 km",
+            forestCover: "31.6%",
+            arableLand: "22.8%",
+            terrain: "Mostly rugged and mountainous; some plains, coastal lowlands",
+            naturalResources: ["Coal", "Mercury", "Zinc", "Potash", "Marble", "Barite", "Asbestos", "Pumice", "Fluorspar", "Feldspar", "Pyrite", "Natural Gas", "Crude Oil", "Fish", "Arable Land"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Kura River", description: "Longest river, flows through Baku" },
-                { name: "Aras River", description: "Forms border with Iran" },
-                { name: "Samur River", description: "Northern border river" }
-            ],
-            mountains: [
-                { name: "Greater Caucasus", description: "Northern mountain range" },
-                { name: "Lesser Caucasus", description: "Western mountains" },
-                { name: "Bazardüzü", description: "Highest peak at 4466m" },
-                { name: "Shahdag", description: "Major peak and ski resort" }
-            ],
+            rivers: ["Po River", "Adige River", "Tiber River", "Arno River", "Piave River"],
+            mountains: ["Alps", "Apennines", "Dolomites", "Monte Bianco", "Monte Rosa", "Matterhorn", "Mount Etna", "Mount Vesuvius"],
             deserts: [],
-            forests: [
-                { name: "Hirkan forests", description: "UNESCO-listed relict forests" },
-                { name: "Gabala forests", description: "Mountain forests in north" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Caspian Sea", description: "Eastern coastline, world's largest lake" }
-            ],
-            lakes: [
-                { name: "Lake Goygol", description: "Mountain lake formed by earthquake" },
-                { name: "Lake Maralgol", description: "Alpine lake in mountains" }
-            ]
+            forests: ["Alpine Forests", "Mediterranean Forests", "Apennine Forests"],
+            oceans: ["Mediterranean Sea", "Adriatic Sea", "Tyrrhenian Sea", "Ionian Sea", "Ligurian Sea"]
         },
-        
-        culture: {
-            languages: {
-                official: ["Azerbaijani"],
-                regional: ["Russian", "Lezgian", "Talysh"],
-                spoken: ["Azerbaijani", "Russian", "English"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Shia Islam": 65.0,
-                    "Sunni Islam": 30.0,
-                    "Christianity": 3.0,
-                    "Other": 2.0
-                }
-            },
-            heritageSites: [
-                { name: "Walled City of Baku", type: "Cultural", year: 2000, description: "Historic fortress with Maiden Tower" },
-                { name: "Gobustan Rock Art", type: "Cultural", year: 2007, description: "Prehistoric petroglyphs" },
-                { name: "Historic Centre of Sheki", type: "Cultural", year: 2019, description: "Silk Road trading town" }
-            ],
-            festivals: [
-                { name: "Novruz", date: "March 20-21", description: "Persian New Year celebration" },
-                { name: "Republic Day", date: "May 28", description: "Independence celebration" },
-                { name: "Victory Day", date: "November 8", description: "Nagorno-Karabakh victory" },
-                { name: "Pomegranate Festival", date: "October-November", description: "Harvest celebration in Goychay" }
-            ],
-            cuisine: [
-                { name: "Plov", description: "Rice pilaf with meat and dried fruits" },
-                { name: "Dolma", description: "Stuffed grape leaves" },
-                { name: "Kebab", description: "Various grilled meat dishes" },
-                { name: "Piti", description: "Lamb and chickpea stew" },
-                { name: "Qutab", description: "Stuffed flatbread" },
-                { name: "Pakhlava", description: "Diamond-shaped sweet pastry" }
-            ],
-            arts: [
-                { type: "Music", description: "Mugham classical tradition (UNESCO), ashiq minstrels" },
-                { type: "Carpet weaving", description: "UNESCO intangible heritage" },
-                { type: "Dance", description: "Traditional folk dances" },
-                { type: "Architecture", description: "Medieval Islamic architecture, Flame Towers" }
-            ],
-            sports: {
-                popular: ["Football", "Wrestling", "Chess", "Volleyball", "Judo"],
-                achievements: ["Olympic wrestling and judo medals", "European Games 2015 hosts"],
-                venues: ["Baku Olympic Stadium", "Heydar Aliyev Arena"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "9th century BC", event: "Mannae kingdom in region" },
-                { year: "4th century BC", event: "Caucasian Albania established" },
-                { year: "7th century", event: "Arab conquest, Islam introduced" },
-                { year: "11th century", event: "Seljuk Turkic migration" },
-                { year: "1501", event: "Safavid Persian rule" },
-                { year: "1813", event: "Russian Empire gains northern Azerbaijan" },
-                { year: "1918", event: "Azerbaijan Democratic Republic declared" },
-                { year: "1920", event: "Soviet occupation" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "1992-1994", event: "First Nagorno-Karabakh War" },
-                { year: "2020", event: "Second Nagorno-Karabakh War, partial victory" },
-                { year: "2023", event: "Full recapture of Nagorno-Karabakh" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Caucasian Albania", "Azerbaijan SSR"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Azerbaijani": 91.6,
-                "Lezgian": 2.0,
-                "Armenian": 1.4,
-                "Russian": 1.3,
-                "Talysh": 1.3,
-                "Other": 2.4
-            },
-            ageStructure: {
-                "0-14": 22.0,
-                "15-64": 70.0,
-                "65+": 8.0
-            },
-            urbanization: 56.4,
-            lifeExpectancy: 73.5,
-            fertilityRate: 1.9,
-            literacyRate: 99.8
-        },
-        
-        quickFacts: {
-            internet: { tld: ".az", penetration: 85.0 },
-            calling: { code: "+994" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [
-            {
-                type: "territorial",
-                description: "Nagorno-Karabakh conflict with Armenia",
-                parties: ["Azerbaijan", "Armenia"],
-                status: "Azerbaijan recaptured region in 2023"
-            }
-        ],
-        
-        funFacts: [
-            "Azerbaijan was the first Muslim-majority country to grant women the right to vote (1918)",
-            "Baku is called the 'City of Winds'",
-            "The country has natural eternal flames from gas seeping through rocks",
-            "Azerbaijan hosted the first Formula 1 race in a former Soviet country",
-            "The Flame Towers are the tallest buildings in the Caucasus"
-        ]
-    },
 
-    "kazakhstan": {
-        name: "Kazakhstan",
-        officialName: "Republic of Kazakhstan",
-        nativeName: "Қазақстан Республикасы",
-        iso3: "KAZ",
-        iso2: "KZ",
-        flag: "🇰🇿",
-        
-        capital: {
-            name: "Astana",
-            population: 1350000,
-            coordinates: { lat: 51.1605, lng: 71.4704 }
-        },
-        largestCity: "Almaty",
-        population: {
-            total: 19600000,
-            year: 2024,
-            density: 7,
-            growth: 1.2
-        },
-        area: {
-            total: 2724900,
-            land: 2699700,
-            water: 25200,
-            rank: 9
-        },
-        
-        continent: "Asia",
-        region: "Central Asia",
-        subregion: "Central Asia",
-        coordinates: { lat: 48.0196, lng: 66.9237 },
-        borders: ["Russia", "China", "Kyrgyzstan", "Uzbekistan", "Turkmenistan"],
-        coastline: 0,
-        timezone: ["UTC+5", "UTC+6"],
-        drivingSide: "right",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Kassym-Jomart Tokayev",
-            headOfGovernment: "Prime Minister Olzhas Bektenov"
-        },
-        independence: {
-            date: "December 16, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "December 16" },
-        divisions: {
-            type: "regions",
-            count: 17,
-            major: ["Almaty", "Astana", "Karaganda", "Shymkent", "Aktobe"]
-        },
-        
-        economy: {
-            gdpTotal: 260000000000,
-            gdpPerCapita: 13300,
-            gdpGrowth: 5.0,
-            currency: { name: "Kazakhstani tenge", code: "KZT", symbol: "₸" },
-            mainIndustries: ["oil", "coal", "iron ore", "manganese", "chromite", "uranium", "copper"],
-            exports: ["oil", "metals", "chemicals", "machinery", "grain", "wool"],
-            imports: ["machinery", "vehicles", "base metals", "food"],
-            majorPartners: ["China", "Russia", "Italy", "Netherlands", "France"]
-        },
-        hdi: 0.811,
-        
-        geography_links: {
-            rivers: [
-                { name: "Irtysh River", description: "Major river flowing to Russia" },
-                { name: "Syr Darya", description: "River flowing to Aral Sea" },
-                { name: "Ural River", description: "River to Caspian Sea" },
-                { name: "Ili River", description: "River flowing to Lake Balkhash" }
-            ],
-            mountains: [
-                { name: "Tian Shan", description: "Southeastern mountains" },
-                { name: "Altai Mountains", description: "Northeastern range" },
-                { name: "Khan Tengri", description: "Peak at 7010m on Kyrgyz border" }
-            ],
-            deserts: [
-                { name: "Kyzylkum Desert", description: "Red sand desert in south" },
-                { name: "Betpak-Dala", description: "Stony desert in central region" }
-            ],
-            forests: [
-                { name: "Altai forests", description: "Mountain forests in east" },
-                { name: "Tian Shan forests", description: "Conifer forests in southeast" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Caspian Sea", description: "Western coastline" },
-                { name: "Aral Sea", description: "Shrinking sea in southwest" }
-            ],
-            lakes: [
-                { name: "Lake Balkhash", description: "Unique half-fresh, half-salt lake" },
-                { name: "Lake Alakol", description: "Salt lake in east" },
-                { name: "Lake Zaysan", description: "Lake in eastern mountains" }
-            ]
-        },
-        
         culture: {
-            languages: {
-                official: ["Kazakh", "Russian"],
-                regional: ["Uzbek", "Uighur", "Ukrainian"],
-                spoken: ["Kazakh", "Russian", "English"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Islam": 70.2,
-                    "Christianity": 26.0,
-                    "Unaffiliated": 2.8,
-                    "Other": 1.0
-                }
-            },
-            heritageSites: [
-                { name: "Mausoleum of Khoja Ahmed Yasawi", type: "Cultural", year: 2003, description: "Timurid architecture masterpiece" },
-                { name: "Petroglyphs of Tamgaly", type: "Cultural", year: 2004, description: "Bronze Age rock art" },
-                { name: "Saryarka Steppe", type: "Natural", year: 2008, description: "Wetlands and grasslands" },
-                { name: "Silk Roads Sites", type: "Cultural", year: 2014, description: "Historic trade route" }
-            ],
-            festivals: [
-                { name: "Nauryz", date: "March 21-23", description: "Persian New Year, spring celebration" },
-                { name: "Independence Day", date: "December 16", description: "National holiday" },
-                { name: "Constitution Day", date: "August 30", description: "Civic holiday" },
-                { name: "Kurban Ait", date: "Islamic calendar", description: "Feast of Sacrifice" }
-            ],
-            cuisine: [
-                { name: "Beshbarmak", description: "National dish - boiled meat with noodles" },
-                { name: "Kazy", description: "Horse meat sausage" },
-                { name: "Baursak", description: "Fried dough balls" },
-                { name: "Kumis", description: "Fermented mare's milk" },
-                { name: "Shashlik", description: "Grilled meat skewers" },
-                { name: "Pilaf", description: "Rice with meat and carrots" }
-            ],
-            arts: [
-                { type: "Music", description: "Dombra instrument, throat singing" },
-                { type: "Crafts", description: "Felt making, yurt construction, embroidery" },
-                { type: "Poetry", description: "Oral tradition of Akyns (poet-improvisers)" },
-                { type: "Architecture", description: "Modern Astana, historic Silk Road sites" }
-            ],
-            sports: {
-                popular: ["Football", "Ice hockey", "Boxing", "Wrestling", "Cycling"],
-                achievements: ["Olympic boxing and weightlifting medals", "Strong ice hockey tradition"],
-                venues: ["Astana Arena", "Almaty Arena"]
-            }
+            officialLanguages: ["Italian"],
+            languages: ["Italian", "German", "French", "Slovene", "Sardinian", "Friulian", "Ladin"],
+            religions: ["Roman Catholicism (74.4%)", "No Religion (22.6%)", "Islam (2.6%)", "Others (0.4%)"],
+            heritageSites: ["Historic Centre of Rome", "Venice and its Lagoon", "Historic Centre of Florence", "Piazza del Duomo, Pisa", "Amalfi Coast", "Pompeii", "Cinque Terre", "Vatican City", "Dolomites", "Trulli of Alberobello"],
+            festivals: ["Carnevale di Venezia", "Palio di Siena", "Ferragosto", "Festa della Repubblica", "Infiorata", "Opera Season (La Scala)"],
+            cuisine: ["Pizza", "Pasta", "Risotto", "Gelato", "Tiramisu", "Lasagna", "Prosciutto", "Parmigiano-Reggiano", "Espresso", "Wine"],
+            arts: ["Renaissance Art", "Opera", "Classical Music", "Fashion", "Cinema (Neorealism)", "Sculpture", "Architecture"],
+            sports: ["Football (Calcio)", "Cycling", "Basketball", "Volleyball", "Motor Racing (Formula 1)", "Rugby"]
         },
-        
+
+        symbols: {
+            bird: "Italian Sparrow",
+            animal: "Italian Wolf",
+            flower: "White Lily",
+            tree: "Olive Tree",
+            anthem: "Il Canto degli Italiani",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 83.89,
+            literacyRate: "99.2%",
+            urbanPopulation: "71.7%",
+            medianAge: 47.3
+        },
+
         history: {
             timeline: [
-                { year: "8th century BC", event: "Scythian tribes in region" },
-                { year: "6th century", event: "Turkic Khaganate" },
-                { year: "13th century", event: "Mongol Empire conquest" },
-                { year: "1465", event: "Kazakh Khanate established" },
-                { year: "1731-1847", event: "Russian Empire annexation" },
-                { year: "1920", event: "Kazakh ASSR formed" },
-                { year: "1936", event: "Kazakh SSR established" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "1997", event: "Capital moved from Almaty to Astana" },
-                { year: "2019", event: "Nursultan Nazarbayev resigns after 30 years" },
-                { year: "2022", event: "January unrest and political reforms" }
+                { year: "753 BCE", title: "Rome Founded", description: "Legendary founding of Rome by Romulus" },
+                { year: "27 BCE", title: "Roman Empire", description: "Augustus established Roman Empire" },
+                { year: "476 CE", title: "Fall of Rome", description: "Western Roman Empire fell" },
+                { year: "1300s-1600s", title: "Renaissance", description: "Italian Renaissance transformed art and culture" },
+                { year: "1861", title: "Unification", description: "Kingdom of Italy unified under Victor Emmanuel II" },
+                { year: "1946", title: "Republic", description: "Italy became a republic after WWII" },
+                { year: "1957", title: "EU Founder", description: "Founding member of European Economic Community" }
             ],
-            colonialHistory: null,
-            historicalNames: ["Kazakh Khanate", "Kazakh SSR"]
+            notableFigures: ["Julius Caesar", "Leonardo da Vinci", "Michelangelo", "Dante Alighieri", "Galileo Galilei", "Giuseppe Garibaldi", "Marco Polo"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Kazakh": 70.4,
-                "Russian": 15.5,
-                "Uzbek": 3.2,
-                "Ukrainian": 1.5,
-                "Uighur": 1.5,
-                "Tatar": 1.1,
-                "German": 0.9,
-                "Other": 5.9
-            },
-            ageStructure: {
-                "0-14": 27.0,
-                "15-64": 64.0,
-                "65+": 9.0
-            },
-            urbanization: 58.0,
-            lifeExpectancy: 74.0,
-            fertilityRate: 2.8,
-            literacyRate: 99.8
-        },
-        
-        quickFacts: {
-            internet: { tld: ".kz", penetration: 85.0 },
-            calling: { code: "+7" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Kazakhstan is the largest landlocked country in the world",
-            "The first man in space, Yuri Gagarin, launched from Baikonur in Kazakhstan",
-            "Kazakhstan has the world's largest uranium reserves",
-            "Apples originated in the mountains near Almaty",
-            "The country spans two time zones and two continents"
+
+        quickFacts: [
+            { icon: "monument", title: "UNESCO Sites", text: "Most UNESCO World Heritage Sites (59)" },
+            { icon: "pizza-slice", title: "Cuisine", text: "Birthplace of pizza and pasta" },
+            { icon: "palette", title: "Renaissance", text: "Birthplace of the Renaissance" },
+            { icon: "car", title: "Luxury Cars", text: "Home to Ferrari, Lamborghini, Maserati" },
+            { icon: "wine-glass", title: "Wine", text: "World's largest wine producer" },
+            { icon: "tshirt", title: "Fashion", text: "Global fashion capital (Milan)" }
         ]
     },
 
-    "uzbekistan": {
-        name: "Uzbekistan",
-        officialName: "Republic of Uzbekistan",
-        nativeName: "O'zbekiston Respublikasi",
-        iso3: "UZB",
-        iso2: "UZ",
-        flag: "🇺🇿",
+    // 2. MALTA
+    {
+        id: "MLT",
+        name: "Malta",
+        officialName: "Republic of Malta",
+        flag: "https://flagcdn.com/w320/mt.png",
         
-        capital: {
-            name: "Tashkent",
-            population: 2850000,
-            coordinates: { lat: 41.2995, lng: 69.2401 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1560832745-1a81a8450a7c?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=1920&q=80"
         },
-        largestCity: "Tashkent",
-        population: {
-            total: 35300000,
-            year: 2024,
-            density: 79,
-            growth: 1.5
+
+        basic: {
+            capital: "Valletta",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Southern Europe",
+            population: 535064,
+            area: 316,
+            populationDensity: 1672,
+            independence: "1964",
+            callingCode: "+356",
+            tld: ".mt",
+            drivingSide: "Left",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 448978,
-            land: 425400,
-            water: 23578,
-            rank: 56
+
+        location: {
+            coordinates: [35.9375, 14.3754],
+            timezone: "UTC+1 (CET)",
+            neighbors: [],
+            borders: 0,
+            hemispheres: ["Northern", "Eastern"],
+            islandNation: true,
+            islands: 3
         },
-        
-        continent: "Asia",
-        region: "Central Asia",
-        subregion: "Central Asia",
-        coordinates: { lat: 41.3775, lng: 64.5853 },
-        borders: ["Kazakhstan", "Kyrgyzstan", "Tajikistan", "Afghanistan", "Turkmenistan"],
-        coastline: 0,
-        timezone: ["UTC+5"],
-        drivingSide: "right",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Shavkat Mirziyoyev",
-            headOfGovernment: "Prime Minister Abdulla Aripov"
+
+        political: {
+            government: "Unitary Parliamentary Republic",
+            headOfState: "President Myriam Spiteri Debono",
+            headOfGovernment: "Prime Minister Robert Abela",
+            legislature: "House of Representatives",
+            legalSystem: "Mixed (Civil and Common Law)",
+            states: 5,
+            regions: 5,
+            localCouncils: 68,
+            largestCity: "Birkirkara",
+            organizations: ["UN", "EU", "Commonwealth", "Council of Europe", "WTO", "Schengen Area", "Eurozone"]
         },
-        independence: {
-            date: "September 1, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "September 1" },
-        divisions: {
-            type: "regions",
-            count: 14,
-            major: ["Tashkent", "Samarkand", "Bukhara", "Fergana", "Andijan"]
-        },
-        
+
         economy: {
-            gdpTotal: 90000000000,
-            gdpPerCapita: 2600,
-            gdpGrowth: 5.7,
-            currency: { name: "Uzbekistani som", code: "UZS", symbol: "soʻm" },
-            mainIndustries: ["textiles", "food processing", "machine building", "metallurgy", "mining"],
-            exports: ["gold", "cotton", "natural gas", "fertilizers", "metals"],
-            imports: ["machinery", "food", "chemicals", "metals"],
-            majorPartners: ["Russia", "China", "Kazakhstan", "Turkey", "South Korea"]
+            gdp: "$20.96 Billion",
+            gdpPPP: "$31.37 Billion",
+            gdpPerCapita: "$38,715",
+            gdpRank: "#117",
+            gdpGrowth: "5.9%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "5.7%",
+            unemployment: "3.1%",
+            majorSectors: ["Services (87%)", "Industry (11%)", "Agriculture (1%)"],
+            industries: ["Tourism", "Electronics", "Shipbuilding", "Ship Repair", "Construction", "Food", "Beverages", "Pharmaceuticals", "Footwear", "Clothing", "Tobacco", "Aviation", "Financial Services", "iGaming"],
+            exports: ["Integrated Circuits", "Refined Petroleum", "Pharmaceuticals", "Postage Stamps", "Toys"],
+            imports: ["Refined Petroleum", "Passenger Ships", "Crude Petroleum", "Aircraft", "Cars"]
         },
-        hdi: 0.727,
-        
+
+        geography: {
+            climate: "Mediterranean",
+            avgTemperature: "19.2°C",
+            annualRainfall: "553 mm",
+            highestPoint: "Ta' Dmejrek (253 m)",
+            lowestPoint: "Mediterranean Sea (0 m)",
+            coastline: "196.8 km",
+            forestCover: "1.1%",
+            arableLand: "28.1%",
+            terrain: "Mostly low, rocky, flat to dissected plains; many coastal cliffs",
+            naturalResources: ["Limestone", "Salt", "Arable Land"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Amu Darya", description: "Major river from Pamir to Aral Sea" },
-                { name: "Syr Darya", description: "River through Fergana Valley" },
-                { name: "Zeravshan", description: "River through Samarkand and Bukhara" }
-            ],
-            mountains: [
-                { name: "Tian Shan", description: "Mountains in east" },
-                { name: "Pamir-Alay", description: "Southeastern mountains" },
-                { name: "Khazret Sultan", description: "Highest peak at 4643m" }
-            ],
-            deserts: [
-                { name: "Kyzylkum Desert", description: "Red sand desert covering central region" },
-                { name: "Aralkum Desert", description: "New desert from dried Aral Sea" }
-            ],
-            forests: [
-                { name: "Tian Shan forests", description: "Mountain forests with juniper" },
-                { name: "Tugai forests", description: "Riparian forests along rivers" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Aral Sea", description: "Shrinking endorheic sea" }
-            ],
-            lakes: [
-                { name: "Aydarkul Lake", description: "Large artificial lake" },
-                { name: "Charvak Reservoir", description: "Mountain reservoir" }
-            ]
+            rivers: [],
+            mountains: ["Ta' Dmejrek", "Dingli Cliffs"],
+            deserts: [],
+            forests: ["Buskett Gardens"],
+            oceans: ["Mediterranean Sea"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Uzbek"],
-                regional: ["Russian", "Tajik", "Karakalpak"],
-                spoken: ["Uzbek", "Russian", "Tajik"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Islam": 88.0,
-                    "Christianity": 9.0,
-                    "Other": 3.0
-                }
-            },
-            heritageSites: [
-                { name: "Itchan Kala", type: "Cultural", year: 1990, description: "Historic inner town of Khiva" },
-                { name: "Historic Centre of Bukhara", type: "Cultural", year: 1993, description: "Silk Road trading center" },
-                { name: "Historic Centre of Samarkand", type: "Cultural", year: 2001, description: "Crossroads of cultures" },
-                { name: "Historic Centre of Shakhrisyabz", type: "Cultural", year: 2000, description: "Timur's birthplace" }
-            ],
-            festivals: [
-                { name: "Navruz", date: "March 21", description: "Persian New Year" },
-                { name: "Independence Day", date: "September 1", description: "National celebration" },
-                { name: "Silk and Spices Festival", date: "May", description: "Bukhara cultural festival" },
-                { name: "Sharq Taronalari", date: "August", description: "Music festival in Samarkand" }
-            ],
-            cuisine: [
-                { name: "Plov", description: "National dish - rice with meat and carrots" },
-                { name: "Shashlik", description: "Grilled meat skewers" },
-                { name: "Lagman", description: "Noodle soup" },
-                { name: "Manti", description: "Steamed dumplings" },
-                { name: "Samsa", description: "Baked meat pastries" },
-                { name: "Non", description: "Traditional bread" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Timurid architecture, blue tiles, minarets" },
-                { type: "Crafts", description: "Silk weaving, ceramics, woodcarving, embroidery" },
-                { type: "Music", description: "Shashmaqam classical tradition (UNESCO)" },
-                { type: "Dance", description: "Traditional Uzbek dances" }
-            ],
-            sports: {
-                popular: ["Football", "Wrestling", "Boxing", "Tennis", "Kurash"],
-                achievements: ["Olympic medals in wrestling, boxing, gymnastics"],
-                venues: ["Bunyodkor Stadium", "Milliy Stadium"]
-            }
+            officialLanguages: ["Maltese", "English"],
+            languages: ["Maltese", "English", "Italian"],
+            religions: ["Roman Catholicism (90%)", "Others (10%)"],
+            heritageSites: ["City of Valletta", "Ħal Saflieni Hypogeum", "Megalithic Temples of Malta"],
+            festivals: ["Carnival", "Mnarja", "Village Festas", "Malta International Fireworks Festival", "Notte Bianca"],
+            cuisine: ["Pastizzi", "Rabbit Stew (Fenkata)", "Lampuki Pie", "Ġbejna", "Ftira", "Bigilla"],
+            arts: ["Maltese Lace", "Filigree", "Traditional Music (Għana)", "Stone Carving"],
+            sports: ["Football", "Water Polo", "Bocci", "Swimming", "Sailing"]
         },
-        
+
+        symbols: {
+            bird: "Blue Rock Thrush",
+            animal: "Pharaoh Hound (Kelb tal-Fenek)",
+            flower: "Maltese Rock-centaury",
+            tree: "None Official",
+            anthem: "L-Innu Malti",
+            motto: "Virtue and Constancy"
+        },
+
+        demographics: {
+            lifeExpectancy: 83.07,
+            literacyRate: "94.5%",
+            urbanPopulation: "94.9%",
+            medianAge: 42.6
+        },
+
         history: {
             timeline: [
-                { year: "6th century BC", event: "Persian Empire rule" },
-                { year: "329 BC", event: "Alexander the Great conquers region" },
-                { year: "8th century", event: "Arab conquest, Islam introduced" },
-                { year: "1220", event: "Mongol conquest under Genghis Khan" },
-                { year: "1370", event: "Timurid Empire founded by Tamerlane" },
-                { year: "16th century", event: "Uzbek Khanates established" },
-                { year: "1868-1876", event: "Russian Empire conquest" },
-                { year: "1924", event: "Uzbek SSR formed" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "2016", event: "Mirziyoyev becomes president, reforms begin" }
+                { year: "3600 BCE", title: "Megalithic Temples", description: "Oldest free-standing structures in world built" },
+                { year: "1530", title: "Knights of St. John", description: "Knights Hospitaller arrived" },
+                { year: "1565", title: "Great Siege", description: "Ottoman siege repelled" },
+                { year: "1798", title: "French Rule", description: "Napoleon conquered Malta" },
+                { year: "1800", title: "British Rule", description: "Malta became British colony" },
+                { year: "1942", title: "George Cross", description: "Awarded George Cross for WWII heroism" },
+                { year: "1964", title: "Independence", description: "Independence from United Kingdom" },
+                { year: "2004", title: "EU Member", description: "Joined European Union" }
             ],
-            colonialHistory: null,
-            historicalNames: ["Transoxiana", "Mawarannahr", "Uzbek SSR"]
+            notableFigures: ["Jean de Valette", "Dom Mintoff", "Eddie Fenech Adami"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Uzbek": 83.8,
-                "Tajik": 4.8,
-                "Kazakh": 2.5,
-                "Russian": 2.3,
-                "Karakalpak": 2.2,
-                "Other": 4.4
-            },
-            ageStructure: {
-                "0-14": 27.0,
-                "15-64": 67.0,
-                "65+": 6.0
-            },
-            urbanization: 50.5,
-            lifeExpectancy: 75.0,
-            fertilityRate: 2.4,
-            literacyRate: 99.6
-        },
-        
-        quickFacts: {
-            internet: { tld: ".uz", penetration: 71.0 },
-            calling: { code: "+998" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "101/102/103"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Uzbekistan is one of only two double-landlocked countries in the world",
-            "Samarkand is one of the oldest continuously inhabited cities",
-            "The country has the world's second-largest gold mine (Muruntau)",
-            "Uzbekistan was a major center of the ancient Silk Road",
-            "The Registan in Samarkand is considered one of the most beautiful squares in the world"
+
+        quickFacts: [
+            { icon: "monument", title: "Oldest Temples", text: "Oldest free-standing structures in the world" },
+            { icon: "award", title: "George Cross", text: "Entire nation awarded George Cross (WWII)" },
+            { icon: "users", title: "Most Dense", text: "One of world's most densely populated countries" },
+            { icon: "language", title: "Maltese", text: "Only Semitic language written in Latin alphabet" },
+            { icon: "cross", title: "Knights", text: "Home of Knights of Malta since 1530" }
         ]
     },
 
-    "turkmenistan": {
-        name: "Turkmenistan",
-        officialName: "Turkmenistan",
-        nativeName: "Türkmenistan",
-        iso3: "TKM",
-        iso2: "TM",
-        flag: "🇹🇲",
+    // 3. PORTUGAL
+    {
+        id: "PRT",
+        name: "Portugal",
+        officialName: "Portuguese Republic",
+        flag: "https://flagcdn.com/w320/pt.png",
         
-        capital: {
-            name: "Ashgabat",
-            population: 1030000,
-            coordinates: { lat: 37.9601, lng: 58.3261 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1548707309-dcebeab9ea9b?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=1920&q=80"
         },
-        largestCity: "Ashgabat",
-        population: {
-            total: 6430000,
-            year: 2024,
-            density: 13,
-            growth: 1.1
-        },
-        area: {
-            total: 491210,
-            land: 469930,
-            water: 21280,
-            rank: 52
-        },
-        
-        continent: "Asia",
-        region: "Central Asia",
-        subregion: "Central Asia",
-        coordinates: { lat: 38.9697, lng: 59.5563 },
-        borders: ["Kazakhstan", "Uzbekistan", "Afghanistan", "Iran"],
-        coastline: 0,
-        timezone: ["UTC+5"],
-        drivingSide: "right",
-        
-        governmentType: "Presidential republic (authoritarian)",
-        leader: {
-            headOfState: "President Serdar Berdimuhamedow",
-            headOfGovernment: "President Serdar Berdimuhamedow"
-        },
-        independence: {
-            date: "October 27, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "October 27" },
-        divisions: {
-            type: "regions",
-            count: 6,
-            major: ["Ashgabat", "Mary", "Lebap", "Dashoguz", "Balkan"]
-        },
-        
-        economy: {
-            gdpTotal: 80000000000,
-            gdpPerCapita: 12500,
-            gdpGrowth: 6.0,
-            currency: { name: "Turkmenistani manat", code: "TMT", symbol: "m" },
-            mainIndustries: ["natural gas", "petroleum", "textiles", "food processing"],
-            exports: ["natural gas", "crude oil", "petrochemicals", "textiles", "cotton"],
-            imports: ["machinery", "food", "chemicals", "metals"],
-            majorPartners: ["China", "Turkey", "Russia", "UAE", "Afghanistan"]
-        },
-        hdi: 0.745,
-        
-        geography_links: {
-            rivers: [
-                { name: "Amu Darya", description: "Major river on eastern border" },
-                { name: "Murgab River", description: "River in Mary region" },
-                { name: "Tejen River", description: "River from Iran" }
-            ],
-            mountains: [
-                { name: "Kopet Dag", description: "Mountains along Iranian border" },
-                { name: "Ayrybaba", description: "Highest peak at 3139m" }
-            ],
-            deserts: [
-                { name: "Karakum Desert", description: "Black sand desert covering 70% of country" }
-            ],
-            forests: [
-                { name: "Kopet Dag forests", description: "Mountain forests with juniper" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Caspian Sea", description: "Western coastline" }
-            ],
-            lakes: [
-                { name: "Sarygamysh Lake", description: "Lake on Uzbek border" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Turkmen"],
-                regional: ["Russian", "Uzbek"],
-                spoken: ["Turkmen", "Russian", "Uzbek"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Islam": 89.0,
-                    "Christianity": 9.0,
-                    "Other": 2.0
-                }
-            },
-            heritageSites: [
-                { name: "Ancient Merv", type: "Cultural", year: 1999, description: "Historic oasis city on Silk Road" },
-                { name: "Kunya-Urgench", type: "Cultural", year: 2005, description: "Medieval capital of Khorezm" },
-                { name: "Parthian Fortresses of Nisa", type: "Cultural", year: 2007, description: "Ancient Parthian capital" }
-            ],
-            festivals: [
-                { name: "Novruz", date: "March 21", description: "Persian New Year" },
-                { name: "Independence Day", date: "October 27", description: "National holiday" },
-                { name: "Turkmen Carpet Day", date: "Last Sunday of May", description: "Celebration of carpet weaving" },
-                { name: "Melon Day", date: "Second Sunday of August", description: "Melon harvest celebration" }
-            ],
-            cuisine: [
-                { name: "Plov", description: "Rice pilaf with meat" },
-                { name: "Shashlyk", description: "Grilled meat skewers" },
-                { name: "Chorek", description: "Traditional bread" },
-                { name: "Dograma", description: "Bread and meat dish" },
-                { name: "Ishlekli", description: "Meat-filled flatbread" }
-            ],
-            arts: [
-                { type: "Carpet weaving", description: "Famous Turkmen carpets with geometric patterns" },
-                { type: "Music", description: "Dutar instrument, Bakhshi tradition" },
-                { type: "Jewelry", description: "Silver jewelry with carnelian" },
-                { type: "Architecture", description: "White marble buildings of Ashgabat" }
-            ],
-            sports: {
-                popular: ["Football", "Weightlifting", "Wrestling", "Horse sports"],
-                achievements: ["Olympic weightlifting medals"],
-                venues: ["Ashgabat Olympic Stadium", "Indoor Asian Games Complex"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "3rd millennium BC", event: "Margiana civilization" },
-                { year: "6th century BC", event: "Persian Empire rule" },
-                { year: "3rd century BC", event: "Parthian Empire rises" },
-                { year: "11th century", event: "Seljuk Turkic migration" },
-                { year: "1220", event: "Mongol conquest" },
-                { year: "16th century", event: "Turkmen tribes consolidate" },
-                { year: "1881", event: "Russian Empire conquest" },
-                { year: "1924", event: "Turkmen SSR formed" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "2006", event: "Saparmurat Niyazov dies, Berdimuhamedow takes power" },
-                { year: "2022", event: "Serdar Berdimuhamedow becomes president" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Margiana", "Turkmen SSR"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Turkmen": 85.0,
-                "Uzbek": 5.0,
-                "Russian": 4.0,
-                "Other": 6.0
-            },
-            ageStructure: {
-                "0-14": 26.0,
-                "15-64": 69.0,
-                "65+": 5.0
-            },
-            urbanization: 53.0,
-            lifeExpectancy: 71.0,
-            fertilityRate: 2.8,
-            literacyRate: 99.7
-        },
-        
-        quickFacts: {
-            internet: { tld: ".tm", penetration: 21.0 },
-            calling: { code: "+993" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "03"
-        },
-        
-        disputes: [
-            {
-                type: "maritime",
-                description: "Caspian Sea division with neighboring states",
-                parties: ["Turkmenistan", "Azerbaijan", "Iran", "Kazakhstan", "Russia"],
-                status: "Partially resolved by 2018 convention"
-            }
-        ],
-        
-        funFacts: [
-            "The Darvaza Gas Crater ('Door to Hell') has been burning since 1971",
-            "Ashgabat holds the Guinness World Record for most white marble buildings",
-            "Turkmenistan has the world's fourth-largest natural gas reserves",
-            "The Akhal-Teke horse breed originated in Turkmenistan",
-            "The country is one of the most isolated in the world"
-        ]
-    },
 
-    "kyrgyzstan": {
-        name: "Kyrgyzstan",
-        officialName: "Kyrgyz Republic",
-        nativeName: "Кыргыз Республикасы",
-        iso3: "KGZ",
-        iso2: "KG",
-        flag: "🇰🇬",
-        
-        capital: {
-            name: "Bishkek",
-            population: 1120000,
-            coordinates: { lat: 42.8746, lng: 74.5698 }
+        basic: {
+            capital: "Lisbon",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Iberian Peninsula",
+            population: 10467366,
+            area: 92212,
+            populationDensity: 112,
+            independence: "1143",
+            callingCode: "+351",
+            tld: ".pt",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        largestCity: "Bishkek",
-        population: {
-            total: 7000000,
-            year: 2024,
-            density: 35,
-            growth: 1.5
+
+        location: {
+            coordinates: [39.3999, -8.2245],
+            timezone: "UTC+0 (WET)",
+            neighbors: ["Spain"],
+            borders: 1224,
+            hemispheres: ["Northern", "Western"]
         },
-        area: {
-            total: 199951,
-            land: 191801,
-            water: 8150,
-            rank: 86
+
+        political: {
+            government: "Unitary Semi-Presidential Republic",
+            headOfState: "President Marcelo Rebelo de Sousa",
+            headOfGovernment: "Prime Minister Luís Montenegro",
+            legislature: "Assembly of the Republic",
+            legalSystem: "Civil Law",
+            states: 18,
+            districts: 18,
+            autonomousRegions: 2,
+            largestCity: "Lisbon",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Council of Europe", "Schengen Area", "CPLP", "Eurozone"]
         },
-        
-        continent: "Asia",
-        region: "Central Asia",
-        subregion: "Central Asia",
-        coordinates: { lat: 41.2044, lng: 74.7661 },
-        borders: ["Kazakhstan", "Uzbekistan", "Tajikistan", "China"],
-        coastline: 0,
-        timezone: ["UTC+6"],
-        drivingSide: "right",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Sadyr Japarov",
-            headOfGovernment: "Chairman Akylbek Japarov"
-        },
-        independence: {
-            date: "August 31, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "August 31" },
-        divisions: {
-            type: "regions",
-            count: 7,
-            major: ["Bishkek", "Osh", "Chuy", "Jalal-Abad", "Issyk-Kul"]
-        },
-        
+
         economy: {
-            gdpTotal: 12500000000,
-            gdpPerCapita: 1800,
-            gdpGrowth: 6.0,
-            currency: { name: "Kyrgyzstani som", code: "KGS", symbol: "с" },
-            mainIndustries: ["small machinery", "textiles", "food processing", "cement", "gold mining"],
-            exports: ["gold", "cotton", "wool", "garments", "meat"],
-            imports: ["oil", "gas", "machinery", "chemicals", "food"],
-            majorPartners: ["Russia", "Kazakhstan", "China", "Uzbekistan", "Turkey"]
+            gdp: "$287 Billion",
+            gdpPPP: "$438 Billion",
+            gdpPerCapita: "$27,216",
+            gdpRank: "#44",
+            gdpGrowth: "2.3%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.3%",
+            unemployment: "6.5%",
+            majorSectors: ["Services (76%)", "Industry (21%)", "Agriculture (2%)"],
+            industries: ["Textiles", "Clothing", "Footwear", "Wood Products", "Cork", "Paper", "Chemicals", "Automotive Parts", "Base Metals", "Dairy Products", "Wine", "Tourism"],
+            exports: ["Cars", "Vehicle Parts", "Refined Petroleum", "Leather Footwear", "Paper"],
+            imports: ["Crude Petroleum", "Cars", "Vehicle Parts", "Pharmaceuticals", "Refined Petroleum"]
         },
-        hdi: 0.692,
-        
+
+        geography: {
+            climate: "Mediterranean; Oceanic in north",
+            avgTemperature: "15.5°C",
+            annualRainfall: "854 mm",
+            highestPoint: "Mount Pico (2,351 m - Azores), Serra da Estrela (1,993 m - mainland)",
+            lowestPoint: "Atlantic Ocean (0 m)",
+            coastline: "1,793 km",
+            forestCover: "36.1%",
+            arableLand: "11.9%",
+            terrain: "Mountainous north of the Tagus River, rolling plains in south",
+            naturalResources: ["Fish", "Forests (Cork)", "Iron Ore", "Copper", "Zinc", "Tin", "Tungsten", "Silver", "Gold", "Uranium", "Marble", "Clay", "Gypsum", "Salt", "Arable Land", "Hydropower"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Naryn River", description: "Largest river, source of Syr Darya" },
-                { name: "Chu River", description: "River through Bishkek region" },
-                { name: "Talas River", description: "River in northern mountains" }
-            ],
-            mountains: [
-                { name: "Tian Shan", description: "Dominant mountain range covering 80% of country" },
-                { name: "Jengish Chokusu", description: "Highest peak at 7439m" },
-                { name: "Khan Tengri", description: "Second highest at 7010m" },
-                { name: "Pamir Mountains", description: "Southeastern range" }
-            ],
+            rivers: ["Tagus River", "Douro River", "Guadiana River", "Mondego River", "Minho River"],
+            mountains: ["Serra da Estrela", "Serra do Gerês", "Serra de Sintra", "Mount Pico"],
             deserts: [],
-            forests: [
-                { name: "Walnut forests", description: "World's largest natural walnut forest" },
-                { name: "Juniper forests", description: "Mountain juniper woodlands" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Issyk-Kul", description: "Second-largest alpine lake in world" },
-                { name: "Son-Kul", description: "High-altitude lake at 3016m" },
-                { name: "Chatyr-Kul", description: "Mountain lake near China border" }
-            ]
+            forests: ["Peneda-Gerês National Park", "Cork Oak Forests", "Sintra-Cascais Natural Park"],
+            oceans: ["Atlantic Ocean"]
         },
-        
-        culture: {
-            languages: {
-                official: ["Kyrgyz", "Russian"],
-                regional: ["Uzbek", "Dungan"],
-                spoken: ["Kyrgyz", "Russian", "Uzbek"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Islam": 90.0,
-                    "Christianity": 7.0,
-                    "Other": 3.0
-                }
-            },
-            heritageSites: [
-                { name: "Sulaiman-Too Sacred Mountain", type: "Cultural", year: 2009, description: "Sacred mountain in Osh" },
-                { name: "Silk Roads Sites", type: "Cultural", year: 2014, description: "Historic trade route" },
-                { name: "Western Tian-Shan", type: "Natural", year: 2016, description: "Mountain biodiversity" }
-            ],
-            festivals: [
-                { name: "Nooruz", date: "March 21", description: "Persian New Year" },
-                { name: "Independence Day", date: "August 31", description: "National celebration" },
-                { name: "World Nomad Games", date: "September", description: "International nomadic sports" },
-                { name: "At Chabysh", date: "Various", description: "Traditional horse racing" }
-            ],
-            cuisine: [
-                { name: "Beshbarmak", description: "Boiled meat with noodles" },
-                { name: "Lagman", description: "Noodle soup with meat and vegetables" },
-                { name: "Manti", description: "Steamed dumplings" },
-                { name: "Kumis", description: "Fermented mare's milk" },
-                { name: "Boorsok", description: "Fried bread pieces" },
-                { name: "Kuurdak", description: "Fried meat with onions" }
-            ],
-            arts: [
-                { type: "Epic of Manas", description: "UNESCO heritage - longest epic poem" },
-                { type: "Felt crafts", description: "Shyrdak and Ala Kiyiz felt carpets" },
-                { type: "Yurt making", description: "Traditional nomadic dwelling construction" },
-                { type: "Music", description: "Komuz instrument, throat singing" }
-            ],
-            sports: {
-                popular: ["Football", "Wrestling", "Horse sports", "Martial arts"],
-                achievements: ["Olympic wrestling medals", "World Nomad Games hosts"],
-                venues: ["Dolen Omurzakov Stadium", "Hippodrome"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "2nd century BC", event: "Part of Silk Road trade" },
-                { year: "6th century", event: "Turkic Khaganate" },
-                { year: "13th century", event: "Mongol conquest" },
-                { year: "1876", event: "Russian Empire conquest" },
-                { year: "1924", event: "Kara-Kirghiz Autonomous Oblast formed" },
-                { year: "1936", event: "Kirghiz SSR established" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "2005", event: "Tulip Revolution" },
-                { year: "2010", event: "Second revolution and ethnic violence" },
-                { year: "2020", event: "Third revolution, Japarov comes to power" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Kirghizia", "Kirghiz SSR"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Kyrgyz": 73.8,
-                "Uzbek": 14.8,
-                "Russian": 5.1,
-                "Dungan": 1.1,
-                "Other": 5.2
-            },
-            ageStructure: {
-                "0-14": 31.0,
-                "15-64": 64.0,
-                "65+": 5.0
-            },
-            urbanization: 37.0,
-            lifeExpectancy: 72.0,
-            fertilityRate: 2.9,
-            literacyRate: 99.5
-        },
-        
-        quickFacts: {
-            internet: { tld: ".kg", penetration: 51.0 },
-            calling: { code: "+996" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [
-            {
-                type: "border",
-                description: "Border disputes with Tajikistan",
-                parties: ["Kyrgyzstan", "Tajikistan"],
-                status: "Ongoing clashes"
-            }
-        ],
-        
-        funFacts: [
-            "The Epic of Manas is 20 times longer than the Odyssey",
-            "Kyrgyzstan has more than 2,000 mountain lakes",
-            "The country is 94% mountainous",
-            "Issyk-Kul never freezes despite being at high altitude",
-            "Kyrgyzstan hosts the World Nomad Games"
-        ]
-    },
 
-    "tajikistan": {
-        name: "Tajikistan",
-        officialName: "Republic of Tajikistan",
-        nativeName: "Ҷумҳурии Тоҷикистон",
-        iso3: "TJK",
-        iso2: "TJ",
-        flag: "🇹🇯",
-        
-        capital: {
-            name: "Dushanbe",
-            population: 920000,
-            coordinates: { lat: 38.5598, lng: 68.7740 }
-        },
-        largestCity: "Dushanbe",
-        population: {
-            total: 10100000,
-            year: 2024,
-            density: 71,
-            growth: 2.0
-        },
-        area: {
-            total: 143100,
-            land: 141510,
-            water: 1590,
-            rank: 95
-        },
-        
-        continent: "Asia",
-        region: "Central Asia",
-        subregion: "Central Asia",
-        coordinates: { lat: 38.8610, lng: 71.2761 },
-        borders: ["Kyrgyzstan", "Uzbekistan", "Afghanistan", "China"],
-        coastline: 0,
-        timezone: ["UTC+5"],
-        drivingSide: "right",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Emomali Rahmon",
-            headOfGovernment: "Prime Minister Kokhir Rasulzoda"
-        },
-        independence: {
-            date: "September 9, 1991",
-            from: "Soviet Union"
-        },
-        nationalDay: { name: "Independence Day", date: "September 9" },
-        divisions: {
-            type: "regions",
-            count: 4,
-            major: ["Dushanbe", "Sughd", "Khatlon", "Gorno-Badakhshan"]
-        },
-        
-        economy: {
-            gdpTotal: 12000000000,
-            gdpPerCapita: 1200,
-            gdpGrowth: 7.0,
-            currency: { name: "Tajikistani somoni", code: "TJS", symbol: "SM" },
-            mainIndustries: ["aluminum", "hydropower", "cotton", "mining"],
-            exports: ["aluminum", "electricity", "cotton", "fruits", "gold"],
-            imports: ["petroleum", "aluminum oxide", "machinery", "food"],
-            majorPartners: ["Russia", "Kazakhstan", "China", "Turkey", "Uzbekistan"]
-        },
-        hdi: 0.685,
-        
-        geography_links: {
-            rivers: [
-                { name: "Amu Darya", description: "Border river with Afghanistan" },
-                { name: "Syr Darya", description: "River in northern region" },
-                { name: "Vakhsh River", description: "Hydropower river" },
-                { name: "Panj River", description: "Border with Afghanistan" }
-            ],
-            mountains: [
-                { name: "Pamir Mountains", description: "'Roof of the World'" },
-                { name: "Ismoil Somoni Peak", description: "Highest at 7495m" },
-                { name: "Fann Mountains", description: "Popular trekking destination" },
-                { name: "Tian Shan", description: "Northern mountains" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Walnut forests", description: "Mountain walnut groves" },
-                { name: "Juniper forests", description: "High-altitude forests" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Karakul Lake", description: "High-altitude crater lake" },
-                { name: "Iskanderkul", description: "Mountain lake named after Alexander" },
-                { name: "Sarez Lake", description: "Formed by 1911 earthquake" }
-            ],
-            glaciers: [
-                { name: "Fedchenko Glacier", description: "Longest glacier outside polar regions" }
-            ]
-        },
-        
         culture: {
-            languages: {
-                official: ["Tajik"],
-                regional: ["Russian", "Uzbek"],
-                spoken: ["Tajik", "Russian", "Uzbek"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Sunni Islam": 85.0,
-                    "Shia Islam": 10.0,
-                    "Other": 5.0
-                }
-            },
-            heritageSites: [
-                { name: "Proto-urban site of Sarazm", type: "Cultural", year: 2010, description: "5000-year-old settlement" },
-                { name: "Silk Roads Sites", type: "Cultural", year: 2014, description: "Historic trade route" },
-                { name: "Tajik National Park", type: "Natural", year: 2013, description: "Pamir Mountains wilderness" }
-            ],
-            festivals: [
-                { name: "Navruz", date: "March 21", description: "Persian New Year" },
-                { name: "Independence Day", date: "September 9", description: "National celebration" },
-                { name: "National Unity Day", date: "June 27", description: "End of civil war commemoration" },
-                { name: "Mehrgon", date: "October", description: "Autumn harvest festival" }
-            ],
-            cuisine: [
-                { name: "Plov", description: "National rice dish with meat" },
-                { name: "Qurutob", description: "Bread in yogurt sauce" },
-                { name: "Shashlik", description: "Grilled meat skewers" },
-                { name: "Laghman", description: "Noodle soup" },
-                { name: "Sambusa", description: "Baked meat pastries" },
-                { name: "Shirchoy", description: "Milk tea with butter" }
-            ],
-            arts: [
-                { type: "Poetry", description: "Persian poetry tradition, Rudaki" },
-                { type: "Music", description: "Shashmaqam classical tradition (UNESCO)" },
-                { type: "Dance", description: "Traditional folk dances" },
-                { type: "Embroidery", description: "Suzani textile art" }
-            ],
-            sports: {
-                popular: ["Football", "Wrestling", "Buzkashi", "Boxing"],
-                achievements: ["Olympic medals in wrestling and judo"],
-                venues: ["Pamir Stadium", "Central Republican Stadium"]
-            }
+            officialLanguages: ["Portuguese"],
+            languages: ["Portuguese", "Mirandese"],
+            religions: ["Roman Catholicism (79.7%)", "No Religion (14.2%)", "Others (6.1%)"],
+            heritageSites: ["Tower of Belém", "Jerónimos Monastery", "Historic Centre of Porto", "Cultural Landscape of Sintra", "Historic Centre of Évora", "Alto Douro Wine Region", "Laurisilva of Madeira", "University of Coimbra"],
+            festivals: ["Festas de Lisboa", "Carnaval", "Festa de São João", "Fado Night", "Romaria de Nossa Senhora da Agonia"],
+            cuisine: ["Bacalhau (Codfish)", "Pastéis de Nata", "Francesinha", "Caldo Verde", "Sardinhas Assadas", "Port Wine", "Piri-Piri Chicken"],
+            arts: ["Fado Music", "Azulejos (Tiles)", "Manueline Architecture", "Literature", "Folk Dance"],
+            sports: ["Football", "Futsal", "Surfing", "Cycling", "Roller Hockey"]
         },
-        
-        history: {
-            timeline: [
-                { year: "4000 BC", event: "Sarazm settlement flourishes" },
-                { year: "6th century BC", event: "Part of Persian Empire" },
-                { year: "329 BC", event: "Alexander the Great conquers region" },
-                { year: "8th century", event: "Arab conquest, Islam introduced" },
-                { year: "9th century", event: "Samanid Empire, Persian cultural renaissance" },
-                { year: "13th century", event: "Mongol conquest" },
-                { year: "1868", event: "Northern Tajikistan under Russian Empire" },
-                { year: "1929", event: "Tajik SSR formed" },
-                { year: "1991", event: "Independence from Soviet Union" },
-                { year: "1992-1997", event: "Civil War" },
-                { year: "1994", event: "Emomali Rahmon becomes president" }
-            ],
-            colonialHistory: null,
-            historicalNames: ["Bactria", "Tajik SSR"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Tajik": 84.3,
-                "Uzbek": 13.8,
-                "Russian": 0.5,
-                "Kyrgyz": 0.8,
-                "Other": 0.6
-            },
-            ageStructure: {
-                "0-14": 32.0,
-                "15-64": 64.0,
-                "65+": 4.0
-            },
-            urbanization: 27.5,
-            lifeExpectancy: 71.5,
-            fertilityRate: 3.2,
-            literacyRate: 99.8
-        },
-        
-        quickFacts: {
-            internet: { tld: ".tj", penetration: 35.0 },
-            calling: { code: "+992" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [
-            {
-                type: "border",
-                description: "Border disputes with Kyrgyzstan",
-                parties: ["Tajikistan", "Kyrgyzstan"],
-                status: "Ongoing clashes"
-            }
-        ],
-        
-        funFacts: [
-            "Tajikistan is 93% mountainous",
-            "The Fedchenko Glacier is 77km long",
-            "Tajik is mutually intelligible with Persian/Farsi",
-            "The Pamir Highway is one of the world's most spectacular roads",
-            "Rudaki, the 'father of Persian poetry,' was from Tajikistan"
-        ]
-    },
 
-    "mongolia": {
-        name: "Mongolia",
-        officialName: "Mongolia",
-        nativeName: "Монгол Улс (Mongol Uls)",
-        iso3: "MNG",
-        iso2: "MN",
-        flag: "🇲🇳",
-        
-        capital: {
-            name: "Ulaanbaatar",
-            population: 1540000,
-            coordinates: { lat: 47.8864, lng: 106.9057 }
+        symbols: {
+            bird: "Barcelos Rooster (Galo de Barcelos)",
+            animal: "Iberian Wolf",
+            flower: "Lavender",
+            tree: "Cork Oak",
+            anthem: "A Portuguesa",
+            motto: "None Official"
         },
-        largestCity: "Ulaanbaatar",
-        population: {
-            total: 3400000,
-            year: 2024,
-            density: 2,
-            growth: 1.4
+
+        demographics: {
+            lifeExpectancy: 82.65,
+            literacyRate: "96.1%",
+            urbanPopulation: "67.4%",
+            medianAge: 46.2
         },
-        area: {
-            total: 1564116,
-            land: 1553556,
-            water: 10560,
-            rank: 18
-        },
-        
-        continent: "Asia",
-        region: "East Asia",
-        subregion: "Central Asia",
-        coordinates: { lat: 46.8625, lng: 103.8467 },
-        borders: ["Russia", "China"],
-        coastline: 0,
-        timezone: ["UTC+7", "UTC+8"],
-        drivingSide: "right",
-        
-        governmentType: "Semi-presidential republic",
-        leader: {
-            headOfState: "President Ukhnaagiin Khürelsükh",
-            headOfGovernment: "Prime Minister Luvsannamsrain Oyun-Erdene"
-        },
-        independence: {
-            date: "December 29, 1911",
-            from: "Qing Dynasty China"
-        },
-        nationalDay: { name: "Naadam", date: "July 11" },
-        divisions: {
-            type: "provinces",
-            count: 21,
-            major: ["Ulaanbaatar", "Darkhan-Uul", "Orkhon", "Selenge", "Dornod"]
-        },
-        
-        economy: {
-            gdpTotal: 20000000000,
-            gdpPerCapita: 5900,
-            gdpGrowth: 5.5,
-            currency: { name: "Mongolian tögrög", code: "MNT", symbol: "₮" },
-            mainIndustries: ["construction", "mining", "food processing", "cashmere"],
-            exports: ["copper", "gold", "coal", "cashmere", "fluorspar"],
-            imports: ["machinery", "fuel", "cars", "food", "consumer goods"],
-            majorPartners: ["China", "Russia", "Switzerland", "South Korea", "Japan"]
-        },
-        hdi: 0.739,
-        
-        geography_links: {
-            rivers: [
-                { name: "Selenge River", description: "Largest river, flows to Lake Baikal" },
-                { name: "Orkhon River", description: "Historic river in central Mongolia" },
-                { name: "Tuul River", description: "River through Ulaanbaatar" },
-                { name: "Kherlen River", description: "Major river in eastern Mongolia" }
-            ],
-            mountains: [
-                { name: "Altai Mountains", description: "Western mountain range" },
-                { name: "Khüiten Peak", description: "Highest at 4374m" },
-                { name: "Khangai Mountains", description: "Central mountains" },
-                { name: "Khentii Mountains", description: "Genghis Khan's homeland" }
-            ],
-            deserts: [
-                { name: "Gobi Desert", description: "Vast desert in southern Mongolia" }
-            ],
-            forests: [
-                { name: "Taiga forests", description: "Northern conifer forests" },
-                { name: "Khentii forests", description: "Protected wilderness" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Khövsgöl Lake", description: "Second-largest freshwater lake in Asia" },
-                { name: "Uvs Lake", description: "Largest saltwater lake" },
-                { name: "Khar Us Lake", description: "Freshwater lake in west" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Mongolian"],
-                regional: ["Kazakh", "Tuvan", "Russian"],
-                spoken: ["Mongolian", "Russian", "English"]
-            },
-            religions: {
-                dominant: "Buddhism",
-                breakdown: {
-                    "Buddhism": 53.0,
-                    "Unaffiliated": 38.6,
-                    "Islam": 3.0,
-                    "Shamanism": 2.9,
-                    "Christianity": 2.2
-                }
-            },
-            heritageSites: [
-                { name: "Orkhon Valley", type: "Cultural", year: 2004, description: "Historic nomadic landscape" },
-                { name: "Uvs Nuur Basin", type: "Natural", year: 2003, description: "Steppe ecosystem" },
-                { name: "Petroglyphic Complexes", type: "Cultural", year: 2011, description: "Ancient rock art" },
-                { name: "Great Burkhan Khaldun", type: "Cultural", year: 2015, description: "Sacred mountain" }
-            ],
-            festivals: [
-                { name: "Naadam", date: "July 11-13", description: "Traditional sports festival" },
-                { name: "Tsagaan Sar", date: "Lunar New Year", description: "White Moon celebration" },
-                { name: "Eagle Festival", date: "October", description: "Kazakh eagle hunting tradition" },
-                { name: "Ice Festival", date: "February-March", description: "Winter celebration" }
-            ],
-            cuisine: [
-                { name: "Buuz", description: "Steamed meat dumplings" },
-                { name: "Khuushuur", description: "Fried meat pockets" },
-                { name: "Airag", description: "Fermented mare's milk" },
-                { name: "Boodog", description: "Goat cooked with hot stones" },
-                { name: "Tsuivan", description: "Stir-fried noodles with meat" }
-            ],
-            arts: [
-                { type: "Throat singing", description: "Khoomei (UNESCO heritage)" },
-                { type: "Morin Khuur", description: "Horse-head fiddle (UNESCO)" },
-                { type: "Ger making", description: "Traditional felt tent" },
-                { type: "Archery", description: "Traditional skill" }
-            ],
-            sports: {
-                popular: ["Wrestling", "Archery", "Horse racing", "Football"],
-                achievements: ["Olympic medals in judo, boxing, archery"],
-                venues: ["Central Stadium", "National Sports Palace"]
-            }
-        },
-        
+
         history: {
             timeline: [
-                { year: "3rd century BC", event: "Xiongnu Empire" },
-                { year: "1206", event: "Mongol Empire founded by Genghis Khan" },
-                { year: "1279", event: "Largest contiguous land empire in history" },
-                { year: "1368", event: "Yuan Dynasty falls in China" },
-                { year: "1691", event: "Qing Dynasty conquest" },
-                { year: "1911", event: "Independence declared" },
-                { year: "1924", event: "Mongolian People's Republic established" },
-                { year: "1990", event: "Democratic revolution" },
-                { year: "1992", event: "New constitution, democracy established" }
+                { year: "1143", title: "Kingdom Founded", description: "Kingdom of Portugal established" },
+                { year: "1415", title: "Age of Discovery", description: "Capture of Ceuta began exploration era" },
+                { year: "1498", title: "India Route", description: "Vasco da Gama reached India" },
+                { year: "1500", title: "Brazil Discovered", description: "Pedro Álvares Cabral discovered Brazil" },
+                { year: "1755", title: "Lisbon Earthquake", description: "Devastating earthquake destroyed Lisbon" },
+                { year: "1910", title: "Republic", description: "Monarchy overthrown, Republic declared" },
+                { year: "1974", title: "Carnation Revolution", description: "Peaceful revolution ended dictatorship" },
+                { year: "1986", title: "EU Member", description: "Joined European Community" }
             ],
-            colonialHistory: null,
-            historicalNames: ["Mongol Empire", "Mongolian People's Republic"]
+            notableFigures: ["Vasco da Gama", "Henry the Navigator", "Ferdinand Magellan", "Luís de Camões", "Fernando Pessoa", "Amália Rodrigues"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Khalkh Mongol": 81.9,
-                "Kazakh": 3.8,
-                "Dörvöd": 2.7,
-                "Bayad": 2.1,
-                "Buryat": 1.7,
-                "Other": 7.8
-            },
-            ageStructure: {
-                "0-14": 27.0,
-                "15-64": 68.0,
-                "65+": 5.0
-            },
-            urbanization: 68.5,
-            lifeExpectancy: 71.0,
-            fertilityRate: 2.5,
-            literacyRate: 98.4
-        },
-        
-        quickFacts: {
-            internet: { tld: ".mn", penetration: 63.0 },
-            calling: { code: "+976" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, E" },
-            measurement: "Metric",
-            emergencyNumber: "102/103/105"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Mongolia is the most sparsely populated country in the world",
-            "More than 30% of Mongolians are still nomadic or semi-nomadic",
-            "Genghis Khan created the world's largest contiguous empire",
-            "Mongolia has more horses than people",
-            "The Gobi Desert contains dinosaur fossils and eggs"
+
+        quickFacts: [
+            { icon: "compass", title: "Explorers", text: "Pioneered Age of Discovery (15th-16th century)" },
+            { icon: "wine-glass", title: "Port Wine", text: "Home of Port Wine (Douro Valley)" },
+            { icon: "tree", title: "Cork", text: "World's largest cork producer (50%)" },
+            { icon: "music", title: "Fado", text: "Fado music is UNESCO Intangible Heritage" },
+            { icon: "language", title: "Portuguese", text: "6th most spoken language globally" },
+            { icon: "water", title: "Surfing", text: "Home to world's largest surfed wave (Nazaré)" }
         ]
     },
 
-    "nepal": {
-        name: "Nepal",
-        officialName: "Federal Democratic Republic of Nepal",
-        nativeName: "सङ्घीय लोकतान्त्रिक गणतन्त्र नेपाल",
-        iso3: "NPL",
-        iso2: "NP",
-        flag: "🇳🇵",
+    // 4. SAN MARINO
+    {
+        id: "SMR",
+        name: "San Marino",
+        officialName: "Republic of San Marino",
+        flag: "https://flagcdn.com/w320/sm.png",
         
-        capital: {
-            name: "Kathmandu",
-            population: 1440000,
-            coordinates: { lat: 27.7172, lng: 85.3240 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1586954225388-8e7be6837a14?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=1920&q=80"
         },
-        largestCity: "Kathmandu",
-        population: {
-            total: 30900000,
-            year: 2024,
-            density: 210,
-            growth: 0.9
+
+        basic: {
+            capital: "San Marino (City)",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Southern Europe",
+            population: 33931,
+            area: 61,
+            populationDensity: 556,
+            independence: "301 CE",
+            callingCode: "+378",
+            tld: ".sm",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 147181,
-            land: 143351,
-            water: 3830,
-            rank: 93
+
+        location: {
+            coordinates: [43.9424, 12.4578],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Italy"],
+            borders: 37,
+            hemispheres: ["Northern", "Eastern"]
         },
-        
-        continent: "Asia",
-        region: "South Asia",
-        subregion: "Himalayas",
-        coordinates: { lat: 28.3949, lng: 84.1240 },
-        borders: ["India", "China"],
-        coastline: 0,
-        timezone: ["UTC+5:45"],
-        drivingSide: "left",
-        
-        governmentType: "Federal parliamentary republic",
-        leader: {
-            headOfState: "President Ram Chandra Paudel",
-            headOfGovernment: "Prime Minister KP Sharma Oli"
+
+        political: {
+            government: "Unitary Parliamentary Directorial Republic",
+            headOfState: "Captains Regent (Two, rotating every 6 months)",
+            headOfGovernment: "Secretary of State for Foreign Affairs",
+            legislature: "Grand and General Council",
+            legalSystem: "Civil Law",
+            states: 9,
+            castelli: 9,
+            largestCity: "Dogana",
+            organizations: ["UN", "Council of Europe", "OSCE", "IAEA"]
         },
-        independence: {
-            date: "1768",
-            from: "Unification by Prithvi Narayan Shah"
-        },
-        nationalDay: { name: "Constitution Day", date: "September 20" },
-        divisions: {
-            type: "provinces",
-            count: 7,
-            major: ["Bagmati", "Gandaki", "Lumbini", "Koshi", "Madhesh"]
-        },
-        
+
         economy: {
-            gdpTotal: 42000000000,
-            gdpPerCapita: 1400,
-            gdpGrowth: 4.5,
-            currency: { name: "Nepalese rupee", code: "NPR", symbol: "रू" },
-            mainIndustries: ["tourism", "carpets", "textiles", "rice", "jute"],
-            exports: ["carpets", "clothing", "leather", "jute", "grain"],
-            imports: ["petroleum", "gold", "machinery", "electrical goods"],
-            majorPartners: ["India", "China", "USA", "Germany", "UK"]
+            gdp: "$1.86 Billion",
+            gdpPPP: "$2.21 Billion",
+            gdpPerCapita: "$53,752",
+            gdpRank: "#168",
+            gdpGrowth: "2.8%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "5.3%",
+            unemployment: "4.5%",
+            majorSectors: ["Services (60%)", "Industry (38%)", "Agriculture (2%)"],
+            industries: ["Tourism", "Banking", "Textiles", "Electronics", "Ceramics", "Cement", "Wine"],
+            exports: ["Building Stone", "Lime", "Chestnuts", "Wheat", "Wine", "Baked Goods", "Hides", "Ceramics"],
+            imports: ["Wide Variety of Consumer Goods"]
         },
-        hdi: 0.602,
-        
+
+        geography: {
+            climate: "Mediterranean",
+            avgTemperature: "13°C",
+            annualRainfall: "750 mm",
+            highestPoint: "Monte Titano (739 m)",
+            lowestPoint: "Torrente Ausa (55 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "16.3%",
+            arableLand: "16.7%",
+            terrain: "Rugged mountains",
+            naturalResources: ["Building Stone"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Koshi River", description: "Major river in east" },
-                { name: "Gandaki River", description: "Sacred river through central region" },
-                { name: "Karnali River", description: "Longest river entirely in Nepal" },
-                { name: "Bagmati River", description: "Sacred river through Kathmandu" }
-            ],
-            mountains: [
-                { name: "Mount Everest", description: "World's highest peak at 8849m" },
-                { name: "Kanchenjunga", description: "Third highest at 8586m" },
-                { name: "Lhotse", description: "Fourth highest at 8516m" },
-                { name: "Makalu", description: "Fifth highest at 8485m" },
-                { name: "Annapurna", description: "Tenth highest at 8091m" }
-            ],
+            rivers: ["Torrente Ausa", "Torrente San Marino"],
+            mountains: ["Monte Titano"],
             deserts: [],
-            forests: [
-                { name: "Terai forests", description: "Lowland tropical forests" },
-                { name: "Himalayan forests", description: "Temperate and alpine forests" },
-                { name: "Chitwan forests", description: "Tropical monsoon forest" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Phewa Lake", description: "Popular lake in Pokhara" },
-                { name: "Rara Lake", description: "Largest lake in Nepal" },
-                { name: "Gosaikunda", description: "Sacred alpine lake" }
-            ]
+            forests: ["Monte Titano Forest"],
+            oceans: []
         },
-        
+
         culture: {
-            languages: {
-                official: ["Nepali"],
-                regional: ["Maithili", "Bhojpuri", "Tharu", "Tamang", "Newari"],
-                spoken: ["Nepali", "English", "Hindi"]
-            },
-            religions: {
-                dominant: "Hinduism",
-                breakdown: {
-                    "Hinduism": 81.3,
-                    "Buddhism": 9.0,
-                    "Islam": 4.4,
-                    "Kirant": 3.0,
-                    "Christianity": 1.4,
-                    "Other": 0.9
-                }
-            },
-            heritageSites: [
-                { name: "Kathmandu Valley", type: "Cultural", year: 1979, description: "Seven monument zones" },
-                { name: "Sagarmatha National Park", type: "Natural", year: 1979, description: "Mount Everest region" },
-                { name: "Chitwan National Park", type: "Natural", year: 1984, description: "Subtropical wilderness" },
-                { name: "Lumbini", type: "Cultural", year: 1997, description: "Birthplace of Buddha" }
-            ],
-            festivals: [
-                { name: "Dashain", date: "September-October", description: "Biggest Hindu festival" },
-                { name: "Tihar", date: "October-November", description: "Festival of lights" },
-                { name: "Holi", date: "March", description: "Festival of colors" },
-                { name: "Buddha Jayanti", date: "May", description: "Buddha's birthday" }
-            ],
-            cuisine: [
-                { name: "Dal Bhat", description: "National dish - lentils with rice" },
-                { name: "Momos", description: "Tibetan-style dumplings" },
-                { name: "Sel Roti", description: "Ring-shaped rice bread" },
-                { name: "Gundruk", description: "Fermented leafy greens" },
-                { name: "Yak cheese", description: "High-altitude dairy" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Pagoda temples, stupas" },
-                { type: "Woodcarving", description: "Intricate temple carvings" },
-                { type: "Thangka painting", description: "Buddhist scroll paintings" },
-                { type: "Music", description: "Folk and devotional music" }
-            ],
-            sports: {
-                popular: ["Football", "Cricket", "Volleyball", "Kabaddi"],
-                achievements: ["Cricket development", "Mountaineering achievements"],
-                venues: ["Dasarath Stadium", "Kirtipur Stadium"]
-            }
+            officialLanguages: ["Italian"],
+            languages: ["Italian", "Romagnol"],
+            religions: ["Roman Catholicism (97%)", "Others (3%)"],
+            heritageSites: ["San Marino Historic Centre and Mount Titano"],
+            festivals: ["Foundation Day (September 3)", "Corpus Christi", "Medieval Days Festival", "National Day"],
+            cuisine: ["Torta Tre Monti", "Pasta e Ceci", "Fagioli con le Cotiche", "Nidi di Rondine", "San Marino Wine"],
+            arts: ["Medieval Architecture", "Painting", "Sculpture", "Philately"],
+            sports: ["Football", "Motorsport (San Marino Grand Prix)", "Shooting", "Baseball"]
         },
-        
+
+        symbols: {
+            bird: "None Official",
+            animal: "None Official",
+            flower: "Cyclamen",
+            tree: "None Official",
+            anthem: "Inno Nazionale della Repubblica",
+            motto: "Liberty"
+        },
+
+        demographics: {
+            lifeExpectancy: 84.68,
+            literacyRate: "99.9%",
+            urbanPopulation: "97.5%",
+            medianAge: 45.2
+        },
+
         history: {
             timeline: [
-                { year: "563 BC", event: "Buddha born in Lumbini" },
-                { year: "4th century", event: "Licchavi dynasty" },
-                { year: "1200s", event: "Malla kingdoms in Kathmandu Valley" },
-                { year: "1768", event: "Unification by Prithvi Narayan Shah" },
-                { year: "1846", event: "Rana regime begins" },
-                { year: "1951", event: "Monarchy restored, Rana regime ends" },
-                { year: "1996-2006", event: "Maoist insurgency" },
-                { year: "2008", event: "Monarchy abolished, republic declared" },
-                { year: "2015", event: "New constitution adopted, devastating earthquake" }
+                { year: "301 CE", title: "Founded", description: "Saint Marinus founded the republic" },
+                { year: "1600", title: "Constitution", description: "Written constitution adopted" },
+                { year: "1862", title: "Italian Treaty", description: "Customs union with Italy" },
+                { year: "1992", title: "UN Member", description: "Became UN member state" },
+                { year: "2002", title: "Euro Adopted", description: "Adopted Euro as currency" },
+                { year: "2008", title: "UNESCO", description: "Historic Centre became UNESCO site" }
             ],
-            colonialHistory: "Never colonized",
-            historicalNames: ["Kingdom of Nepal"]
+            notableFigures: ["Saint Marinus", "Antonio Onofri", "Domino Fattor"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Chhetri": 16.6,
-                "Brahmin-Hill": 12.2,
-                "Magar": 7.1,
-                "Tharu": 6.6,
-                "Tamang": 5.8,
-                "Newar": 5.0,
-                "Kami": 4.8,
-                "Other": 41.9
-            },
-            ageStructure: {
-                "0-14": 27.0,
-                "15-64": 67.0,
-                "65+": 6.0
-            },
-            urbanization: 21.0,
-            lifeExpectancy: 72.0,
-            fertilityRate: 1.9,
-            literacyRate: 68.0
-        },
-        
-        quickFacts: {
-            internet: { tld: ".np", penetration: 47.0 },
-            calling: { code: "+977" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, D, M" },
-            measurement: "Metric",
-            emergencyNumber: "100/101/102"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Nepal has the only non-rectangular national flag in the world",
-            "Eight of the world's ten highest mountains are in Nepal",
-            "Nepal has the world's deepest gorge (Kali Gandaki)",
-            "The country has never been colonized",
-            "Nepal has the world's only living goddess (Kumari)"
+
+        quickFacts: [
+            { icon: "calendar", title: "Oldest Republic", text: "World's oldest surviving republic (since 301 CE)" },
+            { icon: "map", title: "Microstate", text: "5th smallest country in the world" },
+            { icon: "mountain", title: "Monte Titano", text: "Three towers on Monte Titano are iconic symbols" },
+            { icon: "car", title: "Formula 1", text: "Hosted San Marino Grand Prix (1981-2006)" },
+            { icon: "users", title: "Dual Leadership", text: "Two Captains Regent serve as joint heads of state" }
         ]
     },
 
-    "bhutan": {
-        name: "Bhutan",
-        officialName: "Kingdom of Bhutan",
-        nativeName: "འབྲུག་ཡུལ (Druk Yul)",
-        iso3: "BTN",
-        iso2: "BT",
-        flag: "🇧🇹",
+    // 5. SPAIN
+    {
+        id: "ESP",
+        name: "Spain",
+        officialName: "Kingdom of Spain",
+        flag: "https://flagcdn.com/w320/es.png",
         
-        capital: {
-            name: "Thimphu",
-            population: 115000,
-            coordinates: { lat: 27.4728, lng: 89.6390 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1543785734-4b6e564642f8?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1920&q=80"
         },
-        largestCity: "Thimphu",
-        population: {
-            total: 787000,
-            year: 2024,
-            density: 21,
-            growth: 1.0
+
+        basic: {
+            capital: "Madrid",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Iberian Peninsula",
+            population: 47519628,
+            area: 505990,
+            populationDensity: 94,
+            independence: "1479",
+            callingCode: "+34",
+            tld: ".es",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        area: {
-            total: 38394,
-            land: 38394,
-            water: 0,
-            rank: 136
+
+        location: {
+            coordinates: [40.4637, -3.7492],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["France", "Portugal", "Andorra", "Morocco (Ceuta, Melilla)", "Gibraltar (UK)"],
+            borders: 1952,
+            hemispheres: ["Northern", "Western"]
         },
-        
-        continent: "Asia",
-        region: "South Asia",
-        subregion: "Himalayas",
-        coordinates: { lat: 27.5142, lng: 90.4336 },
-        borders: ["India", "China"],
-        coastline: 0,
-        timezone: ["UTC+6"],
-        drivingSide: "left",
-        
-        governmentType: "Constitutional monarchy",
-        leader: {
-            headOfState: "King Jigme Khesar Namgyel Wangchuck",
-            headOfGovernment: "Prime Minister Tshering Tobgay"
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "King Felipe VI",
+            headOfGovernment: "Prime Minister Pedro Sánchez",
+            legislature: "Cortes Generales (Senate & Congress of Deputies)",
+            legalSystem: "Civil Law",
+            states: 17,
+            autonomousCommunities: 17,
+            autonomousCities: 2,
+            provinces: 50,
+            largestCity: "Madrid",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Council of Europe", "Schengen Area", "Eurozone", "G20"]
         },
-        independence: {
-            date: "1907",
-            from: "Monarchy established (never colonized)"
-        },
-        nationalDay: { name: "National Day", date: "December 17" },
-        divisions: {
-            type: "districts",
-            count: 20,
-            major: ["Thimphu", "Paro", "Punakha", "Bumthang", "Phuntsholing"]
-        },
-        
+
         economy: {
-            gdpTotal: 3000000000,
-            gdpPerCapita: 3800,
-            gdpGrowth: 4.0,
-            currency: { name: "Ngultrum", code: "BTN", symbol: "Nu." },
-            mainIndustries: ["hydropower", "agriculture", "forestry", "tourism"],
-            exports: ["electricity", "ferrosilicon", "cement", "calcium carbide"],
-            imports: ["fuel", "machinery", "vehicles", "rice", "textiles"],
-            majorPartners: ["India", "Bangladesh", "Italy", "Nepal", "Japan"]
+            gdp: "$1.58 Trillion",
+            gdpPPP: "$2.32 Trillion",
+            gdpPerCapita: "$33,090",
+            gdpRank: "#15",
+            gdpGrowth: "2.5%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "3.4%",
+            unemployment: "11.7%",
+            majorSectors: ["Services (75%)", "Industry (21%)", "Agriculture (3%)"],
+            industries: ["Textiles", "Apparel", "Food", "Beverages", "Metals", "Chemicals", "Shipbuilding", "Automobiles", "Machine Tools", "Tourism", "Clay", "Refractory Products", "Footwear", "Pharmaceuticals", "Medical Equipment"],
+            exports: ["Cars", "Refined Petroleum", "Vehicle Parts", "Packaged Medicaments", "Citrus"],
+            imports: ["Crude Petroleum", "Cars", "Petroleum Gas", "Vehicle Parts", "Packaged Medicaments"]
         },
-        hdi: 0.666,
-        
+
+        geography: {
+            climate: "Temperate; Mediterranean coast; Oceanic in north; Semi-arid in south",
+            avgTemperature: "14.1°C",
+            annualRainfall: "636 mm",
+            highestPoint: "Teide (3,718 m - Canary Islands), Mulhacén (3,479 m - mainland)",
+            lowestPoint: "Atlantic Ocean (0 m)",
+            coastline: "4,964 km",
+            forestCover: "36.9%",
+            arableLand: "24.9%",
+            terrain: "Large central plateau surrounded by mountains; coastal plains",
+            naturalResources: ["Coal", "Lignite", "Iron Ore", "Copper", "Lead", "Zinc", "Uranium", "Tungsten", "Mercury", "Pyrites", "Magnesite", "Fluorspar", "Gypsum", "Sepiolite", "Kaolin", "Potash", "Hydropower", "Arable Land"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Manas River", description: "Major river in east" },
-                { name: "Mo Chhu", description: "River in Punakha" },
-                { name: "Paro Chhu", description: "River through Paro Valley" },
-                { name: "Wong Chhu", description: "River through Thimphu" }
-            ],
-            mountains: [
-                { name: "Gangkhar Puensum", description: "Highest unclimbed mountain at 7570m" },
-                { name: "Jomolhari", description: "Sacred mountain at 7326m" },
-                { name: "Jichu Drake", description: "Prominent peak at 6989m" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Temperate forests", description: "Blue pine and oak forests" },
-                { name: "Subtropical forests", description: "Southern lowland forests" },
-                { name: "Alpine meadows", description: "High-altitude grasslands" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [],
-            valleys: [
-                { name: "Paro Valley", description: "Historic valley with Tiger's Nest" },
-                { name: "Punakha Valley", description: "Former capital valley" },
-                { name: "Bumthang Valley", description: "Spiritual heartland" }
-            ]
+            rivers: ["Tagus River", "Ebro River", "Douro River", "Guadalquivir River", "Guadiana River"],
+            mountains: ["Pyrenees", "Sierra Nevada", "Cantabrian Mountains", "Sistema Central", "Sistema Ibérico", "Teide"],
+            deserts: ["Tabernas Desert"],
+            forests: ["Doñana National Park", "Ordesa y Monte Perdido", "Garajonay"],
+            oceans: ["Atlantic Ocean", "Mediterranean Sea", "Bay of Biscay"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Dzongkha"],
-                regional: ["Sharchop", "Nepali", "English"],
-                spoken: ["Dzongkha", "English", "Nepali"]
-            },
-            religions: {
-                dominant: "Buddhism",
-                breakdown: {
-                    "Vajrayana Buddhism": 75.0,
-                    "Hinduism": 22.0,
-                    "Other": 3.0
-                }
-            },
-            heritageSites: [],
-            festivals: [
-                { name: "Tshechu", date: "Various", description: "Religious festivals with mask dances" },
-                { name: "Losar", date: "February-March", description: "Bhutanese New Year" },
-                { name: "National Day", date: "December 17", description: "Coronation of first king" },
-                { name: "Thimphu Tshechu", date: "September-October", description: "Largest festival" }
-            ],
-            cuisine: [
-                { name: "Ema Datshi", description: "National dish - chili and cheese" },
-                { name: "Phaksha Paa", description: "Pork with red chilies" },
-                { name: "Jasha Maru", description: "Spicy chicken" },
-                { name: "Red Rice", description: "Distinctive Bhutanese rice" },
-                { name: "Suja", description: "Butter tea" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Dzong fortress-monasteries" },
-                { type: "Thangka painting", description: "Buddhist religious art" },
-                { type: "Textiles", description: "Traditional weaving with symbolic patterns" },
-                { type: "Mask making", description: "Religious dance masks" }
-            ],
-            sports: {
-                popular: ["Archery", "Darts", "Football", "Basketball"],
-                achievements: ["Traditional archery excellence"],
-                venues: ["Changlimithang Stadium"]
-            }
+            officialLanguages: ["Spanish (Castilian)"],
+            languages: ["Spanish", "Catalan", "Galician", "Basque", "Aranese"],
+            religions: ["Roman Catholicism (56.4%)", "No Religion (39.9%)", "Others (3.7%)"],
+            heritageSites: ["Alhambra", "Sagrada Família", "Works of Antoni Gaudí", "Historic City of Toledo", "Old Town of Segovia", "Old City of Salamanca", "Cathedral, Alcázar and Archivo de Indias in Seville", "Monastery of El Escorial", "Route of Santiago de Compostela", "Caves of Altamira"],
+            festivals: ["La Tomatina", "Running of the Bulls (San Fermín)", "Las Fallas", "Semana Santa", "Feria de Abril", "La Mercè"],
+            cuisine: ["Paella", "Tapas", "Jamón Ibérico", "Gazpacho", "Tortilla Española", "Churros", "Sangria", "Croquetas"],
+            arts: ["Flamenco", "Classical Guitar", "Painters (Picasso, Dalí, Goya, Velázquez)", "Architecture (Gaudí)"],
+            sports: ["Football", "Basketball", "Tennis", "Cycling", "Padel", "Bullfighting"]
         },
-        
+
+        symbols: {
+            bird: "Spanish Imperial Eagle",
+            animal: "Bull",
+            flower: "Red Carnation",
+            tree: "Holm Oak",
+            anthem: "Marcha Real",
+            motto: "Plus Ultra (Further Beyond)"
+        },
+
+        demographics: {
+            lifeExpectancy: 83.99,
+            literacyRate: "98.6%",
+            urbanPopulation: "81.4%",
+            medianAge: 45.5
+        },
+
         history: {
             timeline: [
-                { year: "7th century", event: "Buddhism introduced" },
-                { year: "1616", event: "Zhabdrung Ngawang Namgyal unifies Bhutan" },
-                { year: "1907", event: "Ugyen Wangchuck becomes first king" },
-                { year: "1971", event: "Joins United Nations" },
-                { year: "2006", event: "Fourth King abdicates to fifth king" },
-                { year: "2008", event: "First democratic elections, constitutional monarchy" },
-                { year: "2020", event: "COVID-19 response praised globally" }
+                { year: "711", title: "Moorish Conquest", description: "Muslim conquest of Iberian Peninsula" },
+                { year: "1492", title: "Reconquista Completed", description: "Granada fell; Columbus reached Americas" },
+                { year: "16th Century", title: "Spanish Empire", description: "Peak of Spanish colonial power" },
+                { year: "1808-1814", title: "Peninsular War", description: "War against Napoleonic France" },
+                { year: "1936-1939", title: "Civil War", description: "Spanish Civil War" },
+                { year: "1939-1975", title: "Franco Era", description: "Francisco Franco's dictatorship" },
+                { year: "1975", title: "Democracy", description: "Return to democracy after Franco's death" },
+                { year: "1986", title: "EU Member", description: "Joined European Community" }
             ],
-            colonialHistory: "Never colonized",
-            historicalNames: ["Druk Yul", "Land of the Thunder Dragon"]
+            notableFigures: ["Isabella I", "Ferdinand II", "Christopher Columbus", "Miguel de Cervantes", "Francisco Franco", "Pablo Picasso", "Salvador Dalí"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Ngalop": 50.0,
-                "Sharchop": 25.0,
-                "Lhotshampa": 22.0,
-                "Other": 3.0
-            },
-            ageStructure: {
-                "0-14": 24.0,
-                "15-64": 70.0,
-                "65+": 6.0
-            },
-            urbanization: 42.5,
-            lifeExpectancy: 72.5,
-            fertilityRate: 1.8,
-            literacyRate: 66.6
-        },
-        
-        quickFacts: {
-            internet: { tld: ".bt", penetration: 54.0 },
-            calling: { code: "+975" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "D, F, G" },
-            measurement: "Metric",
-            emergencyNumber: "112/113"
-        },
-        
+
         disputes: [
-            {
-                type: "border",
-                description: "Northern border with China undefined",
-                parties: ["Bhutan", "China"],
-                status: "Ongoing negotiations"
-            }
+            { name: "Gibraltar", description: "British overseas territory claimed by Spain", type: "Territory" },
+            { name: "Ceuta and Melilla", description: "Spanish cities on African coast claimed by Morocco", type: "Territory" },
+            { name: "Catalonia", description: "Independence movement within Spain", type: "Territory" }
         ],
-        
-        funFacts: [
-            "Bhutan measures Gross National Happiness instead of GDP",
-            "Bhutan is the world's only carbon-negative country",
-            "Television was not introduced until 1999",
-            "Tobacco sales are banned",
-            "Gangkhar Puensum is the world's highest unclimbed mountain",
-            "Traditional dress (gho and kira) is mandatory in schools and offices"
+
+        quickFacts: [
+            { icon: "sun", title: "Tourism", text: "2nd most visited country in the world" },
+            { icon: "language", title: "Spanish", text: "4th most spoken language globally" },
+            { icon: "monument", title: "UNESCO Sites", text: "4th most UNESCO World Heritage Sites (49)" },
+            { icon: "olive", title: "Olive Oil", text: "World's largest olive oil producer" },
+            { icon: "train", title: "High-Speed Rail", text: "2nd largest high-speed rail network in world" },
+            { icon: "futbol", title: "Football", text: "One of world's most successful football nations" }
         ]
     },
 
-    "sri_lanka": {
-        name: "Sri Lanka",
-        officialName: "Democratic Socialist Republic of Sri Lanka",
-        nativeName: "ශ්‍රී ලංකා / இலங்கை",
-        iso3: "LKA",
-        iso2: "LK",
-        flag: "🇱🇰",
+    // 6. VATICAN CITY
+    {
+        id: "VAT",
+        name: "Vatican City",
+        officialName: "Vatican City State",
+        flag: "https://flagcdn.com/w320/va.png",
         
-        capital: {
-            name: "Sri Jayawardenepura Kotte",
-            population: 128000,
-            coordinates: { lat: 6.9271, lng: 79.8612 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1544230247-92d4d6e62e02?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1555992457-b8fefdd09069?w=1920&q=80"
         },
-        largestCity: "Colombo",
-        population: {
-            total: 22160000,
-            year: 2024,
-            density: 338,
-            growth: 0.4
-        },
-        area: {
-            total: 65610,
-            land: 64630,
-            water: 980,
-            rank: 122
-        },
-        
-        continent: "Asia",
-        region: "South Asia",
-        subregion: "Indian Ocean",
-        coordinates: { lat: 7.8731, lng: 80.7718 },
-        borders: [],
-        coastline: 1340,
-        timezone: ["UTC+5:30"],
-        drivingSide: "left",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Anura Kumara Dissanayake",
-            headOfGovernment: "President Anura Kumara Dissanayake"
-        },
-        independence: {
-            date: "February 4, 1948",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "February 4" },
-        divisions: {
-            type: "provinces",
-            count: 9,
-            major: ["Western", "Central", "Southern", "Northern", "Eastern"]
-        },
-        
-        economy: {
-            gdpTotal: 75000000000,
-            gdpPerCapita: 3400,
-            gdpGrowth: -2.0,
-            currency: { name: "Sri Lankan rupee", code: "LKR", symbol: "Rs" },
-            mainIndustries: ["textiles", "apparel", "tea processing", "tourism", "telecommunications"],
-            exports: ["textiles", "tea", "coconut products", "rubber", "gems"],
-            imports: ["petroleum", "textiles", "machinery", "food", "transport equipment"],
-            majorPartners: ["USA", "UK", "India", "Germany", "Italy"]
-        },
-        hdi: 0.782,
-        
-        geography_links: {
-            rivers: [
-                { name: "Mahaweli River", description: "Longest river" },
-                { name: "Kelani River", description: "River through Colombo region" },
-                { name: "Kalu Ganga", description: "Major river in southwest" }
-            ],
-            mountains: [
-                { name: "Pidurutalagala", description: "Highest peak at 2524m" },
-                { name: "Adam's Peak", description: "Sacred mountain with footprint" },
-                { name: "Knuckles Mountain Range", description: "UNESCO heritage area" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Sinharaja Forest", description: "UNESCO rainforest reserve" },
-                { name: "Knuckles forests", description: "Cloud forests" },
-                { name: "Wilpattu forests", description: "Dry zone forest" }
-            ],
-            oceans: [
-                { name: "Indian Ocean", description: "Surrounds the island" }
-            ],
-            seas: [
-                { name: "Bay of Bengal", description: "Northeastern waters" },
-                { name: "Laccadive Sea", description: "Northwestern waters" }
-            ],
-            lakes: [
-                { name: "Kandy Lake", description: "Historic artificial lake" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Sinhala", "Tamil"],
-                regional: ["English"],
-                spoken: ["Sinhala", "Tamil", "English"]
-            },
-            religions: {
-                dominant: "Buddhism",
-                breakdown: {
-                    "Buddhism": 70.2,
-                    "Hinduism": 12.6,
-                    "Islam": 9.7,
-                    "Christianity": 7.4,
-                    "Other": 0.1
-                }
-            },
-            heritageSites: [
-                { name: "Sacred City of Anuradhapura", type: "Cultural", year: 1982, description: "Ancient Buddhist capital" },
-                { name: "Ancient City of Polonnaruwa", type: "Cultural", year: 1982, description: "Medieval capital" },
-                { name: "Ancient City of Sigiriya", type: "Cultural", year: 1982, description: "Rock fortress" },
-                { name: "Sacred City of Kandy", type: "Cultural", year: 1988, description: "Last royal capital" },
-                { name: "Old Town of Galle", type: "Cultural", year: 1988, description: "Colonial fort" },
-                { name: "Sinharaja Forest Reserve", type: "Natural", year: 1988, description: "Tropical rainforest" },
-                { name: "Dambulla Cave Temple", type: "Cultural", year: 1991, description: "Rock temple complex" },
-                { name: "Central Highlands", type: "Natural", year: 2010, description: "Mountain ecosystem" }
-            ],
-            festivals: [
-                { name: "Sinhala and Tamil New Year", date: "April 13-14", description: "National New Year" },
-                { name: "Vesak", date: "May", description: "Buddha's birthday" },
-                { name: "Kandy Esala Perahera", date: "July-August", description: "Grand Buddhist procession" },
-                { name: "Thai Pongal", date: "January", description: "Tamil harvest festival" }
-            ],
-            cuisine: [
-                { name: "Rice and Curry", description: "National staple with multiple curries" },
-                { name: "Hoppers", description: "Bowl-shaped pancakes" },
-                { name: "Kottu", description: "Chopped roti with vegetables and meat" },
-                { name: "String Hoppers", description: "Rice noodle nests" },
-                { name: "Lamprais", description: "Dutch Burgher rice dish" }
-            ],
-            arts: [
-                { type: "Dance", description: "Kandyan, low-country, and Sabaragamuwa traditions" },
-                { type: "Architecture", description: "Buddhist temples, colonial buildings" },
-                { type: "Crafts", description: "Batik, lacquerware, masks" },
-                { type: "Literature", description: "Rich Sinhalese and Tamil traditions" }
-            ],
-            sports: {
-                popular: ["Cricket", "Volleyball", "Football", "Rugby"],
-                achievements: ["1996 Cricket World Cup champions", "Strong cricket tradition"],
-                venues: ["R. Premadasa Stadium", "Galle International Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "543 BC", event: "Prince Vijaya arrives, Sinhalese civilization begins" },
-                { year: "3rd century BC", event: "Buddhism introduced by Mahinda" },
-                { year: "1505", event: "Portuguese arrive" },
-                { year: "1658", event: "Dutch colonial rule" },
-                { year: "1796", event: "British take control" },
-                { year: "1815", event: "Entire island under British rule" },
-                { year: "1948", event: "Independence from Britain" },
-                { year: "1972", event: "Republic declared, name changed to Sri Lanka" },
-                { year: "1983-2009", event: "Civil War with Tamil Tigers" },
-                { year: "2019", event: "Easter Sunday bombings" },
-                { year: "2022", event: "Economic crisis and political upheaval" }
-            ],
-            colonialHistory: "Portuguese 1505-1658, Dutch 1658-1796, British 1796-1948",
-            historicalNames: ["Ceylon", "Serendib", "Taprobane"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Sinhalese": 74.9,
-                "Sri Lankan Tamil": 11.2,
-                "Sri Lankan Moor": 9.2,
-                "Indian Tamil": 4.2,
-                "Other": 0.5
-            },
-            ageStructure: {
-                "0-14": 23.0,
-                "15-64": 66.0,
-                "65+": 11.0
-            },
-            urbanization: 18.7,
-            lifeExpectancy: 77.5,
-            fertilityRate: 2.2,
-            literacyRate: 92.3
-        },
-        
-        quickFacts: {
-            internet: { tld: ".lk", penetration: 52.0 },
-            calling: { code: "+94" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "D, G" },
-            measurement: "Metric",
-            emergencyNumber: "119"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Sri Lanka has the oldest human-planted tree (over 2,200 years old)",
-            "The country was called Ceylon until 1972",
-            "Sri Lanka is the world's largest tea exporter",
-            "The island has eight UNESCO World Heritage Sites",
-            "Sri Lanka has the highest biodiversity density in Asia"
-        ]
-    },
 
-    "maldives": {
-        name: "Maldives",
-        officialName: "Republic of Maldives",
-        nativeName: "ދިވެހިރާއްޖޭގެ ޖުމްހޫރިއްޔާ",
-        iso3: "MDV",
-        iso2: "MV",
-        flag: "🇲🇻",
-        
-        capital: {
-            name: "Malé",
-            population: 252000,
-            coordinates: { lat: 4.1755, lng: 73.5093 }
+        basic: {
+            capital: "Vatican City",
+            continent: "Europe",
+            region: "Southern Europe",
+            subregion: "Southern Europe",
+            population: 764,
+            area: 0.44,
+            populationDensity: 1818,
+            independence: "1929",
+            callingCode: "+379",
+            tld: ".va",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        largestCity: "Malé",
-        population: {
-            total: 523000,
-            year: 2024,
-            density: 1758,
-            growth: 0.5
+
+        location: {
+            coordinates: [41.9029, 12.4534],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Italy"],
+            borders: 3.4,
+            hemispheres: ["Northern", "Eastern"]
         },
-        area: {
-            total: 298,
-            land: 298,
-            water: 0,
-            rank: 187
+
+        political: {
+            government: "Unitary Absolute Elective Theocratic Monarchy",
+            headOfState: "Pope Francis",
+            headOfGovernment: "President of the Pontifical Commission (Cardinal Fernando Vérgez Alzaga)",
+            legislature: "Pontifical Commission for Vatican City State",
+            legalSystem: "Religious (Canon Law) and Civil Law",
+            states: 0,
+            largestCity: "Vatican City",
+            organizations: ["UN (Holy See - Observer)", "OSCE", "Interpol", "IAEA"]
         },
-        
-        continent: "Asia",
-        region: "South Asia",
-        subregion: "Indian Ocean",
-        coordinates: { lat: 3.2028, lng: 73.2207 },
-        borders: [],
-        coastline: 644,
-        timezone: ["UTC+5"],
-        drivingSide: "left",
-        
-        governmentType: "Presidential republic",
-        leader: {
-            headOfState: "President Mohamed Muizzu",
-            headOfGovernment: "President Mohamed Muizzu"
-        },
-        independence: {
-            date: "July 26, 1965",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "July 26" },
-        divisions: {
-            type: "atolls",
-            count: 20,
-            major: ["Malé", "Addu City", "Kulhudhuffushi", "Fuvahmulah"]
-        },
-        
+
         economy: {
-            gdpTotal: 6500000000,
-            gdpPerCapita: 12500,
-            gdpGrowth: 8.0,
-            currency: { name: "Maldivian rufiyaa", code: "MVR", symbol: "Rf" },
-            mainIndustries: ["tourism", "fishing", "boat building", "coconut processing"],
-            exports: ["fish", "fish products"],
-            imports: ["petroleum", "boats", "food", "consumer goods"],
-            majorPartners: ["Thailand", "UAE", "India", "Sri Lanka", "China"]
+            gdp: "Not Applicable (supported by donations)",
+            gdpPPP: "Not Applicable",
+            gdpPerCapita: "Not Applicable",
+            gdpRank: "N/A",
+            gdpGrowth: "N/A",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "N/A",
+            unemployment: "0%",
+            majorSectors: ["Religious Activities", "Tourism", "Publishing", "Philately"],
+            industries: ["Printing", "Production of Coins", "Medals", "Stamps", "Mosaics", "Staff Uniforms"],
+            exports: ["None (non-commercial economy)"],
+            imports: ["Foodstuffs", "Electric Appliances", "Equipment"]
         },
-        hdi: 0.747,
-        
+
+        geography: {
+            climate: "Mediterranean",
+            avgTemperature: "15.5°C",
+            annualRainfall: "750 mm",
+            highestPoint: "Vatican Gardens (75 m)",
+            lowestPoint: "Saint Peter's Square (19 m)",
+            coastline: "0 km (Landlocked, Enclave)",
+            forestCover: "0%",
+            arableLand: "0%",
+            terrain: "Urban, low hill",
+            naturalResources: ["None"]
+        },
+
         geography_links: {
             rivers: [],
             mountains: [],
             deserts: [],
+            forests: ["Vatican Gardens"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["Latin", "Italian"],
+            languages: ["Latin", "Italian", "French", "German", "English", "Spanish", "Portuguese"],
+            religions: ["Roman Catholicism (100%)"],
+            heritageSites: ["Vatican City (entire state)"],
+            festivals: ["Easter", "Christmas", "Papal Audiences", "Canonizations", "Papal Elections"],
+            cuisine: ["Italian Cuisine (provided by Vatican services)"],
+            arts: ["Sistine Chapel", "St. Peter's Basilica", "Vatican Museums", "Renaissance Art", "Religious Art"],
+            sports: ["None Official (Vatican cricket team exists)"]
+        },
+
+        symbols: {
+            bird: "None Official",
+            animal: "None Official",
+            flower: "None Official",
+            tree: "None Official",
+            anthem: "Inno e Marcia Pontificale",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 80.0,
+            literacyRate: "100%",
+            urbanPopulation: "100%",
+            medianAge: 55.0
+        },
+
+        history: {
+            timeline: [
+                { year: "64 CE", title: "St. Peter's Martyrdom", description: "St. Peter martyred; burial site became sacred" },
+                { year: "326", title: "Old St. Peter's", description: "Constantine built original basilica" },
+                { year: "756", title: "Papal States", description: "Papal States established" },
+                { year: "1506", title: "New Basilica", description: "Construction of current St. Peter's Basilica began" },
+                { year: "1870", title: "Italian Unification", description: "Papal States annexed by Italy" },
+                { year: "1929", title: "Lateran Treaty", description: "Vatican City created as independent state" }
+            ],
+            notableFigures: ["Pope John Paul II", "Pope Benedict XVI", "Pope Francis", "Michelangelo", "Raphael", "Bernini"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "map", title: "Smallest Country", text: "World's smallest independent state (0.44 km²)" },
+            { icon: "cross", title: "Holy See", text: "Headquarters of Roman Catholic Church" },
+            { icon: "palette", title: "Sistine Chapel", text: "Home to Michelangelo's famous ceiling" },
+            { icon: "users", title: "Population", text: "World's smallest population (~800 people)" },
+            { icon: "book", title: "Vatican Library", text: "One of oldest libraries in the world" },
+            { icon: "church", title: "St. Peter's", text: "Largest church in the world by interior space" }
+        ]
+    },
+
+    // 7. ANDORRA
+    {
+        id: "AND",
+        name: "Andorra",
+        officialName: "Principality of Andorra",
+        flag: "https://flagcdn.com/w320/ad.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1600270107917-c53ed3d1a7dc?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1600270107917-c53ed3d1a7dc?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1581019697388-4f6e7b8e2a1c?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Andorra la Vella",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Pyrenees",
+            population: 80088,
+            area: 468,
+            populationDensity: 164,
+            independence: "1278",
+            callingCode: "+376",
+            tld: ".ad",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [42.5063, 1.5218],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["France", "Spain"],
+            borders: 118,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Diarchy",
+            headOfState: "Co-Princes: President of France (Emmanuel Macron) & Bishop of Urgell (Joan Enric Vives Sicília)",
+            headOfGovernment: "Head of Government Xavier Espot Zamora",
+            legislature: "General Council",
+            legalSystem: "Mixed (Civil and Customary Law)",
+            states: 7,
+            parishes: 7,
+            largestCity: "Andorra la Vella",
+            organizations: ["UN", "Council of Europe", "OSCE", "UNESCO"]
+        },
+
+        economy: {
+            gdp: "$3.35 Billion",
+            gdpPPP: "$4.43 Billion",
+            gdpPerCapita: "$42,030",
+            gdpRank: "#158",
+            gdpGrowth: "8.6%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.3%",
+            unemployment: "1.9%",
+            majorSectors: ["Services (Tourism & Banking 80%)", "Industry (15%)", "Agriculture (1%)"],
+            industries: ["Tourism", "Retail", "Banking", "Timber", "Tobacco", "Iron Ore", "Lead"],
+            exports: ["Tobacco Products", "Furniture"],
+            imports: ["Consumer Goods", "Food", "Electricity"]
+        },
+
+        geography: {
+            climate: "Temperate; Cold Winters, Warm Summers",
+            avgTemperature: "7.6°C",
+            annualRainfall: "1,071 mm",
+            highestPoint: "Coma Pedrosa (2,942 m)",
+            lowestPoint: "Riu Runer (840 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "34%",
+            arableLand: "5.3%",
+            terrain: "Rugged mountains dissected by narrow valleys",
+            naturalResources: ["Hydropower", "Mineral Water", "Timber", "Iron Ore", "Lead"]
+        },
+
+        geography_links: {
+            rivers: ["Valira River", "Valira del Nord", "Valira d'Orient", "Gran Valira"],
+            mountains: ["Coma Pedrosa", "Pic de Casamanya", "Pyrenees"],
+            deserts: [],
+            forests: ["Vall del Madriu-Perafita-Claror"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["Catalan"],
+            languages: ["Catalan", "Spanish", "Portuguese", "French"],
+            religions: ["Roman Catholicism (90%)", "Others (10%)"],
+            heritageSites: ["Madriu-Perafita-Claror Valley"],
+            festivals: ["Meritxell Day (National Day)", "Carnival", "Sant Jordi", "Escudella (Christmas Stew)"],
+            cuisine: ["Escudella", "Trinxat", "Cunillo", "Embotits", "Crêpes"],
+            arts: ["Romanesque Art", "Stone Architecture", "Traditional Music"],
+            sports: ["Skiing", "Football", "Basketball", "Cycling", "Rugby"]
+        },
+
+        symbols: {
+            bird: "Lammergeier",
+            animal: "Pyrenean Chamois",
+            flower: "Grandalla",
+            tree: "None Official",
+            anthem: "El Gran Carlemany",
+            motto: "Virtus Unita Fortior (United Virtue is Stronger)"
+        },
+
+        demographics: {
+            lifeExpectancy: 83.23,
+            literacyRate: "100%",
+            urbanPopulation: "87.8%",
+            medianAge: 46.2
+        },
+
+        history: {
+            timeline: [
+                { year: "803", title: "Charlemagne", description: "Legend says Charlemagne founded Andorra" },
+                { year: "1278", title: "Paréage", description: "Co-principality established between Bishop of Urgell and Count of Foix" },
+                { year: "1933", title: "Universal Suffrage", description: "Men gained right to vote" },
+                { year: "1970", title: "Women's Suffrage", description: "Women gained right to vote" },
+                { year: "1993", title: "Constitution", description: "First written constitution adopted" },
+                { year: "1993", title: "UN Member", description: "Joined United Nations" }
+            ],
+            notableFigures: ["Saint Ermengol", "Boris Skossyreff", "Xavier Espot Zamora"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "mountain", title: "Pyrenean Microstate", text: "6th smallest nation in Europe" },
+            { icon: "skiing", title: "Ski Destination", text: "Major skiing and shopping destination" },
+            { icon: "crown", title: "Diarchy", text: "Only country with two foreign co-princes" },
+            { icon: "city", title: "Highest Capital", text: "Highest capital city in Europe (1,023m)" },
+            { icon: "ban-smoking", title: "Tax Haven", text: "No income tax (until 2015)" },
+            { icon: "globe", title: "Not EU", text: "Not EU member but uses Euro" }
+        ]
+    },
+
+    // 8. AUSTRIA
+    {
+        id: "AUT",
+        name: "Austria",
+        officialName: "Republic of Austria",
+        flag: "https://flagcdn.com/w320/at.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1516550893923-42d28e5677af?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1609856878074-cf31e21ccb6b?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Vienna",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Central Europe",
+            population: 9104772,
+            area: 83879,
+            populationDensity: 109,
+            independence: "1955",
+            callingCode: "+43",
+            tld: ".at",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [47.5162, 14.5501],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Germany", "Czech Republic", "Slovakia", "Hungary", "Slovenia", "Italy", "Switzerland", "Liechtenstein"],
+            borders: 2524,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Federal Parliamentary Republic",
+            headOfState: "President Alexander Van der Bellen",
+            headOfGovernment: "Chancellor Karl Nehammer",
+            legislature: "Parliament (Federal Council & National Council)",
+            legalSystem: "Civil Law (influenced by German law)",
+            states: 9,
+            federalStates: 9,
+            largestCity: "Vienna",
+            organizations: ["UN", "EU", "OECD", "WTO", "Council of Europe", "Schengen Area", "Eurozone", "OSCE"]
+        },
+
+        economy: {
+            gdp: "$516 Billion",
+            gdpPPP: "$616 Billion",
+            gdpPerCapita: "$56,802",
+            gdpRank: "#26",
+            gdpGrowth: "-0.7%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "7.4%",
+            unemployment: "5.0%",
+            majorSectors: ["Services (70%)", "Industry (27%)", "Agriculture (1%)"],
+            industries: ["Construction", "Machinery", "Vehicles", "Food", "Metals", "Chemicals", "Lumber", "Paper", "Communications Equipment", "Tourism"],
+            exports: ["Machinery", "Motor Vehicles", "Pharmaceuticals", "Medical Instruments", "Metal Products"],
+            imports: ["Machinery", "Motor Vehicles", "Crude Petroleum", "Pharmaceuticals", "Foodstuffs"]
+        },
+
+        geography: {
+            climate: "Temperate; Continental, Cloudy",
+            avgTemperature: "7.4°C",
+            annualRainfall: "1,110 mm",
+            highestPoint: "Großglockner (3,798 m)",
+            lowestPoint: "Neusiedler See (115 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "47.6%",
+            arableLand: "16.3%",
+            terrain: "Western and southern regions are mountainous (Alps); eastern areas are lowlands",
+            naturalResources: ["Oil", "Coal", "Lignite", "Timber", "Iron Ore", "Copper", "Zinc", "Antimony", "Magnesite", "Tungsten", "Graphite", "Salt", "Hydropower"]
+        },
+
+        geography_links: {
+            rivers: ["Danube River", "Inn River", "Salzach River", "Drau River", "Mur River"],
+            mountains: ["Alps", "Großglockner", "Wildspitze", "Weißkugel", "Hohe Tauern"],
+            deserts: [],
+            forests: ["Vienna Woods", "Hohe Tauern National Park", "Tyrol Forests"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["German"],
+            languages: ["German", "Croatian", "Slovene", "Hungarian", "Turkish"],
+            religions: ["Roman Catholicism (55.2%)", "No Religion (23.8%)", "Islam (8.3%)", "Protestantism (3.4%)", "Orthodox Christianity (5%)"],
+            heritageSites: ["Historic Centre of Vienna", "Palace and Gardens of Schönbrunn", "Hallstatt-Dachstein", "Salzburg Historic Centre", "Wachau Cultural Landscape", "Semmering Railway", "Graz Historic Centre"],
+            festivals: ["Vienna Opera Ball", "Salzburg Festival", "Christmas Markets", "Vienna New Year's Concert", "Donauinselfest"],
+            cuisine: ["Wiener Schnitzel", "Sachertorte", "Apfelstrudel", "Tafelspitz", "Kaiserschmarrn", "Knödel", "Gulasch"],
+            arts: ["Classical Music (Mozart, Strauss, Haydn)", "Opera", "Ballet", "Theater", "Fine Arts (Klimt, Schiele)"],
+            sports: ["Skiing", "Football", "Ice Hockey", "Formula 1", "Cycling"]
+        },
+
+        symbols: {
+            bird: "Barn Swallow",
+            animal: "Black Eagle",
+            flower: "Edelweiss",
+            tree: "None Official",
+            anthem: "Land der Berge, Land am Strome",
+            motto: "None Official"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.07,
+            literacyRate: "99%",
+            urbanPopulation: "59.3%",
+            medianAge: 44.2
+        },
+
+        history: {
+            timeline: [
+                { year: "976", title: "Margraviate", description: "Margraviate of Austria established" },
+                { year: "1278", title: "Habsburg Rule", description: "Habsburg dynasty began ruling Austria" },
+                { year: "1804", title: "Austrian Empire", description: "Austrian Empire proclaimed" },
+                { year: "1867", title: "Austro-Hungarian Empire", description: "Dual monarchy with Hungary established" },
+                { year: "1918", title: "Republic", description: "First Austrian Republic after WWI" },
+                { year: "1938", title: "Anschluss", description: "Annexed by Nazi Germany" },
+                { year: "1945", title: "Liberation", description: "Liberated and occupied by Allies" },
+                { year: "1955", title: "State Treaty", description: "Regained full sovereignty; declared neutrality" },
+                { year: "1995", title: "EU Member", description: "Joined European Union" }
+            ],
+            notableFigures: ["Wolfgang Amadeus Mozart", "Sigmund Freud", "Gustav Klimt", "Arnold Schwarzenegger", "Empress Maria Theresa", "Franz Joseph I"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "music", title: "Classical Music", text: "Birthplace of Mozart, Haydn, and Schubert" },
+            { icon: "skiing", title: "Skiing", text: "World's premier skiing destination" },
+            { icon: "coffee", title: "Café Culture", text: "Viennese coffee house culture is UNESCO heritage" },
+            { icon: "crown", title: "Habsburg Legacy", text: "Former center of Habsburg Empire (650 years)" },
+            { icon: "globe", title: "Neutral", text: "Constitutionally neutral since 1955" },
+            { icon: "mountain", title: "Alpine", text: "62% of territory covered by Alps" }
+        ]
+    },
+
+    // 9. BELGIUM
+    {
+        id: "BEL",
+        name: "Belgium",
+        officialName: "Kingdom of Belgium",
+        flag: "https://flagcdn.com/w320/be.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1559113513-d5e09c78b9dd?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1565883452246-7e35c76ca82e?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1559111563-eef25d4d7b58?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Brussels",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Western Europe",
+            population: 11686140,
+            area: 30528,
+            populationDensity: 383,
+            independence: "1830",
+            callingCode: "+32",
+            tld: ".be",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [50.5039, 4.4699],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["France", "Luxembourg", "Germany", "Netherlands"],
+            borders: 1297,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Federal Parliamentary Constitutional Monarchy",
+            headOfState: "King Philippe",
+            headOfGovernment: "Prime Minister Alexander De Croo",
+            legislature: "Federal Parliament (Senate & Chamber of Representatives)",
+            legalSystem: "Civil Law (based on Napoleonic Code)",
+            states: 3,
+            regions: 3,
+            communities: 3,
+            provinces: 10,
+            largestCity: "Brussels",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Council of Europe", "Schengen Area", "Eurozone", "Benelux"]
+        },
+
+        economy: {
+            gdp: "$627 Billion",
+            gdpPPP: "$721 Billion",
+            gdpPerCapita: "$53,657",
+            gdpRank: "#23",
+            gdpGrowth: "1.4%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.1%",
+            unemployment: "5.6%",
+            majorSectors: ["Services (78%)", "Industry (20%)", "Agriculture (1%)"],
+            industries: ["Engineering", "Metal Products", "Motor Vehicle Assembly", "Transportation Equipment", "Scientific Instruments", "Processed Food", "Beverages", "Chemicals", "Pharmaceuticals", "Basic Metals", "Textiles", "Glass", "Petroleum"],
+            exports: ["Cars", "Refined Petroleum", "Packaged Medicaments", "Blood Products", "Diamonds"],
+            imports: ["Cars", "Refined Petroleum", "Crude Petroleum", "Packaged Medicaments", "Diamonds"]
+        },
+
+        geography: {
+            climate: "Temperate Maritime",
+            avgTemperature: "10.5°C",
+            annualRainfall: "847 mm",
+            highestPoint: "Signal de Botrange (694 m)",
+            lowestPoint: "North Sea (0 m)",
+            coastline: "66.5 km",
+            forestCover: "22.6%",
+            arableLand: "27.1%",
+            terrain: "Flat coastal plains in northwest; central rolling hills; rugged mountains of Ardennes Forest in southeast",
+            naturalResources: ["Construction Materials", "Silica Sand", "Carbonates", "Arable Land"]
+        },
+
+        geography_links: {
+            rivers: ["Meuse River", "Scheldt River", "Sambre River", "Lys River"],
+            mountains: ["Ardennes", "Signal de Botrange"],
+            deserts: [],
+            forests: ["Ardennes Forest", "Sonian Forest"],
+            oceans: ["North Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["Dutch", "French", "German"],
+            languages: ["Dutch (Flemish)", "French", "German"],
+            religions: ["Roman Catholicism (50%)", "No Religion (32.6%)", "Protestantism (2.1%)", "Islam (5.8%)", "Others (9.5%)"],
+            heritageSites: ["La Grand-Place Brussels", "Belfries of Belgium and France", "Historic Centre of Bruges", "Major Town Houses of Victor Horta", "Flemish Béguinages", "Notre-Dame Cathedral in Tournai", "Plantin-Moretus House-Workshop-Museum Complex"],
+            festivals: ["Carnival of Binche", "Gentse Feesten", "Tomorrowland", "Ommegang", "Brussels Flower Carpet"],
+            cuisine: ["Belgian Chocolate", "Waffles", "Frites (French Fries)", "Moules-Frites", "Speculoos", "Belgian Beer", "Carbonnade Flamande"],
+            arts: ["Flemish Painting (Van Eyck, Rubens, Magritte)", "Art Nouveau (Victor Horta)", "Comics (Tintin, Smurfs)", "Tapestry"],
+            sports: ["Football", "Cycling", "Tennis", "Basketball", "Motorsport"]
+        },
+
+        symbols: {
+            bird: "Common Kestrel",
+            animal: "Belgian Blue (Cattle)",
+            flower: "Red Poppy",
+            tree: "None Official",
+            anthem: "La Brabançonne",
+            motto: "Unity Makes Strength"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.17,
+            literacyRate: "99%",
+            urbanPopulation: "98.2%",
+            medianAge: 41.9
+        },
+
+        history: {
+            timeline: [
+                { year: "57 BCE", title: "Roman Conquest", description: "Julius Caesar conquered Belgae tribes" },
+                { year: "843", title: "Division", description: "Treaty of Verdun divided Carolingian Empire" },
+                { year: "1430", title: "Burgundian Rule", description: "Under Burgundian Netherlands" },
+                { year: "1830", title: "Independence", description: "Belgian Revolution; independence from Netherlands" },
+                { year: "1914-1918", title: "WWI", description: "German occupation; fierce battles (Flanders Fields)" },
+                { year: "1940-1944", title: "WWII", description: "German occupation again" },
+                { year: "1957", title: "EU Founder", description: "Founding member of European Economic Community" },
+                { year: "1967", title: "NATO/EU HQ", description: "Brussels became NATO and EU headquarters" }
+            ],
+            notableFigures: ["King Leopold II", "René Magritte", "Hergé (Tintin creator)", "Audrey Hepburn", "Jacques Brel", "Peter Paul Rubens"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "building", title: "EU Capital", text: "De facto capital of European Union" },
+            { icon: "chocolate-bar", title: "Chocolate", text: "World's largest chocolate exporter" },
+            { icon: "beer", title: "Beer", text: "Over 1,500 beer varieties (UNESCO heritage)" },
+            { icon: "gem", title: "Diamonds", text: "Antwerp is world's diamond capital (84% of rough diamonds)" },
+            { icon: "comic", title: "Comics", text: "Birthplace of Tintin and Smurfs" },
+            { icon: "fries", title: "Frites", text: "Invented French fries (Belgian fries)" }
+        ]
+    },
+
+    // 10. FRANCE
+    {
+        id: "FRA",
+        name: "France",
+        officialName: "French Republic",
+        flag: "https://flagcdn.com/w320/fr.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1431274172761-fca41d930114?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Paris",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Western Europe",
+            population: 68042591,
+            area: 643801,
+            populationDensity: 119,
+            independence: "843",
+            callingCode: "+33",
+            tld: ".fr",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [46.2276, 2.2137],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Belgium", "Luxembourg", "Germany", "Switzerland", "Italy", "Monaco", "Spain", "Andorra"],
+            borders: 2751,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Semi-Presidential Republic",
+            headOfState: "President Emmanuel Macron",
+            headOfGovernment: "Prime Minister Michel Barnier",
+            legislature: "Parliament (Senate & National Assembly)",
+            legalSystem: "Civil Law (Napoleonic Code)",
+            states: 18,
+            regions: 18,
+            departments: 101,
+            largestCity: "Paris",
+            organizations: ["UN", "EU", "NATO", "G7", "G20", "OECD", "WTO", "Council of Europe", "Schengen Area", "Eurozone", "Francophonie", "UN Security Council (Permanent)"]
+        },
+
+        economy: {
+            gdp: "$3.03 Trillion",
+            gdpPPP: "$3.87 Trillion",
+            gdpPerCapita: "$44,408",
+            gdpRank: "#7",
+            gdpGrowth: "0.7%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.9%",
+            unemployment: "7.3%",
+            majorSectors: ["Services (79%)", "Industry (18%)", "Agriculture (2%)"],
+            industries: ["Machinery", "Chemicals", "Automobiles", "Metallurgy", "Aircraft", "Electronics", "Textiles", "Food Processing", "Tourism", "Nuclear Energy", "Aerospace", "Defense", "Luxury Goods"],
+            exports: ["Aircraft", "Packaged Medicaments", "Cars", "Vehicle Parts", "Wine", "Cosmetics"],
+            imports: ["Crude Petroleum", "Cars", "Refined Petroleum", "Packaged Medicaments", "Broadcasting Equipment"]
+        },
+
+        geography: {
+            climate: "Temperate; Mediterranean on south coast; Oceanic in west; Continental in east",
+            avgTemperature: "12.2°C",
+            annualRainfall: "867 mm",
+            highestPoint: "Mont Blanc (4,807 m)",
+            lowestPoint: "Rhône River Delta (-2 m)",
+            coastline: "4,853 km",
+            forestCover: "31.4%",
+            arableLand: "33.5%",
+            terrain: "Mostly flat plains or gently rolling hills in north and west; mountainous in south (Pyrenees), east (Alps, Jura, Vosges)",
+            naturalResources: ["Coal", "Iron Ore", "Bauxite", "Zinc", "Uranium", "Antimony", "Arsenic", "Potash", "Feldspar", "Fluorspar", "Gypsum", "Timber", "Arable Land", "Fish"]
+        },
+
+        geography_links: {
+            rivers: ["Seine River", "Loire River", "Rhône River", "Garonne River", "Rhine River"],
+            mountains: ["Alps", "Pyrenees", "Massif Central", "Vosges", "Jura", "Mont Blanc"],
+            deserts: [],
+            forests: ["Forest of Fontainebleau", "Ardennes Forest", "Landes Forest", "Corsican Forests"],
+            oceans: ["Atlantic Ocean", "Mediterranean Sea", "English Channel", "Bay of Biscay"]
+        },
+
+        culture: {
+            officialLanguages: ["French"],
+            languages: ["French", "Occitan", "Breton", "Alsatian", "Corsican", "Catalan", "Basque", "Flemish"],
+            religions: ["Roman Catholicism (47%)", "No Religion (33%)", "Islam (4%)", "Protestantism (2%)", "Others (14%)"],
+            heritageSites: ["Palace of Versailles", "Mont-Saint-Michel", "Chartres Cathedral", "Loire Valley Châteaux", "Pont du Gard", "Paris Banks of the Seine", "Carcassonne", "Strasbourg Grande Île", "Palace and Park of Fontainebleau", "Reims Cathedral"],
+            festivals: ["Bastille Day", "Cannes Film Festival", "Tour de France", "Carnaval de Nice", "Fête de la Musique"],
+            cuisine: ["Croissants", "Baguette", "Cheese (Brie, Camembert, Roquefort)", "Wine", "Coq au Vin", "Ratatouille", "Crêpes", "Foie Gras", "Escargot", "Bouillabaisse"],
+            arts: ["Impressionism", "Literature", "Cinema", "Fashion", "Philosophy", "Architecture"],
+            sports: ["Football", "Rugby", "Cycling", "Tennis", "Basketball", "Handball", "Skiing"]
+        },
+
+        symbols: {
+            bird: "Gallic Rooster",
+            animal: "Gallic Rooster",
+            flower: "Fleur-de-lis (Lily)",
+            tree: "Oak",
+            anthem: "La Marseillaise",
+            motto: "Liberté, Égalité, Fraternité (Liberty, Equality, Fraternity)"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.59,
+            literacyRate: "99%",
+            urbanPopulation: "81.5%",
+            medianAge: 42.3
+        },
+
+        history: {
+            timeline: [
+                { year: "481", title: "Frankish Kingdom", description: "Clovis I united Franks" },
+                { year: "843", title: "Treaty of Verdun", description: "West Francia (France) created" },
+                { year: "1789", title: "French Revolution", description: "Revolution overthrew monarchy" },
+                { year: "1804-1815", title: "Napoleonic Era", description: "Napoleon's empire and wars" },
+                { year: "1870", title: "Third Republic", description: "Republic established after Franco-Prussian War" },
+                { year: "1914-1918", title: "WWI", description: "Major WWI battleground" },
+                { year: "1940-1944", title: "WWII", description: "German occupation; Vichy regime" },
+                { year: "1958", title: "Fifth Republic", description: "De Gaulle established current republic" },
+                { year: "1957", title: "EU Founder", description: "Founding member of EEC" }
+            ],
+            notableFigures: ["Napoleon Bonaparte", "Charles de Gaulle", "Louis XIV", "Joan of Arc", "Voltaire", "Marie Curie", "Victor Hugo", "Claude Monet"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "monument", title: "Tourism", text: "World's most visited country (90M+ tourists)" },
+            { icon: "wine-glass", title: "Wine", text: "World's 2nd largest wine producer" },
+            { icon: "atom", title: "Nuclear Power", text: "70% of electricity from nuclear energy" },
+            { icon: "palette", title: "Art", text: "Home to the Louvre (world's most visited museum)" },
+            { icon: "tshirt", title: "Fashion", text: "Paris is global fashion capital" },
+            { icon: "utensils", title: "Gastronomy", text: "French cuisine is UNESCO Intangible Heritage" }
+        ]
+    },
+
+    // 11. GERMANY
+    {
+        id: "DEU",
+        name: "Germany",
+        officialName: "Federal Republic of Germany",
+        flag: "https://flagcdn.com/w320/de.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1554072675-66db59dba46f?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1560930950-5cc20e80e392?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Berlin",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Central Europe",
+            population: 84482267,
+            area: 357114,
+            populationDensity: 240,
+            independence: "1871",
+            callingCode: "+49",
+            tld: ".de",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [51.1657, 10.4515],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Denmark", "Poland", "Czech Republic", "Austria", "Switzerland", "France", "Luxembourg", "Belgium", "Netherlands"],
+            borders: 3714,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Federal Parliamentary Republic",
+            headOfState: "President Frank-Walter Steinmeier",
+            headOfGovernment: "Chancellor Olaf Scholz",
+            legislature: "Parliament (Bundestag & Bundesrat)",
+            legalSystem: "Civil Law",
+            states: 16,
+            federalStates: 16,
+            largestCity: "Berlin",
+            organizations: ["UN", "EU", "NATO", "G7", "G20", "OECD", "WTO", "Council of Europe", "Schengen Area", "Eurozone", "OSCE"]
+        },
+
+        economy: {
+            gdp: "$4.46 Trillion",
+            gdpPPP: "$5.54 Trillion",
+            gdpPerCapita: "$52,824",
+            gdpRank: "#3",
+            gdpGrowth: "-0.3%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "5.9%",
+            unemployment: "3.0%",
+            majorSectors: ["Services (69%)", "Industry (28%)", "Agriculture (1%)"],
+            industries: ["Iron", "Steel", "Coal", "Cement", "Chemicals", "Machinery", "Vehicles", "Machine Tools", "Electronics", "Automobiles", "Food", "Beverages", "Shipbuilding", "Textiles"],
+            exports: ["Cars", "Vehicle Parts", "Packaged Medicaments", "Aircraft", "Medical Instruments", "Machinery"],
+            imports: ["Crude Petroleum", "Cars", "Vehicle Parts", "Packaged Medicaments", "Petroleum Gas"]
+        },
+
+        geography: {
+            climate: "Temperate; Marine in north; Continental in east and south",
+            avgTemperature: "9.6°C",
+            annualRainfall: "700 mm",
+            highestPoint: "Zugspitze (2,962 m)",
+            lowestPoint: "Neuendorf bei Wilster (-3.5 m)",
+            coastline: "2,389 km",
+            forestCover: "32.7%",
+            arableLand: "33.9%",
+            terrain: "Lowlands in north; uplands in center; Bavarian Alps in south",
+            naturalResources: ["Coal", "Lignite", "Natural Gas", "Iron Ore", "Copper", "Nickel", "Uranium", "Potash", "Salt", "Construction Materials", "Timber", "Arable Land"]
+        },
+
+        geography_links: {
+            rivers: ["Rhine River", "Danube River", "Elbe River", "Oder River", "Weser River", "Main River", "Moselle River"],
+            mountains: ["Bavarian Alps", "Black Forest", "Harz Mountains", "Zugspitze", "Erzgebirge"],
+            deserts: [],
+            forests: ["Black Forest", "Bavarian Forest", "Thuringian Forest", "Harz National Park"],
+            oceans: ["North Sea", "Baltic Sea"]
+        },
+
+        culture: {
+            officialLanguages: ["German"],
+            languages: ["German", "Low German", "Upper Sorbian", "Lower Sorbian", "Danish", "Frisian", "Romani"],
+            religions: ["Roman Catholicism (26.7%)", "Protestantism (24.3%)", "No Religion (42.1%)", "Islam (3.5%)", "Orthodox Christianity (2.2%)"],
+            heritageSites: ["Cologne Cathedral", "Museumsinsel (Berlin)", "Palaces and Parks of Potsdam and Berlin", "Aachen Cathedral", "Würzburg Residence", "Classical Weimar", "Bauhaus Sites", "Upper Middle Rhine Valley", "Wadden Sea", "Hanseatic City of Lübeck"],
+            festivals: ["Oktoberfest", "Karneval", "Christmas Markets", "Berlin Film Festival", "Love Parade", "Bayreuth Festival"],
+            cuisine: ["Bratwurst", "Sauerkraut", "Schnitzel", "Pretzels", "Black Forest Cake", "Beer", "Spätzle", "Currywurst", "Sauerbraten"],
+            arts: ["Classical Music (Beethoven, Bach, Brahms)", "Literature (Goethe, Schiller)", "Philosophy (Kant, Nietzsche)", "Bauhaus Design", "Expressionism"],
+            sports: ["Football", "Handball", "Basketball", "Ice Hockey", "Tennis", "Motorsport (Formula 1)"]
+        },
+
+        symbols: {
+            bird: "Golden Eagle",
+            animal: "Federal Eagle",
+            flower: "Cornflower",
+            tree: "Oak",
+            anthem: "Deutschlandlied (Das Lied der Deutschen)",
+            motto: "Unity and Justice and Freedom"
+        },
+
+        demographics: {
+            lifeExpectancy: 81.88,
+            literacyRate: "99%",
+            urbanPopulation: "77.6%",
+            medianAge: 45.7
+        },
+
+        history: {
+            timeline: [
+                { year: "800", title: "Charlemagne", description: "Charlemagne crowned Holy Roman Emperor" },
+                { year: "1517", title: "Reformation", description: "Martin Luther began Protestant Reformation" },
+                { year: "1871", title: "Unification", description: "German Empire unified under Prussia" },
+                { year: "1914-1918", title: "WWI", description: "World War I; defeat led to Weimar Republic" },
+                { year: "1933-1945", title: "Nazi Era", description: "Nazi regime; WWII; Holocaust" },
+                { year: "1949", title: "Division", description: "Germany divided into East and West" },
+                { year: "1989", title: "Fall of Berlin Wall", description: "Berlin Wall fell" },
+                { year: "1990", title: "Reunification", description: "East and West Germany reunified" }
+            ],
+            notableFigures: ["Johann Wolfgang von Goethe", "Ludwig van Beethoven", "Albert Einstein", "Martin Luther", "Angela Merkel", "Konrad Adenauer", "Otto von Bismarck"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "industry", title: "Economic Powerhouse", text: "Europe's largest economy; 3rd globally" },
+            { icon: "car", title: "Automobiles", text: "Home to BMW, Mercedes-Benz, Volkswagen, Porsche" },
+            { icon: "beer", title: "Beer", text: "1,500+ breweries; Oktoberfest is world's largest folk festival" },
+            { icon: "music", title: "Classical Music", text: "Birthplace of Beethoven, Bach, Brahms" },
+            { icon: "recycle", title: "Renewable Energy", text: "Leader in renewable energy (Energiewende)" },
+            { icon: "graduation-cap", title: "Free Education", text: "Free university education for all" }
+        ]
+    },
+
+    // 12. LIECHTENSTEIN
+    {
+        id: "LIE",
+        name: "Liechtenstein",
+        officialName: "Principality of Liechtenstein",
+        flag: "https://flagcdn.com/w320/li.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1573155993874-d5d48af862ba?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1600270107917-c53ed3d1a7dc?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1573155993874-d5d48af862ba?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Vaduz",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Central Europe",
+            population: 39584,
+            area: 160,
+            populationDensity: 238,
+            independence: "1806",
+            callingCode: "+423",
+            tld: ".li",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [47.1660, 9.5554],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Switzerland", "Austria"],
+            borders: 75,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "Prince Hans-Adam II",
+            headOfGovernment: "Prime Minister Daniel Risch",
+            legislature: "Landtag",
+            legalSystem: "Civil Law (influenced by Swiss, Austrian, and German law)",
+            states: 11,
+            municipalities: 11,
+            largestCity: "Schaan",
+            organizations: ["UN", "EFTA", "Council of Europe", "EEA", "OSCE", "WTO"]
+        },
+
+        economy: {
+            gdp: "$7.12 Billion",
+            gdpPPP: "$5.03 Billion",
+            gdpPerCapita: "$180,366",
+            gdpRank: "#140",
+            gdpGrowth: "1.8%",
+            currency: "Swiss Franc",
+            currencyCode: "CHF",
+            currencySymbol: "CHF",
+            inflation: "1.5%",
+            unemployment: "1.5%",
+            majorSectors: ["Services (55%)", "Industry (41%)", "Agriculture (1%)"],
+            industries: ["Electronics", "Metal Manufacturing", "Dental Products", "Ceramics", "Pharmaceuticals", "Food Processing", "Precision Instruments", "Tourism", "Financial Services"],
+            exports: ["Small Specialty Machinery", "Connectors for Audio/Video", "Dental Products", "Hardware", "Prepared Food"],
+            imports: ["Agricultural Products", "Raw Materials", "Machinery", "Metal Goods", "Textiles", "Foodstuffs", "Motor Vehicles"]
+        },
+
+        geography: {
+            climate: "Continental; Cold, Cloudy Winters; Warm, Partly Cloudy Summers",
+            avgTemperature: "9.9°C",
+            annualRainfall: "900 mm",
+            highestPoint: "Grauspitz (2,599 m)",
+            lowestPoint: "Ruggeller Riet (430 m)",
+            coastline: "0 km (Landlocked, Doubly Landlocked)",
+            forestCover: "43.1%",
+            arableLand: "21.9%",
+            terrain: "Mostly mountainous (Alps) with Rhine Valley in west",
+            naturalResources: ["Hydroelectric Potential", "Arable Land"]
+        },
+
+        geography_links: {
+            rivers: ["Rhine River", "Samina River"],
+            mountains: ["Alps", "Grauspitz", "Falknis", "Naafkopf", "Rätikon Range"],
+            deserts: [],
+            forests: ["Alpine Forests", "Ruggeller Riet Nature Reserve"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["German"],
+            languages: ["German (Alemannic dialect)", "Standard German"],
+            religions: ["Roman Catholicism (73.4%)", "Protestantism (6.3%)", "Islam (5.9%)", "No Religion (7%)", "Others (7.4%)"],
+            heritageSites: [],
+            festivals: ["Staatsfeiertag (National Day)", "Funkensonntag", "Vaduzer Weinfest", "Christmas Markets"],
+            cuisine: ["Käsknöpfle", "Riebel", "Hafalaab", "Sauerkraut", "Pastries"],
+            arts: ["Painting", "Sculpture", "Postage Stamps (Philately)", "Traditional Music"],
+            sports: ["Football", "Alpine Skiing", "Cross-Country Skiing", "Cycling", "Tennis"]
+        },
+
+        symbols: {
+            bird: "Kestrel",
+            animal: "None Official",
+            flower: "Yellow Lily",
+            tree: "None Official",
+            anthem: "Oben am jungen Rhein",
+            motto: "For God, Prince and Fatherland"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.39,
+            literacyRate: "100%",
+            urbanPopulation: "14.4%",
+            medianAge: 43.7
+        },
+
+        history: {
+            timeline: [
+                { year: "1719", title: "Principality Formed", description: "Liechtenstein became independent principality" },
+                { year: "1806", title: "Sovereignty", description: "Gained full sovereignty (end of Holy Roman Empire)" },
+                { year: "1868", title: "Army Abolished", description: "Army disbanded; permanent neutrality" },
+                { year: "1921", title: "Swiss Customs", description: "Customs union with Switzerland" },
+                { year: "1990", title: "UN Member", description: "Joined United Nations" },
+                { year: "1995", title: "EEA Member", description: "Joined European Economic Area" }
+            ],
+            notableFigures: ["Prince Hans-Adam II", "Prince Franz Joseph II", "Princess Gina"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "map", title: "Microstate", text: "6th smallest country in the world (160 km²)" },
+            { icon: "dollar-sign", title: "Richest", text: "Highest GDP per capita in the world" },
+            { icon: "lock", title: "Doubly Landlocked", text: "One of only two doubly landlocked countries" },
+            { icon: "crown", title: "Monarchy", text: "Prince has more power than most European monarchs" },
+            { icon: "stamp", title: "Stamps", text: "Famous for collectible postage stamps" },
+            { icon: "teeth", title: "Dental Products", text: "Major producer of false teeth" }
+        ]
+    },
+
+    // 13. LUXEMBOURG
+    {
+        id: "LUX",
+        name: "Luxembourg",
+        officialName: "Grand Duchy of Luxembourg",
+        flag: "https://flagcdn.com/w320/lu.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1558551649-e44c8f992010?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1558551649-e44c8f992010?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Luxembourg City",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Western Europe",
+            population: 660809,
+            area: 2586,
+            populationDensity: 252,
+            independence: "1839",
+            callingCode: "+352",
+            tld: ".lu",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [49.8153, 6.1296],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Belgium", "France", "Germany"],
+            borders: 327,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "Grand Duke Henri",
+            headOfGovernment: "Prime Minister Luc Frieden",
+            legislature: "Chamber of Deputies",
+            legalSystem: "Civil Law (based on Napoleonic Code)",
+            states: 12,
+            cantons: 12,
+            communes: 102,
+            largestCity: "Luxembourg City",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Council of Europe", "Schengen Area", "Eurozone", "Benelux"]
+        },
+
+        economy: {
+            gdp: "$89.95 Billion",
+            gdpPPP: "$91.09 Billion",
+            gdpPerCapita: "$135,605",
+            gdpRank: "#69",
+            gdpGrowth: "-1.1%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "2.9%",
+            unemployment: "5.7%",
+            majorSectors: ["Services (88%)", "Industry (11%)", "Agriculture (0.3%)"],
+            industries: ["Banking", "Financial Services", "Steel", "Information Technology", "Telecommunications", "Cargo Transportation", "Food Processing", "Chemicals", "Metal Products", "Engineering", "Tires", "Glass", "Aluminum"],
+            exports: ["Iron Products", "Rubber Tires", "Plastic Products", "Glass", "Machinery"],
+            imports: ["Minerals", "Metals", "Foodstuffs", "Machinery", "Quality Consumer Goods"]
+        },
+
+        geography: {
+            climate: "Temperate; Mild Winters, Cool Summers",
+            avgTemperature: "9.4°C",
+            annualRainfall: "870 mm",
+            highestPoint: "Buurgplaatz (559 m)",
+            lowestPoint: "Moselle River (133 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "37%",
+            arableLand: "24%",
+            terrain: "Mostly gently rolling uplands with broad, shallow valleys; uplands to slightly mountainous in north; steep slope down to Moselle flood plain in southeast",
+            naturalResources: ["Iron Ore (no longer exploited)", "Arable Land"]
+        },
+
+        geography_links: {
+            rivers: ["Moselle River", "Sûre River", "Our River", "Alzette River"],
+            mountains: ["Ardennes", "Buurgplaatz", "Oesling"],
+            deserts: [],
+            forests: ["Ardennes Forest", "Mullerthal Region"],
+            oceans: []
+        },
+
+        culture: {
+            officialLanguages: ["Luxembourgish", "French", "German"],
+            languages: ["Luxembourgish", "French", "German", "Portuguese", "English"],
+            religions: ["Roman Catholicism (52%)", "No Religion (26.8%)", "Protestantism (2%)", "Islam (3%)", "Others (16.2%)"],
+            heritageSites: ["City of Luxembourg: its Old Quarters and Fortifications"],
+            festivals: ["Schueberfouer", "National Day (Grand Duke's Birthday)", "Buergbrennen", "Octave", "Éimaischen"],
+            cuisine: ["Judd mat Gaardebounen", "Bouneschlupp", "Gromperekichelcher", "Quetschentaart", "Riesling Wine"],
+            arts: ["Painting", "Sculpture", "Music", "Theater", "Literature"],
+            sports: ["Football", "Cycling", "Tennis", "Basketball", "Athletics"]
+        },
+
+        symbols: {
+            bird: "Goldcrest",
+            animal: "Red Lion",
+            flower: "Rose",
+            tree: "None Official",
+            anthem: "Ons Heemecht",
+            motto: "We Want to Remain What We Are"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.84,
+            literacyRate: "99%",
+            urbanPopulation: "91.9%",
+            medianAge: 39.7
+        },
+
+        history: {
+            timeline: [
+                { year: "963", title: "Founded", description: "Count Siegfried founded Luxembourg" },
+                { year: "1354", title: "Duchy", description: "Became Duchy of Luxembourg" },
+                { year: "1815", title: "Grand Duchy", description: "Congress of Vienna made it Grand Duchy" },
+                { year: "1839", title: "Independence", description: "Treaty of London confirmed independence" },
+                { year: "1867", title: "Neutrality", description: "Declared perpetually neutral" },
+                { year: "1948", title: "Benelux", description: "Formed Benelux with Belgium and Netherlands" },
+                { year: "1957", title: "EU Founder", description: "Founding member of EEC" }
+            ],
+            notableFigures: ["Grand Duke Henri", "Robert Schuman", "Jean-Claude Juncker", "Charlotte, Grand Duchess"]
+        },
+
+        disputes: [],
+
+        quickFacts: [
+            { icon: "bank", title: "Financial Center", text: "World's 2nd largest investment fund center" },
+            { icon: "dollar-sign", title: "Wealthy", text: "Highest GDP per capita in the EU" },
+            { icon: "language", title: "Trilingual", text: "Three official languages (Luxembourgish, French, German)" },
+            { icon: "building", title: "EU Institutions", text: "Home to European Court of Justice" },
+            { icon: "crown", title: "Grand Duchy", text: "World's only remaining Grand Duchy" },
+            { icon: "users", title: "Foreigners", text: "47% of population are foreign nationals" }
+        ]
+    },
+
+    // 14. MONACO
+    {
+        id: "MCO",
+        name: "Monaco",
+        officialName: "Principality of Monaco",
+        flag: "https://flagcdn.com/w320/mc.png",
+        
+        images: {
+            hero: "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1526657782461-9fe13402a841?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=1920&q=80"
+        },
+
+        basic: {
+            capital: "Monaco (city-state)",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Western Europe",
+            population: 39520,
+            area: 2.02,
+            populationDensity: 19361,
+            independence: "1297",
+            callingCode: "+377",
+            tld: ".mc",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
+        },
+
+        location: {
+            coordinates: [43.7384, 7.4246],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["France"],
+            borders: 6,
+            hemispheres: ["Northern", "Eastern"]
+        },
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "Prince Albert II",
+            headOfGovernment: "Minister of State Didier Guillaume",
+            legislature: "National Council",
+            legalSystem: "Civil Law (based on French law)",
+            states: 4,
+            quartiers: 4,
+            largestCity: "Monte Carlo",
+            organizations: ["UN", "Council of Europe", "OSCE", "OIF", "IAEA"]
+        },
+
+        economy: {
+            gdp: "$8.6 Billion",
+            gdpPPP: "$8.6 Billion",
+            gdpPerCapita: "$234,317",
+            gdpRank: "#135",
+            gdpGrowth: "11.1%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "3.0%",
+            unemployment: "2.0%",
+            majorSectors: ["Services (95%)", "Industry (4%)", "Agriculture (0%)"],
+            industries: ["Banking", "Insurance", "Tourism", "Construction", "Small-Scale Industrial", "Consumer Products", "Pharmaceuticals", "Cosmetics", "Chemicals"],
+            exports: ["Chemicals", "Plastics", "Cosmetics", "Pharmaceuticals"],
+            imports: ["Consumer Goods", "Food", "Manufactured Products"]
+        },
+
+        geography: {
+            climate: "Mediterranean",
+            avgTemperature: "16.3°C",
+            annualRainfall: "758 mm",
+            highestPoint: "Chemin des Révoires (164 m)",
+            lowestPoint: "Mediterranean Sea (0 m)",
+            coastline: "4.1 km",
+            forestCover: "0%",
+            arableLand: "0%",
+            terrain: "Hilly, rugged, rocky",
+            naturalResources: ["None"]
+        },
+
+        geography_links: {
+            rivers: [],
+            mountains: ["Mont Agel (nearby in France)"],
+            deserts: [],
             forests: [],
-            oceans: [
-                { name: "Indian Ocean", description: "Surrounds all islands" }
-            ],
-            seas: [
-                { name: "Laccadive Sea", description: "Northern waters" },
-                { name: "Arabian Sea", description: "Northern Arabian connection" }
-            ],
-            lakes: [],
-            atolls: [
-                { name: "North Malé Atoll", description: "Capital atoll" },
-                { name: "South Malé Atoll", description: "Popular tourism area" },
-                { name: "Ari Atoll", description: "Diving destination" },
-                { name: "Addu Atoll", description: "Southernmost atoll" }
-            ]
+            oceans: ["Mediterranean Sea"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Dhivehi"],
-                regional: ["English"],
-                spoken: ["Dhivehi", "English"]
-            },
-            religions: {
-                dominant: "Islam",
-                breakdown: {
-                    "Sunni Islam": 100.0
-                }
-            },
+            officialLanguages: ["French"],
+            languages: ["French", "Monégasque", "Italian", "English"],
+            religions: ["Roman Catholicism (82.8%)", "Protestantism (2.7%)", "Judaism (1.4%)", "Others (13.1%)"],
             heritageSites: [],
-            festivals: [
-                { name: "Eid al-Fitr", date: "After Ramadan", description: "End of fasting" },
-                { name: "Eid al-Adha", date: "Islamic calendar", description: "Feast of sacrifice" },
-                { name: "Independence Day", date: "July 26", description: "National holiday" },
-                { name: "Republic Day", date: "November 11", description: "Republic establishment" }
-            ],
-            cuisine: [
-                { name: "Garudhiya", description: "Fish broth with rice" },
-                { name: "Mas Huni", description: "Tuna with coconut and onion" },
-                { name: "Rihaakuru", description: "Fish paste" },
-                { name: "Kulhi Boakiba", description: "Fish cake" },
-                { name: "Hedhikaa", description: "Short eats/snacks" }
-            ],
-            arts: [
-                { type: "Music", description: "Bodu Beru drumming" },
-                { type: "Dance", description: "Traditional dances" },
-                { type: "Crafts", description: "Lacquerwork, mat weaving" },
-                { type: "Architecture", description: "Historic coral stone mosques" }
-            ],
-            sports: {
-                popular: ["Football", "Volleyball", "Cricket", "Water sports"],
-                achievements: ["Growing football tradition"],
-                venues: ["Galolhu National Stadium"]
-            }
+            festivals: ["Monaco Grand Prix", "Monte-Carlo Television Festival", "Monaco Yacht Show", "National Day", "Fête de la Saint-Dévote"],
+            cuisine: ["Barbagiuan", "Stocafi", "Fougasse Monégasque", "French & Mediterranean Cuisine"],
+            arts: ["Opera (Opéra de Monte-Carlo)", "Ballet (Ballet de Monte-Carlo)", "Classical Music", "Contemporary Art"],
+            sports: ["Formula 1", "Football", "Tennis", "Sailing", "Swimming"]
         },
-        
+
+        symbols: {
+            bird: "None Official",
+            animal: "None Official",
+            flower: "Carnation",
+            tree: "None Official",
+            anthem: "Hymne Monégasque",
+            motto: "With God's Help"
+        },
+
+        demographics: {
+            lifeExpectancy: 85.81,
+            literacyRate: "99%",
+            urbanPopulation: "100%",
+            medianAge: 55.4
+        },
+
         history: {
             timeline: [
-                { year: "5th century", event: "Buddhist kingdom established" },
-                { year: "1153", event: "Conversion to Islam" },
-                { year: "1558", event: "Portuguese occupation" },
-                { year: "1573", event: "Independence restored" },
-                { year: "1887", event: "British protectorate" },
-                { year: "1965", event: "Independence from Britain" },
-                { year: "1968", event: "Republic established, sultanate abolished" },
-                { year: "2008", event: "First multi-party elections" },
-                { year: "2012", event: "Political crisis" },
-                { year: "2023", event: "Mohamed Muizzu elected president" }
+                { year: "1215", title: "Fortress Built", description: "Genoese fortress built on the Rock" },
+                { year: "1297", title: "Grimaldi Rule", description: "François Grimaldi seized fortress" },
+                { year: "1861", title: "French Protection", description: "Franco-Monegasque Treaty; sovereignty recognized" },
+                { year: "1911", title: "Constitution", description: "First constitution promulgated" },
+                { year: "1949", title: "Prince Rainier III", description: "Prince Rainier III ascended throne" },
+                { year: "1956", title: "Royal Wedding", description: "Prince Rainier married Grace Kelly" },
+                { year: "2005", title: "Prince Albert II", description: "Prince Albert II became sovereign prince" }
             ],
-            colonialHistory: "British protectorate 1887-1965",
-            historicalNames: ["Maldive Islands", "Dheeva Mahal"]
+            notableFigures: ["Prince Albert II", "Prince Rainier III", "Princess Grace (Grace Kelly)", "François Grimaldi"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Maldivian": 98.0,
-                "Other": 2.0
-            },
-            ageStructure: {
-                "0-14": 21.0,
-                "15-64": 74.0,
-                "65+": 5.0
-            },
-            urbanization: 41.0,
-            lifeExpectancy: 79.0,
-            fertilityRate: 1.7,
-            literacyRate: 98.6
-        },
-        
-        quickFacts: {
-            internet: { tld: ".mv", penetration: 63.0 },
-            calling: { code: "+960" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, D, G, J, K, L" },
-            measurement: "Metric",
-            emergencyNumber: "119"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Maldives is the flattest country on Earth (average 1.5m above sea level)",
-            "The country consists of 1,192 coral islands in 26 atolls",
-            "Only about 200 islands are inhabited",
-            "Maldives is the lowest country in the world",
-            "The nation could disappear due to rising sea levels"
+
+        quickFacts: [
+            { icon: "map", title: "2nd Smallest", text: "2nd smallest country (2.02 km²); only Vatican is smaller" },
+            { icon: "users", title: "Most Dense", text: "World's most densely populated country" },
+            { icon: "car", title: "Formula 1", text: "Home to Monaco Grand Prix since 1929" },
+            { icon: "dollar-sign", title: "No Income Tax", text: "No personal income tax for residents" },
+            { icon: "dice", title: "Casino", text: "Monte Carlo Casino is world-famous" },
+            { icon: "ship", title: "Yachts", text: "One of world's largest yacht-owning populations per capita" }
         ]
     },
 
-    "myanmar": {
-        name: "Myanmar",
-        officialName: "Republic of the Union of Myanmar",
-        nativeName: "ပြည်ထောင်စု သမ္မတ မြန်မာနိုင်ငံတော်",
-        iso3: "MMR",
-        iso2: "MM",
-        flag: "🇲🇲",
+    // 15. NETHERLANDS
+    {
+        id: "NLD",
+        name: "Netherlands",
+        officialName: "Kingdom of the Netherlands",
+        flag: "https://flagcdn.com/w320/nl.png",
         
-        capital: {
-            name: "Naypyidaw",
-            population: 1160000,
-            coordinates: { lat: 19.7633, lng: 96.0785 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1524047934617-cb782c24e5f3?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1920&q=80"
         },
-        largestCity: "Yangon",
-        population: {
-            total: 54410000,
-            year: 2024,
-            density: 83,
-            growth: 0.7
-        },
-        area: {
-            total: 676578,
-            land: 653508,
-            water: 23070,
-            rank: 40
-        },
-        
-        continent: "Asia",
-        region: "Southeast Asia",
-        subregion: "Mainland Southeast Asia",
-        coordinates: { lat: 21.9162, lng: 95.9560 },
-        borders: ["Bangladesh", "India", "China", "Laos", "Thailand"],
-        coastline: 1930,
-        timezone: ["UTC+6:30"],
-        drivingSide: "right",
-        
-        governmentType: "Military junta (de facto)",
-        leader: {
-            headOfState: "Chairman Min Aung Hlaing",
-            headOfGovernment: "Chairman Min Aung Hlaing"
-        },
-        independence: {
-            date: "January 4, 1948",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "January 4" },
-        divisions: {
-            type: "regions and states",
-            count: 14,
-            major: ["Yangon", "Mandalay", "Sagaing", "Shan State", "Irrawaddy"]
-        },
-        
-        economy: {
-            gdpTotal: 60000000000,
-            gdpPerCapita: 1100,
-            gdpGrowth: -18.0,
-            currency: { name: "Myanmar kyat", code: "MMK", symbol: "K" },
-            mainIndustries: ["agricultural processing", "textiles", "wood products", "mining", "construction"],
-            exports: ["natural gas", "wood products", "beans", "fish", "rice"],
-            imports: ["fabric", "petroleum", "fertilizers", "machinery", "transport equipment"],
-            majorPartners: ["Thailand", "China", "India", "Japan", "Singapore"]
-        },
-        hdi: 0.585,
-        
-        geography_links: {
-            rivers: [
-                { name: "Irrawaddy River", description: "Main river, country's lifeline" },
-                { name: "Salween River", description: "Major river in east" },
-                { name: "Chindwin River", description: "Major tributary of Irrawaddy" },
-                { name: "Sittaung River", description: "River in central region" }
-            ],
-            mountains: [
-                { name: "Hkakabo Razi", description: "Southeast Asia's highest peak at 5881m" },
-                { name: "Shan Plateau", description: "Large eastern plateau" },
-                { name: "Arakan Mountains", description: "Western coastal range" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Tropical rainforests", description: "In Tanintharyi region" },
-                { name: "Teak forests", description: "Valuable timber forests" },
-                { name: "Mangrove forests", description: "Irrawaddy Delta mangroves" }
-            ],
-            oceans: [
-                { name: "Indian Ocean", description: "Western access" }
-            ],
-            seas: [
-                { name: "Bay of Bengal", description: "Western coast" },
-                { name: "Andaman Sea", description: "Southern coast" }
-            ],
-            lakes: [
-                { name: "Inle Lake", description: "Famous floating gardens lake" },
-                { name: "Indawgyi Lake", description: "Largest natural lake" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Burmese"],
-                regional: ["Shan", "Karen", "Kachin", "Chin", "Mon", "Rakhine"],
-                spoken: ["Burmese", "English", "Chinese"]
-            },
-            religions: {
-                dominant: "Buddhism",
-                breakdown: {
-                    "Theravada Buddhism": 87.9,
-                    "Christianity": 6.2,
-                    "Islam": 4.3,
-                    "Hinduism": 0.5,
-                    "Animism": 0.8,
-                    "Other": 0.3
-                }
-            },
-            heritageSites: [
-                { name: "Pyu Ancient Cities", type: "Cultural", year: 2014, description: "Ancient irrigation cities" },
-                { name: "Bagan", type: "Cultural", year: 2019, description: "Ancient temple complex" }
-            ],
-            festivals: [
-                { name: "Thingyan", date: "April", description: "Water festival, New Year" },
-                { name: "Thadingyut", date: "October", description: "Festival of lights" },
-                { name: "Tazaungdaing", date: "November", description: "Hot air balloon festival" },
-                { name: "Ananda Temple Festival", date: "January", description: "Bagan pilgrimage" }
-            ],
-            cuisine: [
-                { name: "Mohinga", description: "National dish - fish rice noodle soup" },
-                { name: "Shan noodles", description: "Shan-style rice noodles" },
-                { name: "Lahpet Thoke", description: "Fermented tea leaf salad" },
-                { name: "Htamin Jin", description: "Rice and curry" },
-                { name: "Rakhine Monti", description: "Rice noodles with fish" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Pagodas and temples" },
-                { type: "Puppetry", description: "Yama Zatdaw marionettes" },
-                { type: "Lacquerware", description: "Traditional Bagan craft" },
-                { type: "Dance", description: "Classical Burmese dance" }
-            ],
-            sports: {
-                popular: ["Football", "Chinlone", "Lethwei", "Sepak Takraw"],
-                achievements: ["Traditional sports tradition"],
-                venues: ["Thuwunna Stadium", "Mandalar Thiri Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "849", event: "Pagan Kingdom founded" },
-                { year: "1057", event: "First Burmese Empire unified" },
-                { year: "1287", event: "Mongol invasions" },
-                { year: "1752", event: "Konbaung Dynasty established" },
-                { year: "1824-1886", event: "Three Anglo-Burmese Wars" },
-                { year: "1886", event: "British Burma established" },
-                { year: "1942-1945", event: "Japanese occupation" },
-                { year: "1948", event: "Independence from Britain" },
-                { year: "1962", event: "Military coup" },
-                { year: "1988", event: "Pro-democracy uprising" },
-                { year: "2011", event: "Nominal civilian government" },
-                { year: "2015", event: "NLD wins elections, Aung San Suu Kyi leads" },
-                { year: "2021", event: "Military coup, ongoing civil conflict" }
-            ],
-            colonialHistory: "British Burma 1886-1948",
-            historicalNames: ["Burma"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Bamar": 68.0,
-                "Shan": 9.0,
-                "Karen": 7.0,
-                "Rakhine": 3.5,
-                "Chinese": 2.5,
-                "Mon": 2.0,
-                "Kachin": 1.5,
-                "Other": 6.5
-            },
-            ageStructure: {
-                "0-14": 25.0,
-                "15-64": 68.0,
-                "65+": 7.0
-            },
-            urbanization: 31.4,
-            lifeExpectancy: 67.5,
-            fertilityRate: 2.1,
-            literacyRate: 89.1
-        },
-        
-        quickFacts: {
-            internet: { tld: ".mm", penetration: 43.0 },
-            calling: { code: "+95" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "C, D, F, G" },
-            measurement: "Metric (with traditional)",
-            emergencyNumber: "199"
-        },
-        
-        disputes: [
-            {
-                type: "internal",
-                description: "Ongoing civil war after 2021 military coup",
-                parties: ["Military junta", "National Unity Government", "Ethnic armed groups"],
-                status: "Active conflict"
-            },
-            {
-                type: "humanitarian",
-                description: "Rohingya refugee crisis",
-                parties: ["Myanmar", "Bangladesh"],
-                status: "Ongoing crisis"
-            }
-        ],
-        
-        funFacts: [
-            "Myanmar is one of three countries not using the metric system officially",
-            "Bagan has over 2,000 Buddhist monuments",
-            "Myanmar produces 90% of the world's rubies",
-            "The country was called Burma until 1989",
-            "Inle Lake fishermen row with one leg while standing"
-        ]
-    },
 
-    "laos": {
-        name: "Laos",
-        officialName: "Lao People's Democratic Republic",
-        nativeName: "ສາທາລະນະລັດ ປະຊາທິປະໄຕ ປະຊາຊົນລາວ",
-        iso3: "LAO",
-        iso2: "LA",
-        flag: "🇱🇦",
-        
-        capital: {
-            name: "Vientiane",
-            population: 950000,
-            coordinates: { lat: 17.9757, lng: 102.6331 }
+        basic: {
+            capital: "Amsterdam (Constitutional), The Hague (Government)",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Western Europe",
+            population: 17811291,
+            area: 41850,
+            populationDensity: 423,
+            independence: "1581",
+            callingCode: "+31",
+            tld: ".nl",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        largestCity: "Vientiane",
-        population: {
-            total: 7530000,
-            year: 2024,
-            density: 32,
-            growth: 1.4
+
+        location: {
+            coordinates: [52.1326, 5.2913],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Germany", "Belgium"],
+            borders: 1053,
+            hemispheres: ["Northern", "Eastern"]
         },
-        area: {
-            total: 236800,
-            land: 230800,
-            water: 6000,
-            rank: 84
+
+        political: {
+            government: "Unitary Parliamentary Constitutional Monarchy",
+            headOfState: "King Willem-Alexander",
+            headOfGovernment: "Prime Minister Dick Schoof",
+            legislature: "States General (Senate & House of Representatives)",
+            legalSystem: "Civil Law (based on Napoleonic Code)",
+            states: 12,
+            provinces: 12,
+            municipalities: 342,
+            largestCity: "Amsterdam",
+            organizations: ["UN", "EU", "NATO", "OECD", "WTO", "Council of Europe", "Schengen Area", "Eurozone", "Benelux"]
         },
-        
-        continent: "Asia",
-        region: "Southeast Asia",
-        subregion: "Mainland Southeast Asia",
-        coordinates: { lat: 19.8563, lng: 102.4955 },
-        borders: ["Myanmar", "China", "Vietnam", "Cambodia", "Thailand"],
-        coastline: 0,
-        timezone: ["UTC+7"],
-        drivingSide: "right",
-        
-        governmentType: "One-party socialist republic",
-        leader: {
-            headOfState: "President Thongloun Sisoulith",
-            headOfGovernment: "Prime Minister Sonexay Siphandone"
-        },
-        independence: {
-            date: "July 19, 1949",
-            from: "France"
-        },
-        nationalDay: { name: "National Day", date: "December 2" },
-        divisions: {
-            type: "provinces",
-            count: 18,
-            major: ["Vientiane Capital", "Savannakhet", "Champasak", "Luang Prabang"]
-        },
-        
+
         economy: {
-            gdpTotal: 19000000000,
-            gdpPerCapita: 2600,
-            gdpGrowth: 3.3,
-            currency: { name: "Lao kip", code: "LAK", symbol: "₭" },
-            mainIndustries: ["mining", "timber", "electricity", "agricultural processing", "tourism"],
-            exports: ["electricity", "wood products", "coffee", "tin", "copper", "gold"],
-            imports: ["machinery", "vehicles", "fuel", "consumer goods"],
-            majorPartners: ["Thailand", "China", "Vietnam", "India", "Japan"]
+            gdp: "$1.09 Trillion",
+            gdpPPP: "$1.23 Trillion",
+            gdpPerCapita: "$61,098",
+            gdpRank: "#17",
+            gdpGrowth: "0.1%",
+            currency: "Euro",
+            currencyCode: "EUR",
+            currencySymbol: "€",
+            inflation: "4.1%",
+            unemployment: "3.6%",
+            majorSectors: ["Services (80%)", "Industry (18%)", "Agriculture (2%)"],
+            industries: ["Agriculture", "Metal", "Engineering", "Electrical Machinery", "Chemicals", "Petroleum", "Construction", "Microelectronics", "Fishing", "Food Processing", "Tourism", "Financial Services"],
+            exports: ["Refined Petroleum", "Packaged Medicaments", "Broadcasting Equipment", "Computers", "Flowers"],
+            imports: ["Crude Petroleum", "Refined Petroleum", "Computers", "Packaged Medicaments", "Broadcasting Equipment"]
         },
-        hdi: 0.607,
-        
+
+        geography: {
+            climate: "Temperate Maritime",
+            avgTemperature: "10.8°C",
+            annualRainfall: "838 mm",
+            highestPoint: "Mount Scenery (887 m - Caribbean Netherlands), Vaalserberg (322 m - European Netherlands)",
+            lowestPoint: "Zuidplaspolder (-7 m)",
+            coastline: "451 km",
+            forestCover: "11.2%",
+            arableLand: "29.8%",
+            terrain: "Mostly coastal lowland and reclaimed land (polders); some hills in southeast",
+            naturalResources: ["Natural Gas", "Petroleum", "Peat", "Limestone", "Salt", "Sand", "Gravel", "Arable Land"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Mekong River", description: "Major river forming Thai border" },
-                { name: "Nam Ou", description: "Major northern tributary" },
-                { name: "Nam Khan", description: "River through Luang Prabang" },
-                { name: "Xe Bang Fai", description: "River with extensive caves" }
-            ],
-            mountains: [
-                { name: "Phou Bia", description: "Highest peak at 2819m" },
-                { name: "Annamite Range", description: "Mountains along Vietnamese border" }
-            ],
+            rivers: ["Rhine River", "Meuse River", "Scheldt River", "IJssel River", "Waal River"],
+            mountains: ["Vaalserberg", "Mount Scenery (Caribbean)"],
             deserts: [],
-            forests: [
-                { name: "Tropical forests", description: "Dense monsoon forests" },
-                { name: "Nakai-Nam Theun", description: "Protected forest area" }
-            ],
-            oceans: [],
-            seas: [],
-            lakes: [
-                { name: "Nam Ngum Reservoir", description: "Largest reservoir" }
-            ],
-            plateaus: [
-                { name: "Bolaven Plateau", description: "Highland agricultural region" },
-                { name: "Nakai Plateau", description: "Protected area" }
-            ]
+            forests: ["Veluwe", "Hoge Veluwe National Park", "Biesbosch"],
+            oceans: ["North Sea"]
         },
-        
+
         culture: {
-            languages: {
-                official: ["Lao"],
-                regional: ["Khmu", "Hmong", "French"],
-                spoken: ["Lao", "English", "French", "Thai"]
-            },
-            religions: {
-                dominant: "Buddhism",
-                breakdown: {
-                    "Theravada Buddhism": 64.7,
-                    "Animism": 31.4,
-                    "Christianity": 1.7,
-                    "Other": 2.2
-                }
-            },
-            heritageSites: [
-                { name: "Town of Luang Prabang", type: "Cultural", year: 1995, description: "Former royal capital" },
-                { name: "Vat Phou", type: "Cultural", year: 2001, description: "Khmer Hindu temple complex" },
-                { name: "Plain of Jars", type: "Cultural", year: 2019, description: "Mysterious megalithic jars" }
-            ],
-            festivals: [
-                { name: "Pi Mai Lao", date: "April", description: "Lao New Year" },
-                { name: "Boun Bang Fai", date: "May", description: "Rocket festival" },
-                { name: "That Luang Festival", date: "November", description: "Buddhist festival" },
-                { name: "Boat Racing Festival", date: "October", description: "End of Buddhist Lent" }
-            ],
-            cuisine: [
-                { name: "Laap", description: "National dish - minced meat salad" },
-                { name: "Sticky Rice", description: "Staple food" },
-                { name: "Tam Mak Hoong", description: "Green papaya salad" },
-                { name: "Ping Kai", description: "Grilled chicken" },
-                { name: "Or Lam", description: "Traditional stew" }
-            ],
-            arts: [
-                { type: "Weaving", description: "Traditional silk weaving" },
-                { type: "Architecture", description: "Buddhist temples and stupas" },
-                { type: "Music", description: "Khene bamboo instrument" },
-                { type: "Dance", description: "Lam Vong circle dance" }
-            ],
-            sports: {
-                popular: ["Football", "Sepak Takraw", "Muay Lao", "Petanque"],
-                achievements: ["Southeast Asian Games medals"],
-                venues: ["New Laos National Stadium"]
-            }
+            officialLanguages: ["Dutch"],
+            languages: ["Dutch", "Frisian", "English", "German", "Papiamento"],
+            religions: ["No Religion (55.1%)", "Roman Catholicism (20.1%)", "Protestantism (14.8%)", "Islam (5.1%)", "Others (4.9%)"],
+            heritageSites: ["Schokland and Surroundings", "Defence Line of Amsterdam", "Kinderdijk Mill Network", "Historic Area of Willemstad", "Rietveld Schröder House", "Beemster Polder", "Van Nellefabriek", "Amsterdam Canal Ring"],
+            festivals: ["King's Day", "Carnival", "Sinterklaas", "Liberation Day", "Keukenhof", "Amsterdam Pride"],
+            cuisine: ["Stroopwafel", "Herring", "Bitterballen", "Kroket", "Stamppot", "Gouda Cheese", "Poffertjes", "Drop (Licorice)"],
+            arts: ["Dutch Golden Age Painting (Rembrandt, Vermeer, Van Gogh)", "Architecture", "Design", "Electronic Music"],
+            sports: ["Football", "Cycling", "Speed Skating", "Field Hockey", "Volleyball"]
         },
-        
+
+        symbols: {
+            bird: "Black-tailed Godwit",
+            animal: "Lion",
+            flower: "Tulip",
+            tree: "None Official",
+            anthem: "Wilhelmus",
+            motto: "I Will Maintain"
+        },
+
+        demographics: {
+            lifeExpectancy: 82.28,
+            literacyRate: "99%",
+            urbanPopulation: "92.8%",
+            medianAge: 42.8
+        },
+
         history: {
             timeline: [
-                { year: "1353", event: "Lan Xang kingdom founded" },
-                { year: "1707", event: "Lan Xang splits into three kingdoms" },
-                { year: "1893", event: "French protectorate" },
-                { year: "1949", event: "Independence within French Union" },
-                { year: "1954", event: "Full independence" },
-                { year: "1964-1973", event: "Secret War, heavy US bombing" },
-                { year: "1975", event: "Communist takeover, Lao PDR established" },
-                { year: "1986", event: "Economic reforms begin" },
-                { year: "2021", event: "China-Laos Railway opens" }
+                { year: "1581", title: "Independence Declared", description: "Declaration of independence from Spain" },
+                { year: "17th Century", title: "Dutch Golden Age", description: "Era of global trade, art, science dominance" },
+                { year: "1602", title: "VOC Founded", description: "Dutch East India Company founded (first multinational)" },
+                { year: "1815", title: "Kingdom", description: "Kingdom of the Netherlands established" },
+                { year: "1940-1945", title: "WWII", description: "German occupation" },
+                { year: "1948", title: "Benelux", description: "Formed Benelux customs union" },
+                { year: "1957", title: "EU Founder", description: "Founding member of EEC" }
             ],
-            colonialHistory: "French Indochina 1893-1953",
-            historicalNames: ["Lan Xang", "Land of a Million Elephants"]
+            notableFigures: ["William of Orange", "Rembrandt", "Vincent van Gogh", "Anne Frank", "Erasmus", "Johan Cruyff"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Lao": 53.2,
-                "Khmu": 11.0,
-                "Hmong": 9.2,
-                "Phouthai": 3.4,
-                "Tai": 3.1,
-                "Other": 20.1
-            },
-            ageStructure: {
-                "0-14": 30.0,
-                "15-64": 66.0,
-                "65+": 4.0
-            },
-            urbanization: 37.0,
-            lifeExpectancy: 69.0,
-            fertilityRate: 2.5,
-            literacyRate: 84.7
-        },
-        
-        quickFacts: {
-            internet: { tld: ".la", penetration: 43.0 },
-            calling: { code: "+856" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "A, B, C, E, F" },
-            measurement: "Metric",
-            emergencyNumber: "191"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Laos is the most bombed country in history per capita",
-            "The Plain of Jars contains thousands of mysterious stone jars",
-            "Laos is the only landlocked country in Southeast Asia",
-            "The country is known as the 'Land of a Million Elephants'",
-            "Beer Lao is considered one of Asia's best beers"
+
+        quickFacts: [
+            { icon: "water", title: "Below Sea Level", text: "26% of country is below sea level" },
+            { icon: "bicycle", title: "Cycling", text: "More bicycles (23M) than people (17.8M)" },
+            { icon: "flower", title: "Tulips", text: "World's largest flower exporter" },
+            { icon: "ship", title: "Port of Rotterdam", text: "Europe's largest port" },
+            { icon: "paint-brush", title: "Art Masters", text: "Home of Rembrandt, Vermeer, Van Gogh" },
+            { icon: "building", title: "Tallest People", text: "Dutch are world's tallest people on average" }
         ]
     },
 
-    "cambodia": {
-        name: "Cambodia",
-        officialName: "Kingdom of Cambodia",
-        nativeName: "ព្រះរាជាណាចក្រកម្ពុជា",
-        iso3: "KHM",
-        iso2: "KH",
-        flag: "🇰🇭",
+    // 16. SWITZERLAND
+    {
+        id: "CHE",
+        name: "Switzerland",
+        officialName: "Swiss Confederation",
+        flag: "https://flagcdn.com/w320/ch.png",
         
-        capital: {
-            name: "Phnom Penh",
-            population: 2280000,
-            coordinates: { lat: 11.5564, lng: 104.9282 }
+        images: {
+            hero: "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=1920&q=80",
+            landscape: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80",
+            city: "https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1920&q=80"
         },
-        largestCity: "Phnom Penh",
-        population: {
-            total: 17260000,
-            year: 2024,
-            density: 95,
-            growth: 1.1
-        },
-        area: {
-            total: 181035,
-            land: 176515,
-            water: 4520,
-            rank: 89
-        },
-        
-        continent: "Asia",
-        region: "Southeast Asia",
-        subregion: "Mainland Southeast Asia",
-        coordinates: { lat: 12.5657, lng: 104.9910 },
-        borders: ["Thailand", "Laos", "Vietnam"],
-        coastline: 443,
-        timezone: ["UTC+7"],
-        drivingSide: "right",
-        
-        governmentType: "Constitutional monarchy",
-        leader: {
-            headOfState: "King Norodom Sihamoni",
-            headOfGovernment: "Prime Minister Hun Manet"
-        },
-        independence: {
-            date: "November 9, 1953",
-            from: "France"
-        },
-        nationalDay: { name: "Independence Day", date: "November 9" },
-        divisions: {
-            type: "provinces",
-            count: 25,
-            major: ["Phnom Penh", "Siem Reap", "Battambang", "Kandal", "Kampong Cham"]
-        },
-        
-        economy: {
-            gdpTotal: 30000000000,
-            gdpPerCapita: 1800,
-            gdpGrowth: 5.5,
-            currency: { name: "Cambodian riel", code: "KHR", symbol: "៛" },
-            mainIndustries: ["tourism", "garments", "construction", "rice milling", "fishing"],
-            exports: ["clothing", "timber", "rubber", "rice", "fish"],
-            imports: ["petroleum", "gold", "construction materials", "machinery", "vehicles"],
-            majorPartners: ["USA", "Vietnam", "China", "Japan", "Germany"]
-        },
-        hdi: 0.593,
-        
-        geography_links: {
-            rivers: [
-                { name: "Mekong River", description: "Major river through country" },
-                { name: "Tonle Sap River", description: "Connects lake to Mekong" },
-                { name: "Bassac River", description: "Branch of Mekong" }
-            ],
-            mountains: [
-                { name: "Cardamom Mountains", description: "Southwestern range" },
-                { name: "Phnom Aural", description: "Highest peak at 1813m" },
-                { name: "Dângrêk Mountains", description: "Thai border range" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Cardamom rainforest", description: "Southeast Asia's largest rainforest" },
-                { name: "Prey Lang Forest", description: "Lowland evergreen forest" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Gulf of Thailand", description: "Southwestern coast" }
-            ],
-            lakes: [
-                { name: "Tonle Sap", description: "Southeast Asia's largest freshwater lake" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Khmer"],
-                regional: ["French", "English"],
-                spoken: ["Khmer", "English", "French", "Chinese", "Vietnamese"]
-            },
-            religions: {
-                dominant: "Buddhism",
-                breakdown: {
-                    "Theravada Buddhism": 97.9,
-                    "Islam": 1.1,
-                    "Christianity": 0.5,
-                    "Other": 0.5
-                }
-            },
-            heritageSites: [
-                { name: "Angkor", type: "Cultural", year: 1992, description: "Ancient Khmer Empire capital" },
-                { name: "Temple of Preah Vihear", type: "Cultural", year: 2008, description: "Hindu temple on cliff" },
-                { name: "Sambor Prei Kuk", type: "Cultural", year: 2017, description: "Pre-Angkorian temples" }
-            ],
-            festivals: [
-                { name: "Khmer New Year", date: "April 13-15", description: "Traditional New Year" },
-                { name: "Water Festival", date: "November", description: "Boat racing celebration" },
-                { name: "Pchum Ben", date: "September-October", description: "Ancestor festival" },
-                { name: "King's Birthday", date: "May 13-15", description: "Royal celebration" }
-            ],
-            cuisine: [
-                { name: "Amok", description: "National dish - fish curry in banana leaves" },
-                { name: "Lok Lak", description: "Stir-fried beef" },
-                { name: "Num Banh Chok", description: "Khmer noodles" },
-                { name: "Samlor Korko", description: "Stirring soup" },
-                { name: "Prahok", description: "Fermented fish paste" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Angkor temples" },
-                { type: "Dance", description: "Apsara classical dance (UNESCO)" },
-                { type: "Sculpture", description: "Khmer stone carvings" },
-                { type: "Shadow puppetry", description: "Sbek Thom large puppets (UNESCO)" }
-            ],
-            sports: {
-                popular: ["Football", "Kickboxing", "Volleyball", "Sepak Takraw"],
-                achievements: ["Bokator martial art tradition", "Growing football"],
-                venues: ["Morodok Techo National Stadium", "Olympic Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "1st century", event: "Funan kingdom established" },
-                { year: "802", event: "Khmer Empire founded by Jayavarman II" },
-                { year: "1113-1150", event: "Angkor Wat built under Suryavarman II" },
-                { year: "1431", event: "Thai sack Angkor" },
-                { year: "1863", event: "French protectorate" },
-                { year: "1953", event: "Independence from France" },
-                { year: "1975-1979", event: "Khmer Rouge genocide" },
-                { year: "1979", event: "Vietnamese invasion, Khmer Rouge ousted" },
-                { year: "1991", event: "Paris Peace Accords" },
-                { year: "1993", event: "Constitutional monarchy restored" },
-                { year: "2023", event: "Hun Manet becomes prime minister" }
-            ],
-            colonialHistory: "French protectorate 1863-1953",
-            historicalNames: ["Khmer Empire", "Kampuchea"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Khmer": 97.6,
-                "Cham": 1.2,
-                "Chinese": 0.1,
-                "Vietnamese": 0.1,
-                "Other": 1.0
-            },
-            ageStructure: {
-                "0-14": 30.0,
-                "15-64": 65.0,
-                "65+": 5.0
-            },
-            urbanization: 24.7,
-            lifeExpectancy: 70.5,
-            fertilityRate: 2.4,
-            literacyRate: 80.5
-        },
-        
-        quickFacts: {
-            internet: { tld: ".kh", penetration: 60.0 },
-            calling: { code: "+855" },
-            electricity: { voltage: "230V", frequency: "50Hz", plugType: "A, C, G" },
-            measurement: "Metric",
-            emergencyNumber: "117/118/119"
-        },
-        
-        disputes: [
-            {
-                type: "territorial",
-                description: "Temple of Preah Vihear border dispute with Thailand",
-                parties: ["Cambodia", "Thailand"],
-                status: "ICJ ruled for Cambodia, tensions remain"
-            }
-        ],
-        
-        funFacts: [
-            "Angkor Wat is the largest religious monument in the world",
-            "The Cambodian flag is the only one featuring a building",
-            "The Khmer Rouge killed nearly 2 million people (1975-1979)",
-            "Tonle Sap reverses flow seasonally - unique in the world",
-            "Cambodia has the world's largest hand-woven silk picture"
-        ]
-    },
 
-    "north_korea": {
-        name: "North Korea",
-        officialName: "Democratic People's Republic of Korea",
-        nativeName: "조선민주주의인민공화국",
-        iso3: "PRK",
-        iso2: "KP",
-        flag: "🇰🇵",
-        
-        capital: {
-            name: "Pyongyang",
-            population: 3255000,
-            coordinates: { lat: 39.0392, lng: 125.7625 }
+        basic: {
+            capital: "Bern (de facto)",
+            continent: "Europe",
+            region: "Western Europe",
+            subregion: "Central Europe",
+            population: 8796669,
+            area: 41284,
+            populationDensity: 220,
+            independence: "1291",
+            callingCode: "+41",
+            tld: ".ch",
+            drivingSide: "Right",
+            electricity: "230V, 50Hz"
         },
-        largestCity: "Pyongyang",
-        population: {
-            total: 26070000,
-            year: 2024,
-            density: 217,
-            growth: 0.4
-        },
-        area: {
-            total: 120538,
-            land: 120408,
-            water: 130,
-            rank: 98
-        },
-        
-        continent: "Asia",
-        region: "East Asia",
-        subregion: "Korean Peninsula",
-        coordinates: { lat: 40.3399, lng: 127.5101 },
-        borders: ["South Korea", "China", "Russia"],
-        coastline: 2495,
-        timezone: ["UTC+9"],
-        drivingSide: "right",
-        
-        governmentType: "One-party totalitarian dictatorship",
-        leader: {
-            headOfState: "Supreme Leader Kim Jong-un",
-            headOfGovernment: "Premier Kim Tok-hun"
-        },
-        independence: {
-            date: "September 9, 1948",
-            from: "Division of Korea"
-        },
-        nationalDay: { name: "Foundation Day", date: "September 9" },
-        divisions: {
-            type: "provinces",
-            count: 9,
-            major: ["Pyongyang", "South Pyongan", "North Hamgyong", "South Hamgyong"]
-        },
-        
-        economy: {
-            gdpTotal: 28000000000,
-            gdpPerCapita: 1100,
-            gdpGrowth: -4.0,
-            currency: { name: "North Korean won", code: "KPW", symbol: "₩" },
-            mainIndustries: ["military products", "machine building", "electricity", "mining", "metallurgy"],
-            exports: ["minerals", "metallurgical products", "textiles", "agricultural products"],
-            imports: ["petroleum", "grain", "machinery", "textiles"],
-            majorPartners: ["China", "Russia"]
-        },
-        hdi: null,
-        
-        geography_links: {
-            rivers: [
-                { name: "Yalu River", description: "Border river with China" },
-                { name: "Tumen River", description: "Border with China and Russia" },
-                { name: "Taedong River", description: "River through Pyongyang" }
-            ],
-            mountains: [
-                { name: "Mount Paektu", description: "Sacred mountain at 2744m" },
-                { name: "Mount Kumgang", description: "Diamond Mountains" },
-                { name: "Rangrim Mountains", description: "Central mountain range" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Northern forests", description: "Pine and fir forests" },
-                { name: "Mount Kumgang forests", description: "Protected mountain forest" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Sea of Japan/East Sea", description: "Eastern coast" },
-                { name: "Yellow Sea", description: "Western coast" }
-            ],
-            lakes: [
-                { name: "Heaven Lake", description: "Crater lake on Mount Paektu" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Korean"],
-                regional: [],
-                spoken: ["Korean"]
-            },
-            religions: {
-                dominant: "State atheism",
-                breakdown: {
-                    "Irreligion/Juche": 64.0,
-                    "Korean shamanism": 16.0,
-                    "Chondoism": 14.0,
-                    "Buddhism": 4.0,
-                    "Christianity": 2.0
-                }
-            },
-            heritageSites: [
-                { name: "Complex of Koguryo Tombs", type: "Cultural", year: 2004, description: "Ancient royal tombs" },
-                { name: "Historic Monuments of Kaesong", type: "Cultural", year: 2013, description: "Koryo Dynasty capital" }
-            ],
-            festivals: [
-                { name: "Day of the Sun", date: "April 15", description: "Kim Il-sung's birthday" },
-                { name: "Day of the Shining Star", date: "February 16", description: "Kim Jong-il's birthday" },
-                { name: "Foundation Day", date: "September 9", description: "National day" },
-                { name: "Workers' Party Foundation Day", date: "October 10", description: "Party anniversary" }
-            ],
-            cuisine: [
-                { name: "Naengmyeon", description: "Cold noodles" },
-                { name: "Kimchi", description: "Fermented vegetables" },
-                { name: "Pyongyang Onban", description: "Rice with meat and vegetables" },
-                { name: "Sinseollo", description: "Royal hot pot" },
-                { name: "Makkoli", description: "Rice wine" }
-            ],
-            arts: [
-                { type: "Architecture", description: "Monumental socialist architecture" },
-                { type: "Mass Games", description: "Large-scale performances" },
-                { type: "Music", description: "State-approved patriotic music" },
-                { type: "Dance", description: "Traditional and revolutionary dance" }
-            ],
-            sports: {
-                popular: ["Football", "Basketball", "Gymnastics", "Wrestling", "Table Tennis"],
-                achievements: ["Olympic weightlifting and wrestling medals"],
-                venues: ["May Day Stadium", "Kim Il-sung Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "2333 BC", event: "Legendary founding of Gojoseon" },
-                { year: "37 BC", event: "Goguryeo kingdom founded" },
-                { year: "918", event: "Goryeo dynasty" },
-                { year: "1392", event: "Joseon dynasty" },
-                { year: "1910", event: "Japanese annexation" },
-                { year: "1945", event: "Liberation, division of Korea" },
-                { year: "1948", event: "DPRK established under Kim Il-sung" },
-                { year: "1950-1953", event: "Korean War" },
-                { year: "1994", event: "Kim Jong-il takes power" },
-                { year: "2011", event: "Kim Jong-un takes power" },
-                { year: "2017", event: "First successful ICBM tests" }
-            ],
-            colonialHistory: "Japanese occupation 1910-1945",
-            historicalNames: ["Joseon", "Chosen"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Korean": 99.9,
-                "Other": 0.1
-            },
-            ageStructure: {
-                "0-14": 20.0,
-                "15-64": 69.0,
-                "65+": 11.0
-            },
-            urbanization: 63.0,
-            lifeExpectancy: 72.5,
-            fertilityRate: 1.9,
-            literacyRate: 100.0
-        },
-        
-        quickFacts: {
-            internet: { tld: ".kp", penetration: 0.1 },
-            calling: { code: "+850" },
-            electricity: { voltage: "220V", frequency: "50Hz", plugType: "A, C, F" },
-            measurement: "Metric",
-            emergencyNumber: "112"
-        },
-        
-        disputes: [
-            {
-                type: "political",
-                description: "Korean War never officially ended, only armistice",
-                parties: ["North Korea", "South Korea", "USA", "China"],
-                status: "Ongoing state of war"
-            },
-            {
-                type: "nuclear",
-                description: "Nuclear weapons program",
-                parties: ["North Korea", "International community"],
-                status: "Ongoing sanctions and tensions"
-            }
-        ],
-        
-        funFacts: [
-            "North Korea has its own calendar starting from Kim Il-sung's birth (Juche calendar)",
-            "The May Day Stadium is the world's largest stadium",
-            "The country has the fourth-largest military in the world",
-            "Only 28 approved hairstyles exist (allegedly)",
-            "The DMZ between North and South Korea is 4km wide"
-        ]
-    },
-  
-    "taiwan": {
-        name: "Taiwan",
-        officialName: "Republic of China",
-        nativeName: "中華民國 (Zhōnghuá Mínguó)",
-        iso3: "TWN",
-        iso2: "TW",
-        flag: "🇹🇼",
-        
-        capital: {
-            name: "Taipei",
-            population: 2600000,
-            coordinates: { lat: 25.0330, lng: 121.5654 }
-        },
-        largestCity: "New Taipei City",
-        population: {
-            total: 23580000,
-            year: 2024,
-            density: 655,
-            growth: -0.2
-        },
-        area: {
-            total: 36193,
-            land: 32260,
-            water: 3933,
-            rank: 137
-        },
-        
-        continent: "Asia",
-        region: "East Asia",
-        subregion: "East Asia",
-        coordinates: { lat: 23.6978, lng: 120.9605 },
-        borders: [],
-        coastline: 1566,
-        timezone: ["UTC+8"],
-        drivingSide: "right",
-        
-        governmentType: "Semi-presidential republic",
-        leader: {
-            headOfState: "President Lai Ching-te",
-            headOfGovernment: "Premier Cho Jung-tai"
-        },
-        independence: {
-            date: "1912",
-            from: "Republic of China established"
-        },
-        nationalDay: { name: "Double Tenth Day", date: "October 10" },
-        divisions: {
-            type: "special municipalities and counties",
-            count: 22,
-            major: ["Taipei", "New Taipei", "Kaohsiung", "Taichung", "Tainan"]
-        },
-        
-        economy: {
-            gdpTotal: 790000000000,
-            gdpPerCapita: 33500,
-            gdpGrowth: 3.5,
-            currency: { name: "New Taiwan dollar", code: "TWD", symbol: "NT$" },
-            mainIndustries: ["semiconductors", "electronics", "petrochemicals", "machinery", "textiles"],
-            exports: ["semiconductors", "electronics", "machinery", "petrochemicals", "plastics"],
-            imports: ["oil", "semiconductors", "natural gas", "coal", "machinery"],
-            majorPartners: ["China", "USA", "Japan", "Hong Kong", "South Korea"]
-        },
-        hdi: 0.926,
-        
-        geography_links: {
-            rivers: [
-                { name: "Zhuoshui River", description: "Longest river" },
-                { name: "Gaoping River", description: "Southern Taiwan" },
-                { name: "Tamsui River", description: "Northern Taiwan near Taipei" }
-            ],
-            mountains: [
-                { name: "Yushan (Jade Mountain)", description: "Highest peak at 3952m" },
-                { name: "Central Mountain Range", description: "Spine of Taiwan" },
-                { name: "Alishan", description: "Famous mountain resort" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Alishan forests", description: "Ancient cypress forests" },
-                { name: "Subtropical forests", description: "Lowland forests" },
-                { name: "Alpine forests", description: "High mountain forests" }
-            ],
-            oceans: [
-                { name: "Pacific Ocean", description: "Eastern coast" }
-            ],
-            seas: [
-                { name: "Taiwan Strait", description: "Western strait to mainland China" },
-                { name: "East China Sea", description: "Northern waters" },
-                { name: "South China Sea", description: "Southern waters" }
-            ],
-            lakes: [
-                { name: "Sun Moon Lake", description: "Largest natural lake" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["Mandarin Chinese"],
-                regional: ["Taiwanese Hokkien", "Hakka", "Indigenous languages"],
-                spoken: ["Mandarin", "Taiwanese", "Hakka", "English"]
-            },
-            religions: {
-                dominant: "Buddhism/Taoism mix",
-                breakdown: {
-                    "Buddhism": 35.0,
-                    "Taoism": 33.0,
-                    "Folk religion": 10.0,
-                    "Christianity": 4.0,
-                    "Unaffiliated": 18.0
-                }
-            },
-            heritageSites: [],
-            festivals: [
-                { name: "Lunar New Year", date: "January-February", description: "Most important festival" },
-                { name: "Lantern Festival", date: "15th day of New Year", description: "Lantern displays" },
-                { name: "Dragon Boat Festival", date: "June", description: "Dragon boat racing" },
-                { name: "Mid-Autumn Festival", date: "September-October", description: "Moon cakes and family" }
-            ],
-            cuisine: [
-                { name: "Bubble Tea", description: "Invented in Taiwan, now worldwide phenomenon" },
-                { name: "Beef Noodle Soup", description: "National comfort food" },
-                { name: "Xiaolongbao", description: "Soup dumplings" },
-                { name: "Oyster Omelette", description: "Night market favorite" },
-                { name: "Lu Rou Fan", description: "Braised pork rice" },
-                { name: "Gua Bao", description: "Taiwanese pork belly bun" },
-                { name: "Stinky Tofu", description: "Famous fermented tofu" }
-            ],
-            arts: [
-                { type: "Chinese Opera", description: "Traditional performing art" },
-                { type: "Puppetry", description: "Glove and string puppets" },
-                { type: "Calligraphy", description: "Chinese calligraphy tradition" },
-                { type: "Contemporary Art", description: "Vibrant modern art scene" }
-            ],
-            sports: {
-                popular: ["Baseball", "Basketball", "Badminton", "Martial arts", "Golf"],
-                achievements: ["Little League World Series champions", "Olympic medals in weightlifting, taekwondo"],
-                venues: ["Taipei Dome", "Kaohsiung National Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "1624", event: "Dutch colonial rule begins" },
-                { year: "1662", event: "Koxinga expels Dutch, Kingdom of Tungning" },
-                { year: "1683", event: "Qing Dynasty annexation" },
-                { year: "1895", event: "Treaty of Shimonoseki, Japanese rule begins" },
-                { year: "1945", event: "End of WWII, ROC takes control" },
-                { year: "1949", event: "ROC government retreats to Taiwan after Civil War" },
-                { year: "1971", event: "UN seat transferred to PRC" },
-                { year: "1987", event: "Martial law lifted" },
-                { year: "1996", event: "First direct presidential election" },
-                { year: "2000", event: "First peaceful transfer of power" },
-                { year: "2024", event: "Lai Ching-te elected president" }
-            ],
-            colonialHistory: "Dutch 1624-1662, Japanese 1895-1945",
-            historicalNames: ["Formosa", "Republic of China"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Han Chinese (Hoklo)": 70.0,
-                "Han Chinese (Hakka)": 14.0,
-                "Mainlanders": 14.0,
-                "Indigenous peoples": 2.0
-            },
-            ageStructure: {
-                "0-14": 12.0,
-                "15-64": 70.0,
-                "65+": 18.0
-            },
-            urbanization: 79.0,
-            lifeExpectancy: 81.0,
-            fertilityRate: 1.1,
-            literacyRate: 98.9
-        },
-        
-        quickFacts: {
-            internet: { tld: ".tw", penetration: 92.0 },
-            calling: { code: "+886" },
-            electricity: { voltage: "110V", frequency: "60Hz", plugType: "A, B" },
-            measurement: "Metric",
-            emergencyNumber: "110/119"
-        },
-        
-        disputes: [
-            {
-                type: "sovereignty",
-                description: "Disputed status with People's Republic of China",
-                parties: ["Taiwan (ROC)", "China (PRC)"],
-                status: "Ongoing - PRC claims Taiwan as province"
-            },
-            {
-                type: "territorial",
-                description: "Spratly Islands claims",
-                parties: ["Taiwan", "China", "Vietnam", "Philippines", "Malaysia", "Brunei"],
-                status: "Ongoing"
-            }
-        ],
-        
-        funFacts: [
-            "Taiwan invented bubble tea (boba) in the 1980s",
-            "Taiwan was the first Asian country to legalize same-sex marriage",
-            "Taiwan produces over 90% of the world's advanced semiconductors",
-            "Taipei 101 was the world's tallest building from 2004-2010",
-            "Taiwan has the most 24-hour convenience stores per capita",
-            "The island has over 100 peaks above 3000 meters"
-        ]
-    },
 
-    "jamaica": {
-        name: "Jamaica",
-        officialName: "Jamaica",
-        nativeName: "Jamaica",
-        iso3: "JAM",
-        iso2: "JM",
-        flag: "🇯🇲",
-        
-        capital: {
-            name: "Kingston",
-            population: 670000,
-            coordinates: { lat: 18.0179, lng: -76.8099 }
+        location: {
+            coordinates: [46.8182, 8.2275],
+            timezone: "UTC+1 (CET)",
+            neighbors: ["Germany", "Austria", "Liechtenstein", "Italy", "France"],
+            borders: 1852,
+            hemispheres: ["Northern", "Eastern"]
         },
-        largestCity: "Kingston",
-        population: {
-            total: 2820000,
-            year: 2024,
-            density: 257,
-            growth: 0.1
+
+        political: {
+            government: "Federal Semi-Direct Democracy under Multi-Party Directorial Republic",
+            headOfState: "Federal Council (7 members, rotating presidency)",
+            headOfGovernment: "President Karin Keller-Sutter (2025)",
+            legislature: "Federal Assembly (Council of States & National Council)",
+            legalSystem: "Civil Law (influenced by Germanic and French traditions)",
+            states: 26,
+            cantons: 26,
+            largestCity: "Zürich",
+            organizations: ["UN", "EFTA", "Council of Europe", "OSCE", "WTO", "Schengen Area"]
         },
-        area: {
-            total: 10991,
-            land: 10831,
-            water: 160,
-            rank: 166
-        },
-        
-        continent: "North America",
-        region: "Caribbean",
-        subregion: "Greater Antilles",
-        coordinates: { lat: 18.1096, lng: -77.2975 },
-        borders: [],
-        coastline: 1022,
-        timezone: ["UTC-5"],
-        drivingSide: "left",
-        
-        governmentType: "Parliamentary constitutional monarchy",
-        leader: {
-            headOfState: "King Charles III (represented by Governor-General Patrick Allen)",
-            headOfGovernment: "Prime Minister Andrew Holness"
-        },
-        independence: {
-            date: "August 6, 1962",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "August 6" },
-        divisions: {
-            type: "parishes",
-            count: 14,
-            major: ["Kingston", "Saint Andrew", "Saint Catherine", "Manchester", "Clarendon"]
-        },
-        
+
         economy: {
-            gdpTotal: 17000000000,
-            gdpPerCapita: 6000,
-            gdpGrowth: 3.0,
-            currency: { name: "Jamaican dollar", code: "JMD", symbol: "J$" },
-            mainIndustries: ["tourism", "bauxite mining", "agriculture", "manufacturing"],
-            exports: ["alumina", "bauxite", "sugar", "rum", "coffee", "yams"],
-            imports: ["food", "consumer goods", "fuel", "machinery"],
-            majorPartners: ["USA", "Canada", "Netherlands", "UK", "China"]
+            gdp: "$884 Billion",
+            gdpPPP: "$729 Billion",
+            gdpPerCapita: "$99,994",
+            gdpRank: "#20",
+            gdpGrowth: "0.7%",
+            currency: "Swiss Franc",
+            currencyCode: "CHF",
+            currencySymbol: "CHF",
+            inflation: "2.1%",
+            unemployment: "2.0%",
+            majorSectors: ["Services (74%)", "Industry (25%)", "Agriculture (1%)"],
+            industries: ["Machinery", "Chemicals", "Watches", "Textiles", "Precision Instruments", "Tourism", "Banking", "Insurance", "Pharmaceuticals", "Chocolate", "Cheese"],
+            exports: ["Gold", "Packaged Medicaments", "Blood Products", "Watches", "Orthopedic Appliances"],
+            imports: ["Gold", "Packaged Medicaments", "Cars", "Jewellery", "Blood Products"]
         },
-        hdi: 0.709,
-        
+
+        geography: {
+            climate: "Temperate; Varies with Altitude; Cold, Cloudy, Rainy/Snowy Winters; Cool to Warm, Cloudy, Humid Summers",
+            avgTemperature: "6.2°C",
+            annualRainfall: "1,537 mm",
+            highestPoint: "Dufourspitze (4,634 m)",
+            lowestPoint: "Lake Maggiore (193 m)",
+            coastline: "0 km (Landlocked)",
+            forestCover: "32.4%",
+            arableLand: "10.1%",
+            terrain: "Mostly mountains (Alps in south, Jura in northwest) with a central plateau of rolling hills, plains, and large lakes",
+            naturalResources: ["Hydropower", "Timber", "Salt"]
+        },
+
         geography_links: {
-            rivers: [
-                { name: "Black River", description: "Longest navigable river" },
-                { name: "Rio Grande", description: "Rafting destination in Portland" },
-                { name: "Martha Brae River", description: "Tourist rafting river" }
-            ],
-            mountains: [
-                { name: "Blue Mountains", description: "Home of Blue Mountain coffee" },
-                { name: "Blue Mountain Peak", description: "Highest point at 2256m" },
-                { name: "John Crow Mountains", description: "Eastern mountain range" }
-            ],
+            rivers: ["Rhine River", "Rhône River", "Aare River", "Reuss River", "Ticino River"],
+            mountains: ["Alps", "Jura Mountains", "Matterhorn", "Eiger", "Jungfrau", "Dufourspitze", "Monte Rosa"],
             deserts: [],
-            forests: [
-                { name: "Blue and John Crow Mountains", description: "UNESCO rainforest" },
-                { name: "Cockpit Country", description: "Unique karst landscape" }
-            ],
-            oceans: [],
-            seas: [
-                { name: "Caribbean Sea", description: "Southern coast" }
-            ],
-            lakes: []
+            forests: ["Swiss National Park", "Sihlwald", "Alpine Forests"],
+            oceans: []
         },
-        
+
         culture: {
-            languages: {
-                official: ["English"],
-                regional: ["Jamaican Patois"],
-                spoken: ["English", "Jamaican Patois"]
-            },
-            religions: {
-                dominant: "Christianity",
-                breakdown: {
-                    "Protestant": 64.8,
-                    "Catholic": 2.2,
-                    "Rastafari": 1.1,
-                    "Other": 6.5,
-                    "Unaffiliated": 21.3
-                }
-            },
-            heritageSites: [
-                { name: "Blue and John Crow Mountains", type: "Mixed", year: 2015, description: "Cultural and natural heritage" }
-            ],
-            festivals: [
-                { name: "Jamaica Carnival", date: "March-April", description: "Colorful carnival celebration" },
-                { name: "Reggae Sumfest", date: "July", description: "Major reggae music festival" },
-                { name: "Independence Day", date: "August 6", description: "National celebration" },
-                { name: "Bob Marley Birthday", date: "February 6", description: "Celebration of reggae icon" }
-            ],
-            cuisine: [
-                { name: "Ackee and Saltfish", description: "National dish" },
-                { name: "Jerk Chicken", description: "Iconic spiced grilled chicken" },
-                { name: "Curry Goat", description: "Popular curry dish" },
-                { name: "Rice and Peas", description: "Staple side dish" },
-                { name: "Patties", description: "Flaky meat-filled pastries" },
-                { name: "Rum Punch", description: "Traditional cocktail" }
-            ],
-            arts: [
-                { type: "Music", description: "Birthplace of reggae, ska, dancehall" },
-                { type: "Dance", description: "Dancehall culture" },
-                { type: "Visual Arts", description: "Intuitive art movement" },
-                { type: "Literature", description: "Caribbean literary tradition" }
-            ],
-            sports: {
-                popular: ["Cricket", "Football", "Athletics", "Netball"],
-                achievements: ["Usain Bolt - fastest man ever", "Olympic sprint dominance", "Cricket World Cup finalists"],
-                venues: ["National Stadium", "Sabina Park"]
-            }
+            officialLanguages: ["German", "French", "Italian", "Romansh"],
+            languages: ["German (62.3%)", "French (22.8%)", "Italian (8%)", "Romansh (0.5%)", "English"],
+            religions: ["Roman Catholicism (34.4%)", "Protestantism (22.5%)", "No Religion (29.4%)", "Islam (5.4%)", "Others (8.3%)"],
+            heritageSites: ["Old City of Berne", "Convent of St Gall", "Jungfrau-Aletsch", "Monte San Giorgio", "Lavaux Vineyard Terraces", "Swiss Tectonic Arena Sardona", "La Chaux-de-Fonds / Le Locle", "Rhaetian Railway"],
+            festivals: ["Fasnacht (Basel Carnival)", "Fête de l'Escalade", "National Day (August 1)", "Montreux Jazz Festival", "Street Parade (Zürich)"],
+            cuisine: ["Cheese Fondue", "Raclette", "Rösti", "Chocolate", "Zürcher Geschnetzeltes", "Birchermüesli"],
+            arts: ["Watchmaking", "Architecture", "Painting (Paul Klee, Alberto Giacometti)", "Literature"],
+            sports: ["Football", "Ice Hockey", "Skiing", "Tennis", "Cycling", "Bobsled"]
         },
-        
+
+        symbols: {
+            bird: "None Official",
+            animal: "None Official (Cow symbolically)",
+            flower: "Edelweiss",
+            tree: "None Official",
+            anthem: "Swiss Psalm",
+            motto: "One for All, All for One (Unofficial)"
+        },
+
+        demographics: {
+            lifeExpectancy: 84.25,
+            literacyRate: "99%",
+            urbanPopulation: "74.1%",
+            medianAge: 43.1
+        },
+
         history: {
             timeline: [
-                { year: "600 AD", event: "Taino people settle island" },
-                { year: "1494", event: "Columbus arrives" },
-                { year: "1509", event: "Spanish colonization begins" },
-                { year: "1655", event: "British capture Jamaica" },
-                { year: "1692", event: "Port Royal earthquake" },
-                { year: "1834", event: "Slavery abolished" },
-                { year: "1865", event: "Morant Bay Rebellion" },
-                { year: "1962", event: "Independence from United Kingdom" },
-                { year: "1966", event: "Haile Selassie visits, boosting Rastafari" },
-                { year: "1980s", event: "Reggae gains global popularity" }
+                { year: "1291", title: "Swiss Confederation", description: "Federal Charter; founding of Switzerland" },
+                { year: "1499", title: "Independence", description: "De facto independence from Holy Roman Empire" },
+                { year: "1648", title: "Recognition", description: "Peace of Westphalia formally recognized independence" },
+                { year: "1815", title: "Neutrality", description: "Congress of Vienna recognized permanent neutrality" },
+                { year: "1848", title: "Federal State", description: "Modern federal state constitution adopted" },
+                { year: "1863", title: "Red Cross", description: "Red Cross founded in Geneva" },
+                { year: "1920", title: "League of Nations", description: "Geneva became seat of League of Nations" },
+                { year: "2002", title: "UN Member", description: "Joined United Nations" }
             ],
-            colonialHistory: "Spanish 1509-1655, British 1655-1962",
-            historicalNames: ["Xaymaca", "Santiago"]
+            notableFigures: ["William Tell (legendary)", "Henry Dunant", "Carl Jung", "Albert Einstein", "Jean-Jacques Rousseau", "Roger Federer"]
         },
-        
-        demographics: {
-            ethnicGroups: {
-                "Black": 92.1,
-                "Mixed": 6.1,
-                "East Indian": 0.8,
-                "Other": 1.0
-            },
-            ageStructure: {
-                "0-14": 24.0,
-                "15-64": 66.0,
-                "65+": 10.0
-            },
-            urbanization: 56.3,
-            lifeExpectancy: 75.0,
-            fertilityRate: 2.0,
-            literacyRate: 88.7
-        },
-        
-        quickFacts: {
-            internet: { tld: ".jm", penetration: 68.0 },
-            calling: { code: "+1-876" },
-            electricity: { voltage: "110V", frequency: "50Hz", plugType: "A, B" },
-            measurement: "Metric (with imperial)",
-            emergencyNumber: "119"
-        },
-        
+
         disputes: [],
-        
-        funFacts: [
-            "Jamaica is the birthplace of reggae music and Bob Marley",
-            "Usain Bolt, the fastest human ever, is Jamaican",
-            "Jamaica was the first Caribbean country to gain independence",
-            "Blue Mountain Coffee is among the world's most expensive",
-            "The James Bond creator Ian Fleming wrote many books in Jamaica",
-            "Ackee, the national fruit, is poisonous if not prepared correctly"
-        ]
-    },
 
-    "trinidad_and_tobago": {
-        name: "Trinidad and Tobago",
-        officialName: "Republic of Trinidad and Tobago",
-        nativeName: "Republic of Trinidad and Tobago",
-        iso3: "TTO",
-        iso2: "TT",
-        flag: "🇹🇹",
-        
-        capital: {
-            name: "Port of Spain",
-            population: 37000,
-            coordinates: { lat: 10.6596, lng: -61.5086 }
-        },
-        largestCity: "Chaguanas",
-        population: {
-            total: 1530000,
-            year: 2024,
-            density: 298,
-            growth: 0.3
-        },
-        area: {
-            total: 5131,
-            land: 5128,
-            water: 3,
-            rank: 172
-        },
-        
-        continent: "North America",
-        region: "Caribbean",
-        subregion: "Southern Caribbean",
-        coordinates: { lat: 10.6918, lng: -61.2225 },
-        borders: [],
-        coastline: 362,
-        timezone: ["UTC-4"],
-        drivingSide: "left",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Christine Kangaloo",
-            headOfGovernment: "Prime Minister Keith Rowley"
-        },
-        independence: {
-            date: "August 31, 1962",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "August 31" },
-        divisions: {
-            type: "regions and municipalities",
-            count: 14,
-            major: ["Port of Spain", "San Fernando", "Chaguanas", "Arima"]
-        },
-        
-        economy: {
-            gdpTotal: 27000000000,
-            gdpPerCapita: 17600,
-            gdpGrowth: 2.0,
-            currency: { name: "Trinidad and Tobago dollar", code: "TTD", symbol: "TT$" },
-            mainIndustries: ["petroleum", "natural gas", "chemicals", "tourism", "food processing"],
-            exports: ["petroleum", "chemicals", "steel", "fertilizers", "sugar"],
-            imports: ["mineral fuels", "machinery", "food", "transport equipment"],
-            majorPartners: ["USA", "China", "Argentina", "Brazil", "Guyana"]
-        },
-        hdi: 0.810,
-        
-        geography_links: {
-            rivers: [
-                { name: "Caroni River", description: "Longest river in Trinidad" },
-                { name: "Ortoire River", description: "Major southern river" }
-            ],
-            mountains: [
-                { name: "Northern Range", description: "Mountain range across northern Trinidad" },
-                { name: "El Cerro del Aripo", description: "Highest point at 940m" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Northern Range rainforest", description: "Tropical rainforest" },
-                { name: "Nariva Swamp", description: "Freshwater wetland" },
-                { name: "Main Ridge Forest Reserve", description: "Oldest protected forest in Western Hemisphere" }
-            ],
-            oceans: [
-                { name: "Atlantic Ocean", description: "Eastern coast" }
-            ],
-            seas: [
-                { name: "Caribbean Sea", description: "Western coast" },
-                { name: "Gulf of Paria", description: "Between Trinidad and Venezuela" }
-            ],
-            lakes: [
-                { name: "Pitch Lake", description: "World's largest natural asphalt lake" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["English"],
-                regional: ["Trinidadian Creole", "Tobagonian Creole", "Hindi", "Spanish"],
-                spoken: ["English", "Trinidadian Creole", "Hindi"]
-            },
-            religions: {
-                dominant: "Christianity",
-                breakdown: {
-                    "Protestant": 32.1,
-                    "Catholic": 21.6,
-                    "Hindu": 18.2,
-                    "Islam": 5.0,
-                    "Other": 8.4,
-                    "Unaffiliated": 14.7
-                }
-            },
-            heritageSites: [],
-            festivals: [
-                { name: "Trinidad Carnival", date: "February-March", description: "World's greatest show" },
-                { name: "Diwali", date: "October-November", description: "Hindu festival of lights" },
-                { name: "Hosay", date: "Islamic calendar", description: "Shia Muslim commemoration" },
-                { name: "Tobago Heritage Festival", date: "July-August", description: "Cultural celebration" }
-            ],
-            cuisine: [
-                { name: "Doubles", description: "Curried chickpeas in fried bread" },
-                { name: "Roti", description: "Curry wrapped in flatbread" },
-                { name: "Pelau", description: "Rice with meat and pigeon peas" },
-                { name: "Callaloo", description: "Leafy green stew" },
-                { name: "Bake and Shark", description: "Fried shark in fried bread" },
-                { name: "Crab and Dumpling", description: "Tobago specialty" }
-            ],
-            arts: [
-                { type: "Music", description: "Birthplace of calypso, soca, and steel pan" },
-                { type: "Carnival arts", description: "Mas costumes, wire bending" },
-                { type: "Limbo dance", description: "Originated in Trinidad" },
-                { type: "Literature", description: "V.S. Naipaul Nobel laureate" }
-            ],
-            sports: {
-                popular: ["Cricket", "Football", "Athletics", "Rugby"],
-                achievements: ["Olympic medals in athletics", "Cricket World Cup participation"],
-                venues: ["Queen's Park Oval", "Hasely Crawford Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "1498", event: "Columbus arrives, names Trinidad" },
-                { year: "1592", event: "Spanish colonization of Trinidad" },
-                { year: "1797", event: "British capture Trinidad" },
-                { year: "1834", event: "Slavery abolished" },
-                { year: "1845", event: "Indian indentured labor begins" },
-                { year: "1889", event: "Trinidad and Tobago unified" },
-                { year: "1962", event: "Independence from United Kingdom" },
-                { year: "1976", event: "Republic status" },
-                { year: "1990", event: "Attempted coup by Jamaat al Muslimeen" }
-            ],
-            colonialHistory: "Spanish (Trinidad) 1498-1797, British 1797-1962",
-            historicalNames: ["Trinity Island"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "East Indian": 35.4,
-                "African": 34.2,
-                "Mixed": 22.8,
-                "Other": 7.6
-            },
-            ageStructure: {
-                "0-14": 19.0,
-                "15-64": 69.0,
-                "65+": 12.0
-            },
-            urbanization: 53.2,
-            lifeExpectancy: 74.0,
-            fertilityRate: 1.7,
-            literacyRate: 99.0
-        },
-        
-        quickFacts: {
-            internet: { tld: ".tt", penetration: 77.0 },
-            calling: { code: "+1-868" },
-            electricity: { voltage: "115V", frequency: "60Hz", plugType: "A, B" },
-            measurement: "Metric",
-            emergencyNumber: "999"
-        },
-        
-        disputes: [
-            {
-                type: "maritime",
-                description: "Maritime boundary with Venezuela",
-                parties: ["Trinidad and Tobago", "Venezuela"],
-                status: "Generally resolved, some discussions ongoing"
-            }
-        ],
-        
-        funFacts: [
-            "Trinidad and Tobago invented the steel pan (steel drum)",
-            "The limbo dance originated here",
-            "Pitch Lake is the world's largest natural deposit of asphalt",
-            "V.S. Naipaul won the Nobel Prize for Literature in 2001",
-            "Trinidad Carnival is considered the greatest show on Earth",
-            "The country has the highest GDP per capita in the Caribbean"
-        ]
-    },
-
-    "bahamas": {
-        name: "Bahamas",
-        officialName: "Commonwealth of The Bahamas",
-        nativeName: "Commonwealth of The Bahamas",
-        iso3: "BHS",
-        iso2: "BS",
-        flag: "🇧🇸",
-        
-        capital: {
-            name: "Nassau",
-            population: 280000,
-            coordinates: { lat: 25.0343, lng: -77.3963 }
-        },
-        largestCity: "Nassau",
-        population: {
-            total: 410000,
-            year: 2024,
-            density: 30,
-            growth: 0.9
-        },
-        area: {
-            total: 13943,
-            land: 10010,
-            water: 3933,
-            rank: 161
-        },
-        
-        continent: "North America",
-        region: "Caribbean",
-        subregion: "Lucayan Archipelago",
-        coordinates: { lat: 25.0343, lng: -77.3963 },
-        borders: [],
-        coastline: 3542,
-        timezone: ["UTC-5"],
-        drivingSide: "left",
-        
-        governmentType: "Parliamentary constitutional monarchy",
-        leader: {
-            headOfState: "King Charles III (represented by Governor-General Cynthia Pratt)",
-            headOfGovernment: "Prime Minister Philip Davis"
-        },
-        independence: {
-            date: "July 10, 1973",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "July 10" },
-        divisions: {
-            type: "districts",
-            count: 32,
-            major: ["New Providence", "Grand Bahama", "Abaco", "Eleuthera", "Exuma"]
-        },
-        
-        economy: {
-            gdpTotal: 14000000000,
-            gdpPerCapita: 34000,
-            gdpGrowth: 4.0,
-            currency: { name: "Bahamian dollar", code: "BSD", symbol: "B$" },
-            mainIndustries: ["tourism", "banking", "oil refining", "salt production"],
-            exports: ["mineral products", "salt", "animal products", "rum"],
-            imports: ["machinery", "food", "chemicals", "fuels"],
-            majorPartners: ["USA", "Poland", "Germany", "UK", "Singapore"]
-        },
-        hdi: 0.812,
-        
-        geography_links: {
-            rivers: [],
-            mountains: [
-                { name: "Mount Alvernia", description: "Highest point at 63m" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Caribbean Pine forests", description: "Native pine forests" },
-                { name: "Coppice forests", description: "Subtropical dry forests" },
-                { name: "Mangrove wetlands", description: "Coastal mangroves" }
-            ],
-            oceans: [
-                { name: "Atlantic Ocean", description: "Eastern waters" }
-            ],
-            seas: [
-                { name: "Caribbean Sea", description: "Western waters" }
-            ],
-            lakes: [],
-            islands: [
-                { name: "New Providence", description: "Location of capital Nassau" },
-                { name: "Grand Bahama", description: "Second most populous island" },
-                { name: "Andros", description: "Largest island by area" },
-                { name: "Eleuthera", description: "Long narrow island" },
-                { name: "Exuma", description: "Chain of 365 cays" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["English"],
-                regional: ["Bahamian Creole"],
-                spoken: ["English", "Bahamian Creole", "Haitian Creole"]
-            },
-            religions: {
-                dominant: "Christianity",
-                breakdown: {
-                    "Protestant": 69.9,
-                    "Catholic": 12.0,
-                    "Other Christian": 13.0,
-                    "Other": 5.1
-                }
-            },
-            heritageSites: [],
-            festivals: [
-                { name: "Junkanoo", date: "December 26 & January 1", description: "Colorful street parade" },
-                { name: "Independence Day", date: "July 10", description: "National celebration" },
-                { name: "Bahamas Carnival", date: "May", description: "Cultural celebration" },
-                { name: "Regatta", date: "Various", description: "Sailing competitions" }
-            ],
-            cuisine: [
-                { name: "Conch Salad", description: "Fresh raw conch with citrus" },
-                { name: "Conch Fritters", description: "Deep-fried conch balls" },
-                { name: "Crack Conch", description: "Battered and fried conch" },
-                { name: "Rock Lobster", description: "Spiny lobster" },
-                { name: "Johnnycake", description: "Slightly sweet cornmeal bread" },
-                { name: "Guava Duff", description: "Traditional dessert" }
-            ],
-            arts: [
-                { type: "Junkanoo", description: "Elaborate costume making and music" },
-                { type: "Straw work", description: "Traditional basket and hat weaving" },
-                { type: "Music", description: "Rake and scrape, goombay" },
-                { type: "Visual Arts", description: "Vibrant Caribbean art scene" }
-            ],
-            sports: {
-                popular: ["Sailing", "Basketball", "Football", "Athletics", "Swimming"],
-                achievements: ["Olympic medals in athletics", "America's Cup participation"],
-                venues: ["Thomas A. Robinson National Stadium", "Kendal Isaacs Gymnasium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "300-400 AD", event: "Lucayan Taino people settle" },
-                { year: "1492", event: "Columbus makes first landfall in Americas" },
-                { year: "1513", event: "Spanish depopulate islands" },
-                { year: "1648", event: "English Puritans settle Eleuthera" },
-                { year: "1718", event: "Woodes Rogers ends pirate republic" },
-                { year: "1783", event: "Loyalists arrive after American Revolution" },
-                { year: "1834", event: "Slavery abolished" },
-                { year: "1964", event: "Internal self-government" },
-                { year: "1973", event: "Independence from United Kingdom" },
-                { year: "2019", event: "Hurricane Dorian devastates Abaco and Grand Bahama" }
-            ],
-            colonialHistory: "British 1718-1973",
-            historicalNames: ["Lucayan Archipelago"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Black": 90.6,
-                "White": 4.7,
-                "Mixed": 2.1,
-                "Other": 2.6
-            },
-            ageStructure: {
-                "0-14": 20.0,
-                "15-64": 69.0,
-                "65+": 11.0
-            },
-            urbanization: 83.2,
-            lifeExpectancy: 75.5,
-            fertilityRate: 1.8,
-            literacyRate: 95.6
-        },
-        
-        quickFacts: {
-            internet: { tld: ".bs", penetration: 85.0 },
-            calling: { code: "+1-242" },
-            electricity: { voltage: "120V", frequency: "60Hz", plugType: "A, B" },
-            measurement: "Metric (with imperial)",
-            emergencyNumber: "911/919"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Columbus first landed in the Americas in the Bahamas (San Salvador)",
-            "The Bahamas consists of 700 islands and 2,400 cays",
-            "Only about 30 of the islands are inhabited",
-            "The Exuma Cays have swimming pigs",
-            "Nassau was once the pirate capital of the Caribbean",
-            "The Bahamas has the clearest water in the world"
-        ]
-    },
-
-    "barbados": {
-        name: "Barbados",
-        officialName: "Barbados",
-        nativeName: "Barbados",
-        iso3: "BRB",
-        iso2: "BB",
-        flag: "🇧🇧",
-        
-        capital: {
-            name: "Bridgetown",
-            population: 89000,
-            coordinates: { lat: 13.1132, lng: -59.5988 }
-        },
-        largestCity: "Bridgetown",
-        population: {
-            total: 288000,
-            year: 2024,
-            density: 669,
-            growth: 0.2
-        },
-        area: {
-            total: 430,
-            land: 430,
-            water: 0,
-            rank: 183
-        },
-        
-        continent: "North America",
-        region: "Caribbean",
-        subregion: "Lesser Antilles",
-        coordinates: { lat: 13.1939, lng: -59.5432 },
-        borders: [],
-        coastline: 97,
-        timezone: ["UTC-4"],
-        drivingSide: "left",
-        
-        governmentType: "Parliamentary republic",
-        leader: {
-            headOfState: "President Sandra Mason",
-            headOfGovernment: "Prime Minister Mia Mottley"
-        },
-        independence: {
-            date: "November 30, 1966",
-            from: "United Kingdom"
-        },
-        nationalDay: { name: "Independence Day", date: "November 30" },
-        divisions: {
-            type: "parishes",
-            count: 11,
-            major: ["Saint Michael", "Christ Church", "Saint James", "Saint Philip"]
-        },
-        
-        economy: {
-            gdpTotal: 6000000000,
-            gdpPerCapita: 20800,
-            gdpGrowth: 4.5,
-            currency: { name: "Barbadian dollar", code: "BBD", symbol: "Bds$" },
-            mainIndustries: ["tourism", "sugar", "light manufacturing", "offshore banking"],
-            exports: ["sugar", "rum", "chemicals", "electrical components"],
-            imports: ["consumer goods", "machinery", "food", "fuel"],
-            majorPartners: ["USA", "Trinidad and Tobago", "UK", "Guyana", "Jamaica"]
-        },
-        hdi: 0.790,
-        
-        geography_links: {
-            rivers: [],
-            mountains: [
-                { name: "Mount Hillaby", description: "Highest point at 340m" }
-            ],
-            deserts: [],
-            forests: [
-                { name: "Turner's Hall Wood", description: "Remnant tropical forest" }
-            ],
-            oceans: [
-                { name: "Atlantic Ocean", description: "Eastern coast" }
-            ],
-            seas: [
-                { name: "Caribbean Sea", description: "Western coast" }
-            ],
-            lakes: [],
-            caves: [
-                { name: "Harrison's Cave", description: "Crystallized limestone cavern" }
-            ]
-        },
-        
-        culture: {
-            languages: {
-                official: ["English"],
-                regional: ["Bajan Creole"],
-                spoken: ["English", "Bajan Creole"]
-            },
-            religions: {
-                dominant: "Christianity",
-                breakdown: {
-                    "Protestant": 66.4,
-                    "Catholic": 3.8,
-                    "Other Christian": 5.4,
-                    "Other": 4.5,
-                    "Unaffiliated": 19.9
-                }
-            },
-            heritageSites: [
-                { name: "Historic Bridgetown and its Garrison", type: "Cultural", year: 2011, description: "Colonial town and military garrison" }
-            ],
-            festivals: [
-                { name: "Crop Over Festival", date: "June-August", description: "Traditional harvest celebration" },
-                { name: "Independence Day", date: "November 30", description: "National celebration" },
-                { name: "Holetown Festival", date: "February", description: "Commemorates first English settlement" },
-                { name: "Oistins Fish Festival", date: "Easter", description: "Fishing village celebration" }
-            ],
-            cuisine: [
-                { name: "Cou-Cou and Flying Fish", description: "National dish" },
-                { name: "Macaroni Pie", description: "Bajan-style baked macaroni" },
-                { name: "Pudding and Souse", description: "Pickled pork with sweet potato" },
-                { name: "Fish Cakes", description: "Fried salt fish fritters" },
-                { name: "Cutters", description: "Salt bread sandwiches" },
-                { name: "Rum Punch", description: "Traditional cocktail" }
-            ],
-            arts: [
-                { type: "Music", description: "Calypso, soca, spouge, tuk band" },
-                { type: "Dance", description: "Landship traditional dance" },
-                { type: "Pottery", description: "Chalky Mount pottery tradition" },
-                { type: "Literature", description: "George Lamming, Kamau Brathwaite" }
-            ],
-            sports: {
-                popular: ["Cricket", "Football", "Surfing", "Horse racing", "Golf"],
-                achievements: ["Cricket legends (Garfield Sobers, Rihanna's global fame)"],
-                venues: ["Kensington Oval", "National Stadium"]
-            }
-        },
-        
-        history: {
-            timeline: [
-                { year: "350 AD", event: "Arawak people settle" },
-                { year: "1200", event: "Kalinago (Carib) people arrive" },
-                { year: "1536", event: "Portuguese explorer Pedro Campos names island" },
-                { year: "1625", event: "English claim Barbados" },
-                { year: "1627", event: "First English settlers arrive" },
-                { year: "1639", event: "House of Assembly established" },
-                { year: "1834", event: "Slavery abolished" },
-                { year: "1937", event: "Riots lead to social reforms" },
-                { year: "1966", event: "Independence from United Kingdom" },
-                { year: "2021", event: "Becomes a republic, removes British monarch" }
-            ],
-            colonialHistory: "British 1625-1966",
-            historicalNames: ["Los Barbados"]
-        },
-        
-        demographics: {
-            ethnicGroups: {
-                "Black": 92.4,
-                "Mixed": 3.1,
-                "White": 2.7,
-                "East Indian": 1.3,
-                "Other": 0.5
-            },
-            ageStructure: {
-                "0-14": 17.0,
-                "15-64": 68.0,
-                "65+": 15.0
-            },
-            urbanization: 31.1,
-            lifeExpectancy: 79.0,
-            fertilityRate: 1.6,
-            literacyRate: 99.6
-        },
-        
-        quickFacts: {
-            internet: { tld: ".bb", penetration: 82.0 },
-            calling: { code: "+1-246" },
-            electricity: { voltage: "115V", frequency: "50Hz", plugType: "A, B" },
-            measurement: "Metric",
-            emergencyNumber: "211"
-        },
-        
-        disputes: [],
-        
-        funFacts: [
-            "Barbados is the birthplace of rum",
-            "Pop star Rihanna is from Barbados",
-            "Barbados became a republic in 2021, removing the British monarch",
-            "It's one of the most densely populated countries in the world",
-            "Sir Garfield Sobers is considered the greatest cricketer ever",
-            "The island has the third-oldest parliament in the Commonwealth (1639)"
+        quickFacts: [
+            { icon: "globe", title: "Neutrality", text: "Neutral since 1515; not in EU, NATO, or UN Security Council" },
+            { icon: "bank", title: "Banking", text: "World-famous banking secrecy and financial center" },
+            { icon: "watch", title: "Watches", text: "Produces 95% of world's luxury watches" },
+            { icon: "chocolate-bar", title: "Chocolate", text: "Highest chocolate consumption per capita" },
+            { icon: "language", title: "Four Languages", text: "Four official languages (German, French, Italian, Romansh)" },
+            { icon: "vote-yea", title: "Direct Democracy", text: "Citizens vote on many national issues directly" }
         ]
     }
-};
+];
 
-// Make available globally
-if (typeof window !== 'undefined') {
-    window.CountriesData6 = CountriesData6;
-}
-
+// Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CountriesData6;
+}
+
+// Export for Browser
+if (typeof window !== 'undefined') {
+    window.CountriesData6 = CountriesData6;
 }
