@@ -1047,6 +1047,7 @@
     window.geoCheckPremium = () => window.GeoAccess.isPremium();
     window.geoGetFilteredData = (data, category) => window.GeoAccess.getFilteredData(data, category);
     window.geoShowUpgrade = () => window.GeoAccess.showUpgradePrompt();
+})();
 
     (function() {
     const originalCheckAccess = window.checkAccess;
