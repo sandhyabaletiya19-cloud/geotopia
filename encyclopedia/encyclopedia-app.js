@@ -45,16 +45,38 @@ class EncyclopediaApp {
     // ============================================
 
     loadAllData() {
-    this.allCountries = [];
-    
-    for (let i = 1; i <= 10; i++) {
-        if (typeof window['CountriesData' + i] !== 'undefined') {
-            this.allCountries = this.allCountries.concat(window['CountriesData' + i]);
-        }
+   this.allCountries = [];
+
+for (let i = 1; i <= 10; i++) {
+    if (typeof window['CountriesData' + i] !== 'undefined') {
+        this.allCountries = this.allCountries.concat(window['CountriesData' + i]);
     }
+}
+
+// ===== PREMIUM ACCESS CONTROL =====
+if (window.GeoAccess) {
+    var filtered = window.GeoAccess.getFilteredData(this.allCountries, 'encyclopedia');
+    this.allCountries = filtered.visible;
     
-    this.filteredCountries = [...this.allCountries];
-    this.updateCountryCount();
+    var self = this;
+    setTimeout(function() {
+        if (filtered.lockedCount > 0) {
+            var container = document.querySelector('.countries-grid') || 
+                           document.querySelector('.grid') || 
+                           document.querySelector('main');
+            if (container) {
+                container.appendChild(window.GeoAccess.createUpgradeCTA({
+                    lockedCount: filtered.lockedCount,
+                    category: 'Encyclopedia'
+                }));
+            }
+        }
+    }, 1000);
+}
+// ===== END PREMIUM =====
+
+this.filteredCountries = [...this.allCountries];
+this.updateCountryCount();
 }
         
         // Update country count
