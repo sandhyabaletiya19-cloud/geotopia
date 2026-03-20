@@ -1,5 +1,8 @@
-// encyclopedia-data-5.js
-// Countries 81-100: Serbia to Georgia
+/**
+ * GeoVerse Encyclopedia - Country Data File 5
+ * Contains: Countries 81-100 (Detailed Information)
+ * Version: 1.0
+ */
 
 const CountriesData5 = {
     "serbia": {
@@ -3952,11 +3955,11 @@ const CountriesData5 = {
     }
 };
 
-// Make available globally
-if (typeof window !== 'undefined') {
-    window.ENCYCLOPEDIA_DATA_5 = ENCYCLOPEDIA_DATA_5;
-}
-
+// Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CountriesData5;
+}
+// Make available in browser
+if (typeof window !== 'undefined') {
+    window.CountriesData5 = CountriesData5;
 }
