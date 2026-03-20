@@ -3945,7 +3945,7 @@ const CountriesData6 = {
 
 // Make available globally
 if (typeof window !== 'undefined') {
-    window.ENCYCLOPEDIA_DATA_6 = ENCYCLOPEDIA_DATA_6;
+    window.CountriesData6 = CountriesData6;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
