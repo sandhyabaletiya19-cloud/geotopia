@@ -31,10 +31,13 @@ class EncyclopediaApp {
         this.renderPhysicalFeatures();
         this.renderClimateZones();
         
-        // Hide loading screen
-        setTimeout(() => {
-            document.getElementById('loadingScreen').classList.add('hidden');
-        }, 1500);
+        // Hide loading screen (safely)
+setTimeout(() => {
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+        loadingScreen.classList.add('hidden');
+    }
+}, 1500);
         
         // Check URL parameters
         this.handleURLParams();
