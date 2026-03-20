@@ -905,30 +905,39 @@ class EncyclopediaApp {
     // EARTH SYSTEMS
     // ============================================
 
-    renderEarthSystems() {
-        const container = document.getElementById('earthSystemsGrid');
-        if (!container) return;
+    // ============================================
+// EARTH SYSTEMS
+// ============================================
 
-        if (typeof EarthSystemsData === 'undefined') {
-            container.innerHTML = this.createComingSoonCard('Earth Systems', 'Interactive systems coming soon');
-            return;
-        }
+renderEarthSystems() {
+    const container = document.getElementById('earthSystemsGrid');
+    if (!container) return;
 
-        container.innerHTML = `
-            <div class="earth-systems-grid">
-                ${EarthSystemsData.map(system => `
+    if (typeof EarthSystemsData === 'undefined' || !EarthSystemsData || EarthSystemsData.length === 0) {
+        container.innerHTML = this.createComingSoonCard('Earth Systems', 'Interactive systems coming soon');
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="earth-systems-grid">
+            ${EarthSystemsData.map(system => {
+                // Handle both keyPoints and key_points
+                const points = system.keyPoints || system.key_points || [];
+                return `
                     <a href="earth-simulator.html?mode=${system.id.toLowerCase()}" class="system-card">
-                        <div class="system-visual">${system.icon}</div>
+                        <div class="system-visual">${system.icon || '🌍'}</div>
                         <h3>${system.name}</h3>
-                        <p>${system.description || system.key_points[0]}</p>
+                        <p>${system.description || (points[0] || '')}</p>
                         <ul class="system-points">
-                            ${system.key_points.slice(0, 3).map(point => `<li>${point}</li>`).join('')}
+                            ${points.slice(0, 3).map(point => `<li>${point}</li>`).join('')}
                         </ul>
                         ${system.interactive ? '<span class="system-badge interactive">Interactive 3D</span>' : ''}
                     </a>
-                `).join('')}
-            </div>
-        `;
+                `;
+            }).join('')}
+        </div>
+    `;
+}
 
         // Add styles
         if (!document.getElementById('earth-systems-full-styles')) {
