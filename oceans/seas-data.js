@@ -1288,9 +1288,7 @@ const seasData = [
             'First naval battle in recorded history (1210 BCE - Egyptians vs Sea Peoples)'
         ]
     }
-
-    // ... (I'll continue with the other seas in the next parts)
-];
+   
     // ═══════════════════════════════════════════════════════
     // ARABIAN SEA - MASSIVELY EXPANDED
     // ═══════════════════════════════════════════════════════
