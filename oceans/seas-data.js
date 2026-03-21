@@ -3018,7 +3018,7 @@ const seasData = [
                 control: '40% of global oil production',
                 opecPlus: 'Includes Russia, coordinates production',
                 influence: 'Can move global oil prices',
-                2020crisis: 'Price war crashed oil prices'
+                crisis2020: 'Price war crashed oil prices'
             }
         },
         
@@ -3195,7 +3195,7 @@ const seasData = [
                     details: {
                         type: 'Sunni vs Shia, Arab vs Persian',
                         proxies: ['Yemen (Houthis)', 'Syria', 'Iraq', 'Lebanon (Hezbollah)'],
-                        2023detente: 'China-brokered rapprochement',
+                        detente2023: 'China-brokered rapprochement',
                         embassies: 'Reopened 2023 after 7 years',
                         stability: 'Cautious optimism'
                     }
@@ -3466,13 +3466,12 @@ const seasData = [
             'Iran has 5,000+ naval mines - enough to close Hormuz',
             'Qatar will double LNG production by 2027'
         ]
-    }
-
-    // ... Continuing with more seas...
-];
+    },
+    
     // ═══════════════════════════════════════════════════════
     // GULF OF MEXICO - MASSIVELY EXPANDED
     // ═══════════════════════════════════════════════════════
+  
     {
         id: 'gulf-of-mexico',
         name: 'Gulf of Mexico',
@@ -3848,9 +3847,9 @@ const seasData = [
             },
             
             trends: {
-                1950s: 'Rarely observed',
-                1970s: 'Became regular',
-                2017: 'Largest ever recorded (22,730 km²)',
+                I1950: 'Rarely observed',
+                Became regular: '1970',
+                Record2017: 'Largest ever recorded (22,730 km²)',
                 average: 'Roughly size of New Jersey',
                 climate: 'Likely to worsen with warming'
             },
@@ -4376,7 +4375,7 @@ const seasData = [
                 
                 significance: {
                     israelAccess: 'Only Israeli access to Red Sea',
-                    1967war: 'Egyptian closure triggered Six-Day War',
+                    war1967: 'Egyptian closure triggered Six-Day War',
                     peaceTreaty: '1979 Egypt-Israel treaty guarantees access',
                     tiranIsland: 'Saudi Arabia (transferred from Egypt 2017)'
                 }
@@ -5723,8 +5722,8 @@ const seasData = [
                 shelters: 'Bangladesh built 4,000 cyclone shelters',
                 evacuations: 'Millions now evacuate',
                 deaths: 'Death tolls declining despite stronger storms',
-                1970bhola: '500,000 died',
-                2007sidr: '3,500 died (similar intensity)'
+                bhola1970: '500,000 died',
+                sidr2007: '3,500 died (similar intensity)'
             }
         },
         
@@ -6902,7 +6901,7 @@ const seasData = [
                 supply: 'Dependent on sea/air supply or transit via Lithuania'
             },
             
-            2022Crisis: {
+            Crisis2022: {
                 june2022: 'Lithuania blocked sanctioned goods transit',
                 russiaReaction: 'Threatened military response',
                 resolution: 'EU partially backed down',
@@ -7500,14 +7499,14 @@ const seasData = [
                 escalation: 'Risk of collision, confrontation'
             },
             
-            2010Incident: {
+            Incident2010: {
                 event: 'Chinese fishing boat rammed Japanese coast guard',
                 response: 'Japan arrested captain',
                 chinaReaction: 'Rare earth export ban, massive protests',
                 outcome: 'Japan released captain, China emboldened'
             },
             
-            2012Nationalization: {
+            Nationalization2012: {
                 event: 'Japan purchased 3 islands from private owner',
                 purpose: 'Prevent Tokyo Governor\'s provocation',
                 chinaReaction: 'Massive protests, ships deployed',
@@ -8478,7 +8477,7 @@ const seasData = [
             details: {
                 date: 'May 4-8, 1942',
                 war: 'World War II',
-                belligerents: ['USA', 'Australia'] vs ['Japan'],
+                belligerents: ['USA', 'Australia', 'Japan'],
                 location: 'Coral Sea, northeast of Australia'
             },
             
@@ -9324,7 +9323,7 @@ const globalTradeRoutes = [
                 combined: '40% of US imports',
                 containers: '17M TEU',
                 ranking: '#1 US gateway',
-                2021Congestion: '100+ ships waiting'
+                Congestion2021: '100+ ships waiting'
             },
             other: ['Oakland', 'Seattle', 'Tacoma']
         },
@@ -9481,7 +9480,7 @@ const majorCanals = [
             }
         },
         
-        2024Crisis: {
+        Crisis2024: {
             cause: 'Houthi attacks on Red Sea shipping',
             impact: 'Suez traffic down 60%+',
             rerouting: '90% of container ships to Cape',
@@ -9523,8 +9522,7 @@ const majorCanals = [
             usControl: '1914-1999',
             treaty: 'Carter-Torrijos Treaty (1977)',
             panamaControl: 'December 31, 1999',
-            expansion: '2016 - Third set of locks (
-                       // Continuing Panama Canal...
+            expansion: '2016 - Third set of locks',
         history: {
             french: '1881-1889 - French attempt failed (22,000 died)',
             us: '1904-1914 - US completed',
@@ -9627,7 +9625,7 @@ const majorCanals = [
             strategic: 'Vital Americas chokepoint'
         }
     },
-    {
+    
         id: 'kiel-canal',
         name: 'Kiel Canal',
         alternateNames: ['Nord-Ostsee-Kanal (German)', 'Kaiser Wilhelm Canal (original)'],
@@ -9787,7 +9785,7 @@ const globalChokepoints = [
                 quantity: '5,000+ available',
                 types: ['Contact mines', 'Influence mines', 'Smart mines'],
                 capability: 'Can close strait for weeks',
-                1980s: 'Mined strait during Tanker War'
+                Tankerwar2024: 'Mined strait during Tanker War'
             },
             fastBoats: {
                 irgcNavy: 'Islamic Revolutionary Guard Corps Navy',
@@ -10131,7 +10129,7 @@ const globalChokepoints = [
                 exercises: 'Regular, increasing'
             },
             
-            2022Exercises: {
+            Exercises2022: {
                 trigger: 'Nancy Pelosi visit (August 2022)',
                 response: 'Largest exercises ever',
                 missiles: 'Fired over Taiwan',
@@ -10171,7 +10169,7 @@ const globalChokepoints = [
             },
             military: {
                 troops: '~30,000 in Japan (nearby)',
-                7thFleet: 'Aircraft carriers, submarines',
+                Fleet7th: 'Aircraft carriers, submarines',
                 bases: 'Japan, Guam',
                 transits: 'Monthly freedom of navigation'
             },
@@ -10560,7 +10558,7 @@ const piracyHotspots = [
         status: 'World\'s current piracy hotspot',
         
         statistics: {
-            2023Incidents: '40+ attacks',
+            Incidents2023: '40+ attacks',
             percentGlobal: '40%+ of global incidents',
             trend: 'Declining but still dangerous'
         },
@@ -10621,7 +10619,7 @@ const piracyHotspots = [
             success: 'Near-zero attacks for years'
         },
         
-        2024Concern: {
+        Concern2024: {
             resurgence: 'Some increase in 2024',
             cause: 'Reduced patrols (diverted to Red Sea)',
             monitoring: 'Situation being watched'
@@ -10771,14 +10769,14 @@ function getSeaByOcean(oceanId) {
 
 function getStrategicSeas() {
     return seasData.filter(sea => 
-        sea.geopolitics?.strategicImportance === 'Critical' ||
-        sea.geopolitics?.strategicImportance === 'Very High'
+        (sea.geopolitics && sea.geopolitics.strategicImportance === 'Critical') ||
+        (sea.geopolitics && sea.geopolitics.strategicImportance === 'Very High')
     );
 }
 
 function getSeaByCountry(countryName) {
     return seasData.filter(sea => 
-        sea.borderingCountries?.some(country => 
+        sea.borderingCountries && sea.borderingCountries.some(country => 
             country.name.toLowerCase() === countryName.toLowerCase()
         )
     );
@@ -10806,15 +10804,15 @@ function getPiracyHotspotById(id) {
 
 function getSeaWithConflict() {
     return seasData.filter(sea => 
-        sea.geopolitics?.tensionLevel === 'High' ||
-        sea.geopolitics?.tensionLevel === 'Very High' ||
-        sea.geopolitics?.tensionLevel === 'Active war zone'
+        (sea.geopolitics && sea.geopolitics.tensionLevel === 'High') ||
+        (sea.geopolitics && sea.geopolitics.tensionLevel === 'Very High') ||
+        (sea.geopolitics && sea.geopolitics.tensionLevel === 'Active war zone')
     );
 }
 
 function getSeaByDispute() {
     return seasData.filter(sea => 
-        sea.geopolitics?.issues?.length > 0
+        sea.geopolitics && sea.geopolitics.issues && sea.geopolitics.issues.length > 0
     );
 }
 
@@ -10836,16 +10834,17 @@ const oceanStatistics = {
         indian: '15% of global maritime trade'
     },
     
-    criticalChokepoints: globalChokepoints.filter(cp => 
-        cp.ranking?.includes('Critical') || cp.ranking?.includes('#1') || cp.ranking?.includes('#2')
-    ).length,
-    
-    conflictZones: seasData.filter(sea => 
-        sea.geopolitics?.conflictLevel === 'Active war zone' ||
-        sea.geopolitics?.conflictLevel === 'High tension'
-    ).length
-};
+   criticalChokepoints: globalChokepoints.filter(cp => 
+    (cp.ranking && cp.ranking.includes('Critical')) || 
+    (cp.ranking && cp.ranking.includes('#1')) || 
+    (cp.ranking && cp.ranking.includes('#2'))
+).length,
 
+conflictZones: seasData.filter(sea => 
+    (sea.geopolitics && sea.geopolitics.conflictLevel === 'Active war zone') ||
+    (sea.geopolitics && sea.geopolitics.conflictLevel === 'High tension')
+).length
+};
 // ═══════════════════════════════════════════════════════════
 // EXPORTS
 // ═══════════════════════════════════════════════════════════
