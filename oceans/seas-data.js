@@ -3847,9 +3847,9 @@ const seasData = [
             },
             
             trends: {
-                I1950: 'Rarely observed',
-                Became regular: '1970',
-                Record2017: 'Largest ever recorded (22,730 km²)',
+                i1950: 'Rarely observed',
+                i1970: 'Became regular',
+                record2017: 'Largest ever recorded (22,730 km²)',
                 average: 'Roughly size of New Jersey',
                 climate: 'Likely to worsen with warming'
             },
