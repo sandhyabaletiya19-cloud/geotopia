@@ -7,22 +7,22 @@
     
     // CONFIGURATION - Total free items per MAIN category
     var FREE_LIMITS = {
-        mountains: 5,
-        rivers: 5,
-        lakes: 5,
+        mountains: 7,
+        rivers: 7,
+        lakes: 7,
         oceans: 5,
-        forests: 5,
-        deserts: 5,
-        volcanoes: 5,
-        islands: 5,
-        coralReefs: 5,
-        encyclopedia: 5,
-        upsc: 5,
-        games: 3,
-        atlas: 5,
-        waterfalls: 5,
-        glaciers: 5,
-        caves: 5,
+        forests: 7,
+        deserts: 7,
+        volcanoes: 7,
+        islands: 7,
+        coralReefs: 7,
+        encyclopedia: 7,
+        upsc: 7,
+        games: 7,
+        atlas: 7,
+        waterfalls: 7,
+        glaciers: 7,
+        caves: 7,
         parks: 5
     };
 
