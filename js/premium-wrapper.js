@@ -1,12 +1,11 @@
 // ========================================
-// PREMIUM CONTENT WRAPPER - FINAL FIX
-// 5 FREE items, rest LOCKED with blur
-// Handles category filters + proper click
+// PREMIUM WRAPPER - FIXED
+// 5 FREE TOTAL per category (not per filter)
 // ========================================
 
 (function() {
     
-    // CONFIGURATION
+    // CONFIGURATION - Total free items per MAIN category
     var FREE_LIMITS = {
         mountains: 5,
         rivers: 5,
@@ -28,15 +27,16 @@
     };
 
     var currentCategory = null;
+    var freeItemsList = []; // Store which items are free (by name/id)
+    var isInitialized = false;
     var observer = null;
-    var isProcessing = false;
 
     // ==========================================
     // INITIALIZATION
     // ==========================================
     
     window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(init, 800);
+        setTimeout(init, 1000);
     });
 
     window.addEventListener('load', function() {
@@ -44,6 +44,8 @@
     });
 
     function init() {
+        if (isInitialized) return;
+        
         currentCategory = detectCategory();
         
         if (!currentCategory) {
@@ -58,17 +60,22 @@
             return;
         }
 
-        // Apply locks immediately
+        // Load saved free items for this category (if any)
+        loadFreeItems();
+
+        // Apply locks
         applyLocks();
 
-        // Watch for filter changes (category buttons)
+        // Watch for filter changes
         watchFilters();
 
-        // Watch for DOM changes (when cards re-render)
+        // Watch for DOM changes
         watchDOMChanges();
 
-        // Intercept all clicks on locked items
+        // Intercept clicks
         interceptClicks();
+
+        isInitialized = true;
     }
 
     function isUserPremium() {
@@ -106,11 +113,54 @@
     }
 
     // ==========================================
-    // WATCH FOR FILTER/CATEGORY CHANGES
+    // FREE ITEMS MANAGEMENT
+    // Store which specific items are free
+    // ==========================================
+
+    function loadFreeItems() {
+        // Try to load from sessionStorage (resets when browser closes)
+        var saved = sessionStorage.getItem('geo_free_' + currentCategory);
+        if (saved) {
+            try {
+                freeItemsList = JSON.parse(saved);
+                console.log('📋 Loaded free items:', freeItemsList);
+            } catch(e) {
+                freeItemsList = [];
+            }
+        }
+    }
+
+    function saveFreeItems() {
+        sessionStorage.setItem('geo_free_' + currentCategory, JSON.stringify(freeItemsList));
+    }
+
+    function isItemFree(itemName) {
+        if (!itemName) return false;
+        var normalizedName = itemName.toLowerCase().trim();
+        return freeItemsList.some(function(name) {
+            return name.toLowerCase().trim() === normalizedName;
+        });
+    }
+
+    function addFreeItem(itemName) {
+        if (!itemName) return;
+        var normalizedName = itemName.trim();
+        if (!isItemFree(normalizedName)) {
+            freeItemsList.push(normalizedName);
+            saveFreeItems();
+        }
+    }
+
+    function canAddMoreFreeItems() {
+        var limit = FREE_LIMITS[currentCategory] || 5;
+        return freeItemsList.length < limit;
+    }
+
+    // ==========================================
+    // WATCH FOR FILTER CHANGES
     // ==========================================
 
     function watchFilters() {
-        // Find all filter/category buttons
         var filterSelectors = [
             '.filter-btn',
             '.filter-button',
@@ -121,17 +171,26 @@
             '.continent-btn',
             '.region-btn',
             '.filter-tab',
+            '.sub-category',
+            '.subcategory',
             '[data-filter]',
             '[data-category]',
             '[data-continent]',
             '[data-region]',
+            '[data-subcategory]',
             '.filters button',
             '.filter-buttons button',
             '.categories button',
             '.tabs button',
+            '.nav-tabs button',
+            '.nav-tabs a',
+            '.tab-list button',
+            '.tab-list a',
             'button[class*="filter"]',
             'button[class*="tab"]',
-            'button[class*="category"]'
+            'button[class*="category"]',
+            'a[class*="filter"]',
+            'a[class*="tab"]'
         ];
 
         filterSelectors.forEach(function(selector) {
@@ -139,7 +198,6 @@
             buttons.forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     console.log('🔄 Filter clicked, reapplying locks...');
-                    // Wait for content to re-render
                     setTimeout(applyLocks, 100);
                     setTimeout(applyLocks, 300);
                     setTimeout(applyLocks, 600);
@@ -158,32 +216,22 @@
     function watchDOMChanges() {
         var container = findContainer();
         
-        if (!container) {
-            console.log('⚠️ No container to watch');
-            return;
-        }
+        if (!container) return;
 
-        // Disconnect existing observer
-        if (observer) {
-            observer.disconnect();
-        }
+        if (observer) observer.disconnect();
 
         observer = new MutationObserver(function(mutations) {
-            var hasNewCards = false;
+            var hasChanges = false;
             
             mutations.forEach(function(mutation) {
-                if (mutation.addedNodes.length > 0) {
-                    mutation.addedNodes.forEach(function(node) {
-                        if (node.nodeType === 1 && !node.classList.contains('geo-processed')) {
-                            hasNewCards = true;
-                        }
-                    });
+                if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
+                    hasChanges = true;
                 }
             });
 
-            if (hasNewCards && !isProcessing) {
-                console.log('🔄 New cards detected, reapplying locks...');
-                setTimeout(applyLocks, 100);
+            if (hasChanges) {
+                console.log('🔄 DOM changed, reapplying locks...');
+                setTimeout(applyLocks, 150);
             }
         });
 
@@ -191,57 +239,38 @@
             childList: true,
             subtree: true
         });
-
-        console.log('👀 Watching DOM changes');
     }
 
     // ==========================================
-    // INTERCEPT ALL CLICKS
+    // INTERCEPT CLICKS
     // ==========================================
 
     function interceptClicks() {
-        // Global click interceptor for locked items
         document.addEventListener('click', function(e) {
-            var target = e.target;
+            var lockedCard = e.target.closest('.geo-locked-item');
+            var lockOverlay = e.target.closest('.geo-lock-overlay');
             
-            // Check if clicked on a locked card or its children
-            var lockedCard = target.closest('.geo-locked-item');
-            
-            if (lockedCard) {
+            if (lockedCard || lockOverlay) {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
                 showUpgradeModal();
                 return false;
             }
-
-            // Check if clicked on lock overlay
-            var lockOverlay = target.closest('.geo-lock-overlay');
-            if (lockOverlay) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                showUpgradeModal();
-                return false;
-            }
-        }, true); // Use capture phase
+        }, true);
 
         console.log('👆 Click interceptor active');
     }
 
     // ==========================================
-    // APPLY LOCKS TO CARDS
+    // APPLY LOCKS
     // ==========================================
 
     function applyLocks() {
-        if (isProcessing) return;
-        isProcessing = true;
-
         var container = findContainer();
         
         if (!container) {
             console.log('⚠️ No container found');
-            isProcessing = false;
             return;
         }
 
@@ -254,44 +283,43 @@
         
         if (allCards.length === 0) {
             console.log('⚠️ No cards found');
-            isProcessing = false;
             return;
         }
 
         var freeLimit = FREE_LIMITS[currentCategory] || 5;
         var lockedCount = 0;
         var freeCount = 0;
+        var totalCount = allCards.length;
+
+        console.log('📊 Processing', totalCount, 'cards. Free limit:', freeLimit);
+        console.log('📋 Currently free items:', freeItemsList.length);
 
         // Process each card
-        allCards.forEach(function(card, index) {
-            // Skip CTA
+        allCards.forEach(function(card) {
             if (card.classList.contains('geo-upgrade-cta')) return;
             
-            // Remove old processing
-            card.classList.remove('geo-processed', 'geo-free-item', 'geo-locked-item');
-            
-            // Remove old overlays and badges
-            var oldOverlay = card.querySelector('.geo-lock-overlay');
-            if (oldOverlay) oldOverlay.remove();
-            var oldBadge = card.querySelector('.geo-free-badge');
-            if (oldBadge) oldBadge.remove();
+            // Clean up card first
+            cleanCard(card);
 
-            // Reset blur on children
-            var children = card.children;
-            for (var i = 0; i < children.length; i++) {
-                if (!children[i].classList.contains('geo-lock-overlay')) {
-                    children[i].style.filter = '';
-                    children[i].style.pointerEvents = '';
-                    children[i].style.userSelect = '';
-                }
+            // Get item name/identifier
+            var itemName = getItemName(card);
+            
+            // Decide if free or locked
+            var shouldBeFree = false;
+
+            if (itemName && isItemFree(itemName)) {
+                // This item was already marked as free
+                shouldBeFree = true;
+            } else if (canAddMoreFreeItems() && itemName) {
+                // We can still add more free items
+                addFreeItem(itemName);
+                shouldBeFree = true;
             }
 
-            if (index < freeLimit) {
-                // FREE CARD
+            if (shouldBeFree) {
                 makeFreeCard(card);
                 freeCount++;
             } else {
-                // LOCKED CARD
                 makeLockedCard(card);
                 lockedCount++;
             }
@@ -299,15 +327,68 @@
             card.classList.add('geo-processed');
         });
 
-        // Add upgrade CTA
+        // Add CTA if there are locked items
         if (lockedCount > 0) {
-            var cta = createUpgradeCTA(lockedCount, freeCount, allCards.length);
+            var cta = createUpgradeCTA(lockedCount, freeCount, totalCount);
             container.appendChild(cta);
         }
 
         console.log('✅ Applied: ' + freeCount + ' free, ' + lockedCount + ' locked');
+        console.log('📋 Free items list:', freeItemsList);
+    }
+
+    function getItemName(card) {
+        // Try various ways to get item name
+        var name = null;
         
-        isProcessing = false;
+        // From data attribute
+        name = card.getAttribute('data-name') || 
+               card.getAttribute('data-title') || 
+               card.getAttribute('data-id');
+        
+        if (name) return name;
+
+        // From title/heading elements
+        var titleEl = card.querySelector('h1, h2, h3, h4, .title, .name, .card-title, .item-title, [class*="title"], [class*="name"]');
+        if (titleEl) {
+            name = titleEl.textContent.trim();
+            if (name) return name;
+        }
+
+        // From any heading
+        var heading = card.querySelector('h1, h2, h3, h4, h5');
+        if (heading) {
+            name = heading.textContent.trim();
+            if (name) return name;
+        }
+
+        // Fallback: use first significant text
+        var text = card.textContent.trim().substring(0, 50);
+        return text || null;
+    }
+
+    function cleanCard(card) {
+        card.classList.remove('geo-processed', 'geo-free-item', 'geo-locked-item');
+        
+        // Remove overlays and badges
+        var overlay = card.querySelector('.geo-lock-overlay');
+        if (overlay) overlay.remove();
+        
+        var badge = card.querySelector('.geo-free-badge');
+        if (badge) badge.remove();
+
+        // Reset blur
+        var children = card.children;
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            if (!child.classList.contains('geo-lock-overlay')) {
+                child.style.filter = '';
+                child.style.pointerEvents = '';
+                child.style.userSelect = '';
+            }
+        }
+
+        card.style.cursor = '';
     }
 
     function findContainer() {
@@ -324,6 +405,8 @@
             '.volcanoes-grid',
             '.oceans-grid',
             '.games-grid',
+            '.topics-grid',
+            '.chapters-grid',
             '#forestsGrid',
             '#desertsGrid',
             '#lakesGrid',
@@ -334,6 +417,7 @@
             '#oceansGrid',
             '#countriesGrid',
             '#gamesGrid',
+            '#topicsGrid',
             '#cardsGrid',
             '#grid',
             '.grid',
@@ -344,6 +428,7 @@
             '.cards-container',
             '.cards',
             '.content-grid',
+            '.topics-container',
             'main .container .grid',
             'main .grid'
         ];
@@ -361,6 +446,8 @@
         var cardSelectors = [
             '.card',
             '.item',
+            '.topic-card',
+            '.chapter-card',
             '.country-card',
             '.forest-card',
             '.mountain-card',
@@ -371,7 +458,8 @@
             '.volcano-card',
             '.ocean-card',
             '.game-card',
-            '[class*="-card"]'
+            '[class*="-card"]',
+            '[class*="Card"]'
         ];
 
         var cards = [];
@@ -385,7 +473,6 @@
             });
         });
 
-        // If no cards found, use direct children
         if (cards.length === 0) {
             cards = Array.from(container.children).filter(function(el) {
                 return !el.classList.contains('geo-upgrade-cta');
@@ -434,7 +521,7 @@
         card.style.overflow = 'hidden';
         card.style.cursor = 'pointer';
 
-        // Blur all children
+        // Blur children
         var children = card.children;
         for (var i = 0; i < children.length; i++) {
             var child = children[i];
@@ -467,12 +554,11 @@
             '<div style="width:70px;height:70px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,0.3);">' +
                 '<span style="font-size:32px;">🔒</span>' +
             '</div>' +
-            '<div style="background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:bold;margin-top:15px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 4px 15px rgba(255,215,0,0.4);">Premium</div>' +
-            '<div style="color:white;font-size:14px;margin-top:12px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,0.3);">👆 Tap to Unlock</div>';
+            '<div style="background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:bold;margin-top:15px;text-transform:uppercase;">Premium</div>' +
+            '<div style="color:white;font-size:14px;margin-top:12px;font-weight:500;">👆 Tap to Unlock</div>';
 
         card.appendChild(overlay);
 
-        // Direct click handler on overlay (backup)
         overlay.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -531,7 +617,7 @@
                 '<h3 style="font-size:32px;margin:0 0 15px 0;font-weight:bold;">Unlock All ' + categoryName + '</h3>' +
                 '<div style="font-size:64px;font-weight:bold;margin:20px 0;">' + lockedCount + '</div>' +
                 '<p style="font-size:18px;opacity:0.95;margin-bottom:8px;">more ' + categoryName.toLowerCase() + ' waiting!</p>' +
-                '<p style="font-size:14px;opacity:0.8;margin-bottom:30px;">Currently viewing ' + freeCount + ' of ' + totalCount + '</p>' +
+                '<p style="font-size:14px;opacity:0.8;margin-bottom:30px;">Free preview: ' + freeCount + ' of ' + totalCount + '</p>' +
                 '<button id="geo-cta-btn" style="background:white;color:#667eea;border:none;padding:18px 60px;border-radius:50px;font-size:20px;font-weight:bold;cursor:pointer;transition:all 0.3s;box-shadow:0 10px 30px rgba(0,0,0,0.2);">' +
                     '🚀 Upgrade to Premium' +
                 '</button>' +
@@ -542,7 +628,6 @@
                 '</div>' +
             '</div>';
 
-        // Button handlers
         setTimeout(function() {
             var btn = cta.querySelector('#geo-cta-btn');
             if (btn) {
@@ -572,7 +657,6 @@
     function showUpgradeModal() {
         console.log('🔓 Opening upgrade modal...');
         
-        // Try payment integrations
         if (window.GeoPayment && typeof window.GeoPayment.showModal === 'function') {
             window.GeoPayment.showModal();
             return;
@@ -593,17 +677,10 @@
             return;
         }
 
-        if (typeof window.openPricingModal === 'function') {
-            window.openPricingModal();
-            return;
-        }
-
-        // Fallback: Create our own modal
         createUpgradeModal();
     }
 
     function createUpgradeModal() {
-        // Remove existing
         var existing = document.getElementById('geo-premium-modal');
         if (existing) existing.remove();
 
@@ -624,11 +701,11 @@
 
         modal.innerHTML = 
             '<div style="background:white;border-radius:24px;padding:40px;max-width:440px;width:90%;text-align:center;position:relative;box-shadow:0 25px 80px rgba(0,0,0,0.5);animation:geoSlideUp 0.3s ease;max-height:90vh;overflow-y:auto;">' +
-                '<button id="geo-close-modal" style="position:absolute;top:15px;right:20px;background:#f0f0f0;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;color:#666;transition:all 0.2s;display:flex;align-items:center;justify-content:center;">×</button>' +
+                '<button id="geo-close-modal" style="position:absolute;top:15px;right:20px;background:#f0f0f0;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;color:#666;display:flex;align-items:center;justify-content:center;">×</button>' +
                 
                 '<div style="font-size:72px;margin-bottom:15px;">👑</div>' +
                 '<h2 style="font-size:28px;margin:0 0 10px 0;color:#333;">Go Premium</h2>' +
-                '<p style="color:#666;margin-bottom:25px;font-size:15px;">Unlock everything across all categories!</p>' +
+                '<p style="color:#666;margin-bottom:25px;font-size:15px;">Unlock ALL content across ALL categories!</p>' +
                 
                 '<div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;padding:25px;margin-bottom:25px;color:white;">' +
                     '<div style="font-size:14px;text-decoration:line-through;opacity:0.7;">₹999</div>' +
@@ -637,31 +714,28 @@
                 '</div>' +
                 
                 '<ul style="text-align:left;margin:0 0 25px 0;padding:0;list-style:none;">' +
-                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Mountains, Rivers, Lakes & more</li>' +
-                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Countries Encyclopedia</li>' +
-                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> Complete UPSC Geography</li>' +
-                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Interactive Games</li>' +
-                    '<li style="padding:12px 0;color:#444;display:flex;align-items:center;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Future Updates Free</li>' +
+                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Mountains, Rivers, Lakes</li>' +
+                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> Complete UPSC Syllabus</li>' +
+                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Countries Encyclopedia</li>' +
+                    '<li style="padding:12px 0;color:#444;border-bottom:1px solid #f0f0f0;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Interactive Games</li>' +
+                    '<li style="padding:12px 0;color:#444;"><span style="color:#22c55e;margin-right:12px;font-size:20px;">✓</span> All Future Updates</li>' +
                 '</ul>' +
                 
                 '<button id="geo-buy-btn" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:18px 40px;border-radius:50px;font-size:18px;font-weight:bold;cursor:pointer;width:100%;transition:all 0.3s;box-shadow:0 10px 30px rgba(102,126,234,0.4);">🚀 Unlock Everything - ₹299</button>' +
                 
                 '<p style="margin-top:20px;font-size:12px;color:#999;">🔒 Secure Payment via Razorpay</p>' +
             '</div>' +
-            '<style>' +
-                '@keyframes geoSlideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }' +
-            '</style>';
+            '<style>@keyframes geoSlideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}</style>';
 
         document.body.appendChild(modal);
-        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        document.body.style.overflow = 'hidden';
 
-        // Close button
+        // Close handlers
         document.getElementById('geo-close-modal').onclick = function() {
             modal.remove();
             document.body.style.overflow = '';
         };
 
-        // Click outside to close
         modal.onclick = function(e) {
             if (e.target === modal) {
                 modal.remove();
@@ -669,7 +743,6 @@
             }
         };
 
-        // ESC key to close
         document.onkeydown = function(e) {
             if (e.key === 'Escape') {
                 modal.remove();
@@ -691,14 +764,7 @@
         };
         
         buyBtn.onclick = function() {
-            // Try to redirect to pricing page
-            var paths = ['/pricing.html', '/pricing', '/upgrade.html', '/upgrade', '/premium.html', '/premium'];
-            
-            for (var i = 0; i < paths.length; i++) {
-                // Just go to pricing
-                window.location.href = paths[0];
-                break;
-            }
+            window.location.href = '/pricing.html';
         };
     }
 
@@ -709,14 +775,16 @@
     window.GeoPremiumWrapper = {
         showUpgradeModal: showUpgradeModal,
         isUserPremium: isUserPremium,
-        reapply: function() {
-            isProcessing = false;
+        getFreeItems: function() { return freeItemsList; },
+        resetFreeItems: function() {
+            freeItemsList = [];
+            sessionStorage.removeItem('geo_free_' + currentCategory);
             applyLocks();
         },
+        reapply: applyLocks,
         FREE_LIMITS: FREE_LIMITS
     };
 
-    // Make unlock function available globally
     window.showGeoUpgrade = showUpgradeModal;
 
 })();
