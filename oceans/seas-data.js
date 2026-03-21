@@ -1286,7 +1286,6 @@ const seasData = [
             'Wine production for 6,000+ years',
             'Olive oil production for 5,000+ years',
             'First naval battle in recorded history (1210 BCE - Egyptians vs Sea Peoples)'
-         }
      ]
     },
    
