@@ -1,25 +1,25 @@
 // ========================================
 // 💜 PREMIUM WRAPPER - BTS PURPLE HEART EDITION
-// "I Purple You" - Beautiful & Inspiring
+// Complete Payment Integration Ready
 // ========================================
 
 (function() {
     
     // CONFIGURATION
     var FREE_LIMITS = {
-        mountains: 7,
-        rivers: 7,
-        lakes: 7,
-        oceans: 3,
-        forests: 7,
-        deserts: 7,
-        volcanoes: 7,
-        islands: 7,
-        coralReefs: 7,
-        encyclopedia: 7,
-        upsc: 7,
+        mountains: 5,
+        rivers: 5,
+        lakes: 5,
+        oceans: 5,
+        forests: 5,
+        deserts: 5,
+        volcanoes: 5,
+        islands: 5,
+        coralReefs: 5,
+        encyclopedia: 5,
+        upsc: 5,
         games: 3,
-        atlas: 7,
+        atlas: 5,
         waterfalls: 5,
         glaciers: 5,
         caves: 5,
@@ -43,56 +43,6 @@
         { title: "Yet To Come 🌅", subtitle: "The best knowledge is yet to come 💜" },
         { title: "Butter Smooth Learning! 🧈", subtitle: "Slide into premium content 💜" },
         { title: "Spring Day is Here! 🌸", subtitle: "Bloom with knowledge 💜" }
-    ];
-
-    // PRICING TIERS
-    var PRICING_TIERS = [
-        { 
-            name: 'Basic', 
-            icon: '🌱',
-            monthly: 0, 
-            yearly: 0, 
-            features: ['5 free items per category', 'Basic access'],
-            color: '#888'
-        },
-        { 
-            name: 'Games', 
-            icon: '🎮',
-            monthly: 49, 
-            yearly: 399, 
-            perDay: '₹1.1',
-            features: ['All Geography Games', 'Quizzes & Puzzles', 'Leaderboards'],
-            color: '#22c55e'
-        },
-        { 
-            name: 'UPSC', 
-            icon: '📚',
-            monthly: 99, 
-            yearly: 899, 
-            perDay: '₹2.5',
-            features: ['Complete UPSC Syllabus', 'All 11 Categories', 'Study Notes'],
-            color: '#3b82f6',
-            popular: true
-        },
-        { 
-            name: 'Pro', 
-            icon: '⭐',
-            monthly: 129, 
-            yearly: 1299, 
-            perDay: '₹3.6',
-            features: ['Mountains, Rivers, Lakes', 'All Geography Content', 'Offline Access'],
-            color: '#8b5cf6'
-        },
-        { 
-            name: 'Ultimate', 
-            icon: '👑',
-            monthly: 199, 
-            yearly: 2100, 
-            perDay: '₹5.8',
-            features: ['EVERYTHING Unlocked', 'All Future Updates', 'Priority Support'],
-            color: '#7c3aed',
-            recommended: true
-        }
     ];
 
     var currentCategory = null;
@@ -444,7 +394,7 @@
     }
 
     // ==========================================
-    // 💜 FREE CARD - Purple Star Badge
+    // 💜 FREE CARD
     // ==========================================
 
     function makeFreeCard(card) {
@@ -638,6 +588,15 @@
             }, 250);
         };
 
+        document.getElementById('purple-close-btn').onmouseenter = function() {
+            this.style.background = 'rgba(255,255,255,0.2)';
+            this.style.color = 'white';
+        };
+        document.getElementById('purple-close-btn').onmouseleave = function() {
+            this.style.background = 'rgba(255,255,255,0.1)';
+            this.style.color = 'rgba(255,255,255,0.7)';
+        };
+
         // Click outside
         modal.onclick = function(e) {
             if (e.target === modal) {
@@ -649,11 +608,10 @@
             }
         };
 
-        // Upgrade button
+        // Upgrade button - GO TO PRICING PAGE (ROOT LEVEL)
         document.getElementById('purple-upgrade-btn').onclick = function() {
-            modal.remove();
-            document.body.style.overflow = '';
-            showPricingModal();
+            // Always go to root level pricing.html
+            window.location.href = window.location.origin + '/pricing.html';
         };
 
         // Hover effect
@@ -671,141 +629,6 @@
         document.onkeydown = function(e) {
             if (e.key === 'Escape' && document.getElementById('purple-message-modal')) {
                 document.getElementById('purple-message-modal').remove();
-                document.body.style.overflow = '';
-            }
-        };
-    }
-
-    // ==========================================
-    // 💜 PRICING MODAL WITH ALL TIERS
-    // ==========================================
-
-    function showPricingModal() {
-        var existing = document.getElementById('purple-pricing-modal');
-        if (existing) existing.remove();
-
-        var tiersHTML = PRICING_TIERS.map(function(tier, index) {
-            var isRecommended = tier.recommended;
-            var isPopular = tier.popular;
-            var isFree = tier.monthly === 0;
-            
-            return `
-                <div style="
-                    background: ${isRecommended ? 'linear-gradient(145deg, #7c3aed, #6d28d9)' : 'rgba(255,255,255,0.05)'};
-                    border-radius: 20px;
-                    padding: 25px 20px;
-                    text-align: center;
-                    border: 2px solid ${isRecommended ? '#a855f7' : 'rgba(255,255,255,0.1)'};
-                    position: relative;
-                    transform: ${isRecommended ? 'scale(1.05)' : 'scale(1)'};
-                    transition: all 0.3s;
-                    ${isRecommended ? 'box-shadow: 0 20px 50px rgba(124, 58, 237, 0.4);' : ''}
-                ">
-                    ${isRecommended ? '<div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; padding: 4px 16px; border-radius: 20px; font-size: 11px; font-weight: bold;">👑 BEST VALUE</div>' : ''}
-                    ${isPopular ? '<div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 11px; font-weight: bold;">🔥 POPULAR</div>' : ''}
-                    
-                    <div style="font-size: 36px; margin-bottom: 10px;">${tier.icon}</div>
-                    <h3 style="color: white; margin: 0 0 10px 0; font-size: 20px;">${tier.name}</h3>
-                    
-                    <div style="margin: 15px 0;">
-                        <span style="font-size: 36px; font-weight: bold; color: ${isFree ? '#22c55e' : '#a855f7'};">₹${tier.yearly}</span>
-                        <span style="color: rgba(255,255,255,0.6); font-size: 14px;">/year</span>
-                    </div>
-                    
-                    ${tier.perDay ? `<div style="color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 15px;">Just ${tier.perDay}/day</div>` : '<div style="height: 13px; margin-bottom: 15px;"></div>'}
-                    
-                    <ul style="list-style: none; padding: 0; margin: 0 0 20px 0; text-align: left;">
-                        ${tier.features.map(function(f) {
-                            return '<li style="color: rgba(255,255,255,0.8); padding: 8px 0; font-size: 13px; display: flex; align-items: center;"><span style="color: #a855f7; margin-right: 10px;">✓</span>' + f + '</li>';
-                        }).join('')}
-                    </ul>
-                    
-                    <button onclick="${isFree ? '' : 'window.location.href=\'/pricing.html?plan=' + tier.name.toLowerCase() + '\''}" style="
-                        background: ${isFree ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #a855f7, #7c3aed)'};
-                        color: white;
-                        border: ${isFree ? '1px solid rgba(255,255,255,0.3)' : 'none'};
-                        padding: 12px 30px;
-                        border-radius: 25px;
-                        font-size: 14px;
-                        font-weight: bold;
-                        cursor: ${isFree ? 'default' : 'pointer'};
-                        width: 100%;
-                        transition: all 0.3s;
-                        opacity: ${isFree ? '0.7' : '1'};
-                    ">${isFree ? 'Current Plan' : 'Choose ' + tier.name}</button>
-                </div>
-            `;
-        }).join('');
-
-        var modal = document.createElement('div');
-        modal.id = 'purple-pricing-modal';
-        modal.style.cssText = 
-            'position: fixed;' +
-            'top: 0;' +
-            'left: 0;' +
-            'width: 100%;' +
-            'height: 100%;' +
-            'background: rgba(30, 27, 75, 0.98);' +
-            'display: flex;' +
-            'align-items: center;' +
-            'justify-content: center;' +
-            'z-index: 9999999;' +
-            'backdrop-filter: blur(20px);' +
-            'overflow-y: auto;' +
-            'padding: 20px;';
-
-        modal.innerHTML = `
-            <style>
-                @keyframes pricingSlideIn {
-                    from { opacity: 0; transform: scale(0.95); }
-                    to { opacity: 1; transform: scale(1); }
-                }
-            </style>
-            <div style="max-width: 1100px; width: 100%; animation: pricingSlideIn 0.4s ease;">
-                
-                <button id="pricing-close-btn" style="position: fixed; top: 20px; right: 25px; background: rgba(255,255,255,0.1); border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; cursor: pointer; color: white; z-index: 10; transition: all 0.3s;">×</button>
-                
-                <div style="text-align: center; margin-bottom: 40px;">
-                    <div style="font-size: 60px; margin-bottom: 15px;">💜</div>
-                    <h2 style="color: white; font-size: 36px; margin: 0 0 10px 0;">Choose Your Journey</h2>
-                    <p style="color: rgba(255,255,255,0.7); font-size: 18px; margin: 0;">Unlock your path to knowledge 보라해</p>
-                    <div style="margin-top: 20px; background: linear-gradient(135deg, #fbbf24, #f59e0b); display: inline-block; padding: 10px 25px; border-radius: 30px;">
-                        <span style="color: #000; font-weight: bold; font-size: 16px;">☕ Get everything for less than ₹6/day!</span>
-                    </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                    ${tiersHTML}
-                </div>
-                
-                <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
-                    <p style="color: rgba(255,255,255,0.8); margin: 0 0 10px 0; font-size: 15px;">🔒 Secure payments via Razorpay</p>
-                    <p style="color: rgba(255,255,255,0.5); margin: 0; font-size: 13px;">Cancel anytime • Instant access • All future updates included</p>
-                </div>
-                
-                <p style="text-align: center; margin-top: 25px; color: rgba(255,255,255,0.4); font-size: 14px;">💜 I Purple You • 보라해 💜</p>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-        document.body.style.overflow = 'hidden';
-
-        // Close handlers
-        document.getElementById('pricing-close-btn').onclick = function() {
-            modal.remove();
-            document.body.style.overflow = '';
-        };
-
-        modal.onclick = function(e) {
-            if (e.target === modal) {
-                modal.remove();
-                document.body.style.overflow = '';
-            }
-        };
-
-        document.onkeydown = function(e) {
-            if (e.key === 'Escape') {
-                modal.remove();
                 document.body.style.overflow = '';
             }
         };
@@ -900,7 +723,6 @@
     // ==========================================
 
     window.GeoPremiumWrapper = {
-        showUpgradeModal: showPricingModal,
         showMessage: showPurpleMessage,
         isUserPremium: isUserPremium,
         getFreeItems: function() { return freeItemsList; },
@@ -913,7 +735,6 @@
         FREE_LIMITS: FREE_LIMITS
     };
 
-    window.showGeoUpgrade = showPricingModal;
     window.showPurpleMessage = showPurpleMessage;
 
 })();
