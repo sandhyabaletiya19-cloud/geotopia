@@ -1,25 +1,15 @@
 /* ═══════════════════════════════════════════════════════════
-   🌊 SEAS EXPLORER - APPLICATION LOGIC
-   Complete JavaScript for Sea Profiles & Trade Routes
+   🌊 SEAS PROFILE APP - FIXED VERSION
+   Properly maps data from seas-data.js to the profile page
    ═══════════════════════════════════════════════════════════ */
 
-// ═══════════════════════════════════════════════════════════
-// GLOBAL STATE
-// ═══════════════════════════════════════════════════════════
+// Get sea ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const seaId = urlParams.get('id');
 
-const SeasApp = {
-    currentSea: null,
-    map: null,
-    markers: [],
-    polylines: [],
-    layers: {
-        tradeRoutes: true,
-        chokepoints: true,
-        ports: true,
-        navalBases: false,
-        disputes: false
-    }
-};
+let currentSea = null;
+let seaMap = null;
+let currentSeaIndex = 0;
 
 // ═══════════════════════════════════════════════════════════
 // INITIALIZATION
@@ -35,7 +25,7 @@ function initLoadingScreen() {
     
     let progressValue = 0;
     const loadInterval = setInterval(() => {
-        progressValue += Math.random() * 20;
+        progressValue += Math.random() * 15;
         if (progressValue >= 100) {
             progressValue = 100;
             clearInterval(loadInterval);
@@ -65,1201 +55,729 @@ function generateBubbles() {
         bubble.style.setProperty('--size', `${Math.random() * 15 + 5}px`);
         bubble.style.setProperty('--duration', `${Math.random() * 10 + 8}s`);
         bubble.style.setProperty('--delay', `${Math.random() * 5}s`);
-        bubble.style.setProperty('--wobble', `${(Math.random() - 0.5) * 50}px`);
         container.appendChild(bubble);
     }
 }
 
 function initSeaProfile() {
-    const seaId = getSeaIdFromURL();
-    const sea = getSeaById(seaId) || seasData[0];
-    
-    SeasApp.currentSea = sea;
-    
-    updateSeaHeader(sea);
-    updateSeaBackground(sea);
-    initializeMap(sea);
-    populateMindMap(sea);
-    populateTradeRoutes(sea);
-    populateChokepoints(sea);
-    populateCountryImportance(sea);
-    populateGeopoliticalIssues(sea);
-    populateNavalPresence(sea);
-    populateFunFacts(sea);
-    setupQuickFacts(sea);
-    setupSeaNavigation(sea);
-    setupTreeNodes();
-    setupMapLayers();
-}
-
-function getSeaIdFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('id') || 'south-china-sea';
-}
-
-// ═══════════════════════════════════════════════════════════
-// HEADER & BACKGROUND
-// ═══════════════════════════════════════════════════════════
-
-function updateSeaHeader(sea) {
-    document.title = `${sea.name} | Seas Explorer`;
-    
-    const title = document.getElementById('seaTitle');
-    if (title) title.textContent = sea.name;
-    
-    const parentOcean = document.getElementById('seaParentOcean');
-    if (parentOcean) {
-        parentOcean.querySelector('span').textContent = sea.parentOcean;
-        parentOcean.href = `oceans-profile.html?id=${sea.parentOceanId}`;
+    if (!seaId) {
+        window.location.href = 'seas.html';
+        return;
     }
     
-    const area = document.getElementById('seaArea');
-    if (area) area.textContent = formatNumber(sea.area) + ' km²';
+    // Find sea in data
+    currentSea = seasData.find(sea => sea.id === seaId);
+    currentSeaIndex = seasData.findIndex(sea => sea.id === seaId);
     
-    const depth = document.getElementById('seaDepth');
-    if (depth) depth.textContent = `Max: ${formatNumber(sea.maxDepth)}m`;
+    if (!currentSea) {
+        alert('Sea not found!');
+        window.location.href = 'seas.html';
+        return;
+    }
     
+    console.log('Loading sea:', currentSea.name);
+    console.log('Sea data:', currentSea);
+    
+    // Render all sections
+    renderHero();
+    renderQuickStats();
+    renderDimensions();
+    renderDepth();
+    renderLocation();
+    renderStraits();
+    renderCurrents();
+    renderTectonics();
+    renderMarineLife();
+    renderClimate();
+    renderEconomic();
+    renderEnvironmental();
+    renderExploration();
+    renderGeopolitics();
+    renderTradeRoutes();
+    renderChokepoints();
+    renderCountryImportance();
+    renderIssues();
+    renderNavalPresence();
+    renderFunFacts();
+    renderNavigation();
+    initMap();
+    setupTreeToggles();
+    setupQuickFactsPanel();
+}
+
+// ═══════════════════════════════════════════════════════════
+// HERO SECTION
+// ═══════════════════════════════════════════════════════════
+
+function renderHero() {
+    // Title
+    document.getElementById('seaTitle').textContent = currentSea.name;
+    document.title = `${currentSea.name} | Seas Explorer`;
+    
+    // Parent Ocean
+    const parentOceanEl = document.getElementById('seaParentOcean');
+    parentOceanEl.querySelector('span').textContent = currentSea.parentOcean;
+    parentOceanEl.href = `oceans-profile.html?id=${currentSea.parentOceanId}`;
+    
+    // Area & Depth
+    document.getElementById('seaArea').textContent = formatNumber(currentSea.area) + ' km²';
+    document.getElementById('seaDepth').textContent = `Max: ${formatNumber(currentSea.maxDepth)}m`;
+    
+    // Strategic Badge
     const badge = document.getElementById('strategicBadge');
-    if (badge && sea.geopolitics?.strategicImportance) {
-        const importance = sea.geopolitics.strategicImportance.toLowerCase();
-        badge.className = `strategic-badge ${importance.replace(' ', '-')}`;
-        badge.textContent = `${sea.geopolitics.strategicImportance} Strategic Importance`;
-    }
+    const importance = currentSea.geopolitics?.strategicImportance || 'Moderate';
+    badge.textContent = importance + ' Strategic Importance';
+    badge.className = 'strategic-badge ' + importance.toLowerCase().replace(' ', '-');
     
-    // Quick stats
-    updateQuickStats(sea);
-}
-
-function updateQuickStats(sea) {
-    const tradeValue = document.getElementById('tradeValue');
-    const oilPercent = document.getElementById('oilPercent');
-    const fishCatch = document.getElementById('fishCatch');
-    const countryCount = document.getElementById('countryCount');
-    
-    if (tradeValue && sea.economicImportance?.tradeValue) {
-        tradeValue.textContent = sea.economicImportance.tradeValue;
-    }
-    
-    if (oilPercent && sea.economicImportance?.percentGlobalOil) {
-        oilPercent.textContent = sea.economicImportance.percentGlobalOil + '%';
-    } else if (oilPercent) {
-        oilPercent.textContent = 'N/A';
-    }
-    
-    if (fishCatch && sea.marineLife?.annualFishCatch) {
-        fishCatch.textContent = sea.marineLife.annualFishCatch;
-    } else if (fishCatch && sea.economicImportance?.fishing?.annualCatch) {
-        fishCatch.textContent = sea.economicImportance.fishing.annualCatch;
-    }
-    
-    if (countryCount && sea.borderingCountries) {
-        countryCount.textContent = sea.borderingCountries.length;
-    }
-}
-
-function updateSeaBackground(sea) {
+    // Background Image
     const hero = document.getElementById('seaHero');
-    const bgImage = document.querySelector('.profile-background .background-image');
-    
-    if (hero && sea.image) {
-        hero.style.backgroundImage = `url(${sea.backgroundImage || sea.image})`;
+    if (currentSea.backgroundImage || currentSea.image) {
+        hero.style.backgroundImage = `url('${currentSea.backgroundImage || currentSea.image}')`;
     }
     
-    if (bgImage && sea.backgroundImage) {
-        bgImage.style.backgroundImage = `url(${sea.backgroundImage})`;
+    // Profile Background
+    const profileBg = document.getElementById('profileBackground');
+    if (profileBg) {
+        const bgImage = profileBg.querySelector('.background-image');
+        if (bgImage) {
+            bgImage.style.backgroundImage = `url('${currentSea.backgroundImage || currentSea.image}')`;
+        }
     }
 }
 
 // ═══════════════════════════════════════════════════════════
-// MAP FUNCTIONS
+// QUICK STATS BAR
 // ═══════════════════════════════════════════════════════════
 
-function initializeMap(sea) {
-    const mapContainer = document.getElementById('seaMap');
-    if (!mapContainer || typeof L === 'undefined') return;
+function renderQuickStats() {
+    // Trade Value
+    const tradeValue = currentSea.economicImportance?.tradeValue || 'N/A';
+    document.getElementById('tradeValue').textContent = tradeValue;
     
-    if (SeasApp.map) {
-        SeasApp.map.remove();
-    }
+    // Oil Percent
+    const oilPercent = currentSea.economicImportance?.shipping?.oilTransit || 
+                       currentSea.economicImportance?.percentGlobalTrade || 'N/A';
+    document.getElementById('oilPercent').textContent = typeof oilPercent === 'number' ? oilPercent + '%' : oilPercent;
     
-    SeasApp.map = L.map('seaMap', {
-        center: sea.coordinates,
-        zoom: sea.defaultZoom || 5,
-        minZoom: 2,
-        maxZoom: 12,
-        worldCopyJump: true
-    });
+    // Fish Catch
+    const fishCatch = currentSea.economicImportance?.fishing?.annualCatch || 
+                      currentSea.resources?.fishing?.annualCatch || 'N/A';
+    document.getElementById('fishCatch').textContent = fishCatch;
     
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap © CARTO',
-        subdomains: 'abcd',
-        maxZoom: 19
-    }).addTo(SeasApp.map);
+    // Country Count
+    const countryCount = currentSea.borderingCountries?.length || 0;
+    document.getElementById('countryCount').textContent = countryCount;
     
-    addSeaLayers(sea);
+    // Quick Facts Panel
+    document.getElementById('qfArea').textContent = formatNumber(currentSea.area) + ' km²';
+    document.getElementById('qfDepth').textContent = formatNumber(currentSea.maxDepth) + 'm';
+    document.getElementById('qfTrade').textContent = tradeValue;
+    document.getElementById('qfShips').textContent = getAnnualShips();
+    document.getElementById('qfRisk').textContent = currentSea.geopolitics?.conflictLevel || 'Low';
 }
 
-function addSeaLayers(sea) {
-    clearMapLayers();
-    
-    if (SeasApp.layers.tradeRoutes) addTradeRoutesLayer(sea);
-    if (SeasApp.layers.chokepoints) addChokepointsLayer(sea);
-    if (SeasApp.layers.ports) addPortsLayer(sea);
-    if (SeasApp.layers.navalBases) addNavalBasesLayer(sea);
-    if (SeasApp.layers.disputes) addDisputesLayer(sea);
-    
-    // Add currents if available
-    if (sea.currents) addCurrentsLayer(sea);
-}
-
-function clearMapLayers() {
-    SeasApp.markers.forEach(marker => marker.remove());
-    SeasApp.markers = [];
-    
-    SeasApp.polylines.forEach(polyline => polyline.remove());
-    SeasApp.polylines = [];
-}
-
-function addTradeRoutesLayer(sea) {
-    if (!SeasApp.map) return;
-    
-    // Find relevant trade routes
-    const relevantRoutes = globalTradeRoutes.filter(route => {
-        const path = route.route?.path || [];
-        return path.some(point => isPointInSeaArea(point, sea));
-    });
-    
-    // Also check sea's own trade routes
-    if (sea.tradeRoutes) {
-        sea.tradeRoutes.forEach(route => {
-            addRouteToMap(route, sea);
+function getAnnualShips() {
+    let total = 0;
+    if (currentSea.straits) {
+        currentSea.straits.forEach(strait => {
+            if (strait.annualShips) total += strait.annualShips;
         });
     }
-    
-    relevantRoutes.forEach(route => {
-        addRouteToMap(route, sea);
-    });
-}
-
-function addRouteToMap(route, sea) {
-    const path = route.route?.path || route.path;
-    if (!path || path.length < 2) return;
-    
-    const routeType = route.type || 'container';
-    const colors = {
-        'oil': '#FF6B6B',
-        'container': '#00B4D8',
-        'lng': '#2ECC71',
-        'bulk': '#9B59B6',
-        'bulk-commodity': '#E67E22'
-    };
-    
-    const color = colors[routeType] || colors['container'];
-    
-    const latLngs = path.map(p => [p.lat || p[0], p.lng || p[1]]);
-    
-    const polyline = L.polyline(latLngs, {
-        color: color,
-        weight: 3,
-        opacity: 0.8,
-        dashArray: routeType === 'oil' ? null : '10, 5'
-    });
-    
-    polyline.bindPopup(`
-        <div style="min-width: 200px;">
-            <h4 style="color: ${color}; margin: 0 0 8px 0;">${route.name}</h4>
-            <p style="margin: 0 0 8px 0; color: #CAF0F8; font-size: 12px;">
-                ${route.statistics?.annualValue || route.statistics?.dailyBarrels || ''}
-            </p>
-            <span style="color: ${color}; font-size: 11px;">🚢 ${routeType.toUpperCase()}</span>
-        </div>
-    `);
-    
-    polyline.addTo(SeasApp.map);
-    SeasApp.polylines.push(polyline);
-    
-    // Add direction arrows
-    addRouteArrows(latLngs, color);
-}
-
-function addRouteArrows(path, color) {
-    for (let i = 1; i < path.length; i += 2) {
-        const start = path[i - 1];
-        const end = path[i];
-        
-        const midLat = (start[0] + end[0]) / 2;
-        const midLng = (start[1] + end[1]) / 2;
-        
-        const angle = Math.atan2(end[0] - start[0], end[1] - start[1]) * 180 / Math.PI;
-        
-        const arrowIcon = L.divIcon({
-            className: 'route-arrow',
-            html: `<div style="
-                transform: rotate(${angle}deg);
-                color: ${color};
-                font-size: 14px;
-                text-shadow: 0 0 5px ${color};
-            ">▶</div>`,
-            iconSize: [14, 14],
-            iconAnchor: [7, 7]
-        });
-        
-        const marker = L.marker([midLat, midLng], { 
-            icon: arrowIcon,
-            interactive: false
-        });
-        marker.addTo(SeasApp.map);
-        SeasApp.markers.push(marker);
-    }
-}
-
-function addChokepointsLayer(sea) {
-    if (!SeasApp.map || !sea.straits) return;
-    
-    sea.straits.forEach(strait => {
-        const cpIcon = L.divIcon({
-            className: 'chokepoint-marker',
-            html: `<div style="
-                background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
-                border: 2px solid white;
-                border-radius: 50%;
-                width: 30px;
-                height: 30px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 14px;
-                box-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
-            ">⚠️</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
-        
-        // Try to get coordinates from global chokepoints
-        const globalCP = globalChokepoints.find(cp => 
-            cp.name.toLowerCase().includes(strait.name.toLowerCase().split(' ')[0])
-        );
-        
-        const coords = globalCP?.location || [sea.coordinates[0], sea.coordinates[1] + 5];
-        
-        const marker = L.marker(coords, { icon: cpIcon });
-        marker.bindPopup(`
-            <div style="min-width: 220px;">
-                <h4 style="color: #FF6B6B; margin: 0 0 8px 0;">⚠️ ${strait.name}</h4>
-                <p style="margin: 0 0 5px 0; color: #CAF0F8; font-size: 12px;">
-                    Connects to: ${strait.connectsTo}
-                </p>
-                <p style="margin: 0 0 5px 0; color: #CAF0F8; font-size: 12px;">
-                    Width: ${strait.width} km
-                </p>
-                ${strait.annualShips ? `<p style="margin: 0; color: #FFD700; font-size: 11px;">🚢 ${formatNumber(strait.annualShips)} ships/year</p>` : ''}
-            </div>
-        `);
-        marker.addTo(SeasApp.map);
-        SeasApp.markers.push(marker);
-    });
-}
-
-function addPortsLayer(sea) {
-    if (!SeasApp.map || !sea.economicImportance?.majorPorts) return;
-    
-    sea.economicImportance.majorPorts.forEach(port => {
-        const portIcon = L.divIcon({
-            className: 'port-marker',
-            html: `<div style="
-                background: rgba(0, 180, 216, 0.9);
-                border: 2px solid white;
-                border-radius: 8px;
-                padding: 4px 8px;
-                color: white;
-                font-size: 11px;
-                font-weight: 600;
-                white-space: nowrap;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            ">🏗️ ${port.name}</div>`,
-            iconSize: [100, 24],
-            iconAnchor: [50, 12]
-        });
-        
-        // Approximate port location based on country
-        const countryInfo = sea.borderingCountries?.find(c => c.name === port.country);
-        const coords = getApproximatePortLocation(port, sea);
-        
-        const marker = L.marker(coords, { icon: portIcon });
-        marker.bindPopup(`
-            <div style="min-width: 180px;">
-                <h4 style="color: #00B4D8; margin: 0 0 8px 0;">🏗️ ${port.name}</h4>
-                <p style="margin: 0 0 5px 0; color: #CAF0F8; font-size: 12px;">${port.country}</p>
-                ${port.containers ? `<p style="margin: 0; color: #2ECC71; font-size: 11px;">📦 ${port.containers}</p>` : ''}
-                ${port.ranking ? `<p style="margin: 5px 0 0 0; color: #aaa; font-size: 10px;">${port.ranking}</p>` : ''}
-            </div>
-        `);
-        marker.addTo(SeasApp.map);
-        SeasApp.markers.push(marker);
-    });
-}
-
-function addNavalBasesLayer(sea) {
-    if (!SeasApp.map) return;
-    
-    const navalPresences = sea.geopolitics?.navalPresences || sea.geopolitics?.militaryPresence?.regional || [];
-    
-    navalPresences.forEach(naval => {
-        const navalIcon = L.divIcon({
-            className: 'naval-marker',
-            html: `<div style="
-                background: rgba(155, 89, 182, 0.9);
-                border: 2px solid white;
-                border-radius: 50%;
-                width: 28px;
-                height: 28px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 14px;
-                box-shadow: 0 0 10px rgba(155, 89, 182, 0.8);
-            ">⚓</div>`,
-            iconSize: [28, 28],
-            iconAnchor: [14, 14]
-        });
-        
-        const coords = getApproximateNavalLocation(naval, sea);
-        
-        const marker = L.marker(coords, { icon: navalIcon });
-        marker.bindPopup(`
-            <div style="min-width: 160px;">
-                <h4 style="color: #9B59B6; margin: 0 0 8px 0;">⚓ ${naval.country}</h4>
-                <p style="margin: 0 0 5px 0; color: #CAF0F8; font-size: 12px;">${naval.base || naval.location}</p>
-                <p style="margin: 0; color: #aaa; font-size: 11px;">${naval.purpose || naval.assets}</p>
-            </div>
-        `);
-        marker.addTo(SeasApp.map);
-        SeasApp.markers.push(marker);
-    });
-}
-
-function addDisputesLayer(sea) {
-    if (!SeasApp.map || !sea.geopolitics?.territorialDisputes) return;
-    
-    sea.geopolitics.territorialDisputes.forEach(dispute => {
-        const disputeIcon = L.divIcon({
-            className: 'dispute-marker',
-            html: `<div style="
-                background: rgba(231, 76, 60, 0.8);
-                border: 2px dashed #fff;
-                border-radius: 50%;
-                width: 50px;
-                height: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 20px;
-                animation: pulse 2s infinite;
-            ">🔴</div>`,
-            iconSize: [50, 50],
-            iconAnchor: [25, 25]
-        });
-        
-        // Try to find island coordinates
-        const island = sea.islands?.find(i => i.name.toLowerCase().includes(dispute.name.toLowerCase().split(' ')[0]));
-        const coords = island?.coordinates || sea.coordinates;
-        
-        const marker = L.marker(coords, { icon: disputeIcon });
-        marker.bindPopup(`
-            <div style="min-width: 200px;">
-                <h4 style="color: #E74C3C; margin: 0 0 8px 0;">🔴 ${dispute.name}</h4>
-                <p style="margin: 0 0 5px 0; color: #CAF0F8; font-size: 12px;">
-                    Claimants: ${dispute.claimants?.join(', ') || dispute.claimant}
-                </p>
-                <p style="margin: 0; color: #aaa; font-size: 11px;">${dispute.status || dispute.basis}</p>
-            </div>
-        `);
-        marker.addTo(SeasApp.map);
-        SeasApp.markers.push(marker);
-    });
-}
-
-function addCurrentsLayer(sea) {
-    if (!SeasApp.map || !sea.currents) return;
-    
-    const addCurrents = (currents, type) => {
-        currents.forEach(current => {
-            if (!current.path || current.path.length < 2) return;
-            
-            const color = type === 'warm' ? '#FF6B6B' : '#48CAE4';
-            
-            const polyline = L.polyline(current.path, {
-                color: color,
-                weight: 2,
-                opacity: 0.6,
-                dashArray: '5, 10'
-            });
-            
-            polyline.bindPopup(`
-                <div>
-                    <h4 style="color: ${color}; margin: 0 0 5px 0;">${current.name}</h4>
-                    <p style="margin: 0; color: #CAF0F8; font-size: 12px;">${current.description || current.direction}</p>
-                </div>
-            `);
-            
-            polyline.addTo(SeasApp.map);
-            SeasApp.polylines.push(polyline);
-        });
-    };
-    
-    if (sea.currents.warm) addCurrents(sea.currents.warm, 'warm');
-    if (sea.currents.cold) addCurrents(sea.currents.cold, 'cold');
-}
-
-// Helper functions for map
-function isPointInSeaArea(point, sea) {
-    if (!sea.bounds) return false;
-    
-    const lat = point.lat || point[0];
-    const lng = point.lng || point[1];
-    
-    return lat >= sea.bounds.south && lat <= sea.bounds.north &&
-           lng >= sea.bounds.west && lng <= sea.bounds.east;
-}
-
-function getApproximatePortLocation(port, sea) {
-    // Use sea center with offset based on port index
-    const baseCoords = sea.coordinates;
-    const index = sea.economicImportance.majorPorts.indexOf(port);
-    const offset = (index - 2) * 3;
-    return [baseCoords[0] + offset, baseCoords[1] + (index % 2 === 0 ? 5 : -5)];
-}
-
-function getApproximateNavalLocation(naval, sea) {
-    const baseCoords = sea.coordinates;
-    const navalList = sea.geopolitics?.navalPresences || [];
-    const index = navalList.indexOf(naval);
-    return [baseCoords[0] + index * 2, baseCoords[1] - 5];
-}
-
-function setupMapLayers() {
-    const checkboxes = document.querySelectorAll('[id^="layer"]');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const layerName = this.id.replace('layer', '').charAt(0).toLowerCase() + 
-                             this.id.replace('layer', '').slice(1);
-            
-            const layerMap = {
-                'tradeRoutes': 'tradeRoutes',
-                'chokepoints': 'chokepoints',
-                'ports': 'ports',
-                'navalBases': 'navalBases',
-                'disputes': 'disputes'
-            };
-            
-            const key = layerMap[layerName];
-            if (key) {
-                SeasApp.layers[key] = this.checked;
-                addSeaLayers(SeasApp.currentSea);
-            }
-        });
-    });
+    return total > 0 ? formatNumber(total) : 'N/A';
 }
 
 // ═══════════════════════════════════════════════════════════
-// DATA POPULATION FUNCTIONS
+// TREE NODE SECTIONS
 // ═══════════════════════════════════════════════════════════
 
-function populateMindMap(sea) {
-    populateDimensions(sea);
-    populateDepth(sea);
-    populateLocation(sea);
-    populateStraits(sea);
-    populateCurrents(sea);
-    populateTectonic(sea);
-    populateMarine(sea);
-    populateClimate(sea);
-    populateEconomic(sea);
-    populateEnvironmental(sea);
-    populateExploration(sea);
-    populateGeopolitics(sea);
-}
-
-function populateDimensions(sea) {
+function renderDimensions() {
     const container = document.getElementById('dimensionsData');
-    if (!container) return;
-    
     container.innerHTML = `
         <div class="data-item">
             <span class="data-label">Total Area</span>
-            <span class="data-value">${formatNumber(sea.area)} km²</span>
+            <span class="data-value">${formatNumber(currentSea.area)} km²</span>
         </div>
-        ${sea.percentEarthSurface ? `
-        <div class="data-item">
-            <span class="data-label">% of Earth's Surface</span>
-            <span class="data-value">${sea.percentEarthSurface}%</span>
-        </div>` : ''}
-        ${sea.length ? `
-        <div class="data-item">
-            <span class="data-label">Length</span>
-            <span class="data-value">${formatNumber(sea.length)} km</span>
-        </div>` : ''}
-        ${sea.width ? `
-        <div class="data-item">
-            <span class="data-label">Width</span>
-            <span class="data-value">${formatNumber(sea.width)} km</span>
-        </div>` : ''}
-        ${sea.coastlineLength ? `
-        <div class="data-item">
-            <span class="data-label">Total Coastline</span>
-            <span class="data-value">${formatNumber(sea.coastlineLength)} km</span>
-        </div>` : ''}
-        ${sea.volume ? `
         <div class="data-item">
             <span class="data-label">Volume</span>
-            <span class="data-value">${sea.volume}</span>
-        </div>` : ''}
+            <span class="data-value">${currentSea.volume || 'N/A'}</span>
+        </div>
     `;
 }
 
-function populateDepth(sea) {
+function renderDepth() {
     const container = document.getElementById('depthData');
-    if (!container) return;
-    
     container.innerHTML = `
         <div class="data-item">
             <span class="data-label">Average Depth</span>
-            <span class="data-value">${formatNumber(sea.avgDepth)} m</span>
+            <span class="data-value">${formatNumber(currentSea.avgDepth)} m</span>
         </div>
         <div class="data-item">
             <span class="data-label">Maximum Depth</span>
-            <span class="data-value">${formatNumber(sea.maxDepth)} m</span>
+            <span class="data-value">${formatNumber(currentSea.maxDepth)} m</span>
         </div>
-        ${sea.deepestPoint ? `
-        <div class="data-item" style="grid-column: 1 / -1;">
-            <span class="data-label">Deepest Point</span>
-            <span class="data-value">${sea.deepestPoint.name}</span>
-        </div>` : ''}
     `;
 }
 
-function populateLocation(sea) {
+function renderLocation() {
     const container = document.getElementById('locationData');
-    if (!container) return;
-    
-    const countries = sea.borderingCountries?.map(c => c.name).join(', ') || 'N/A';
+    const countries = currentSea.borderingCountries?.map(c => c.name).join(', ') || 'N/A';
+    const coords = currentSea.coordinates || [0, 0];
     
     container.innerHTML = `
-        <div class="data-item" style="grid-column: 1 / -1;">
+        <div class="data-item">
             <span class="data-label">Bordering Countries</span>
             <span class="data-value">${countries}</span>
         </div>
         <div class="data-item">
             <span class="data-label">Center Coordinates</span>
-            <span class="data-value">${sea.coordinates[0]}°, ${sea.coordinates[1]}°</span>
+            <span class="data-value">${coords[0]}°, ${coords[1]}°</span>
         </div>
         <div class="data-item">
             <span class="data-label">Parent Ocean</span>
-            <span class="data-value">${sea.parentOcean}</span>
+            <span class="data-value">${currentSea.parentOcean}</span>
         </div>
     `;
 }
 
-function populateStraits(sea) {
+function renderStraits() {
     const container = document.getElementById('straitsData');
-    if (!container || !sea.straits) return;
     
-    container.innerHTML = sea.straits.map(strait => `
-        <div class="info-item">
-            <span class="info-item-label">🌊 ${strait.name}</span>
-            <span class="info-item-value">
-                Connects to: ${strait.connectsTo}<br>
-                Width: ${strait.width} km<br>
-                ${strait.importance ? `Importance: ${strait.importance}` : ''}
-                ${strait.annualShips ? `<br>Ships/Year: ${formatNumber(strait.annualShips)}` : ''}
-            </span>
+    if (!currentSea.straits || currentSea.straits.length === 0) {
+        container.innerHTML = '<p class="no-data">No strait data available</p>';
+        return;
+    }
+    
+    container.innerHTML = currentSea.straits.map(strait => `
+        <div class="strait-card" style="background: rgba(0,0,0,0.3); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-sm); border-left: 3px solid var(--accent-cyan);">
+            <div style="font-weight: 600; color: var(--accent-cyan); margin-bottom: var(--spacing-xs);">
+                🌊 ${strait.name}
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;">
+                ${strait.connectsTo ? `<div>Connects to: ${strait.connectsTo}</div>` : ''}
+                ${strait.width ? `<div>Width: ${strait.width} km</div>` : ''}
+                ${strait.annualShips ? `<div>Ships/Year: ${formatNumber(strait.annualShips)}</div>` : ''}
+                ${strait.significance ? `<div style="margin-top: var(--spacing-xs); color: var(--text-light);">${strait.significance}</div>` : ''}
+            </div>
         </div>
     `).join('');
 }
 
-function populateCurrents(sea) {
+function renderCurrents() {
     const container = document.getElementById('currentsData');
-    if (!container) return;
+    const currents = currentSea.environment?.currents;
     
-    if (!sea.currents) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No current data available</p>';
+    if (!currents) {
+        container.innerHTML = '<p class="no-data">No current data available</p>';
         return;
     }
     
-    let html = '';
-    
-    if (sea.currents.warm?.length) {
-        html += `
-            <div class="currents-group">
-                <h4 class="currents-group-title warm">🌡️ Warm Currents</h4>
-                ${sea.currents.warm.map(c => `
-                    <div class="current-item">
-                        <span class="current-dot warm"></span>
-                        <span>${c.name} - ${c.direction || c.description}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-    
-    if (sea.currents.cold?.length) {
-        html += `
-            <div class="currents-group">
-                <h4 class="currents-group-title cold">❄️ Cold Currents</h4>
-                ${sea.currents.cold.map(c => `
-                    <div class="current-item">
-                        <span class="current-dot cold"></span>
-                        <span>${c.name} - ${c.direction || c.description}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-    
-    if (sea.currents.monsoonInfluence) {
-        html += `<p style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">${sea.currents.monsoonInfluence}</p>`;
-    }
-    
-    container.innerHTML = html || '<p style="color: var(--text-muted);">No current data available</p>';
-}
-
-function populateTectonic(sea) {
-    const container = document.getElementById('tectonicData');
-    if (!container) return;
-    
-    if (!sea.tectonicFeatures) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No tectonic data available</p>';
-        return;
-    }
-    
-    let html = '';
-    const tf = sea.tectonicFeatures;
-    
-    if (tf.plates?.length) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🗺️ Tectonic Plates</span>
-                <span class="info-item-value">${tf.plates.join(', ')}</span>
-            </div>
-        `;
-    }
-    
-    if (tf.seismicActivity) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🌋 Seismic Activity</span>
-                <span class="info-item-value">${tf.seismicActivity}</span>
-            </div>
-        `;
-    }
-    
-    if (tf.basins?.length) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">📍 Major Basins</span>
-                <span class="info-item-value">${tf.basins.map(b => `${b.name} (${formatNumber(b.depth)}m)`).join(', ')}</span>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html || '<p style="color: var(--text-muted);">No tectonic data available</p>';
-}
-
-function populateMarine(sea) {
-    const container = document.getElementById('marineData');
-    if (!container) return;
-    
-    if (!sea.marineLife) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No marine life data available</p>';
-        return;
-    }
-    
-    const ml = sea.marineLife;
-    let html = '';
-    
-    if (ml.biodiversityLevel) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🌿 Biodiversity Level</span>
-                <span class="info-item-value">${ml.biodiversityLevel}</span>
-            </div>
-        `;
-    }
-    
-    if (ml.totalSpecies || ml.fishSpecies) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🐠 Species Count</span>
-                <span class="info-item-value">
-                    ${ml.totalSpecies ? `Total: ${formatNumber(ml.totalSpecies)}` : ''}
-                    ${ml.fishSpecies ? ` | Fish: ${formatNumber(ml.fishSpecies)}` : ''}
-                </span>
-            </div>
-        `;
-    }
-    
-    if (ml.keySpecies?.length) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🦈 Key Species</span>
-                <span class="info-item-value">${ml.keySpecies.slice(0, 8).join(', ')}</span>
-            </div>
-        `;
-    }
-    
-    if (ml.endangeredSpecies?.length) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label" style="color: #FF6B6B;">⚠️ Endangered Species</span>
-                <span class="info-item-value">${ml.endangeredSpecies.join(', ')}</span>
-            </div>
-        `;
-    }
-    
-    if (ml.coralReefs?.length || ml.coralSpecies) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🪸 Coral Reefs</span>
-                <span class="info-item-value">
-                    ${ml.coralSpecies ? `${ml.coralSpecies} species` : ''}
-                    ${ml.coralReefs?.map(r => r.name).join(', ') || ''}
-                </span>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html;
-}
-
-function populateClimate(sea) {
-    const container = document.getElementById('climateData');
-    if (!container) return;
-    
-    if (!sea.climateRole) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No climate data available</p>';
-        return;
-    }
-    
-    const cr = sea.climateRole;
-    let html = '';
-    
-    if (cr.seaSurfaceTemp) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🌡️ Sea Surface Temperature</span>
-                <span class="info-item-value">${cr.seaSurfaceTemp.min}°C to ${cr.seaSurfaceTemp.max}°C</span>
-            </div>
-        `;
-    }
-    
-    if (cr.typhoons) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🌀 Typhoons</span>
-                <span class="info-item-value">
-                    Average: ${cr.typhoons.annualAverage}/year<br>
-                    Season: ${cr.typhoons.season}
-                </span>
-            </div>
-        `;
-    }
-    
-    if (cr.monsoonInfluence?.length) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🌧️ Monsoon Influence</span>
-                <span class="info-item-value">
-                    ${cr.monsoonInfluence.map(m => `${m.season}: ${m.wind}`).join('<br>')}
-                </span>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html || '<p style="color: var(--text-muted);">No climate data available</p>';
-}
-
-function populateEconomic(sea) {
-    const container = document.getElementById('economicData');
-    if (!container) return;
-    
-    if (!sea.economicImportance) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No economic data available</p>';
-        return;
-    }
-    
-    const ei = sea.economicImportance;
-    let html = '';
-    
-    if (ei.overview) {
-        html += `
-            <div class="info-item" style="grid-column: 1 / -1;">
-                <span class="info-item-label">📊 Overview</span>
-                <span class="info-item-value">${ei.overview}</span>
-            </div>
-        `;
-    }
-    
-    if (ei.tradeValue) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">💰 Trade Value</span>
-                <span class="info-item-value">${ei.tradeValue}</span>
-            </div>
-        `;
-    }
-    
-    if (ei.percentGlobalTrade) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🌍 % Global Trade</span>
-                <span class="info-item-value">${ei.percentGlobalTrade}%</span>
-            </div>
-        `;
-    }
-    
-    if (ei.fishing) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🐟 Fishing Industry</span>
-                <span class="info-item-value">
-                    ${ei.fishing.annualCatch || ''} 
-                    ${ei.fishing.value ? `($${ei.fishing.value})` : ''}
-                </span>
-            </div>
-        `;
-    }
-    
-    if (ei.oilAndGas) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🛢️ Oil & Gas</span>
-                <span class="info-item-value">${ei.oilAndGas.provenOilReserves || ei.oilAndGas.reserves || 'Significant reserves'}</span>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html;
-}
-
-function populateEnvironmental(sea) {
-    const container = document.getElementById('environmentalData');
-    if (!container) return;
-    
-    if (!sea.environmentalIssues) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No environmental data available</p>';
-        return;
-    }
-    
-    const ei = sea.environmentalIssues;
-    let html = '';
-    
-    if (ei.overallHealth) {
-        html += `
-            <div class="info-item" style="border-left-color: #FF6B6B;">
-                <span class="info-item-label" style="color: #FF6B6B;">⚠️ Overall Health</span>
-                <span class="info-item-value">${ei.overallHealth}</span>
-            </div>
-        `;
-    }
-    
-    const issues = ['overfishing', 'coralDestruction', 'pollution', 'climateChange', 'plasticPollution', 'deadZone'];
-    
-    issues.forEach(issue => {
-        if (ei[issue]) {
-            const data = typeof ei[issue] === 'object' ? ei[issue] : { description: ei[issue] };
-            html += `
-                <div class="info-item" style="border-left-color: #FF6B6B;">
-                    <span class="info-item-label">${issue.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    <span class="info-item-value">
-                        ${data.severity ? `Severity: ${data.severity}<br>` : ''}
-                        ${data.description || (typeof ei[issue] === 'string' ? ei[issue] : JSON.stringify(data))}
-                    </span>
-                </div>
-            `;
-        }
-    });
-    
-    container.innerHTML = html || '<p style="color: var(--text-muted);">No environmental data available</p>';
-}
-
-function populateExploration(sea) {
-    const container = document.getElementById('explorationData');
-    if (!container) return;
-    
-    if (!sea.exploration) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No exploration data available</p>';
-        return;
-    }
-    
-    let html = '';
-    
-    if (sea.exploration.historicExpeditions?.length) {
-        html += sea.exploration.historicExpeditions.map(exp => `
-            <div class="info-item">
-                <span class="info-item-label">📜 ${exp.name} (${exp.year})</span>
-                <span class="info-item-value">${exp.achievement}</span>
+    if (typeof currents === 'object') {
+        container.innerHTML = Object.entries(currents).map(([key, value]) => `
+            <div class="data-item">
+                <span class="data-label">${formatKey(key)}</span>
+                <span class="data-value">${value}</span>
             </div>
         `).join('');
+    } else {
+        container.innerHTML = `<p>${currents}</p>`;
     }
-    
-    if (sea.exploration.discoveries?.length) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label">🔬 Recent Discoveries</span>
-                <span class="info-item-value">${sea.exploration.discoveries.join(', ')}</span>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html || '<p style="color: var(--text-muted);">No exploration data available</p>';
 }
 
-function populateGeopolitics(sea) {
-    const container = document.getElementById('geopoliticsData');
-    if (!container) return;
+function renderTectonics() {
+    const container = document.getElementById('tectonicData');
+    const tectonic = currentSea.tectonicFeatures || currentSea.geology;
     
-    if (!sea.geopolitics) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No geopolitical data available</p>';
+    if (!tectonic) {
+        container.innerHTML = '<p class="no-data">No tectonic data available</p>';
+        return;
+    }
+    
+    if (typeof tectonic === 'object') {
+        container.innerHTML = Object.entries(tectonic).map(([key, value]) => `
+            <div class="data-item">
+                <span class="data-label">${formatKey(key)}</span>
+                <span class="data-value">${Array.isArray(value) ? value.join(', ') : value}</span>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = `<p>${tectonic}</p>`;
+    }
+}
+
+function renderMarineLife() {
+    const container = document.getElementById('marineData');
+    const biodiversity = currentSea.environment?.biodiversity;
+    
+    if (!biodiversity) {
+        container.innerHTML = '<p class="no-data">No marine life data available</p>';
         return;
     }
     
     let html = '';
-    const gp = sea.geopolitics;
     
-    if (gp.overview) {
-        html += `
-            <div class="info-item" style="grid-column: 1 / -1;">
-                <span class="info-item-label">📋 Overview</span>
-                <span class="info-item-value" style="font-size: 0.9rem; line-height: 1.6;">${gp.overview}</span>
-            </div>
-        `;
+    if (biodiversity.marineSpecies) {
+        html += `<div class="data-item"><span class="data-label">Marine Species</span><span class="data-value">${formatNumber(biodiversity.marineSpecies)}</span></div>`;
+    }
+    if (biodiversity.fishSpecies) {
+        html += `<div class="data-item"><span class="data-label">Fish Species</span><span class="data-value">${formatNumber(biodiversity.fishSpecies)}</span></div>`;
+    }
+    if (biodiversity.coralReefs) {
+        html += `<div class="data-item"><span class="data-label">Coral Reefs</span><span class="data-value">${biodiversity.coralReefs}</span></div>`;
+    }
+    if (biodiversity.coralSpecies) {
+        html += `<div class="data-item"><span class="data-label">Coral Species</span><span class="data-value">${biodiversity.coralSpecies}</span></div>`;
+    }
+    if (biodiversity.marineAnimals && Array.isArray(biodiversity.marineAnimals)) {
+        html += `<div class="data-item"><span class="data-label">Notable Wildlife</span><span class="data-value">${biodiversity.marineAnimals.join(', ')}</span></div>`;
+    }
+    if (biodiversity.threats) {
+        html += `<div class="data-item"><span class="data-label">Threats</span><span class="data-value" style="color: #FF6B6B;">${biodiversity.threats}</span></div>`;
     }
     
-    if (gp.conflictLevel) {
-        html += `
-            <div class="info-item">
-                <span class="info-item-label" style="color: #FF6B6B;">⚔️ Conflict Level</span>
-                <span class="info-item-value">${gp.conflictLevel}</span>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html || '<p style="color: var(--text-muted);">No geopolitical data available</p>';
+    container.innerHTML = html || '<p class="no-data">No marine life data available</p>';
 }
 
-// ═══════════════════════════════════════════════════════════
-// TRADE ROUTES, CHOKEPOINTS, COUNTRIES SECTIONS
-// ═══════════════════════════════════════════════════════════
-
-function populateTradeRoutes(sea) {
-    const container = document.getElementById('tradeRoutesContainer');
-    if (!container) return;
+function renderClimate() {
+    const container = document.getElementById('climateData');
+    const env = currentSea.environment;
     
-    // Get relevant routes
-    let routes = sea.tradeRoutes || [];
-    
-    // Also find global routes that pass through this sea
-    const globalRoutes = globalTradeRoutes.filter(route => {
-        if (route.chokepoints) {
-            return route.chokepoints.some(cp => 
-                sea.straits?.some(s => s.name.toLowerCase().includes(cp.name?.toLowerCase().split(' ')[0]))
-            );
-        }
-        return false;
-    });
-    
-    routes = [...routes, ...globalRoutes.slice(0, 3)];
-    
-    if (routes.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No trade route data available</p>';
+    if (!env) {
+        container.innerHTML = '<p class="no-data">No climate data available</p>';
         return;
     }
     
-    container.innerHTML = routes.map(route => {
-        const stats = route.statistics || {};
-        const routeType = route.type || 'container';
-        
-        return `
-            <div class="trade-route-card">
-                <div class="route-header">
-                    <span class="route-name">${route.name}</span>
-                    <span class="route-type ${routeType.split('-')[0]}">${routeType}</span>
+    let html = '';
+    
+    if (env.climate) {
+        html += `<div class="data-item"><span class="data-label">Climate Type</span><span class="data-value">${env.climate}</span></div>`;
+    }
+    if (env.waterTemp) {
+        html += `<div class="data-item"><span class="data-label">Water Temperature</span><span class="data-value">${env.waterTemp}</span></div>`;
+    }
+    if (env.salinity) {
+        html += `<div class="data-item"><span class="data-label">Salinity</span><span class="data-value">${env.salinity}</span></div>`;
+    }
+    if (env.typhoons) {
+        if (env.typhoons.season) {
+            html += `<div class="data-item"><span class="data-label">Typhoon Season</span><span class="data-value">${env.typhoons.season}</span></div>`;
+        }
+        if (env.typhoons.annualAverage) {
+            html += `<div class="data-item"><span class="data-label">Annual Typhoons</span><span class="data-value">${env.typhoons.annualAverage}</span></div>`;
+        }
+    }
+    if (env.seaLevelRise) {
+        if (env.seaLevelRise.rate) {
+            html += `<div class="data-item"><span class="data-label">Sea Level Rise</span><span class="data-value">${env.seaLevelRise.rate}</span></div>`;
+        }
+    }
+    
+    container.innerHTML = html || '<p class="no-data">No climate data available</p>';
+}
+
+function renderEconomic() {
+    const container = document.getElementById('economicData');
+    const econ = currentSea.economicImportance;
+    
+    if (!econ) {
+        container.innerHTML = '<p class="no-data">No economic data available</p>';
+        return;
+    }
+    
+    let html = '<div class="data-grid">';
+    
+    if (econ.overview) {
+        html += `<div class="data-item" style="grid-column: 1 / -1;"><span class="data-label">📊 Overview</span><span class="data-value">${econ.overview}</span></div>`;
+    }
+    if (econ.tradeValue) {
+        html += `<div class="data-item"><span class="data-label">💰 Annual Trade</span><span class="data-value" style="color: var(--shipping-gold);">${econ.tradeValue}</span></div>`;
+    }
+    if (econ.percentGlobalTrade) {
+        html += `<div class="data-item"><span class="data-label">🌍 Global Trade %</span><span class="data-value">${econ.percentGlobalTrade}%</span></div>`;
+    }
+    if (econ.percentAsianTrade) {
+        html += `<div class="data-item"><span class="data-label">🌏 Asian Trade %</span><span class="data-value">${econ.percentAsianTrade}%</span></div>`;
+    }
+    
+    // Fishing
+    if (econ.fishing) {
+        html += `<div class="data-item"><span class="data-label">🐟 Fish Catch</span><span class="data-value">${econ.fishing.annualCatch || econ.fishing.value || 'N/A'}</span></div>`;
+        if (econ.fishing.livelihoods) {
+            html += `<div class="data-item"><span class="data-label">👥 Fishing Jobs</span><span class="data-value">${econ.fishing.livelihoods}</span></div>`;
+        }
+    }
+    
+    // Tourism
+    if (econ.tourism) {
+        if (econ.tourism.value) {
+            html += `<div class="data-item"><span class="data-label">🏖️ Tourism Value</span><span class="data-value">${econ.tourism.value}</span></div>`;
+        }
+    }
+    
+    html += '</div>';
+    
+    // Major Ports
+    if (econ.majorPorts && econ.majorPorts.length > 0) {
+        html += `<h4 style="margin-top: var(--spacing-md); color: var(--accent-cyan);">🏗️ Major Ports</h4>`;
+        html += `<div style="display: flex; flex-wrap: wrap; gap: var(--spacing-xs); margin-top: var(--spacing-sm);">`;
+        econ.majorPorts.forEach(port => {
+            html += `<span style="background: rgba(0,180,216,0.2); padding: 4px 12px; border-radius: var(--radius-sm); font-size: 0.85rem;">
+                ${port.name} ${port.ranking ? `(${port.ranking})` : ''}
+            </span>`;
+        });
+        html += `</div>`;
+    }
+    
+    container.innerHTML = html;
+}
+
+function renderEnvironmental() {
+    const container = document.getElementById('environmentalData');
+    const env = currentSea.environment;
+    
+    if (!env) {
+        container.innerHTML = '<p class="no-data">No environmental data available</p>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Pollution
+    if (env.pollution) {
+        html += `<h4 style="color: #FF6B6B; margin-bottom: var(--spacing-sm);">⚠️ Pollution Issues</h4>`;
+        if (env.pollution.plastic) {
+            html += `<div class="data-item"><span class="data-label">Plastic Pollution</span><span class="data-value">${env.pollution.plastic}</span></div>`;
+        }
+        if (env.pollution.overfishing) {
+            html += `<div class="data-item"><span class="data-label">Overfishing</span><span class="data-value">${env.pollution.overfishing}</span></div>`;
+        }
+        if (env.pollution.chemicalPollution) {
+            html += `<div class="data-item"><span class="data-label">Chemical Pollution</span><span class="data-value">${env.pollution.chemicalPollution}</span></div>`;
+        }
+        if (env.pollution.dredging) {
+            html += `<div class="data-item"><span class="data-label">Dredging Impact</span><span class="data-value">${env.pollution.dredging}</span></div>`;
+        }
+    }
+    
+    // Coral Reefs
+    if (env.coralReefs) {
+        html += `<h4 style="color: var(--accent-cyan); margin: var(--spacing-md) 0 var(--spacing-sm);">🪸 Coral Reef Status</h4>`;
+        if (env.coralReefs.area) {
+            html += `<div class="data-item"><span class="data-label">Reef Area</span><span class="data-value">${env.coralReefs.area}</span></div>`;
+        }
+        if (env.coralReefs.health) {
+            html += `<div class="data-item"><span class="data-label">Health Status</span><span class="data-value">${env.coralReefs.health}</span></div>`;
+        }
+        if (env.coralReefs.threats && Array.isArray(env.coralReefs.threats)) {
+            html += `<div class="data-item"><span class="data-label">Threats</span><span class="data-value" style="color: #FF6B6B;">${env.coralReefs.threats.join(', ')}</span></div>`;
+        }
+    }
+    
+    container.innerHTML = html || '<p class="no-data">No environmental data available</p>';
+}
+
+function renderExploration() {
+    const container = document.getElementById('explorationData');
+    const history = currentSea.history;
+    
+    if (!history) {
+        container.innerHTML = '<p class="no-data">No exploration data available</p>';
+        return;
+    }
+    
+    let html = '';
+    
+    if (typeof history === 'object') {
+        html = Object.entries(history).map(([key, value]) => `
+            <div class="data-item" style="margin-bottom: var(--spacing-sm);">
+                <span class="data-label">${formatKey(key)}</span>
+                <span class="data-value">${value}</span>
+            </div>
+        `).join('');
+    } else {
+        html = `<p>${history}</p>`;
+    }
+    
+    container.innerHTML = html;
+}
+
+function renderGeopolitics() {
+    const container = document.getElementById('geopoliticsData');
+    const geo = currentSea.geopolitics;
+    
+    if (!geo) {
+        container.innerHTML = '<p class="no-data">No geopolitical data available</p>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Strategic Info
+    html += `<div class="data-grid">`;
+    if (geo.strategicImportance) {
+        html += `<div class="data-item"><span class="data-label">Strategic Importance</span><span class="data-value" style="color: #FF6B6B;">${geo.strategicImportance}</span></div>`;
+    }
+    if (geo.conflictLevel) {
+        html += `<div class="data-item"><span class="data-label">Conflict Level</span><span class="data-value">${geo.conflictLevel}</span></div>`;
+    }
+    if (geo.warRisk) {
+        html += `<div class="data-item"><span class="data-label">War Risk</span><span class="data-value">${geo.warRisk}</span></div>`;
+    }
+    html += `</div>`;
+    
+    // Nine Dash Line (for South China Sea)
+    if (geo.nineDashLine) {
+        html += `
+            <div style="background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: var(--radius-md); padding: var(--spacing-md); margin-top: var(--spacing-md);">
+                <h4 style="color: #FF6B6B; margin-bottom: var(--spacing-sm);">📍 Nine-Dash Line Claim</h4>
+                <p style="color: var(--text-muted); margin-bottom: var(--spacing-xs);">${geo.nineDashLine.description}</p>
+                <p style="color: var(--text-muted);"><strong>Area:</strong> ${geo.nineDashLine.area}</p>
+            </div>
+        `;
+    }
+    
+    // Tribunal Ruling
+    if (geo.tribunalRuling2016) {
+        html += `
+            <div style="background: rgba(0, 180, 216, 0.1); border: 1px solid rgba(0, 180, 216, 0.3); border-radius: var(--radius-md); padding: var(--spacing-md); margin-top: var(--spacing-md);">
+                <h4 style="color: var(--accent-cyan); margin-bottom: var(--spacing-sm);">⚖️ 2016 Tribunal Ruling</h4>
+                <p style="color: var(--text-muted); margin-bottom: var(--spacing-xs);"><strong>Case:</strong> ${geo.tribunalRuling2016.case}</p>
+                <p style="color: var(--text-muted); margin-bottom: var(--spacing-xs);"><strong>Date:</strong> ${geo.tribunalRuling2016.date}</p>
+                ${geo.tribunalRuling2016.keyRulings ? `
+                    <ul style="color: var(--text-muted); padding-left: var(--spacing-md); margin-top: var(--spacing-sm);">
+                        ${geo.tribunalRuling2016.keyRulings.map(r => `<li>${r}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            </div>
+        `;
+    }
+    
+    // Artificial Islands
+    if (geo.artificialIslands) {
+        html += `
+            <div style="background: rgba(255, 165, 0, 0.1); border: 1px solid rgba(255, 165, 0, 0.3); border-radius: var(--radius-md); padding: var(--spacing-md); margin-top: var(--spacing-md);">
+                <h4 style="color: #FFA500; margin-bottom: var(--spacing-sm);">🏝️ Artificial Islands</h4>
+                ${geo.artificialIslands.chinaBuilt ? `<p style="color: var(--text-muted);"><strong>Area Created:</strong> ${geo.artificialIslands.chinaBuilt}</p>` : ''}
+                ${geo.artificialIslands.cost ? `<p style="color: var(--text-muted);"><strong>Estimated Cost:</strong> ${geo.artificialIslands.cost}</p>` : ''}
+            </div>
+        `;
+    }
+    
+    // Incidents Timeline
+    if (geo.incidents && geo.incidents.length > 0) {
+        html += `
+            <h4 style="color: var(--accent-cyan); margin: var(--spacing-lg) 0 var(--spacing-md);">📅 Major Incidents</h4>
+            <div style="border-left: 2px solid var(--accent-cyan); padding-left: var(--spacing-md);">
+        `;
+        geo.incidents.slice(0, 5).forEach(incident => {
+            html += `
+                <div style="margin-bottom: var(--spacing-md);">
+                    <span style="color: var(--accent-cyan); font-weight: 600;">${incident.year}</span>
+                    <p style="color: var(--text-light); margin: var(--spacing-xs) 0;">${incident.event}</p>
+                    ${incident.casualties ? `<span style="color: #FF6B6B; font-size: 0.85rem;">Casualties: ${incident.casualties}</span>` : ''}
                 </div>
+            `;
+        });
+        html += `</div>`;
+    }
+    
+    container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RIGHT COLUMN - TRADE & GEOPOLITICS
+// ═══════════════════════════════════════════════════════════
+
+function renderTradeRoutes() {
+    const container = document.getElementById('tradeRoutesContainer');
+    
+    // Get trade routes that pass through this sea
+    const routes = globalTradeRoutes?.filter(route => 
+        route.seas?.includes(currentSea.id) || 
+        route.passesThrough?.includes(currentSea.name)
+    ) || [];
+    
+    if (routes.length === 0) {
+        // Use shipping data from the sea itself
+        const shipping = currentSea.economicImportance?.shipping;
+        if (shipping) {
+            container.innerHTML = `
+                <div class="trade-route-card">
+                    <div class="route-header">
+                        <span class="route-name">Major Shipping Lanes</span>
+                    </div>
+                    <div style="color: var(--text-muted);">
+                        ${shipping.routes ? `<p><strong>Routes:</strong> ${shipping.routes}</p>` : ''}
+                        ${shipping.oilTransit ? `<p><strong>Oil Transit:</strong> ${shipping.oilTransit}</p>` : ''}
+                        ${shipping.chinaOil ? `<p>• China: ${shipping.chinaOil}</p>` : ''}
+                        ${shipping.japanOil ? `<p>• Japan: ${shipping.japanOil}</p>` : ''}
+                        ${shipping.koreaOil ? `<p>• South Korea: ${shipping.koreaOil}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = '<p class="no-data">No trade route data available</p>';
+        }
+        return;
+    }
+    
+    container.innerHTML = routes.map(route => `
+        <div class="trade-route-card">
+            <div class="route-header">
+                <span class="route-name">${route.name}</span>
+                <span class="route-type ${route.type || 'container'}">${route.type || 'General'}</span>
+            </div>
+            ${route.statistics ? `
                 <div class="route-stats">
-                    ${stats.annualValue ? `
+                    ${route.statistics.annualValue ? `
                         <div class="route-stat">
-                            <span class="route-stat-value">${stats.annualValue}</span>
+                            <span class="route-stat-value">${route.statistics.annualValue}</span>
                             <span class="route-stat-label">Annual Value</span>
                         </div>
                     ` : ''}
-                    ${stats.dailyBarrels ? `
+                    ${route.statistics.percentGlobalTrade ? `
                         <div class="route-stat">
-                            <span class="route-stat-value">${formatNumber(stats.dailyBarrels)}</span>
-                            <span class="route-stat-label">Barrels/Day</span>
-                        </div>
-                    ` : ''}
-                    ${stats.annualVolume ? `
-                        <div class="route-stat">
-                            <span class="route-stat-value">${stats.annualVolume}</span>
-                            <span class="route-stat-label">Volume</span>
-                        </div>
-                    ` : ''}
-                    ${stats.ships ? `
-                        <div class="route-stat">
-                            <span class="route-stat-value">${stats.ships}</span>
-                            <span class="route-stat-label">Ships</span>
+                            <span class="route-stat-value">${route.statistics.percentGlobalTrade}%</span>
+                            <span class="route-stat-label">Global Trade</span>
                         </div>
                     ` : ''}
                 </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function populateChokepoints(sea) {
-    const container = document.getElementById('chokepointsContainer');
-    if (!container || !sea.straits) return;
-    
-    container.innerHTML = sea.straits.map(strait => {
-        const globalCP = globalChokepoints.find(cp => 
-            cp.name.toLowerCase().includes(strait.name.toLowerCase().split(' ')[0])
-        );
-        
-        const risks = globalCP?.risks || [];
-        
-        return `
-            <div class="chokepoint-card">
-                <div class="chokepoint-name">
-                    <span>⚠️</span>
-                    <span>${strait.name}</span>
-                </div>
-                <div class="chokepoint-stats">
-                    <div class="cp-stat">
-                        <span class="cp-stat-value">${strait.width} km</span>
-                        <span class="cp-stat-label">Width</span>
-                    </div>
-                    ${strait.annualShips ? `
-                        <div class="cp-stat">
-                            <span class="cp-stat-value">${formatNumber(strait.annualShips)}</span>
-                            <span class="cp-stat-label">Ships/Year</span>
-                        </div>
-                    ` : ''}
-                    ${globalCP?.traffic?.dailyOilBarrels ? `
-                        <div class="cp-stat">
-                            <span class="cp-stat-value">${(globalCP.traffic.dailyOilBarrels / 1000000).toFixed(1)}M</span>
-                            <span class="cp-stat-label">Barrels/Day</span>
-                        </div>
-                    ` : ''}
-                </div>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 10px 0 0 0;">${strait.importance}</p>
-                ${risks.length ? `
-                    <div class="risk-list">
-                        ${risks.slice(0, 4).map(risk => `<span class="risk-tag">${risk}</span>`).join('')}
-                    </div>
-                ` : ''}
-            </div>
-        `;
-    }).join('');
-}
-
-function populateCountryImportance(sea) {
-    const container = document.getElementById('countryImportanceContainer');
-    if (!container || !sea.geopolitics?.countryImportance) return;
-    
-    const countries = sea.geopolitics.countryImportance;
-    const countryFlags = {
-        'china': '🇨🇳',
-        'usa': '🇺🇸',
-        'unitedStates': '🇺🇸',
-        'japan': '🇯🇵',
-        'vietnam': '🇻🇳',
-        'philippines': '🇵🇭',
-        'taiwan': '🇹🇼',
-        'india': '🇮🇳',
-        'russia': '🇷🇺',
-        'uk': '🇬🇧',
-        'france': '🇫🇷',
-        'germany': '🇩🇪'
-    };
-    
-    container.innerHTML = Object.entries(countries).map(([key, data]) => {
-        const flag = countryFlags[key] || '🏳️';
-        const name = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-        
-        return `
-            <div class="country-card">
-                <div class="country-header">
-                    <span class="country-flag">${flag}</span>
-                    <span class="country-name">${name}</span>
-                    <span class="importance-level ${data.importance?.toLowerCase().replace(' ', '-')}">${data.importance}</span>
-                </div>
-                <ul class="country-reasons">
-                    ${data.reasons?.map(r => `<li>${r}</li>`).join('') || ''}
-                </ul>
-                ${data.strategy ? `<p style="color: var(--accent-cyan); font-size: 0.85rem; margin-top: 10px;"><strong>Strategy:</strong> ${data.strategy}</p>` : ''}
-            </div>
-        `;
-    }).join('');
-}
-
-function populateGeopoliticalIssues(sea) {
-    const container = document.getElementById('issuesContainer');
-    if (!container) return;
-    
-    const issues = sea.geopolitics?.issues || sea.geopolitics?.territorialDisputes || [];
-    
-    if (issues.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No current issues data available</p>';
-        return;
-    }
-    
-    container.innerHTML = issues.slice(0, 6).map(issue => {
-        const parties = issue.parties || issue.claimants || [];
-        
-        return `
-            <div class="issue-card">
-                <div class="issue-name">${issue.name}</div>
-                ${parties.length ? `
-                    <div class="issue-parties">
-                        ${parties.map(p => `<span class="party-tag">${typeof p === 'string' ? p : p.name || p}</span>`).join('')}
-                    </div>
-                ` : ''}
-                <p class="issue-description">${issue.description || issue.status || issue.basis || ''}</p>
-            </div>
-        `;
-    }).join('');
-}
-
-function populateNavalPresence(sea) {
-    const container = document.getElementById('navalContainer');
-    if (!container) return;
-    
-    const naval = sea.geopolitics?.navalPresences || 
-                  sea.geopolitics?.militaryPresence?.regional || 
-                  sea.geopolitics?.navalBases ||
-                  [];
-    
-    if (naval.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No naval presence data available</p>';
-        return;
-    }
-    
-    container.innerHTML = naval.map(n => `
-        <div class="naval-card">
-            <div class="naval-country">${n.country}</div>
-            <div class="naval-base">${n.base || n.location || 'Various'}</div>
-            <div class="naval-purpose">${n.purpose || n.assets || ''}</div>
+            ` : ''}
         </div>
     `).join('');
 }
 
-function populateFunFacts(sea) {
-    const container = document.getElementById('funFactsContainer');
-    if (!container || !sea.funFacts) return;
+function renderChokepoints() {
+    const container = document.getElementById('chokepointsContainer');
     
-    container.innerHTML = sea.funFacts.map(fact => `
+    // Use straits from the sea as chokepoints
+    const straits = currentSea.straits?.filter(s => s.chokepoint || s.annualShips > 50000) || [];
+    
+    // Also check global chokepoints
+    const globalCPs = globalChokepoints?.filter(cp => 
+        cp.seaId === currentSea.id || 
+        cp.location?.includes(currentSea.name)
+    ) || [];
+    
+    const chokepoints = [...straits, ...globalCPs];
+    
+    if (chokepoints.length === 0) {
+        container.innerHTML = '<p class="no-data">No chokepoint data available</p>';
+        return;
+    }
+    
+    container.innerHTML = chokepoints.map(cp => `
+        <div class="chokepoint-card">
+            <div class="chokepoint-name">
+                <i class="fas fa-exclamation-triangle"></i>
+                ${cp.name}
+            </div>
+            <div class="chokepoint-stats">
+                ${cp.width ? `
+                    <div class="cp-stat">
+                        <span class="cp-stat-value">${cp.width} km</span>
+                        <span class="cp-stat-label">Width</span>
+                    </div>
+                ` : ''}
+                ${cp.annualShips ? `
+                    <div class="cp-stat">
+                        <span class="cp-stat-value">${formatNumber(cp.annualShips)}</span>
+                        <span class="cp-stat-label">Ships/Year</span>
+                    </div>
+                ` : ''}
+                ${cp.oilBarrels || cp.dailyOilBarrels ? `
+                    <div class="cp-stat">
+                        <span class="cp-stat-value">${formatNumber((cp.oilBarrels || cp.dailyOilBarrels) / 1000000)}M</span>
+                        <span class="cp-stat-label">Barrels/Day</span>
+                    </div>
+                ` : ''}
+            </div>
+            ${cp.significance ? `<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: var(--spacing-sm);">${cp.significance}</p>` : ''}
+        </div>
+    `).join('');
+}
+
+function renderCountryImportance() {
+    const container = document.getElementById('countryImportanceContainer');
+    const countryImportance = currentSea.geopolitics?.countryImportance;
+    
+    if (!countryImportance) {
+        container.innerHTML = '<p class="no-data">No country importance data available</p>';
+        return;
+    }
+    
+    const flagEmojis = {
+        china: '🇨🇳', usa: '🇺🇸', japan: '🇯🇵', vietnam: '🇻🇳',
+        philippines: '🇵🇭', malaysia: '🇲🇾', indonesia: '🇮🇩',
+        taiwan: '🇹🇼', india: '🇮🇳', australia: '🇦🇺', asean: '🌏'
+    };
+    
+    container.innerHTML = Object.entries(countryImportance).map(([country, data]) => `
+        <div class="country-card">
+            <div class="country-header">
+                <span class="country-flag">${flagEmojis[country.toLowerCase()] || '🏳️'}</span>
+                <span class="country-name">${formatKey(country)}</span>
+                <span class="importance-level ${data.importance?.toLowerCase().replace(' ', '-') || 'high'}">${data.importance || 'Important'}</span>
+            </div>
+            ${data.reasons && Array.isArray(data.reasons) ? `
+                <ul class="country-reasons">
+                    ${data.reasons.slice(0, 4).map(reason => `<li>${reason}</li>`).join('')}
+                </ul>
+            ` : ''}
+            ${data.strategy ? `<p style="color: var(--accent-cyan); font-size: 0.85rem; margin-top: var(--spacing-sm);"><strong>Strategy:</strong> ${data.strategy}</p>` : ''}
+        </div>
+    `).join('');
+}
+
+function renderIssues() {
+    const container = document.getElementById('issuesContainer');
+    const disputes = currentSea.geopolitics?.territorialDisputes;
+    
+    if (!disputes || disputes.length === 0) {
+        container.innerHTML = '<p class="no-data">No current issues data available</p>';
+        return;
+    }
+    
+    container.innerHTML = disputes.map(dispute => `
+        <div class="issue-card">
+            <div class="issue-name">${dispute.name}</div>
+            ${dispute.claimants ? `
+                <div class="issue-parties">
+                    ${dispute.claimants.map(c => `<span class="party-tag">${c}</span>`).join('')}
+                </div>
+            ` : ''}
+            <p class="issue-description">${dispute.description || dispute.status || ''}</p>
+        </div>
+    `).join('');
+}
+
+function renderNavalPresence() {
+    const container = document.getElementById('navalContainer');
+    const navalPresences = currentSea.geopolitics?.navalPresences;
+    
+    if (!navalPresences || navalPresences.length === 0) {
+        container.innerHTML = '<p class="no-data">No naval presence data available</p>';
+        return;
+    }
+    
+    container.innerHTML = navalPresences.map(presence => `
+        <div class="naval-card">
+            <div class="naval-country">${presence.country}</div>
+            <div class="naval-base">${presence.base}</div>
+            <div class="naval-purpose">${presence.purpose}</div>
+            ${presence.assets ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--spacing-xs);">Assets: ${presence.assets}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+function renderFunFacts() {
+    const container = document.getElementById('funFactsContainer');
+    
+    if (!currentSea.funFacts || currentSea.funFacts.length === 0) {
+        container.innerHTML = '<p class="no-data">No fun facts available</p>';
+        return;
+    }
+    
+    container.innerHTML = currentSea.funFacts.map(fact => `
         <div class="fun-fact-card">
             <p class="fun-fact-text">${fact}</p>
         </div>
@@ -1267,90 +785,100 @@ function populateFunFacts(sea) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// QUICK FACTS & NAVIGATION
+// MAP
 // ═══════════════════════════════════════════════════════════
 
-function setupQuickFacts(sea) {
-    const panel = document.getElementById('quickFactsPanel');
-    const toggle = document.getElementById('qfToggle');
+function initMap() {
+    const coords = currentSea.coordinates || [0, 0];
+    const zoom = currentSea.defaultZoom || 5;
     
-    if (!panel) return;
+    seaMap = L.map('seaMap').setView(coords, zoom);
     
-    const qfArea = document.getElementById('qfArea');
-    const qfDepth = document.getElementById('qfDepth');
-    const qfTrade = document.getElementById('qfTrade');
-    const qfShips = document.getElementById('qfShips');
-    const qfRisk = document.getElementById('qfRisk');
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+    }).addTo(seaMap);
     
-    if (qfArea) qfArea.textContent = (sea.area / 1000000).toFixed(1) + 'M km²';
-    if (qfDepth) qfDepth.textContent = formatNumber(sea.maxDepth) + 'm';
-    if (qfTrade) qfTrade.textContent = sea.economicImportance?.tradeValue || 'N/A';
-    if (qfShips) qfShips.textContent = sea.straits?.[0]?.annualShips ? formatNumber(sea.straits[0].annualShips) : 'N/A';
-    if (qfRisk) qfRisk.textContent = sea.geopolitics?.conflictLevel?.split(' ')[0] || 'Medium';
+    // Add sea marker
+    L.marker(coords)
+        .addTo(seaMap)
+        .bindPopup(`<strong>${currentSea.name}</strong><br>${currentSea.parentOcean}`);
     
-    if (toggle) {
-        toggle.addEventListener('click', () => {
-            panel.classList.toggle('collapsed');
+    // Add port markers
+    if (currentSea.economicImportance?.majorPorts) {
+        currentSea.economicImportance.majorPorts.forEach(port => {
+            if (port.coordinates) {
+                L.circleMarker(port.coordinates, {
+                    radius: 6,
+                    fillColor: '#00B4D8',
+                    color: '#fff',
+                    weight: 1,
+                    fillOpacity: 0.8
+                }).addTo(seaMap).bindPopup(`<strong>🏗️ ${port.name}</strong><br>${port.country}<br>${port.containers || ''}`);
+            }
         });
     }
 }
 
-function setupSeaNavigation(currentSea) {
-    const prevBtn = document.getElementById('prevSea');
-    const nextBtn = document.getElementById('nextSea');
-    const prevName = document.getElementById('prevSeaName');
-    const nextName = document.getElementById('nextSeaName');
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+
+function renderNavigation() {
+    const prevIndex = currentSeaIndex > 0 ? currentSeaIndex - 1 : seasData.length - 1;
+    const nextIndex = currentSeaIndex < seasData.length - 1 ? currentSeaIndex + 1 : 0;
     
-    const currentIndex = seasData.findIndex(s => s.id === currentSea.id);
-    const prevIndex = (currentIndex - 1 + seasData.length) % seasData.length;
-    const nextIndex = (currentIndex + 1) % seasData.length;
+    document.getElementById('prevSeaName').textContent = seasData[prevIndex].name;
+    document.getElementById('nextSeaName').textContent = seasData[nextIndex].name;
     
-    const prevSea = seasData[prevIndex];
-    const nextSea = seasData[nextIndex];
+    document.getElementById('prevSea').onclick = () => {
+        window.location.href = `seas-profile.html?id=${seasData[prevIndex].id}`;
+    };
     
-    if (prevName) prevName.textContent = prevSea.name;
-    if (nextName) nextName.textContent = nextSea.name;
+    document.getElementById('nextSea').onclick = () => {
+        window.location.href = `seas-profile.html?id=${seasData[nextIndex].id}`;
+    };
     
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            window.location.href = `seas-profile.html?id=${prevSea.id}`;
-        });
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            window.location.href = `seas-profile.html?id=${nextSea.id}`;
-        });
-    }
-    
-    // Create nav dots
-    const navDots = document.getElementById('navDots');
-    if (navDots) {
-        navDots.innerHTML = seasData.slice(0, 10).map((sea, i) => `
-            <span class="nav-dot ${sea.id === currentSea.id ? 'active' : ''}" 
-                  data-sea="${sea.id}" 
-                  title="${sea.name}"></span>
-        `).join('');
-        
-        navDots.querySelectorAll('.nav-dot').forEach(dot => {
-            dot.addEventListener('click', () => {
-                window.location.href = `seas-profile.html?id=${dot.dataset.sea}`;
-            });
-        });
-    }
+    // Nav dots
+    const dotsContainer = document.getElementById('navDots');
+    dotsContainer.innerHTML = seasData.map((sea, index) => `
+        <button class="nav-dot ${index === currentSeaIndex ? 'active' : ''}" 
+                onclick="window.location.href='seas-profile.html?id=${sea.id}'"
+                title="${sea.name}"></button>
+    `).join('');
 }
 
-function setupTreeNodes() {
+// ═══════════════════════════════════════════════════════════
+// TREE TOGGLES
+// ═══════════════════════════════════════════════════════════
+
+function setupTreeToggles() {
     const nodes = document.querySelectorAll('.tree-node');
     
     nodes.forEach(node => {
         const header = node.querySelector('.node-header');
-        if (header) {
-            header.addEventListener('click', () => {
-                node.classList.toggle('expanded');
-            });
-        }
+        
+        header.addEventListener('click', () => {
+            node.classList.toggle('expanded');
+        });
     });
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUICK FACTS PANEL
+// ═══════════════════════════════════════════════════════════
+
+function setupQuickFactsPanel() {
+    const panel = document.getElementById('quickFactsPanel');
+    const toggle = document.getElementById('qfToggle');
+    
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            panel.classList.toggle('collapsed');
+            toggle.querySelector('i').classList.toggle('fa-chevron-up');
+            toggle.querySelector('i').classList.toggle('fa-chevron-down');
+        });
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1358,10 +886,15 @@ function setupTreeNodes() {
 // ═══════════════════════════════════════════════════════════
 
 function formatNumber(num) {
-    if (num === undefined || num === null) return '0';
+    if (!num) return '0';
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-// Export for global access
-window.SeasApp = SeasApp;
-window.initSeaProfile = initSeaProfile;
+function formatKey(key) {
+    return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+}
+
+console.log('🌊 Seas Profile App Loaded!');
