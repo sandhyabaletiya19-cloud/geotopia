@@ -15,7 +15,7 @@
         deserts: 7,
         volcanoes: 7,
         islands: 7,
-        coralReefs: 7,
+        coral-reefs: 7,
         encyclopedia: 7,
         upsc: 7,
         games: 7,
