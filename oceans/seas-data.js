@@ -2549,7 +2549,7 @@ const seasData = [
                     country: 'USA', 
                     other: 'Roosevelt Roads (closed 2004), JIATF South (Key West)',
                     purpose: 'Drug interdiction, regional operations',
-                    4thFleet: 'Reactivated 2008'
+                    Fleet4th: 'Reactivated 2008'
                 },
                 { 
                     country: 'Netherlands', 
