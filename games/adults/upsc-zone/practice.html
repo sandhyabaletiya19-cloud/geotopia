@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPSC Practice Mode</title>
+  <link rel="stylesheet" href="../styles/adult-dark.css">
+  <style>
+    body {
+      background: #000000;
+    }
+
+    .practice-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .topic-selector {
+      background: var(--deep-grey);
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .topic-btn {
+      background: #1a1a1a;
+      border: 2px solid #333;
+      color: var(--text-secondary);
+      padding: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    .topic-btn:hover {
+      border-color: var(--electric-blue);
+      background: #222;
+    }
+
+    .topic-btn.selected {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--gold);
+    }
+
+    .topic-btn .topic-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .topic-btn .topic-stats {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .question-card {
+      background: var(--deep-grey);
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 40px;
+      margin: 30px 0;
+      min-height: 500px;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #333;
+    }
+
+    .question-number {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .bookmark-btn {
+      background: transparent;
+      border: 2px solid #333;
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .bookmark-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .bookmark-btn.bookmarked {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--gold);
+    }
+
+    .question-text {
+      font-size: 24px;
+      line-height: 1.8;
+      margin: 30px 0;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .option {
+      background: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .option:hover {
+      border-color: var(--electric-blue);
+      background: #222;
+      transform: translateX(4px);
+    }
+
+    .option.selected {
+      border-color: var(--electric-blue);
+      background: rgba(0, 208, 255, 0.1);
+    }
+
+    .option.correct {
+      border-color: var(--success-green);
+      background: rgba(0, 255, 136, 0.1);
+      animation: correctPulse 0.5s ease;
+    }
+
+    .option.wrong {
+      border-color: var(--blood-red);
+      background: rgba(255, 0, 51, 0.1);
+      animation: shake 0.4s ease;
+    }
+
+    .option.disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .option-label {
+      width: 40px;
+      height: 40px;
+      background: var(--deep-grey);
+      border: 2px solid #444;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .option.correct .option-label {
+      background: var(--success-green);
+      border-color: var(--success-green);
+      color: #000;
+    }
+
+    .option.wrong .option-label {
+      background: var(--blood-red);
+      border-color: var(--blood-red);
+      color: #fff;
+    }
+
+    .explanation-box {
+      background: rgba(212, 175, 55, 0.05);
+      border-left: 4px solid var(--gold);
+      padding: 24px;
+      margin: 30px 0;
+      border-radius: 8px;
+      display: none;
+      animation: slideDown 0.4s ease;
+    }
+
+    .explanation-box.show {
+      display: block;
+    }
+
+    .explanation-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .explanation-text {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 40px;
+      gap: 16px;
+    }
+
+    .progress-indicator {
+      text-align: center;
+      margin: 30px 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #1a1a1a;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--electric-blue));
+      transition: width 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="practice-container">
+    
+    <!-- Header Stats -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-value" id="sessionScore">0</div>
+        <div class="stat-label">Session Score</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="sessionAccuracy">0%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="questionsAttempted">0</div>
+        <div class="stat-label">Attempted</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="currentStreak">0</div>
+        <div class="stat-label">Streak</div>
+      </div>
+    </div>
+
+    <!-- Topic Selector -->
+    <div class="topic-selector" id="topicSelector">
+      <h3 style="font-size: 20px; margin-bottom: 20px; color: var(--text-primary);">Select Topics (Multiple allowed)</h3>
+      
+      <div class="topic-grid" id="topicGrid">
+        <!-- Topics will be inserted here -->
+      </div>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <button class="btn btn-primary" onclick="startPractice()" style="padding: 16px 40px;">
+          Start Practice Session
+        </button>
+      </div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="question-card" id="questionCard" style="display: none;">
+      
+      <div class="question-header">
+        <div>
+          <div class="question-number" id="questionNumber">Question 1</div>
+          <div style="font-size: 12px; color: var(--electric-blue); margin-top: 4px;" id="topicLabel">Topic</div>
+        </div>
+        <button class="bookmark-btn" id="bookmarkBtn" onclick="toggleBookmark()">☆</button>
+      </div>
+
+      <div class="progress-indicator">
+        <span id="progressText">Progress: 0/20</span>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="question-text" id="questionText">
+        Loading question...
+      </div>
+
+      <div class="options" id="optionsContainer">
+        <!-- Options will be inserted here -->
+      </div>
+
+      <div class="explanation-box" id="explanationBox">
+        <div class="explanation-title">📚 Explanation</div>
+        <div class="explanation-text" id="explanationText"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn back-btn" onclick="location.href='index.html'">← Back to UPSC Hub</button>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn" id="checkBtn" onclick="checkAnswer()">Check Answer</button>
+          <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display: none;">Next Question →</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="tracking.js"></script>
+  <script src="practice.js"></script>
+
+</body>
+</html>
