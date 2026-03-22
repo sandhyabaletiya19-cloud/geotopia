@@ -1187,7 +1187,7 @@ const MOUNTAINS_DATA_7_PART_C = [
     },
 
        // 70. Mount Ararat (CONTINUING FROM WHERE IT CUT OFF)
-    
+    {
         totalAscents: 10000,
         fatalities: 25,
         successRate: '80%',
