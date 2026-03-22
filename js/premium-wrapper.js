@@ -4,7 +4,13 @@
 // ========================================
 
 (function() {
-    
+    function getBasePath() {
+        var path = window.location.pathname;
+        if (path.includes('/geotopia/')) {
+            return '/geotopia/';
+        }
+        return '/';
+    }
     // CONFIGURATION - FREE LIMITS PER CATEGORY
     var FREE_LIMITS = {
         mountains: 7,
@@ -640,7 +646,7 @@
 
         // Upgrade button - GO TO PRICING PAGE (ROOT LEVEL)
         document.getElementById('purple-upgrade-btn').onclick = function() {
-            window.location.href = window.location.origin + '/pricing.html';
+           window.location.href = getBasePath() + 'pricing.html';
         };
 
         // ESC key
