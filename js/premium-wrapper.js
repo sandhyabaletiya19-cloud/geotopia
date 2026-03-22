@@ -1,6 +1,6 @@
 // ========================================
-// 💜 PREMIUM WRAPPER - FINAL FIX
-// Only targets DIRECT children (no nested)
+// 💜 PREMIUM WRAPPER - PERSISTENT FIX
+// Watches for new content continuously
 // ========================================
 
 (function() {
@@ -30,7 +30,8 @@
 
     var currentCategory = null;
     var freeItemsList = [];
-    var hasRun = false;
+    var observer = null;
+    var processingTimeout = null;
 
     // ==========================================
     // STYLES
@@ -104,28 +105,24 @@
     // ==========================================
     
     function init() {
-        if (hasRun) return;
-        
         currentCategory = detectCategory();
         if (!currentCategory) {
-            console.log('💜 No category');
+            console.log('💜 No category detected');
             return;
         }
         
         console.log('💜 Category:', currentCategory);
         
         if (isUserPremium()) {
-            console.log('👑 Premium user');
+            console.log('👑 Premium user - no locks needed');
             return;
         }
         
         addStyles();
         loadFreeItems();
-        cleanAll();
-        applyLocks();
+        processContent();
+        startObserver(); // ⭐ KEY FIX: Start watching for changes
         watchFilters();
-        
-        hasRun = true;
     }
 
     function isUserPremium() {
@@ -148,6 +145,33 @@
         if (url.includes('upsc')) return 'upsc';
         if (url.includes('encyclopedia') || url.includes('countr')) return 'encyclopedia';
         return null;
+    }
+
+    // ==========================================
+    // ⭐ MUTATION OBSERVER - WATCHES FOR CHANGES
+    // ==========================================
+
+    function startObserver() {
+        if (observer) {
+            observer.disconnect();
+        }
+
+        observer = new MutationObserver(function(mutations) {
+            // Debounce: wait 300ms after last change
+            clearTimeout(processingTimeout);
+            processingTimeout = setTimeout(function() {
+                console.log('💜 Content changed, reprocessing...');
+                processContent();
+            }, 300);
+        });
+
+        // Watch the entire body for changes
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        console.log('💜 Observer started - watching for new content');
     }
 
     // ==========================================
@@ -182,60 +206,43 @@
     }
 
     // ==========================================
-    // CLEAN ALL
+    // PROCESS CONTENT - Main Logic
     // ==========================================
 
-    function cleanAll() {
-        document.querySelectorAll('.geo-sash, .geo-heart, .geo-free, .geo-upgrade-cta').forEach(function(el) {
-            el.remove();
-        });
-        
-        document.querySelectorAll('.geo-locked, .geo-done').forEach(function(el) {
-            el.classList.remove('geo-locked', 'geo-done');
-            el.onclick = null;
-        });
-    }
-
-    // ==========================================
-    // APPLY LOCKS - ONLY DIRECT CHILDREN
-    // ==========================================
-
-    function applyLocks() {
+    function processContent() {
         var container = findContainer();
         if (!container) {
-            console.log('💜 No container');
             return;
         }
         
-        // ⭐ KEY FIX: Only get DIRECT children, not nested cards
         var directChildren = container.children;
         var cards = [];
         
         for (var i = 0; i < directChildren.length; i++) {
             var child = directChildren[i];
             
-            // Skip script, style, and our CTA
             if (child.tagName === 'SCRIPT' || 
                 child.tagName === 'STYLE' ||
-                child.classList.contains('geo-upgrade-cta') ||
-                child.classList.contains('geo-done')) {
+                child.classList.contains('geo-upgrade-cta')) {
                 continue;
             }
             
             cards.push(child);
         }
         
-        console.log('💜 Found', cards.length, 'DIRECT children (ignoring nested)');
-        
         if (cards.length === 0) return;
         
         var freeCount = 0;
         var lockedCount = 0;
         
+        // Remove old CTA
+        var oldCTA = container.querySelector('.geo-upgrade-cta');
+        if (oldCTA) oldCTA.remove();
+        
         for (var j = 0; j < cards.length; j++) {
             var card = cards[j];
             
-            // Skip if already done
+            // Skip if already processed
             if (card.classList.contains('geo-done')) continue;
             
             var name = getCardName(card);
@@ -259,13 +266,13 @@
             card.classList.add('geo-done');
         }
         
-        // Add CTA
+        // Add CTA if there are locked items
         if (lockedCount > 0) {
             var cta = createCTA(lockedCount, freeCount, cards.length);
             container.appendChild(cta);
         }
         
-        console.log('💜 Result:', freeCount, 'free,', lockedCount, 'locked');
+        console.log('💜 Processed:', freeCount, 'free,', lockedCount, 'locked');
     }
 
     function findContainer() {
@@ -281,8 +288,7 @@
         
         for (var i = 0; i < selectors.length; i++) {
             var el = document.querySelector(selectors[i]);
-            if (el && el.children.length > 2) {
-                console.log('💜 Container:', el.className);
+            if (el && el.children.length > 0) {
                 return el;
             }
         }
@@ -293,13 +299,11 @@
         var name = card.getAttribute('data-name') || card.getAttribute('data-title');
         if (name) return name;
         
-        // Get FIRST h2/h3 only (not from nested cards)
         var headings = card.querySelectorAll(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > .title, :scope > .name');
         if (headings.length > 0) {
             return headings[0].textContent.trim();
         }
         
-        // Try any heading but only first one
         var anyH = card.querySelector('h1, h2, h3, h4, h5');
         if (anyH) return anyH.textContent.trim();
         
@@ -311,6 +315,10 @@
     // ==========================================
 
     function makeCardFree(card) {
+        // Remove any existing badges first
+        var existingBadge = card.querySelector('.geo-free');
+        if (existingBadge) return; // Already done
+        
         card.style.position = 'relative';
         card.style.overflow = 'hidden';
         
@@ -321,23 +329,24 @@
     }
 
     function makeCardLocked(card) {
+        // Remove any existing locks first
+        var existingSash = card.querySelector('.geo-sash');
+        if (existingSash) return; // Already done
+        
         card.style.position = 'relative';
         card.style.overflow = 'hidden';
         card.classList.add('geo-locked');
         
-        // ONE sash only
         var sash = document.createElement('div');
         sash.className = 'geo-sash';
         sash.textContent = '💜 PREMIUM 💜';
         card.appendChild(sash);
         
-        // ONE heart only
         var heart = document.createElement('div');
         heart.className = 'geo-heart';
         heart.textContent = '💜';
         card.appendChild(heart);
         
-        // Click handler on the CARD
         card.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -354,7 +363,6 @@
             var t = e.target;
             var isFilter = false;
             
-            // Check if it's a filter button
             if (t.tagName === 'BUTTON' || t.tagName === 'A') {
                 if (t.className && (
                     t.className.includes('filter') || 
@@ -371,11 +379,11 @@
             if (isFilter) {
                 console.log('💜 Filter clicked');
                 setTimeout(function() {
-                    hasRun = false;
-                    cleanAll();
-                    loadFreeItems();
-                    applyLocks();
-                    hasRun = true;
+                    // Remove all geo-done classes to reprocess
+                    document.querySelectorAll('.geo-done').forEach(function(el) {
+                        el.classList.remove('geo-done');
+                    });
+                    processContent();
                 }, 500);
             }
         });
@@ -434,7 +442,7 @@
         };
         
         var cta = document.createElement('div');
-        cta.className = 'geo-upgrade-cta geo-done';
+        cta.className = 'geo-upgrade-cta';
         cta.style.cssText = 
             'grid-column:1/-1;background:linear-gradient(135deg,#7c3aed,#5b21b6);' +
             'border-radius:20px;padding:40px 25px;text-align:center;color:white;margin:25px 0;';
@@ -456,23 +464,15 @@
     // START
     // ==========================================
 
-    window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(init, 1000);
-    });
-    
-    window.addEventListener('load', function() {
-        setTimeout(init, 600);
-    });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        setTimeout(init, 500);
+    }
 
     window.GeoPremiumWrapper = {
         showMessage: showMessage,
-        reapply: function() {
-            hasRun = false;
-            cleanAll();
-            loadFreeItems();
-            applyLocks();
-            hasRun = true;
-        }
+        reapply: processContent
     };
 
 })();
