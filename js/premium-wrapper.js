@@ -289,152 +289,312 @@
     // APPLY LOCKS
     // ==========================================
 
-    function applyLocks() {
-        var container = findContainer();
-        if (!container) {
-            console.log('💜 No container found, retrying...');
-            setTimeout(function() {
-                var retryContainer = findContainer();
-                if (retryContainer) {
-                    processContainer(retryContainer);
-                }
-            }, 500);
-            return;
-        }
+    // ==========================================
+// APPLY LOCKS - FIXED VERSION
+// ==========================================
 
-        processContainer(container);
+function applyLocks() {
+    var container = findContainer();
+    if (!container) {
+        console.log('💜 No container found, retrying...');
+        setTimeout(function() {
+            var retryContainer = findContainer();
+            if (retryContainer) {
+                processContainer(retryContainer);
+            }
+        }, 500);
+        return;
     }
 
-    function processContainer(container) {
-        // Remove old CTA
-        var oldCTA = container.querySelector('.geo-upgrade-cta');
-        if (oldCTA) oldCTA.remove();
+    processContainer(container);
+}
 
-        // Find all cards
-        var allCards = findAllCards(container);
-        if (allCards.length === 0) {
-            console.log('💜 No cards found in container');
+function processContainer(container) {
+    // Check if already processed - PREVENTS DUPLICATE
+    if (container.getAttribute('data-geo-processed') === 'true') {
+        console.log('💜 Container already processed, skipping');
+        return;
+    }
+
+    // Mark as processing
+    container.setAttribute('data-geo-processing', 'true');
+
+    // Remove old CTA
+    var oldCTA = container.querySelector('.geo-upgrade-cta');
+    if (oldCTA) oldCTA.remove();
+
+    // Find all cards
+    var allCards = findAllCards(container);
+    if (allCards.length === 0) {
+        console.log('💜 No cards found in container');
+        container.removeAttribute('data-geo-processing');
+        return;
+    }
+
+    var freeLimit = FREE_LIMITS[currentCategory] || 7;
+    var lockedCount = 0;
+    var freeCount = 0;
+
+    console.log('💜 Processing', allCards.length, 'cards for', currentCategory);
+
+    allCards.forEach(function(card) {
+        // Skip if already processed - PREVENTS DUPLICATE
+        if (card.classList.contains('geo-processed')) {
             return;
         }
 
-        var freeLimit = FREE_LIMITS[currentCategory] || 5;
-        var lockedCount = 0;
-        var freeCount = 0;
+        // Skip CTA cards
+        if (card.classList.contains('geo-upgrade-cta')) {
+            return;
+        }
+        
+        cleanCard(card);
+        var itemName = getItemName(card);
+        var shouldBeFree = false;
 
-        console.log('💜 Processing', allCards.length, 'cards for', currentCategory);
+        if (itemName && isItemFree(itemName)) {
+            shouldBeFree = true;
+        } else if (canAddMoreFreeItems() && itemName) {
+            addFreeItem(itemName);
+            shouldBeFree = true;
+        }
 
-        allCards.forEach(function(card) {
-            if (card.classList.contains('geo-upgrade-cta')) return;
-            
-            cleanCard(card);
-            var itemName = getItemName(card);
-            var shouldBeFree = false;
+        if (shouldBeFree) {
+            makeFreeCard(card);
+            freeCount++;
+        } else {
+            makePurpleCard(card);
+            lockedCount++;
+        }
 
-            if (itemName && isItemFree(itemName)) {
-                shouldBeFree = true;
-            } else if (canAddMoreFreeItems() && itemName) {
-                addFreeItem(itemName);
-                shouldBeFree = true;
+        card.classList.add('geo-processed');
+    });
+
+    if (lockedCount > 0) {
+        var cta = createPurpleCTA(lockedCount, freeCount, allCards.length);
+        container.appendChild(cta);
+    }
+
+    // Mark as fully processed
+    container.setAttribute('data-geo-processed', 'true');
+    container.removeAttribute('data-geo-processing');
+
+    console.log('💜 Applied: ' + freeCount + ' free, ' + lockedCount + ' premium');
+}
+
+function getItemName(card) {
+    var name = card.getAttribute('data-name') || 
+               card.getAttribute('data-title') || 
+               card.getAttribute('data-id');
+    if (name) return name;
+
+    var titleEl = card.querySelector('h1, h2, h3, h4, h5, .title, .name, .card-title, .item-title, .game-title, .atlas-title');
+    if (titleEl) return titleEl.textContent.trim();
+
+    var heading = card.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) return heading.textContent.trim();
+
+    var text = card.textContent.trim().substring(0, 50);
+    return text || null;
+}
+
+function cleanCard(card) {
+    // Don't clean if already processed
+    if (card.classList.contains('geo-processed')) {
+        return;
+    }
+
+    card.classList.remove('geo-free-item', 'geo-locked-item');
+    
+    // Remove only our elements
+    var ribbon = card.querySelector('.geo-purple-ribbon');
+    if (ribbon) ribbon.remove();
+    
+    var lockBadge = card.querySelector('.geo-lock-badge');
+    if (lockBadge) lockBadge.remove();
+    
+    var hoverEffect = card.querySelector('.geo-hover-effect');
+    if (hoverEffect) hoverEffect.remove();
+    
+    var freeBadge = card.querySelector('.geo-free-badge');
+    if (freeBadge) freeBadge.remove();
+
+    var overlay = card.querySelector('.geo-purple-overlay');
+    if (overlay) overlay.remove();
+
+    // Reset styles
+    var children = card.children;
+    for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        child.style.filter = '';
+        child.style.pointerEvents = '';
+        child.style.userSelect = '';
+    }
+    
+    card.style.cursor = '';
+    card.onclick = null;
+}
+
+function findContainer() {
+    var selectors = [
+        '.cards-grid', '.items-grid', '.countries-grid', '.forests-grid',
+        '.islands-grid', '.lakes-grid', '.mountains-grid', '.rivers-grid',
+        '.deserts-grid', '.volcanoes-grid', '.oceans-grid', '.games-grid',
+        '.topics-grid', '.chapters-grid', '.reefs-grid', '.coral-grid',
+        '.atlas-grid', '.maps-grid',
+        '#forestsGrid', '#desertsGrid', '#lakesGrid', '#islandsGrid',
+        '#mountainsGrid', '#riversGrid', '#volcanoesGrid', '#oceansGrid',
+        '#countriesGrid', '#gamesGrid', '#topicsGrid', '#cardsGrid',
+        '#reefsGrid', '#coralGrid', '#atlasGrid', '#mapsGrid', '#grid',
+        '.grid', '[class*="-grid"]', '[class*="Grid"]',
+        '[id*="Grid"]', '[id*="grid"]', '.cards-container', '.cards',
+        '.content-grid', '.topics-container', '.games-container',
+        '.atlas-container', '.reefs-container',
+        'main .container .grid', 'main .grid', 'main .cards',
+        '.main-content .grid', '.page-content .grid'
+    ];
+
+    for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el && el.children.length > 0) {
+            return el;
+        }
+    }
+    
+    var possibleContainers = document.querySelectorAll('[class*="container"], [class*="content"], main, .main');
+    for (var j = 0; j < possibleContainers.length; j++) {
+        var container = possibleContainers[j];
+        var cards = container.querySelectorAll('[class*="card"], [class*="item"], [class*="tile"]');
+        if (cards.length >= 3) {
+            return container;
+        }
+    }
+    
+    return null;
+}
+
+function findAllCards(container) {
+    var cardSelectors = [
+        '.card', '.item', '.topic-card', '.chapter-card', '.country-card',
+        '.forest-card', '.mountain-card', '.river-card', '.lake-card',
+        '.island-card', '.desert-card', '.volcano-card', '.ocean-card',
+        '.game-card', '.reef-card', '.coral-card', '.atlas-card', '.map-card',
+        '[class*="-card"]', '[class*="Card"]', '[class*="-item"]',
+        '[class*="tile"]', '[class*="Tile"]'
+    ];
+
+    var cards = [];
+    cardSelectors.forEach(function(selector) {
+        var found = container.querySelectorAll(selector);
+        found.forEach(function(card) {
+            if (!cards.includes(card) && !card.classList.contains('geo-upgrade-cta')) {
+                cards.push(card);
             }
-
-            if (shouldBeFree) {
-                makeFreeCard(card);
-                freeCount++;
-            } else {
-                makePurpleCard(card);
-                lockedCount++;
-            }
-
-            card.classList.add('geo-processed');
         });
+    });
 
-        if (lockedCount > 0) {
-            var cta = createPurpleCTA(lockedCount, freeCount, allCards.length);
-            container.appendChild(cta);
-        }
-
-        console.log('💜 Applied: ' + freeCount + ' free, ' + lockedCount + ' premium');
+    if (cards.length === 0) {
+        cards = Array.from(container.children).filter(function(el) {
+            return !el.classList.contains('geo-upgrade-cta') && 
+                   el.tagName !== 'SCRIPT' && 
+                   el.tagName !== 'STYLE';
+        });
     }
 
-    function getItemName(card) {
-        var name = card.getAttribute('data-name') || 
-                   card.getAttribute('data-title') || 
-                   card.getAttribute('data-id');
-        if (name) return name;
+    return cards;
+}
 
-        var titleEl = card.querySelector('h1, h2, h3, h4, h5, .title, .name, .card-title, .item-title, .game-title, .atlas-title');
-        if (titleEl) return titleEl.textContent.trim();
+// ==========================================
+// 💜 PURPLE CHAIN RIBBON LOCK (No Blur)
+// ==========================================
 
-        var heading = card.querySelector('h1, h2, h3, h4, h5, h6');
-        if (heading) return heading.textContent.trim();
+function makePurpleCard(card) {
+    card.classList.add('geo-locked-item');
+    card.style.position = 'relative';
+    card.style.overflow = 'visible';
+    card.style.cursor = 'pointer';
 
-        // Get first text content
-        var text = card.textContent.trim().substring(0, 50);
-        return text || null;
+    // NO blur - keep content visible!
+    var children = card.children;
+    for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        child.style.filter = '';
+        child.style.pointerEvents = 'none';
     }
 
-    function cleanCard(card) {
-        card.classList.remove('geo-processed', 'geo-free-item', 'geo-locked-item');
-        
-        var overlay = card.querySelector('.geo-purple-overlay');
-        if (overlay) overlay.remove();
-        
-        var badge = card.querySelector('.geo-free-badge');
-        if (badge) badge.remove();
+    // Purple chain ribbon (diagonal)
+    var ribbon = document.createElement('div');
+    ribbon.className = 'geo-purple-ribbon';
+    ribbon.style.cssText = 
+        'position: absolute;' +
+        'top: 12px;' +
+        'right: -35px;' +
+        'background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);' +
+        'color: white;' +
+        'padding: 8px 40px;' +
+        'transform: rotate(45deg);' +
+        'box-shadow: 0 4px 20px rgba(124, 58, 237, 0.6);' +
+        'z-index: 100;' +
+        'font-size: 11px;' +
+        'font-weight: bold;' +
+        'text-align: center;' +
+        'letter-spacing: 0.5px;' +
+        'border-top: 2px solid rgba(255, 255, 255, 0.3);' +
+        'border-bottom: 2px solid rgba(255, 255, 255, 0.3);' +
+        'cursor: pointer;' +
+        'user-select: none;';
 
-        var children = card.children;
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
-            if (!child.classList.contains('geo-purple-overlay')) {
-                child.style.filter = '';
-                child.style.pointerEvents = '';
-                child.style.userSelect = '';
-            }
-        }
-        card.style.cursor = '';
-    }
+    ribbon.innerHTML = '⛓️💜⛓️';
+    card.appendChild(ribbon);
 
-    function findContainer() {
-        var selectors = [
-            // Specific grids
-            '.cards-grid', '.items-grid', '.countries-grid', '.forests-grid',
-            '.islands-grid', '.lakes-grid', '.mountains-grid', '.rivers-grid',
-            '.deserts-grid', '.volcanoes-grid', '.oceans-grid', '.games-grid',
-            '.topics-grid', '.chapters-grid', '.reefs-grid', '.coral-grid',
-            '.atlas-grid', '.maps-grid',
-            // IDs
-            '#forestsGrid', '#desertsGrid', '#lakesGrid', '#islandsGrid',
-            '#mountainsGrid', '#riversGrid', '#volcanoesGrid', '#oceansGrid',
-            '#countriesGrid', '#gamesGrid', '#topicsGrid', '#cardsGrid',
-            '#reefsGrid', '#coralGrid', '#atlasGrid', '#mapsGrid', '#grid',
-            // Generic
-            '.grid', '[class*="-grid"]', '[class*="Grid"]',
-            '[id*="Grid"]', '[id*="grid"]', '.cards-container', '.cards',
-            '.content-grid', '.topics-container', '.games-container',
-            '.atlas-container', '.reefs-container',
-            'main .container .grid', 'main .grid', 'main .cards',
-            '.main-content .grid', '.page-content .grid'
-        ];
+    // Purple heart lock badge
+    var lockBadge = document.createElement('div');
+    lockBadge.className = 'geo-lock-badge';
+    lockBadge.style.cssText = 
+        'position: absolute;' +
+        'top: 10px;' +
+        'left: 10px;' +
+        'background: linear-gradient(135deg, #7c3aed, #6d28d9);' +
+        'color: white;' +
+        'width: 36px;' +
+        'height: 36px;' +
+        'border-radius: 50%;' +
+        'display: flex;' +
+        'align-items: center;' +
+        'justify-content: center;' +
+        'font-size: 18px;' +
+        'box-shadow: 0 4px 15px rgba(124, 58, 237, 0.5);' +
+        'z-index: 99;' +
+        'cursor: pointer;' +
+        'border: 2px solid rgba(255, 255, 255, 0.3);' +
+        'transition: all 0.3s ease;';
 
-        for (var i = 0; i < selectors.length; i++) {
-            var el = document.querySelector(selectors[i]);
-            if (el && el.children.length > 0) {
-                return el;
-            }
-        }
-        
-        // Fallback: find any element with multiple card-like children
-        var possibleContainers = document.querySelectorAll('[class*="container"], [class*="content"], main, .main');
-        for (var j = 0; j < possibleContainers.length; j++) {
-            var container = possibleContainers[j];
-            var cards = container.querySelectorAll('[class*="card"], [class*="item"], [class*="tile"]');
-            if (cards.length >= 3) {
-                return container;
-            }
-        }
-        
-        return null;
-    }
+    lockBadge.innerHTML = '💜';
+    card.appendChild(lockBadge);
+
+    // Hover effect
+    card.addEventListener('mouseenter', function() {
+        ribbon.style.boxShadow = '0 6px 30px rgba(124, 58, 237, 0.8)';
+        lockBadge.style.transform = 'scale(1.15) rotate(10deg)';
+    });
+
+    card.addEventListener('mouseleave', function() {
+        ribbon.style.boxShadow = '0 4px 20px rgba(124, 58, 237, 0.6)';
+        lockBadge.style.transform = 'scale(1) rotate(0deg)';
+    });
+
+    // Click handler
+    var clickHandler = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        showPurpleMessage();
+        return false;
+    };
+
+    ribbon.onclick = clickHandler;
+    lockBadge.onclick = clickHandler;
+    card.onclick = clickHandler;
+}
 
     function findAllCards(container) {
         var cardSelectors = [
@@ -498,67 +658,119 @@
     }
 
     // ==========================================
-    // 💜 PURPLE HEART LOCKED CARD
-    // ==========================================
+// 💜 PURPLE CHAIN RIBBON LOCK (No Blur)
+// ==========================================
 
-    function makePurpleCard(card) {
-        card.classList.add('geo-locked-item');
-        card.style.position = 'relative';
-        card.style.overflow = 'hidden';
-        card.style.cursor = 'pointer';
+function makePurpleCard(card) {
+    card.classList.add('geo-locked-item');
+    card.style.position = 'relative';
+    card.style.overflow = 'visible'; // Changed from 'hidden'
+    card.style.cursor = 'pointer';
 
-        var children = card.children;
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
-            if (!child.classList.contains('geo-purple-overlay') && !child.classList.contains('geo-free-badge')) {
-                child.style.filter = 'blur(5px)';
-                child.style.pointerEvents = 'none';
-                child.style.userSelect = 'none';
-            }
-        }
-
-        var overlay = document.createElement('div');
-        overlay.className = 'geo-purple-overlay';
-        overlay.style.cssText = 
-            'position: absolute;' +
-            'top: 0;' +
-            'left: 0;' +
-            'width: 100%;' +
-            'height: 100%;' +
-            'background: linear-gradient(135deg, rgba(124, 58, 237, 0.85) 0%, rgba(139, 92, 246, 0.75) 50%, rgba(168, 85, 247, 0.85) 100%);' +
-            'display: flex;' +
-            'flex-direction: column;' +
-            'align-items: center;' +
-            'justify-content: center;' +
-            'z-index: 100;' +
-            'border-radius: inherit;' +
-            'cursor: pointer;' +
-            'transition: all 0.3s ease;';
-
-        overlay.innerHTML = 
-            '<div class="purple-heart-icon" style="font-size: 56px; margin-bottom: 10px; filter: drop-shadow(0 4px 20px rgba(255,255,255,0.3));">💜</div>' +
-            '<div style="color: white; font-size: 14px; font-weight: 600; text-shadow: 0 2px 10px rgba(0,0,0,0.3); letter-spacing: 0.5px;">Premium Content</div>' +
-            '<div style="color: rgba(255,255,255,0.9); font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 5px;">' +
-                '<span class="purple-star">✨</span> Tap to discover <span class="purple-star">✨</span>' +
-            '</div>';
-
-        card.appendChild(overlay);
-
-        overlay.addEventListener('mouseenter', function() {
-            this.style.background = 'linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(168, 85, 247, 0.85) 50%, rgba(192, 132, 252, 0.9) 100%)';
-        });
-
-        overlay.addEventListener('mouseleave', function() {
-            this.style.background = 'linear-gradient(135deg, rgba(124, 58, 237, 0.85) 0%, rgba(139, 92, 246, 0.75) 50%, rgba(168, 85, 247, 0.85) 100%)';
-        });
-
-        overlay.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            showPurpleMessage();
-            return false;
-        };
+    // DON'T blur the content - keep it visible!
+    // Remove any existing blur
+    var children = card.children;
+    for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        child.style.filter = '';
+        child.style.pointerEvents = 'auto';
+        child.style.userSelect = 'auto';
     }
+
+    // Create purple chain ribbon overlay
+    var ribbon = document.createElement('div');
+    ribbon.className = 'geo-purple-ribbon';
+    ribbon.style.cssText = 
+        'position: absolute;' +
+        'top: 15px;' +
+        'right: -35px;' +
+        'background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);' +
+        'color: white;' +
+        'padding: 8px 45px;' +
+        'transform: rotate(45deg);' +
+        'box-shadow: 0 4px 20px rgba(124, 58, 237, 0.6);' +
+        'z-index: 100;' +
+        'font-size: 12px;' +
+        'font-weight: bold;' +
+        'text-align: center;' +
+        'letter-spacing: 1px;' +
+        'border: 2px solid rgba(255, 255, 255, 0.3);' +
+        'cursor: pointer;' +
+        'user-select: none;';
+
+    ribbon.innerHTML = '⛓️ 💜 PREMIUM 💜 ⛓️';
+
+    card.appendChild(ribbon);
+
+    // Add lock badge in corner
+    var lockBadge = document.createElement('div');
+    lockBadge.className = 'geo-lock-badge';
+    lockBadge.style.cssText = 
+        'position: absolute;' +
+        'top: 10px;' +
+        'left: 10px;' +
+        'background: linear-gradient(135deg, #7c3aed, #6d28d9);' +
+        'color: white;' +
+        'width: 40px;' +
+        'height: 40px;' +
+        'border-radius: 50%;' +
+        'display: flex;' +
+        'align-items: center;' +
+        'justify-content: center;' +
+        'font-size: 20px;' +
+        'box-shadow: 0 4px 15px rgba(124, 58, 237, 0.5);' +
+        'z-index: 99;' +
+        'cursor: pointer;' +
+        'border: 2px solid rgba(255, 255, 255, 0.2);';
+
+    lockBadge.innerHTML = '💜';
+
+    card.appendChild(lockBadge);
+
+    // Add subtle overlay effect on hover
+    var hoverOverlay = document.createElement('div');
+    hoverOverlay.className = 'geo-hover-effect';
+    hoverOverlay.style.cssText = 
+        'position: absolute;' +
+        'top: 0;' +
+        'left: 0;' +
+        'width: 100%;' +
+        'height: 100%;' +
+        'background: linear-gradient(135deg, rgba(124, 58, 237, 0) 0%, rgba(168, 85, 247, 0) 100%);' +
+        'z-index: 50;' +
+        'pointer-events: none;' +
+        'transition: all 0.3s ease;' +
+        'border-radius: inherit;';
+
+    card.appendChild(hoverOverlay);
+
+    // Hover effects
+    card.addEventListener('mouseenter', function() {
+        hoverOverlay.style.background = 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(168, 85, 247, 0.15) 100%)';
+        ribbon.style.boxShadow = '0 6px 30px rgba(124, 58, 237, 0.8)';
+        lockBadge.style.transform = 'scale(1.1) rotate(10deg)';
+        lockBadge.style.boxShadow = '0 6px 25px rgba(124, 58, 237, 0.7)';
+    });
+
+    card.addEventListener('mouseleave', function() {
+        hoverOverlay.style.background = 'linear-gradient(135deg, rgba(124, 58, 237, 0) 0%, rgba(168, 85, 247, 0) 100%)';
+        ribbon.style.boxShadow = '0 4px 20px rgba(124, 58, 237, 0.6)';
+        lockBadge.style.transform = 'scale(1) rotate(0deg)';
+        lockBadge.style.boxShadow = '0 4px 15px rgba(124, 58, 237, 0.5)';
+    });
+
+    // Click handler - prevent default card action
+    var clickHandler = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        showPurpleMessage();
+        return false;
+    };
+
+    ribbon.onclick = clickHandler;
+    lockBadge.onclick = clickHandler;
+    card.onclick = clickHandler;
+}
 
     // ==========================================
     // 💜 BTS-STYLE MESSAGE POPUP
