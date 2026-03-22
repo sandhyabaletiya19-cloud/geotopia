@@ -1,11 +1,11 @@
 // ========================================
 // 💜 PREMIUM WRAPPER - BTS PURPLE HEART EDITION
-// Complete Payment Integration Ready
+// Fixed Version - All Categories Working
 // ========================================
 
 (function() {
     
-    // CONFIGURATION
+    // CONFIGURATION - FREE LIMITS PER CATEGORY
     var FREE_LIMITS = {
         mountains: 7,
         rivers: 7,
@@ -15,15 +15,15 @@
         deserts: 7,
         volcanoes: 7,
         islands: 7,
-        coral-reefs: 7,
+        coralReefs: 7,
         encyclopedia: 7,
         upsc: 7,
         games: 7,
         atlas: 7,
-        waterfalls: 5,
-        glaciers: 5,
-        caves: 5,
-        parks: 5
+        waterfalls: 7,
+        glaciers: 7,
+        caves: 7,
+        parks: 7
     };
 
     // 💜 BTS-Style Inspirational Messages
@@ -68,7 +68,7 @@
         currentCategory = detectCategory();
         
         if (!currentCategory) {
-            console.log('💜 No category detected');
+            console.log('💜 No category detected on this page');
             return;
         }
 
@@ -90,36 +90,34 @@
     }
 
     function addPurpleStyles() {
+        if (document.getElementById('purple-styles')) return;
+        
         var style = document.createElement('style');
-        style.textContent = `
-            @keyframes purpleGlow {
-                0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.5); }
-                50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.8); }
-            }
-            @keyframes heartBeat {
-                0%, 100% { transform: scale(1); }
-                25% { transform: scale(1.1); }
-                50% { transform: scale(1); }
-                75% { transform: scale(1.15); }
-            }
-            @keyframes floatUp {
-                0% { opacity: 0; transform: translateY(20px); }
-                100% { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes sparkle {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.5; }
-            }
-            .purple-heart-icon {
-                animation: heartBeat 1.5s ease-in-out infinite;
-            }
-            .geo-purple-overlay:hover .purple-heart-icon {
-                animation: heartBeat 0.8s ease-in-out infinite;
-            }
-            .purple-star {
-                animation: sparkle 1s ease-in-out infinite;
-            }
-        `;
+        style.id = 'purple-styles';
+        style.textContent = 
+            '@keyframes purpleGlow {' +
+                '0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.5); }' +
+                '50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.8); }' +
+            '}' +
+            '@keyframes heartBeat {' +
+                '0%, 100% { transform: scale(1); }' +
+                '25% { transform: scale(1.1); }' +
+                '50% { transform: scale(1); }' +
+                '75% { transform: scale(1.15); }' +
+            '}' +
+            '@keyframes sparkle {' +
+                '0%, 100% { opacity: 1; }' +
+                '50% { opacity: 0.5; }' +
+            '}' +
+            '.purple-heart-icon {' +
+                'animation: heartBeat 1.5s ease-in-out infinite;' +
+            '}' +
+            '.geo-purple-overlay:hover .purple-heart-icon {' +
+                'animation: heartBeat 0.8s ease-in-out infinite;' +
+            '}' +
+            '.purple-star {' +
+                'animation: sparkle 1s ease-in-out infinite;' +
+            '}';
         document.head.appendChild(style);
     }
 
@@ -133,26 +131,47 @@
         return false;
     }
 
+    // ==========================================
+    // CATEGORY DETECTION - ALL CATEGORIES
+    // ==========================================
+
     function detectCategory() {
         var path = window.location.pathname.toLowerCase();
+        var href = window.location.href.toLowerCase();
         
-        if (path.includes('coral-reefs') || path.includes('coralreefs') || path.includes('coral')) return 'coralReefs';
-        if (path.includes('desert')) return 'deserts';
-        if (path.includes('encyclopedia') || path.includes('countries') || path.includes('country')) return 'encyclopedia';
-        if (path.includes('forest')) return 'forests';
-        if (path.includes('game')) return 'games';
-        if (path.includes('island')) return 'islands';
-        if (path.includes('lake')) return 'lakes';
-        if (path.includes('mountain')) return 'mountains';
-        if (path.includes('ocean')) return 'oceans';
-        if (path.includes('river')) return 'rivers';
-        if (path.includes('upsc')) return 'upsc';
-        if (path.includes('volcano')) return 'volcanoes';
-        if (path.includes('atlas')) return 'atlas';
-        if (path.includes('waterfall')) return 'waterfalls';
-        if (path.includes('glacier')) return 'glaciers';
-        if (path.includes('cave')) return 'caves';
-        if (path.includes('park')) return 'parks';
+        // Check both path and full URL
+        var checkString = path + ' ' + href;
+        
+        // Coral Reefs
+        if (checkString.includes('coral-reef') || checkString.includes('coralreef') || checkString.includes('coral_reef') || checkString.includes('reef')) {
+            return 'coralReefs';
+        }
+        
+        // Games
+        if (checkString.includes('game')) {
+            return 'games';
+        }
+        
+        // Atlas
+        if (checkString.includes('atlas') || checkString.includes('map')) {
+            return 'atlas';
+        }
+        
+        // Other categories
+        if (checkString.includes('desert')) return 'deserts';
+        if (checkString.includes('encyclopedia') || checkString.includes('countries') || checkString.includes('country')) return 'encyclopedia';
+        if (checkString.includes('forest')) return 'forests';
+        if (checkString.includes('island')) return 'islands';
+        if (checkString.includes('lake')) return 'lakes';
+        if (checkString.includes('mountain')) return 'mountains';
+        if (checkString.includes('ocean')) return 'oceans';
+        if (checkString.includes('river')) return 'rivers';
+        if (checkString.includes('upsc') || checkString.includes('geography-notes')) return 'upsc';
+        if (checkString.includes('volcano')) return 'volcanoes';
+        if (checkString.includes('waterfall')) return 'waterfalls';
+        if (checkString.includes('glacier')) return 'glaciers';
+        if (checkString.includes('cave')) return 'caves';
+        if (checkString.includes('park')) return 'parks';
         
         return null;
     }
@@ -266,17 +285,37 @@
 
     function applyLocks() {
         var container = findContainer();
-        if (!container) return;
+        if (!container) {
+            console.log('💜 No container found, retrying...');
+            setTimeout(function() {
+                var retryContainer = findContainer();
+                if (retryContainer) {
+                    processContainer(retryContainer);
+                }
+            }, 500);
+            return;
+        }
 
+        processContainer(container);
+    }
+
+    function processContainer(container) {
+        // Remove old CTA
         var oldCTA = container.querySelector('.geo-upgrade-cta');
         if (oldCTA) oldCTA.remove();
 
+        // Find all cards
         var allCards = findAllCards(container);
-        if (allCards.length === 0) return;
+        if (allCards.length === 0) {
+            console.log('💜 No cards found in container');
+            return;
+        }
 
         var freeLimit = FREE_LIMITS[currentCategory] || 5;
         var lockedCount = 0;
         var freeCount = 0;
+
+        console.log('💜 Processing', allCards.length, 'cards for', currentCategory);
 
         allCards.forEach(function(card) {
             if (card.classList.contains('geo-upgrade-cta')) return;
@@ -317,13 +356,15 @@
                    card.getAttribute('data-id');
         if (name) return name;
 
-        var titleEl = card.querySelector('h1, h2, h3, h4, .title, .name, .card-title, .item-title');
+        var titleEl = card.querySelector('h1, h2, h3, h4, h5, .title, .name, .card-title, .item-title, .game-title, .atlas-title');
         if (titleEl) return titleEl.textContent.trim();
 
-        var heading = card.querySelector('h1, h2, h3, h4, h5');
+        var heading = card.querySelector('h1, h2, h3, h4, h5, h6');
         if (heading) return heading.textContent.trim();
 
-        return card.textContent.trim().substring(0, 50) || null;
+        // Get first text content
+        var text = card.textContent.trim().substring(0, 50);
+        return text || null;
     }
 
     function cleanCard(card) {
@@ -349,21 +390,43 @@
 
     function findContainer() {
         var selectors = [
+            // Specific grids
             '.cards-grid', '.items-grid', '.countries-grid', '.forests-grid',
             '.islands-grid', '.lakes-grid', '.mountains-grid', '.rivers-grid',
             '.deserts-grid', '.volcanoes-grid', '.oceans-grid', '.games-grid',
-            '.topics-grid', '.chapters-grid', '#forestsGrid', '#desertsGrid',
-            '#lakesGrid', '#islandsGrid', '#mountainsGrid', '#riversGrid',
-            '#volcanoesGrid', '#oceansGrid', '#countriesGrid', '#gamesGrid',
-            '#topicsGrid', '#cardsGrid', '#grid', '.grid', '[class*="-grid"]',
-            '[class*="Grid"]', '[id*="Grid"]', '[id*="grid"]', '.cards-container',
-            '.cards', '.content-grid', '.topics-container', 'main .container .grid', 'main .grid'
+            '.topics-grid', '.chapters-grid', '.reefs-grid', '.coral-grid',
+            '.atlas-grid', '.maps-grid',
+            // IDs
+            '#forestsGrid', '#desertsGrid', '#lakesGrid', '#islandsGrid',
+            '#mountainsGrid', '#riversGrid', '#volcanoesGrid', '#oceansGrid',
+            '#countriesGrid', '#gamesGrid', '#topicsGrid', '#cardsGrid',
+            '#reefsGrid', '#coralGrid', '#atlasGrid', '#mapsGrid', '#grid',
+            // Generic
+            '.grid', '[class*="-grid"]', '[class*="Grid"]',
+            '[id*="Grid"]', '[id*="grid"]', '.cards-container', '.cards',
+            '.content-grid', '.topics-container', '.games-container',
+            '.atlas-container', '.reefs-container',
+            'main .container .grid', 'main .grid', 'main .cards',
+            '.main-content .grid', '.page-content .grid'
         ];
 
         for (var i = 0; i < selectors.length; i++) {
             var el = document.querySelector(selectors[i]);
-            if (el && el.children.length > 0) return el;
+            if (el && el.children.length > 0) {
+                return el;
+            }
         }
+        
+        // Fallback: find any element with multiple card-like children
+        var possibleContainers = document.querySelectorAll('[class*="container"], [class*="content"], main, .main');
+        for (var j = 0; j < possibleContainers.length; j++) {
+            var container = possibleContainers[j];
+            var cards = container.querySelectorAll('[class*="card"], [class*="item"], [class*="tile"]');
+            if (cards.length >= 3) {
+                return container;
+            }
+        }
+        
         return null;
     }
 
@@ -372,7 +435,9 @@
             '.card', '.item', '.topic-card', '.chapter-card', '.country-card',
             '.forest-card', '.mountain-card', '.river-card', '.lake-card',
             '.island-card', '.desert-card', '.volcano-card', '.ocean-card',
-            '.game-card', '[class*="-card"]', '[class*="Card"]'
+            '.game-card', '.reef-card', '.coral-card', '.atlas-card', '.map-card',
+            '[class*="-card"]', '[class*="Card"]', '[class*="-item"]',
+            '[class*="tile"]', '[class*="Tile"]'
         ];
 
         var cards = [];
@@ -385,11 +450,15 @@
             });
         });
 
+        // Fallback: use direct children if no cards found
         if (cards.length === 0) {
             cards = Array.from(container.children).filter(function(el) {
-                return !el.classList.contains('geo-upgrade-cta');
+                return !el.classList.contains('geo-upgrade-cta') && 
+                       el.tagName !== 'SCRIPT' && 
+                       el.tagName !== 'STYLE';
             });
         }
+
         return cards;
     }
 
@@ -435,7 +504,7 @@
         var children = card.children;
         for (var i = 0; i < children.length; i++) {
             var child = children[i];
-            if (!child.classList.contains('geo-purple-overlay')) {
+            if (!child.classList.contains('geo-purple-overlay') && !child.classList.contains('geo-free-badge')) {
                 child.style.filter = 'blur(5px)';
                 child.style.pointerEvents = 'none';
                 child.style.userSelect = 'none';
@@ -508,58 +577,32 @@
             'align-items: center;' +
             'justify-content: center;' +
             'z-index: 9999999;' +
-            'backdrop-filter: blur(15px);' +
-            'animation: purpleFadeIn 0.4s ease;';
+            'backdrop-filter: blur(15px);';
 
-        modal.innerHTML = `
-            <style>
-                @keyframes purpleFadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes messageSlideUp {
-                    from { opacity: 0; transform: translateY(40px) scale(0.95); }
-                    to { opacity: 1; transform: translateY(0) scale(1); }
-                }
-                @keyframes floatingHearts {
-                    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-                    100% { transform: translateY(-100px) rotate(20deg); opacity: 0; }
-                }
-                @keyframes pulseGlow {
-                    0%, 100% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(139, 92, 246, 0.3); }
-                    50% { box-shadow: 0 0 50px rgba(168, 85, 247, 0.8), 0 0 100px rgba(139, 92, 246, 0.5); }
-                }
-                .floating-heart {
-                    position: absolute;
-                    font-size: 24px;
-                    animation: floatingHearts 3s ease-out forwards;
-                    pointer-events: none;
-                }
-            </style>
-            <div id="floating-hearts-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;"></div>
-            <div style="background: linear-gradient(145deg, #1e1b4b, #312e81); border-radius: 30px; padding: 50px 40px; max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 25px 80px rgba(0,0,0,0.5); animation: messageSlideUp 0.5s ease, pulseGlow 2s ease-in-out infinite; border: 2px solid rgba(168, 85, 247, 0.3);">
-                
-                <button id="purple-close-btn" style="position: absolute; top: 20px; right: 25px; background: rgba(255,255,255,0.1); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: rgba(255,255,255,0.7); transition: all 0.3s;">×</button>
-                
-                <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 10px 30px rgba(168, 85, 247, 0.5));">💜</div>
-                
-                <h2 style="font-size: 32px; margin: 0 0 15px 0; color: white; font-weight: bold; text-shadow: 0 2px 20px rgba(168, 85, 247, 0.5);">${randomMessage.title}</h2>
-                
-                <p style="color: rgba(255,255,255,0.9); font-size: 18px; margin-bottom: 35px; line-height: 1.6;">${randomMessage.subtitle}</p>
-                
-                <div style="background: rgba(255,255,255,0.05); border-radius: 20px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);">
-                    <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin: 0 0 10px 0;">✨ Premium members unlock everything ✨</p>
-                    <p style="color: #a855f7; font-size: 28px; font-weight: bold; margin: 0;">Starting at just ₹1.1/day</p>
-                    <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 5px;">Less than a cup of chai! ☕</p>
-                </div>
-                
-                <button id="purple-upgrade-btn" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 50%, #6d28d9 100%); color: white; border: none; padding: 18px 50px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 10px 40px rgba(168, 85, 247, 0.5); text-transform: uppercase; letter-spacing: 1px;">
-                    💜 View Plans & Unlock
-                </button>
-                
-                <p style="margin-top: 25px; font-size: 13px; color: rgba(255,255,255,0.5);">보라해 • I Purple You 💜</p>
-            </div>
-        `;
+        modal.innerHTML = 
+            '<style>' +
+                '@keyframes purpleFadeIn { from { opacity: 0; } to { opacity: 1; } }' +
+                '@keyframes messageSlideUp { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }' +
+                '@keyframes floatingHearts { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100px) rotate(20deg); opacity: 0; } }' +
+                '@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(139, 92, 246, 0.3); } 50% { box-shadow: 0 0 50px rgba(168, 85, 247, 0.8), 0 0 100px rgba(139, 92, 246, 0.5); } }' +
+                '.floating-heart { position: absolute; font-size: 24px; animation: floatingHearts 3s ease-out forwards; pointer-events: none; }' +
+            '</style>' +
+            '<div id="floating-hearts-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;"></div>' +
+            '<div style="background: linear-gradient(145deg, #1e1b4b, #312e81); border-radius: 30px; padding: 50px 40px; max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 25px 80px rgba(0,0,0,0.5); animation: messageSlideUp 0.5s ease, pulseGlow 2s ease-in-out infinite; border: 2px solid rgba(168, 85, 247, 0.3);">' +
+                '<button id="purple-close-btn" style="position: absolute; top: 20px; right: 25px; background: rgba(255,255,255,0.1); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: rgba(255,255,255,0.7); transition: all 0.3s;">&times;</button>' +
+                '<div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 10px 30px rgba(168, 85, 247, 0.5));">💜</div>' +
+                '<h2 style="font-size: 32px; margin: 0 0 15px 0; color: white; font-weight: bold; text-shadow: 0 2px 20px rgba(168, 85, 247, 0.5);">' + randomMessage.title + '</h2>' +
+                '<p style="color: rgba(255,255,255,0.9); font-size: 18px; margin-bottom: 35px; line-height: 1.6;">' + randomMessage.subtitle + '</p>' +
+                '<div style="background: rgba(255,255,255,0.05); border-radius: 20px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);">' +
+                    '<p style="color: rgba(255,255,255,0.8); font-size: 14px; margin: 0 0 10px 0;">✨ Premium members unlock everything ✨</p>' +
+                    '<p style="color: #a855f7; font-size: 28px; font-weight: bold; margin: 0;">Starting at just ₹0.82/day</p>' +
+                    '<p style="color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 5px;">Less than a cup of chai! ☕</p>' +
+                '</div>' +
+                '<button id="purple-upgrade-btn" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 50%, #6d28d9 100%); color: white; border: none; padding: 18px 50px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 10px 40px rgba(168, 85, 247, 0.5); text-transform: uppercase; letter-spacing: 1px;">' +
+                    '💜 View Plans & Unlock' +
+                '</button>' +
+                '<p style="margin-top: 25px; font-size: 13px; color: rgba(255,255,255,0.5);">보라해 • I Purple You 💜</p>' +
+            '</div>';
 
         document.body.appendChild(modal);
         document.body.style.overflow = 'hidden';
@@ -567,71 +610,48 @@
         // Create floating hearts
         var heartsContainer = document.getElementById('floating-hearts-container');
         for (var i = 0; i < 15; i++) {
-            setTimeout(function() {
-                var heart = document.createElement('div');
-                heart.className = 'floating-heart';
-                heart.textContent = '💜';
-                heart.style.left = Math.random() * 100 + '%';
-                heart.style.top = Math.random() * 100 + '%';
-                heart.style.animationDelay = Math.random() * 2 + 's';
-                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
-                heartsContainer.appendChild(heart);
-            }, i * 200);
+            (function(index) {
+                setTimeout(function() {
+                    var heart = document.createElement('div');
+                    heart.className = 'floating-heart';
+                    heart.textContent = '💜';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.top = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+                    heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                    heartsContainer.appendChild(heart);
+                }, index * 200);
+            })(i);
         }
 
         // Close button
         document.getElementById('purple-close-btn').onclick = function() {
-            modal.style.animation = 'purpleFadeIn 0.3s ease reverse';
-            setTimeout(function() {
-                modal.remove();
-                document.body.style.overflow = '';
-            }, 250);
-        };
-
-        document.getElementById('purple-close-btn').onmouseenter = function() {
-            this.style.background = 'rgba(255,255,255,0.2)';
-            this.style.color = 'white';
-        };
-        document.getElementById('purple-close-btn').onmouseleave = function() {
-            this.style.background = 'rgba(255,255,255,0.1)';
-            this.style.color = 'rgba(255,255,255,0.7)';
+            modal.remove();
+            document.body.style.overflow = '';
         };
 
         // Click outside
         modal.onclick = function(e) {
             if (e.target === modal) {
-                modal.style.animation = 'purpleFadeIn 0.3s ease reverse';
-                setTimeout(function() {
-                    modal.remove();
-                    document.body.style.overflow = '';
-                }, 250);
+                modal.remove();
+                document.body.style.overflow = '';
             }
         };
 
         // Upgrade button - GO TO PRICING PAGE (ROOT LEVEL)
         document.getElementById('purple-upgrade-btn').onclick = function() {
-            // Always go to root level pricing.html
             window.location.href = window.location.origin + '/pricing.html';
         };
 
-        // Hover effect
-        var btn = document.getElementById('purple-upgrade-btn');
-        btn.onmouseenter = function() {
-            this.style.transform = 'scale(1.02)';
-            this.style.boxShadow = '0 15px 50px rgba(168, 85, 247, 0.7)';
-        };
-        btn.onmouseleave = function() {
-            this.style.transform = 'scale(1)';
-            this.style.boxShadow = '0 10px 40px rgba(168, 85, 247, 0.5)';
-        };
-
         // ESC key
-        document.onkeydown = function(e) {
-            if (e.key === 'Escape' && document.getElementById('purple-message-modal')) {
-                document.getElementById('purple-message-modal').remove();
+        var escHandler = function(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
                 document.body.style.overflow = '';
+                document.removeEventListener('keydown', escHandler);
             }
         };
+        document.addEventListener('keydown', escHandler);
     }
 
     // ==========================================
@@ -666,35 +686,27 @@
             'overflow: hidden;' +
             'border: 2px solid rgba(168, 85, 247, 0.3);';
 
-        cta.innerHTML = `
-            <div style="position: absolute; top: -80px; right: -80px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-            <div style="position: absolute; bottom: -50px; left: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-            <div style="position: absolute; top: 20px; left: 20px; font-size: 30px; opacity: 0.3;">💜</div>
-            <div style="position: absolute; bottom: 20px; right: 20px; font-size: 30px; opacity: 0.3;">💜</div>
-            
-            <div style="position: relative; z-index: 1;">
-                <div class="purple-heart-icon" style="font-size: 90px; margin-bottom: 25px; filter: drop-shadow(0 10px 30px rgba(168, 85, 247, 0.5));">💜</div>
-                
-                <h3 style="font-size: 36px; margin: 0 0 15px 0; font-weight: bold; text-shadow: 0 2px 20px rgba(0,0,0,0.3);">Keep Discovering, ARMY!</h3>
-                
-                <div style="font-size: 72px; font-weight: bold; margin: 25px 0; text-shadow: 0 4px 30px rgba(0,0,0,0.3);">${lockedCount}</div>
-                
-                <p style="font-size: 20px; opacity: 0.95; margin-bottom: 10px;">more ${categoryName.toLowerCase()} waiting for you!</p>
-                <p style="font-size: 15px; opacity: 0.75; margin-bottom: 35px;">✨ Currently previewing ${freeCount} of ${totalCount} ✨</p>
-                
-                <button id="purple-cta-btn" style="background: white; color: #7c3aed; border: none; padding: 20px 70px; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 15px 50px rgba(0,0,0,0.3);">
-                    💜 Unlock Everything
-                </button>
-                
-                <div style="margin-top: 35px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
-                    <span style="font-size: 15px; display: flex; align-items: center; gap: 8px;"><span style="color: #a855f7;">✓</span> All ${categoryName}</span>
-                    <span style="font-size: 15px; display: flex; align-items: center; gap: 8px;"><span style="color: #a855f7;">✓</span> All Categories</span>
-                    <span style="font-size: 15px; display: flex; align-items: center; gap: 8px;"><span style="color: #a855f7;">✓</span> 보라해 Forever</span>
-                </div>
-                
-                <p style="margin-top: 25px; font-size: 14px; opacity: 0.6;">Starting at just ₹1.1/day ☕</p>
-            </div>
-        `;
+        cta.innerHTML = 
+            '<div style="position: absolute; top: -80px; right: -80px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>' +
+            '<div style="position: absolute; bottom: -50px; left: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>' +
+            '<div style="position: absolute; top: 20px; left: 20px; font-size: 30px; opacity: 0.3;">💜</div>' +
+            '<div style="position: absolute; bottom: 20px; right: 20px; font-size: 30px; opacity: 0.3;">💜</div>' +
+            '<div style="position: relative; z-index: 1;">' +
+                '<div class="purple-heart-icon" style="font-size: 90px; margin-bottom: 25px; filter: drop-shadow(0 10px 30px rgba(168, 85, 247, 0.5));">💜</div>' +
+                '<h3 style="font-size: 36px; margin: 0 0 15px 0; font-weight: bold; text-shadow: 0 2px 20px rgba(0,0,0,0.3);">Keep Discovering, ARMY!</h3>' +
+                '<div style="font-size: 72px; font-weight: bold; margin: 25px 0; text-shadow: 0 4px 30px rgba(0,0,0,0.3);">' + lockedCount + '</div>' +
+                '<p style="font-size: 20px; opacity: 0.95; margin-bottom: 10px;">more ' + categoryName.toLowerCase() + ' waiting for you!</p>' +
+                '<p style="font-size: 15px; opacity: 0.75; margin-bottom: 35px;">✨ Currently previewing ' + freeCount + ' of ' + totalCount + ' ✨</p>' +
+                '<button id="purple-cta-btn" style="background: white; color: #7c3aed; border: none; padding: 20px 70px; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 15px 50px rgba(0,0,0,0.3);">' +
+                    '💜 Unlock Everything' +
+                '</button>' +
+                '<div style="margin-top: 35px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">' +
+                    '<span style="font-size: 15px; display: flex; align-items: center; gap: 8px;"><span style="color: #a855f7;">✓</span> All ' + categoryName + '</span>' +
+                    '<span style="font-size: 15px; display: flex; align-items: center; gap: 8px;"><span style="color: #a855f7;">✓</span> All Categories</span>' +
+                    '<span style="font-size: 15px; display: flex; align-items: center; gap: 8px;"><span style="color: #a855f7;">✓</span> 보라해 Forever</span>' +
+                '</div>' +
+                '<p style="margin-top: 25px; font-size: 14px; opacity: 0.6;">Starting at just ₹0.82/day ☕</p>' +
+            '</div>';
 
         setTimeout(function() {
             var btn = cta.querySelector('#purple-cta-btn');
