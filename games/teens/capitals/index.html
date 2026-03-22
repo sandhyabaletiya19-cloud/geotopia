@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>Capital Quiz | GEOTOPIA Teens</title>
+    <link rel="stylesheet" href="../styles/teens.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="game-page">
+    <!-- Game Header -->
+    <header class="game-header">
+        <button class="back-btn" onclick="exitGame()" aria-label="Go back to hub">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <h1 class="game-title">CAPITAL QUIZ</h1>
+        <div class="game-stats-bar">
+            <div class="game-stat timer" id="timer-display">
+                <span>⏱️</span>
+                <span id="timer">15</span>
+            </div>
+            <div class="game-stat score">
+                <span>⭐</span>
+                <span id="score">0</span>
+            </div>
+            <div class="game-stat streak">
+                <span>🔥</span>
+                <span id="streak">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Game Container -->
+    <main class="game-container">
+        <!-- Intro Screen -->
+        <section class="intro-screen" id="intro-screen">
+            <div class="intro-icon">🏛️</div>
+            <h2 class="intro-title">CAPITAL QUIZ</h2>
+            <p class="intro-description">
+                Test your knowledge of world capitals! Choose between Normal mode 
+                (country → capital) or Reverse mode (capital → country).
+            </p>
+            
+            <!-- Mode Selection -->
+            <div class="mode-selection">
+                <h4>SELECT MODE</h4>
+                <div class="mode-options">
+                    <button class="mode-btn active" data-mode="normal">
+                        🌍 → 🏛️
+                        <small>Country to Capital</small>
+                    </button>
+                    <button class="mode-btn" data-mode="reverse">
+                        🏛️ → 🌍
+                        <small>Capital to Country</small>
+                    </button>
+                    <button class="mode-btn" data-mode="mixed">
+                        🔀
+                        <small>Mixed Mode</small>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Difficulty Selection -->
+            <div class="difficulty-selection">
+                <h4>DIFFICULTY</h4>
+                <div class="difficulty-options">
+                    <button class="diff-btn" data-diff="easy">Easy<small>20 sec</small></button>
+                    <button class="diff-btn active" data-diff="normal">Normal<small>15 sec</small></button>
+                    <button class="diff-btn" data-diff="hard">Hard<small>10 sec</small></button>
+                </div>
+            </div>
+            
+            <div class="intro-buttons">
+                <button class="btn-primary" onclick="startGame()">
+                    <span>▶</span> START GAME
+                </button>
+                <button class="btn-secondary" onclick="showHowToPlay()">
+                    <span>❓</span> How to Play
+                </button>
+            </div>
+        </section>
+
+        <!-- How to Play Screen -->
+        <section class="how-to-play-screen" id="how-to-play-screen" style="display: none;">
+            <div class="how-to-play-card glass-card">
+                <button class="close-btn" onclick="hideHowToPlay()">×</button>
+                <h3>📖 HOW TO PLAY</h3>
+                <div class="instructions">
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🏛️</span>
+                        <p><strong>Normal Mode:</strong> You'll see a country name. Select its capital city from 4 options.</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🔄</span>
+                        <p><strong>Reverse Mode:</strong> You'll see a capital city. Select which country it belongs to.</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🔀</span>
+                        <p><strong>Mixed Mode:</strong> Questions randomly alternate between both types.</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">⏱️</span>
+                        <p><strong>Timer:</strong> Answer before time runs out! Faster answers = more points.</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🔥</span>
+                        <p><strong>Streak Bonus:</strong> Consecutive correct answers multiply your score!</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🪙</span>
+                        <p><strong>Rewards:</strong> Score 50%+ = 3 coins, 80%+ = 5 coins, 95%+ = 10 coins!</p>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="hideHowToPlay()">GOT IT!</button>
+            </div>
+        </section>
+
+        <!-- Question Screen -->
+        <section class="question-area" id="question-screen" style="display: none;">
+            <!-- Progress dots -->
+            <div class="question-progress" id="progress-dots"></div>
+            
+            <!-- Timer bar -->
+            <div class="timer-bar">
+                <div class="timer-fill" id="timer-bar"></div>
+            </div>
+            
+            <!-- Question Type Badge -->
+            <div class="question-type-badge" id="question-type-badge">
+                <span id="badge-icon">🌍</span>
+                <span id="badge-text">Country → Capital</span>
+            </div>
+            
+            <!-- Question Display -->
+            <div class="question-display">
+                <span class="question-emoji" id="question-emoji">🌍</span>
+                <h2 class="question-main" id="question-main">Loading...</h2>
+            </div>
+            
+            <!-- Answer Options -->
+            <div class="options-grid" id="options-grid"></div>
+            
+            <!-- Combo Indicator -->
+            <div class="combo-indicator" id="combo-indicator">
+                <span class="combo-text">🔥 COMBO x<span id="combo-count">2</span>!</span>
+            </div>
+        </section>
+
+        <!-- Results Screen -->
+        <section class="results-screen" id="results-screen" style="display: none;">
+            <div class="results-icon" id="results-icon">🏛️</div>
+            <h2 class="results-title" id="results-title">Great Job!</h2>
+            
+            <div class="results-score">
+                <span id="final-score">0</span>
+            </div>
+            
+            <div class="new-high-score" id="new-high-score" style="display: none;">
+                ✨ NEW HIGH SCORE! ✨
+            </div>
+            
+            <div class="results-stats">
+                <div class="result-stat">
+                    <span class="result-stat-value" id="correct-count">0</span>
+                    <span class="result-stat-label">Correct</span>
+                </div>
+                <div class="result-stat">
+                    <span class="result-stat-value" id="accuracy-stat">0%</span>
+                    <span class="result-stat-label">Accuracy</span>
+                </div>
+                <div class="result-stat">
+                    <span class="result-stat-value" id="best-streak-stat">0</span>
+                    <span class="result-stat-label">Best Streak</span>
+                </div>
+            </div>
+            
+            <div class="coins-earned" id="coins-earned">
+                <span>+</span>
+                <span id="coins-amount">0</span>
+                <span>🪙</span>
+            </div>
+            
+            <div class="results-buttons">
+                <button class="btn-primary" onclick="restartGame()">
+                    <span>🔄</span> PLAY AGAIN
+                </button>
+                <button class="btn-secondary" onclick="exitGame()">
+                    <span>🏠</span> EXIT TO HUB
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon"></span>
+        <span class="toast-message"></span>
+    </div>
+
+    <script src="../data/countries.js"></script>
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/sounds.js"></script>
+    <script src="game.js"></script>
+
+    <style>
+        .mode-selection, .difficulty-selection {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .mode-selection h4, .difficulty-selection h4 {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .mode-options, .difficulty-options {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn, .diff-btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .mode-btn small, .diff-btn small {
+            display: block;
+            font-size: 0.7rem;
+            margin-top: var(--spacing-xs);
+            color: var(--text-muted);
+        }
+        
+        .mode-btn:hover, .diff-btn:hover {
+            border-color: var(--cyan);
+            color: var(--text-primary);
+        }
+        
+        .mode-btn.active, .diff-btn.active {
+            border-color: var(--cyan);
+            background: rgba(0, 245, 255, 0.15);
+            color: var(--text-primary);
+            box-shadow: 0 0 20px var(--cyan-glow);
+        }
+        
+        .how-to-play-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: var(--spacing-md);
+        }
+        
+        .how-to-play-card {
+            max-width: 500px;
+            width: 100%;
+            padding: var(--spacing-xl);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .how-to-play-card h3 {
+            font-family: var(--font-display);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.25rem;
+            letter-spacing: 2px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .close-btn:hover {
+            background: var(--red);
+            border-color: var(--red);
+        }
+        
+        .instructions {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .instruction-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .instruction-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .instruction-item strong {
+            color: var(--cyan);
+        }
+        
+        .question-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: linear-gradient(135deg, var(--purple-glow), var(--cyan-glow));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .question-display {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .question-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .question-main {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .combo-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            padding: var(--spacing-md) var(--spacing-xl);
+            background: linear-gradient(135deg, var(--orange), var(--red));
+            border-radius: var(--radius-lg);
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .combo-indicator.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .intro-buttons button span {
+            margin-right: var(--spacing-sm);
+        }
+        
+        .results-buttons button span {
+            margin-right: var(--spacing-sm);
+        }
+        
+        @media (max-width: 600px) {
+            .mode-options, .difficulty-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-btn, .diff-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</body>
+</html>
