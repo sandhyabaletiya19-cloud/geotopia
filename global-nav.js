@@ -1,41 +1,64 @@
 /* ═══════════════════════════════════════════════════════════
-   🏠 GLOBAL NAVIGATION - Auto Home Button for All Pages
-   Just include this file in any page!
+   🏠 GLOBAL NAVIGATION - Home Button + Footer Links
+   Auto-adds Home button and Legal links to ALL pages!
    ═══════════════════════════════════════════════════════════ */
 
 (function() {
     // Detect folder depth to set correct path
     const path = window.location.pathname;
-    const depth = (path.match(/\//g) || []).length;
     
-    // Calculate path to home
-    let homePath = 'index.html';
+    // Calculate base path
+    let basePath = '';
     
-    // Check if we're in a subfolder
     if (path.includes('/atlas/') || 
         path.includes('/oceans/') || 
         path.includes('/encyclopedia/') ||
         path.includes('/countries/') ||
-        path.includes('/continents/')) {
-        homePath = '../index.html';
+        path.includes('/continents/') ||
+        path.includes('/legal/')) {
+        basePath = '../';
     }
     
-    // Check if we're 2 levels deep
+    // Check if 2 levels deep
     if (path.includes('/oceans/profiles/') ||
         path.includes('/atlas/maps/')) {
-        homePath = '../../index.html';
+        basePath = '../../';
     }
 
-    // Create floating home button
+    // ═══════════════════════════════════════════════════════
+    // HOME BUTTON
+    // ═══════════════════════════════════════════════════════
+    
     const homeBtn = document.createElement('a');
-    homeBtn.href = homePath;
+    homeBtn.href = basePath + 'index.html';
     homeBtn.className = 'global-home-btn';
     homeBtn.innerHTML = '<i class="fas fa-home"></i>';
     homeBtn.title = 'Go to Home';
+
+    // ═══════════════════════════════════════════════════════
+    // FOOTER LINKS
+    // ═══════════════════════════════════════════════════════
     
-    // Create styles
+    const footer = document.createElement('div');
+    footer.className = 'global-footer';
+    footer.innerHTML = `
+        <div class="global-footer-content">
+            <p>© 2025 Geotopia. All rights reserved.</p>
+            <div class="global-footer-links">
+                <a href="${basePath}index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="${basePath}legal/privacy-policy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                <a href="${basePath}legal/terms-and-conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a>
+            </div>
+        </div>
+    `;
+    
+    // ═══════════════════════════════════════════════════════
+    // STYLES
+    // ═══════════════════════════════════════════════════════
+    
     const styles = document.createElement('style');
     styles.textContent = `
+        /* Home Button */
         .global-home-btn {
             position: fixed;
             bottom: 30px;
@@ -62,11 +85,6 @@
             background: linear-gradient(135deg, #00B4D8, #00FFE5);
         }
         
-        .global-home-btn:active {
-            transform: translateY(-2px) scale(1.05);
-        }
-        
-        /* Tooltip on hover */
         .global-home-btn::before {
             content: 'Home';
             position: absolute;
@@ -87,7 +105,52 @@
             opacity: 1;
         }
         
-        /* Mobile responsive */
+        /* Footer */
+        .global-footer {
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+        
+        .global-footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .global-footer-content p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .global-footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .global-footer-links a {
+            color: #00B4D8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.3s;
+        }
+        
+        .global-footer-links a:hover {
+            color: #00FFE5;
+        }
+        
+        .global-footer-links a i {
+            font-size: 0.8rem;
+        }
+        
+        /* Mobile */
         @media (max-width: 768px) {
             .global-home-btn {
                 bottom: 20px;
@@ -100,20 +163,36 @@
             .global-home-btn::before {
                 display: none;
             }
+            
+            .global-footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     `;
     
-    // Add to page when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', addButton);
-    } else {
-        addButton();
-    }
+    // ═══════════════════════════════════════════════════════
+    // ADD TO PAGE
+    // ═══════════════════════════════════════════════════════
     
-    function addButton() {
+    function addElements() {
         document.head.appendChild(styles);
         document.body.appendChild(homeBtn);
+        
+        // Add footer before closing body (or after main content)
+        const mainContainer = document.querySelector('.main-container, main, .container');
+        if (mainContainer) {
+            mainContainer.after(footer);
+        } else {
+            document.body.appendChild(footer);
+        }
     }
     
-    console.log('🏠 Global Home Button Added!');
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', addElements);
+    } else {
+        addElements();
+    }
+    
+    console.log('🏠 Global Navigation Added! (Home + Footer)');
 })();
