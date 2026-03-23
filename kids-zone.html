@@ -2368,275 +2368,478 @@
 
         // ==================== NUMBER ROCKET GAME ====================
         function startRocketGame() {
-            const nums = shuffle([1,2,3,4,5,6,7,8,9,10]);
-            state.data = { nums, target: 1, found: [], revealed: new Set() };
+    // Create numbers 1-10 and shuffle their positions
+    const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    
+    state.data = {
+        nums: nums,
+        target: 1,
+        found: [],
+        flipped: new Set()
+    };
 
-            const screen = document.getElementById('gameScreen');
-            let starsHTML = '';
-            for (let i = 0; i < 50; i++) {
-                starsHTML += `<div class="star" style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*2}s"></div>`;
-            }
+    // Create stars background
+    let starsHTML = '';
+    for (let i = 0; i < 50; i++) {
+        const size = 2 + Math.random() * 3;
+        starsHTML += `<div class="star" style="
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            width: ${size}px;
+            height: ${size}px;
+            animation-delay: ${Math.random() * 2}s;
+        "></div>`;
+    }
 
-            screen.innerHTML = `
-                <div class="game-top-bar">
-                    <div class="game-top-left">
-                        <button class="game-back-btn" onclick="goHome()">⬅️</button>
-                        <div class="game-top-title"><span>🚀</span> Number Rocket</div>
+    const screen = document.getElementById('gameScreen');
+    screen.innerHTML = `
+        <div class="game-top-bar">
+            <div class="game-top-left">
+                <button class="game-back-btn" onclick="goHome()">⬅️</button>
+                <div class="game-top-title"><span>🚀</span> Number Rocket</div>
+            </div>
+            <div class="game-top-stats">
+                <div class="game-stat">
+                    <span class="game-stat-icon">🎯</span>
+                    <span class="game-stat-value" id="rocketTarget">Find: 1</span>
+                </div>
+                <div class="game-stat">
+                    <span class="game-stat-icon">✅</span>
+                    <span class="game-stat-value" id="rocketFound">0/10</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-area" style="padding: 20px;">
+            <div class="rocket-game">
+                <div class="rocket-scene" id="rocketScene">
+                    <div class="stars">${starsHTML}</div>
+                    
+                    <!-- Fuel Gauge -->
+                    <div class="fuel-gauge">
+                        <div class="fuel-label">⛽ FUEL</div>
+                        <div class="fuel-bar">
+                            <div class="fuel-level" id="fuelLevel" style="height: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Number Targets on Right -->
+                    <div class="number-targets" id="numberTargets">
+                        ${[1,2,3,4,5,6,7,8,9,10].map(n => `
+                            <div class="number-target ${n === 1 ? 'current' : ''}" id="target${n}">${n}</div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Rocket -->
+                    <div class="rocket" id="rocket">🚀</div>
+                    <div class="rocket-flames" id="flames">🔥</div>
+                    
+                    <!-- Number Cards Grid -->
+                    <div class="number-cards-grid" id="numberGrid">
+                        ${nums.map((num, idx) => `
+                            <div class="rocket-number-card" 
+                                 id="card${idx}" 
+                                 data-num="${num}" 
+                                 data-idx="${idx}"
+                                 onclick="clickRocketCard(${idx}, ${num})">
+                                <div class="card-inner">
+                                    <div class="card-front">❓</div>
+                                    <div class="card-back">${num}</div>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
                 
-                <div class="game-area">
-                    <div class="rocket-game">
-                        <div class="rocket-scene">
-                            <div class="stars">${starsHTML}</div>
-                            
-                            <div class="fuel-gauge">
-                                <div class="fuel-label">FUEL</div>
-                                <div class="fuel-bar">
-                                    <div class="fuel-level" id="fuelLevel" style="height:0%"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="number-targets" id="numberTargets">
-                                ${[1,2,3,4,5,6,7,8,9,10].map(n => `
-                                    <div class="number-target ${n === 1 ? 'current' : ''}" id="target${n}">${n}</div>
-                                `).join('')}
-                            </div>
-                            
-                            <div class="rocket" id="rocket">🚀</div>
-                            <div class="rocket-flames" id="flames">🔥</div>
-                            
-                            <div class="number-grid" id="numberGrid">
-                                ${nums.map((n, i) => `
-                                    <button class="number-btn hidden" data-num="${n}" data-idx="${i}" onclick="clickRocketNum(${i})">
-                                        <span class="num-text">${n}</span>
-                                    </button>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
+                <!-- Instructions -->
+                <div style="text-align: center; margin-top: 15px; color: #666; font-size: 18px;">
+                    👆 Tap cards to find numbers <strong>1 → 2 → 3...</strong> in order!
                 </div>
-            `;
+            </div>
+        </div>
+    `;
+    
+    // Add specific styles for this game
+    addRocketStyles();
+}
+
+function addRocketStyles() {
+    // Check if styles already added
+    if (document.getElementById('rocketGameStyles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'rocketGameStyles';
+    style.textContent = `
+        .rocket-scene {
+            position: relative;
+            height: 480px;
+            background: linear-gradient(180deg, #0c1445 0%, #1a237e 30%, #283593 60%, #3949ab 100%);
+            border-radius: 25px;
+            overflow: hidden;
         }
+        
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .fuel-gauge {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 12px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .fuel-label {
+            color: white;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .fuel-bar {
+            width: 25px;
+            height: 150px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .fuel-level {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(0deg, #FF5252 0%, #FF8C42 30%, #FFE66D 60%, #7ED957 100%);
+            border-radius: 12px;
+            transition: height 0.5s ease;
+        }
+        
+        .number-targets {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .number-target {
+            width: 35px;
+            height: 35px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .number-target.current {
+            background: linear-gradient(135deg, #FFE66D, #f7b731);
+            color: #333;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(255,230,109,0.6);
+            animation: currentPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes currentPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255,230,109,0.6); }
+            50% { box-shadow: 0 0 25px rgba(255,230,109,0.9); }
+        }
+        
+        .number-target.found {
+            background: linear-gradient(135deg, #7ED957, #4ECDC4);
+            color: white;
+        }
+        
+        .rocket {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 80px;
+            filter: drop-shadow(0 0 20px rgba(255,200,0,0.5));
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+        
+        .rocket.shake {
+            animation: rocketShake 0.3s ease;
+        }
+        
+        @keyframes rocketShake {
+            0%, 100% { transform: translateX(-50%) rotate(0); }
+            25% { transform: translateX(-50%) rotate(-5deg); }
+            75% { transform: translateX(-50%) rotate(5deg); }
+        }
+        
+        .rocket.launching {
+            animation: rocketLaunch 2.5s ease-in forwards;
+        }
+        
+        @keyframes rocketLaunch {
+            0% { bottom: 60px; transform: translateX(-50%) rotate(0); }
+            20% { transform: translateX(-50%) rotate(-3deg); }
+            40% { transform: translateX(-50%) rotate(3deg); }
+            60% { bottom: 150px; transform: translateX(-50%) rotate(0); }
+            100% { bottom: 600px; transform: translateX(-50%) scale(0.3); opacity: 0; }
+        }
+        
+        .rocket-flames {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 35px;
+            opacity: 0;
+            z-index: 9;
+        }
+        
+        .rocket-flames.active {
+            opacity: 1;
+            animation: flameFlicker 0.15s infinite;
+        }
+        
+        @keyframes flameFlicker {
+            0%, 100% { transform: translateX(-50%) scaleY(1); }
+            50% { transform: translateX(-50%) scaleY(1.3); }
+        }
+        
+        .number-cards-grid {
+            position: absolute;
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            gap: 12px;
+            background: rgba(255,255,255,0.1);
+            padding: 18px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .rocket-number-card {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            perspective: 1000px;
+        }
+        
+        .rocket-number-card .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .rocket-number-card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .rocket-number-card .card-front,
+        .rocket-number-card .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .rocket-number-card .card-front {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .rocket-number-card .card-back {
+            background: linear-gradient(135deg, #4ECDC4, #44a08d);
+            color: white;
+            transform: rotateY(180deg);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+        }
+        
+        .rocket-number-card:hover {
+            transform: scale(1.08);
+        }
+        
+        .rocket-number-card.found .card-back {
+            background: linear-gradient(135deg, #7ED957, #26de81);
+        }
+        
+        .rocket-number-card.wrong .card-back {
+            background: linear-gradient(135deg, #FF5252, #f12711);
+            animation: cardShake 0.4s ease;
+        }
+        
+        @keyframes cardShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        
+        .rocket-number-card.found {
+            pointer-events: none;
+        }
+        
+        .rocket-number-card.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 600px) {
+            .number-cards-grid {
+                grid-template-columns: repeat(5, 50px);
+                gap: 8px;
+                padding: 12px;
+                bottom: 160px;
+            }
+            
+            .rocket-number-card {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .rocket-number-card .card-front,
+            .rocket-number-card .card-back {
+                font-size: 22px;
+            }
+            
+            .rocket {
+                font-size: 60px;
+                bottom: 50px;
+            }
+            
+            .rocket-flames {
+                font-size: 28px;
+                bottom: 20px;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
 
-        function clickRocketNum(idx) {
-            const btn = document.querySelector(`.number-btn[data-idx="${idx}"]`);
-            if (!btn || state.data.revealed.has(idx)) return;
-
-            Audio.click();
-            const num = parseInt(btn.dataset.num);
-            btn.classList.remove('hidden');
-
-            if (num === state.data.target) {
-                // Correct!
-                Audio.correct();
-                btn.classList.add('revealed');
-                state.data.revealed.add(idx);
-                state.data.found.push(num);
-
-                // Update target display
-                document.getElementById(`target${num}`).classList.remove('current');
-                document.getElementById(`target${num}`).classList.add('found');
-
-                // Update fuel
-                const fuelPercent = (state.data.found.length / 10) * 100;
-                document.getElementById('fuelLevel').style.height = fuelPercent + '%';
-
-                // Activate flames
-                if (state.data.found.length >= 3) {
-                    document.getElementById('flames').classList.add('active');
+function clickRocketCard(idx, num) {
+    const card = document.getElementById(`card${idx}`);
+    
+    // Prevent clicking already found or currently flipping cards
+    if (!card || card.classList.contains('found') || card.classList.contains('flipped')) {
+        return;
+    }
+    
+    Audio.click();
+    
+    // Flip the card to show number
+    card.classList.add('flipped');
+    
+    // Check if correct number
+    if (num === state.data.target) {
+        // CORRECT!
+        setTimeout(() => {
+            Audio.correct();
+            card.classList.add('found');
+            state.data.found.push(num);
+            
+            // Update target indicator
+            const currentTarget = document.getElementById(`target${num}`);
+            if (currentTarget) {
+                currentTarget.classList.remove('current');
+                currentTarget.classList.add('found');
+            }
+            
+            // Update next target
+            state.data.target++;
+            
+            if (state.data.target <= 10) {
+                const nextTarget = document.getElementById(`target${state.data.target}`);
+                if (nextTarget) {
+                    nextTarget.classList.add('current');
                 }
-
-                state.data.target++;
-
-                if (state.data.target <= 10) {
-                    document.getElementById(`target${state.data.target}`).classList.add('current');
-                }
-
-                // Check win
-                if (state.data.found.length === 10) {
-                    // Launch rocket!
-                    setTimeout(() => {
-                        document.getElementById('rocket').classList.add('launching');
-                        Audio.win();
-                        setTimeout(() => {
-                            state.score = 100;
-                            showResults();
-                        }, 3000);
-                    }, 500);
-                }
-            } else {
-                // Wrong
-                Audio.wrong();
-                btn.classList.add('wrong');
+                document.getElementById('rocketTarget').textContent = `Find: ${state.data.target}`;
+            }
+            
+            // Update found counter
+            document.getElementById('rocketFound').textContent = `${state.data.found.length}/10`;
+            
+            // Update fuel gauge
+            const fuelPercent = (state.data.found.length / 10) * 100;
+            document.getElementById('fuelLevel').style.height = fuelPercent + '%';
+            
+            // Shake rocket with excitement
+            const rocket = document.getElementById('rocket');
+            rocket.classList.add('shake');
+            setTimeout(() => rocket.classList.remove('shake'), 300);
+            
+            // Activate flames after 3 found
+            if (state.data.found.length >= 3) {
+                document.getElementById('flames').classList.add('active');
+            }
+            
+            // Check WIN condition
+            if (state.data.found.length === 10) {
+                // Disable all cards
+                document.querySelectorAll('.rocket-number-card').forEach(c => {
+                    c.classList.add('disabled');
+                });
+                
+                // Launch rocket!
                 setTimeout(() => {
-                    btn.classList.remove('wrong');
-                    btn.classList.add('hidden');
-                }, 800);
+                    document.getElementById('rocket').classList.add('launching');
+                    Audio.win();
+                    
+                    // Show toast
+                    showToast(true, '🚀 LIFTOFF! Mission Complete!');
+                    
+                    // Show results after rocket animation
+                    setTimeout(() => {
+                        state.score = 100;
+                        showResults();
+                    }, 2800);
+                }, 500);
             }
-        }
-
-        // ==================== SORTING FACTORY GAME ====================
-        function startFactoryGame() {
-            state.data = {
-                category: 'oceanLand',
-                combo: 0,
-                items: [],
-                current: null
-            };
+        }, 300);
+    } else {
+        // WRONG NUMBER
+        setTimeout(() => {
+            Audio.wrong();
+            card.classList.add('wrong');
             
-            loadFactoryItems();
-            renderFactory();
-        }
-
-        function loadFactoryItems() {
-            const cat = state.data.category;
-            let items = [];
+            // Show toast with hint
+            showToast(false, `Oops! Find ${state.data.target} first!`);
             
-            if (cat === 'oceanLand') {
-                OCEANS.forEach(o => items.push({ name: o, type: 'ocean' }));
-                SEAS.forEach(s => items.push({ name: s, type: 'ocean' }));
-                COUNTRIES.slice(0, 40).forEach(c => items.push({ name: c.name, type: 'land' }));
-            } else if (cat === 'riverMountain') {
-                RIVERS.slice(0, 50).forEach(r => items.push({ name: r, type: 'river' }));
-                MOUNTAINS.slice(0, 50).forEach(m => items.push({ name: m, type: 'mountain' }));
-            } else {
-                BIRDS.slice(0, 50).forEach(b => items.push({ name: b, type: 'bird' }));
-                ANIMALS.slice(0, 50).forEach(a => items.push({ name: a, type: 'animal' }));
-            }
-            
-            state.data.items = shuffle(items);
-        }
-
-        function renderFactory() {
-            const cat = state.data.category;
-            let bin1, bin2, icon1, icon2;
-            
-            if (cat === 'oceanLand') {
-                bin1 = { type: 'ocean', label: 'OCEAN', icon: '🌊' };
-                bin2 = { type: 'land', label: 'LAND', icon: '🏝️' };
-            } else if (cat === 'riverMountain') {
-                bin1 = { type: 'river', label: 'RIVER', icon: '💧' };
-                bin2 = { type: 'mountain', label: 'MOUNTAIN', icon: '⛰️' };
-            } else {
-                bin1 = { type: 'bird', label: 'BIRD', icon: '🐦' };
-                bin2 = { type: 'animal', label: 'ANIMAL', icon: '🦁' };
-            }
-
-            // Get current item
-            const available = state.data.items.filter((_, i) => !state.used.has(i));
-            if (available.length === 0 || state.question >= state.total) {
-                showResults();
-                return;
-            }
-            const idx = state.data.items.indexOf(available[0]);
-            state.used.add(idx);
-            state.data.current = available[0];
-
-            const progress = (state.question / state.total) * 100;
-
-            const screen = document.getElementById('gameScreen');
-            screen.innerHTML = `
-                <div class="game-top-bar">
-                    <div class="game-top-left">
-                        <button class="game-back-btn" onclick="goHome()">⬅️</button>
-                        <div class="game-top-title"><span>🏭</span> Sorting Factory</div>
-                    </div>
-                    <div class="game-top-stats">
-                        <div class="game-stat">
-                            <span class="game-stat-icon">⭐</span>
-                            <span class="game-stat-value" id="factoryScore">${state.score}</span>
-                        </div>
-                        <div class="game-stat">
-                            <span class="game-stat-icon">📝</span>
-                            <span class="game-stat-value">${state.question + 1}/${state.total}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="progress-wrapper">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width:${progress}%"></div>
-                    </div>
-                </div>
-                
-                <div class="game-area">
-                    <div class="factory-game">
-                        <div class="factory-scene">
-                            <div class="category-selector">
-                                <button class="cat-btn ${cat === 'oceanLand' ? 'active' : ''}" onclick="changeCategory('oceanLand')">🌊 Ocean/Land</button>
-                                <button class="cat-btn ${cat === 'riverMountain' ? 'active' : ''}" onclick="changeCategory('riverMountain')">⛰️ River/Mountain</button>
-                                <button class="cat-btn ${cat === 'birdAnimal' ? 'active' : ''}" onclick="changeCategory('birdAnimal')">🦁 Bird/Animal</button>
-                            </div>
-                            
-                            <div class="combo-display ${state.data.combo >= 3 ? 'show' : ''}" id="comboDisplay">
-                                🔥 ${state.data.combo}x COMBO!
-                            </div>
-                            
-                            <div class="conveyor-belt"></div>
-                            
-                            <div class="conveyor-item" id="conveyorItem">${state.data.current.name}</div>
-                            
-                            <div class="sorting-bins">
-                                <div class="sort-bin ${bin1.type}" onclick="sortItem('${bin1.type}')">
-                                    <div class="sort-bin-icon">${bin1.icon}</div>
-                                    <div class="sort-bin-label">${bin1.label}</div>
-                                </div>
-                                <div class="sort-bin ${bin2.type}" onclick="sortItem('${bin2.type}')">
-                                    <div class="sort-bin-icon">${bin2.icon}</div>
-                                    <div class="sort-bin-label">${bin2.label}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function changeCategory(cat) {
-            Audio.click();
-            state.data.category = cat;
-            state.used = new Set();
-            state.question = 0;
-            state.score = 0;
-            loadFactoryItems();
-            renderFactory();
-        }
-
-        function sortItem(type) {
-            Audio.click();
-            const item = state.data.current;
-            const itemEl = document.getElementById('conveyorItem');
-            const bin = document.querySelector(`.sort-bin.${type}`);
-
-            if (type === item.type) {
-                // Correct!
-                Audio.correct();
-                itemEl.classList.add('correct');
-                bin.classList.add('pulse');
-                
-                state.data.combo++;
-                const points = 10 + (state.data.combo >= 3 ? state.data.combo * 2 : 0);
-                state.score += points;
-                
-                // Show combo
-                if (state.data.combo >= 3) {
-                    document.getElementById('comboDisplay').textContent = `🔥 ${state.data.combo}x COMBO! +${points}`;
-                    document.getElementById('comboDisplay').classList.add('show');
-                }
-            } else {
-                // Wrong
-                Audio.wrong();
-                itemEl.classList.add('wrong');
-                state.data.combo = 0;
-                document.getElementById('comboDisplay').classList.remove('show');
-            }
-
+            // Flip back after delay
             setTimeout(() => {
-                state.question++;
-                renderFactory();
+                card.classList.remove('flipped', 'wrong');
             }, 1000);
-        }
+        }, 300);
+    }
+}
 
         // ==================== SPELLING SAFARI GAME ====================
         function startSafariGame() {
