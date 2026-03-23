@@ -2424,7 +2424,7 @@ const mountainsData = {
           icon: '🏔️',
           funFact: 'K2 has 25% summit death rate - deadliest eight-thousander',
           keyStats: {
-            eight-thousanders: '4 peaks (K2, Broad Peak, Gasherbrum I & II)',
+            'eight-thousanders': '4 peaks (K2, Broad Peak, Gasherbrum I & II)',
             glaciers: 'Siachen (76km), Baltoro (63km)',
             elevation: 'Highest average elevation globally',
             conflict: 'Siachen Glacier: world\'s highest battlefield'
