@@ -1,18 +1,17 @@
 // ========================================
-// 💜 PREMIUM WRAPPER - PERSISTENT FIX
-// Watches for new content continuously
+// 💜 PREMIUM WRAPPER - NUCLEAR FIX
+// Complete rewrite with persistence
 // ========================================
 
 (function() {
+    'use strict';
     
-    function getBasePath() {
-        var path = window.location.pathname;
-        if (path.includes('/geotopia/')) {
-            return '/geotopia/';
-        }
-        return '/';
-    }
-
+    console.log('💜 Premium Wrapper Loading...');
+    
+    // ==========================================
+    // CONFIG
+    // ==========================================
+    
     var FREE_LIMITS = {
         mountains: 7, rivers: 7, lakes: 7, oceans: 7,
         forests: 7, deserts: 7, volcanoes: 7, islands: 7,
@@ -28,314 +27,263 @@
         { title: "Beyond The Scene! 🌟", subtitle: "Go beyond with premium 💜" }
     ];
 
-    var currentCategory = null;
-    var freeItemsList = [];
-    var observer = null;
-    var processingTimeout = null;
+    var state = {
+        category: null,
+        freeItems: [],
+        observer: null,
+        styleInjected: false,
+        lastProcessTime: 0
+    };
 
     // ==========================================
-    // STYLES
+    // UTILITY FUNCTIONS
     // ==========================================
     
-    function addStyles() {
-        if (document.getElementById('geo-styles')) return;
-        
-        var css = document.createElement('style');
-        css.id = 'geo-styles';
-        css.textContent = 
-            '.geo-sash {' +
-                'position: absolute;' +
-                'top: 0;' +
-                'left: -30%;' +
-                'width: 160%;' +
-                'height: 28px;' +
-                'background: linear-gradient(90deg, #7c3aed, #a855f7, #7c3aed);' +
-                'transform: rotate(-35deg) translateY(20px);' +
-                'display: flex;' +
-                'align-items: center;' +
-                'justify-content: center;' +
-                'color: white;' +
-                'font-size: 10px;' +
-                'font-weight: bold;' +
-                'letter-spacing: 1px;' +
-                'box-shadow: 0 2px 10px rgba(124,58,237,0.5);' +
-                'z-index: 999;' +
-                'pointer-events: auto;' +
-                'cursor: pointer;' +
-            '}' +
-            '.geo-heart {' +
-                'position: absolute;' +
-                'bottom: 8px;' +
-                'right: 8px;' +
-                'width: 32px;' +
-                'height: 32px;' +
-                'background: linear-gradient(135deg, #7c3aed, #a855f7);' +
-                'border-radius: 50%;' +
-                'display: flex;' +
-                'align-items: center;' +
-                'justify-content: center;' +
-                'font-size: 16px;' +
-                'box-shadow: 0 3px 12px rgba(124,58,237,0.5);' +
-                'z-index: 999;' +
-                'cursor: pointer;' +
-            '}' +
-            '.geo-free {' +
-                'position: absolute;' +
-                'top: 8px;' +
-                'left: 8px;' +
-                'background: linear-gradient(135deg, #22c55e, #16a34a);' +
-                'color: white;' +
-                'padding: 4px 10px;' +
-                'border-radius: 15px;' +
-                'font-size: 10px;' +
-                'font-weight: bold;' +
-                'z-index: 999;' +
-            '}' +
-            '.geo-locked {' +
-                'position: relative;' +
-                'overflow: hidden;' +
-                'cursor: pointer;' +
-            '}';
-        
-        document.head.appendChild(css);
+    function getBasePath() {
+        var path = window.location.pathname;
+        return path.includes('/geotopia/') ? '/geotopia/' : '/';
     }
 
-    // ==========================================
-    // INIT
-    // ==========================================
-    
-    function init() {
-        currentCategory = detectCategory();
-        if (!currentCategory) {
-            console.log('💜 No category detected');
-            return;
-        }
-        
-        console.log('💜 Category:', currentCategory);
-        
-        if (isUserPremium()) {
-            console.log('👑 Premium user - no locks needed');
-            return;
-        }
-        
-        addStyles();
-        loadFreeItems();
-        processContent();
-        startObserver(); // ⭐ KEY FIX: Start watching for changes
-        watchFilters();
-    }
-
-    function isUserPremium() {
+    function isPremium() {
         return localStorage.getItem('geo_premium') === 'true';
     }
 
     function detectCategory() {
         var url = window.location.href.toLowerCase();
-        if (url.includes('river')) return 'rivers';
-        if (url.includes('mountain')) return 'mountains';
-        if (url.includes('lake')) return 'lakes';
-        if (url.includes('forest')) return 'forests';
-        if (url.includes('desert')) return 'deserts';
-        if (url.includes('volcano')) return 'volcanoes';
-        if (url.includes('island')) return 'islands';
-        if (url.includes('ocean')) return 'oceans';
-        if (url.includes('coral')) return 'coralReefs';
-        if (url.includes('game')) return 'games';
-        if (url.includes('atlas')) return 'atlas';
-        if (url.includes('upsc')) return 'upsc';
-        if (url.includes('encyclopedia') || url.includes('countr')) return 'encyclopedia';
+        var map = {
+            'river': 'rivers',
+            'mountain': 'mountains',
+            'lake': 'lakes',
+            'forest': 'forests',
+            'desert': 'deserts',
+            'volcano': 'volcanoes',
+            'island': 'islands',
+            'ocean': 'oceans',
+            'coral': 'coralReefs',
+            'game': 'games',
+            'atlas': 'atlas',
+            'upsc': 'upsc',
+            'encyclopedia': 'encyclopedia',
+            'countr': 'encyclopedia'
+        };
+        
+        for (var key in map) {
+            if (url.includes(key)) {
+                return map[key];
+            }
+        }
         return null;
     }
 
     // ==========================================
-    // ⭐ MUTATION OBSERVER - WATCHES FOR CHANGES
+    // STYLES - INJECTED ONCE
     // ==========================================
-
-    function startObserver() {
-        if (observer) {
-            observer.disconnect();
-        }
-
-        observer = new MutationObserver(function(mutations) {
-            // Debounce: wait 300ms after last change
-            clearTimeout(processingTimeout);
-            processingTimeout = setTimeout(function() {
-                console.log('💜 Content changed, reprocessing...');
-                processContent();
-            }, 300);
-        });
-
-        // Watch the entire body for changes
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-
-        console.log('💜 Observer started - watching for new content');
+    
+    function injectStyles() {
+        if (state.styleInjected) return;
+        
+        var style = document.createElement('style');
+        style.id = 'geo-premium-styles';
+        style.textContent = `
+            .geo-sash {
+                position: absolute !important;
+                top: 0 !important;
+                left: -30% !important;
+                width: 160% !important;
+                height: 28px !important;
+                background: linear-gradient(90deg, #7c3aed, #a855f7, #7c3aed) !important;
+                transform: rotate(-35deg) translateY(20px) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                color: white !important;
+                font-size: 10px !important;
+                font-weight: bold !important;
+                letter-spacing: 1px !important;
+                box-shadow: 0 2px 10px rgba(124,58,237,0.5) !important;
+                z-index: 999 !important;
+                pointer-events: none !important;
+            }
+            
+            .geo-heart {
+                position: absolute !important;
+                bottom: 8px !important;
+                right: 8px !important;
+                width: 32px !important;
+                height: 32px !important;
+                background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 16px !important;
+                box-shadow: 0 3px 12px rgba(124,58,237,0.5) !important;
+                z-index: 999 !important;
+                pointer-events: none !important;
+            }
+            
+            .geo-free-badge {
+                position: absolute !important;
+                top: 8px !important;
+                left: 8px !important;
+                background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+                color: white !important;
+                padding: 4px 10px !important;
+                border-radius: 15px !important;
+                font-size: 10px !important;
+                font-weight: bold !important;
+                z-index: 999 !important;
+                pointer-events: none !important;
+            }
+            
+            .geo-locked-card {
+                position: relative !important;
+                cursor: pointer !important;
+            }
+            
+            .geo-free-card {
+                position: relative !important;
+            }
+        `;
+        
+        document.head.appendChild(style);
+        state.styleInjected = true;
+        console.log('💜 Styles injected');
     }
 
     // ==========================================
-    // FREE ITEMS
+    // FREE ITEMS MANAGEMENT
     // ==========================================
-
+    
     function loadFreeItems() {
-        var saved = sessionStorage.getItem('geo_free_' + currentCategory);
-        freeItemsList = saved ? JSON.parse(saved) : [];
+        if (!state.category) return;
+        
+        var key = 'geo_free_' + state.category;
+        var saved = sessionStorage.getItem(key);
+        state.freeItems = saved ? JSON.parse(saved) : [];
+        console.log('💜 Loaded free items:', state.freeItems.length);
     }
 
     function saveFreeItems() {
-        sessionStorage.setItem('geo_free_' + currentCategory, JSON.stringify(freeItemsList));
+        if (!state.category) return;
+        
+        var key = 'geo_free_' + state.category;
+        sessionStorage.setItem(key, JSON.stringify(state.freeItems));
     }
 
     function isItemFree(name) {
         if (!name) return false;
-        return freeItemsList.indexOf(name.toLowerCase().trim()) !== -1;
+        var normalized = name.toLowerCase().trim();
+        return state.freeItems.indexOf(normalized) !== -1;
     }
 
     function addFreeItem(name) {
-        if (!name) return;
-        var n = name.toLowerCase().trim();
-        if (freeItemsList.indexOf(n) === -1) {
-            freeItemsList.push(n);
-            saveFreeItems();
-        }
-    }
-
-    function canAddFree() {
-        return freeItemsList.length < (FREE_LIMITS[currentCategory] || 7);
+        if (!name) return false;
+        
+        var normalized = name.toLowerCase().trim();
+        var limit = FREE_LIMITS[state.category] || 7;
+        
+        if (state.freeItems.length >= limit) return false;
+        if (state.freeItems.indexOf(normalized) !== -1) return false;
+        
+        state.freeItems.push(normalized);
+        saveFreeItems();
+        return true;
     }
 
     // ==========================================
-    // PROCESS CONTENT - Main Logic
+    // CARD DETECTION & NAMING
     // ==========================================
-
-    function processContent() {
-        var container = findContainer();
-        if (!container) {
-            return;
-        }
-        
-        var directChildren = container.children;
-        var cards = [];
-        
-        for (var i = 0; i < directChildren.length; i++) {
-            var child = directChildren[i];
-            
-            if (child.tagName === 'SCRIPT' || 
-                child.tagName === 'STYLE' ||
-                child.classList.contains('geo-upgrade-cta')) {
-                continue;
-            }
-            
-            cards.push(child);
-        }
-        
-        if (cards.length === 0) return;
-        
-        var freeCount = 0;
-        var lockedCount = 0;
-        
-        // Remove old CTA
-        var oldCTA = container.querySelector('.geo-upgrade-cta');
-        if (oldCTA) oldCTA.remove();
-        
-        for (var j = 0; j < cards.length; j++) {
-            var card = cards[j];
-            
-            // Skip if already processed
-            if (card.classList.contains('geo-done')) continue;
-            
-            var name = getCardName(card);
-            var isFree = false;
-            
-            if (isItemFree(name)) {
-                isFree = true;
-            } else if (canAddFree() && name) {
-                addFreeItem(name);
-                isFree = true;
-            }
-            
-            if (isFree) {
-                makeCardFree(card);
-                freeCount++;
-            } else {
-                makeCardLocked(card);
-                lockedCount++;
-            }
-            
-            card.classList.add('geo-done');
-        }
-        
-        // Add CTA if there are locked items
-        if (lockedCount > 0) {
-            var cta = createCTA(lockedCount, freeCount, cards.length);
-            container.appendChild(cta);
-        }
-        
-        console.log('💜 Processed:', freeCount, 'free,', lockedCount, 'locked');
-    }
-
+    
     function findContainer() {
         var selectors = [
-            '.rivers-grid', '.mountains-grid', '.lakes-grid',
-            '.forests-grid', '.deserts-grid', '.volcanoes-grid',
-            '.islands-grid', '.oceans-grid', '.games-grid',
-            '.atlas-grid', '.reefs-grid', '.coral-grid',
-            '.cards-grid', '.items-grid', '.grid',
-            '#grid', '#cardsGrid',
+            '.rivers-grid',
+            '.mountains-grid',
+            '.lakes-grid',
+            '.forests-grid',
+            '.deserts-grid',
+            '.volcanoes-grid',
+            '.islands-grid',
+            '.oceans-grid',
+            '.games-grid',
+            '.atlas-grid',
+            '.reefs-grid',
+            '.coral-grid',
+            '.cards-grid',
+            '.items-grid',
+            '.grid',
+            '#grid',
+            '#cardsGrid',
             '[class*="-grid"]'
         ];
         
         for (var i = 0; i < selectors.length; i++) {
-            var el = document.querySelector(selectors[i]);
-            if (el && el.children.length > 0) {
-                return el;
+            var container = document.querySelector(selectors[i]);
+            if (container && container.children.length > 0) {
+                console.log('💜 Found container:', selectors[i], '(' + container.children.length + ' children)');
+                return container;
             }
         }
+        
+        console.log('💜 No container found');
         return null;
     }
 
     function getCardName(card) {
-        var name = card.getAttribute('data-name') || card.getAttribute('data-title');
-        if (name) return name;
+        // Try data attributes first
+        var name = card.getAttribute('data-name') || 
+                   card.getAttribute('data-title') ||
+                   card.getAttribute('data-item');
         
-        var headings = card.querySelectorAll(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > .title, :scope > .name');
+        if (name) return name.trim();
+        
+        // Try direct child headings
+        var headings = card.querySelectorAll(':scope > h1, :scope > h2, :scope > h3, :scope > .title, :scope > .name');
         if (headings.length > 0) {
             return headings[0].textContent.trim();
         }
         
-        var anyH = card.querySelector('h1, h2, h3, h4, h5');
-        if (anyH) return anyH.textContent.trim();
+        // Try any heading
+        var anyHeading = card.querySelector('h1, h2, h3, h4, h5');
+        if (anyHeading) {
+            return anyHeading.textContent.trim();
+        }
         
+        // Fallback
         return card.textContent.trim().substring(0, 30);
     }
 
-    // ==========================================
-    // MAKE CARDS
-    // ==========================================
-
-    function makeCardFree(card) {
-        // Remove any existing badges first
-        var existingBadge = card.querySelector('.geo-free');
-        if (existingBadge) return; // Already done
+    function isValidCard(element) {
+        if (!element || !element.tagName) return false;
         
-        card.style.position = 'relative';
-        card.style.overflow = 'hidden';
+        var tag = element.tagName.toUpperCase();
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK') return false;
+        
+        if (element.classList.contains('geo-upgrade-cta')) return false;
+        if (element.classList.contains('geo-processed')) return false;
+        
+        return true;
+    }
+
+    // ==========================================
+    // APPLY LOCKS TO CARDS
+    // ==========================================
+    
+    function makeCardFree(card) {
+        if (card.querySelector('.geo-free-badge')) return; // Already done
+        
+        card.classList.add('geo-free-card', 'geo-processed');
         
         var badge = document.createElement('div');
-        badge.className = 'geo-free';
+        badge.className = 'geo-free-badge';
         badge.textContent = '✨ Free';
         card.appendChild(badge);
     }
 
     function makeCardLocked(card) {
-        // Remove any existing locks first
-        var existingSash = card.querySelector('.geo-sash');
-        if (existingSash) return; // Already done
+        if (card.querySelector('.geo-sash')) return; // Already done
         
-        card.style.position = 'relative';
-        card.style.overflow = 'hidden';
-        card.classList.add('geo-locked');
+        card.classList.add('geo-locked-card', 'geo-processed');
         
         var sash = document.createElement('div');
         sash.className = 'geo-sash';
@@ -347,94 +295,74 @@
         heart.textContent = '💜';
         card.appendChild(heart);
         
-        card.onclick = function(e) {
+        // Add click handler to the card itself
+        card.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            showMessage();
-        };
-    }
-
-    // ==========================================
-    // WATCH FILTERS
-    // ==========================================
-
-    function watchFilters() {
-        document.addEventListener('click', function(e) {
-            var t = e.target;
-            var isFilter = false;
-            
-            if (t.tagName === 'BUTTON' || t.tagName === 'A') {
-                if (t.className && (
-                    t.className.includes('filter') || 
-                    t.className.includes('tab') ||
-                    t.className.includes('category'))) {
-                    isFilter = true;
-                }
-            }
-            
-            if (t.hasAttribute('data-filter') || t.hasAttribute('data-category')) {
-                isFilter = true;
-            }
-            
-            if (isFilter) {
-                console.log('💜 Filter clicked');
-                setTimeout(function() {
-                    // Remove all geo-done classes to reprocess
-                    document.querySelectorAll('.geo-done').forEach(function(el) {
-                        el.classList.remove('geo-done');
-                    });
-                    processContent();
-                }, 500);
-            }
+            showUpgradeModal();
         });
     }
 
     // ==========================================
-    // MESSAGE POPUP
+    // MAIN PROCESSING LOGIC
     // ==========================================
-
-    function showMessage() {
-        var old = document.getElementById('geo-modal');
-        if (old) old.remove();
+    
+    function processCards() {
+        // Throttle - don't run more than once per second
+        var now = Date.now();
+        if (now - state.lastProcessTime < 1000) {
+            console.log('💜 Throttled - too soon');
+            return;
+        }
+        state.lastProcessTime = now;
         
-        var msg = BTS_MESSAGES[Math.floor(Math.random() * BTS_MESSAGES.length)];
+        console.log('💜 Processing cards...');
         
-        var modal = document.createElement('div');
-        modal.id = 'geo-modal';
-        modal.style.cssText = 
-            'position:fixed;top:0;left:0;width:100%;height:100%;' +
-            'background:rgba(88,28,135,0.95);z-index:9999999;' +
-            'display:flex;align-items:center;justify-content:center;';
+        var container = findContainer();
+        if (!container) return;
         
-        modal.innerHTML = 
-            '<div style="background:linear-gradient(145deg,#1e1b4b,#312e81);' +
-            'border-radius:25px;padding:40px;max-width:400px;width:90%;text-align:center;">' +
-                '<div style="font-size:60px;margin-bottom:15px;">💜</div>' +
-                '<h2 style="color:white;font-size:24px;margin:0 0 10px;">' + msg.title + '</h2>' +
-                '<p style="color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:25px;">' + msg.subtitle + '</p>' +
-                '<button id="geo-go-btn" style="background:linear-gradient(135deg,#a855f7,#7c3aed);' +
-                'color:white;border:none;padding:14px 35px;border-radius:30px;' +
-                'font-size:16px;font-weight:bold;cursor:pointer;width:100%;">💜 View Plans</button>' +
-                '<p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:15px;">보라해 💜</p>' +
-            '</div>';
+        var children = Array.from(container.children);
+        var validCards = children.filter(isValidCard);
         
-        document.body.appendChild(modal);
+        console.log('💜 Valid cards:', validCards.length);
         
-        modal.onclick = function(e) {
-            if (e.target === modal) modal.remove();
-        };
+        if (validCards.length === 0) return;
         
-        document.getElementById('geo-go-btn').onclick = function() {
-            window.location.href = getBasePath() + 'pricing.html';
-        };
+        var stats = { free: 0, locked: 0 };
+        
+        validCards.forEach(function(card) {
+            var name = getCardName(card);
+            
+            if (isItemFree(name)) {
+                makeCardFree(card);
+                stats.free++;
+            } else if (addFreeItem(name)) {
+                makeCardFree(card);
+                stats.free++;
+            } else {
+                makeCardLocked(card);
+                stats.locked++;
+            }
+        });
+        
+        console.log('💜 Results:', stats.free, 'free,', stats.locked, 'locked');
+        
+        // Add CTA if needed
+        if (stats.locked > 0) {
+            addUpgradeCTA(container, stats.locked, stats.free, validCards.length);
+        }
     }
 
     // ==========================================
-    // CTA BANNER
+    // UPGRADE CTA
     // ==========================================
-
-    function createCTA(locked, free, total) {
-        var names = {
+    
+    function addUpgradeCTA(container, locked, free, total) {
+        // Remove old CTA
+        var oldCTA = container.querySelector('.geo-upgrade-cta');
+        if (oldCTA) oldCTA.remove();
+        
+        var categoryNames = {
             rivers: 'Rivers', mountains: 'Mountains', lakes: 'Lakes',
             forests: 'Forests', deserts: 'Deserts', oceans: 'Oceans',
             volcanoes: 'Volcanoes', islands: 'Islands', coralReefs: 'Coral Reefs',
@@ -442,37 +370,161 @@
         };
         
         var cta = document.createElement('div');
-        cta.className = 'geo-upgrade-cta';
+        cta.className = 'geo-upgrade-cta geo-processed';
         cta.style.cssText = 
-            'grid-column:1/-1;background:linear-gradient(135deg,#7c3aed,#5b21b6);' +
-            'border-radius:20px;padding:40px 25px;text-align:center;color:white;margin:25px 0;';
+            'grid-column: 1 / -1;' +
+            'background: linear-gradient(135deg, #7c3aed, #5b21b6);' +
+            'border-radius: 20px;' +
+            'padding: 40px 25px;' +
+            'text-align: center;' +
+            'color: white;' +
+            'margin: 25px 0;';
         
         cta.innerHTML = 
-            '<div style="font-size:50px;margin-bottom:15px;">💜</div>' +
-            '<h3 style="font-size:24px;margin:0 0 10px;">Keep Discovering!</h3>' +
-            '<div style="font-size:50px;font-weight:bold;margin:15px 0;">' + locked + '</div>' +
-            '<p style="font-size:16px;margin-bottom:20px;">more ' + (names[currentCategory] || 'items') + ' waiting!</p>' +
-            '<button onclick="window.GeoPremiumWrapper.showMessage()" style="background:white;color:#7c3aed;' +
-            'border:none;padding:14px 40px;border-radius:30px;font-size:16px;font-weight:bold;cursor:pointer;">' +
-            '💜 Unlock All</button>' +
-            '<p style="font-size:12px;opacity:0.6;margin-top:15px;">' + free + ' of ' + total + ' free</p>';
+            '<div style="font-size: 50px; margin-bottom: 15px;">💜</div>' +
+            '<h3 style="font-size: 24px; margin: 0 0 10px;">Keep Discovering!</h3>' +
+            '<div style="font-size: 50px; font-weight: bold; margin: 15px 0;">' + locked + '</div>' +
+            '<p style="font-size: 16px; margin-bottom: 20px;">more ' + (categoryNames[state.category] || 'items') + ' waiting!</p>' +
+            '<button id="geo-unlock-btn" style="background: white; color: #7c3aed; border: none; padding: 14px 40px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer;">💜 Unlock All</button>' +
+            '<p style="font-size: 12px; opacity: 0.6; margin-top: 15px;">' + free + ' of ' + total + ' free</p>';
         
-        return cta;
+        container.appendChild(cta);
+        
+        document.getElementById('geo-unlock-btn').addEventListener('click', showUpgradeModal);
+    }
+
+    // ==========================================
+    // UPGRADE MODAL
+    // ==========================================
+    
+    function showUpgradeModal() {
+        var existing = document.getElementById('geo-premium-modal');
+        if (existing) existing.remove();
+        
+        var msg = BTS_MESSAGES[Math.floor(Math.random() * BTS_MESSAGES.length)];
+        
+        var modal = document.createElement('div');
+        modal.id = 'geo-premium-modal';
+        modal.style.cssText = 
+            'position: fixed; top: 0; left: 0; width: 100%; height: 100%;' +
+            'background: rgba(88, 28, 135, 0.95); z-index: 999999;' +
+            'display: flex; align-items: center; justify-content: center;';
+        
+        modal.innerHTML = 
+            '<div style="background: linear-gradient(145deg, #1e1b4b, #312e81); border-radius: 25px; padding: 40px; max-width: 400px; width: 90%; text-align: center;">' +
+                '<div style="font-size: 60px; margin-bottom: 15px;">💜</div>' +
+                '<h2 style="color: white; font-size: 24px; margin: 0 0 10px;">' + msg.title + '</h2>' +
+                '<p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 25px;">' + msg.subtitle + '</p>' +
+                '<button id="geo-pricing-btn" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; border: none; padding: 14px 35px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%;">💜 View Plans</button>' +
+                '<p style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 15px;">보라해 💜</p>' +
+            '</div>';
+        
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) modal.remove();
+        });
+        
+        document.getElementById('geo-pricing-btn').addEventListener('click', function() {
+            window.location.href = getBasePath() + 'pricing.html';
+        });
+    }
+
+    // ==========================================
+    // MUTATION OBSERVER
+    // ==========================================
+    
+    function startObserver() {
+        if (state.observer) {
+            state.observer.disconnect();
+        }
+        
+        var debounceTimer;
+        
+        state.observer = new MutationObserver(function(mutations) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() {
+                console.log('💜 DOM changed, reprocessing...');
+                processCards();
+            }, 500);
+        });
+        
+        state.observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        console.log('💜 Observer started');
+    }
+
+    // ==========================================
+    // INIT
+    // ==========================================
+    
+    function initialize() {
+        console.log('💜 Initializing...');
+        
+        state.category = detectCategory();
+        
+        if (!state.category) {
+            console.log('💜 No category detected - exiting');
+            return;
+        }
+        
+        console.log('💜 Category:', state.category);
+        
+        if (isPremium()) {
+            console.log('💜 Premium user - no locks needed');
+            return;
+        }
+        
+        injectStyles();
+        loadFreeItems();
+        
+        // Initial processing
+        setTimeout(processCards, 1000);
+        
+        // Start watching for changes
+        startObserver();
+        
+        // Watch for filter clicks
+        document.addEventListener('click', function(e) {
+            var target = e.target;
+            if (target.matches('[data-filter], [data-category], .filter-btn, .tab-btn')) {
+                console.log('💜 Filter clicked');
+                setTimeout(function() {
+                    // Clear processed flags
+                    document.querySelectorAll('.geo-processed').forEach(function(el) {
+                        el.classList.remove('geo-processed');
+                    });
+                    processCards();
+                }, 600);
+            }
+        });
+        
+        console.log('💜 Initialization complete');
     }
 
     // ==========================================
     // START
     // ==========================================
-
+    
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', initialize);
     } else {
-        setTimeout(init, 500);
+        initialize();
     }
-
+    
+    // Global API
     window.GeoPremiumWrapper = {
-        showMessage: showMessage,
-        reapply: processContent
+        showUpgrade: showUpgradeModal,
+        reprocess: processCards,
+        reset: function() {
+            sessionStorage.clear();
+            location.reload();
+        }
     };
+    
+    console.log('💜 Premium Wrapper Loaded');
 
 })();
