@@ -1,6 +1,5 @@
 // ========================================
-// 💜 PREMIUM WRAPPER - NUCLEAR FIX
-// Complete rewrite with persistence
+// 💜 PREMIUM WRAPPER - NUCLEAR FIX v2
 // ========================================
 
 (function() {
@@ -32,7 +31,8 @@
         freeItems: [],
         observer: null,
         styleInjected: false,
-        lastProcessTime: 0
+        lastProcessTime: 0,
+        globalClickHandler: null
     };
 
     // ==========================================
@@ -73,6 +73,34 @@
             }
         }
         return null;
+    }
+
+    // ==========================================
+    // GLOBAL CLICK BLOCKER - RUNS FIRST
+    // ==========================================
+    
+    function installGlobalClickBlocker() {
+        if (state.globalClickHandler) return; // Already installed
+        
+        state.globalClickHandler = function(e) {
+            var target = e.target;
+            
+            // Walk up to find if this is inside a locked card
+            var card = target.closest('.geo-locked-card');
+            
+            if (card) {
+                console.log('💜 BLOCKED: Click on locked card');
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showUpgradeModal();
+                return false;
+            }
+        };
+        
+        // Install on capture phase (runs BEFORE other handlers)
+        document.addEventListener('click', state.globalClickHandler, true);
+        console.log('💜 Global click blocker installed');
     }
 
     // ==========================================
@@ -136,13 +164,25 @@
                 pointer-events: none !important;
             }
             
+            /* CRITICAL: Lock the entire card */
             .geo-locked-card {
                 position: relative !important;
                 cursor: pointer !important;
+                pointer-events: auto !important;
+            }
+            
+            /* Disable ALL clicks inside locked cards */
+            .geo-locked-card * {
+                pointer-events: none !important;
             }
             
             .geo-free-card {
                 position: relative !important;
+            }
+            
+            /* Ensure free cards remain clickable */
+            .geo-free-card * {
+                pointer-events: auto !important;
             }
         `;
         
@@ -270,6 +310,13 @@
     // ==========================================
     
     function makeCardFree(card) {
+        // Remove any existing locks first
+        card.classList.remove('geo-locked-card');
+        var oldSash = card.querySelector('.geo-sash');
+        var oldHeart = card.querySelector('.geo-heart');
+        if (oldSash) oldSash.remove();
+        if (oldHeart) oldHeart.remove();
+        
         if (card.querySelector('.geo-free-badge')) return; // Already done
         
         card.classList.add('geo-free-card', 'geo-processed');
@@ -281,9 +328,19 @@
     }
 
     function makeCardLocked(card) {
+        // Remove free badge if exists
+        var oldBadge = card.querySelector('.geo-free-badge');
+        if (oldBadge) oldBadge.remove();
+        
         if (card.querySelector('.geo-sash')) return; // Already done
         
         card.classList.add('geo-locked-card', 'geo-processed');
+        
+        // Remove href to prevent navigation
+        if (card.tagName === 'A') {
+            card.removeAttribute('href');
+            card.style.cursor = 'pointer';
+        }
         
         var sash = document.createElement('div');
         sash.className = 'geo-sash';
@@ -294,13 +351,6 @@
         heart.className = 'geo-heart';
         heart.textContent = '💜';
         card.appendChild(heart);
-        
-        // Add click handler to the card itself
-        card.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            showUpgradeModal();
-        });
     }
 
     // ==========================================
@@ -308,14 +358,6 @@
     // ==========================================
     
     function processCards() {
-        // Throttle - don't run more than once per second
-        var now = Date.now();
-        if (now - state.lastProcessTime < 1000) {
-            console.log('💜 Throttled - too soon');
-            return;
-        }
-        state.lastProcessTime = now;
-        
         console.log('💜 Processing cards...');
         
         var container = findContainer();
@@ -446,7 +488,7 @@
             debounceTimer = setTimeout(function() {
                 console.log('💜 DOM changed, reprocessing...');
                 processCards();
-            }, 500);
+            }, 300);
         });
         
         state.observer.observe(document.body, {
@@ -478,13 +520,16 @@
             return;
         }
         
+        // CRITICAL: Install click blocker FIRST
+        installGlobalClickBlocker();
+        
         injectStyles();
         loadFreeItems();
         
-        // Initial processing
-        setTimeout(processCards, 1000);
+        // Process immediately (before any clicks possible)
+        processCards();
         
-        // Start watching for changes
+        // Then start watching
         startObserver();
         
         // Watch for filter clicks
@@ -493,12 +538,11 @@
             if (target.matches('[data-filter], [data-category], .filter-btn, .tab-btn')) {
                 console.log('💜 Filter clicked');
                 setTimeout(function() {
-                    // Clear processed flags
                     document.querySelectorAll('.geo-processed').forEach(function(el) {
                         el.classList.remove('geo-processed');
                     });
                     processCards();
-                }, 600);
+                }, 400);
             }
         });
         
