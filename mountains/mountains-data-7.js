@@ -1198,8 +1198,7 @@ const MOUNTAINS_DATA_7_PART_C = [
             { name: 'North Route', country: 'Turkey', difficulty: 'PD+', description: 'Less traveled, more remote approach' },
             { name: 'West Route', country: 'Turkey', difficulty: 'PD', description: 'Alternative from Iğdır side' },
             { name: 'East Route', country: 'Turkey', difficulty: 'AD', description: 'More technical, glacier crossing required' }
-        ]
-    },
+        ],
     
     climate: {
         summitTemperature: '-20°C average',
