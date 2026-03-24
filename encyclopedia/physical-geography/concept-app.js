@@ -53,6 +53,9 @@ class ConceptRenderer {
   }
   
   renderHero() {
+    if (imageURL.includes('source.unsplash.com')) {
+    imageURL = imageURL.replace('source.unsplash.com', 'images.unsplash.com/photo-1506905925346-21bda4d32df4?w=');
+}
     const heroHTML = `
       <div class="hero-background">
         <img src="${this.sectionData.hero.image}" alt="${this.sectionData.title}" class="hero-image">
@@ -658,4 +661,88 @@ class ConceptRenderer {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
   new ConceptRenderer();
+  // Add this method inside the ConceptRenderer class
+fixImageURL(imageURL) {
+    if (!imageURL) return 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
+    
+    // Check if it's the old broken Unsplash Source API
+    if (imageURL.includes('source.unsplash.com')) {
+        // Extract the size from URL (e.g., 800x600, 1600x900)
+        const sizeMatch = imageURL.match(/\/(\d+)x(\d+)\//);
+        const width = sizeMatch ? sizeMatch[1] : '800';
+        
+        // Extract search terms
+        const searchMatch = imageURL.match(/\?(.+)$/);
+        const searchTerms = searchMatch ? searchMatch[1].toLowerCase() : '';
+        
+        // Map search terms to working Unsplash image IDs
+        const imageMap = {
+            // Mountains general
+            'mountain': 'photo-1506905925346-21bda4d32df4',
+            'peak': 'photo-1464822759023-fed622ff2c3b',
+            'summit': 'photo-1519681393784-d120267933ba',
+            
+            // Specific ranges
+            'himalayas': 'photo-1506905925346-21bda4d32df4',
+            'everest': 'photo-1589802829985-817e51171b92',
+            'andes': 'photo-1519681393784-d120267933ba',
+            'alps': 'photo-1531366936337-7c912a4589a7',
+            'matterhorn': 'photo-1531366936337-7c912a4589a7',
+            'rocky': 'photo-1464822759023-fed622ff2c3b',
+            'fuji': 'photo-1490806843957-31f4c9a91c65',
+            'kilimanjaro': 'photo-1609198092458-38a293c7ac4b',
+            'rainier': 'photo-1434394354979-a235cd36269d',
+            'denali': 'photo-1551632811-561732d1e306',
+            'k2': 'photo-1585409677983-0f6c41ca9c3b',
+            'karakoram': 'photo-1585409677983-0f6c41ca9c3b',
+            
+            // Formation/geology
+            'tectonic': 'photo-1509316785289-025f5b846b35',
+            'geology': 'photo-1509316785289-025f5b846b35',
+            'rocks': 'photo-1473448912268-2022ce9509d8',
+            'rock': 'photo-1473448912268-2022ce9509d8',
+            'collision': 'photo-1509316785289-025f5b846b35',
+            'folded': 'photo-1473448912268-2022ce9509d8',
+            
+            // Volcanic
+            'volcano': 'photo-1562114808-b4b33cf60f4f',
+            'volcanic': 'photo-1562114808-b4b33cf60f4f',
+            'vesuvius': 'photo-1562114808-b4b33cf60f4f',
+            'etna': 'photo-1562114808-b4b33cf60f4f',
+            'lava': 'photo-1562114808-b4b33cf60f4f',
+            
+            // Other features
+            'ocean': 'photo-1507525428034-b723cf961d3e',
+            'ancient': 'photo-1519681393784-d120267933ba',
+            'sea': 'photo-1507525428034-b723cf961d3e',
+            'landscape': 'photo-1506905925346-21bda4d32df4',
+            'range': 'photo-1464822759023-fed622ff2c3b',
+            
+            // Regions
+            'yosemite': 'photo-1426604966848-d7adac402bff',
+            'sierra': 'photo-1426604966848-d7adac402bff',
+            'teton': 'photo-1508193638397-1c4234db14d8',
+            'caucasus': 'photo-1519681393784-d120267933ba',
+            'patagonia': 'photo-1519681393784-d120267933ba',
+            
+            // Default fallbacks
+            'default': 'photo-1506905925346-21bda4d32df4'
+        };
+        
+        // Find matching image
+        let photoId = imageMap['default'];
+        for (const [term, id] of Object.entries(imageMap)) {
+            if (searchTerms.includes(term)) {
+                photoId = id;
+                break;
+            }
+        }
+        
+        // Return working Unsplash URL
+        return `https://images.unsplash.com/${photoId}?w=${width}&q=80`;
+    }
+    
+    // If URL is already correct format, return as is
+    return imageURL;
+}
 });
