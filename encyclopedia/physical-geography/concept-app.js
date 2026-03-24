@@ -167,16 +167,28 @@ class ConceptRenderer {
   // ========== END OF IMAGE URL FIXER ==========
   
   loadTopicData() {
-    // Dynamically load the appropriate data file
-    // Currently supports: mountains (expand for rivers, volcanoes, etc.)
-    if (this.topic === 'mountains' && typeof mountainsData !== 'undefined') {
-      this.data = mountainsData;
-      this.init();
+    // Map of all physical geography topics to their data objects
+    const topicDataMap = {
+        'mountains': typeof mountainsData !== 'undefined' ? mountainsData : null,
+        'volcanoes': typeof volcanoesData !== 'undefined' ? volcanoesData : null,
+        'rivers': typeof riversData !== 'undefined' ? riversData : null,
+        'waterfalls': typeof waterfallsData !== 'undefined' ? waterfallsData : null,
+        'deserts': typeof desertsData !== 'undefined' ? desertsData : null,
+        'forests': typeof forestsData !== 'undefined' ? forestsData : null,
+        'coral-reefs': typeof coralReefsData !== 'undefined' ? coralReefsData : null,
+        'oceans': typeof oceansData !== 'undefined' ? oceansData : null,
+        'lakes': typeof lakesData !== 'undefined' ? lakesData : null,
+        'islands': typeof islandsData !== 'undefined' ? islandsData : null,
+    };
+
+    // Check if topic exists and has data
+    if (this.topic && topicDataMap[this.topic]) {
+        this.data = topicDataMap[this.topic];
+        this.init();
     } else {
-      this.show404();
+        this.show404();
     }
-  }
-  
+}
   init() {
     if (!this.data || !this.data.sections[this.section]) {
       this.show404();
