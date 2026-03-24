@@ -2253,7 +2253,7 @@ const mountainsData = {
       
       introduction: 'Earth has hundreds of mountain ranges spanning every continent. From the towering Himalayas to the ancient Appalachians, from volcanic Pacific peaks to the windswept Andes, each range tells a unique geological story. Click any range below to explore detailed information, interactive maps, stunning photography, and learn about the forces that shaped these natural wonders.',
       
-      linkToExisting: '/encyclopedia/mountains/',
+      linkToExisting: '../../mountains/mountains.html',
       
       filters: ['continent', 'type', 'height', 'age'],
       sortOptions: ['height-desc', 'height-asc', 'name-asc', 'age-desc', 'continent'],
