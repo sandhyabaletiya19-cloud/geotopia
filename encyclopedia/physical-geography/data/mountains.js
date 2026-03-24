@@ -283,7 +283,7 @@ const mountainsData = {
               upliftRate: '5mm/year (still rising)',
               countries: 6,
               link: '/encyclopedia/mountains/himalayas',
-              image: 'https://source.unsplash.com/800x600/?himalayas,everest',
+             image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
               notableFeatures: [
                 '14 peaks above 8,000m (all "eight-thousanders" on Earth)',
                 'Youngest major mountain range',
@@ -303,7 +303,7 @@ const mountainsData = {
               upliftRate: '2-3mm/year',
               countries: 7,
               link: '/encyclopedia/mountains/andes',
-              image: 'https://source.unsplash.com/800x600/?andes,mountains',
+              image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=',
               notableFeatures: [
                 'Longest continental mountain range on Earth',
                 'Over 50 active volcanoes',
