@@ -446,7 +446,7 @@
         }
 
         /* =====================================================
-           🚀 NUMBER ROCKET - COMPLETELY REWRITTEN
+           🚀 NUMBER ROCKET - FIXED
            ===================================================== */
         .rocket-scene {
             position: relative;
@@ -765,7 +765,7 @@
         }
 
         /* =====================================================
-           🏹 ARCHERY GAME - COMPLETELY NEW
+           🏹 ARCHERY GAME - WITH LEVELS
            ===================================================== */
         .archery-scene {
             position: relative;
@@ -990,7 +990,7 @@
         }
 
         /* =====================================================
-           🏃 GEO RUNNER - COMPLETELY REWRITTEN
+           🏃 GEO RUNNER - FIXED
            ===================================================== */
         .runner-scene {
             position: relative;
@@ -1025,7 +1025,7 @@
             width: 200%;
             height: 100px;
             background: linear-gradient(0deg, #5D4E37 0%, #7ED957 100%);
-            animation: groundScroll 2s linear infinite;
+            animation: groundScroll 1s linear infinite;
         }
 
         @keyframes groundScroll {
@@ -1044,7 +1044,7 @@
                 #999 0px, #999 30px,
                 #888 30px, #888 60px
             );
-            animation: pathScroll 0.5s linear infinite;
+            animation: pathScroll 0.3s linear infinite;
         }
 
         @keyframes pathScroll {
@@ -1160,7 +1160,7 @@
         }
 
         /* =====================================================
-           🧺 FLAG CATCHER - COMPLETELY REWRITTEN
+           🧺 FLAG CATCHER - FIXED
            ===================================================== */
         .catcher-scene {
             position: relative;
@@ -1332,6 +1332,11 @@
         @keyframes scoreFloat {
             0% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-50px); }
+        }
+
+        @keyframes flagFall {
+            0% { top: -60px; }
+            100% { top: calc(100% - 120px); }
         }
 
         /* ===== OTHER GAME STYLES (Memory, Flags, etc) ===== */
@@ -1980,7 +1985,7 @@
             }
         }
 
-        // ==================== 🚀 NUMBER ROCKET (FIXED) ====================
+        // ==================== 🚀 NUMBER ROCKET (COMPLETELY FIXED) ====================
         function startRocket() {
             const nums = shuffle([1,2,3,4,5,6,7,8,9,10]);
             S.data = { 
@@ -2046,9 +2051,9 @@
                         <div class="instruction-overlay" id="instrOverlay">
                             <div class="instruction-box">
                                 <h3>🚀 Mission Briefing</h3>
-                                <p>Find numbers <span class="highlight">1 → 2 → 3 ... → 10</span> in order!</p>
-                                <p>Tap a card to flip it and see the number.</p>
-                                <p class="warning">⚠️ Wrong number? ALL cards flip back!</p>
+                                <p>Find numbers <span class="highlight">1 → 2 → 3 ... → 10</span> in sequence!</p>
+                                <p>Click cards to flip and find the next number.</p>
+                                <p class="warning">⚠️ Click wrong number? All cards flip back!</p>
                                 <button class="start-btn" onclick="startRocketGame()">🚀 Start Mission!</button>
                             </div>
                         </div>
@@ -2074,15 +2079,13 @@
             S.data.attempts++;
             document.getElementById('attemptDisplay').textContent = `Attempts: ${S.data.attempts}`;
 
-            // Wait to show number
             setTimeout(() => {
                 if (num === S.data.target) {
-                    // CORRECT - Mark as found
+                    // CORRECT
                     Audio.correct();
                     card.classList.add('found');
                     S.data.found.push(num);
 
-                    // Update UI
                     document.getElementById(`tgt${num}`).classList.remove('current');
                     document.getElementById(`tgt${num}`).classList.add('found');
                     
@@ -2095,12 +2098,11 @@
                         document.getElementById('rocketTarget').textContent = `Find: ${S.data.target}`;
                     }
                     
-                    // Flames after 5
                     if (S.data.found.length >= 5) {
                         document.getElementById('flame').classList.add('on');
                     }
                     
-                    // WIN!
+                    // WIN
                     if (S.data.found.length === 10) {
                         S.data.locked = true;
                         setTimeout(() => {
@@ -2114,56 +2116,41 @@
                         }, 500);
                     }
                 } else {
-                    // WRONG - Flip ALL cards back (including found ones temporarily shown)
+                    // WRONG - Flip ALL cards back except found ones
                     Audio.wrong();
                     card.classList.add('wrong');
+                    toast(false, `Need ${S.data.target} first!`);
                     
                     S.data.locked = true;
                     
                     setTimeout(() => {
-                        // Reset ALL non-found cards
+                        // Flip back all non-found cards
                         document.querySelectorAll('.rocket-card').forEach(c => {
                             if (!c.classList.contains('found')) {
                                 c.classList.remove('flipped', 'wrong');
                             }
                         });
-                        
-                        // Also temporarily hide found cards then show again (memory challenge)
-                        if (S.data.found.length > 0) {
-                            document.querySelectorAll('.rocket-card.found').forEach(c => {
-                                c.classList.remove('flipped');
-                            });
-                            
-                            setTimeout(() => {
-                                document.querySelectorAll('.rocket-card.found').forEach(c => {
-                                    c.classList.add('flipped');
-                                });
-                                S.data.locked = false;
-                            }, 800);
-                        } else {
-                            S.data.locked = false;
-                        }
+                        S.data.locked = false;
                     }, 1200);
                 }
             }, 500);
         }
 
-        // ==================== 🏹 FLAG ARCHERY (NEW) ====================
+        // ==================== 🏹 FLAG ARCHERY (WITH LEVELS) ====================
         function startArchery() {
             S.data = {
                 level: 1,
                 score: 0,
                 correct: null,
-                targets: [],
-                arrows: 3
+                targets: []
             };
             renderArcheryLevel();
         }
 
         function renderArcheryLevel() {
             const level = S.data.level;
-            const numTargets = Math.min(level, 4);
-            const floating = level >= 3;
+            const numTargets = level; // Level 1: 1 target, Level 2: 2 targets, etc.
+            const floating = level >= 4;
             
             const countries = shuffle([...COUNTRIES]).slice(0, Math.max(4, numTargets + 2));
             const correct = countries[0];
@@ -2175,7 +2162,7 @@
                 [{x: 75, y: 30}, {x: 75, y: 60}],
                 [{x: 75, y: 20}, {x: 75, y: 45}, {x: 75, y: 70}],
                 [{x: 70, y: 15}, {x: 80, y: 35}, {x: 70, y: 55}, {x: 80, y: 75}]
-            ][numTargets - 1];
+            ][Math.min(numTargets - 1, 3)];
 
             const scr = document.getElementById('gameScreen');
             scr.innerHTML = `
@@ -2227,13 +2214,14 @@
         function shootTarget(code, el) {
             Audio.click();
             
-            // Animate arrow
             const arrow = document.getElementById('arrow');
             arrow.classList.add('shooting');
             
             document.querySelectorAll('.archery-target').forEach(t => t.style.pointerEvents = 'none');
 
             setTimeout(() => {
+                arrow.classList.remove('shooting');
+                
                 if (code === S.data.correct.f) {
                     // HIT!
                     Audio.correct();
@@ -2258,7 +2246,6 @@
                     toast(false, `Target: ${S.data.correct.n}`);
                     
                     setTimeout(() => {
-                        // Show correct one
                         document.querySelectorAll('.archery-target').forEach(t => {
                             const img = t.querySelector('img');
                             if (img && img.src.includes(S.data.correct.f)) {
@@ -2274,28 +2261,27 @@
                             } else {
                                 renderArcheryLevel();
                             }
-                        }, 800);
+                        }, 1200);
                     }, 500);
                 }
             }, 400);
         }
 
-        // ==================== 🏃 GEO RUNNER (FIXED) ====================
+        // ==================== 🏃 GEO RUNNER (COMPLETELY FIXED) ====================
         function startRunner() {
             S.data = {
                 score: 0,
                 lives: 3,
                 target: null,
-                speed: 4000,
+                speed: 2500,
                 jumping: false,
                 running: true
             };
             renderRunner();
-            spawnRunnerItem();
+            setTimeout(() => spawnRunnerItem(), 1000);
         }
 
         function renderRunner() {
-            // Pick target
             const items = shuffle([...EASY_WORDS]).slice(0, 5);
             S.data.target = items[0];
             S.data.allItems = items;
@@ -2327,7 +2313,7 @@
                             ${'❤️'.repeat(S.data.lives)}
                         </div>
                         
-                        <div class="runner-tap-hint">👆 TAP to JUMP and collect ${S.data.target.e}!</div>
+                        <div class="runner-tap-hint">👆 TAP to JUMP!</div>
                     </div>
                 </div>
             `;
@@ -2339,14 +2325,13 @@
             const scene = document.getElementById('runnerScene');
             if (!scene) return;
 
-            // Randomly spawn correct or wrong item
-            const isCorrect = Math.random() > 0.5;
+            const isCorrect = Math.random() > 0.4;
             const item = isCorrect ? S.data.target : S.data.allItems[Math.floor(Math.random() * S.data.allItems.length)];
             
             const div = document.createElement('div');
             div.className = `runner-collectible ${item === S.data.target ? 'correct' : ''}`;
             div.textContent = item.e;
-            div.style.bottom = (100 + Math.random() * 120) + 'px';
+            div.style.bottom = (50 + Math.random() * 100) + 'px';
             div.style.animationDuration = S.data.speed + 'ms';
             div.dataset.correct = item === S.data.target;
             
@@ -2358,17 +2343,13 @@
             scene.appendChild(div);
 
             div.addEventListener('animationend', () => {
-                if (!div.classList.contains('collected')) {
-                    // Missed a correct item
-                    if (item === S.data.target) {
-                        loseRunnerLife();
-                    }
+                if (!div.classList.contains('collected') && item === S.data.target) {
+                    loseRunnerLife();
                 }
                 div.remove();
             });
 
-            // Next spawn
-            const interval = setTimeout(() => spawnRunnerItem(), 1200 + Math.random() * 800);
+            const interval = setTimeout(() => spawnRunnerItem(), 1500 + Math.random() * 1000);
             S.intervals.push(interval);
         }
 
@@ -2382,14 +2363,12 @@
                 S.data.score += 10;
                 document.getElementById('runnerScore').textContent = S.data.score;
                 
-                // Change target
                 S.data.allItems = shuffle([...EASY_WORDS]).slice(0, 5);
                 S.data.target = S.data.allItems[0];
                 document.getElementById('runnerTargetEmoji').textContent = S.data.target.e;
                 document.getElementById('runnerTargetWord').textContent = S.data.target.w;
                 
-                // Speed up slightly
-                S.data.speed = Math.max(2000, S.data.speed - 100);
+                S.data.speed = Math.max(1800, S.data.speed - 80);
             } else {
                 Audio.wrong();
                 loseRunnerLife();
@@ -2422,8 +2401,10 @@
                 player.classList.add('jumping');
                 
                 setTimeout(() => {
-                    player.classList.remove('jumping');
-                    player.classList.add('running');
+                    if (player) {
+                        player.classList.remove('jumping');
+                        player.classList.add('running');
+                    }
                     S.data.jumping = false;
                 }, 600);
             }
@@ -2434,17 +2415,17 @@
             clearAllIntervals();
         }
 
-        // ==================== 🧺 FLAG CATCHER (FIXED) ====================
+        // ==================== 🧺 FLAG CATCHER (COMPLETELY FIXED) ====================
         function startCatcher() {
             S.data = {
                 score: 0,
                 lives: 3,
                 target: null,
-                speed: 3500,
+                speed: 3000,
                 playing: true
             };
             renderCatcher();
-            spawnFlag();
+            setTimeout(() => spawnFlag(), 500);
         }
 
         function renderCatcher() {
@@ -2491,16 +2472,13 @@
             const scene = document.getElementById('catcherScene');
             if (!scene) return;
 
-            // Remove old flags
             document.querySelectorAll('.falling-flag').forEach(f => f.remove());
 
-            // Pick 4 countries, first is correct
             const countries = shuffle([...COUNTRIES]).slice(0, 4);
             S.data.target = countries[0];
             
             document.getElementById('targetCountry').textContent = S.data.target.n;
 
-            // Shuffle for display
             const shuffled = shuffle([...countries]);
             
             shuffled.forEach((c, i) => {
@@ -2518,7 +2496,6 @@
 
                 div.addEventListener('animationend', () => {
                     if (!div.classList.contains('caught') && !div.classList.contains('wrong')) {
-                        // Missed the correct flag
                         if (c.f === S.data.target.f) {
                             div.classList.add('missed');
                             loseCatcherLife();
@@ -2528,12 +2505,11 @@
                 });
             });
 
-            // Next round
             const interval = setTimeout(() => {
                 if (S.data.playing && S.data.lives > 0) {
                     spawnFlag();
                 }
-            }, S.data.speed + 500);
+            }, S.data.speed + 800);
             S.intervals.push(interval);
         }
 
@@ -2543,25 +2519,20 @@
             Audio.click();
             
             if (country.f === S.data.target.f) {
-                // CORRECT!
                 Audio.correct();
                 el.classList.add('caught');
                 S.data.score += 10;
                 document.getElementById('catcherScore').textContent = S.data.score;
                 
-                // Show score popup
                 showCatcherPopup(el, '+10');
                 
-                // Speed up
-                S.data.speed = Math.max(2000, S.data.speed - 150);
+                S.data.speed = Math.max(1800, S.data.speed - 120);
                 
-                // Remove all flags and spawn new ones
                 setTimeout(() => {
                     document.querySelectorAll('.falling-flag').forEach(f => f.remove());
                     spawnFlag();
                 }, 500);
             } else {
-                // WRONG!
                 Audio.wrong();
                 el.classList.add('wrong');
                 loseCatcherLife();
@@ -2597,16 +2568,6 @@
             S.data.playing = false;
             clearAllIntervals();
         }
-
-        // Add keyframes for flag fall
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes flagFall {
-                0% { top: -60px; }
-                100% { top: calc(100% - 120px); }
-            }
-        `;
-        document.head.appendChild(style);
 
         // ==================== 🧠 MEMORY ====================
         function startMemory() {
@@ -3000,7 +2961,7 @@
             setTimeout(() => box.innerHTML = '', 4000);
         }
 
-        console.log('🌍 GEOTOPIA Kids - Premium Games Loaded!');
+        console.log('🌍 GEOTOPIA Kids - All Games Fixed & Ready!');
     </script>
 </body>
 </html>
