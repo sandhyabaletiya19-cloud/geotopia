@@ -15,6 +15,157 @@ class ConceptRenderer {
     this.loadTopicData();
   }
   
+  // ========== IMAGE URL FIXER - ADD THIS METHOD HERE ==========
+  fixImageURL(imageURL) {
+    if (!imageURL) return 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
+    
+    // Check if it's the old broken Unsplash Source API
+    if (imageURL.includes('source.unsplash.com')) {
+      // Extract the size from URL (e.g., 800x600, 1600x900)
+      const sizeMatch = imageURL.match(/\/(\d+)x(\d+)\//);
+      const width = sizeMatch ? sizeMatch[1] : '800';
+      
+      // Extract search terms
+      const searchMatch = imageURL.match(/\?(.+)$/);
+      const searchTerms = searchMatch ? searchMatch[1].toLowerCase() : '';
+      
+      // Map search terms to working Unsplash image IDs
+      const imageMap = {
+        // Mountains general
+        'mountain': 'photo-1506905925346-21bda4d32df4',
+        'peak': 'photo-1464822759023-fed622ff2c3b',
+        'summit': 'photo-1519681393784-d120267933ba',
+        'landscape': 'photo-1506905925346-21bda4d32df4',
+        'range': 'photo-1464822759023-fed622ff2c3b',
+        
+        // Specific ranges
+        'himalayas': 'photo-1506905925346-21bda4d32df4',
+        'everest': 'photo-1589802829985-817e51171b92',
+        'andes': 'photo-1519681393784-d120267933ba',
+        'alps': 'photo-1531366936337-7c912a4589a7',
+        'matterhorn': 'photo-1531366936337-7c912a4589a7',
+        'rocky': 'photo-1464822759023-fed622ff2c3b',
+        'fuji': 'photo-1490806843957-31f4c9a91c65',
+        'kilimanjaro': 'photo-1609198092458-38a293c7ac4b',
+        'rainier': 'photo-1434394354979-a235cd36269d',
+        'denali': 'photo-1551632811-561732d1e306',
+        'k2': 'photo-1585409677983-0f6c41ca9c3b',
+        'karakoram': 'photo-1585409677983-0f6c41ca9c3b',
+        'atlas': 'photo-1489493887464-892be6d1daae',
+        'caucasus': 'photo-1519681393784-d120267933ba',
+        'ural': 'photo-1519681393784-d120267933ba',
+        'appalachian': 'photo-1508739773434-c26b3d09e071',
+        'sierra': 'photo-1426604966848-d7adac402bff',
+        'teton': 'photo-1508193638397-1c4234db14d8',
+        'yosemite': 'photo-1426604966848-d7adac402bff',
+        'patagonia': 'photo-1519681393784-d120267933ba',
+        'dolomites': 'photo-1531366936337-7c912a4589a7',
+        'pyrenees': 'photo-1531366936337-7c912a4589a7',
+        'carpathian': 'photo-1519681393784-d120267933ba',
+        'alaska': 'photo-1551632811-561732d1e306',
+        'nepal': 'photo-1506905925346-21bda4d32df4',
+        'tibet': 'photo-1506905925346-21bda4d32df4',
+        'swiss': 'photo-1531366936337-7c912a4589a7',
+        'norway': 'photo-1519681393784-d120267933ba',
+        'new zealand': 'photo-1469521669194-babb45599def',
+        'cook': 'photo-1469521669194-babb45599def',
+        'australian': 'photo-1494548162494-384bba4ab999',
+        'drakensberg': 'photo-1489493887464-892be6d1daae',
+        'ethiopia': 'photo-1489493887464-892be6d1daae',
+        'rwenzori': 'photo-1489493887464-892be6d1daae',
+        'hindu kush': 'photo-1585409677983-0f6c41ca9c3b',
+        'tian shan': 'photo-1585409677983-0f6c41ca9c3b',
+        'altai': 'photo-1519681393784-d120267933ba',
+        'kunlun': 'photo-1585409677983-0f6c41ca9c3b',
+        'pamir': 'photo-1585409677983-0f6c41ca9c3b',
+        'zagros': 'photo-1489493887464-892be6d1daae',
+        'elburz': 'photo-1519681393784-d120267933ba',
+        'cascade': 'photo-1434394354979-a235cd36269d',
+        'olympic': 'photo-1434394354979-a235cd36269d',
+        'brooks': 'photo-1551632811-561732d1e306',
+        'transantarctic': 'photo-1551632811-561732d1e306',
+        'antarctica': 'photo-1551632811-561732d1e306',
+        
+        // Formation/geology
+        'tectonic': 'photo-1509316785289-025f5b846b35',
+        'geology': 'photo-1509316785289-025f5b846b35',
+        'rocks': 'photo-1473448912268-2022ce9509d8',
+        'rock': 'photo-1473448912268-2022ce9509d8',
+        'collision': 'photo-1509316785289-025f5b846b35',
+        'folded': 'photo-1473448912268-2022ce9509d8',
+        'fault': 'photo-1509316785289-025f5b846b35',
+        'sediment': 'photo-1473448912268-2022ce9509d8',
+        
+        // Volcanic
+        'volcano': 'photo-1562114808-b4b33cf60f4f',
+        'volcanic': 'photo-1562114808-b4b33cf60f4f',
+        'vesuvius': 'photo-1562114808-b4b33cf60f4f',
+        'etna': 'photo-1562114808-b4b33cf60f4f',
+        'lava': 'photo-1562114808-b4b33cf60f4f',
+        'krakatoa': 'photo-1562114808-b4b33cf60f4f',
+        'st helens': 'photo-1562114808-b4b33cf60f4f',
+        'popocatepetl': 'photo-1562114808-b4b33cf60f4f',
+        'cotopaxi': 'photo-1562114808-b4b33cf60f4f',
+        'mauna': 'photo-1562114808-b4b33cf60f4f',
+        'hawaii': 'photo-1562114808-b4b33cf60f4f',
+        
+        // Water features
+        'ocean': 'photo-1507525428034-b723cf961d3e',
+        'sea': 'photo-1507525428034-b723cf961d3e',
+        'ancient ocean': 'photo-1507525428034-b723cf961d3e',
+        'glacier': 'photo-1551632811-561732d1e306',
+        'ice': 'photo-1551632811-561732d1e306',
+        'snow': 'photo-1551632811-561732d1e306',
+        
+        // Block mountains
+        'block': 'photo-1426604966848-d7adac402bff',
+        'nevada': 'photo-1426604966848-d7adac402bff',
+        'fault block': 'photo-1426604966848-d7adac402bff',
+        'black forest': 'photo-1519681393784-d120267933ba',
+        'vosges': 'photo-1519681393784-d120267933ba',
+        'harz': 'photo-1519681393784-d120267933ba',
+        
+        // Dome mountains
+        'dome': 'photo-1494548162494-384bba4ab999',
+        'black hills': 'photo-1494548162494-384bba4ab999',
+        'adirondack': 'photo-1508739773434-c26b3d09e071',
+        'half dome': 'photo-1426604966848-d7adac402bff',
+        'uluru': 'photo-1494548162494-384bba4ab999',
+        'sugarloaf': 'photo-1494548162494-384bba4ab999',
+        'stone mountain': 'photo-1494548162494-384bba4ab999',
+        
+        // Plateau
+        'plateau': 'photo-1509316785289-025f5b846b35',
+        'colorado plateau': 'photo-1509316785289-025f5b846b35',
+        'grand canyon': 'photo-1509316785289-025f5b846b35',
+        'tepui': 'photo-1509316785289-025f5b846b35',
+        'mesa': 'photo-1509316785289-025f5b846b35',
+        'butte': 'photo-1509316785289-025f5b846b35',
+        'deccan': 'photo-1489493887464-892be6d1daae',
+        'tibet': 'photo-1506905925346-21bda4d32df4',
+        
+        // Default fallback
+        'default': 'photo-1506905925346-21bda4d32df4'
+      };
+      
+      // Find matching image
+      let photoId = imageMap['default'];
+      for (const [term, id] of Object.entries(imageMap)) {
+        if (searchTerms.includes(term)) {
+          photoId = id;
+          break;
+        }
+      }
+      
+      // Return working Unsplash URL
+      return `https://images.unsplash.com/${photoId}?w=${width}&q=80`;
+    }
+    
+    // If URL is already correct format, return as is
+    return imageURL;
+  }
+  // ========== END OF IMAGE URL FIXER ==========
+  
   loadTopicData() {
     // Dynamically load the appropriate data file
     // Currently supports: mountains (expand for rivers, volcanoes, etc.)
@@ -53,12 +204,12 @@ class ConceptRenderer {
   }
   
   renderHero() {
-    if (imageURL.includes('source.unsplash.com')) {
-    imageURL = imageURL.replace('source.unsplash.com', 'images.unsplash.com/photo-1506905925346-21bda4d32df4?w=');
-}
+    // Fix the hero image URL
+    const heroImage = this.fixImageURL(this.sectionData.hero.image);
+    
     const heroHTML = `
       <div class="hero-background">
-        <img src="${this.sectionData.hero.image}" alt="${this.sectionData.title}" class="hero-image">
+        <img src="${heroImage}" alt="${this.sectionData.title}" class="hero-image">
         <div class="hero-overlay"></div>
       </div>
       <div class="hero-content">
@@ -240,14 +391,14 @@ class ConceptRenderer {
             <div class="examples-grid">
               ${branch.examples.map(example => `
                 <a href="${example.link}" class="example-card">
-                  <div class="example-image" style="background-image: url('${example.image}')">
+                  <div class="example-image" style="background-image: url('${this.fixImageURL(example.image)}')">
                     <div class="example-overlay"></div>
                   </div>
                   <div class="example-info">
                     <h5 class="example-name">${example.name}</h5>
                     <p class="example-location">📍 ${example.location}</p>
-                    <p class="example-detail">⏳ ${example.age || example.status}</p>
-                    <p class="example-peak">🏔️ ${example.highestPeak || example.height}</p>
+                    <p class="example-detail">⏳ ${example.age || example.status || ''}</p>
+                    <p class="example-peak">🏔️ ${example.highestPeak || example.height || ''}</p>
                   </div>
                   <div class="example-hover">
                     <span class="hover-text">Explore Details →</span>
@@ -274,7 +425,7 @@ class ConceptRenderer {
               <div class="timeline-stage ${index === 0 ? 'active' : ''}" data-stage="${stage.stage}">
                 <div class="stage-visual">
                   <div class="stage-image-wrapper">
-                    <img src="${stage.image}" alt="${stage.title}" class="stage-image" loading="lazy">
+                    <img src="${this.fixImageURL(stage.image)}" alt="${stage.title}" class="stage-image" loading="lazy">
                     <div class="stage-overlay"></div>
                   </div>
                 </div>
@@ -373,7 +524,7 @@ class ConceptRenderer {
           <div class="examples-grid-featured">
             ${this.sectionData.featuredRanges.map(range => `
               <a href="${range.link}" class="range-card">
-                <div class="range-image" style="background-image: url('${range.image}')">
+                <div class="range-image" style="background-image: url('${this.fixImageURL(range.image)}')">
                   <div class="range-overlay"></div>
                   <span class="range-icon">${range.icon}</span>
                 </div>
@@ -436,7 +587,7 @@ class ConceptRenderer {
           <div class="upsc-box">
             <h4>❓ Sample Mains Questions:</h4>
             <ul class="upsc-list questions">
-              ${upsc.sampleQuestions.map(q => `<li>${q}</li>`).join('')}
+              ${upsc.sampleQuestions.map(q => `<li>${typeof q === 'object' ? q.question : q}</li>`).join('')}
             </ul>
           </div>
         </div>
@@ -661,88 +812,4 @@ class ConceptRenderer {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
   new ConceptRenderer();
-  // Add this method inside the ConceptRenderer class
-fixImageURL(imageURL) {
-    if (!imageURL) return 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
-    
-    // Check if it's the old broken Unsplash Source API
-    if (imageURL.includes('source.unsplash.com')) {
-        // Extract the size from URL (e.g., 800x600, 1600x900)
-        const sizeMatch = imageURL.match(/\/(\d+)x(\d+)\//);
-        const width = sizeMatch ? sizeMatch[1] : '800';
-        
-        // Extract search terms
-        const searchMatch = imageURL.match(/\?(.+)$/);
-        const searchTerms = searchMatch ? searchMatch[1].toLowerCase() : '';
-        
-        // Map search terms to working Unsplash image IDs
-        const imageMap = {
-            // Mountains general
-            'mountain': 'photo-1506905925346-21bda4d32df4',
-            'peak': 'photo-1464822759023-fed622ff2c3b',
-            'summit': 'photo-1519681393784-d120267933ba',
-            
-            // Specific ranges
-            'himalayas': 'photo-1506905925346-21bda4d32df4',
-            'everest': 'photo-1589802829985-817e51171b92',
-            'andes': 'photo-1519681393784-d120267933ba',
-            'alps': 'photo-1531366936337-7c912a4589a7',
-            'matterhorn': 'photo-1531366936337-7c912a4589a7',
-            'rocky': 'photo-1464822759023-fed622ff2c3b',
-            'fuji': 'photo-1490806843957-31f4c9a91c65',
-            'kilimanjaro': 'photo-1609198092458-38a293c7ac4b',
-            'rainier': 'photo-1434394354979-a235cd36269d',
-            'denali': 'photo-1551632811-561732d1e306',
-            'k2': 'photo-1585409677983-0f6c41ca9c3b',
-            'karakoram': 'photo-1585409677983-0f6c41ca9c3b',
-            
-            // Formation/geology
-            'tectonic': 'photo-1509316785289-025f5b846b35',
-            'geology': 'photo-1509316785289-025f5b846b35',
-            'rocks': 'photo-1473448912268-2022ce9509d8',
-            'rock': 'photo-1473448912268-2022ce9509d8',
-            'collision': 'photo-1509316785289-025f5b846b35',
-            'folded': 'photo-1473448912268-2022ce9509d8',
-            
-            // Volcanic
-            'volcano': 'photo-1562114808-b4b33cf60f4f',
-            'volcanic': 'photo-1562114808-b4b33cf60f4f',
-            'vesuvius': 'photo-1562114808-b4b33cf60f4f',
-            'etna': 'photo-1562114808-b4b33cf60f4f',
-            'lava': 'photo-1562114808-b4b33cf60f4f',
-            
-            // Other features
-            'ocean': 'photo-1507525428034-b723cf961d3e',
-            'ancient': 'photo-1519681393784-d120267933ba',
-            'sea': 'photo-1507525428034-b723cf961d3e',
-            'landscape': 'photo-1506905925346-21bda4d32df4',
-            'range': 'photo-1464822759023-fed622ff2c3b',
-            
-            // Regions
-            'yosemite': 'photo-1426604966848-d7adac402bff',
-            'sierra': 'photo-1426604966848-d7adac402bff',
-            'teton': 'photo-1508193638397-1c4234db14d8',
-            'caucasus': 'photo-1519681393784-d120267933ba',
-            'patagonia': 'photo-1519681393784-d120267933ba',
-            
-            // Default fallbacks
-            'default': 'photo-1506905925346-21bda4d32df4'
-        };
-        
-        // Find matching image
-        let photoId = imageMap['default'];
-        for (const [term, id] of Object.entries(imageMap)) {
-            if (searchTerms.includes(term)) {
-                photoId = id;
-                break;
-            }
-        }
-        
-        // Return working Unsplash URL
-        return `https://images.unsplash.com/${photoId}?w=${width}&q=80`;
-    }
-    
-    // If URL is already correct format, return as is
-    return imageURL;
-}
 });
