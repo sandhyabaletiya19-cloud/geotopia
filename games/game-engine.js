@@ -1,9 +1,19 @@
+// game-engine.js
+
 const SequentialMemoryGame = (function() {
+    const levelConfig = {
+        1: 4,
+        2: 6,
+        3: 9,
+        4: 12
+    };
+
     const state = {
         cards: [],
         openedCards: [],
         currentTarget: 1,
-        totalCards: 0
+        totalCards: 0,
+        currentLevel: 1
     };
 
     function shuffle(array) {
@@ -16,12 +26,17 @@ const SequentialMemoryGame = (function() {
     }
 
     function initGame(totalCards) {
-        state.totalCards = totalCards;
+        if (totalCards === undefined) {
+            state.totalCards = levelConfig[state.currentLevel];
+        } else {
+            state.totalCards = totalCards;
+        }
+        
         state.currentTarget = 1;
         state.openedCards = [];
         
         const numbers = [];
-        for (let i = 1; i <= totalCards; i++) {
+        for (let i = 1; i <= state.totalCards; i++) {
             numbers.push(i);
         }
         
@@ -29,7 +44,9 @@ const SequentialMemoryGame = (function() {
         
         return {
             cards: [...state.cards],
-            currentTarget: state.currentTarget
+            currentTarget: state.currentTarget,
+            currentLevel: state.currentLevel,
+            totalCards: state.totalCards
         };
     }
 
@@ -81,16 +98,33 @@ const SequentialMemoryGame = (function() {
         };
     }
 
+    function nextLevel() {
+        const maxLevel = Object.keys(levelConfig).length;
+        
+        if (state.currentLevel < maxLevel) {
+            state.currentLevel++;
+        }
+        
+        return initGame();
+    }
+
+    function getCurrentLevel() {
+        return state.currentLevel;
+    }
+
     return {
         initGame: initGame,
         handleCardClick: handleCardClick,
         resetGame: resetGame,
+        nextLevel: nextLevel,
+        getCurrentLevel: getCurrentLevel,
         getState: function() {
             return {
                 cards: [...state.cards],
                 openedCards: [...state.openedCards],
                 currentTarget: state.currentTarget,
-                totalCards: state.totalCards
+                totalCards: state.totalCards,
+                currentLevel: state.currentLevel
             };
         }
     };
