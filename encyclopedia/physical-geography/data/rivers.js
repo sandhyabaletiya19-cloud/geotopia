@@ -1256,10 +1256,7 @@ const riversData = {
                     {
                         type: 'Prelims',
                         year: '2019',
-                        question: 'The drainage
-
-
- pattern developed on folded sedimentary rocks is:\n(a) Dendritic (b) Trellis (c) Radial (d) Centripetal',
+                        question: 'The drainage pattern developed on folded sedimentary rocks is:\n(a) Dendritic (b) Trellis (c) Radial (d) Centripetal',
                         answer: '(b) Trellis - Subsequent rivers flow perpendicular to consequent rivers along soft rock strike, creating rectangular trellis pattern.'
                     },
                     {
