@@ -84,4 +84,3 @@ document.getElementById('game-selector').addEventListener('change', function() {
     initializeGame();
 });
 
-document.getElementById
