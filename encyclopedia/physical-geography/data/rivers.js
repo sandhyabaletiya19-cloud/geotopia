@@ -478,7 +478,7 @@ const riversData = {
           link: "#"
         }
       ],
-      linkToExisting: "../rivers/index.html",
+     linkToExisting: "../../rivers.html",
       upscRelevance: {
         title: "UPSC Relevance - Rivers",
         topics: [
