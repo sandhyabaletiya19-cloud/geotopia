@@ -4,6 +4,12 @@
     const gameBoard = document.querySelector('.game-board');
     const levelDisplay = document.getElementById('level-display');
 
+    let currentTheme = 'kids';
+
+    function applyTheme() {
+        document.body.className = 'theme-' + currentTheme;
+    }
+
     function updateLevelDisplay() {
         const currentLevel = SequentialMemoryGame.getCurrentLevel();
         levelDisplay.textContent = 'Level ' + currentLevel;
@@ -66,6 +72,7 @@
     }
 
     function initializeGame() {
+        applyTheme();
         const gameState = SequentialMemoryGame.initGame();
         updateLevelDisplay();
         renderCards(gameState.cards);
