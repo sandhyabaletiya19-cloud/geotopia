@@ -1,10 +1,8 @@
-// games-app.js
-
 (function() {
     const gameBoard = document.querySelector('.game-board');
     const levelDisplay = document.getElementById('level-display');
 
-  let currentTheme = 'kids';
+    let currentTheme = 'kids';
 
     function applyTheme() {
         document.body.className = 'theme-' + currentTheme;
@@ -27,21 +25,12 @@
         });
     }
 
-    function resetUI() {
-        const cards = gameBoard.querySelectorAll('.card');
-        cards.forEach(function(card) {
-            card.classList.remove('active');
-        });
-    }
-
     function handleCardClickEvent(event) {
         const card = event.currentTarget;
         const cardValue = parseInt(card.getAttribute('data-value'), 10);
         const response = SequentialMemoryGame.handleCardClick(cardValue);
 
-        if (response.reason === 'already_opened') {
-            return;
-        }
+        if (response.reason === 'already_opened') return;
 
         if (response.success === true) {
             updateCardsUI(response.openedCards);
@@ -54,7 +43,7 @@
         }
 
         if (response.success === false && response.reason === 'wrong_card') {
-            resetUI();
+            updateCardsUI([]);
         }
     }
 
@@ -78,9 +67,5 @@
         renderCards(gameState.cards);
     }
 
-   initializeGame();
-
-document.getElementById('game-selector').addEventListener('change', function() {
     initializeGame();
-});
-
+})();
