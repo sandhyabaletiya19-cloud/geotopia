@@ -4,7 +4,13 @@
     const gameBoard = document.querySelector('.game-board');
     const levelDisplay = document.getElementById('level-display');
 
-    let currentTheme = 'kids';
+  let currentTheme = 'kids';
+
+// auto switch every 3 seconds (for testing)
+setInterval(function() {
+    currentTheme = currentTheme === 'kids' ? 'teen' : 'kids';
+    applyTheme();
+}, 3000);
 
     function applyTheme() {
         document.body.className = 'theme-' + currentTheme;
