@@ -6,12 +6,6 @@
 
   let currentTheme = 'kids';
 
-// auto switch every 3 seconds (for testing)
-setInterval(function() {
-    currentTheme = currentTheme === 'kids' ? 'teen' : 'kids';
-    applyTheme();
-}, 3000);
-
     function applyTheme() {
         document.body.className = 'theme-' + currentTheme;
     }
@@ -84,5 +78,10 @@ setInterval(function() {
         renderCards(gameState.cards);
     }
 
+   initializeGame();
+
+document.getElementById('game-selector').addEventListener('change', function() {
     initializeGame();
-})();
+});
+
+document.getElementById
