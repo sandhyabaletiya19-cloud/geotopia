@@ -3,9 +3,32 @@
 
 (function() {
     const cards = document.querySelectorAll('.card');
-    const totalCards = cards.length;
+    const levelDisplay = document.getElementById('level-display');
 
-    SequentialMemoryGame.initGame(totalCards);
+    function updateLevelDisplay() {
+        const currentLevel = SequentialMemoryGame.getCurrentLevel();
+        levelDisplay.textContent = 'Level ' + currentLevel;
+    }
+
+    function updateCardsUI(openedCards) {
+        cards.forEach(function(card) {
+            const value = parseInt(card.getAttribute('data-value'), 10);
+            if (openedCards.includes(value)) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+        });
+    }
+
+    function resetUI() {
+        cards.forEach(function(card) {
+            card.classList.remove('active');
+        });
+    }
+
+    SequentialMemoryGame.initGame();
+    updateLevelDisplay();
 
     cards.forEach(function(card) {
         card.addEventListener('click', function() {
@@ -17,24 +40,18 @@
             }
 
             if (response.success === true) {
-                cards.forEach(function(c) {
-                    const value = parseInt(c.getAttribute('data-value'), 10);
-                    if (response.openedCards.includes(value)) {
-                        c.classList.add('active');
-                    }
-                });
+                updateCardsUI(response.openedCards);
+
+                if (response.isComplete === true) {
+                    SequentialMemoryGame.nextLevel();
+                    updateLevelDisplay();
+                    resetUI();
+                }
             }
 
             if (response.success === false && response.reason === 'wrong_card') {
-                cards.forEach(function(c) {
-                    c.classList.remove('active');
-                });
-            }
-
-            if (response.isComplete === true) {
-                // Game complete - no UI action yet
+                resetUI();
             }
         });
     });
 })();
-
