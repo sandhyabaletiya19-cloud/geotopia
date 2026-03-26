@@ -1,900 +1,637 @@
 /**
- * CORAL REEFS DATA MODULE - COMPLETE ENCYCLOPEDIA VERSION
- * Comprehensive educational content about Coral Reefs
- * Format: Universal concept data structure
+ * CORAL REEFS DATA FILE
+ * ========================
  */
 
 const coralReefsData = {
+  
+  // ============================================
+  // META - Basic info (REQUIRED)
+  // ============================================
   meta: {
     name: 'Coral Reefs',
     icon: '🪸',
     theme: 'coral-reefs-theme',
-    existingPagesLink: '/encyclopedia/coral-reefs/'
+    existingPagesLink: '../../coral-reefs/coral-reefs.html'
   },
   
+  // ============================================
+  // SECTIONS - All 4 required
+  // ============================================
   sections: {
-    // =============================
+    
+    // ==========================================
     // SECTION 1: DEFINITION
-    // =============================
+    // ==========================================
     definition: {
       title: 'What is a Coral Reef?',
+      
       hero: {
-        image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1600&h=900&fit=crop',
-        tagline: 'Introduction to Coral Reefs - The Rainforests of the Sea'
+        image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1600&q=90',
+        tagline: 'Underwater rainforests built by billions of tiny architects'
       },
-      content: `
-        <p>A <strong>coral reef</strong> is a complex underwater ecosystem characterized by reef-building corals. These are underwater structures made from calcium carbonate secreted by corals, which are marine invertebrate animals belonging to the class Anthozoa of phylum Cnidaria.</p>
+      
+      content: {
+        introduction: 'Coral reefs are underwater ecosystems built from the calcium carbonate skeletons secreted by colonies of tiny animals called coral polyps. Often called the "rainforests of the sea," coral reefs cover less than 0.1% of the ocean floor but support approximately 25% of all marine species. These magnificent structures form in warm, shallow, clear tropical waters, creating biodiversity hotspots that provide food, coastal protection, and livelihoods for over 500 million people worldwide. Despite their importance, coral reefs face existential threats from climate change, ocean acidification, and human activities.',
         
-        <p>Coral reefs are formed by colonies of coral polyps held together by calcium carbonate. Most coral reefs are built from stony corals, whose polyps cluster in groups. They are among the most biodiverse and productive ecosystems on Earth, often called the "rainforests of the sea."</p>
+        keyPoints: [
+          {
+            icon: '🐠',
+            label: 'Marine Biodiversity',
+            text: 'Home to 25% of ocean species',
+            detail: 'Coral reefs support extraordinary biodiversity despite covering only 0.1% of the ocean floor. They provide habitat for over 4,000 fish species, 800 hard coral species, and countless invertebrates, algae, and microorganisms. This biodiversity rivals tropical rainforests, earning coral reefs the nickname "rainforests of the sea."'
+          },
+          {
+            icon: '🏗️',
+            label: 'Living Structures',
+            text: 'Built by billions of coral polyps',
+            detail: 'Coral reefs are living structures constructed by tiny animals called polyps (typically 1-3mm wide) that secrete calcium carbonate exoskeletons. Over centuries to millennia, these skeletons accumulate, forming massive reef structures. The Great Barrier Reef contains billions of individual polyps building the world\'s largest living structure.'
+          },
+          {
+            icon: '🌡️',
+            label: 'Temperature Requirements',
+            text: 'Thrive in warm tropical waters',
+            detail: 'Reef-building corals require specific conditions: water temperature between 23-29°C, shallow depths (usually <70 meters) for sunlight penetration, clear water with low sediment, and normal ocean salinity. These requirements restrict coral reefs to tropical and subtropical regions between approximately 30°N and 30°S latitude.'
+          },
+          {
+            icon: '🤝',
+            label: 'Symbiotic Relationship',
+            text: 'Partnership with zooxanthellae algae',
+            detail: 'Coral polyps have a mutualistic relationship with microscopic algae called zooxanthellae living in their tissues. The algae photosynthesize, providing corals with up to 90% of their energy needs. In return, corals provide the algae with shelter and nutrients. This partnership is crucial—when stressed, corals expel zooxanthellae, causing coral bleaching.'
+          },
+          {
+            icon: '🛡️',
+            label: 'Coastal Protection',
+            text: 'Natural barriers against waves',
+            detail: 'Coral reefs act as natural breakwaters, reducing wave energy by an average of 97% before waves reach shore. They protect coastlines from erosion, storm surge, and tsunamis, safeguarding coastal communities and infrastructure. The economic value of this coastal protection service is estimated at $9 billion annually worldwide.'
+          },
+          {
+            icon: '⚠️',
+            label: 'Climate Vulnerability',
+            text: 'Threatened by warming oceans',
+            detail: 'Coral reefs are among the most climate-vulnerable ecosystems. Rising ocean temperatures cause mass bleaching events; ocean acidification from absorbed CO₂ inhibits calcium carbonate formation; extreme weather intensifies. Since the 1980s, the world has lost approximately 50% of its coral reefs, with projections suggesting 90% loss by 2050 under current warming scenarios.'
+          }
+        ],
         
-        <p>Despite covering less than 0.1% of the ocean floor, coral reefs support approximately 25% of all marine species, including fish, mollusks, worms, crustaceans, echinoderms, sponges, tunicates, and other cnidarians. These remarkable structures provide ecosystem services worth billions of dollars annually through fisheries, tourism, and coastal protection.</p>
+        comparison: {
+          title: 'Coral Reefs vs. Other Marine Ecosystems',
+          features: [
+            {
+              feature: 'Biodiversity',
+              mountain: 'Coral Reefs: Extremely high',
+              hill: 'Kelp Forests: High',
+              plateau: 'Open Ocean: Low'
+            },
+            {
+              feature: 'Primary Producers',
+              mountain: 'Coral Reefs: Zooxanthellae',
+              hill: 'Kelp Forests: Macroalgae',
+              plateau: 'Open Ocean: Phytoplankton'
+            },
+            {
+              feature: 'Water Depth',
+              mountain: 'Coral Reefs: Shallow (<70m)',
+              hill: 'Kelp Forests: Shallow-mid',
+              plateau: 'Open Ocean: All depths'
+            },
+            {
+              feature: 'Temperature',
+              mountain: 'Coral Reefs: Warm (23-29°C)',
+              hill: 'Kelp Forests: Cool-cold',
+              plateau: 'Open Ocean: Variable'
+            },
+            {
+              feature: 'Structure',
+              mountain: 'Coral Reefs: Calcium carbonate',
+              hill: 'Kelp Forests: Organic tissue',
+              plateau: 'Open Ocean: No structure'
+            }
+          ]
+        },
         
-        <div class="info-box">
-          <h4>Key Characteristics:</h4>
-          <ul>
-            <li><strong>Living Structures:</strong> Built by living organisms over thousands of years</li>
-            <li><strong>Symbiotic Relationship:</strong> Coral polyps live in symbiosis with zooxanthellae algae</li>
-            <li><strong>Tropical Waters:</strong> Primarily found in warm, shallow, clear waters</li>
-            <li><strong>Calcium Carbonate:</strong> Skeletons made of limestone (CaCO₃)</li>
-            <li><strong>Slow Growth:</strong> Grow only 0.3 to 10 centimeters per year</li>
-          </ul>
-        </div>
-      `
+        funFacts: [
+          '🌍 The Great Barrier Reef is the largest living structure on Earth, visible from space and spanning 2,300 km',
+          '🔥 Coral reefs have existed for over 240 million years, surviving five mass extinction events',
+          '💧 A single coral colony can contain millions of individual polyps working together as a superorganism',
+          '⚡ Some corals can live for over 4,000 years, making them among Earth\'s oldest living organisms',
+          '🌡️ Coral reefs generate approximately $375 billion in economic value annually through tourism, fisheries, and coastal protection',
+          '📊 Despite covering only 0.1% of the ocean, coral reefs provide food and livelihoods for over 500 million people'
+        ]
+      }
     },
-
-    // =============================
+    
+    // ==========================================
     // SECTION 2: TYPES
-    // =============================
+    // ==========================================
     types: {
       title: 'Types of Coral Reefs',
+      
       hero: {
-        image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600&h=900&fit=crop',
-        tagline: 'Explore the Different Classifications of Coral Reefs'
+        image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1600&q=90',
+        tagline: 'From fringing reefs to magnificent atolls'
       },
-      content: `
-        <p>Coral reefs are classified into several distinct types based on their location, structure, and formation process. Each type has unique characteristics and ecological significance.</p>
-
-        <div class="type-card">
-          <h3>1. Fringing Reefs</h3>
-          <img src="https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800&h=500&fit=crop" alt="Fringing Reef" />
-          <p><strong>Fringing reefs</strong> are the most common type of reef, growing directly from the shore or bordering the coastline with little or no separation from land. They develop in shallow waters and extend outward from the coast like a submerged platform.</p>
-          <ul>
-            <li><strong>Location:</strong> Directly attached to shorelines</li>
-            <li><strong>Lagoon:</strong> Narrow or absent shallow lagoon between reef and shore</li>
-            <li><strong>Examples:</strong> Reefs along the Red Sea coast, many Caribbean islands</li>
-            <li><strong>Depth:</strong> Typically found in waters less than 30 meters deep</li>
-          </ul>
-        </div>
-
-        <div class="type-card">
-          <h3>2. Barrier Reefs</h3>
-          <img src="https://images.unsplash.com/photo-1583952775747-b5e1c2350dea?w=800&h=500&fit=crop" alt="Barrier Reef" />
-          <p><strong>Barrier reefs</strong> are similar to fringing reefs but are separated from land by a deeper, wider lagoon. They run parallel to the coastline but are located farther offshore, often forming a barrier between the open sea and the coast.</p>
-          <ul>
-            <li><strong>Location:</strong> Offshore, parallel to coastline</li>
-            <li><strong>Lagoon:</strong> Deep, wide lagoon between reef and mainland</li>
-            <li><strong>Examples:</strong> Great Barrier Reef (Australia), Belize Barrier Reef</li>
-            <li><strong>Size:</strong> Often very large, extending hundreds of kilometers</li>
-            <li><strong>Formation:</strong> Develop as land subsides or sea levels rise</li>
-          </ul>
-        </div>
-
-        <div class="type-card">
-          <h3>3. Atolls</h3>
-          <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=500&fit=crop" alt="Atoll" />
-          <p><strong>Atolls</strong> are ring-shaped coral reefs, islands, or series of islets that encircle a lagoon partially or completely. They form in the open ocean, typically around submerged volcanic islands.</p>
-          <ul>
-            <li><strong>Shape:</strong> Circular or oval ring surrounding a central lagoon</li>
-            <li><strong>Formation:</strong> Develop around sinking volcanic islands</li>
-            <li><strong>Location:</strong> Open ocean, often far from continental landmasses</li>
-            <li><strong>Examples:</strong> Maldives, Marshall Islands, Bikini Atoll</li>
-            <li><strong>Darwin's Theory:</strong> Form through subsidence of volcanic islands</li>
-          </ul>
-        </div>
-
-        <div class="type-card">
-          <h3>4. Patch Reefs</h3>
-          <img src="https://images.unsplash.com/photo-1587139223877-04cb899fa3e8?w=800&h=500&fit=crop" alt="Patch Reef" />
-          <p><strong>Patch reefs</strong> are small, isolated reefs that grow up from the floor of an island platform or continental shelf. They typically occur in lagoons between the shore and barrier reefs or in atoll lagoons.</p>
-          <ul>
-            <li><strong>Size:</strong> Small, isolated formations</li>
-            <li><strong>Location:</strong> Often found in lagoons or between other reef structures</li>
-            <li><strong>Shape:</strong> Irregular, scattered formations</li>
-            <li><strong>Depth:</strong> Can occur at various depths within the photic zone</li>
-          </ul>
-        </div>
-
-        <div class="type-card">
-          <h3>5. Bank/Platform Reefs</h3>
-          <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=500&fit=crop" alt="Platform Reef" />
-          <p><strong>Bank or platform reefs</strong> are reefs that develop on continental shelves with irregular shapes and no obvious relationship to landmasses. They grow in various directions depending on local conditions.</p>
-          <ul>
-            <li><strong>Formation:</strong> Grow on submerged banks or platforms</li>
-            <li><strong>Shape:</strong> Irregular, no specific orientation to land</li>
-            <li><strong>Examples:</strong> Found in the Gulf of Mexico, parts of Caribbean</li>
-            <li><strong>Characteristics:</strong> May have lagoons within the reef structure</li>
-          </ul>
-        </div>
-
-        <div class="info-box">
-          <h4>Classification by Coral Type:</h4>
-          <ul>
-            <li><strong>Hard Coral Reefs:</strong> Built by stony (scleractinian) corals with calcium carbonate skeletons</li>
-            <li><strong>Soft Coral Communities:</strong> Dominated by flexible corals without rigid skeletons</li>
-            <li><strong>Deep-Water Coral Reefs:</strong> Found in cold, deep waters (200-1,000+ meters)</li>
-            <li><strong>Tropical Coral Reefs:</strong> Warm-water reefs in shallow tropical seas</li>
-          </ul>
-        </div>
-      `
-    },
-
-    // =============================
-    // SECTION 3: FORMATION
-    // =============================
-    formation: {
-      title: 'Formation and Characteristics of Coral Reefs',
-      hero: {
-        image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1600&h=900&fit=crop',
-        tagline: 'Understanding How Coral Reefs Form and Thrive'
-      },
-      content: `
-        <h3>How Coral Reefs Form</h3>
-        <p>Coral reef formation is a complex, slow process that can take thousands to millions of years. Understanding this process reveals the remarkable nature of these living structures.</p>
-
-        <div class="formation-stage">
-          <h4>1. Initial Settlement (Larval Stage)</h4>
-          <img src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800&h=500&fit=crop" alt="Coral Formation" />
-          <p>Coral reefs begin when free-swimming coral larvae (planulae) attach themselves to submerged rocks or hard surfaces along the edges of islands or continents. Once attached, the larvae transform into polyps—small, soft-bodied organisms related to sea anemones.</p>
-        </div>
-
-        <div class="formation-stage">
-          <h4>2. Polyp Colony Development</h4>
-          <p>Each polyp secretes calcium carbonate (limestone) from its base, creating a hard, protective skeleton called a corallite. The polyp divides repeatedly through asexual reproduction (budding), forming a colony of genetically identical polyps. Each colony grows on the skeletons of previous generations.</p>
-          <ul>
-            <li>Individual polyps are typically 1-3mm in diameter</li>
-            <li>Colonies can contain thousands to millions of polyps</li>
-            <li>Growth rates vary: 0.3-10 cm per year depending on species</li>
-          </ul>
-        </div>
-
-        <div class="formation-stage">
-          <h4>3. Symbiotic Relationship</h4>
-          <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=500&fit=crop" alt="Coral Symbiosis" />
-          <p>Most reef-building corals have a symbiotic relationship with microscopic algae called zooxanthellae that live within their tissues. This relationship is crucial for reef formation:</p>
-          <ul>
-            <li><strong>Photosynthesis:</strong> Zooxanthellae photosynthesize, providing up to 90% of coral energy needs</li>
-            <li><strong>Calcification:</strong> Algae help corals produce calcium carbonate more efficiently</li>
-            <li><strong>Color:</strong> Zooxanthellae give corals their vibrant colors</li>
-            <li><strong>Nutrition Exchange:</strong> Corals provide protection and nutrients; algae provide sugars and oxygen</li>
-          </ul>
-        </div>
-
-        <div class="formation-stage">
-          <h4>4. Reef Structure Building</h4>
-          <p>As colonies grow and spread, they create the three-dimensional structure of a reef. Different coral species grow in various formations—branching, massive, plate-like, or encrusting—creating complex habitats with numerous crevices and caves.</p>
-        </div>
-
-        <div class="formation-stage">
-          <h4>5. Reef Evolution (Darwin's Theory)</h4>
-          <img src="https://images.unsplash.com/photo-1583952775747-b5e1c2350dea?w=800&h=500&fit=crop" alt="Reef Evolution" />
-          <p>Charles Darwin proposed a theory explaining the progression from fringing reefs to atolls:</p>
-          <ol>
-            <li><strong>Stage 1:</strong> Fringing reef forms around a volcanic island</li>
-            <li><strong>Stage 2:</strong> Island subsides, reef continues growing upward, creating a barrier reef with a lagoon</li>
-            <li><strong>Stage 3:</strong> Island completely submerges, leaving a ring-shaped atoll</li>
-          </ol>
-        </div>
-
-        <h3>Essential Conditions for Coral Reef Formation</h3>
-        <div class="conditions-grid">
-          <div class="condition-card">
-            <h4>🌡️ Temperature</h4>
-            <ul>
-              <li><strong>Optimal Range:</strong> 23-29°C (73-84°F)</li>
-              <li><strong>Minimum:</strong> 18°C (64°F)</li>
-              <li><strong>Maximum Tolerance:</strong> 30-32°C (86-90°F)</li>
-              <li>Corals are very sensitive to temperature changes</li>
-            </ul>
-          </div>
-
-          <div class="condition-card">
-            <h4>☀️ Light</h4>
-            <ul>
-              <li>Require abundant sunlight for zooxanthellae photosynthesis</li>
-              <li>Most reefs occur in waters less than 50 meters deep</li>
-              <li>Clear water with minimal sediment</li>
-              <li>Typically found in the photic zone</li>
-            </ul>
-          </div>
-
-          <div class="condition-card">
-            <h4>💧 Water Quality</h4>
-            <ul>
-              <li><strong>Salinity:</strong> 32-42 parts per thousand</li>
-              <li><strong>Clarity:</strong> Clear water for light penetration</li>
-              <li><strong>Low Nutrients:</strong> Paradoxically thrive in nutrient-poor waters</li>
-              <li><strong>pH:</strong> 8.1-8.4 (slightly alkaline)</li>
-            </ul>
-          </div>
-
-          <div class="condition-card">
-            <h4>🌊 Water Movement</h4>
-            <ul>
-              <li>Moderate wave action delivers nutrients and oxygen</li>
-              <li>Currents remove sediment and waste products</li>
-              <li>Prevents stagnation and promotes circulation</li>
-              <li>Too much turbulence can damage coral structures</li>
-            </ul>
-          </div>
-
-          <div class="condition-card">
-            <h4>🪨 Substrate</h4>
-            <ul>
-              <li>Require hard, stable surfaces for larval attachment</li>
-              <li>Rocky or dead coral substrate ideal</li>
-              <li>Cannot colonize soft, shifting sand or mud</li>
-              <li>Volcanic rock, limestone, or dead reef material</li>
-            </ul>
-          </div>
-
-          <div class="condition-card">
-            <h4>📍 Location</h4>
-            <ul>
-              <li>Primarily between 30°N and 30°S latitude</li>
-              <li>Tropical and subtropical regions</li>
-              <li>Western coasts of continents (warmer currents)</li>
-              <li>Away from river mouths (sediment and freshwater)</li>
-            </ul>
-          </div>
-        </div>
-
-        <h3>Reef Zonation and Structure</h3>
-        <div class="info-box">
-          <p>Coral reefs are divided into distinct zones based on depth, wave energy, and distance from shore:</p>
+      
+      renderAs: 'mindmap',
+      
+      branches: [
+        {
+          id: 'fringing',
+          name: 'Fringing Reefs',
+          icon: '🏖️',
+          color: '#3B82F6',
           
-          <h4>Typical Reef Zones:</h4>
-          <ol>
-            <li><strong>Reef Crest:</strong> Shallowest part with highest wave energy; dominated by hardy, wave-resistant corals</li>
-            <li><strong>Fore Reef (Reef Slope):</strong> Seaward side sloping down; highest coral diversity</li>
-            <li><strong>Reef Flat:</strong> Shallow, flat area between crest and shore; variable conditions</li>
-            <li><strong>Lagoon:</strong> Protected area behind barrier reefs; calmer waters with patch reefs</li>
-            <li><strong>Back Reef:</strong> Leeward side protected from waves; fine sediment accumulation</li>
-          </ol>
-        </div>
-
-        <h3>Ecological Characteristics</h3>
-        <div class="ecology-section">
-          <h4>Biodiversity Hotspots</h4>
-          <p>Coral reefs support extraordinary biodiversity despite covering less than 0.1% of the ocean:</p>
-          <ul>
-            <li>Over 4,000 species of fish</li>
-            <li>Approximately 800 species of hard corals</li>
-            <li>Thousands of mollusk, crustacean, and other invertebrate species</li>
-            <li>Critical breeding and nursery grounds for marine life</li>
-            <li>Complex food webs with numerous ecological niches</li>
-          </ul>
-
-          <h4>Productivity</h4>
-          <p>Reefs are among Earth's most productive ecosystems:</p>
-          <ul>
-            <li>High primary productivity despite nutrient-poor waters</li>
-            <li>Efficient nutrient recycling within the ecosystem</li>
-            <li>Symbiotic relationships maximize energy efficiency</li>
-            <li>Support commercial and subsistence fisheries</li>
-          </ul>
-
-          <h4>Reproduction Methods</h4>
-          <p>Corals reproduce both sexually and asexually:</p>
-          <ul>
-            <li><strong>Asexual:</strong> Budding, fragmentation, and polyp bail-out</li>
-            <li><strong>Sexual:</strong> Mass spawning events, often synchronized with lunar cycles</li>
-            <li><strong>Broadcast Spawning:</strong> Release eggs and sperm into water column</li>
-            <li><strong>Brooding:</strong> Some species internally fertilize and release developed larvae</li>
-          </ul>
-        </div>
-
-        <div class="warning-box">
-          <h4>⚠️ Threats to Coral Reefs</h4>
-          <p>Coral reefs face numerous threats that affect their formation and survival:</p>
-          <ul>
-            <li><strong>Climate Change:</strong> Ocean warming causes coral bleaching; ocean acidification inhibits calcification</li>
-            <li><strong>Pollution:</strong> Agricultural runoff, sewage, and plastic contamination</li>
-            <li><strong>Overfishing:</strong> Disrupts ecological balance and food webs</li>
-            <li><strong>Destructive Fishing:</strong> Blast fishing and cyanide poisoning</li>
-            <li><strong>Coastal Development:</strong> Sedimentation, habitat destruction</li>
-            <li><strong>Tourism Impact:</strong> Physical damage from anchors, divers, boats</li>
-            <li><strong>Coral Disease:</strong> Increasing prevalence of bacterial and fungal infections</li>
-          </ul>
-        </div>
-      `
-    },
-
-    // =============================
-    // SECTION 4: EXAMPLES
-    // =============================
-    examples: {
-      title: 'Famous Coral Reefs Around the World',
-      hero: {
-        image: 'https://images.unsplash.com/photo-1583952775747-b5e1c2350dea?w=1600&h=900&fit=crop',
-        tagline: 'Explore the World\'s Most Magnificent Coral Reef Systems'
-      },
-      renderAs: 'grid',
-      introduction: `
-        <p>Coral reefs around the world showcase the incredible diversity and beauty of these marine ecosystems. From the massive Great Barrier Reef to remote atolls, each reef system has unique characteristics and ecological significance. Here are some of the world's most remarkable coral reefs:</p>
-      `,
-      linkToExisting: '../../coral-reefs/coral-reefs.html',
-      items: [
-        {
-          name: 'Great Barrier Reef',
-          location: 'Queensland, Australia',
-          image: 'https://images.unsplash.com/photo-1587139223877-04cb899fa3e8?w=600&h=400&fit=crop',
-          description: 'The world\'s largest coral reef system, spanning over 2,300 kilometers with 2,900 individual reefs and 900 islands. Home to 1,500 fish species, 400 coral species, and countless other marine organisms.',
-          facts: [
-            'Area: 344,400 km² (larger than Italy)',
-            'Age: Approximately 500,000 years old',
-            'UNESCO World Heritage Site (1981)',
-            'Visible from space',
-            'Contains 10% of world\'s total fish species',
-            'Supports 64,000 jobs in tourism',
-            'Generates $6.4 billion annually'
+          definition: 'Fringing reefs are the most common type of coral reef, growing directly from the shore with little or no separation from land. They form a narrow, continuous platform along coastlines, typically extending 50-100 meters from shore with a shallow lagoon or no lagoon at all. These are the youngest type of reef, representing the first stage in Darwin\'s reef development theory. Fringing reefs are found throughout the Caribbean, Red Sea, and along the coasts of many Pacific islands.',
+          
+          formation: {
+            title: 'How Fringing Reefs Form',
+            steps: [
+              { step: 1, icon: '🏝️', text: 'Coral larvae settle on shallow rocky shoreline in warm, clear water' },
+              { step: 2, icon: '🪸', text: 'Polyps establish colonies and begin secreting calcium carbonate skeletons' },
+              { step: 3, icon: '📈', text: 'Reef grows upward toward sunlight and outward from shore' },
+              { step: 4, icon: '🌊', text: 'Wave action shapes reef crest facing open ocean' },
+              { step: 5, icon: '🏖️', text: 'Narrow or absent lagoon between reef and shore characterizes fringing reef' }
+            ]
+          },
+          
+          characteristics: [
+            'Directly attached to shore with minimal separation',
+            'Narrow or absent lagoon between reef and land',
+            'Typically 50-100 meters wide, extending from shore',
+            'Most common reef type globally',
+            'Youngest stage in reef development sequence',
+            'Vulnerable to land-based pollution and runoff'
           ]
         },
         {
-          name: 'Mesoamerican Barrier Reef',
-          location: 'Mexico, Belize, Guatemala, Honduras',
-          image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=400&fit=crop',
-          description: 'The second-largest barrier reef system in the world, stretching over 1,000 kilometers along the Caribbean coast of Central America. Features the famous Great Blue Hole.',
-          facts: [
-            'Length: Over 1,000 km',
-            'Spans 4 countries',
-            'Home to 500+ fish species',
-            '65 species of stony coral',
-            'Includes Great Blue Hole (407m wide)',
-            'Critical for regional fisheries',
-            'Supports 2 million people'
+          id: 'barrier',
+          name: 'Barrier Reefs',
+          icon: '🌊',
+          color: '#06B6D4',
+          
+          definition: 'Barrier reefs are separated from the mainland or island shore by a deep, wide lagoon. These massive reef structures run parallel to the coast, sometimes for hundreds of kilometers. The lagoon between reef and shore can be several kilometers wide and tens of meters deep, providing protected habitat for diverse marine life. The Great Barrier Reef off Australia\'s northeast coast is the world\'s largest barrier reef system, while Belize\'s Barrier Reef is the second largest.',
+          
+          formation: {
+            title: 'How Barrier Reefs Form',
+            steps: [
+              { step: 1, icon: '🏖️', text: 'Begins as fringing reef along volcanic island or continental coast' },
+              { step: 2, icon: '⬇️', text: 'Island subsides or sea level rises, increasing distance from shore' },
+              { step: 3, icon: '⬆️', text: 'Coral grows upward to maintain position in sunlit zone' },
+              { step: 4, icon: '🌊', text: 'Wide, deep lagoon develops between reef and receding shoreline' },
+              { step: 5, icon: '🪸', text: 'Barrier reef continues growing while separated from land by lagoon' }
+            ]
+          },
+          
+          characteristics: [
+            'Separated from shore by wide, deep lagoon',
+            'Runs parallel to coastline, sometimes for hundreds of km',
+            'Lagoon depth typically 10-75 meters',
+            'Second stage in Darwin\'s reef development sequence',
+            'Provides protected lagoon habitat',
+            'Includes the world\'s largest reef systems'
           ]
         },
         {
-          name: 'Red Sea Coral Reef',
-          location: 'Egypt, Israel, Jordan, Saudi Arabia',
-          image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600&h=400&fit=crop',
-          description: 'One of the most northerly tropical reefs, extending over 2,000 kilometers. Known for exceptional coral diversity, unique endemic species, and remarkable heat tolerance.',
-          facts: [
-            'Length: Over 2,000 km',
-            '200+ hard coral species',
-            '1,200+ fish species',
-            'High heat tolerance (up to 34°C)',
-            'Age: 5,000-7,000 years',
-            'Some of world\'s best diving sites',
-            'Includes Ras Mohammed National Park'
+          id: 'atoll',
+          name: 'Atolls',
+          icon: '💍',
+          color: '#10B981',
+          
+          definition: 'Atolls are ring-shaped coral reefs, islands, or chains of islands surrounding a central lagoon with no land in the center. They are among the most distinctive coral formations, typically circular or oval in shape. Atolls form when volcanic islands completely subside below sea level while coral continues growing upward, eventually leaving only the reef ring. Famous examples include the Maldives (entirely composed of atolls), Bikini Atoll, and numerous atolls across the Pacific and Indian Oceans.',
+          
+          formation: {
+            title: 'How Atolls Form',
+            steps: [
+              { step: 1, icon: '🌋', text: 'Volcanic island forms in warm tropical ocean (often at hotspot)' },
+              { step: 2, icon: '🪸', text: 'Fringing reef develops around island\'s shoreline' },
+              { step: 3, icon: '⬇️', text: 'Island subsides as volcanic rock cools and contracts' },
+              { step: 4, icon: '⬆️', text: 'Coral grows upward as island sinks, forming barrier reef with lagoon' },
+              { step: 5, icon: '💍', text: 'Island completely submerges, leaving ring-shaped atoll around lagoon' }
+            ]
+          },
+          
+          characteristics: [
+            'Ring or horseshoe shape surrounding central lagoon',
+            'No central island—completely surrounds water',
+            'Represents final stage in Darwin\'s reef sequence',
+            'Lagoon depth typically 50-80 meters',
+            'Formed through complete island subsidence',
+            'Most common in Pacific and Indian Oceans'
           ]
         },
         {
-          name: 'New Caledonia Barrier Reef',
-          location: 'New Caledonia, Pacific Ocean',
-          image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600&h=400&fit=crop',
-          description: 'The world\'s second-longest double barrier reef, surrounding the main island with exceptional biodiversity and pristine condition.',
-          facts: [
-            'Length: 1,500 km',
-            'Area: 40,000 km² lagoon',
-            'UNESCO World Heritage Site',
-            '1,000+ fish species',
-            '350+ coral species',
-            'Home to dugongs',
-            'Relatively pristine condition'
+          id: 'patch',
+          name: 'Patch Reefs',
+          icon: '🎯',
+          color: '#F59E0B',
+          
+          definition: 'Patch reefs are small, isolated coral formations that grow up from the bottom of island platforms or continental shelves, often within lagoons of other reef types. They are typically circular or oval and range from a few meters to several hundred meters in diameter. Unlike the continuous structures of fringing or barrier reefs, patch reefs are scattered formations that provide important habitat diversity. They\'re common in the Caribbean, particularly in the lagoons of barrier reefs and around atolls.',
+          
+          formation: {
+            title: 'How Patch Reefs Form',
+            steps: [
+              { step: 1, icon: '🪨', text: 'Coral larvae settle on isolated rocky outcrops or hard substrate' },
+              { step: 2, icon: '🪸', text: 'Colonies establish and grow upward from seafloor' },
+              { step: 3, icon: '⭕', text: 'Reef develops circular/oval shape around initial settlement point' },
+              { step: 4, icon: '📍', text: 'Remains isolated from other reefs, surrounded by sand or seagrass' },
+              { step: 5, icon: '🎯', text: 'Multiple patch reefs may form scattered pattern in lagoon or shelf' }
+            ]
+          },
+          
+          characteristics: [
+            'Small, isolated formations on shallow platforms',
+            'Circular or oval shape, typically <1 km diameter',
+            'Often found within lagoons of larger reef systems',
+            'Surrounded by sand, mud, or seagrass beds',
+            'Provide isolated habitat "islands" for marine life',
+            'Common in Caribbean and Indo-Pacific lagoons'
           ]
         },
         {
-          name: 'Raja Ampat Reefs',
-          location: 'West Papua, Indonesia',
-          image: 'https://images.unsplash.com/photo-1583952775747-b5e1c2350dea?w=600&h=400&fit=crop',
-          description: 'Often called the "epicenter of marine biodiversity," this archipelago hosts the richest coral diversity on Earth with over 75% of all known coral species.',
-          facts: [
-            '1,500+ small islands',
-            '75% of all coral species (537 species)',
-            '1,300+ reef fish species',
-            '700+ mollusk species',
-            'Part of Coral Triangle',
-            'Highest marine biodiversity globally',
-            'Manta ray cleaning stations'
+          id: 'bank',
+          name: 'Bank/Platform Reefs',
+          icon: '🏔️',
+          color: '#8B5CF6',
+          
+          definition: 'Bank reefs (also called platform reefs) are isolated coral formations on continental shelves or oceanic platforms that have no relationship to nearby islands. They grow on submerged banks or platforms, often forming irregular shapes or linear features. These reefs can be massive, sometimes exceeding 100 km in length. They differ from other reef types by their isolated position away from land. The Saya de Malha Bank in the Indian Ocean is one of the largest submerged bank reef systems.',
+          
+          formation: {
+            title: 'How Bank Reefs Form',
+            steps: [
+              { step: 1, icon: '🏔️', text: 'Coral colonizes shallow submerged platform or seamount top' },
+              { step: 2, icon: '🪸', text: 'Reef grows upward and outward from platform edges' },
+              { step: 3, icon: '📏', text: 'Develops irregular or linear shape following platform contours' },
+              { step: 4, icon: '🌊', text: 'Remains isolated from mainland or islands' },
+              { step: 5, icon: '🏝️', text: 'May develop shallow central area or small sand cays' }
+            ]
+          },
+          
+          characteristics: [
+            'Isolated from land on continental shelf or oceanic platform',
+            'Irregular or linear shape following underwater topography',
+            'Can be extremely large (>100 km)',
+            'Not associated with coastal features',
+            'May have shallow lagoon-like central areas',
+            'Important in regions far from continental coasts'
           ]
         },
         {
-          name: 'Maldives Coral Reefs',
-          location: 'Maldives, Indian Ocean',
-          image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=400&fit=crop',
-          description: 'A chain of 26 atolls containing approximately 1,190 coral islands. Famous for pristine white beaches, crystal-clear lagoons, and vibrant house reefs.',
-          facts: [
-            '26 natural atolls',
-            '1,190 islands',
-            '200+ coral species',
-            '1,000+ fish species',
-            'Double chain of atolls',
-            'Average elevation: 1.5m above sea level',
-            'World-renowned diving destination'
+          id: 'apron',
+          name: 'Apron Reefs',
+          icon: '🎭',
+          color: '#EC4899',
+          
+          definition: 'Apron reefs are coral formations found along the margins of carbonate platforms, growing outward and downward like an apron from the platform edge. They typically extend from shallow water down steep slopes into deeper water. These reefs characteristically have a distinct spur-and-groove structure perpendicular to the platform edge. Apron reefs are particularly common in the Bahamas and other carbonate platform regions where they create dramatic underwater topography.',
+          
+          formation: {
+            title: 'How Apron Reefs Form',
+            steps: [
+              { step: 1, icon: '🏔️', text: 'Coral establishes on edge of shallow carbonate platform' },
+              { step: 2, icon: '⬇️', text: 'Reef grows outward over platform edge and down the slope' },
+              { step: 3, icon: '〰️', text: 'Wave action creates spur-and-groove formations perpendicular to edge' },
+              { step: 4, icon: '🎭', text: 'Reef drapes platform margin like an apron' },
+              { step: 5, icon: '📐', text: 'Continues growing on both shallow platform and steep slope' }
+            ]
+          },
+          
+          characteristics: [
+            'Grows along edges of carbonate platforms',
+            'Extends from shallow water down steep slopes',
+            'Distinctive spur-and-groove structure',
+            'Drapes platform margin like an apron',
+            'Common in Bahamas and Caribbean platforms',
+            'Transitions between shallow and deep water habitats'
           ]
         },
         {
-          name: 'Florida Reef Tract',
-          location: 'Florida Keys, USA',
-          image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600&h=400&fit=crop',
-          description: 'The only living barrier reef in the continental United States, extending about 360 kilometers from southern Miami to the Dry Tortugas.',
-          facts: [
-            'Length: 360 km',
-            'Third-largest barrier reef globally',
-            'Only continental US barrier reef',
-            '45 coral species',
-            '500+ fish species',
-            'John Pennekamp Coral Reef State Park',
-            'Major conservation efforts underway'
-          ]
-        },
-        {
-          name: 'Tubbataha Reefs',
-          location: 'Sulu Sea, Philippines',
-          image: 'https://images.unsplash.com/photo-1587139223877-04cb899fa3e8?w=600&h=400&fit=crop',
-          description: 'A pristine atoll reef system in the middle of the Sulu Sea, protected as a UNESCO World Heritage Site. Known for exceptional marine biodiversity.',
-          facts: [
-            'Area: 97,030 hectares',
-            'UNESCO World Heritage Site (1993)',
-            '600+ fish species',
-            '360+ coral species',
-            '11 shark species',
-            'Important turtle nesting site',
-            'Strictly protected (no-take zone)'
-          ]
-        },
-        {
-          name: 'Andros Barrier Reef',
-          location: 'Andros Island, Bahamas',
-          image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600&h=400&fit=crop',
-          description: 'The third-largest barrier reef in the world, extending over 225 kilometers along the eastern shore of Andros Island. Features dramatic wall diving.',
-          facts: [
-            'Length: 225+ km',
-            'Third-largest barrier reef',
-            'Tongue of the Ocean nearby (1,800m deep)',
-            'Over 164 fish species',
-            'Blue holes and underwater caves',
-            'Relatively unexplored',
-            'Critical nursery habitat'
-          ]
-        },
-        {
-          name: 'Apo Reef',
-          location: 'Mindoro, Philippines',
-          image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=400&fit=crop',
-          description: 'The largest contiguous coral reef system in the Philippines and the second-largest in the world. A protected natural park known for pristine conditions.',
-          facts: [
-            'Area: 34 km²',
-            'Second-largest contiguous reef globally',
-            '400+ coral species',
-            '500+ fish species',
-            'Natural park status',
-            'Minimal human impact',
-            'Important shark habitat'
-          ]
-        },
-        {
-          name: 'Ningaloo Reef',
-          location: 'Western Australia',
-          image: 'https://images.unsplash.com/photo-1583952775747-b5e1c2350dea?w=600&h=400&fit=crop',
-          description: 'One of the longest nearshore reefs in the world, extending over 260 kilometers. Famous for whale shark encounters and pristine condition.',
-          facts: [
-            'Length: 260 km',
-            'UNESCO World Heritage Site',
-            '300+ coral species',
-            '500+ fish species',
-            'Whale shark aggregation site',
-            'Accessible from shore',
-            'Minimal coastal development'
-          ]
-        },
-        {
-          name: 'Palancar Reef',
-          location: 'Cozumel, Mexico',
-          image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=600&h=400&fit=crop',
-          description: 'Part of the Mesoamerican Barrier Reef, famous for its coral formations, swim-throughs, and vibrant marine life. One of the world\'s top dive sites.',
-          facts: [
-            'Part of Mesoamerican Barrier Reef',
-            'Multiple dive zones',
-            'Dramatic coral formations',
-            'Strong currents (drift diving)',
-            '100+ coral species',
-            'Iconic swim-through tunnels',
-            'World-class visibility'
+          id: 'ribbon',
+          name: 'Ribbon Reefs',
+          icon: '🎀',
+          color: '#EF4444',
+          
+          definition: 'Ribbon reefs are long, narrow reefs that run roughly parallel to the edge of the continental shelf, typically in deep water. They are characterized by their elongated, sinuous shape and may extend for many kilometers. Unlike barrier reefs, ribbon reefs occur in deeper water (often 30-100+ meters) at shelf edges. The Great Barrier Reef system includes numerous ribbon reefs along its outer edge, forming a nearly continuous chain along the continental shelf margin.',
+          
+          formation: {
+            title: 'How Ribbon Reefs Form',
+            steps: [
+              { step: 1, icon: '📏', text: 'Coral colonizes edge of continental shelf or submerged platform' },
+              { step: 2, icon: '〰️', text: 'Linear growth follows shelf break contour' },
+              { step: 3, icon: '🌊', text: 'Strong currents along shelf edge promote growth' },
+              { step: 4, icon: '🎀', text: 'Elongated, sinuous ribbon shape develops' },
+              { step: 5, icon: '⛓️', text: 'Multiple ribbon reefs may form parallel chains' }
+            ]
+          },
+          
+          characteristics: [
+            'Long, narrow, sinuous shape',
+            'Located along continental shelf edges',
+            'Often in deeper water (30-100+ meters)',
+            'Parallel to shelf break',
+            'Exposed to strong oceanic currents',
+            'May form chains of multiple ribbon reefs'
           ]
         }
-      ]
+      ],
+      
+      comparisonTable: {
+        title: 'Quick Comparison of Reef Types',
+        headers: ['Type', 'Location', 'Key Feature', 'Example'],
+        rows: [
+          ['Fringing 🏖️', 'Attached to shore', 'Direct coastal contact', 'Red Sea reefs'],
+          ['Barrier 🌊', 'Parallel to coast', 'Wide lagoon separation', 'Great Barrier Reef'],
+          ['Atoll 💍', 'Open ocean', 'Ring around lagoon', 'Maldives'],
+          ['Patch 🎯', 'Within lagoons', 'Isolated circular', 'Caribbean patches'],
+          ['Bank 🏔️', 'On platforms', 'Isolated from land', 'Saya de Malha'],
+          ['Apron 🎭', 'Platform edges', 'Drapes slope', 'Bahamas reefs'],
+          ['Ribbon 🎀', 'Shelf breaks', 'Long and narrow', 'GBR ribbon reefs']
+        ]
+      }
     },
-
-    // =============================
-    // SECTION 5: IMPORTANCE
-    // =============================
-    importance: {
-      title: 'Importance and Ecological Services of Coral Reefs',
+    
+    // ==========================================
+    // SECTION 3: FORMATION
+    // ==========================================
+    formation: {
+      title: 'How Coral Reefs Form',
+      
       hero: {
-        image: 'https://images.unsplash.com/photo-1587139223877-04cb899fa3e8?w=1600&h=900&fit=crop',
-        tagline: 'Why Coral Reefs Matter for Our Planet and Humanity'
+        image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600&q=90',
+        tagline: 'From single polyp to massive reef—millennia in the making'
       },
-      content: `
-        <p>Coral reefs are among the most valuable ecosystems on Earth, providing essential services to both marine life and human populations. Despite covering less than 0.1% of the ocean floor, their impact is immense and far-reaching.</p>
-
-        <h3>Ecological Importance</h3>
-        <div class="importance-card">
-          <h4>🐠 Marine Biodiversity</h4>
-          <ul>
-            <li>Support 25% of all marine species despite occupying <0.1% of ocean area</li>
-            <li>Provide habitat, feeding grounds, and nurseries for thousands of species</li>
-            <li>Create complex three-dimensional structures with countless niches</li>
-            <li>Serve as "biodiversity hotspots" comparable to tropical rainforests</li>
-            <li>Support intricate food webs from plankton to apex predators</li>
-          </ul>
-        </div>
-
-        <div class="importance-card">
-          <h4>🔄 Nutrient Cycling</h4>
-          <ul>
-            <li>Efficiently recycle nutrients in nutrient-poor tropical waters</li>
-            <li>Convert dissolved nutrients into living biomass</li>
-            <li>Provide nutrients to surrounding ecosystems</li>
-            <li>Support productivity through symbiotic relationships</li>
-          </ul>
-        </div>
-
-        <h3>Economic Importance</h3>
-        <div class="importance-card">
-          <h4>🎣 Fisheries</h4>
-          <ul>
-            <li>Provide livelihoods for over 500 million people globally</li>
-            <li>Support commercial and artisanal fisheries worth billions annually</li>
-            <li>Serve as nursery grounds for commercially important species</li>
-            <li>Contribute to food security in tropical developing nations</li>
-            <li>Estimated value: $6.8 billion annually in fisheries alone</li>
-          </ul>
-        </div>
-
-        <div class="importance-card">
-          <h4>✈️ Tourism</h4>
-          <ul>
-            <li>Generate approximately $36 billion annually in tourism revenue</li>
-            <li>Support millions of jobs in coastal communities</li>
-            <li>Attract divers, snorkelers, and marine enthusiasts worldwide</li>
-            <li>Provide recreational opportunities and cultural experiences</li>
-            <li>Contribute significantly to national economies of island nations</li>
-          </ul>
-        </div>
-
-        <div class="importance-card">
-          <h4>🏖️ Coastal Protection</h4>
-          <ul>
-            <li>Reduce wave energy by an average of 97%</li>
-            <li>Protect coastlines from erosion and storm damage</li>
-            <li>Save billions in coastal infrastructure protection costs</li>
-            <li>Estimated to protect $94 billion in property globally</li>
-            <li>Reduce flooding risk for 200+ million coastal residents</li>
-            <li>Particularly crucial during hurricanes and typhoons</li>
-          </ul>
-        </div>
-
-        <h3>Medical and Scientific Importance</h3>
-        <div class="importance-card">
-          <h4>💊 Pharmaceutical Resources</h4>
-          <ul>
-            <li>Source of compounds for treating cancer, arthritis, and infections</li>
-            <li>Provide unique chemicals for medical research</li>
-            <li>Coral skeletons used in bone grafts (similar to human bone structure)</li>
-            <li>Potential for discovering new antibiotics and antivirals</li>
-            <li>Estimated potential value: billions in pharmaceutical applications</li>
-          </ul>
-        </div>
-
-        <div class="importance-card">
-          <h4>🔬 Scientific Research</h4>
-          <ul>
-            <li>Living laboratories for studying marine ecology and evolution</li>
-            <li>Climate archives (coral cores reveal historical ocean conditions)</li>
-            <li>Model organisms for understanding symbiosis</li>
-            <li>Indicators of ocean health and climate change</li>
-            <li>Contribute to understanding of calcification processes</li>
-          </ul>
-        </div>
-
-        <h3>Cultural and Social Importance</h3>
-        <div class="importance-card">
-          <h4>🏝️ Cultural Heritage</h4>
-          <ul>
-            <li>Sacred sites for many indigenous and island cultures</li>
-            <li>Integral to traditional practices and ceremonies</li>
-            <li>Source of cultural identity for Pacific Island nations</li>
-            <li>Featured in folklore, art, and traditional knowledge</li>
-            <li>Connect communities to their marine environment</li>
-          </ul>
-        </div>
-
-        <div class="importance-card">
-          <h4>📚 Educational Value</h4>
-          <ul>
-            <li>Inspire marine conservation and environmental awareness</li>
-            <li>Provide opportunities for scientific education</li>
-            <li>Demonstrate complex ecological relationships</li>
-            <li>Raise awareness about climate change impacts</li>
-          </ul>
-        </div>
-
-        <h3>Climate Regulation</h3>
-        <div class="importance-card">
-          <h4>🌍 Carbon Cycling</h4>
-          <ul>
-            <li>Contribute to global carbon cycling through calcification</li>
-            <li>Store carbon in calcium carbonate structures</li>
-            <li>Influence atmospheric CO₂ levels over geological timescales</li>
-            <li>Part of ocean's carbon sequestration system</li>
-          </ul>
-        </div>
-
-        <div class="stat-box">
-          <h3>Coral Reef Economic Value</h3>
-          <ul>
-            <li><strong>Total Global Value:</strong> $375 billion annually</li>
-            <li><strong>Tourism:</strong> $36 billion/year</li>
-            <li><strong>Fisheries:</strong> $6.8 billion/year</li>
-            <li><strong>Coastal Protection:</strong> $9 billion/year in avoided damages</li>
-            <li><strong>Per Hectare Value:</strong> Up to $352,000/year</li>
-            <li><strong>People Dependent:</strong> 500+ million globally</li>
-          </ul>
-        </div>
-
-        <div class="warning-box">
-          <h4>⚠️ Threats to These Values</h4>
-          <p>Climate change and human activities threaten all these ecosystem services:</p>
-          <ul>
-            <li>50% of coral reefs have been lost in the past 30 years</li>
-            <li>90% could be threatened by 2030 without action</li>
-            <li>Mass bleaching events increasing in frequency and severity</li>
-            <li>Economic losses could reach hundreds of billions if reefs collapse</li>
-            <li>Urgent conservation action needed to preserve these values</li>
-          </ul>
-        </div>
-      `
+      
+      renderAs: 'timeline',
+      
+      introduction: 'Coral reef formation is a complex biological and geological process spanning thousands to millions of years. Individual polyps build calcium carbonate skeletons that accumulate layer upon layer, eventually creating massive structures. The process depends on specific environmental conditions, symbiotic relationships, and ongoing biological and physical processes.',
+      
+      stages: [
+        {
+          stage: 1,
+          title: 'Larval Settlement',
+          timeframe: 'Days to weeks',
+          image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1200&q=80',
+          
+          description: [
+            'Coral larvae (planulae) drift with ocean currents',
+            'Chemical and physical cues trigger settlement on suitable substrate',
+            'Hard, stable surfaces in warm, clear, shallow water are preferred',
+            'Multiple larvae may settle together, beginning colony formation',
+            'Settlement typically occurs on existing rock, dead coral, or artificial structures',
+            'Critical first step determining future reef location and orientation'
+          ],
+          
+          geologicalProcess: 'Coral reproduction occurs sexually through mass spawning events—many coral colonies simultaneously release eggs and sperm into the water column. Fertilized eggs develop into planula larvae that swim and drift for days to weeks, dispersing by ocean currents. When larvae encounter suitable substrate (hard, stable, in appropriate water conditions), chemical signals trigger metamorphosis and settlement. The larva attaches permanently, transforms into a polyp, and begins secreting a calcium carbonate base plate—the foundation of a new coral colony.',
+          
+          keyFeatures: [
+            'Free-swimming planula larvae seeking settlement sites',
+            'Specific environmental requirements for settlement',
+            'Permanent attachment to hard substrate'
+          ],
+          
+          evidence: [
+            'Direct observation of mass spawning and larval settlement',
+            'Chemical analyses of settlement cues and triggers'
+          ]
+        },
+        {
+          stage: 2,
+          title: 'Polyp Development & Colony Growth',
+          timeframe: 'Months to years',
+          image: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=1200&q=80',
+          
+          description: [
+            'Settled polyp develops tentacles and begins feeding',
+            'Zooxanthellae algae establish symbiotic relationship in polyp tissues',
+            'Polyp divides asexually through budding, creating clone colonies',
+            'Each new polyp secretes its own calcium carbonate skeleton',
+            'Colony expands outward and upward as polyps multiply',
+            'Different coral species exhibit distinct growth forms (branching, massive, plate)'
+          ],
+          
+          geologicalProcess: 'The initial polyp undergoes asexual reproduction through budding—creating genetically identical polyps that remain connected. Each polyp continuously secretes calcium carbonate (CaCO₃) extracted from seawater, building cup-like corallites around its body. Zooxanthellae algae living symbiotically in polyp tissues provide energy through photosynthesis, enabling rapid calcification. Coral growth rates vary by species: branching corals may grow 10-20 cm/year, while massive boulder corals grow only 0.5-2 cm/year. The resulting colony takes species-specific shapes determined by budding patterns and environmental conditions.',
+          
+          keyFeatures: [
+            'Asexual budding creating genetically identical polyp colonies',
+            'Continuous calcium carbonate skeleton secretion',
+            'Symbiosis with zooxanthellae providing energy for growth'
+          ],
+          
+          evidence: [
+            'Growth band analysis (similar to tree rings) in coral skeletons',
+            'Fluorescent markers tracking coral growth rates'
+          ]
+        },
+        {
+          stage: 3,
+          title: 'Reef Framework Construction',
+          timeframe: 'Decades to centuries',
+          image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600&q=90',
+          
+          description: [
+            'Multiple coral colonies grow and merge into continuous framework',
+            'Living corals build upon skeletons of dead predecessors',
+            'Coralline algae cement coral fragments together',
+            'Reef structure develops three-dimensional complexity',
+            'Wave action breaks coral fragments, creating rubble and sand',
+            'Framework provides habitat for diverse marine organisms'
+          ],
+          
+          geologicalProcess: 'As coral colonies grow, they eventually contact and fuse with neighbors, creating a continuous carbonate framework. Living coral tissue forms only the outer surface layer; beneath lies accumulated skeleton of previous generations. Coralline algae—calcareous red algae—grows between and over coral structures, secreting calcium carbonate that acts as natural cement binding the framework. Physical and biological erosion (waves, boring organisms, parrotfish grazing) breaks coral into fragments that fill reef interstices. This creates a complex three-dimensional structure with caves, crevices, and overhangs supporting high biodiversity.',
+          
+          keyFeatures: [
+            'Three-dimensional carbonate framework accumulation',
+            'Coralline algae cementing reef structure',
+            'Complex habitat structures supporting diverse communities'
+          ],
+          
+          evidence: [
+            'Core samples revealing centuries of vertical reef growth',
+            'Ancient reef frameworks preserved in uplifted fossil reefs'
+          ]
+        },
+        {
+          stage: 4,
+          title: 'Reef Zonation & Maturation',
+          timeframe: 'Centuries to millennia',
+          image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1200&q=80',
+          
+          description: [
+            'Distinct reef zones develop based on depth, wave energy, and light',
+            'Reef crest forms at wave impact zone with robust corals',
+            'Fore reef slopes into deeper water with varying coral types',
+            'Back reef or lagoon develops in protected areas',
+            'Reef flat may emerge at low tide in mature reefs',
+            'Each zone supports characteristic coral species and communities'
+          ],
+          
+          geologicalProcess: 'Mature reefs develop distinct ecological zones controlled by environmental gradients. The reef crest faces maximum wave energy and hosts sturdy, fast-growing branching corals and coralline algae that withstand wave impact. The fore reef slope extends to deeper water, with light availability and wave energy decreasing with depth—supporting plate-like and massive corals adapted to lower light. Behind the crest, the reef flat and lagoon provide protected environments with different conditions favoring seagrasses, patch reefs, and sediment accumulation. This zonation maximizes biodiversity by creating multiple habitat types within the reef ecosystem.',
+          
+          keyFeatures: [
+            'Distinct ecological zones (crest, fore reef, back reef, lagoon)',
+            'Species composition reflecting environmental gradients',
+            'Reef flat potentially emerging at low tide'
+          ],
+          
+          evidence: [
+            'Transect studies documenting species distributions across zones',
+            'Fossil reefs preserving ancient zonation patterns'
+          ]
+        },
+        {
+          stage: 5,
+          title: 'Long-term Reef Evolution',
+          timeframe: 'Millennia to millions of years',
+          image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200&q=80',
+          
+          description: [
+            'Reef development tracks sea-level changes over geological time',
+            'Subsiding volcanic islands transform fringing reefs into barrier reefs, then atolls',
+            'Reefs grow upward during sea-level rise, maintaining position in photic zone',
+            'Climate oscillations cause reef growth and death cycles',
+            'Uplift may expose ancient reefs as fossil limestone',
+            'Modern reefs face accelerated changes from anthropogenic climate change'
+          ],
+          
+          geologicalProcess: 'Coral reefs respond to long-term geological and climatic changes. Darwin\'s subsidence theory explains atoll formation: volcanic islands subside while fringing reefs grow upward, progressing through barrier reef to atoll stages over millions of years. During glacial-interglacial cycles, sea-level fluctuations of 120+ meters exposed reefs during ice ages (causing reef death) and submerged them during warm periods (promoting upward growth). Reef cores from the Great Barrier Reef reveal multiple episodes of reef growth and hiatus corresponding to Pleistocene climate cycles. Anthropogenic climate change now threatens reefs with warming rates exceeding their adaptive capacity.',
+          
+          keyFeatures: [
+            'Reef development following Darwin\'s subsidence sequence',
+            'Response to sea-level changes and climate cycles',
+            'Accumulation of massive carbonate platforms over millions of years'
+          ],
+          
+          evidence: [
+            'Reef drill cores revealing thousands of years of growth history',
+            'Fossil reefs documenting ancient reef ecosystems and extinctions'
+          ]
+        }
+      ],
+      
+      terminology: {
+        title: '📖 Key Terms',
+        terms: [
+          {
+            term: 'Coral Polyp',
+            pronunciation: '(KOR-ul POL-ip)',
+            definition: 'The individual soft-bodied animal (typically 1-3mm diameter) that builds coral reefs. Polyps are cnidarians related to jellyfish and sea anemones, living in colonies where they secrete calcium carbonate skeletons.',
+            example: 'A single brain coral colony may contain millions of individual polyps, each with tentacles that capture plankton at night.',
+            relatedTerms: ['Corallite', 'Colony', 'Cnidarian']
+          },
+          {
+            term: 'Zooxanthellae',
+            pronunciation: '(zoh-zan-THEL-ee)',
+            definition: 'Microscopic photosynthetic algae (dinoflagellates) living symbiotically within coral tissues. They provide corals with up to 90% of their energy through photosynthesis in exchange for shelter and nutrients.',
+            example: 'When water temperatures exceed tolerance levels, corals expel their zooxanthellae, causing coral bleaching and potential death.',
+            relatedTerms: ['Symbiosis', 'Photosynthesis', 'Coral bleaching']
+          },
+          {
+            term: 'Coral Bleaching',
+            pronunciation: '(KOR-ul BLEECH-ing)',
+            definition: 'The process where corals expel their symbiotic zooxanthellae algae in response to stress (usually elevated temperature), losing their color and primary energy source. Prolonged bleaching leads to coral death.',
+            example: 'The 2016 mass bleaching event affected 93% of the Great Barrier Reef, killing approximately 30% of corals in the worst-affected areas.',
+            relatedTerms: ['Zooxanthellae', 'Heat stress', 'Climate change']
+          },
+          {
+            term: 'Coralline Algae',
+            pronunciation: '(KOR-uh-line AL-jee)',
+            definition: 'Red algae that deposit calcium carbonate in their cell walls, creating hard, rock-like structures. They act as natural cement binding coral reef frameworks together and can contribute significantly to reef construction.',
+            example: 'Crustose coralline algae cover the reef crest at Bikini Atoll, cementing broken coral fragments into a solid pavement.',
+            relatedTerms: ['Calcification', 'Reef cement', 'Algal ridge']
+          },
+          {
+            term: 'Calcium Carbonate',
+            pronunciation: '(KAL-see-um KAR-bon-ate)',
+            definition: 'The chemical compound (CaCO₃) secreted by corals and other reef organisms to build their skeletons. Also called aragonite in its coral form, it is the primary building material of coral reefs.',
+            example: 'Corals extract calcium and carbonate ions from seawater to precipitate calcium carbonate, building their limestone skeletons.',
+            relatedTerms: ['Aragonite', 'Calcification', 'Skeleton']
+          },
+          {
+            term: 'Ocean Acidification',
+            pronunciation: '(OH-shun uh-sid-ih-fih-KAY-shun)',
+            definition: 'The ongoing decrease in ocean pH caused by absorption of atmospheric carbon dioxide. Acidification reduces carbonate ion availability, making it harder for corals to build calcium carbonate skeletons.',
+            example: 'Since pre-industrial times, ocean pH has dropped by 0.1 units, representing a 30% increase in acidity that threatens coral calcification rates.',
+            relatedTerms: ['pH', 'Carbonate saturation', 'Climate change']
+          },
+          {
+            term: 'Reef Crest',
+            pronunciation: '(REEF KREST)',
+            definition: 'The highest point of a coral reef, typically at or near the low tide level, where the reef faces maximum wave energy. Usually dominated by robust, fast-growing corals and coralline algae.',
+            example: 'The reef crest of the Great Barrier Reef features wave-resistant Acropora corals and algal ridges built by coralline algae.',
+            relatedTerms: ['Reef zonation', 'Algal ridge', 'Wave energy']
+          },
+          {
+            term: 'Atoll',
+            pronunciation: '(A-tol)',
+            definition: 'A ring-shaped coral reef, island, or series of islets surrounding a central lagoon, formed when a volcanic island subsides completely while coral continues growing upward around the original island margin.',
+            example: 'The Maldives consists of 26 atolls—rings of coral islands surrounding turquoise lagoons where volcanic islands once stood.',
+            relatedTerms: ['Darwin\'s subsidence theory', 'Lagoon', 'Barrier reef']
+          }
+        ]
+      }
     },
-
-    // =============================
-    // SECTION 6: CONSERVATION
-    // =============================
-    conservation: {
-      title: 'Coral Reef Conservation and Protection',
+    
+    // ==========================================
+    // SECTION 4: EXAMPLES
+    // ==========================================
+    examples: {
+      title: 'Famous Coral Reefs of the World',
+      
       hero: {
-        image: 'https://images.unsplash.com/photo-1583952775747-b5e1c2350dea?w=1600&h=900&fit=crop',
-        tagline: 'Protecting Our Underwater Treasures for Future Generations'
+        image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1600&q=90',
+        tagline: 'Explore the world\'s most magnificent coral reef ecosystems'
       },
-      content: `
-        <p>Coral reefs face unprecedented threats from climate change, pollution, and human activities. Conservation efforts worldwide aim to protect and restore these vital ecosystems through various strategies and initiatives.</p>
-
-        <h3>Major Threats to Coral Reefs</h3>
-        <div class="threat-card">
-          <h4>🌡️ Climate Change</h4>
-          <ul>
-            <li><strong>Coral Bleaching:</strong> Rising ocean temperatures cause corals to expel zooxanthellae, losing color and energy source</li>
-            <li><strong>Ocean Acidification:</strong> Increased CO₂ absorption reduces pH, inhibiting coral calcification</li>
-            <li><strong>Sea Level Rise:</strong> May exceed coral growth rates, drowning reefs</li>
-            <li><strong>Extreme Weather:</strong> More intense storms physically damage reef structures</li>
-            <li>Major bleaching events occurred in 1998, 2010, 2016, 2020, and 2024</li>
-          </ul>
-        </div>
-
-        <div class="threat-card">
-          <h4>🏭 Pollution</h4>
-          <ul>
-            <li><strong>Agricultural Runoff:</strong> Excess nutrients cause algae blooms that smother corals</li>
-            <li><strong>Sewage:</strong> Introduces pathogens and increases disease prevalence</li>
-            <li><strong>Plastic Pollution:</strong> Entangles corals, blocks light, introduces toxins</li>
-            <li><strong>Chemical Contamination:</strong> Pesticides, heavy metals, and oil damage coral health</li>
-            <li><strong>Sediment:</strong> Coastal development increases sediment, blocking sunlight</li>
-          </ul>
-        </div>
-
-        <div class="threat-card">
-          <h4>🎣 Overfishing and Destructive Practices</h4>
-          <ul>
-            <li><strong>Overfishing:</strong> Removes herbivorous fish, allowing algae overgrowth</li>
-            <li><strong>Blast Fishing:</strong> Explosives destroy entire reef sections</li>
-            <li><strong>Cyanide Fishing:</strong> Poisons corals and non-target species</li>
-            <li><strong>Bottom Trawling:</strong> Nets physically destroy coral structures</li>
-            <li>Disrupts ecological balance and food webs</li>
-          </ul>
-        </div>
-
-        <div class="threat-card">
-          <h4>🏗️ Coastal Development</h4>
-          <ul>
-            <li>Sedimentation from construction smothers corals</li>
-            <li>Dredging destroys reef habitats directly</li>
-            <li>Increased boat traffic causes anchor damage</li>
-            <li>Light pollution affects coral reproduction</li>
-            <li>Coastal hardening alters natural sediment dynamics</li>
-          </ul>
-        </div>
-
-        <h3>Conservation Strategies</h3>
+      
+      renderAs: 'grid',
+      
+      introduction: 'From the vast Great Barrier Reef stretching along Australia\'s coast to the pristine atolls of the Maldives, from the Caribbean\'s vibrant reefs to the remote beauty of Raja Ampat, coral reefs showcase nature\'s architectural mastery and biological diversity. Visit our comprehensive coral reefs page to explore detailed information about the world\'s major reef systems, their unique ecosystems, conservation challenges, and their critical importance to marine biodiversity and human communities.',
+      
+      linkToExisting: '../../coral-reefs/coral-reefs.html',
+      
+      upscRelevance: {
+        title: '🎯 UPSC Exam Relevance',
+        introduction: 'Coral reefs are crucial for UPSC Geography and Environment, covering marine ecosystems, biodiversity conservation, climate change impacts, and sustainable development. Understanding coral reef ecology, threats, and conservation is essential for comprehensive exam preparation.',
         
-        <div class="strategy-card">
-          <h4>🏞️ Marine Protected Areas (MPAs)</h4>
-          <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=500&fit=crop" alt="Marine Protected Area" />
-          <p>Establishing no-take zones and regulated areas to protect coral ecosystems:</p>
-          <ul>
-            <li><strong>No-Take Reserves:</strong> Completely prohibit fishing and extraction</li>
-            <li><strong>Multiple-Use Areas:</strong> Allow sustainable activities with restrictions</li>
-            <li><strong>Size Matters:</strong> Larger MPAs more effective for reef protection</li>
-            <li><strong>Success Stories:</strong> Great Barrier Reef Marine Park, Papahānaumokuākea</li>
-            <li>Currently, ~15% of coral reefs are in MPAs</li>
-            <li>Goal: Protect 30% of ocean by 2030</li>
-          </ul>
-        </div>
-
-        <div class="strategy-card">
-          <h4>🔬 Coral Restoration</h4>
-          <img src="https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800&h=500&fit=crop" alt="Coral Restoration" />
-          <p>Active intervention to rebuild damaged reefs and increase resilience:</p>
-          <ul>
-            <li><strong>Coral Gardening:</strong> Grow coral fragments in nurseries, transplant to reefs</li>
-            <li><strong>Microfragmentation:</strong> Accelerate coral growth through small fragments</li>
-            <li><strong>Larval Propagation:</strong> Collect and settle coral larvae on degraded reefs</li>
-            <li><strong>Assisted Evolution:</strong> Breed heat-tolerant coral strains</li>
-            <li><strong>3D Printing:</strong> Create artificial reef structures for coral settlement</li>
-            <li>Success rates vary; long-term monitoring essential</li>
-          </ul>
-        </div>
-
-        <div class="strategy-card">
-          <h4>🌡️ Climate Action</h4>
-          <p>Addressing root causes of reef decline through climate mitigation:</p>
-          <ul>
-            <li><strong>Emission Reduction:</strong> Limit global warming to 1.5°C target</li>
-            <li><strong>Renewable Energy:</strong> Transition away from fossil fuels</li>
-            <li><strong>Carbon Sequestration:</strong> Develop technologies to remove atmospheric CO₂</li>
-            <li><strong>International Agreements:</strong> Paris Agreement implementation</li>
-            <li>Without climate action, other conservation efforts may be insufficient</li>
-          </ul>
-        </div>
-
-        <div class="strategy-card">
-          <h4>💧 Water Quality Management</h4>
-          <p>Reducing land-based pollution reaching coral reefs:</p>
-          <ul>
-            <li><strong>Watershed Management:</strong> Control agricultural runoff and erosion</li>
-            <li><strong>Sewage Treatment:</strong> Improve wastewater infrastructure</li>
-            <li><strong>Sustainable Agriculture:</strong> Reduce fertilizer and pesticide use</li>
-            <li><strong>Coastal Buffers:</strong> Maintain mangroves and wetlands as filters</li>
-            <li><strong>Regulation:</strong> Enforce water quality standards</li>
-          </ul>
-        </div>
-
-        <div class="strategy-card">
-          <h4>🎣 Sustainable Fisheries</h4>
-          <p>Managing fishing to maintain reef ecosystem balance:</p>
-          <ul>
-            <li><strong>Catch Limits:</strong> Science-based quotas prevent overfishing</li>
-            <li><strong>Size Restrictions:</strong> Allow fish to reproduce before harvest</li>
-            <li><strong>Gear Restrictions:</strong> Ban destructive fishing methods</li>
-            <li><strong>Herbivore Protection:</strong> Protect algae-eating fish crucial for reef health</li>
-            <li><strong>Community-Based Management:</strong> Involve local fishers in conservation</li>
-          </ul>
-        </div>
-
-        <div class="strategy-card">
-          <h4>🏖️ Sustainable Tourism</h4>
-          <p>Minimize tourism impacts while supporting local economies:</p>
-          <ul>
-            <li><strong>Mooring Buoys:</strong> Prevent anchor damage</li>
-            <li><strong>Visitor Education:</strong> Teach proper snorkeling/diving etiquette</li>
-            <li><strong>Capacity Limits:</strong> Control visitor numbers</li>
-            <li><strong>Reef-Safe Sunscreen:</strong> Ban harmful chemicals (oxybenzone, octinoxate)</li>
-            <li><strong>Certification Programs:</strong> Green Fins, Blue Flag initiatives</li>
-            <li>Tourism fees fund conservation efforts</li>
-          </ul>
-        </div>
-
-        <h3>Research and Monitoring</h3>
-        <div class="research-section">
-          <h4>📊 Monitoring Programs</h4>
-          <ul>
-            <li><strong>Global Coral Reef Monitoring Network:</strong> Coordinates worldwide reef health assessment</li>
-            <li><strong>Coral Reef Watch (NOAA):</strong> Satellite monitoring for bleaching risk</li>
-            <li><strong>Reef Check:</strong> Citizen science monitoring program</li>
-            <li><strong>Long-term Research:</strong> Track changes over decades</li>
-            <li><strong>eDNA Sampling:</strong> Assess biodiversity through water samples</li>
-          </ul>
-
-          <h4>🧬 Scientific Research</h4>
-          <ul>
-            <li>Study coral resilience and adaptation mechanisms</li>
-            <li>Investigate assisted evolution and selective breeding</li>
-            <li>Develop early warning systems for bleaching events</li>
-            <li>Research coral microbiomes and disease</li>
-            <li>Model future reef scenarios under climate change</li>
-          </ul>
-        </div>
-
-        <h3>Community Engagement and Education</h3>
-        <div class="community-section">
-          <h4>👥 Local Community Involvement</h4>
-          <ul>
-            <li><strong>Co-Management:</strong> Share management between government and communities</li>
-            <li><strong>Alternative Livelihoods:</strong> Develop sustainable income sources</li>
-            <li><strong>Traditional Knowledge:</strong> Incorporate indigenous practices</li>
-            <li><strong>Capacity Building:</strong> Train local conservation practitioners</li>
-            <li>Communities most successful when they benefit from conservation</li>
-          </ul>
-
-          <h4>📚 Education and Awareness</h4>
-          <ul>
-            <li>School programs teaching reef ecology and conservation</li>
-            <li>Public awareness campaigns about threats and solutions</li>
-            <li>Media and documentaries highlighting reef importance</li>
-            <li>Eco-tourism as educational opportunity</li>
-            <li>Social media engagement for global awareness</li>
-          </ul>
-        </div>
-
-        <h3>Success Stories</h3>
-        <div class="success-box">
-          <h4>✅ Conservation Wins</h4>
-          <ul>
-            <li><strong>Apo Island, Philippines:</strong> Community-managed marine reserve increased fish biomass by 400%</li>
-            <li><strong>Bonaire National Marine Park:</strong> Caribbean reef maintained coral cover through strong protection</li>
-            <li><strong>Great Barrier Reef:</strong> Zoning system balances conservation and use across 344,000 km²</li>
-            <li><strong>Coral Restoration:</strong> Caribbean Acropora Restoration program planted 90,000+ corals</li>
-            <li><strong>Palau:</strong> Created world's sixth-largest marine sanctuary (500,000 km²)</li>
-          </ul>
-        </div>
-
-        <h3>What You Can Do</h3>
-        <div class="action-box">
-          <h4>🌊 Individual Actions</h4>
-          <ul>
-            <li><strong>Reduce Carbon Footprint:</strong> Use renewable energy, reduce consumption, choose sustainable transport</li>
-            <li><strong>Use Reef-Safe Products:</strong> Choose mineral-based sunscreens, avoid harmful chemicals</li>
-            <li><strong>Sustainable Seafood:</strong> Choose sustainably sourced fish, avoid destructive fisheries</li>
-            <li><strong>Responsible Tourism:</strong> Don't touch corals, use mooring buoys, follow guidelines</li>
-            <li><strong>Reduce Plastic:</strong> Minimize single-use plastics that end up in oceans</li>
-            <li><strong>Support Conservation:</strong> Donate to reef protection organizations</li>
-            <li><strong>Raise Awareness:</strong> Educate others about reef importance</li>
-            <li><strong>Political Action:</strong> Support policies protecting oceans and addressing climate change</li>
-          </ul>
-        </div>
-
-        <div class="info-box">
-          <h4>🏛️ Major Conservation Organizations</h4>
-          <ul>
-            <li><strong>Coral Restoration Foundation:</strong> World's largest reef restoration organization</li>
-            <li><strong>The Nature Conservancy:</strong> Global coral reef conservation programs</li>
-            <li><strong>Reef Check Foundation:</strong> Community-based monitoring and conservation</li>
-            <li><strong>Coral Triangle Initiative:</strong> Six-nation partnership protecting marine resources</li>
-            <li><strong>50 Reefs Initiative:</strong> Identifying and protecting most resilient reefs</li>
-            <li><strong>International Coral Reef Initiative:</strong> UN partnership for reef conservation</li>
-          </ul>
-        </div>
-
-        <div class="hope-box">
-          <h4>💚 Reasons for Hope</h4>
-          <p>Despite challenges, there are reasons to be optimistic about coral reef futures:</p>
-          <ul>
-            <li>Some coral populations show natural heat tolerance and adaptation</li>
-            <li>Restoration techniques improving rapidly in effectiveness</li>
-            <li>Growing global awareness and political will for ocean protection</li>
-            <li>Expanding network of marine protected areas</li>
-            <li>Innovative technologies offering new conservation tools</li>
-            <li>Successful community-based conservation models emerging</li>
-            <li>Resilient reefs recovering when local stressors removed</li>
-          </ul>
-          <p><strong>With coordinated global action, we can secure a future for coral reefs and the millions who depend on them.</strong></p>
-        </div>
-      `
+        topics: [
+          '**Marine Ecosystems:** Coral reef formation, types (fringing, barrier, atoll), reef zonation, symbiotic relationships, and marine biodiversity hotspots',
+          '**Biodiversity & Conservation:** Coral reef biodiversity, endemic species, marine protected areas, biodiversity hotspots, and conservation challenges',
+          '**Climate Change:** Coral bleaching mechanisms, ocean acidification, sea temperature rise, extreme weather impacts, and climate-reef interactions',
+          '**Indian Geography:** Indian coral reefs (Lakshadweep, Andaman & Nicobar, Gulf of Mannar, Gulf of Kutch), status, threats, and conservation efforts',
+          '**Environment & Ecology:** Ecosystem services (coastal protection, fisheries, tourism), blue carbon, marine protected areas, and sustainable reef management',
+          '**International Agreements:** UNEP Coral Reef Unit, International Coral Reef Initiative, Ramsar Convention, CBD targets, and global conservation frameworks'
+        ],
+        
+        sampleQuestions: [
+          {
+            type: 'Mains',
+            year: '2023',
+            question: 'Discuss the major threats to coral reefs in India. Evaluate the effectiveness of current conservation measures.',
+            approach: 'Identify threats: climate change/bleaching, ocean acidification, coastal pollution, destructive fishing, tourism impacts, sedimentation; discuss specific Indian reef areas (Lakshadweep, Gulf of Mannar); evaluate measures: Marine Protected Areas, Gulf of Mannar Biosphere Reserve, community-based conservation, coral restoration; suggest improvements and integrated management approaches.'
+          },
+          {
+            type: 'Mains',
+            year: '2022',
+            question: 'Explain the phenomenon of coral bleaching. How does it impact marine ecosystems and human communities dependent on coral reefs?',
+            approach: 'Define coral bleaching and zooxanthellae-coral symbiosis; explain mechanisms: temperature stress, light stress, pollution; discuss cascading impacts: loss of biodiversity, fishery decline, coastal erosion, tourism loss; provide recent examples (Great Barrier Reef 2016-2017); suggest mitigation and adaptation strategies.'
+          },
+          {
+            type: 'Prelims',
+            year: '2021',
+            question: 'Which of the following coral reef formations is/are found in India? 1) Fringing reefs 2) Barrier reefs 3) Atolls (a) 1 only (b) 1 and 3 only (c) 2 and 3 only (d) 1, 2 and 3',
+            answer: '(d) 1, 2 and 3. India has all three types: Fringing reefs (Andaman & Nicobar, Gulf of Mannar), Barrier reefs (parts of Andaman), and Atolls (Lakshadweep islands). Lakshadweep consists entirely of coral atolls.'
+          },
+          {
+            type: 'Prelims',
+            year: '2020',
+            question: 'The symbiotic algae living in coral tissues that provide them with most of their energy are called: (a) Phytoplankton (b) Zooxanthellae (c) Diatoms (d) Kelp',
+            answer: '(b) Zooxanthellae. These microscopic dinoflagellate algae live symbiotically in coral tissues, providing up to 90% of coral energy through photosynthesis. Their expulsion causes coral bleaching.'
+          }
+        ]
+      }
     }
   }
 };
 
-// Export for use in other modules
+// ============================================
+// EXPORT
+// ============================================
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = coralReefsData;
 }
