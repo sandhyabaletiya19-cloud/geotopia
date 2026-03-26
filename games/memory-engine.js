@@ -1,25 +1,280 @@
-// memory-engine.js
-
-const MemoryGameEngine = (function() {
-    // Sample flag data (country codes)
-    const sampleFlagData = [
-        'us', 'gb', 'fr', 'de', 'jp', 'br', 'ca', 'au'
-    ];
-
-    // Sample card flip data (numbers)
-    const sampleCardFlipData = [1, 2, 3, 4, 5, 6];
-
-    const state = {
-        cards: [],
-        openedCards: [],
-        matchedCards: [],
-        currentTarget: 1,
-        gameType: null,
-        totalCards: 0
-    };
-
-    // Fisher-Yates shuffle
-    function shuffle(array) {
+/* ==== FILE: memory-engine.js ==== */
+class MemoryGameEngine {
+    constructor(app, type) {
+        this.app = app;
+        this.type = type;
+        this.cards = [];
+        this.sequence = [];
+        this.playerSequence = [];
+        this.openedCards = [];
+        this.matchedPairs = 0;
+        this.canInteract = false;
+        this.isShowingSequence = false;
+        this.moves = 0;
+    }
+    
+    init() {
+        switch(this.type) {
+            case 'sequential':
+                this.initSequentialMemory();
+                break;
+            case 'flags':
+                this.initFlagMemory();
+                break;
+            case 'card-flip':
+                this.initCardFlip();
+                break;
+        }
+    }
+    
+    initSequentialMemory() {
+        this.sequence = [];
+        this.playerSequence = [];
+        this.renderSequentialBoard();
+        setTimeout(() => this.addToSequence(), 1000);
+    }
+    
+    renderSequentialBoard() {
+        const colors = ['color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'color-6', 'color-7', 'color-8'];
+        const symbols = ['▲', '●', '■', '◆', '★', '♦', '♠', '♣', '♥'];
+        
+        let html = '<div class="sequence-display">';
+        html += '<div class="sequence-info" style="font-size: 1.2rem; margin-bottom: 10px;">Watch the sequence!</div>';
+        html += '<div class="sequence-grid">';
+        
+        for (let i = 0; i < 9; i++) {
+            html += `<div class="sequence-tile ${colors[i]}" data-index="${i}">${symbols[i]}</div>`;
+        }
+        
+        html += '</div></div>';
+        this.app.render(html);
+        
+        document.querySelectorAll('.sequence-tile').forEach(tile => {
+            tile.addEventListener('click', () => this.handleSequenceTileClick(parseInt(tile.dataset.index)));
+        });
+    }
+    
+    addToSequence() {
+        const newIndex = Math.floor(Math.random() * 9);
+        this.sequence.push(newIndex);
+        this.playerSequence = [];
+        this.showSequence();
+    }
+    
+    showSequence() {
+        this.isShowingSequence = true;
+        this.canInteract = false;
+        const info = document.querySelector('.sequence-info');
+        if (info) info.textContent = 'Watch the sequence!';
+        
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i >= this.sequence.length) {
+                clearInterval(interval);
+                this.isShowingSequence = false;
+                this.canInteract = true;
+                if (info) info.textContent = 'Your turn! Repeat the sequence.';
+                return;
+            }
+            
+            const tile = document.querySelector(`.sequence-tile[data-index="${this.sequence[i]}"]`);
+            if (tile) {
+                tile.classList.add('active');
+                setTimeout(() => tile.classList.remove('active'), 400);
+            }
+            i++;
+        }, 700);
+    }
+    
+    handleSequenceTileClick(index) {
+        if (!this.canInteract || this.isShowingSequence) return;
+        
+        const tile = document.querySelector(`.sequence-tile[data-index="${index}"]`);
+        if (tile) {
+            tile.classList.add('active');
+            setTimeout(() => tile.classList.remove('active'), 200);
+        }
+        
+        this.playerSequence.push(index);
+        const currentIndex = this.playerSequence.length - 1;
+        
+        if (this.playerSequence[currentIndex] !== this.sequence[currentIndex]) {
+            this.app.loseLife();
+            this.app.showMessage('Wrong! Try again.', 'error');
+            this.sequence = [];
+            this.playerSequence = [];
+            
+            if (this.app.lives > 0) {
+                setTimeout(() => this.addToSequence(), 1500);
+            }
+            return;
+        }
+        
+        if (this.playerSequence.length === this.sequence.length) {
+            this.app.addScore(this.sequence.length * 10);
+            this.app.showMessage('Correct! 🎉', 'success');
+            this.canInteract = false;
+            
+            if (this.sequence.length >= 5 + (this.app.level - 1) * 2) {
+                this.app.levelUp();
+            } else {
+                setTimeout(() => this.addToSequence(), 1500);
+            }
+        }
+    }
+    
+    onLevelUp() {
+        this.sequence = [];
+        this.playerSequence = [];
+        setTimeout(() => this.addToSequence(), 500);
+    }
+    
+    initFlagMemory() {
+        const flagData = this.getFlagData();
+        const shuffled = this.shuffle([...flagData, ...flagData]);
+        this.cards = shuffled.map((flag, index) => ({
+            id: index,
+            value: flag.code,
+            name: flag.name,
+            url: flag.url,
+            matched: false
+        }));
+        this.openedCards = [];
+        this.matchedPairs = 0;
+        this.moves = 0;
+        this.renderMemoryBoard();
+    }
+    
+    getFlagData() {
+        if (typeof GamesData !== 'undefined' && GamesData.flags) {
+            return GamesData.flags.slice(0, 8);
+        }
+        
+        return [
+            { code: 'US', name: 'USA', url: 'https://flagcdn.com/w80/us.png' },
+            { code: 'GB', name: 'UK', url: 'https://flagcdn.com/w80/gb.png' },
+            { code: 'FR', name: 'France', url: 'https://flagcdn.com/w80/fr.png' },
+            { code: 'DE', name: 'Germany', url: 'https://flagcdn.com/w80/de.png' },
+            { code: 'JP', name: 'Japan', url: 'https://flagcdn.com/w80/jp.png' },
+            { code: 'BR', name: 'Brazil', url: 'https://flagcdn.com/w80/br.png' },
+            { code: 'CA', name: 'Canada', url: 'https://flagcdn.com/w80/ca.png' },
+            { code: 'AU', name: 'Australia', url: 'https://flagcdn.com/w80/au.png' }
+        ];
+    }
+    
+    initCardFlip() {
+        const emojis = ['🎮', '🎲', '🎯', '🎪', '🎨', '🎭', '🎪', '🎢'];
+        const cardPairs = [...emojis.slice(0, 8), ...emojis.slice(0, 8)];
+        const shuffled = this.shuffle(cardPairs);
+        
+        this.cards = shuffled.map((emoji, index) => ({
+            id: index,
+            value: emoji,
+            matched: false
+        }));
+        this.openedCards = [];
+        this.matchedPairs = 0;
+        this.moves = 0;
+        this.renderMemoryBoard();
+    }
+    
+    renderMemoryBoard() {
+        const gridClass = this.cards.length <= 12 ? 'grid-4' : 'grid-6';
+        
+        let html = `<div class="memory-grid ${gridClass}">`;
+        
+        this.cards.forEach(card => {
+            const content = this.type === 'flags' 
+                ? `<img src="${card.url}" alt="${card.name}">`
+                : card.value;
+                
+            html += `
+                <div class="memory-card ${card.matched ? 'matched flipped' : ''}" data-id="${card.id}">
+                    <div class="memory-card-inner">
+                        <div class="memory-card-front">❓</div>
+                        <div class="memory-card-back">${content}</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        html += `<div style="text-align: center; margin-top: 15px; font-size: 1.1rem;">Moves: <strong id="moves-count">${this.moves}</strong></div>`;
+        this.app.render(html);
+        
+        this.canInteract = true;
+        
+        document.querySelectorAll('.memory-card').forEach(card => {
+            card.addEventListener('click', () => this.handleCardClick(parseInt(card.dataset.id)));
+        });
+    }
+    
+    handleCardClick(cardId) {
+        if (!this.canInteract) return;
+        
+        const card = this.cards.find(c => c.id === cardId);
+        if (!card || card.matched) return;
+        if (this.openedCards.find(c => c.id === cardId)) return;
+        if (this.openedCards.length >= 2) return;
+        
+        const cardElement = document.querySelector(`.memory-card[data-id="${cardId}"]`);
+        cardElement.classList.add('flipped');
+        this.openedCards.push(card);
+        
+        if (this.openedCards.length === 2) {
+            this.moves++;
+            document.getElementById('moves-count').textContent = this.moves;
+            this.checkMatch();
+        }
+    }
+    
+    checkMatch() {
+        this.canInteract = false;
+        const [card1, card2] = this.openedCards;
+        
+        if (card1.value === card2.value) {
+            card1.matched = true;
+            card2.matched = true;
+            this.matchedPairs++;
+            this.app.addScore(50);
+            
+            document.querySelector(`.memory-card[data-id="${card1.id}"]`).classList.add('matched');
+            document.querySelector(`.memory-card[data-id="${card2.id}"]`).classList.add('matched');
+            
+            this.openedCards = [];
+            this.canInteract = true;
+            
+            if (this.matchedPairs === this.cards.length / 2) {
+                setTimeout(() => {
+                    this.app.addScore(Math.max(0, 500 - this.moves * 5));
+                    if (this.app.level < 5) {
+                        this.app.levelUp();
+                    } else {
+                        this.app.gameWon();
+                    }
+                }, 500);
+            }
+        } else {
+            setTimeout(() => {
+                document.querySelector(`.memory-card[data-id="${card1.id}"]`).classList.remove('flipped');
+                document.querySelector(`.memory-card[data-id="${card2.id}"]`).classList.remove('flipped');
+                this.openedCards = [];
+                this.canInteract = true;
+            }, 1000);
+        }
+    }
+    
+    onLevelUp() {
+        if (this.type === 'sequential') {
+            this.sequence = [];
+            this.playerSequence = [];
+            setTimeout(() => this.addToSequence(), 500);
+        } else {
+            this.init();
+        }
+    }
+    
+    shuffle(array) {
         const shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -27,321 +282,12 @@ const MemoryGameEngine = (function() {
         }
         return shuffled;
     }
-
-    // Create cards for sequential memory game
-    function createSequentialCards(totalCards) {
-        const cards = [];
-        for (let i = 1; i <= totalCards; i++) {
-            cards.push({
-                id: i,
-                value: i
-            });
-        }
-        return shuffle(cards);
+    
+    onPause(isPaused) {
+        this.canInteract = !isPaused;
     }
-
-    // Create paired cards for matching games
-    function createPairCards(data) {
-        const cards = [];
-        let cardId = 1;
-
-        data.forEach(function(value, index) {
-            // Create first card of pair
-            cards.push({
-                id: cardId++,
-                value: value,
-                pairId: index + 1
-            });
-            // Create second card of pair
-            cards.push({
-                id: cardId++,
-                value: value,
-                pairId: index + 1
-            });
-        });
-
-        return shuffle(cards);
+    
+    cleanup() {
+        this.canInteract = false;
     }
-
-    // Find card by ID
-    function findCardById(cardId) {
-        return state.cards.find(function(card) {
-            return card.id === cardId;
-        });
-    }
-
-    // Check if card is already matched
-    function isCardMatched(cardId) {
-        return state.matchedCards.includes(cardId);
-    }
-
-    // Check if card is currently opened
-    function isCardOpened(cardId) {
-        return state.openedCards.includes(cardId);
-    }
-
-    // Handle sequential game click
-    function handleSequentialClick(cardId) {
-        const card = findCardById(cardId);
-
-        if (!card) {
-            return {
-                success: false,
-                reason: 'invalid_card',
-                openedCards: [...state.openedCards],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: false
-            };
-        }
-
-        // Check if already opened
-        if (isCardOpened(cardId)) {
-            return {
-                success: false,
-                reason: 'already_opened',
-                openedCards: [...state.openedCards],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: false
-            };
-        }
-
-        // Check if correct sequence
-        if (card.value === state.currentTarget) {
-            state.openedCards.push(cardId);
-            state.currentTarget++;
-
-            const isComplete = state.openedCards.length === state.totalCards;
-
-            return {
-                success: true,
-                openedCards: [...state.openedCards],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: isComplete
-            };
-        } else {
-            // Wrong sequence - reset opened cards
-            state.openedCards = [];
-            state.currentTarget = 1;
-
-            return {
-                success: false,
-                reason: 'wrong_card',
-                openedCards: [],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: false
-            };
-        }
-    }
-
-    // Handle pair matching click (flags and card-flip)
-    function handlePairMatchClick(cardId) {
-        const card = findCardById(cardId);
-
-        if (!card) {
-            return {
-                success: false,
-                reason: 'invalid_card',
-                openedCards: [...state.openedCards],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: false
-            };
-        }
-
-        // Check if already matched
-        if (isCardMatched(cardId)) {
-            return {
-                success: false,
-                reason: 'already_opened',
-                openedCards: [...state.openedCards],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: false
-            };
-        }
-
-        // Check if currently opened
-        if (isCardOpened(cardId)) {
-            return {
-                success: false,
-                reason: 'already_opened',
-                openedCards: [...state.openedCards],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: false
-            };
-        }
-
-        // Add card to opened
-        state.openedCards.push(cardId);
-
-        // First card of pair attempt
-        if (state.openedCards.length === 1) {
-            return {
-                success: true,
-                openedCards: [...state.openedCards],
-                matchedCards: [...state.matchedCards],
-                currentTarget: state.currentTarget,
-                isComplete: false
-            };
-        }
-
-        // Second card - check for match
-        if (state.openedCards.length === 2) {
-            const firstCardId = state.openedCards[0];
-            const secondCardId = state.openedCards[1];
-
-            const firstCard = findCardById(firstCardId);
-            const secondCard = findCardById(secondCardId);
-
-            // Check if values match
-            if (firstCard.value === secondCard.value) {
-                // Match found - move to matched
-                state.matchedCards.push(firstCardId);
-                state.matchedCards.push(secondCardId);
-                state.openedCards = [];
-
-                const isComplete = state.matchedCards.length === state.totalCards;
-
-                return {
-                    success: true,
-                    matched: true,
-                    openedCards: [],
-                    matchedCards: [...state.matchedCards],
-                    currentTarget: state.currentTarget,
-                    isComplete: isComplete
-                };
-            } else {
-                // No match - return opened cards for UI to flip back
-                const failedPair = [...state.openedCards];
-                state.openedCards = [];
-
-                return {
-                    success: false,
-                    reason: 'wrong_card',
-                    matched: false,
-                    failedPair: failedPair,
-                    openedCards: [],
-                    matchedCards: [...state.matchedCards],
-                    currentTarget: state.currentTarget,
-                    isComplete: false
-                };
-            }
-        }
-
-        // More than 2 cards opened - clear and start fresh
-        state.openedCards = [cardId];
-
-        return {
-            success: true,
-            openedCards: [...state.openedCards],
-            matchedCards: [...state.matchedCards],
-            currentTarget: state.currentTarget,
-            isComplete: false
-        };
-    }
-
-    // Initialize game based on type
-    function initGame(gameType, options) {
-        options = options || {};
-
-        // Reset state
-        state.gameType = gameType;
-        state.openedCards = [];
-        state.matchedCards = [];
-        state.currentTarget = 1;
-
-        if (gameType === 'sequential') {
-            const totalCards = options.totalCards || 9;
-            state.totalCards = totalCards;
-            state.cards = createSequentialCards(totalCards);
-        } else if (gameType === 'flags') {
-            const data = options.data || sampleFlagData;
-            state.totalCards = data.length * 2;
-            state.cards = createPairCards(data);
-        } else if (gameType === 'card-flip') {
-            const data = options.data || sampleCardFlipData;
-            state.totalCards = data.length * 2;
-            state.cards = createPairCards(data);
-        } else {
-            // Default to sequential
-            state.gameType = 'sequential';
-            state.totalCards = 9;
-            state.cards = createSequentialCards(9);
-        }
-
-        return {
-            cards: state.cards.map(function(card) {
-                return { ...card };
-            }),
-            gameType: state.gameType,
-            totalCards: state.totalCards,
-            openedCards: [],
-            matchedCards: [],
-            currentTarget: state.currentTarget
-        };
-    }
-
-    // Handle card click - delegates to specific handler
-    function handleCardClick(cardId) {
-        if (state.gameType === 'sequential') {
-            return handleSequentialClick(cardId);
-        } else {
-            return handlePairMatchClick(cardId);
-        }
-    }
-
-    // Reset current game without reshuffling
-    function resetGame() {
-        state.openedCards = [];
-        state.matchedCards = [];
-        state.currentTarget = 1;
-
-        return {
-            cards: state.cards.map(function(card) {
-                return { ...card };
-            }),
-            gameType: state.gameType,
-            totalCards: state.totalCards,
-            openedCards: [],
-            matchedCards: [],
-            currentTarget: state.currentTarget
-        };
-    }
-
-    // Get current game state
-    function getState() {
-        return {
-            cards: state.cards.map(function(card) {
-                return { ...card };
-            }),
-            openedCards: [...state.openedCards],
-            matchedCards: [...state.matchedCards],
-            currentTarget: state.currentTarget,
-            gameType: state.gameType,
-            totalCards: state.totalCards
-        };
-    }
-
-    // Clear opened cards (for UI to call after flip-back animation)
-    function clearOpenedCards() {
-        state.openedCards = [];
-
-        return {
-            openedCards: [],
-            matchedCards: [...state.matchedCards]
-        };
-    }
-
-    return {
-        initGame: initGame,
-        handleCardClick: handleCardClick,
-        resetGame: resetGame,
-        getState: getState,
-        clearOpenedCards: clearOpenedCards
-    };
-})();
+}
