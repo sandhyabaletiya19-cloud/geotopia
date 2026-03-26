@@ -4280,9 +4280,8 @@ comparisonTable: {
                         type: 'Prelims',
                         question: 'Which of the following is not associated with Ring of Fire?',
                         answer: 'Mid-Atlantic Ridge (separate divergent boundary)'
-                    }
-                ],
-
+                  },
+          {
                 importantFacts: [
                     'India has only ONE active volcano: Barren Island (Andaman Sea)',
                     'Narcondam is DORMANT, not extinct (common misconception)',
@@ -4298,9 +4297,9 @@ comparisonTable: {
                     'Yellowstone: supervolcano, VEI 8 capable',
                     'Hunga Tonga 2022: 58 km eruption column (highest recorded)',
                     'Volcanic soil (andisol): among most fertile on Earth'
-                ]
-            }
-        }
+             }
+        ]
+      }
     }
 };
 
