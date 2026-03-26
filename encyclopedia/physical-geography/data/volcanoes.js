@@ -2544,9 +2544,10 @@ comparisonTable: {
         ['Examples', 'Mauna Loa, Kilauea', 'Mt. Fuji, Vesuvius, St. Helens', 'Parícutin, Sunset Crater', 'Yellowstone, Toba, Crater Lake'],
         ['Tectonic Setting', 'Hotspots, rifts', 'Subduction zones', 'All settings', 'Various (often subduction)'],
         ['Danger Level', 'Low (predictable)', 'Very High (explosive)', 'Low (localized)', 'Extreme (civilization-ending potential)']
-    ]
-}
-                // =============================
+     ]
+      }
+    },
+        // =============================
         // SECTION 3: FORMATION
         // =============================
         formation: {
