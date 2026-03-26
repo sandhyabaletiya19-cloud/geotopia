@@ -866,7 +866,7 @@ ${this.sectionData.comparisonTable ? this.renderComparisonTable(this.sectionData
 
   // ==================== EVENT LISTENERS ====================
   attachEventListeners() {
-   // Branch expansion - USE EVENT DELEGATION
+  // Branch expansion - USE EVENT DELEGATION
 document.addEventListener('click', (e) => {
   const header = e.target.closest('.branch-header');
   if (!header) return;
