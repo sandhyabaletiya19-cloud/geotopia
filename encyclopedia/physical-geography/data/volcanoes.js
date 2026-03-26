@@ -11,7 +11,7 @@ const volcanoesData = {
         icon: '🌋',
         theme: 'volcanoes-theme',
         color: '#D32F2F',
-        heroImage: 'https://images.unsplash.com/photo-1562114808-990b7de06ec7?w=1920&q=80',
+        heroImage: 'https://images.unsplash.com/photo-1719409773583-e9c21a1b133f?w=1920&q=80',
         existingPagesLink: "../../volcanoes/volcanoes.html"
     },
 
