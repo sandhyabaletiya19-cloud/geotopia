@@ -529,86 +529,59 @@ class ConceptRenderer {
     `;
   }
 
-  // ==================== BRANCH RENDER ====================
-  renderBranch(branch, index) {
-    const examples = branch.examples || [];
-    const characteristics = branch.characteristics || [];
-    const formation = branch.formation || { steps: [] };
-    
-    return `
-      <div class="branch" data-branch-id="${branch.id || index}" style="--branch-color: ${branch.color || '#6366f1'}">
-        <div class="branch-header" role="button" tabindex="0">
-          <div class="branch-title-group">
-            <span class="branch-icon">${branch.icon || '📌'}</span>
-            <h3 class="branch-title">${branch.name || 'Untitled'}</h3>
-          </div>
-          <button class="expand-btn" aria-label="Expand ${branch.name}" aria-expanded="false">
-            <span class="expand-icon">+</span>
-          </button>
+  // ==================== BRANCH RENDER (NO EXAMPLES) ====================
+renderBranch(branch, index) {
+  const characteristics = branch.characteristics || [];
+  const formation = branch.formation || { steps: [] };
+  
+  return `
+    <div class="branch" data-branch-id="${branch.id || index}" style="--branch-color: ${branch.color || '#6366f1'}">
+      <div class="branch-header" role="button" tabindex="0">
+        <div class="branch-title-group">
+          <span class="branch-icon">${branch.icon || '📌'}</span>
+          <h3 class="branch-title">${branch.name || 'Untitled'}</h3>
+        </div>
+        <button class="expand-btn" aria-label="Expand ${branch.name}" aria-expanded="false">
+          <span class="expand-icon">+</span>
+        </button>
+      </div>
+      
+      <div class="branch-content">
+        <div class="branch-definition">
+          <h4>📖 Definition</h4>
+          <p>${branch.definition || ''}</p>
         </div>
         
-        <div class="branch-content">
-          <div class="branch-definition">
-            <h4>📖 Definition</h4>
-            <p>${branch.definition || ''}</p>
-          </div>
-          
-          ${formation.steps && formation.steps.length > 0 ? `
-            <div class="formation-process">
-              <h4>🔨 Formation Process</h4>
-              <div class="formation-steps">
-                ${formation.steps.map((step, idx) => `
-                  <div class="formation-step">
-                    <div class="step-header">
-                      <span class="step-icon">${step.icon || '🔹'}</span>
-                      <span class="step-number">Step ${step.step || idx + 1}</span>
-                    </div>
-                    <p class="step-text">${step.text || ''}</p>
+        ${formation.steps && formation.steps.length > 0 ? `
+          <div class="formation-process">
+            <h4>🔨 Formation Process</h4>
+            <div class="formation-steps">
+              ${formation.steps.map((step, idx) => `
+                <div class="formation-step">
+                  <div class="step-header">
+                    <span class="step-icon">${step.icon || '🔹'}</span>
+                    <span class="step-number">Step ${step.step || idx + 1}</span>
                   </div>
-                  ${idx < formation.steps.length - 1 ? '<div class="step-arrow">↓</div>' : ''}
-                `).join('')}
-              </div>
+                  <p class="step-text">${step.text || ''}</p>
+                </div>
+                ${idx < formation.steps.length - 1 ? '<div class="step-arrow">↓</div>' : ''}
+              `).join('')}
             </div>
-          ` : ''}
-          
-          ${characteristics.length > 0 ? `
-            <div class="branch-characteristics">
-              <h4>📋 Characteristics</h4>
-              <ul class="characteristics-list">
-                ${characteristics.map(char => `<li>${char}</li>`).join('')}
-              </ul>
-            </div>
-          ` : ''}
-          
-          ${examples.length > 0 ? `
-            <div class="branch-examples">
-              <h4>🌍 Examples Around the World</h4>
-              <div class="examples-grid">
-                ${examples.map(example => `
-                  <a href="${example.link || '#'}" class="example-card">
-                    <div class="example-image" style="background-image: url('${this.fixImageURL(example.image)}')">
-                      <div class="example-overlay"></div>
-                    </div>
-                    <div class="example-info">
-                      <h5 class="example-name">${example.name || ''}</h5>
-                      <p class="example-location">📍 ${example.location || ''}</p>
-                      ${example.age ? `<p class="example-detail">⏳ ${example.age}</p>` : ''}
-                      ${example.status ? `<p class="example-detail">📊 ${example.status}</p>` : ''}
-                      ${example.highestPeak ? `<p class="example-peak">🏔️ ${example.highestPeak}</p>` : ''}
-                      ${example.height ? `<p class="example-peak">📏 ${example.height}</p>` : ''}
-                    </div>
-                    <div class="example-hover">
-                      <span class="hover-text">Explore Details →</span>
-                    </div>
-                  </a>
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
-        </div>
+          </div>
+        ` : ''}
+        
+        ${characteristics.length > 0 ? `
+          <div class="branch-characteristics">
+            <h4>📋 Key Characteristics</h4>
+            <ul class="characteristics-list">
+              ${characteristics.map(char => `<li>${char}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
       </div>
-    `;
-  }
+    </div>
+  `;
+}
 
   // ==================== TIMELINE RENDER ====================
   renderTimeline() {
