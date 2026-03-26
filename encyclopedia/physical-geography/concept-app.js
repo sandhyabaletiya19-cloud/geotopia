@@ -866,21 +866,25 @@ ${this.sectionData.comparisonTable ? this.renderComparisonTable(this.sectionData
 
   // ==================== EVENT LISTENERS ====================
   attachEventListeners() {
-  // Branch expansion - USE EVENT DELEGATION
-document.addEventListener('click', (e) => {
-  const header = e.target.closest('.branch-header');
-  if (!header) return;
+  // Branch expansion
+document.querySelectorAll('.branch-header').forEach(header => {
+  header.addEventListener('click', (e) => {
+    const branch = e.currentTarget.closest('.branch');
+    const btn = branch.querySelector('.expand-btn');
+    const icon = btn.querySelector('.expand-icon');
+    const isExpanded = branch.classList.contains('expanded');
+    
+    branch.classList.toggle('expanded');
+    icon.textContent = isExpanded ? '+' : '−';
+    btn.setAttribute('aria-expanded', !isExpanded);
+  });
   
-  const branch = header.closest('.branch');
-  if (!branch) return;
-  
-  const btn = branch.querySelector('.expand-btn');
-  const icon = btn?.querySelector('.expand-icon');
-  const isExpanded = branch.classList.contains('expanded');
-  
-  branch.classList.toggle('expanded');
-  if (icon) icon.textContent = isExpanded ? '+' : '−';
-  if (btn) btn.setAttribute('aria-expanded', !isExpanded);
+  header.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      header.click();
+    }
+  });
 });
 
 // Keyboard support for branch expansion
