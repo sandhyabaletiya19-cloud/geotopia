@@ -868,94 +868,58 @@ class ConceptRenderer {
     `;
   }
 
-  // ==================== EVENT LISTENERS (FIXED) ====================
-  attachEventListeners() {
-    // ==================== BRANCH EXPANSION (FIXED) ====================
-    const branches = document.querySelectorAll('.branch');
+ // ==================== EVENT LISTENERS ====================
+attachEventListeners() {
+  
+  // ==================== BRANCH EXPANSION - SIMPLIFIED ====================
+  document.querySelectorAll('.branch').forEach(branch => {
+    const header = branch.querySelector('.branch-header');
+    const icon = branch.querySelector('.expand-icon');
     
-    branches.forEach((branch) => {
-      const header = branch.querySelector('.branch-header');
-      const content = branch.querySelector('.branch-content');
-      const btn = branch.querySelector('.expand-btn');
-      const icon = branch.querySelector('.expand-icon');
+    if (!header) return;
+    
+    // Single click handler on entire header
+    header.addEventListener('click', function(e) {
+      e.preventDefault();
       
-      if (!header || !content) return;
+      // Toggle expanded class
+      const isExpanded = branch.classList.contains('expanded');
+      branch.classList.toggle('expanded');
       
-      // Function to toggle branch
-      const toggleBranch = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const isExpanded = branch.classList.contains('expanded');
-        
-        // Toggle expanded class
-        branch.classList.toggle('expanded');
-        
-        // Update icon
-        if (icon) {
-          icon.textContent = isExpanded ? '+' : '−';
-        }
-        
-        // Update aria-expanded
-        if (btn) {
-          btn.setAttribute('aria-expanded', !isExpanded);
-        }
-        
-        // Animate content
-        if (isExpanded) {
-          // Collapse
-          content.style.maxHeight = '0';
-          content.style.paddingTop = '0';
-          content.style.paddingBottom = '0';
-          content.style.opacity = '0';
-        } else {
-          // Expand
-          content.style.maxHeight = content.scrollHeight + 50 + 'px';
-          content.style.paddingTop = '1.5rem';
-          content.style.paddingBottom = '1.5rem';
-          content.style.opacity = '1';
-        }
-      };
-      
-      // Click on header
-      header.addEventListener('click', toggleBranch);
-      
-      // Click on button (prevent double trigger)
-      if (btn) {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleBranch(e);
-        });
+      // Update icon text
+      if (icon) {
+        icon.textContent = isExpanded ? '+' : '−';
       }
-      
-      // Keyboard support
-      header.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggleBranch(e);
-        }
-      });
     });
-
-    // ==================== TIMELINE NAVIGATION ====================
-    const prevBtn = document.getElementById('prevStage');
-    const nextBtn = document.getElementById('nextStage');
     
-    if (prevBtn && nextBtn) {
-      this.setupTimelineNavigation(prevBtn, nextBtn);
-    }
-    
-    // ==================== SMOOTH SCROLL ====================
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', (e) => {
+    // Keyboard accessibility
+    header.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        const target = document.querySelector(anchor.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
+        header.click();
+      }
     });
+  });
+
+  // ==================== TIMELINE NAVIGATION ====================
+  const prevBtn = document.getElementById('prevStage');
+  const nextBtn = document.getElementById('nextStage');
+  
+  if (prevBtn && nextBtn) {
+    this.setupTimelineNavigation(prevBtn, nextBtn);
   }
+  
+  // ==================== SMOOTH SCROLL ====================
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(anchor.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+}
 
   // ==================== TIMELINE NAVIGATION ====================
   setupTimelineNavigation(prevBtn, nextBtn) {
