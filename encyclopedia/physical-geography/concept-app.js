@@ -452,6 +452,7 @@ class ConceptRenderer {
           ` : ''}
           
           ${content.comparison ? this.renderComparison(content.comparison) : ''}
+${this.sectionData.comparisonTable ? this.renderComparisonTable(this.sectionData.comparisonTable) : ''}
           
           ${funFacts.length > 0 ? `
             <div class="fun-facts-section">
@@ -865,26 +866,33 @@ class ConceptRenderer {
 
   // ==================== EVENT LISTENERS ====================
   attachEventListeners() {
-    // Branch expansion
-    document.querySelectorAll('.branch-header').forEach(header => {
-      header.addEventListener('click', (e) => {
-        const branch = e.currentTarget.closest('.branch');
-        const btn = branch.querySelector('.expand-btn');
-        const icon = btn.querySelector('.expand-icon');
-        const isExpanded = branch.classList.contains('expanded');
-        
-        branch.classList.toggle('expanded');
-        icon.textContent = isExpanded ? '+' : '−';
-        btn.setAttribute('aria-expanded', !isExpanded);
-      });
-      
-      header.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          header.click();
-        }
-      });
-    });
+   // Branch expansion - USE EVENT DELEGATION
+document.addEventListener('click', (e) => {
+  const header = e.target.closest('.branch-header');
+  if (!header) return;
+  
+  const branch = header.closest('.branch');
+  if (!branch) return;
+  
+  const btn = branch.querySelector('.expand-btn');
+  const icon = btn?.querySelector('.expand-icon');
+  const isExpanded = branch.classList.contains('expanded');
+  
+  branch.classList.toggle('expanded');
+  if (icon) icon.textContent = isExpanded ? '+' : '−';
+  if (btn) btn.setAttribute('aria-expanded', !isExpanded);
+});
+
+// Keyboard support for branch expansion
+document.addEventListener('keypress', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  
+  const header = e.target.closest('.branch-header');
+  if (!header) return;
+  
+  e.preventDefault();
+  header.click();
+});
     
     // Timeline navigation
     const prevBtn = document.getElementById('prevStage');
