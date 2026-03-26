@@ -184,7 +184,7 @@ const mountainsEducationData = {
                             name: 'Himalayas',
                             location: 'Asia (Nepal, India, China, Pakistan, Bhutan)',
                             details: 'Highest mountain range; 10 of 14 peaks above 8,000m; 50 million years old',
-                            link: '/encyclopedia/mountains/himalayas',
+                            link: 'mountains-profile.html?id=himalayas',
                             image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80',
                             notableFeatures: [
                                 'Contains Mount Everest (8,849m)',
@@ -980,7 +980,7 @@ const mountainsEducationData = {
                     name: 'Highest Peaks (8,000m+)',
                     icon: '🏔️',
                     items: [
-                        { name: 'Mount Everest', link: '/mountains/everest', location: 'Nepal/China', height: '8,849m' },
+                        { name: 'Mount Everest', link: 'mountains-profile.html?id=everest', location: 'Nepal/China', height: '8,849m' },
                         { name: 'K2', link: '/mountains/k2', location: 'Pakistan/China', height: '8,611m' },
                         { name: 'Kangchenjunga', link: '/mountains/kangchenjunga', location: 'Nepal/India', height: '8,586m' },
                         { name: 'Lhotse', link: '/mountains/lhotse', location: 'Nepal/China', height: '8,516m' },
