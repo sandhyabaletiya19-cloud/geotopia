@@ -1,132 +1,33 @@
 // quiz-engine.js
 
 const QuizGameEngine = (function() {
-    // Sample geography quiz questions
-    const sampleGeographyQuestions = [
-        {
-            question: "What is the capital of France?",
-            options: ["London", "Berlin", "Paris", "Madrid"],
-            answer: "Paris"
-        },
-        {
-            question: "Which is the largest ocean on Earth?",
-            options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
-            answer: "Pacific Ocean"
-        },
-        {
-            question: "What is the longest river in the world?",
-            options: ["Amazon River", "Nile River", "Yangtze River", "Mississippi River"],
-            answer: "Nile River"
-        },
-        {
-            question: "Which country has the largest population?",
-            options: ["India", "United States", "China", "Indonesia"],
-            answer: "China"
-        },
-        {
-            question: "Mount Everest is located in which mountain range?",
-            options: ["Andes", "Rockies", "Alps", "Himalayas"],
-            answer: "Himalayas"
-        },
-        {
-            question: "What is the smallest continent by land area?",
-            options: ["Europe", "Australia", "Antarctica", "South America"],
-            answer: "Australia"
-        },
-        {
-            question: "Which desert is the largest in the world?",
-            options: ["Sahara Desert", "Arabian Desert", "Gobi Desert", "Antarctic Desert"],
-            answer: "Antarctic Desert"
-        },
-        {
-            question: "What is the capital of Japan?",
-            options: ["Seoul", "Beijing", "Tokyo", "Bangkok"],
-            answer: "Tokyo"
-        },
-        {
-            question: "Which continent is known as the 'Dark Continent'?",
-            options: ["Asia", "Africa", "South America", "Australia"],
-            answer: "Africa"
-        },
-        {
-            question: "The Great Barrier Reef is located off the coast of which country?",
-            options: ["Brazil", "Australia", "Indonesia", "Philippines"],
-            answer: "Australia"
-        }
-    ];
-
-    // Sample word master data (geography terms)
-    const sampleWordMasterData = [
-        {
-            word: "CONTINENT",
-            hint: "One of the seven large landmasses on Earth",
-            category: "landform"
-        },
-        {
-            word: "PENINSULA",
-            hint: "Land surrounded by water on three sides",
-            category: "landform"
-        },
-        {
-            word: "ARCHIPELAGO",
-            hint: "A group or chain of islands",
-            category: "landform"
-        },
-        {
-            word: "VOLCANO",
-            hint: "A mountain that erupts with lava",
-            category: "landform"
-        },
-        {
-            word: "GLACIER",
-            hint: "A slow-moving mass of ice",
-            category: "water"
-        },
-        {
-            word: "TRIBUTARY",
-            hint: "A river that flows into a larger river",
-            category: "water"
-        },
-        {
-            word: "EQUATOR",
-            hint: "Imaginary line dividing Earth into two hemispheres",
-            category: "geography"
-        },
-        {
-            word: "LATITUDE",
-            hint: "Horizontal lines on a map measuring distance from equator",
-            category: "geography"
-        },
-        {
-            word: "LONGITUDE",
-            hint: "Vertical lines on a map measuring distance from prime meridian",
-            category: "geography"
-        },
-        {
-            word: "TUNDRA",
-            hint: "A cold, treeless biome in Arctic regions",
-            category: "biome"
-        },
-        {
-            word: "SAVANNA",
-            hint: "A grassland with scattered trees in tropical regions",
-            category: "biome"
-        },
-        {
-            word: "PLATEAU",
-            hint: "A flat elevated landform",
-            category: "landform"
-        }
-    ];
-
+    // State object to track game progress
     const state = {
         gameType: null,
         questions: [],
+        originalPool: [],
         currentIndex: 0,
         score: 0,
         totalQuestions: 0,
-        answers: []
+        answers: [],
+        usedQuestionIds: [],
+        sessionId: null,
+        difficulty: 'medium'
     };
+
+    // LocalStorage keys for tracking used questions across sessions
+    const STORAGE_KEYS = {
+        GEOGRAPHY_USED: 'geotopia_geography_used_ids',
+        WORDMASTER_USED: 'geotopia_wordmaster_used_ids',
+        LAST_RESET: 'geotopia_last_reset_date'
+    };
+
+    // Weekly reset check (7 days)
+    const RESET_INTERVAL_DAYS = 7;
+
+    // =============================================
+    // UTILITY FUNCTIONS
+    // =============================================
 
     // Fisher-Yates shuffle
     function shuffle(array) {
@@ -138,11 +39,103 @@ const QuizGameEngine = (function() {
         return shuffled;
     }
 
-    // Generate display with missing letters for word master
+    // Generate unique ID for questions without one
+    function generateQuestionId(question, index) {
+        if (question.id) {
+            return question.id;
+        }
+        // Create hash from question content
+        const content = question.question || question.word || '';
+        let hash = 0;
+        for (let i = 0; i < content.length; i++) {
+            const char = content.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return 'q_' + Math.abs(hash) + '_' + index;
+    }
+
+    // Check if weekly reset is needed
+    function checkWeeklyReset() {
+        try {
+            const lastReset = localStorage.getItem(STORAGE_KEYS.LAST_RESET);
+            if (!lastReset) {
+                localStorage.setItem(STORAGE_KEYS.LAST_RESET, Date.now().toString());
+                return false;
+            }
+
+            const lastResetDate = parseInt(lastReset, 10);
+            const daysSinceReset = (Date.now() - lastResetDate) / (1000 * 60 * 60 * 24);
+
+            if (daysSinceReset >= RESET_INTERVAL_DAYS) {
+                // Reset all used question trackers
+                localStorage.removeItem(STORAGE_KEYS.GEOGRAPHY_USED);
+                localStorage.removeItem(STORAGE_KEYS.WORDMASTER_USED);
+                localStorage.setItem(STORAGE_KEYS.LAST_RESET, Date.now().toString());
+                return true;
+            }
+
+            return false;
+        } catch (e) {
+            // localStorage not available
+            return false;
+        }
+    }
+
+    // Get used question IDs from localStorage
+    function getUsedIdsFromStorage(gameType) {
+        try {
+            checkWeeklyReset();
+
+            const key = gameType === 'geography-quiz' 
+                ? STORAGE_KEYS.GEOGRAPHY_USED 
+                : STORAGE_KEYS.WORDMASTER_USED;
+
+            const stored = localStorage.getItem(key);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+        } catch (e) {
+            // localStorage not available or parse error
+        }
+        return [];
+    }
+
+    // Save used question IDs to localStorage
+    function saveUsedIdsToStorage(gameType, usedIds) {
+        try {
+            const key = gameType === 'geography-quiz' 
+                ? STORAGE_KEYS.GEOGRAPHY_USED 
+                : STORAGE_KEYS.WORDMASTER_USED;
+
+            localStorage.setItem(key, JSON.stringify(usedIds));
+        } catch (e) {
+            // localStorage not available
+        }
+    }
+
+    // Clear used IDs from storage (when pool is exhausted)
+    function clearUsedIdsFromStorage(gameType) {
+        try {
+            const key = gameType === 'geography-quiz' 
+                ? STORAGE_KEYS.GEOGRAPHY_USED 
+                : STORAGE_KEYS.WORDMASTER_USED;
+
+            localStorage.removeItem(key);
+        } catch (e) {
+            // localStorage not available
+        }
+    }
+
+    // =============================================
+    // WORD MASTER HELPERS
+    // =============================================
+
+    // Generate masked word with missing letters
     function generateMaskedWord(word, difficulty) {
         difficulty = difficulty || 'medium';
         
-        const letters = word.split('');
+        const letters = word.toUpperCase().split('');
         const wordLength = letters.length;
         let numToHide;
 
@@ -151,9 +144,14 @@ const QuizGameEngine = (function() {
             numToHide = Math.ceil(wordLength * 0.3);
         } else if (difficulty === 'medium') {
             numToHide = Math.ceil(wordLength * 0.5);
-        } else {
+        } else if (difficulty === 'hard') {
             numToHide = Math.ceil(wordLength * 0.7);
+        } else {
+            numToHide = Math.ceil(wordLength * 0.5);
         }
+
+        // Ensure at least 1 letter is hidden and at least 1 is shown
+        numToHide = Math.max(1, Math.min(numToHide, wordLength - 1));
 
         // Get random indices to hide
         const indices = [];
@@ -173,50 +171,113 @@ const QuizGameEngine = (function() {
 
         return {
             display: maskedLetters.join(' '),
-            hiddenIndices: hideIndices,
-            maskedLetters: maskedLetters
+            hiddenIndices: hideIndices.sort((a, b) => a - b),
+            maskedLetters: maskedLetters,
+            originalWord: word.toUpperCase()
         };
     }
 
-    // Create geography quiz questions
-    function createGeographyQuestions(data, totalQuestions) {
-        const questions = shuffle(data);
-        const limited = totalQuestions ? questions.slice(0, totalQuestions) : questions;
+    // =============================================
+    // QUESTION PREPARATION
+    // =============================================
 
-        return limited.map(function(q, index) {
+    // Prepare geography quiz questions
+    function prepareGeographyQuestions(data, usedIds, totalQuestions) {
+        // Assign IDs to all questions
+        const questionsWithIds = data.map(function(q, index) {
             return {
-                id: index + 1,
+                ...q,
+                id: generateQuestionId(q, index)
+            };
+        });
+
+        // Filter out used questions
+        let availableQuestions = questionsWithIds.filter(function(q) {
+            return !usedIds.includes(q.id);
+        });
+
+        // If not enough available questions, reset the pool
+        if (availableQuestions.length < totalQuestions) {
+            clearUsedIdsFromStorage('geography-quiz');
+            state.usedQuestionIds = [];
+            availableQuestions = questionsWithIds;
+        }
+
+        // Shuffle and select questions
+        const shuffled = shuffle(availableQuestions);
+        const selected = shuffled.slice(0, totalQuestions);
+
+        // Prepare final question format
+        return selected.map(function(q, index) {
+            return {
+                id: q.id,
                 type: 'multiple-choice',
                 question: q.question,
                 options: shuffle([...q.options]),
-                answer: q.answer
+                answer: q.answer,
+                questionNumber: index + 1
             };
         });
     }
 
-    // Create word master questions
-    function createWordMasterQuestions(data, totalQuestions, difficulty) {
-        const words = shuffle(data);
-        const limited = totalQuestions ? words.slice(0, totalQuestions) : words;
+    // Prepare word master questions
+    function prepareWordMasterQuestions(data, usedIds, totalQuestions, difficulty) {
+        // Assign IDs to all words
+        const wordsWithIds = data.map(function(w, index) {
+            return {
+                ...w,
+                id: generateQuestionId(w, index)
+            };
+        });
 
-        return limited.map(function(w, index) {
+        // Filter out used words
+        let availableWords = wordsWithIds.filter(function(w) {
+            return !usedIds.includes(w.id);
+        });
+
+        // If not enough available words, reset the pool
+        if (availableWords.length < totalQuestions) {
+            clearUsedIdsFromStorage('word-master');
+            state.usedQuestionIds = [];
+            availableWords = wordsWithIds;
+        }
+
+        // Shuffle and select words
+        const shuffled = shuffle(availableWords);
+        const selected = shuffled.slice(0, totalQuestions);
+
+        // Prepare final question format with masked words
+        return selected.map(function(w, index) {
             const masked = generateMaskedWord(w.word, difficulty);
 
             return {
-                id: index + 1,
+                id: w.id,
                 type: 'word-master',
-                word: w.word,
+                word: w.word.toUpperCase(),
                 hint: w.hint,
-                category: w.category,
+                category: w.category || 'general',
                 display: masked.display,
                 hiddenIndices: masked.hiddenIndices,
                 maskedLetters: masked.maskedLetters,
-                answer: w.word
+                answer: w.word.toUpperCase(),
+                questionNumber: index + 1
             };
         });
     }
 
-    // Initialize game based on type
+    // =============================================
+    // MAIN ENGINE METHODS
+    // =============================================
+
+    /**
+     * Initialize game with specified type and options
+     * @param {string} gameType - 'geography-quiz' or 'word-master'
+     * @param {Object} options - Configuration options
+     * @param {Array} options.data - Question/word pool from games-data.js
+     * @param {number} options.totalQuestions - Number of questions per session
+     * @param {string} options.difficulty - 'easy', 'medium', 'hard' (for word-master)
+     * @param {boolean} options.trackAcrossSessions - Whether to track used questions in localStorage
+     */
     function initGame(gameType, options) {
         options = options || {};
 
@@ -225,34 +286,68 @@ const QuizGameEngine = (function() {
         state.currentIndex = 0;
         state.score = 0;
         state.answers = [];
+        state.sessionId = 'session_' + Date.now();
+        state.difficulty = options.difficulty || 'medium';
+
+        const trackAcrossSessions = options.trackAcrossSessions !== false;
+
+        // Get used IDs from storage if tracking across sessions
+        let usedIds = [];
+        if (trackAcrossSessions) {
+            usedIds = getUsedIdsFromStorage(gameType);
+        }
+        state.usedQuestionIds = usedIds;
+
+        // Determine data source and default question count
+        let data;
+        let defaultQuestionCount;
 
         if (gameType === 'geography-quiz') {
-            const data = options.data || sampleGeographyQuestions;
-            const totalQuestions = options.totalQuestions || data.length;
-            state.questions = createGeographyQuestions(data, totalQuestions);
-            state.totalQuestions = state.questions.length;
+            data = options.data || (typeof GeographyQuizData !== 'undefined' ? GeographyQuizData : []);
+            defaultQuestionCount = 10;
         } else if (gameType === 'word-master') {
-            const data = options.data || sampleWordMasterData;
-            const totalQuestions = options.totalQuestions || data.length;
-            const difficulty = options.difficulty || 'medium';
-            state.questions = createWordMasterQuestions(data, totalQuestions, difficulty);
-            state.totalQuestions = state.questions.length;
+            data = options.data || (typeof WordMasterData !== 'undefined' ? WordMasterData : []);
+            defaultQuestionCount = 10;
         } else {
             // Default to geography quiz
             state.gameType = 'geography-quiz';
-            state.questions = createGeographyQuestions(sampleGeographyQuestions);
-            state.totalQuestions = state.questions.length;
+            data = options.data || (typeof GeographyQuizData !== 'undefined' ? GeographyQuizData : []);
+            defaultQuestionCount = 10;
+        }
+
+        // Store original pool for reference
+        state.originalPool = data;
+
+        // Get total questions to use
+        const totalQuestions = Math.min(
+            options.totalQuestions || defaultQuestionCount,
+            data.length
+        );
+
+        state.totalQuestions = totalQuestions;
+
+        // Prepare questions based on game type
+        if (state.gameType === 'geography-quiz') {
+            state.questions = prepareGeographyQuestions(data, usedIds, totalQuestions);
+        } else if (state.gameType === 'word-master') {
+            state.questions = prepareWordMasterQuestions(data, usedIds, totalQuestions, state.difficulty);
         }
 
         return {
             gameType: state.gameType,
             totalQuestions: state.totalQuestions,
             currentIndex: state.currentIndex,
-            score: state.score
+            score: state.score,
+            sessionId: state.sessionId,
+            poolSize: data.length,
+            availableQuestions: data.length - usedIds.length
         };
     }
 
-    // Get current question
+    /**
+     * Get the current question
+     * @returns {Object|null} Current question object or null if complete
+     */
     function getCurrentQuestion() {
         if (state.currentIndex >= state.questions.length) {
             return null;
@@ -266,9 +361,9 @@ const QuizGameEngine = (function() {
                 type: question.type,
                 question: question.question,
                 options: [...question.options],
-                index: state.currentIndex,
                 questionNumber: state.currentIndex + 1,
-                totalQuestions: state.totalQuestions
+                totalQuestions: state.totalQuestions,
+                score: state.score
             };
         } else if (state.gameType === 'word-master') {
             return {
@@ -278,27 +373,40 @@ const QuizGameEngine = (function() {
                 category: question.category,
                 display: question.display,
                 maskedLetters: [...question.maskedLetters],
+                hiddenIndices: [...question.hiddenIndices],
                 wordLength: question.word.length,
-                index: state.currentIndex,
                 questionNumber: state.currentIndex + 1,
-                totalQuestions: state.totalQuestions
+                totalQuestions: state.totalQuestions,
+                score: state.score
             };
         }
 
         return null;
     }
 
-    // Normalize answer for comparison
+    /**
+     * Normalize answer for comparison
+     * @param {string} answer - User's answer
+     * @returns {string} Normalized answer
+     */
     function normalizeAnswer(answer) {
-        return answer.toString().trim().toUpperCase().replace(/\s+/g, '');
+        if (typeof answer !== 'string') {
+            answer = String(answer);
+        }
+        return answer.trim().toUpperCase().replace(/\s+/g, ' ');
     }
 
-    // Submit answer
+    /**
+     * Submit an answer for the current question
+     * @param {string} answer - User's answer
+     * @returns {Object} Result object with success, correctAnswer, etc.
+     */
     function submitAnswer(answer) {
+        // Check if game is already complete
         if (state.currentIndex >= state.questions.length) {
             return {
                 success: false,
-                message: "Quiz already completed",
+                message: 'Quiz already completed',
                 isComplete: true,
                 score: state.score,
                 totalQuestions: state.totalQuestions
@@ -314,20 +422,30 @@ const QuizGameEngine = (function() {
         // Record answer
         state.answers.push({
             questionId: currentQuestion.id,
+            questionNumber: state.currentIndex + 1,
             userAnswer: answer,
             correctAnswer: currentQuestion.answer,
-            isCorrect: isCorrect
+            isCorrect: isCorrect,
+            timestamp: Date.now()
         });
 
+        // Update score
         if (isCorrect) {
             state.score++;
         }
 
+        // Mark question as used
+        if (!state.usedQuestionIds.includes(currentQuestion.id)) {
+            state.usedQuestionIds.push(currentQuestion.id);
+            saveUsedIdsToStorage(state.gameType, state.usedQuestionIds);
+        }
+
+        // Move to next question
         state.currentIndex++;
 
         const isComplete = state.currentIndex >= state.questions.length;
 
-        // Get next question if not complete
+        // Prepare next question if not complete
         let nextQuestion = null;
         if (!isComplete) {
             nextQuestion = getCurrentQuestion();
@@ -341,30 +459,48 @@ const QuizGameEngine = (function() {
             isComplete: isComplete,
             score: state.score,
             totalQuestions: state.totalQuestions,
-            currentIndex: state.currentIndex
+            currentIndex: state.currentIndex,
+            questionNumber: state.currentIndex
         };
     }
 
-    // Check if quiz is complete
+    /**
+     * Check if the quiz is complete
+     * @returns {boolean} True if all questions have been answered
+     */
     function isComplete() {
         return state.currentIndex >= state.questions.length;
     }
 
-    // Reset game without reshuffling
-    function resetGame() {
-        state.currentIndex = 0;
-        state.score = 0;
-        state.answers = [];
+    /**
+     * Reset the current game
+     * Reshuffles questions and resets progress
+     * @param {Object} options - Reset options
+     * @param {boolean} options.clearHistory - Clear used question history
+     * @returns {Object} New game state
+     */
+    function resetGame(options) {
+        options = options || {};
 
-        return {
-            gameType: state.gameType,
+        // Clear history if requested
+        if (options.clearHistory) {
+            clearUsedIdsFromStorage(state.gameType);
+            state.usedQuestionIds = [];
+        }
+
+        // Re-initialize with same settings
+        return initGame(state.gameType, {
+            data: state.originalPool,
             totalQuestions: state.totalQuestions,
-            currentIndex: state.currentIndex,
-            score: state.score
-        };
+            difficulty: state.difficulty,
+            trackAcrossSessions: true
+        });
     }
 
-    // Get current game state
+    /**
+     * Get current game state
+     * @returns {Object} Current state snapshot
+     */
     function getState() {
         return {
             gameType: state.gameType,
@@ -374,30 +510,48 @@ const QuizGameEngine = (function() {
             answers: state.answers.map(function(a) {
                 return { ...a };
             }),
+            isComplete: isComplete(),
+            sessionId: state.sessionId,
+            usedQuestionsCount: state.usedQuestionIds.length,
+            poolSize: state.originalPool.length
+        };
+    }
+
+    /**
+     * Get detailed score information
+     * @returns {Object} Score details
+     */
+    function getScore() {
+        const totalAnswered = state.answers.length;
+        const correctCount = state.answers.filter(function(a) {
+            return a.isCorrect;
+        }).length;
+
+        return {
+            score: state.score,
+            totalQuestions: state.totalQuestions,
+            totalAnswered: totalAnswered,
+            correctCount: correctCount,
+            incorrectCount: totalAnswered - correctCount,
+            percentage: totalAnswered > 0 
+                ? Math.round((correctCount / totalAnswered) * 100) 
+                : 0,
+            answers: state.answers.map(function(a) {
+                return { ...a };
+            }),
             isComplete: isComplete()
         };
     }
 
-    // Get score details
-    function getScore() {
-        return {
-            score: state.score,
-            totalQuestions: state.totalQuestions,
-            percentage: state.totalQuestions > 0 
-                ? Math.round((state.score / state.totalQuestions) * 100) 
-                : 0,
-            answers: state.answers.map(function(a) {
-                return { ...a };
-            })
-        };
-    }
-
-    // Skip current question (optional helper)
+    /**
+     * Skip the current question
+     * @returns {Object} Result object
+     */
     function skipQuestion() {
         if (state.currentIndex >= state.questions.length) {
             return {
                 success: false,
-                message: "Quiz already completed",
+                message: 'Quiz already completed',
                 isComplete: true
             };
         }
@@ -407,12 +561,21 @@ const QuizGameEngine = (function() {
         // Record skipped answer
         state.answers.push({
             questionId: currentQuestion.id,
+            questionNumber: state.currentIndex + 1,
             userAnswer: null,
             correctAnswer: currentQuestion.answer,
             isCorrect: false,
-            skipped: true
+            skipped: true,
+            timestamp: Date.now()
         });
 
+        // Mark question as used
+        if (!state.usedQuestionIds.includes(currentQuestion.id)) {
+            state.usedQuestionIds.push(currentQuestion.id);
+            saveUsedIdsToStorage(state.gameType, state.usedQuestionIds);
+        }
+
+        // Move to next question
         state.currentIndex++;
 
         const isQuizComplete = state.currentIndex >= state.questions.length;
@@ -428,33 +591,39 @@ const QuizGameEngine = (function() {
         };
     }
 
-    // Get hint for word master (reveal one more letter)
+    /**
+     * Get a hint for the current word (Word Master only)
+     * Reveals one hidden letter
+     * @returns {Object} Hint result
+     */
     function getHint() {
         if (state.gameType !== 'word-master') {
             return {
                 success: false,
-                message: "Hints only available for Word Master"
+                message: 'Hints only available for Word Master'
             };
         }
 
         if (state.currentIndex >= state.questions.length) {
             return {
                 success: false,
-                message: "Quiz already completed"
+                message: 'Quiz already completed'
             };
         }
 
         const currentQuestion = state.questions[state.currentIndex];
-        const hiddenIndices = currentQuestion.hiddenIndices;
+        const maskedLetters = [...currentQuestion.maskedLetters];
+        const hiddenIndices = [...currentQuestion.hiddenIndices];
 
-        // Find a hidden letter to reveal
-        const maskedLetters = currentQuestion.maskedLetters;
+        // Find first hidden letter to reveal
         let revealedIndex = -1;
+        let revealedLetter = null;
 
         for (let i = 0; i < maskedLetters.length; i++) {
             if (maskedLetters[i] === '_') {
                 maskedLetters[i] = currentQuestion.word[i];
                 revealedIndex = i;
+                revealedLetter = currentQuestion.word[i];
                 break;
             }
         }
@@ -462,39 +631,121 @@ const QuizGameEngine = (function() {
         if (revealedIndex === -1) {
             return {
                 success: false,
-                message: "No more letters to reveal"
+                message: 'No more letters to reveal'
             };
         }
 
-        // Update display
-        currentQuestion.display = maskedLetters.join(' ');
+        // Update question state
         currentQuestion.maskedLetters = maskedLetters;
+        currentQuestion.display = maskedLetters.join(' ');
 
         // Remove from hidden indices
-        const indexPos = currentQuestion.hiddenIndices.indexOf(revealedIndex);
+        const indexPos = hiddenIndices.indexOf(revealedIndex);
         if (indexPos > -1) {
-            currentQuestion.hiddenIndices.splice(indexPos, 1);
+            hiddenIndices.splice(indexPos, 1);
         }
+        currentQuestion.hiddenIndices = hiddenIndices;
 
         return {
             success: true,
-            revealedLetter: currentQuestion.word[revealedIndex],
+            revealedLetter: revealedLetter,
             revealedIndex: revealedIndex,
             display: currentQuestion.display,
             maskedLetters: [...maskedLetters],
-            remainingHidden: currentQuestion.hiddenIndices.length
+            remainingHidden: hiddenIndices.length
         };
     }
 
+    /**
+     * Get statistics about used questions
+     * @returns {Object} Statistics object
+     */
+    function getUsageStats() {
+        const geographyUsed = getUsedIdsFromStorage('geography-quiz');
+        const wordMasterUsed = getUsedIdsFromStorage('word-master');
+
+        return {
+            geographyQuiz: {
+                usedCount: geographyUsed.length,
+                poolSize: typeof GeographyQuizData !== 'undefined' ? GeographyQuizData.length : 0,
+                remainingCount: typeof GeographyQuizData !== 'undefined' 
+                    ? GeographyQuizData.length - geographyUsed.length 
+                    : 0
+            },
+            wordMaster: {
+                usedCount: wordMasterUsed.length,
+                poolSize: typeof WordMasterData !== 'undefined' ? WordMasterData.length : 0,
+                remainingCount: typeof WordMasterData !== 'undefined' 
+                    ? WordMasterData.length - wordMasterUsed.length 
+                    : 0
+            }
+        };
+    }
+
+    /**
+     * Clear all used question history
+     * @param {string} gameType - Optional specific game type to clear
+     */
+    function clearHistory(gameType) {
+        if (gameType === 'geography-quiz' || !gameType) {
+            clearUsedIdsFromStorage('geography-quiz');
+        }
+        if (gameType === 'word-master' || !gameType) {
+            clearUsedIdsFromStorage('word-master');
+        }
+        state.usedQuestionIds = [];
+
+        return {
+            success: true,
+            message: gameType 
+                ? gameType + ' history cleared' 
+                : 'All history cleared'
+        };
+    }
+
+    /**
+     * Set difficulty for Word Master
+     * @param {string} difficulty - 'easy', 'medium', or 'hard'
+     */
+    function setDifficulty(difficulty) {
+        if (['easy', 'medium', 'hard'].includes(difficulty)) {
+            state.difficulty = difficulty;
+            return {
+                success: true,
+                difficulty: difficulty
+            };
+        }
+        return {
+            success: false,
+            message: 'Invalid difficulty. Use easy, medium, or hard.'
+        };
+    }
+
+    // =============================================
+    // PUBLIC API
+    // =============================================
+
     return {
+        // Core methods
         initGame: initGame,
         getCurrentQuestion: getCurrentQuestion,
         submitAnswer: submitAnswer,
         isComplete: isComplete,
         resetGame: resetGame,
+
+        // State and scoring
         getState: getState,
         getScore: getScore,
+
+        // Additional features
         skipQuestion: skipQuestion,
-        getHint: getHint
+        getHint: getHint,
+
+        // History management
+        getUsageStats: getUsageStats,
+        clearHistory: clearHistory,
+
+        // Settings
+        setDifficulty: setDifficulty
     };
 })();
