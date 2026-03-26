@@ -365,7 +365,11 @@ class ConceptRenderer {
     this.renderHero();
     this.renderContent();
     this.renderNavigation();
-    this.attachEventListeners();
+    
+    // IMPORTANT: Use setTimeout to ensure DOM is fully rendered before attaching listeners
+    setTimeout(() => {
+      this.attachEventListeners();
+    }, 100);
     
     // Hide preloader
     setTimeout(() => {
@@ -452,7 +456,7 @@ class ConceptRenderer {
           ` : ''}
           
           ${content.comparison ? this.renderComparison(content.comparison) : ''}
-${this.sectionData.comparisonTable ? this.renderComparisonTable(this.sectionData.comparisonTable) : ''}
+          ${this.sectionData.comparisonTable ? this.renderComparisonTable(this.sectionData.comparisonTable) : ''}
           
           ${funFacts.length > 0 ? `
             <div class="fun-facts-section">
@@ -864,41 +868,76 @@ ${this.sectionData.comparisonTable ? this.renderComparisonTable(this.sectionData
     `;
   }
 
-  // ==================== EVENT LISTENERS ====================
+  // ==================== EVENT LISTENERS (FIXED) ====================
   attachEventListeners() {
-  // Branch expansion
-document.querySelectorAll('.branch-header').forEach(header => {
-  header.addEventListener('click', (e) => {
-    const branch = e.currentTarget.closest('.branch');
-    const btn = branch.querySelector('.expand-btn');
-    const icon = btn.querySelector('.expand-icon');
-    const isExpanded = branch.classList.contains('expanded');
+    // ==================== BRANCH EXPANSION (FIXED) ====================
+    const branches = document.querySelectorAll('.branch');
     
-    branch.classList.toggle('expanded');
-    icon.textContent = isExpanded ? '+' : '−';
-    btn.setAttribute('aria-expanded', !isExpanded);
-  });
-  
-  header.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      header.click();
-    }
-  });
-});
+    branches.forEach((branch) => {
+      const header = branch.querySelector('.branch-header');
+      const content = branch.querySelector('.branch-content');
+      const btn = branch.querySelector('.expand-btn');
+      const icon = branch.querySelector('.expand-icon');
+      
+      if (!header || !content) return;
+      
+      // Function to toggle branch
+      const toggleBranch = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isExpanded = branch.classList.contains('expanded');
+        
+        // Toggle expanded class
+        branch.classList.toggle('expanded');
+        
+        // Update icon
+        if (icon) {
+          icon.textContent = isExpanded ? '+' : '−';
+        }
+        
+        // Update aria-expanded
+        if (btn) {
+          btn.setAttribute('aria-expanded', !isExpanded);
+        }
+        
+        // Animate content
+        if (isExpanded) {
+          // Collapse
+          content.style.maxHeight = '0';
+          content.style.paddingTop = '0';
+          content.style.paddingBottom = '0';
+          content.style.opacity = '0';
+        } else {
+          // Expand
+          content.style.maxHeight = content.scrollHeight + 50 + 'px';
+          content.style.paddingTop = '1.5rem';
+          content.style.paddingBottom = '1.5rem';
+          content.style.opacity = '1';
+        }
+      };
+      
+      // Click on header
+      header.addEventListener('click', toggleBranch);
+      
+      // Click on button (prevent double trigger)
+      if (btn) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleBranch(e);
+        });
+      }
+      
+      // Keyboard support
+      header.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleBranch(e);
+        }
+      });
+    });
 
-// Keyboard support for branch expansion
-document.addEventListener('keypress', (e) => {
-  if (e.key !== 'Enter' && e.key !== ' ') return;
-  
-  const header = e.target.closest('.branch-header');
-  if (!header) return;
-  
-  e.preventDefault();
-  header.click();
-});
-    
-    // Timeline navigation
+    // ==================== TIMELINE NAVIGATION ====================
     const prevBtn = document.getElementById('prevStage');
     const nextBtn = document.getElementById('nextStage');
     
@@ -906,7 +945,7 @@ document.addEventListener('keypress', (e) => {
       this.setupTimelineNavigation(prevBtn, nextBtn);
     }
     
-    // Smooth scroll
+    // ==================== SMOOTH SCROLL ====================
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', (e) => {
         e.preventDefault();
@@ -1010,7 +1049,7 @@ document.addEventListener('keypress', (e) => {
   }
 }
 
-// Initialize
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   new ConceptRenderer();
 });
