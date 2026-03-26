@@ -2547,3 +2547,8 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof window !== 'undefined') {
   window.FlagMemoryHelpers = FlagMemoryHelpers;
 }
+const GamesData = {
+    quiz: GeographyQuizData,
+    words: [...WordMasterData, ...AdditionalWords],
+    flags: FlagMemoryData
+};
