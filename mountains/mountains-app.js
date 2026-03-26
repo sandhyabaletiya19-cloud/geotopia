@@ -1741,5 +1741,12 @@
         ProfilePageController,
         ThemeController
     };
+   // Navigation scroll effect
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('mainNav');
+    if (nav) {
+        nav.classList.toggle('scrolled', window.scrollY > 50);
+    }
+});
 
 })();
