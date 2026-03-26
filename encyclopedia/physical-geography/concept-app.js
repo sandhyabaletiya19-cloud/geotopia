@@ -696,64 +696,39 @@ renderBranch(branch, index) {
     `;
   }
 
-  // ==================== GRID RENDER ====================
-  renderGrid() {
-    const featuredRanges = this.sectionData.featuredRanges || [];
-    
-    return `
-      <section class="examples-section">
-        <div class="container">
-          <p class="section-intro">${this.sectionData.introduction || ''}</p>
-          
-          <div class="examples-grid-featured">
-            ${featuredRanges.map(range => `
-              <a href="${range.link || '#'}" class="range-card">
-                <div class="range-image" style="background-image: url('${this.fixImageURL(range.image)}')">
-                  <div class="range-overlay"></div>
-                  <span class="range-icon">${range.icon || '🏔️'}</span>
-                </div>
-                <div class="range-info">
-                  <h3 class="range-name">${range.name || ''}</h3>
-                  <p class="range-meta">
-                    <span class="meta-item">📍 ${range.continent || range.location || ''}</span>
-                    <span class="meta-item">🏔️ ${range.type || ''}</span>
-                  </p>
-                  <div class="range-stats">
-                    <div class="stat">
-                      <span class="stat-label">Highest Peak</span>
-                      <span class="stat-value">${range.highestPeak || 'N/A'}</span>
-                    </div>
-                    <div class="stat">
-                      <span class="stat-label">Length</span>
-                      <span class="stat-value">${range.length || 'N/A'}</span>
-                    </div>
-                  </div>
-                  ${range.funFact ? `<div class="fun-fact-badge">💡 ${range.funFact}</div>` : ''}
-                </div>
-                <div class="range-hover">
-                  <span class="hover-text">Explore Full Profile →</span>
-                </div>
-              </a>
-            `).join('')}
+ // ==================== GRID RENDER (SIMPLE - JUST LINK BUTTON) ====================
+renderGrid() {
+  const linkTo = this.sectionData.linkToExisting || this.data.meta.existingPagesLink || '#';
+  const topicName = this.data.meta.name || 'Items';
+  const topicIcon = this.data.meta.icon || '🌍';
+  
+  return `
+    <section class="examples-section">
+      <div class="container">
+        <p class="section-intro">${this.sectionData.introduction || ''}</p>
+        
+        <div class="explore-cta">
+          <div class="cta-content">
+            <div class="cta-icon">${topicIcon}</div>
+            <h3 class="cta-title">Explore All ${topicName}</h3>
+            <p class="cta-description">
+              Discover detailed information about every ${topicName.toLowerCase()} including 
+              location, height, formation, images, and more.
+            </p>
+            <a href="${linkTo}" class="cta-button">
+              <span>View All ${topicName}</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
           </div>
-          
-          ${this.sectionData.linkToExisting ? `
-            <div class="view-all-section">
-              <a href="${this.sectionData.linkToExisting}" class="btn-view-all">
-                View All ${this.data.meta.name} 
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M8 4L14 10L8 16"/>
-                </svg>
-              </a>
-            </div>
-          ` : ''}
-          
-          ${this.sectionData.upscRelevance ? this.renderUPSC(this.sectionData.upscRelevance) : ''}
         </div>
-      </section>
-    `;
-  }
-
+        
+        ${this.sectionData.upscRelevance ? this.renderUPSC(this.sectionData.upscRelevance) : ''}
+      </div>
+    </section>
+  `;
+}
   // ==================== UPSC RENDER ====================
   renderUPSC(upsc) {
     if (!upsc) return '';
