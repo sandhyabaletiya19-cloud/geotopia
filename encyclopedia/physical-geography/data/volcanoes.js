@@ -2528,6 +2528,24 @@ const volcanoesData = {
                 importantNote: 'Each VEI level is approximately 10× more powerful than the previous. VEI 7-8 are called "supereruptions" capable of global climate impact and potentially civilization-threatening consequences.'
             }
         },
+
+// ADD THIS COMPARISON TABLE HERE:
+comparisonTable: {
+    title: 'Volcano Types - Quick Comparison',
+    headers: ['Feature', 'Shield', 'Stratovolcano', 'Cinder Cone', 'Caldera'],
+    rows: [
+        ['Shape', 'Broad, gentle slopes (2-10°)', 'Steep cone (30-35°)', 'Small steep cone (30-40°)', 'Large depression (1-80 km)'],
+        ['Height', 'Very large (4,000-9,000m)', 'Tall (1,000-5,000m)', 'Small (30-400m)', 'Variable (subsided)'],
+        ['Magma Type', 'Basaltic (low silica)', 'Andesitic-Dacitic (intermediate)', 'Basaltic-Andesitic', 'Rhyolitic (high silica)'],
+        ['Eruption Style', 'Effusive, gentle', 'Explosive, violent', 'Moderate explosions', 'Catastrophic (VEI 7-8)'],
+        ['Lava Flow Distance', '50+ km', '1-10 km', '1-5 km', 'Pyroclastic flows 100+ km'],
+        ['Lifespan', 'Millions of years', 'Hundreds of thousands of years', 'Days to years (monogenetic)', 'Episodic over millions of years'],
+        ['Main Hazards', 'Lava flows, laze, vog', 'Pyroclastic flows, lahars, ash', 'Lava flows, bombs, ash', 'Supereruptions, global climate effects'],
+        ['Examples', 'Mauna Loa, Kilauea', 'Mt. Fuji, Vesuvius, St. Helens', 'Parícutin, Sunset Crater', 'Yellowstone, Toba, Crater Lake'],
+        ['Tectonic Setting', 'Hotspots, rifts', 'Subduction zones', 'All settings', 'Various (often subduction)'],
+        ['Danger Level', 'Low (predictable)', 'Very High (explosive)', 'Low (localized)', 'Extreme (civilization-ending potential)']
+    ]
+}
                 // =============================
         // SECTION 3: FORMATION
         // =============================
