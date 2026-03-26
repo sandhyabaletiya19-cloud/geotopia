@@ -13,7 +13,7 @@ const mountainsEducationData = {
         primaryColor: '#5D6D7E',
         secondaryColor: '#85929E',
         accentColor: '#2E4053',
-        existingPagesLink: '/encyclopedia/mountains/',
+        existingPagesLink: '../mountains/',
         heroImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80'
     },
 
