@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swipe Game - Geotopia</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            display: block;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            touch-action: none;
+        }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            z-index: 10;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .stat {
+            display: inline-block;
+            margin: 0 15px;
+        }
+        #gameOver {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 40px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div class="stat">Score: <span id="score">0</span></div>
+        <div class="stat">Lives: <span id="lives">3</span></div>
+        <div class="stat">Combo: <span id="combo">0</span>x</div>
+    </div>
+
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+    <div id="gameOver">
+        <h1>Game Over!</h1>
+        <p>Final Score: <span id="finalScore">0</span></p>
+        <p>Max Combo: <span id="maxCombo">0</span></p>
+        <button onclick="restartGame()">Play Again</button>
+    </div>
+
+    <!-- Load the engine -->
+    <script src="swipe-engine.js"></script>
+
+    <script>
+        // ==========================================
+        // PASTE USAGE EXAMPLES HERE (adapted)
+        // ==========================================
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize game
+        SwipeGameEngine.initGame({
+            maxLives: 3,
+            spawnRate: 1200,
+            difficulty: 1,
+            canvasSize: { width: 400, height: 600 }
+        });
+
+        // Track swipe path
+        let swipePoints = [];
+        let isDrawing = false;
+
+        // Touch/Mouse events
+        canvas.addEventListener('mousedown', startSwipe);
+        canvas.addEventListener('touchstart', startSwipe);
+        canvas.addEventListener('mousemove', continueSwipe);
+        canvas.addEventListener('touchmove', continueSwipe);
+        canvas.addEventListener('mouseup', endSwipe);
+        canvas.addEventListener('touchend', endSwipe);
+
+        function startSwipe(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const pos = getMousePos(e);
+            swipePoints = [pos];
+        }
+
+        function continueSwipe(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+
+            const pos = getMousePos(e);
+            swipePoints.push(pos);
+
+            // Handle swipe detection
+            if (swipePoints.length >= 3) {
+                const result = SwipeGameEngine.handleSwipe(swipePoints);
+                updateUI(result);
+                
+                // Keep last point for continuous swipe
+                swipePoints = [swipePoints[swipePoints.length - 1]];
+            }
+        }
+
+        function endSwipe(e) {
+            e.preventDefault();
+            isDrawing = false;
+            swipePoints = [];
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // Game loop
+        function gameLoop() {
+            const state = SwipeGameEngine.update(16);
+            
+            render(state);
+            updateUI(state);
+
+            if (state.isGameOver) {
+                showGameOver();
+            } else {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Rendering
+        function render(state) {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw objects
+            state.objects.forEach(obj => {
+                ctx.save();
+                ctx.translate(obj.x, obj.y);
+                ctx.rotate(obj.rotation);
+                
+                ctx.globalAlpha = obj.alpha !== undefined ? obj.alpha : 1;
+                ctx.fillStyle = obj.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, obj.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw type indicator
+                if (obj.type === 'bomb') {
+                    ctx.fillStyle = 'white';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('💣', 0, 8);
+                }
+
+                ctx.restore();
+            });
+
+            // Draw swipe trail
+            if (swipePoints.length > 1) {
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.6)';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(swipePoints[0].x, swipePoints[0].y);
+                for (let i = 1; i < swipePoints.length; i++) {
+                    ctx.lineTo(swipePoints[i].x, swipePoints[i].y);
+                }
+                ctx.stroke();
+            }
+        }
+
+        // Update UI elements
+        function updateUI(state) {
+            document.getElementById('score').textContent = state.score;
+            document.getElementById('lives').textContent = state.lives;
+            document.getElementById('combo').textContent = state.combo;
+        }
+
+        // Show game over screen
+        function showGameOver() {
+            const stats = SwipeGameEngine.getStats();
+            document.getElementById('finalScore').textContent = stats.score;
+            document.getElementById('maxCombo').textContent = stats.maxCombo;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        // Restart game
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            SwipeGameEngine.resetGame();
+            gameLoop();
+        }
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>
