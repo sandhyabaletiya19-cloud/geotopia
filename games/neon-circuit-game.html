@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>⚡ NEON CIRCUIT - Energy Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        :root {
+            --primary: #00f0ff;
+            --secondary: #ff00ff;
+            --accent: #ffff00;
+            --success: #00ff88;
+            --bg-dark: #0a0a1a;
+            --bg-light: #1a1a3a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Background Animation */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 50%, #1a1a3a 0%, #0a0a1a 100%);
+        }
+
+        .bg-grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: float 10s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+            50% { transform: translateY(-100px) scale(1.5); opacity: 0.8; }
+        }
+
+        /* Main Container */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            max-width: 100vw;
+            max-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            font-size: 24px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 5px var(--primary)); }
+            50% { filter: drop-shadow(0 0 20px var(--primary)); }
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .level-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .level-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .level-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Game Board */
+        .game-board-container {
+            position: relative;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            box-shadow: 
+                0 0 30px rgba(0, 240, 255, 0.1),
+                inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #gameCanvas {
+            display: block;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(255, 0, 255, 0.3));
+            border-color: var(--primary);
+        }
+
+        .btn-icon {
+            font-size: 16px;
+        }
+
+        /* Hint Counter */
+        .hint-counter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-radius: 10px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mode-btn {
+            padding: 8px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            background: transparent;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .overlay-content {
+            text-align: center;
+            padding: 40px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .overlay-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px var(--primary)); }
+            to { filter: drop-shadow(0 0 30px var(--success)); }
+        }
+
+        .overlay-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+
+        .overlay-stats {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .overlay-stat {
+            text-align: center;
+        }
+
+        .overlay-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .overlay-stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Menu */
+        .menu-overlay .menu-title {
+            font-size: 64px;
+            margin-bottom: 5px;
+        }
+
+        .menu-logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .menu-btn {
+            padding: 18px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            min-width: 250px;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 12px 24px;
+            background: rgba(0, 240, 255, 0.2);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+        }
+
+        @keyframes toastIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes toastOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-20px); opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header { padding: 8px 15px; }
+            .logo-text { font-size: 14px; }
+            .level-number { font-size: 20px; }
+            .stat { padding: 6px 10px; }
+            .stat-value { font-size: 14px; }
+            .btn { padding: 10px 15px; font-size: 12px; }
+            .overlay-title { font-size: 32px; }
+            .menu-logo { font-size: 60px; }
+            .menu-btn { padding: 15px 40px; font-size: 16px; }
+        }
+
+        /* Theme Variations */
+        .theme-cyber { --primary: #00f0ff; --secondary: #ff00ff; }
+        .theme-space { --primary: #9d4edd; --secondary: #ff6b6b; }
+        .theme-storm { --primary: #ffd700; --secondary: #00ff88; }
+        .theme-zen { --primary: #88d8b0; --secondary: #6c5ce7; }
+        .theme-circuit { --primary: #00ff88; --secondary: #00f0ff; }
+    </style>
+</head>
+<body class="theme-cyber">
+    <!-- Background -->
+    <div class="bg-container">
+        <div class="bg-gradient"></div>
+        <div class="bg-grid"></div>
+        <div id="particles"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Menu Overlay -->
+    <div class="overlay menu-overlay active" id="menuOverlay">
+        <div class="overlay-content">
+            <div class="menu-logo">⚡</div>
+            <h1 class="overlay-title menu-title">NEON CIRCUIT</h1>
+            <p class="overlay-subtitle">Connect the Energy. Light the World.</p>
+            <div class="menu-buttons">
+                <button class="btn btn-primary menu-btn" onclick="game.startGame('endless')">
+                    <span class="btn-icon">🎮</span> ENDLESS MODE
+                </button>
+                <button class="btn menu-btn" onclick="game.startGame('relax')">
+                    <span class="btn-icon">🧘</span> RELAX MODE
+                </button>
+                <button class="btn menu-btn" onclick="game.showTutorial()">
+                    <span class="btn-icon">📖</span> HOW TO PLAY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Overlay -->
+    <div class="overlay" id="winOverlay">
+        <div class="overlay-content">
+            <h1 class="overlay-title">LEVEL COMPLETE!</h1>
+            <p class="overlay-subtitle" id="winMessage">Excellent work!</p>
+            <div class="overlay-stats">
+                <div class="overlay-stat">
+                    <div class="overlay-stat-value" id="winMoves">0</div>
+                    <div class="overlay-stat-label">Moves</div>
+                </div>
+                <div class="overlay-stat">
+                    <div class="overlay-stat-value" id="winTime">0s</div>
+                    <div class="overlay-stat-label">Time</div>
+                </div>
+                <div class="overlay-stat">
+                    <div class="overlay-stat-value" id="winScore">0</div>
+                    <div class="overlay-stat-label">Score</div>
+                </div>
+            </div>
+            <button class="btn btn-primary menu-btn" onclick="game.nextLevel()">
+                <span class="btn-icon">➡️</span> NEXT LEVEL
+            </button>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div class="overlay" id="tutorialOverlay">
+        <div class="overlay-content">
+            <h1 class="overlay-title">HOW TO PLAY</h1>
+            <div style="text-align: left; max-width: 400px; margin: 20px auto; color: rgba(255,255,255,0.8); line-height: 1.8;">
+                <p>⚡ <strong>Tap tiles</strong> to rotate them 90°</p>
+                <p>🔌 <strong>Connect</strong> the power source to all bulbs</p>
+                <p>💡 <strong>Light up</strong> every bulb to complete the level</p>
+                <p>🔒 <strong>Locked tiles</strong> (marked with 🔒) cannot rotate</p>
+                <p>🌈 <strong>Colored circuits</strong> must match source colors</p>
+                <p>💡 Use <strong>hints</strong> wisely - they're limited!</p>
+            </div>
+            <button class="btn btn-primary" onclick="game.hideTutorial()">
+                <span class="btn-icon">✓</span> GOT IT!
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">NEON CIRCUIT</span>
+            </div>
+            <div class="level-display">
+                <span class="level-label">Level</span>
+                <span class="level-number" id="levelNumber">1</span>
+            </div>
+        </header>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="modeEndless" onclick="game.switchMode('endless')">ENDLESS</button>
+            <button class="mode-btn" id="modeRelax" onclick="game.switchMode('relax')">RELAX</button>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-value" id="movesCount">0</span>
+                <span class="stat-label">Moves</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="timeDisplay">0:00</span>
+                <span class="stat-label">Time</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="scoreDisplay">0</span>
+                <span class="stat-label">Score</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="bulbsLit">0/0</span>
+                <span class="stat-label">Bulbs</span>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+
+        <div class="game-board-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="game.undo()">
+                <span class="btn-icon">↩️</span> Undo
+            </button>
+            <button class="btn btn-primary" onclick="game.useHint()">
+                <span class="btn-icon">💡</span> Hint
+                <span class="hint-counter" id="hintCount">3</span>
+            </button>
+            <button class="btn" onclick="game.restart()">
+                <span class="btn-icon">🔄</span> Restart
+            </button>
+            <button class="btn" onclick="game.showMenu()">
+                <span class="btn-icon">🏠</span> Menu
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ===============================
+        // AUDIO SYSTEM
+        // ===============================
+        class AudioSystem {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.masterVolume = 0.3;
+            }
+
+            init() {
+                if (this.ctx) return;
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            play(type) {
+                if (!this.enabled || !this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                switch(type) {
+                    case 'rotate':
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(800, now);
+                        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+                        gain.gain.setValueAtTime(this.masterVolume * 0.3, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                        osc.start(now);
+                        osc.stop(now + 0.1);
+                        break;
+                    case 'connect':
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(600, now);
+                        osc.frequency.exponentialRampToValueAtTime(900, now + 0.15);
+                        gain.gain.setValueAtTime(this.masterVolume * 0.4, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                        osc.start(now);
+                        osc.stop(now + 0.2);
+                        break;
+                    case 'bulb':
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(523, now);
+                        osc.frequency.setValueAtTime(659, now + 0.1);
+                        osc.frequency.setValueAtTime(784, now + 0.2);
+                        gain.gain.setValueAtTime(this.masterVolume * 0.5, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        osc.start(now);
+                        osc.stop(now + 0.3);
+                        break;
+                    case 'win':
+                        this.playWinSound();
+                        break;
+                    case 'hint':
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(1000, now);
+                        gain.gain.setValueAtTime(this.masterVolume * 0.3, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                        osc.start(now);
+                        osc.stop(now + 0.2);
+                        break;
+                }
+            }
+
+            playWinSound() {
+                const notes = [523, 659, 784, 1047];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    const start = this.ctx.currentTime + i * 0.1;
+                    gain.gain.setValueAtTime(this.masterVolume * 0.4, start);
+                    gain.gain.exponentialRampToValueAtTime(0.01, start + 0.3);
+                    osc.start(start);
+                    osc.stop(start + 0.3);
+                });
+            }
+        }
+
+        // ===============================
+        // PARTICLE SYSTEM
+        // ===============================
+        class ParticleSystem {
+            constructor() {
+                this.particles = [];
+            }
+
+            emit(x, y, color, count = 10) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x, y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8,
+                        life: 1,
+                        decay: 0.02 + Math.random() * 0.02,
+                        size: 2 + Math.random() * 4,
+                        color
+                    });
+                }
+            }
+
+            update() {
+                this.particles = this.particles.filter(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vx *= 0.98;
+                    p.vy *= 0.98;
+                    p.life -= p.decay;
+                    return p.life > 0;
+                });
+            }
+
+            render(ctx) {
+                this.particles.forEach(p => {
+                    ctx.save();
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+            }
+        }
+
+        // ===============================
+        // TILE DEFINITIONS
+        // ===============================
+        const TILE_TYPES = {
+            EMPTY: 0,
+            STRAIGHT: 1,  // | shape
+            CORNER: 2,    // L shape
+            T_JUNCTION: 3, // T shape
+            CROSS: 4,     // + shape
+            SOURCE: 5,    // Power source
+            BULB: 6       // Light bulb
+        };
+
+        // Connection patterns for each rotation (0, 90, 180, 270)
+        // Directions: [top, right, bottom, left]
+        const CONNECTIONS = {
+            [TILE_TYPES.EMPTY]: [[0,0,0,0]],
+            [TILE_TYPES.STRAIGHT]: [[1,0,1,0], [0,1,0,1], [1,0,1,0], [0,1,0,1]],
+            [TILE_TYPES.CORNER]: [[1,1,0,0], [0,1,1,0], [0,0,1,1], [1,0,0,1]],
+            [TILE_TYPES.T_JUNCTION]: [[1,1,0,1], [1,1,1,0], [0,1,1,1], [1,0,1,1]],
+            [TILE_TYPES.CROSS]: [[1,1,1,1]],
+            [TILE_TYPES.SOURCE]: [[1,1,1,1]],
+            [TILE_TYPES.BULB]: [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]]
+        };
+
+        // ===============================
+        // PUZZLE GENERATOR
+        // ===============================
+        class PuzzleGenerator {
+            constructor() {
+                this.directions = [
+                    { dx: 0, dy: -1, idx: 0, opposite: 2 }, // top
+                    { dx: 1, dy: 0, idx: 1, opposite: 3 },  // right
+                    { dx: 0, dy: 1, idx: 2, opposite: 0 },  // bottom
+                    { dx: -1, dy: 0, idx: 3, opposite: 1 }  // left
+                ];
+            }
+
+            generate(config) {
+                const { width, height, numBulbs, numSources, difficulty, mechanics } = config;
+                
+                // Initialize grid
+                let grid = Array(height).fill(null).map(() =>
+                    Array(width).fill(null).map(() => ({
+                        type: TILE_TYPES.EMPTY,
+                        rotation: 0,
+                        powered: false,
+                        locked: false,
+                        color: null,
+                        correctRotation: 0
+                    }))
+                );
+
+                // Place source(s)
+                const sources = [];
+                for (let i = 0; i < numSources; i++) {
+                    let pos;
+                    do {
+                        pos = { 
+                            x: Math.floor(Math.random() * width), 
+                            y: Math.floor(Math.random() * height) 
+                        };
+                    } while (sources.some(s => s.x === pos.x && s.y === pos.y));
+                    
+                    sources.push(pos);
+                    grid[pos.y][pos.x] = {
+                        type: TILE_TYPES.SOURCE,
+                        rotation: 0,
+                        powered: true,
+                        locked: true,
+                        color: mechanics.coloredCircuits ? this.getRandomColor(i) : null,
+                        correctRotation: 0
+                    };
+                }
+
+                // Place bulbs
+                const bulbs = [];
+                for (let i = 0; i < numBulbs; i++) {
+                    let pos;
+                    do {
+                        pos = { 
+                            x: Math.floor(Math.random() * width), 
+                            y: Math.floor(Math.random() * height) 
+                        };
+                    } while (
+                        sources.some(s => s.x === pos.x && s.y === pos.y) ||
+                        bulbs.some(b => b.x === pos.x && b.y === pos.y)
+                    );
+                    
+                    bulbs.push(pos);
+                }
+
+                // Generate paths from sources to bulbs
+                grid = this.generatePaths(grid, sources, bulbs, width, height, mechanics);
+
+                // Fill remaining empty cells with appropriate tiles
+                grid = this.fillEmptyCells(grid, width, height, difficulty);
+
+                // Store correct rotations and randomize
+                grid = this.randomizeRotations(grid, width, height, mechanics);
+
+                // Add locked tiles based on difficulty
+                if (mechanics.lockedTiles) {
+                    grid = this.addLockedTiles(grid, width, height, difficulty);
+                }
+
+                return { grid, sources, bulbs, width, height };
+            }
+
+            generatePaths(grid, sources, bulbs, width, height, mechanics) {
+                const visited = new Set();
+                
+                // For each source, create paths to bulbs
+                sources.forEach((source, sourceIdx) => {
+                    const assignedBulbs = bulbs.filter((_, i) => 
+                        mechanics.coloredCircuits ? (i % sources.length === sourceIdx) : true
+                    );
+
+                    assignedBulbs.forEach(bulb => {
+                        const path = this.findPath(grid, source, bulb, width, height, visited);
+                        if (path) {
+                            this.applyPath(grid, path, mechanics.coloredCircuits ? this.getRandomColor(sourceIdx) : null);
+                            path.forEach(p => visited.add(`${p.x},${p.y}`));
+                        }
+                    });
+                });
+
+                // Place bulbs with correct connections
+                bulbs.forEach(bulb => {
+                    const connections = this.getNeededConnections(grid, bulb.x, bulb.y, width, height);
+                    const rotation = this.findBulbRotation(connections);
+                    grid[bulb.y][bulb.x] = {
+                        type: TILE_TYPES.BULB,
+                        rotation: rotation,
+                        powered: false,
+                        locked: false,
+                        color: grid[bulb.y][bulb.x].color,
+                        correctRotation: rotation
+                    };
+                });
+
+                return grid;
+            }
+
+            findPath(grid, start, end, width, height, visited) {
+                const queue = [[start]];
+                const seen = new Set([`${start.x},${start.y}`]);
+
+                while (queue.length > 0) {
+                    const path = queue.shift();
+                    const current = path[path.length - 1];
+
+                    if (current.x === end.x && current.y === end.y) {
+                        return path;
+                    }
+
+                    // Shuffle directions for variety
+                    const dirs = [...this.directions].sort(() => Math.random() - 0.5);
+                    
+                    for (const dir of dirs) {
+                        const nx = current.x + dir.dx;
+                        const ny = current.y + dir.dy;
+                        const key = `${nx},${ny}`;
+
+                        if (nx >= 0 && nx < width && ny >= 0 && ny < height && !seen.has(key)) {
+                            const cell = grid[ny][nx];
+                            if (cell.type === TILE_TYPES.EMPTY || (nx === end.x && ny === end.y)) {
+                                seen.add(key);
+                                queue.push([...path, { x: nx, y: ny }]);
+                            }
+                        }
+                    }
+                }
+
+                // Fallback: direct path
+                return this.createDirectPath(start, end);
+            }
+
+            createDirectPath(start, end) {
+                const path = [start];
+                let current = { ...start };
+
+                while (current.x !== end.x || current.y !== end.y) {
+                    if (current.x < end.x) current.x++;
+                    else if (current.x > end.x) current.x--;
+                    else if (current.y < end.y) current.y++;
+                    else if (current.y > end.y) current.y--;
+                    
+                    path.push({ ...current });
+                }
+
+                return path;
+            }
+
+            applyPath(grid, path, color) {
+                for (let i = 0; i < path.length; i++) {
+                    const { x, y } = path[i];
+                    const cell = grid[y][x];
+                    
+                    if (cell.type === TILE_TYPES.SOURCE || cell.type === TILE_TYPES.BULB) continue;
+
+                    const connections = [0, 0, 0, 0];
+                    
+                    // Check previous point
+                    if (i > 0) {
+                        const prev = path[i - 1];
+                        for (const dir of this.directions) {
+                            if (x + dir.dx === prev.x && y + dir.dy === prev.y) {
+                                connections[dir.idx] = 1;
+                            }
+                        }
+                    }
+                    
+                    // Check next point
+                    if (i < path.length - 1) {
+                        const next = path[i + 1];
+                        for (const dir of this.directions) {
+                            if (x + dir.dx === next.x && y + dir.dy === next.y) {
+                                connections[dir.idx] = 1;
+                            }
+                        }
+                    }
+
+                    // Find best tile type for these connections
+                    const { type, rotation } = this.findBestTile(connections);
+                    grid[y][x] = {
+                        type,
+                        rotation,
+                        powered: false,
+                        locked: false,
+                        color,
+                        correctRotation: rotation
+                    };
+                }
+            }
+
+            findBestTile(needed) {
+                const count = needed.reduce((a, b) => a + b, 0);
+                
+                if (count === 2) {
+                    // Check if straight or corner
+                    if ((needed[0] && needed[2]) || (needed[1] && needed[3])) {
+                        // Straight
+                        const rotation = needed[0] ? 0 : 1;
+                        return { type: TILE_TYPES.STRAIGHT, rotation };
+                    } else {
+                        // Corner
+                        if (needed[0] && needed[1]) return { type: TILE_TYPES.CORNER, rotation: 0 };
+                        if (needed[1] && needed[2]) return { type: TILE_TYPES.CORNER, rotation: 1 };
+                        if (needed[2] && needed[3]) return { type: TILE_TYPES.CORNER, rotation: 2 };
+                        if (needed[3] && needed[0]) return { type: TILE_TYPES.CORNER, rotation: 3 };
+                    }
+                } else if (count === 3) {
+                    // T-junction
+                    if (!needed[2]) return { type: TILE_TYPES.T_JUNCTION, rotation: 0 };
+                    if (!needed[3]) return { type: TILE_TYPES.T_JUNCTION, rotation: 1 };
+                    if (!needed[0]) return { type: TILE_TYPES.T_JUNCTION, rotation: 2 };
+                    if (!needed[1]) return { type: TILE_TYPES.T_JUNCTION, rotation: 3 };
+                } else if (count === 4) {
+                    return { type: TILE_TYPES.CROSS, rotation: 0 };
+                }
+                
+                return { type: TILE_TYPES.STRAIGHT, rotation: 0 };
+            }
+
+            getNeededConnections(grid, x, y, width, height) {
+                const connections = [0, 0, 0, 0];
+                
+                for (const dir of this.directions) {
+                    const nx = x + dir.dx;
+                    const ny = y + dir.dy;
+                    
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                        const neighbor = grid[ny][nx];
+                        if (neighbor.type !== TILE_TYPES.EMPTY) {
+                            const neighborConn = CONNECTIONS[neighbor.type][neighbor.rotation % CONNECTIONS[neighbor.type].length];
+                            if (neighborConn && neighborConn[dir.opposite]) {
+                                connections[dir.idx] = 1;
+                            }
+                        }
+                    }
+                }
+                
+                return connections;
+            }
+
+            findBulbRotation(connections) {
+                for (let i = 0; i < 4; i++) {
+                    if (connections[i]) return i;
+                }
+                return 0;
+            }
+
+            fillEmptyCells(grid, width, height, difficulty) {
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        if (grid[y][x].type === TILE_TYPES.EMPTY) {
+                            // Check if any neighbors need connections
+                            const needed = this.getNeededConnections(grid, x, y, width, height);
+                            const connCount = needed.reduce((a, b) => a + b, 0);
+                            
+                            if (connCount > 0) {
+                                const { type, rotation } = this.findBestTile(needed);
+                                grid[y][x] = {
+                                    type,
+                                    rotation,
+                                    powered: false,
+                                    locked: false,
+                                    color: null,
+                                    correctRotation: rotation
+                                };
+                            } else if (Math.random() < 0.3 + difficulty * 0.1) {
+                                // Add some random tiles as distractors
+                                const types = [TILE_TYPES.STRAIGHT, TILE_TYPES.CORNER, TILE_TYPES.T_JUNCTION];
+                                grid[y][x] = {
+                                    type: types[Math.floor(Math.random() * types.length)],
+                                    rotation: Math.floor(Math.random() * 4),
+                                    powered: false,
+                                    locked: false,
+                                    color: null,
+                                    correctRotation: 0
+                                };
+                            }
+                        }
+                    }
+                }
+                return grid;
+            }
+
+            randomizeRotations(grid, width, height, mechanics) {
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const cell = grid[y][x];
+                        if (cell.type !== TILE_TYPES.SOURCE && cell.type !== TILE_TYPES.EMPTY) {
+                            cell.correctRotation = cell.rotation;
+                            // Randomize rotation
+                            const rotations = Math.floor(Math.random() * 4);
+                            cell.rotation = (cell.rotation + rotations) % 4;
+                        }
+                    }
+                }
+                return grid;
+            }
+
+            addLockedTiles(grid, width, height, difficulty) {
+                const lockChance = Math.min(0.1 + difficulty * 0.05, 0.3);
+                
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const cell = grid[y][x];
+                        if (cell.type !== TILE_TYPES.SOURCE && cell.type !== TILE_TYPES.EMPTY && !cell.locked) {
+                            if (Math.random() < lockChance) {
+                                // Lock it in the correct position as a hint
+                                cell.rotation = cell.correctRotation;
+                                cell.locked = true;
+                            }
+                        }
+                    }
+                }
+                return grid;
+            }
+
+            getRandomColor(index) {
+                const colors = ['#00f0ff', '#ff00ff', '#ffff00', '#00ff88', '#ff6b6b'];
+                return colors[index % colors.length];
+            }
+        }
+
+        // ===============================
+        // MAIN GAME CLASS
+        // ===============================
+        class NeonCircuitGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.audio = new AudioSystem();
+                this.particles = new ParticleSystem();
+                this.generator = new PuzzleGenerator();
+                
+                this.state = {
+                    level: 1,
+                    mode: 'endless',
+                    score: 0,
+                    moves: 0,
+                    hints: 3,
+                    timeStart: 0,
+                    grid: null,
+                    gridWidth: 4,
+                    gridHeight: 4,
+                    sources: [],
+                    bulbs: [],
+                    bulbsLit: 0,
+                    history: [],
+                    animatingTile: null,
+                    energyFlow: [],
+                    gameStarted: false,
+                    currentTheme: 'cyber'
+                };
+
+                this.tileSize = 60;
+                this.padding = 10;
+                this.themes = ['cyber', 'space', 'storm', 'zen', 'circuit'];
+                
+                this.init();
+            }
+
+            init() {
+                this.loadProgress();
+                this.setupEventListeners();
+                this.setupBackgroundParticles();
+                this.updateUI();
+                this.animate();
+            }
+
+            setupEventListeners() {
+                this.canvas.addEventListener('click', (e) => this.handleClick(e));
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleClick(e.touches[0]);
+                });
+
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            setupBackgroundParticles() {
+                const container = document.getElementById('particles');
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'floating-particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 10 + 's';
+                    particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                    container.appendChild(particle);
+                }
+            }
+
+            resize() {
+                const container = document.querySelector('.game-board-container');
+                const maxWidth = Math.min(window.innerWidth - 60, 500);
+                const maxHeight = Math.min(window.innerHeight - 350, 500);
+                
+                if (this.state.grid) {
+                    this.tileSize = Math.min(
+                        Math.floor((maxWidth - this.padding * 2) / this.state.gridWidth),
+                        Math.floor((maxHeight - this.padding * 2) / this.state.gridHeight),
+                        70
+                    );
+                    
+                    this.canvas.width = this.state.gridWidth * this.tileSize + this.padding * 2;
+                    this.canvas.height = this.state.gridHeight * this.tileSize + this.padding * 2;
+                    
+                    this.render();
+                }
+            }
+
+            loadProgress() {
+                try {
+                    const saved = localStorage.getItem('neonCircuitProgress');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.state.level = data.level || 1;
+                        this.state.score = data.score || 0;
+                        this.state.hints = data.hints || 3;
+                    }
+                } catch (e) {}
+            }
+
+            saveProgress() {
+                try {
+                    localStorage.setItem('neonCircuitProgress', JSON.stringify({
+                        level: this.state.level,
+                        score: this.state.score,
+                        hints: this.state.hints
+                    }));
+                } catch (e) {}
+            }
+
+            startGame(mode) {
+                this.audio.init();
+                this.state.mode = mode;
+                this.state.gameStarted = true;
+                
+                document.getElementById('menuOverlay').classList.remove('active');
+                document.getElementById('gameContainer').style.display = 'flex';
+                
+                this.updateModeButtons();
+                this.generateLevel();
+            }
+
+            switchMode(mode) {
+                this.state.mode = mode;
+                this.updateModeButtons();
+                this.generateLevel();
+            }
+
+            updateModeButtons() {
+                document.getElementById('modeEndless').classList.toggle('active', this.state.mode === 'endless');
+                document.getElementById('modeRelax').classList.toggle('active', this.state.mode === 'relax');
+            }
+
+            getDifficultyConfig() {
+                const level = this.state.level;
+                const isRelax = this.state.mode === 'relax';
+                
+                let config = {
+                    width: 3,
+                    height: 3,
+                    numBulbs: 1,
+                    numSources: 1,
+                    difficulty: 0,
+                    mechanics: {
+                        lockedTiles: false,
+                        coloredCircuits: false,
+                        multipleSources: false
+                    }
+                };
+
+                if (isRelax) {
+                    config.width = 4;
+                    config.height = 4;
+                    config.numBulbs = 2;
+                    return config;
+                }
+
+                // Progressive difficulty
+                if (level <= 10) {
+                    config.width = 3 + Math.floor(level / 4);
+                    config.height = 3 + Math.floor(level / 4);
+                    config.numBulbs = 1 + Math.floor(level / 5);
+                    config.difficulty = 0.1;
+                } else if (level <= 50) {
+                    config.width = 4 + Math.floor((level - 10) / 10);
+                    config.height = 4 + Math.floor((level - 10) / 10);
+                    config.numBulbs = 2 + Math.floor((level - 10) / 10);
+                    config.difficulty = 0.3;
+                    config.mechanics.lockedTiles = level > 20;
+                } else if (level <= 100) {
+                    config.width = 5 + Math.floor((level - 50) / 20);
+                    config.height = 5 + Math.floor((level - 50) / 20);
+                    config.numBulbs = 3 + Math.floor((level - 50) / 15);
+                    config.difficulty = 0.5;
+                    config.mechanics.lockedTiles = true;
+                    config.mechanics.multipleSources = level > 70;
+                    config.numSources = level > 70 ? 2 : 1;
+                } else if (level <= 200) {
+                    config.width = 6 + Math.floor((level - 100) / 50);
+                    config.height = 6 + Math.floor((level - 100) / 50);
+                    config.numBulbs = 4 + Math.floor((level - 100) / 30);
+                    config.difficulty = 0.7;
+                    config.mechanics.lockedTiles = true;
+                    config.mechanics.multipleSources = true;
+                    config.mechanics.coloredCircuits = level > 150;
+                    config.numSources = 2;
+                } else {
+                    config.width = Math.min(8, 7 + Math.floor((level - 200) / 100));
+                    config.height = Math.min(8, 7 + Math.floor((level - 200) / 100));
+                    config.numBulbs = Math.min(10, 5 + Math.floor((level - 200) / 50));
+                    config.difficulty = 0.9;
+                    config.mechanics.lockedTiles = true;
+                    config.mechanics.multipleSources = true;
+                    config.mechanics.coloredCircuits = true;
+                    config.numSources = Math.min(3, 2 + Math.floor((level - 200) / 100));
+                }
+
+                // Cap values
+                config.width = Math.min(config.width, 8);
+                config.height = Math.min(config.height, 8);
+                config.numBulbs = Math.min(config.numBulbs, config.width * config.height / 4);
+
+                return config;
+            }
+
+            generateLevel() {
+                const config = this.getDifficultyConfig();
+                
+                const puzzle = this.generator.generate(config);
+                
+                this.state.grid = puzzle.grid;
+                this.state.gridWidth = puzzle.width;
+                this.state.gridHeight = puzzle.height;
+                this.state.sources = puzzle.sources;
+                this.state.bulbs = puzzle.bulbs;
+                this.state.moves = 0;
+                this.state.history = [];
+                this.state.timeStart = Date.now();
+                this.state.bulbsLit = 0;
+                this.state.energyFlow = [];
+
+                // Change theme every 10-20 levels
+                if (this.state.level % (10 + Math.floor(Math.random() * 10)) === 0) {
+                    this.changeTheme();
+                }
+
+                this.resize();
+                this.updatePower();
+                this.updateUI();
+            }
+
+            changeTheme() {
+                const themes = this.themes.filter(t => t !== this.state.currentTheme);
+                this.state.currentTheme = themes[Math.floor(Math.random() * themes.length)];
+                document.body.className = `theme-${this.state.currentTheme}`;
+            }
+
+            handleClick(e) {
+                if (!this.state.grid || this.state.animatingTile) return;
+
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const gridX = Math.floor((x - this.padding) / this.tileSize);
+                const gridY = Math.floor((y - this.padding) / this.tileSize);
+
+                if (gridX >= 0 && gridX < this.state.gridWidth && 
+                    gridY >= 0 && gridY < this.state.gridHeight) {
+                    this.rotateTile(gridX, gridY);
+                }
+            }
+
+            rotateTile(x, y) {
+                const tile = this.state.grid[y][x];
+                
+                if (tile.type === TILE_TYPES.EMPTY || tile.type === TILE_TYPES.SOURCE || tile.locked) {
+                    return;
+                }
+
+                // Save to history
+                this.state.history.push({
+                    x, y,
+                    rotation: tile.rotation
+                });
+
+                // Animate rotation
+                this.state.animatingTile = { x, y, progress: 0 };
+                tile.rotation = (tile.rotation + 1) % 4;
+                this.state.moves++;
+                
+                this.audio.play('rotate');
+                
+                // Create particles at tile center
+                const centerX = this.padding + x * this.tileSize + this.tileSize / 2;
+                const centerY = this.padding + y * this.tileSize + this.tileSize / 2;
+                this.particles.emit(centerX, centerY, getComputedStyle(document.body).getPropertyValue('--primary').trim(), 5);
+
+                // Update power after animation
+                setTimeout(() => {
+                    this.state.animatingTile = null;
+                    this.updatePower();
+                    this.checkWin();
+                }, 100);
+
+                this.updateUI();
+            }
+
+            updatePower() {
+                // Reset all power states
+                for (let y = 0; y < this.state.gridHeight; y++) {
+                    for (let x = 0; x < this.state.gridWidth; x++) {
+                        if (this.state.grid[y][x].type !== TILE_TYPES.SOURCE) {
+                            this.state.grid[y][x].powered = false;
+                        }
+                    }
+                }
+
+                this.state.energyFlow = [];
+                const previousBulbsLit = this.state.bulbsLit;
+
+                // BFS from each source
+                this.state.sources.forEach(source => {
+                    const queue = [source];
+                    const visited = new Set([`${source.x},${source.y}`]);
+                    const sourceColor = this.state.grid[source.y][source.x].color;
+
+                    while (queue.length > 0) {
+                        const current = queue.shift();
+                        const tile = this.state.grid[current.y][current.x];
+                        const connections = CONNECTIONS[tile.type][tile.rotation % CONNECTIONS[tile.type].length];
+
+                        const directions = [
+                            { dx: 0, dy: -1, idx: 0, opposite: 2 },
+                            { dx: 1, dy: 0, idx: 1, opposite: 3 },
+                            { dx: 0, dy: 1, idx: 2, opposite: 0 },
+                            { dx: -1, dy: 0, idx: 3, opposite: 1 }
+                        ];
+
+                        directions.forEach(dir => {
+                            if (!connections[dir.idx]) return;
+
+                            const nx = current.x + dir.dx;
+                            const ny = current.y + dir.dy;
+                            const key = `${nx},${ny}`;
+
+                            if (nx < 0 || nx >= this.state.gridWidth || 
+                                ny < 0 || ny >= this.state.gridHeight ||
+                                visited.has(key)) return;
+
+                            const neighbor = this.state.grid[ny][nx];
+                            if (neighbor.type === TILE_TYPES.EMPTY) return;
+
+                            // Check color matching
+                            if (neighbor.color && sourceColor && neighbor.color !== sourceColor) return;
+
+                            const neighborConn = CONNECTIONS[neighbor.type][neighbor.rotation % CONNECTIONS[neighbor.type].length];
+                            if (neighborConn[dir.opposite]) {
+                                visited.add(key);
+                                neighbor.powered = true;
+                                queue.push({ x: nx, y: ny });
+                                
+                                // Store energy flow for animation
+                                this.state.energyFlow.push({
+                                    from: { x: current.x, y: current.y },
+                                    to: { x: nx, y: ny },
+                                    color: sourceColor || getComputedStyle(document.body).getPropertyValue('--primary').trim()
+                                });
+                            }
+                        });
+                    }
+                });
+
+                // Count lit bulbs
+                this.state.bulbsLit = this.state.bulbs.filter(b => 
+                    this.state.grid[b.y][b.x].powered
+                ).length;
+
+                // Play sound if new bulb lit
+                if (this.state.bulbsLit > previousBulbsLit) {
+                    this.audio.play('bulb');
+                    
+                    // Emit particles at newly lit bulbs
+                    this.state.bulbs.forEach(b => {
+                        if (this.state.grid[b.y][b.x].powered) {
+                            const centerX = this.padding + b.x * this.tileSize + this.tileSize / 2;
+                            const centerY = this.padding + b.y * this.tileSize + this.tileSize / 2;
+                            this.particles.emit(centerX, centerY, '#ffff00', 15);
+                        }
+                    });
+                }
+
+                this.updateUI();
+            }
+
+            checkWin() {
+                if (this.state.bulbsLit === this.state.bulbs.length) {
+                    this.onWin();
+                }
+            }
+
+            onWin() {
+                this.audio.play('win');
+                
+                const time = Math.floor((Date.now() - this.state.timeStart) / 1000);
+                const bonus = Math.max(0, 1000 - this.state.moves * 10 - time * 5);
+                const levelScore = 100 + bonus;
+                this.state.score += levelScore;
+                
+                // Emit celebration particles
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const x = Math.random() * this.canvas.width;
+                        const y = Math.random() * this.canvas.height;
+                        this.particles.emit(x, y, '#00ff88', 20);
+                    }, i * 100);
+                }
+
+                // Show win overlay after delay
+                setTimeout(() => {
+                    document.getElementById('winMoves').textContent = this.state.moves;
+                    document.getElementById('winTime').textContent = time + 's';
+                    document.getElementById('winScore').textContent = '+' + levelScore;
+                    
+                    const messages = ['Amazing!', 'Brilliant!', 'Perfect!', 'Excellent!', 'Superb!'];
+                    document.getElementById('winMessage').textContent = messages[Math.floor(Math.random() * messages.length)];
+                    
+                    document.getElementById('winOverlay').classList.add('active');
+                }, 800);
+
+                this.saveProgress();
+            }
+
+            nextLevel() {
+                document.getElementById('winOverlay').classList.remove('active');
+                this.state.level++;
+                
+                // Bonus hints every 10 levels
+                if (this.state.level % 10 === 0) {
+                    this.state.hints = Math.min(this.state.hints + 1, 10);
+                    this.showToast('🎁 Bonus Hint Earned!');
+                }
+                
+                this.generateLevel();
+                this.saveProgress();
+            }
+
+            restart() {
+                this.state.moves = 0;
+                this.state.history = [];
+                this.state.timeStart = Date.now();
+                
+                // Reset all rotations randomly
+                for (let y = 0; y < this.state.gridHeight; y++) {
+                    for (let x = 0; x < this.state.gridWidth; x++) {
+                        const tile = this.state.grid[y][x];
+                        if (tile.type !== TILE_TYPES.SOURCE && tile.type !== TILE_TYPES.EMPTY && !tile.locked) {
+                            tile.rotation = Math.floor(Math.random() * 4);
+                        }
+                    }
+                }
+                
+                this.updatePower();
+                this.updateUI();
+            }
+
+            undo() {
+                if (this.state.history.length === 0) return;
+                
+                const last = this.state.history.pop();
+                this.state.grid[last.y][last.x].rotation = last.rotation;
+                this.state.moves = Math.max(0, this.state.moves - 1);
+                
+                this.updatePower();
+                this.updateUI();
+            }
+
+            useHint() {
+                if (this.state.hints <= 0) {
+                    this.showToast('No hints remaining!');
+                    return;
+                }
+
+                // Find a tile that's not in correct position
+                for (let y = 0; y < this.state.gridHeight; y++) {
+                    for (let x = 0; x < this.state.gridWidth; x++) {
+                        const tile = this.state.grid[y][x];
+                        if (tile.type !== TILE_TYPES.SOURCE && 
+                            tile.type !== TILE_TYPES.EMPTY && 
+                            !tile.locked &&
+                            tile.rotation !== tile.correctRotation) {
+                            
+                            tile.rotation = tile.correctRotation;
+                            this.state.hints--;
+                            
+                            this.audio.play('hint');
+                            
+                            const centerX = this.padding + x * this.tileSize + this.tileSize / 2;
+                            const centerY = this.padding + y * this.tileSize + this.tileSize / 2;
+                            this.particles.emit(centerX, centerY, '#ffff00', 20);
+                            
+                            this.updatePower();
+                            this.checkWin();
+                            this.updateUI();
+                            this.saveProgress();
+                            return;
+                        }
+                    }
+                }
+                
+                this.showToast('All tiles are correct!');
+            }
+
+            showMenu() {
+                document.getElementById('gameContainer').style.display = 'none';
+                document.getElementById('menuOverlay').classList.add('active');
+            }
+
+            showTutorial() {
+                document.getElementById('tutorialOverlay').classList.add('active');
+            }
+
+            hideTutorial() {
+                document.getElementById('tutorialOverlay').classList.remove('active');
+            }
+
+            showToast(message) {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                container.appendChild(toast);
+                
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            updateUI() {
+                document.getElementById('levelNumber').textContent = this.state.level;
+                document.getElementById('movesCount').textContent = this.state.moves;
+                document.getElementById('scoreDisplay').textContent = this.state.score;
+                document.getElementById('hintCount').textContent = this.state.hints;
+                document.getElementById('bulbsLit').textContent = `${this.state.bulbsLit}/${this.state.bulbs.length}`;
+                
+                const progress = (this.state.bulbsLit / this.state.bulbs.length) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+            }
+
+            updateTimer() {
+                if (!this.state.gameStarted || !this.state.grid) return;
+                
+                const elapsed = Math.floor((Date.now() - this.state.timeStart) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timeDisplay').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            render() {
+                if (!this.state.grid) return;
+
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw background
+                ctx.fillStyle = 'rgba(10, 10, 30, 0.9)';
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw grid
+                ctx.strokeStyle = 'rgba(0, 240, 255, 0.1)';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i <= this.state.gridWidth; i++) {
+                    const x = this.padding + i * this.tileSize;
+                    ctx.beginPath();
+                    ctx.moveTo(x, this.padding);
+                    ctx.lineTo(x, this.padding + this.state.gridHeight * this.tileSize);
+                    ctx.stroke();
+                }
+                
+                for (let i = 0; i <= this.state.gridHeight; i++) {
+                    const y = this.padding + i * this.tileSize;
+                    ctx.beginPath();
+                    ctx.moveTo(this.padding, y);
+                    ctx.lineTo(this.padding + this.state.gridWidth * this.tileSize, y);
+                    ctx.stroke();
+                }
+
+                // Draw tiles
+                for (let y = 0; y < this.state.gridHeight; y++) {
+                    for (let x = 0; x < this.state.gridWidth; x++) {
+                        this.drawTile(x, y);
+                    }
+                }
+
+                // Draw particles
+                this.particles.render(ctx);
+            }
+
+            drawTile(gridX, gridY) {
+                const tile = this.state.grid[gridY][gridX];
+                const ctx = this.ctx;
+                const x = this.padding + gridX * this.tileSize;
+                const y = this.padding + gridY * this.tileSize;
+                const size = this.tileSize;
+                const center = size / 2;
+                const wireWidth = 6;
+
+                ctx.save();
+                ctx.translate(x + center, y + center);
+
+                // Apply rotation animation
+                let rotation = tile.rotation * Math.PI / 2;
+                if (this.state.animatingTile && 
+                    this.state.animatingTile.x === gridX && 
+                    this.state.animatingTile.y === gridY) {
+                    rotation -= Math.PI / 2 * (1 - this.state.animatingTile.progress);
+                }
+                ctx.rotate(rotation);
+
+                // Get color
+                const primaryColor = tile.color || getComputedStyle(document.body).getPropertyValue('--primary').trim();
+                const glowColor = tile.powered ? primaryColor : 'rgba(100, 100, 100, 0.5)';
+                const wireColor = tile.powered ? primaryColor : 'rgba(60, 60, 80, 0.8)';
+
+                // Set glow
+                if (tile.powered) {
+                    ctx.shadowColor = glowColor;
+                    ctx.shadowBlur = 15;
+                }
+
+                ctx.strokeStyle = wireColor;
+                ctx.lineWidth = wireWidth;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                switch (tile.type) {
+                    case TILE_TYPES.STRAIGHT:
+                        ctx.beginPath();
+                        ctx.moveTo(0, -center);
+                        ctx.lineTo(0, center);
+                        ctx.stroke();
+                        break;
+
+                    case TILE_TYPES.CORNER:
+                        ctx.beginPath();
+                        ctx.moveTo(0, -center);
+                        ctx.lineTo(0, 0);
+                        ctx.lineTo(center, 0);
+                        ctx.stroke();
+                        break;
+
+                    case TILE_TYPES.T_JUNCTION:
+                        ctx.beginPath();
+                        ctx.moveTo(-center, 0);
+                        ctx.lineTo(center, 0);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(0, -center);
+                        ctx.stroke();
+                        break;
+
+                    case TILE_TYPES.CROSS:
+                        ctx.beginPath();
+                        ctx.moveTo(-center, 0);
+                        ctx.lineTo(center, 0);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(0, -center);
+                        ctx.lineTo(0, center);
+                        ctx.stroke();
+                        break;
+
+                    case TILE_TYPES.SOURCE:
+                        // Draw source
+                        ctx.rotate(-rotation); // Reset rotation for source
+                        
+                        // Outer ring
+                        const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, center - 5);
+                        gradient.addColorStop(0, primaryColor);
+                        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, center - 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Core
+                        ctx.fillStyle = primaryColor;
+                        ctx.shadowBlur = 30;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Lightning bolt
+                        ctx.fillStyle = '#000';
+                        ctx.font = '16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('⚡', 0, 1);
+                        break;
+
+                    case TILE_TYPES.BULB:
+                        // Draw connection wire
+                        ctx.beginPath();
+                        ctx.moveTo(0, -center);
+                        ctx.lineTo(0, -8);
+                        ctx.stroke();
+                        
+                        // Reset rotation for bulb icon
+                        ctx.rotate(-rotation);
+                        
+                        // Draw bulb
+                        const bulbColor = tile.powered ? '#ffff00' : 'rgba(80, 80, 80, 0.6)';
+                        ctx.fillStyle = bulbColor;
+                        ctx.shadowColor = tile.powered ? '#ffff00' : 'transparent';
+                        ctx.shadowBlur = tile.powered ? 25 : 0;
+                        
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Bulb icon
+                        ctx.fillStyle = tile.powered ? '#000' : '#333';
+                        ctx.font = '14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('💡', 0, 1);
+                        break;
+                }
+
+                // Draw junction points
+                if (tile.type >= TILE_TYPES.STRAIGHT && tile.type <= TILE_TYPES.CROSS) {
+                    ctx.fillStyle = wireColor;
+                    ctx.shadowBlur = tile.powered ? 10 : 0;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, wireWidth / 2 + 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+
+                // Draw locked indicator
+                if (tile.locked && tile.type !== TILE_TYPES.SOURCE) {
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('🔒', x + size - 12, y + 12);
+                    ctx.restore();
+                }
+            }
+
+            animate() {
+                // Update animation
+                if (this.state.animatingTile) {
+                    this.state.animatingTile.progress += 0.15;
+                    if (this.state.animatingTile.progress >= 1) {
+                        this.state.animatingTile = null;
+                    }
+                }
+
+                // Update particles
+                this.particles.update();
+
+                // Update timer
+                this.updateTimer();
+
+                // Render
+                this.render();
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // ===============================
+        // INITIALIZE GAME
+        // ===============================
+        const game = new NeonCircuitGame();
+    </script>
+</body>
+</html>
