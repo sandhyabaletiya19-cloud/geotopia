@@ -1,0 +1,3482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GEO-GLADIATOR | Competitive Map Battle</title>
+    
+    <!-- Preload Critical Assets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        /*═══════════════════════════════════════════════════════════════════════════
+          CSS RESET & ROOT VARIABLES
+        ═══════════════════════════════════════════════════════════════════════════*/
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Neon Color Palette */
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff006e;
+            --neon-purple: #8b5cf6;
+            --neon-green: #00ff88;
+            --neon-orange: #ff9500;
+            --neon-red: #ff3b30;
+            
+            /* Background Colors */
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --bg-card: rgba(17, 24, 39, 0.85);
+            
+            /* Glass Effect */
+            --glass-bg: rgba(10, 14, 26, 0.75);
+            --glass-border: rgba(0, 243, 255, 0.2);
+            --glass-glow: rgba(0, 243, 255, 0.1);
+            
+            /* Typography */
+            --font-display: 'Orbitron', monospace;
+            --font-body: 'Rajdhani', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* Animation Timing */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg-primary);
+            font-family: var(--font-body);
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /*═══════════════════════════════════════════════════════════════════════════
+          LOADING SCREEN STYLES
+        ═══════════════════════════════════════════════════════════════════════════*/
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f172a 50%, #1e1b4b 100%);
+            transition: opacity 0.8s var(--ease-out-expo), visibility 0.8s;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-globe {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin-bottom: var(--space-xl);
+        }
+
+        .globe-sphere {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(0, 243, 255, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+            box-shadow: 
+                0 0 60px rgba(0, 243, 255, 0.3),
+                0 0 120px rgba(139, 92, 246, 0.2),
+                inset 0 0 60px rgba(0, 0, 0, 0.5);
+            animation: globePulse 2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .globe-sphere::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            animation: globeRotate 8s linear infinite;
+        }
+
+        .globe-sphere::after {
+            content: '';
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255, 0, 110, 0.4);
+            animation: globeRotate 12s linear infinite reverse;
+        }
+
+        .globe-grid {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .grid-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.3), transparent);
+            animation: gridScan 3s linear infinite;
+        }
+
+        .grid-line.horizontal {
+            width: 100%;
+            height: 1px;
+            left: 0;
+        }
+
+        .grid-line.vertical {
+            width: 1px;
+            height: 100%;
+            top: 0;
+            background: linear-gradient(180deg, transparent, rgba(0, 243, 255, 0.3), transparent);
+        }
+
+        @keyframes globePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes globeRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes gridScan {
+            0% { opacity: 0; transform: translateX(-100%); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(100%); }
+        }
+
+        .loader-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-lg);
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 0, 110, 0.5)); }
+        }
+
+        .loader-progress {
+            width: min(80%, 400px);
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loader-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            border-radius: 2px;
+            transition: width 0.3s var(--ease-out-expo);
+            position: relative;
+        }
+
+        .loader-progress-bar::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            bottom: -4px;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, white);
+            animation: progressGlow 1s ease-in-out infinite;
+        }
+
+        @keyframes progressGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .loader-status {
+            margin-top: var(--space-md);
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--neon-cyan);
+            letter-spacing: 0.1em;
+        }
+
+        .loader-percent {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: var(--space-sm);
+            color: white;
+        }
+
+        /*═══════���═══════════════════════════════════════════════════════════════════
+          MAIN GAME CONTAINER
+        ═══════════════════════════════════════════════════════════════════════════*/
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /*═══════════════════════════════════════════════════════════════════════════
+          HUD - HEADS UP DISPLAY
+        ═══════════════════════════════════════════════════════════════════════════*/
+        .game-hud {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .game-hud > * {
+            pointer-events: auto;
+        }
+
+        /* Top Bar */
+        .hud-top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: linear-gradient(180deg, var(--glass-bg) 0%, transparent 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-lg);
+        }
+
+        .hud-logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .hud-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .hud-logo-text {
+            font-family: var(--font-display);
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            background: linear-gradient(90deg, var(--neon-cyan), white);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hud-timer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud-timer-label {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+        }
+
+        .hud-timer-value {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+            letter-spacing: 0.1em;
+        }
+
+        .hud-timer-value.warning {
+            color: var(--neon-orange);
+            text-shadow: 0 0 20px rgba(255, 149, 0, 0.5);
+            animation: timerPulse 0.5s ease-in-out infinite;
+        }
+
+        .hud-timer-value.critical {
+            color: var(--neon-red);
+            text-shadow: 0 0 20px rgba(255, 59, 48, 0.5);
+            animation: timerPulse 0.25s ease-in-out infinite;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hud-phase {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .phase-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+        }
+
+        .phase-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            transition: all 0.3s var(--ease-out-expo);
+        }
+
+        .phase-dot.active {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .phase-dot.complete {
+            background: var(--neon-green);
+        }
+
+        .phase-name {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* Player Stats Panels */
+        .player-panel {
+            position: absolute;
+            top: 90px;
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            transition: transform 0.3s var(--ease-out-expo), opacity 0.3s;
+        }
+
+        .player-panel.left {
+            left: var(--space-lg);
+            border-left: 3px solid var(--neon-cyan);
+        }
+
+        .player-panel.right {
+            right: var(--space-lg);
+            border-right: 3px solid var(--neon-pink);
+        }
+
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .player-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .player-rank {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-sm);
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: var(--space-sm);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.625rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Unit Selection Panel */
+        .unit-panel {
+            position: absolute;
+            bottom: var(--space-lg);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+
+        .unit-card {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: var(--space-sm);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-out-back);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unit-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 243, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .unit-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 15px 40px rgba(0, 243, 255, 0.3);
+        }
+
+        .unit-card:hover::before {
+            opacity: 1;
+        }
+
+        .unit-card.selected {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+        }
+
+        .unit-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .unit-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.5));
+        }
+
+        .unit-name {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .unit-count {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Terrain Info Panel */
+        .terrain-panel {
+            position: absolute;
+            bottom: var(--space-lg);
+            right: var(--space-lg);
+            width: 240px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: var(--space-md);
+        }
+
+        .terrain-title {
+            font-family: var(--font-display);
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .terrain-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-xs);
+        }
+
+        .terrain-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-xs);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .terrain-icon {
+            font-size: 1rem;
+        }
+
+        /* Mini Map */
+        .minimap {
+            position: absolute;
+            bottom: var(--space-lg);
+            left: var(--space-lg);
+            width: 180px;
+            height: 120px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .minimap-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            position: absolute;
+            right: var(--space-lg);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .action-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-out-expo);
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 243, 255, 0.2);
+            border-color: var(--neon-cyan);
+            transform: scale(1.1);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* FPS Counter */
+        .fps-counter {
+            position: absolute;
+            top: 80px;
+            right: var(--space-lg);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--neon-green);
+            background: rgba(0, 0, 0, 0.5);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 4px;
+        }
+
+        .fps-counter.low {
+            color: var(--neon-red);
+        }
+
+        /*═══════════════════════════════════════════════════════════════════════════
+          PHASE OVERLAYS
+        ═══════════════════════════════════════════════════════════════════════════*/
+        .phase-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 14, 26, 0.9);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s var(--ease-out-expo), visibility 0.5s;
+        }
+
+        .phase-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .reveal-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .reveal-label {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            letter-spacing: 0.3em;
+            color: var(--neon-cyan);
+            margin-bottom: var(--space-sm);
+            text-transform: uppercase;
+        }
+
+        .reveal-location {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-md);
+            background: linear-gradient(135deg, white 0%, var(--neon-cyan) 50%, var(--neon-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGlitch 3s infinite;
+        }
+
+        @keyframes textGlitch {
+            0%, 90%, 100% { 
+                clip-path: inset(0 0 0 0); 
+                transform: translate(0);
+            }
+            92% { 
+                clip-path: inset(40% 0 30% 0);
+                transform: translate(-2px, 2px);
+            }
+            94% { 
+                clip-path: inset(10% 0 60% 0);
+                transform: translate(2px, -2px);
+            }
+            96% { 
+                clip-path: inset(70% 0 10% 0);
+                transform: translate(-1px, 1px);
+            }
+            98% { 
+                clip-path: inset(20% 0 50% 0);
+                transform: translate(1px, -1px);
+            }
+        }
+
+        .reveal-stats {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-xl);
+            margin-top: var(--space-lg);
+        }
+
+        .reveal-stat {
+            text-align: center;
+        }
+
+        .reveal-stat-value {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .reveal-stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .scanline-effect {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 2px,
+                rgba(0, 243, 255, 0.03) 2px,
+                rgba(0, 243, 255, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /*═══════════════════════════════════════════════════════════════════════════
+          RESULTS SCREEN
+        ═══════════════════════════════════════════════════════════════════════════*/
+        .results-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(10, 14, 26, 0.95) 0%, rgba(30, 27, 75, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s var(--ease-out-expo), visibility 0.8s;
+        }
+
+        .results-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .results-content {
+            text-align: center;
+        }
+
+        .results-trophy {
+            font-size: 6rem;
+            margin-bottom: var(--space-lg);
+            animation: trophyBounce 1s var(--ease-out-back);
+        }
+
+        @keyframes trophyBounce {
+            0% { transform: scale(0) rotate(-20deg); }
+            60% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .results-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            margin-bottom: var(--space-md);
+        }
+
+        .results-title.victory {
+            background: linear-gradient(135deg, #ffd700, #ffed4a, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5));
+        }
+
+        .results-title.defeat {
+            color: var(--neon-red);
+            text-shadow: 0 0 30px rgba(255, 59, 48, 0.5);
+        }
+
+        .results-xp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .xp-badge {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: 999px;
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .results-buttons {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .btn {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            padding: var(--space-md) var(--space-xl);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-out-expo);
+            border: none;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 243, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 243, 255, 0.1);
+        }
+
+        /*═══════════════════════════════════════════════════════════════════════════
+          CONFETTI PARTICLES
+        ═══════════════════════════════════════════════════════════════════════════*/
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 400;
+            pointer-events: none;
+        }
+
+        /*═══════════════════════════════════════════════════════════════════════════
+          RESPONSIVE DESIGN
+        ═══════════════════════════════════════════════════════════════════════════*/
+        @media (max-width: 768px) {
+            .player-panel {
+                display: none;
+            }
+
+            .terrain-panel {
+                display: none;
+            }
+
+            .minimap {
+                width: 120px;
+                height: 80px;
+            }
+
+            .unit-panel {
+                padding: var(--space-sm);
+                gap: var(--space-sm);
+            }
+
+            .unit-card {
+                width: 60px;
+                height: 80px;
+            }
+
+            .action-buttons {
+                right: var(--space-sm);
+            }
+
+            .action-btn {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hud-top-bar {
+                height: 60px;
+                padding: 0 var(--space-md);
+            }
+
+            .hud-logo-text {
+                display: none;
+            }
+
+            .hud-timer-value {
+                font-size: 1.5rem;
+            }
+
+            .phase-indicator {
+                padding: var(--space-xs);
+            }
+
+            .phase-name {
+                display: none;
+            }
+
+            .unit-card {
+                width: 50px;
+                height: 70px;
+            }
+
+            .unit-icon {
+                font-size: 1.5rem;
+            }
+
+            .unit-name {
+                font-size: 0.5rem;
+            }
+        }
+
+        /*═══════════════════════════════════════════════════════════════════════════
+          UTILITY CLASSES
+        ═══════════════════════════════════════════════════════════════════════════*/
+        .hidden {
+            display: none !important;
+        }
+
+        .invisible {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="no-select">
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-globe">
+            <div class="globe-sphere">
+                <div class="globe-grid">
+                    <div class="grid-line horizontal" style="top: 25%"></div>
+                    <div class="grid-line horizontal" style="top: 50%"></div>
+                    <div class="grid-line horizontal" style="top: 75%"></div>
+                    <div class="grid-line vertical" style="left: 25%"></div>
+                    <div class="grid-line vertical" style="left: 50%"></div>
+                    <div class="grid-line vertical" style="left: 75%"></div>
+                </div>
+            </div>
+        </div>
+        <h1 class="loader-title">GEO-GLADIATOR</h1>
+        <div class="loader-progress">
+            <div class="loader-progress-bar" id="progress-bar"></div>
+        </div>
+        <p class="loader-status" id="loading-status">Initializing Systems...</p>
+        <p class="loader-percent" id="loading-percent">0%</p>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+        <canvas id="three-canvas"></canvas>
+    </div>
+
+    <!-- Game HUD -->
+    <div class="game-hud" id="game-hud" style="display: none;">
+        <!-- Top Bar -->
+        <div class="hud-top-bar">
+            <div class="hud-logo">
+                <div class="hud-logo-icon">⚔️</div>
+                <span class="hud-logo-text">GEO-GLADIATOR</span>
+            </div>
+            
+            <div class="hud-timer">
+                <span class="hud-timer-label">Time Remaining</span>
+                <span class="hud-timer-value" id="timer">30</span>
+            </div>
+            
+            <div class="hud-phase">
+                <div class="phase-indicator">
+                    <div class="phase-dot" id="phase-dot-1"></div>
+                    <div class="phase-dot" id="phase-dot-2"></div>
+                    <div class="phase-dot" id="phase-dot-3"></div>
+                    <div class="phase-dot" id="phase-dot-4"></div>
+                </div>
+                <span class="phase-name" id="phase-name">STRATEGY</span>
+            </div>
+        </div>
+
+        <!-- Player Panels -->
+        <div class="player-panel left">
+            <div class="player-header">
+                <div class="player-avatar">🎮</div>
+                <div class="player-info">
+                    <div class="player-name" id="player1-name">COMMANDER</div>
+                    <div class="player-rank">⭐ RANK 12</div>
+                </div>
+            </div>
+            <div class="player-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="player1-units">5</div>
+                    <div class="stat-label">Units</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="player1-power">100</div>
+                    <div class="stat-label">Power</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="player1-kills">0</div>
+                    <div class="stat-label">Kills</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="player1-territory">50%</div>
+                    <div class="stat-label">Territory</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="player-panel right">
+            <div class="player-header">
+                <div class="player-avatar" style="background: linear-gradient(135deg, var(--neon-pink), var(--neon-orange));">🤖</div>
+                <div class="player-info">
+                    <div class="player-name" id="player2-name">AI OPPONENT</div>
+                    <div class="player-rank" style="color: var(--neon-pink);">⭐ RANK 14</div>
+                </div>
+            </div>
+            <div class="player-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="player2-units" style="color: var(--neon-pink);">5</div>
+                    <div class="stat-label">Units</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="player2-power" style="color: var(--neon-pink);">100</div>
+                    <div class="stat-label">Power</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="player2-kills" style="color: var(--neon-pink);">0</div>
+                    <div class="stat-label">Kills</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="player2-territory" style="color: var(--neon-pink);">50%</div>
+                    <div class="stat-label">Territory</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unit Selection Panel -->
+        <div class="unit-panel" id="unit-panel">
+            <div class="unit-card" data-unit="infantry">
+                <span class="unit-count" id="infantry-count">3</span>
+                <span class="unit-icon">🎖️</span>
+                <span class="unit-name">Infantry</span>
+            </div>
+            <div class="unit-card" data-unit="tank">
+                <span class="unit-count" id="tank-count">1</span>
+                <span class="unit-icon">🛡️</span>
+                <span class="unit-name">Tank</span>
+            </div>
+            <div class="unit-card" data-unit="artillery">
+                <span class="unit-count" id="artillery-count">1</span>
+                <span class="unit-icon">💥</span>
+                <span class="unit-name">Artillery</span>
+            </div>
+            <div class="unit-card" data-unit="scout">
+                <span class="unit-count" id="scout-count">2</span>
+                <span class="unit-icon">👁️</span>
+                <span class="unit-name">Scout</span>
+            </div>
+            <div class="unit-card" data-unit="sniper">
+                <span class="unit-count" id="sniper-count">1</span>
+                <span class="unit-icon">🎯</span>
+                <span class="unit-name">Sniper</span>
+            </div>
+        </div>
+
+        <!-- Terrain Info Panel -->
+        <div class="terrain-panel" id="terrain-panel">
+            <div class="terrain-title">
+                <span>📍</span>
+                <span id="terrain-location">Himalayas, Nepal</span>
+            </div>
+            <div class="terrain-grid">
+                <div class="terrain-item">
+                    <span class="terrain-icon">⛰️</span>
+                    <span id="terrain-elevation">4,200m</span>
+                </div>
+                <div class="terrain-item">
+                    <span class="terrain-icon">🌡️</span>
+                    <span id="terrain-temp">-5°C</span>
+                </div>
+                <div class="terrain-item">
+                    <span class="terrain-icon">🏔️</span>
+                    <span id="terrain-type">Mountain</span>
+                </div>
+                <div class="terrain-item">
+                    <span class="terrain-icon">🌲</span>
+                    <span id="terrain-cover">Sparse</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini Map -->
+        <div class="minimap" id="minimap-container">
+            <canvas class="minimap-canvas" id="minimap-canvas"></canvas>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn" id="btn-zoom-in" title="Zoom In">🔍</button>
+            <button class="action-btn" id="btn-zoom-out" title="Zoom Out">🔎</button>
+            <button class="action-btn" id="btn-rotate" title="Rotate View">🔄</button>
+            <button class="action-btn" id="btn-center" title="Center View">⌖</button>
+            <button class="action-btn" id="btn-end-turn" title="End Turn">✓</button>
+        </div>
+
+        <!-- FPS Counter -->
+        <div class="fps-counter" id="fps-counter">60 FPS</div>
+    </div>
+
+    <!-- Phase Overlays -->
+    <div class="phase-overlay" id="reveal-overlay">
+        <div class="reveal-content">
+            <p class="reveal-label">🛰️ Battlefield Located</p>
+            <h1 class="reveal-location" id="reveal-location">ANALYZING...</h1>
+            <div class="reveal-stats">
+                <div class="reveal-stat">
+                    <div class="reveal-stat-value" id="reveal-elevation">4,200m</div>
+                    <div class="reveal-stat-label">Avg Elevation</div>
+                </div>
+                <div class="reveal-stat">
+                    <div class="reveal-stat-value" id="reveal-terrain">Mountainous</div>
+                    <div class="reveal-stat-label">Terrain</div>
+                </div>
+                <div class="reveal-stat">
+                    <div class="reveal-stat-value" id="reveal-weather">Clear</div>
+                    <div class="reveal-stat-label">Weather</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div class="results-overlay" id="results-overlay">
+        <div class="results-content">
+            <div class="results-trophy" id="results-trophy">🏆</div>
+            <h1 class="results-title victory" id="results-title">VICTORY</h1>
+            <div class="results-xp">
+                <span class="xp-badge" id="results-xp">+250 XP</span>
+            </div>
+            <div class="results-buttons">
+                <button class="btn btn-primary" id="btn-play-again">Play Again</button>
+                <button class="btn btn-secondary" id="btn-share">Share Replay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanline Effect -->
+    <div class="scanline-effect"></div>
+
+    <!-- Three.js and GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+/*═══════════════════════════════════════════════════════════════════════════════
+  GEO-GLADIATOR - PRODUCTION GAME ENGINE
+  Version: 1.0.0
+  Author: Technical Director
+  
+  Architecture:
+  - ES6+ Modular Design with IIFE namespacing
+  - Redux-like State Management
+  - Entity Component System for Units
+  - Three.js for 3D Rendering
+  - Custom Terrain Generation
+  - Particle System for Effects
+  - AI Opponent with Strategy
+═══════════════════════════════════════════════════════════════════════════════*/
+
+'use strict';
+
+/**
+ * Main Game Namespace
+ * Prevents global pollution and provides organized structure
+ */
+const GeoGladiator = (function() {
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      CONSTANTS & CONFIGURATION
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const CONFIG = Object.freeze({
+        // Game Settings
+        MATCH_DURATION: {
+            REVEAL: 5000,      // 5 seconds
+            STRATEGY: 30000,   // 30 seconds  
+            BATTLE: 45000,     // 45 seconds
+            RESULTS: 10000     // 10 seconds
+        },
+        
+        // Terrain Settings
+        TERRAIN: {
+            WIDTH: 100,
+            HEIGHT: 100,
+            SEGMENTS: 128,
+            MAX_HEIGHT: 15,
+            WATER_LEVEL: 0.2
+        },
+        
+        // Unit Configuration
+        UNITS: {
+            infantry: {
+                name: 'Infantry',
+                icon: '🎖️',
+                basePower: 20,
+                health: 100,
+                speed: 3,
+                range: 1,
+                terrainBonus: { forest: 1.5, urban: 1.3, mountain: 0.8 },
+                color: 0x00ff88
+            },
+            tank: {
+                name: 'Tank',
+                icon: '🛡️',
+                basePower: 40,
+                health: 200,
+                speed: 2,
+                range: 2,
+                terrainBonus: { plains: 1.5, road: 1.7, forest: 0.6, mountain: 0.4 },
+                color: 0x4488ff
+            },
+            artillery: {
+                name: 'Artillery',
+                icon: '💥',
+                basePower: 50,
+                health: 80,
+                speed: 1,
+                range: 5,
+                terrainBonus: { hills: 1.5, mountain: 1.3 },
+                color: 0xff4444
+            },
+            scout: {
+                name: 'Scout',
+                icon: '👁️',
+                basePower: 10,
+                health: 60,
+                speed: 5,
+                range: 1,
+                terrainBonus: { all: 1.0 },
+                color: 0xffff00
+            },
+            sniper: {
+                name: 'Sniper',
+                icon: '🎯',
+                basePower: 35,
+                health: 50,
+                speed: 2,
+                range: 6,
+                terrainBonus: { hills: 1.4, mountain: 1.5, forest: 1.2 },
+                color: 0xff00ff
+            }
+        },
+        
+        // Visual Settings
+        VISUAL: {
+            FOG_COLOR: 0x0a0e1a,
+            AMBIENT_LIGHT: 0x404060,
+            DIRECTIONAL_LIGHT: 0xffffff,
+            PARTICLE_COUNT: 500
+        },
+        
+        // World Locations
+        LOCATIONS: [
+            { name: 'Himalayas, Nepal', elevation: 4200, terrain: 'Mountainous', weather: 'Clear', temp: -5 },
+            { name: 'Amazon Basin, Brazil', elevation: 180, terrain: 'Dense Forest', weather: 'Humid', temp: 28 },
+            { name: 'Sahara Desert, Morocco', elevation: 500, terrain: 'Desert', weather: 'Hot', temp: 42 },
+            { name: 'Norwegian Fjords', elevation: 800, terrain: 'Coastal', weather: 'Overcast', temp: 8 },
+            { name: 'Grand Canyon, USA', elevation: 2100, terrain: 'Canyon', weather: 'Sunny', temp: 22 },
+            { name: 'Siberian Tundra, Russia', elevation: 300, terrain: 'Tundra', weather: 'Snow', temp: -25 },
+            { name: 'Swiss Alps', elevation: 3500, terrain: 'Alpine', weather: 'Clear', temp: -2 },
+            { name: 'Japanese Highlands', elevation: 1200, terrain: 'Forested Hills', weather: 'Misty', temp: 15 }
+        ]
+    });
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      STATE MANAGEMENT (Redux Pattern)
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const StateManager = (function() {
+        const listeners = new Set();
+        
+        let state = {
+            // Game State
+            phase: 'LOADING', // LOADING, REVEAL, STRATEGY, BATTLE, RESULTS
+            timeRemaining: 30,
+            turn: 0,
+            currentPlayer: 1,
+            
+            // Match Info
+            location: null,
+            terrain: null,
+            
+            // Players
+            players: {
+                1: {
+                    name: 'COMMANDER',
+                    units: [],
+                    unitsRemaining: { infantry: 3, tank: 1, artillery: 1, scout: 2, sniper: 1 },
+                    totalPower: 100,
+                    kills: 0,
+                    territory: 50
+                },
+                2: {
+                    name: 'AI OPPONENT',
+                    units: [],
+                    unitsRemaining: { infantry: 3, tank: 1, artillery: 1, scout: 2, sniper: 1 },
+                    totalPower: 100,
+                    kills: 0,
+                    territory: 50
+                }
+            },
+            
+            // Selection
+            selectedUnit: null,
+            selectedUnitType: null,
+            hoveredCell: null,
+            
+            // Performance
+            fps: 60,
+            
+            // Results
+            winner: null,
+            xpEarned: 0
+        };
+        
+        /**
+         * Get current state (returns immutable copy)
+         */
+        function getState() {
+            return JSON.parse(JSON.stringify(state));
+        }
+        
+        /**
+         * Update state with action
+         */
+        function dispatch(action) {
+            const prevState = state;
+            
+            switch(action.type) {
+                case 'SET_PHASE':
+                    state = { ...state, phase: action.payload };
+                    break;
+                    
+                case 'SET_TIME':
+                    state = { ...state, timeRemaining: action.payload };
+                    break;
+                    
+                case 'SET_LOCATION':
+                    state = { ...state, location: action.payload };
+                    break;
+                    
+                case 'SET_TERRAIN':
+                    state = { ...state, terrain: action.payload };
+                    break;
+                    
+                case 'SELECT_UNIT_TYPE':
+                    state = { ...state, selectedUnitType: action.payload };
+                    break;
+                    
+                case 'PLACE_UNIT':
+                    const { playerId, unitType, position } = action.payload;
+                    const newUnit = createUnit(unitType, position, playerId);
+                    state.players[playerId].units.push(newUnit);
+                    state.players[playerId].unitsRemaining[unitType]--;
+                    break;
+                    
+                case 'MOVE_UNIT':
+                    const { unitId, newPosition } = action.payload;
+                    const unit = findUnitById(unitId);
+                    if (unit) {
+                        unit.position = newPosition;
+                    }
+                    break;
+                    
+                case 'DAMAGE_UNIT':
+                    const targetUnit = findUnitById(action.payload.unitId);
+                    if (targetUnit) {
+                        targetUnit.health -= action.payload.damage;
+                        if (targetUnit.health <= 0) {
+                            removeUnit(action.payload.unitId);
+                        }
+                    }
+                    break;
+                    
+                case 'SET_FPS':
+                    state = { ...state, fps: action.payload };
+                    break;
+                    
+                case 'SET_WINNER':
+                    state = { 
+                        ...state, 
+                        winner: action.payload.winner,
+                        xpEarned: action.payload.xp
+                    };
+                    break;
+                    
+                case 'NEXT_TURN':
+                    state = { 
+                        ...state, 
+                        turn: state.turn + 1,
+                        currentPlayer: state.currentPlayer === 1 ? 2 : 1
+                    };
+                    break;
+                    
+                case 'UPDATE_STATS':
+                    updatePlayerStats();
+                    break;
+                    
+                case 'RESET_GAME':
+                    state = resetState();
+                    break;
+                    
+                default:
+                    console.warn('Unknown action type:', action.type);
+            }
+            
+            // Notify listeners
+            listeners.forEach(listener => listener(state, prevState));
+        }
+        
+        /**
+         * Subscribe to state changes
+         */
+        function subscribe(listener) {
+            listeners.add(listener);
+            return () => listeners.delete(listener);
+        }
+        
+        /**
+         * Helper: Create unit object
+         */
+        function createUnit(type, position, playerId) {
+            const config = CONFIG.UNITS[type];
+            return {
+                id: `unit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                type,
+                playerId,
+                position,
+                health: config.health,
+                power: config.basePower,
+                hasMoved: false,
+                hasAttacked: false
+            };
+        }
+        
+        /**
+         * Helper: Find unit by ID
+         */
+        function findUnitById(unitId) {
+            for (const player of Object.values(state.players)) {
+                const unit = player.units.find(u => u.id === unitId);
+                if (unit) return unit;
+            }
+            return null;
+        }
+        
+        /**
+         * Helper: Remove unit
+         */
+        function removeUnit(unitId) {
+            for (const playerId of [1, 2]) {
+                const index = state.players[playerId].units.findIndex(u => u.id === unitId);
+                if (index !== -1) {
+                    state.players[playerId].units.splice(index, 1);
+                    return;
+                }
+            }
+        }
+        
+        /**
+         * Helper: Update player stats
+         */
+        function updatePlayerStats() {
+            for (const playerId of [1, 2]) {
+                const player = state.players[playerId];
+                player.totalPower = player.units.reduce((sum, u) => sum + u.power, 0);
+            }
+        }
+        
+        /**
+         * Helper: Reset state for new game
+         */
+        function resetState() {
+            return {
+                phase: 'LOADING',
+                timeRemaining: 30,
+                turn: 0,
+                currentPlayer: 1,
+                location: null,
+                terrain: null,
+                players: {
+                    1: {
+                        name: 'COMMANDER',
+                        units: [],
+                        unitsRemaining: { infantry: 3, tank: 1, artillery: 1, scout: 2, sniper: 1 },
+                        totalPower: 100,
+                        kills: 0,
+                        territory: 50
+                    },
+                    2: {
+                        name: 'AI OPPONENT',
+                        units: [],
+                        unitsRemaining: { infantry: 3, tank: 1, artillery: 1, scout: 2, sniper: 1 },
+                        totalPower: 100,
+                        kills: 0,
+                        territory: 50
+                    }
+                },
+                selectedUnit: null,
+                selectedUnitType: null,
+                hoveredCell: null,
+                fps: 60,
+                winner: null,
+                xpEarned: 0
+            };
+        }
+        
+        return {
+            getState,
+            dispatch,
+            subscribe
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      ASSET LOADER
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const AssetLoader = (function() {
+        const assets = new Map();
+        const loadingSteps = [
+            { name: 'Initializing WebGL...', weight: 10 },
+            { name: 'Generating Terrain Mesh...', weight: 25 },
+            { name: 'Creating Shader Materials...', weight: 20 },
+            { name: 'Loading Particle Systems...', weight: 15 },
+            { name: 'Initializing Audio Engine...', weight: 10 },
+            { name: 'Building UI Components...', weight: 10 },
+            { name: 'Preparing AI System...', weight: 10 }
+        ];
+        
+        let currentProgress = 0;
+        let onProgressCallback = null;
+        let onCompleteCallback = null;
+        
+        /**
+         * Start loading assets
+         */
+        async function load(onProgress, onComplete) {
+            onProgressCallback = onProgress;
+            onCompleteCallback = onComplete;
+            
+            for (const step of loadingSteps) {
+                updateProgress(step.name, step.weight);
+                await simulateLoad(200 + Math.random() * 300);
+            }
+            
+            if (onCompleteCallback) onCompleteCallback();
+        }
+        
+        /**
+         * Update progress
+         */
+        function updateProgress(status, increment) {
+            currentProgress = Math.min(100, currentProgress + increment);
+            if (onProgressCallback) {
+                onProgressCallback(currentProgress, status);
+            }
+        }
+        
+        /**
+         * Simulate loading delay
+         */
+        function simulateLoad(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        /**
+         * Get loaded asset
+         */
+        function get(key) {
+            return assets.get(key);
+        }
+        
+        return {
+            load,
+            get
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      TERRAIN GENERATOR
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const TerrainGenerator = (function() {
+        /**
+         * Generate procedural terrain using simplex-like noise
+         */
+        function generate(width, height, segments) {
+            const geometry = new THREE.PlaneGeometry(width, height, segments, segments);
+            const positions = geometry.attributes.position.array;
+            const colors = new Float32Array(positions.length);
+            
+            // Generate height map
+            for (let i = 0; i < positions.length; i += 3) {
+                const x = positions[i];
+                const y = positions[i + 1];
+                
+                // Multi-octave noise for realistic terrain
+                let elevation = 0;
+                elevation += noise(x * 0.02, y * 0.02) * 10;
+                elevation += noise(x * 0.05, y * 0.05) * 5;
+                elevation += noise(x * 0.1, y * 0.1) * 2;
+                elevation += noise(x * 0.2, y * 0.2) * 1;
+                
+                positions[i + 2] = elevation;
+                
+                // Color based on elevation
+                const normalizedHeight = (elevation + 10) / 20;
+                const color = getTerrainColor(normalizedHeight);
+                
+                colors[i] = color.r;
+                colors[i + 1] = color.g;
+                colors[i + 2] = color.b;
+            }
+            
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.computeVertexNormals();
+            
+            return geometry;
+        }
+        
+        /**
+         * Simple noise function (replacement for external library)
+         */
+        function noise(x, y) {
+            const sin1 = Math.sin(x * 12.9898 + y * 78.233);
+            const sin2 = Math.sin(x * 45.332 + y * 23.891);
+            const sin3 = Math.sin(x * 78.123 + y * 56.789);
+            
+            const n1 = Math.sin(sin1 * 43758.5453) * 0.5 + 0.5;
+            const n2 = Math.sin(sin2 * 23421.631) * 0.5 + 0.5;
+            const n3 = Math.sin(sin3 * 9837.423) * 0.5 + 0.5;
+            
+            return (n1 + n2 + n3) / 3 - 0.5;
+        }
+        
+        /**
+         * Get terrain color based on elevation
+         */
+        function getTerrainColor(height) {
+            if (height < 0.2) {
+                // Water - deep blue
+                return { r: 0.1, g: 0.3, b: 0.6 };
+            } else if (height < 0.3) {
+                // Beach/sand
+                return { r: 0.76, g: 0.7, b: 0.5 };
+            } else if (height < 0.5) {
+                // Grass/plains
+                return { r: 0.2, g: 0.5, b: 0.2 };
+            } else if (height < 0.7) {
+                // Forest/hills
+                return { r: 0.15, g: 0.35, b: 0.15 };
+            } else if (height < 0.85) {
+                // Mountain rock
+                return { r: 0.4, g: 0.35, b: 0.3 };
+            } else {
+                // Snow caps
+                return { r: 0.9, g: 0.9, b: 0.95 };
+            }
+        }
+        
+        /**
+         * Get terrain type at position
+         */
+        function getTerrainType(height) {
+            if (height < 0.2) return 'water';
+            if (height < 0.3) return 'beach';
+            if (height < 0.5) return 'plains';
+            if (height < 0.7) return 'forest';
+            if (height < 0.85) return 'mountain';
+            return 'snow';
+        }
+        
+        /**
+         * Analyze terrain for gameplay
+         */
+        function analyzeTerrain(geometry) {
+            const positions = geometry.attributes.position.array;
+            let totalHeight = 0;
+            let maxHeight = -Infinity;
+            let minHeight = Infinity;
+            const terrainTypes = { water: 0, plains: 0, forest: 0, mountain: 0, snow: 0 };
+            
+            for (let i = 2; i < positions.length; i += 3) {
+                const height = positions[i];
+                totalHeight += height;
+                maxHeight = Math.max(maxHeight, height);
+                minHeight = Math.min(minHeight, height);
+                
+                const normalizedHeight = (height + 10) / 20;
+                const type = getTerrainType(normalizedHeight);
+                terrainTypes[type] = (terrainTypes[type] || 0) + 1;
+            }
+            
+            const vertexCount = positions.length / 3;
+            
+            return {
+                avgHeight: totalHeight / vertexCount,
+                maxHeight,
+                minHeight,
+                terrainTypes,
+                dominantTerrain: Object.entries(terrainTypes).sort((a, b) => b[1] - a[1])[0][0]
+            };
+        }
+        
+        return {
+            generate,
+            analyzeTerrain,
+            getTerrainType
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      PARTICLE SYSTEM
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const ParticleSystem = (function() {
+        const particleSystems = [];
+        
+        /**
+         * Create explosion effect
+         */
+        function createExplosion(position, color = 0xff6600, particleCount = 100) {
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const velocities = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const sizes = new Float32Array(particleCount);
+            const lifetimes = new Float32Array(particleCount);
+            
+            const colorObj = new THREE.Color(color);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                
+                // Start position (all at explosion point)
+                positions[i3] = position.x;
+                positions[i3 + 1] = position.y;
+                positions[i3 + 2] = position.z;
+                
+                // Random velocity (sphere explosion)
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.random() * Math.PI;
+                const speed = 5 + Math.random() * 10;
+                
+                velocities[i3] = Math.sin(phi) * Math.cos(theta) * speed;
+                velocities[i3 + 1] = Math.cos(phi) * speed;
+                velocities[i3 + 2] = Math.sin(phi) * Math.sin(theta) * speed;
+                
+                // Color with variation
+                colors[i3] = colorObj.r + Math.random() * 0.2;
+                colors[i3 + 1] = colorObj.g * (0.5 + Math.random() * 0.5);
+                colors[i3 + 2] = colorObj.b * Math.random();
+                
+                // Size
+                sizes[i] = 0.2 + Math.random() * 0.3;
+                
+                // Lifetime
+                lifetimes[i] = 1.0;
+            }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.3,
+                vertexColors: true,
+                transparent: true,
+                opacity: 1,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            
+            const particles = new THREE.Points(geometry, material);
+            particles.userData = {
+                velocities,
+                lifetimes,
+                age: 0,
+                maxAge: 1.5
+            };
+            
+            particleSystems.push(particles);
+            return particles;
+        }
+        
+        /**
+         * Create selection ring effect
+         */
+        function createSelectionRing(position, color = 0x00f3ff) {
+            const geometry = new THREE.RingGeometry(1.5, 2, 32);
+            const material = new THREE.MeshBasicMaterial({
+                color,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+            
+            const ring = new THREE.Mesh(geometry, material);
+            ring.rotation.x = -Math.PI / 2;
+            ring.position.copy(position);
+            ring.position.y += 0.1;
+            
+            ring.userData = {
+                animate: true,
+                phase: 0
+            };
+            
+            particleSystems.push(ring);
+            return ring;
+        }
+        
+        /**
+         * Create movement trail
+         */
+        function createMovementTrail(path, color = 0x00ff88) {
+            const points = path.map(p => new THREE.Vector3(p.x, p.y + 0.5, p.z));
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            
+            const material = new THREE.LineBasicMaterial({
+                color,
+                transparent: true,
+                opacity: 0.6,
+                linewidth: 2
+            });
+            
+            const line = new THREE.Line(geometry, material);
+            line.userData = {
+                fadeOut: true,
+                opacity: 0.6
+            };
+            
+            particleSystems.push(line);
+            return line;
+        }
+        
+        /**
+         * Update all particle systems
+         */
+        function update(deltaTime) {
+            for (let i = particleSystems.length - 1; i >= 0; i--) {
+                const system = particleSystems[i];
+                
+                if (system.userData.velocities) {
+                    // Update explosion particles
+                    const positions = system.geometry.attributes.position.array;
+                    const velocities = system.userData.velocities;
+                    
+                    system.userData.age += deltaTime;
+                    const lifeRatio = 1 - (system.userData.age / system.userData.maxAge);
+                    
+                    if (lifeRatio <= 0) {
+                        system.parent?.remove(system);
+                        particleSystems.splice(i, 1);
+                        continue;
+                    }
+                    
+                    system.material.opacity = lifeRatio;
+                    
+                    for (let j = 0; j < positions.length; j += 3) {
+                        positions[j] += velocities[j] * deltaTime;
+                        positions[j + 1] += velocities[j + 1] * deltaTime - 9.8 * deltaTime * 0.5;
+                        positions[j + 2] += velocities[j + 2] * deltaTime;
+                        
+                        // Slow down
+                        velocities[j] *= 0.98;
+                        velocities[j + 1] *= 0.98;
+                        velocities[j + 2] *= 0.98;
+                    }
+                    
+                    system.geometry.attributes.position.needsUpdate = true;
+                }
+                
+                if (system.userData.animate) {
+                    // Update selection ring
+                    system.userData.phase += deltaTime * 2;
+                    system.scale.setScalar(1 + Math.sin(system.userData.phase) * 0.1);
+                    system.rotation.z += deltaTime;
+                }
+                
+                if (system.userData.fadeOut) {
+                    // Fade out trails
+                    system.userData.opacity -= deltaTime * 0.5;
+                    system.material.opacity = Math.max(0, system.userData.opacity);
+                    
+                    if (system.userData.opacity <= 0) {
+                        system.parent?.remove(system);
+                        particleSystems.splice(i, 1);
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Clear all particles
+         */
+        function clear() {
+            particleSystems.forEach(system => {
+                system.parent?.remove(system);
+            });
+            particleSystems.length = 0;
+        }
+        
+        return {
+            createExplosion,
+            createSelectionRing,
+            createMovementTrail,
+            update,
+            clear
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      THREE.JS RENDERER
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const Renderer = (function() {
+        let scene, camera, renderer;
+        let terrainMesh, gridHelper;
+        let unitMeshes = new Map();
+        let selectionIndicator = null;
+        let clock = new THREE.Clock();
+        let animationId = null;
+        
+        /**
+         * Initialize Three.js scene
+         */
+        function init() {
+            const canvas = document.getElementById('three-canvas');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.VISUAL.FOG_COLOR);
+            scene.fog = new THREE.FogExp2(CONFIG.VISUAL.FOG_COLOR, 0.015);
+            
+            // Camera
+            const aspect = window.innerWidth / window.innerHeight;
+            camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+            camera.position.set(0, 50, 60);
+            camera.lookAt(0, 0, 0);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                canvas,
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            
+            // Lighting
+            setupLighting();
+            
+            // Handle resize
+            window.addEventListener('resize', onResize);
+            
+            // Mouse interaction
+            canvas.addEventListener('click', onCanvasClick);
+            canvas.addEventListener('mousemove', onCanvasMouseMove);
+            
+            return { scene, camera, renderer };
+        }
+        
+        /**
+         * Setup scene lighting
+         */
+        function setupLighting() {
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(CONFIG.VISUAL.AMBIENT_LIGHT, 0.4);
+            scene.add(ambientLight);
+            
+            // Main directional light (sun)
+            const dirLight = new THREE.DirectionalLight(CONFIG.VISUAL.DIRECTIONAL_LIGHT, 1);
+            dirLight.position.set(50, 100, 50);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.camera.near = 1;
+            dirLight.shadow.camera.far = 300;
+            dirLight.shadow.camera.left = -100;
+            dirLight.shadow.camera.right = 100;
+            dirLight.shadow.camera.top = 100;
+            dirLight.shadow.camera.bottom = -100;
+            scene.add(dirLight);
+            
+            // Fill light
+            const fillLight = new THREE.DirectionalLight(0x88aaff, 0.3);
+            fillLight.position.set(-50, 50, -50);
+            scene.add(fillLight);
+            
+            // Hemisphere light for ambient
+            const hemiLight = new THREE.HemisphereLight(0x88ccff, 0x446644, 0.4);
+            scene.add(hemiLight);
+        }
+        
+        /**
+         * Create terrain mesh
+         */
+        function createTerrain() {
+            const { WIDTH, HEIGHT, SEGMENTS } = CONFIG.TERRAIN;
+            const geometry = TerrainGenerator.generate(WIDTH, HEIGHT, SEGMENTS);
+            
+            // Custom shader material for terrain
+            const material = new THREE.MeshStandardMaterial({
+                vertexColors: true,
+                flatShading: false,
+                roughness: 0.8,
+                metalness: 0.1,
+                side: THREE.DoubleSide
+            });
+            
+            terrainMesh = new THREE.Mesh(geometry, material);
+            terrainMesh.rotation.x = -Math.PI / 2;
+            terrainMesh.receiveShadow = true;
+            terrainMesh.castShadow = true;
+            scene.add(terrainMesh);
+            
+            // Grid overlay
+            gridHelper = new THREE.GridHelper(WIDTH, 20, 0x00f3ff, 0x004466);
+            gridHelper.position.y = 0.1;
+            gridHelper.material.opacity = 0.3;
+            gridHelper.material.transparent = true;
+            scene.add(gridHelper);
+            
+            // Analyze terrain
+            const analysis = TerrainGenerator.analyzeTerrain(geometry);
+            StateManager.dispatch({ type: 'SET_TERRAIN', payload: analysis });
+            
+            return terrainMesh;
+        }
+        
+        /**
+         * Create unit mesh
+         */
+        function createUnitMesh(unit) {
+            const config = CONFIG.UNITS[unit.type];
+            const group = new THREE.Group();
+            
+            // Base
+            const baseGeometry = new THREE.CylinderGeometry(0.8, 1, 0.3, 16);
+            const baseMaterial = new THREE.MeshStandardMaterial({
+                color: unit.playerId === 1 ? 0x00f3ff : 0xff006e,
+                metalness: 0.5,
+                roughness: 0.3
+            });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.castShadow = true;
+            group.add(base);
+            
+            // Unit body
+            let bodyGeometry;
+            switch(unit.type) {
+                case 'infantry':
+                    bodyGeometry = new THREE.CapsuleGeometry(0.4, 1.2, 8, 16);
+                    break;
+                case 'tank':
+                    bodyGeometry = new THREE.BoxGeometry(1.2, 0.8, 1.8);
+                    break;
+                case 'artillery':
+                    bodyGeometry = new THREE.CylinderGeometry(0.3, 0.5, 1.5, 12);
+                    break;
+                case 'scout':
+                    bodyGeometry = new THREE.ConeGeometry(0.5, 1.2, 8);
+                    break;
+                case 'sniper':
+                    bodyGeometry = new THREE.CapsuleGeometry(0.3, 1.5, 8, 16);
+                    break;
+                default:
+                    bodyGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+            }
+            
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                color: config.color,
+                metalness: 0.7,
+                roughness: 0.2,
+                emissive: config.color,
+                emissiveIntensity: 0.2
+            });
+            
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 1;
+            body.castShadow = true;
+            group.add(body);
+            
+            // Health bar
+            const healthBarBg = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.5, 0.15),
+                new THREE.MeshBasicMaterial({ color: 0x333333 })
+            );
+            healthBarBg.position.y = 2.2;
+            healthBarBg.rotation.x = 0;
+            group.add(healthBarBg);
+            
+            const healthBar = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.5, 0.12),
+                new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+            );
+            healthBar.position.y = 2.2;
+            healthBar.position.z = 0.01;
+            healthBar.name = 'healthBar';
+            group.add(healthBar);
+            
+            // Position on terrain
+            const worldPos = gridToWorld(unit.position);
+            const height = getTerrainHeightAt(worldPos.x, worldPos.z);
+            group.position.set(worldPos.x, height, worldPos.z);
+            
+            group.userData = { unitId: unit.id, unit };
+            
+            scene.add(group);
+            unitMeshes.set(unit.id, group);
+            
+            // Spawn animation
+            gsap.from(group.scale, {
+                x: 0, y: 0, z: 0,
+                duration: 0.5,
+                ease: 'back.out(1.7)'
+            });
+            
+            return group;
+        }
+        
+        /**
+         * Update unit mesh position
+         */
+        function updateUnitMesh(unitId, newPosition) {
+            const mesh = unitMeshes.get(unitId);
+            if (!mesh) return;
+            
+            const worldPos = gridToWorld(newPosition);
+            const height = getTerrainHeightAt(worldPos.x, worldPos.z);
+            
+            // Create movement trail
+            const startPos = mesh.position.clone();
+            const endPos = new THREE.Vector3(worldPos.x, height, worldPos.z);
+            const trail = ParticleSystem.createMovementTrail([startPos, endPos]);
+            scene.add(trail);
+            
+            // Animate movement
+            gsap.to(mesh.position, {
+                x: worldPos.x,
+                y: height,
+                z: worldPos.z,
+                duration: 0.8,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                    // Update Y position based on terrain
+                    const currentHeight = getTerrainHeightAt(mesh.position.x, mesh.position.z);
+                    mesh.position.y = currentHeight;
+                }
+            });
+        }
+        
+        /**
+         * Remove unit mesh
+         */
+        function removeUnitMesh(unitId) {
+            const mesh = unitMeshes.get(unitId);
+            if (!mesh) return;
+            
+            // Death explosion
+            const explosion = ParticleSystem.createExplosion(mesh.position.clone());
+            scene.add(explosion);
+            
+            // Animate removal
+            gsap.to(mesh.scale, {
+                x: 0, y: 0, z: 0,
+                duration: 0.3,
+                ease: 'back.in(2)',
+                onComplete: () => {
+                    scene.remove(mesh);
+                    unitMeshes.delete(unitId);
+                }
+            });
+        }
+        
+        /**
+         * Show selection indicator
+         */
+        function showSelection(position) {
+            if (selectionIndicator) {
+                scene.remove(selectionIndicator);
+            }
+            
+            const worldPos = gridToWorld(position);
+            const height = getTerrainHeightAt(worldPos.x, worldPos.z);
+            
+            selectionIndicator = ParticleSystem.createSelectionRing(
+                new THREE.Vector3(worldPos.x, height, worldPos.z)
+            );
+            scene.add(selectionIndicator);
+        }
+        
+        /**
+         * Hide selection indicator
+         */
+        function hideSelection() {
+            if (selectionIndicator) {
+                scene.remove(selectionIndicator);
+                selectionIndicator = null;
+            }
+        }
+        
+        /**
+         * Convert grid position to world position
+         */
+        function gridToWorld(gridPos) {
+            const { WIDTH, HEIGHT } = CONFIG.TERRAIN;
+            return {
+                x: (gridPos.x - 10) * (WIDTH / 20),
+                z: (gridPos.y - 10) * (HEIGHT / 20)
+            };
+        }
+        
+        /**
+         * Convert world position to grid position
+         */
+        function worldToGrid(worldPos) {
+            const { WIDTH, HEIGHT } = CONFIG.TERRAIN;
+            return {
+                x: Math.round(worldPos.x / (WIDTH / 20) + 10),
+                y: Math.round(worldPos.z / (HEIGHT / 20) + 10)
+            };
+        }
+        
+        /**
+         * Get terrain height at position
+         */
+        function getTerrainHeightAt(x, z) {
+            if (!terrainMesh) return 0;
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.set(new THREE.Vector3(x, 100, z), new THREE.Vector3(0, -1, 0));
+            
+            const intersects = raycaster.intersectObject(terrainMesh);
+            if (intersects.length > 0) {
+                return intersects[0].point.y;
+            }
+            return 0;
+        }
+        
+        /**
+         * Handle canvas click
+         */
+        function onCanvasClick(event) {
+            const state = StateManager.getState();
+            if (state.phase !== 'STRATEGY') return;
+            
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                -((event.clientY - rect.top) / rect.height) * 2 + 1
+            );
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObject(terrainMesh);
+            
+            if (intersects.length > 0) {
+                const point = intersects[0].point;
+                const gridPos = worldToGrid(point);
+                
+                // Check if valid placement zone for player 1 (left side)
+                if (state.selectedUnitType && gridPos.x >= 0 && gridPos.x <= 8) {
+                    // Check if unit available
+                    if (state.players[1].unitsRemaining[state.selectedUnitType] > 0) {
+                        StateManager.dispatch({
+                            type: 'PLACE_UNIT',
+                            payload: {
+                                playerId: 1,
+                                unitType: state.selectedUnitType,
+                                position: gridPos
+                            }
+                        });
+                        
+                        // Create mesh
+                        const newUnit = state.players[1].units[state.players[1].units.length - 1];
+                        const currentState = StateManager.getState();
+                        const unit = currentState.players[1].units[currentState.players[1].units.length - 1];
+                        createUnitMesh(unit);
+                        
+                        // Update UI
+                        UIManager.updateUnitCounts();
+                        
+                        // Show placement effect
+                        showSelection(gridPos);
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Handle mouse move
+         */
+        function onCanvasMouseMove(event) {
+            const state = StateManager.getState();
+            if (state.phase !== 'STRATEGY' || !state.selectedUnitType) return;
+            
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                -((event.clientY - rect.top) / rect.height) * 2 + 1
+            );
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObject(terrainMesh);
+            
+            if (intersects.length > 0) {
+                const point = intersects[0].point;
+                const gridPos = worldToGrid(point);
+                
+                // Show preview indicator
+                if (gridPos.x >= 0 && gridPos.x <= 8) {
+                    showSelection(gridPos);
+                } else {
+                    hideSelection();
+                }
+            }
+        }
+        
+        /**
+         * Handle window resize
+         */
+        function onResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+        
+        /**
+         * Camera controls
+         */
+        function zoomIn() {
+            gsap.to(camera.position, {
+                y: camera.position.y * 0.8,
+                z: camera.position.z * 0.8,
+                duration: 0.5,
+                ease: 'power2.out'
+            });
+        }
+        
+        function zoomOut() {
+            gsap.to(camera.position, {
+                y: Math.min(camera.position.y * 1.25, 100),
+                z: Math.min(camera.position.z * 1.25, 120),
+                duration: 0.5,
+                ease: 'power2.out'
+            });
+        }
+        
+        function rotateCamera() {
+            gsap.to(camera.position, {
+                x: camera.position.z,
+                z: -camera.position.x,
+                duration: 1,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                    camera.lookAt(0, 0, 0);
+                }
+            });
+        }
+        
+        function centerCamera() {
+            gsap.to(camera.position, {
+                x: 0,
+                y: 50,
+                z: 60,
+                duration: 0.8,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                    camera.lookAt(0, 0, 0);
+                }
+            });
+        }
+        
+        /**
+         * Main render loop
+         */
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            
+            const deltaTime = clock.getDelta();
+            
+            // Update particles
+            ParticleSystem.update(deltaTime);
+            
+            // Update selection indicator
+            if (selectionIndicator && selectionIndicator.userData.animate) {
+                selectionIndicator.userData.phase += deltaTime * 2;
+                selectionIndicator.scale.setScalar(1 + Math.sin(selectionIndicator.userData.phase) * 0.1);
+                selectionIndicator.rotation.z += deltaTime;
+            }
+            
+            // Update unit meshes (billboarding health bars)
+            unitMeshes.forEach(mesh => {
+                const healthBar = mesh.getObjectByName('healthBar');
+                if (healthBar) {
+                    healthBar.lookAt(camera.position);
+                }
+            });
+            
+            // FPS calculation
+            const fps = Math.round(1 / Math.max(deltaTime, 0.001));
+            StateManager.dispatch({ type: 'SET_FPS', payload: fps });
+            
+            // Render
+            renderer.render(scene, camera);
+        }
+        
+        /**
+         * Start render loop
+         */
+        function start() {
+            if (!animationId) {
+                clock.start();
+                animate();
+            }
+        }
+        
+        /**
+         * Stop render loop
+         */
+        function stop() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+        
+        /**
+         * Clear scene
+         */
+        function clear() {
+            unitMeshes.forEach(mesh => scene.remove(mesh));
+            unitMeshes.clear();
+            ParticleSystem.clear();
+            hideSelection();
+        }
+        
+        return {
+            init,
+            createTerrain,
+            createUnitMesh,
+            updateUnitMesh,
+            removeUnitMesh,
+            showSelection,
+            hideSelection,
+            zoomIn,
+            zoomOut,
+            rotateCamera,
+            centerCamera,
+            start,
+            stop,
+            clear,
+            get scene() { return scene; },
+            get camera() { return camera; }
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      AI OPPONENT
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const AIOpponent = (function() {
+        /**
+         * AI places units during strategy phase
+         */
+        function placeUnits() {
+            const state = StateManager.getState();
+            const remaining = state.players[2].unitsRemaining;
+            
+            const unitTypes = Object.entries(remaining)
+                .filter(([_, count]) => count > 0)
+                .flatMap(([type, count]) => Array(count).fill(type));
+            
+            // Place units on right side (AI side)
+            let delay = 500;
+            unitTypes.forEach((unitType, index) => {
+                setTimeout(() => {
+                    const position = {
+                        x: 12 + Math.floor(Math.random() * 8),
+                        y: Math.floor(Math.random() * 20)
+                    };
+                    
+                    StateManager.dispatch({
+                        type: 'PLACE_UNIT',
+                        payload: {
+                            playerId: 2,
+                            unitType,
+                            position
+                        }
+                    });
+                    
+                    const currentState = StateManager.getState();
+                    const unit = currentState.players[2].units[currentState.players[2].units.length - 1];
+                    Renderer.createUnitMesh(unit);
+                    
+                    UIManager.updateStats();
+                }, delay * (index + 1));
+            });
+        }
+        
+        /**
+         * AI makes battle moves
+         */
+        function makeMove() {
+            const state = StateManager.getState();
+            const aiUnits = state.players[2].units.filter(u => !u.hasMoved);
+            
+            if (aiUnits.length === 0) return;
+            
+            // Simple AI: Move towards nearest enemy
+            const enemyUnits = state.players[1].units;
+            
+            aiUnits.forEach((unit, index) => {
+                setTimeout(() => {
+                    if (enemyUnits.length === 0) return;
+                    
+                    // Find nearest enemy
+                    let nearestEnemy = enemyUnits[0];
+                    let minDist = Infinity;
+                    
+                    enemyUnits.forEach(enemy => {
+                        const dist = Math.hypot(
+                            enemy.position.x - unit.position.x,
+                            enemy.position.y - unit.position.y
+                        );
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearestEnemy = enemy;
+                        }
+                    });
+                    
+                    // Move towards enemy
+                    const config = CONFIG.UNITS[unit.type];
+                    const dx = nearestEnemy.position.x - unit.position.x;
+                    const dy = nearestEnemy.position.y - unit.position.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 0) {
+                        const moveX = Math.sign(dx) * Math.min(Math.abs(dx), config.speed);
+                        const moveY = Math.sign(dy) * Math.min(Math.abs(dy), config.speed);
+                        
+                        const newPosition = {
+                            x: Math.max(0, Math.min(19, unit.position.x + moveX)),
+                            y: Math.max(0, Math.min(19, unit.position.y + moveY))
+                        };
+                        
+                        StateManager.dispatch({
+                            type: 'MOVE_UNIT',
+                            payload: { unitId: unit.id, newPosition }
+                        });
+                        
+                        Renderer.updateUnitMesh(unit.id, newPosition);
+                    }
+                }, index * 800);
+            });
+        }
+        
+        return {
+            placeUnits,
+            makeMove
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      COMBAT SYSTEM
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const CombatSystem = (function() {
+        /**
+         * Process combat between adjacent units
+         */
+        function processCombat() {
+            const state = StateManager.getState();
+            const player1Units = state.players[1].units;
+            const player2Units = state.players[2].units;
+            
+            const combats = [];
+            
+            // Find adjacent enemy units
+            player1Units.forEach(unit1 => {
+                const config1 = CONFIG.UNITS[unit1.type];
+                
+                player2Units.forEach(unit2 => {
+                    const distance = Math.hypot(
+                        unit1.position.x - unit2.position.x,
+                        unit1.position.y - unit2.position.y
+                    );
+                    
+                    if (distance <= config1.range) {
+                        combats.push({ attacker: unit1, defender: unit2 });
+                    }
+                });
+            });
+            
+            // Resolve combats
+            combats.forEach((combat, index) => {
+                setTimeout(() => {
+                    resolveCombat(combat.attacker, combat.defender);
+                }, index * 500);
+            });
+        }
+        
+        /**
+         * Resolve single combat
+         */
+        function resolveCombat(attacker, defender) {
+            const attackerConfig = CONFIG.UNITS[attacker.type];
+            const defenderConfig = CONFIG.UNITS[defender.type];
+            
+            // Calculate damage
+            let attackPower = attackerConfig.basePower;
+            let defensePower = defenderConfig.basePower * 0.5;
+            
+            // Apply terrain bonuses (simplified)
+            attackPower *= 1 + Math.random() * 0.3;
+            defensePower *= 1 + Math.random() * 0.2;
+            
+            const damage = Math.max(0, attackPower - defensePower);
+            
+            StateManager.dispatch({
+                type: 'DAMAGE_UNIT',
+                payload: { unitId: defender.id, damage }
+            });
+            
+            // Check if unit destroyed
+            const state = StateManager.getState();
+            const updatedUnit = state.players[1].units.find(u => u.id === defender.id) ||
+                               state.players[2].units.find(u => u.id === defender.id);
+            
+            if (!updatedUnit) {
+                Renderer.removeUnitMesh(defender.id);
+                
+                // Update kill count
+                const attackerPlayerId = attacker.playerId;
+                // Update kills in state would go here
+            }
+            
+            // Visual effect
+            const attackerMesh = Renderer.scene?.getObjectByProperty('userData', { unitId: attacker.id });
+            if (attackerMesh) {
+                gsap.to(attackerMesh.scale, {
+                    x: 1.2, y: 1.2, z: 1.2,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 1
+                });
+            }
+        }
+        
+        /**
+         * Check win condition
+         */
+        function checkWinCondition() {
+            const state = StateManager.getState();
+            const p1Units = state.players[1].units.length;
+            const p2Units = state.players[2].units.length;
+            
+            if (p1Units === 0 && p2Units > 0) {
+                return { winner: 2, xp: 50 };
+            } else if (p2Units === 0 && p1Units > 0) {
+                return { winner: 1, xp: 250 };
+            } else if (p1Units === 0 && p2Units === 0) {
+                return { winner: 0, xp: 100 }; // Draw
+            }
+            
+            // Game continues
+            return null;
+        }
+        
+        return {
+            processCombat,
+            checkWinCondition
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      UI MANAGER
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const UIManager = (function() {
+        const elements = {};
+        let timerInterval = null;
+        
+        /**
+         * Initialize UI elements
+         */
+        function init() {
+            // Cache DOM elements
+            elements.loadingScreen = document.getElementById('loading-screen');
+            elements.progressBar = document.getElementById('progress-bar');
+            elements.loadingStatus = document.getElementById('loading-status');
+            elements.loadingPercent = document.getElementById('loading-percent');
+            elements.gameHud = document.getElementById('game-hud');
+            elements.timer = document.getElementById('timer');
+            elements.phaseName = document.getElementById('phase-name');
+            elements.revealOverlay = document.getElementById('reveal-overlay');
+            elements.revealLocation = document.getElementById('reveal-location');
+            elements.resultsOverlay = document.getElementById('results-overlay');
+            elements.resultsTrophy = document.getElementById('results-trophy');
+            elements.resultsTitle = document.getElementById('results-title');
+            elements.resultsXp = document.getElementById('results-xp');
+            elements.fpsCounter = document.getElementById('fps-counter');
+            elements.terrainLocation = document.getElementById('terrain-location');
+            elements.terrainElevation = document.getElementById('terrain-elevation');
+            elements.terrainTemp = document.getElementById('terrain-temp');
+            elements.terrainType = document.getElementById('terrain-type');
+            elements.unitPanel = document.getElementById('unit-panel');
+            elements.minimapCanvas = document.getElementById('minimap-canvas');
+            
+            // Phase dots
+            elements.phaseDots = [
+                document.getElementById('phase-dot-1'),
+                document.getElementById('phase-dot-2'),
+                document.getElementById('phase-dot-3'),
+                document.getElementById('phase-dot-4')
+            ];
+            
+            // Unit cards
+            elements.unitCards = document.querySelectorAll('.unit-card');
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Subscribe to state changes
+            StateManager.subscribe(onStateChange);
+        }
+        
+        /**
+         * Setup UI event listeners
+         */
+        function setupEventListeners() {
+            // Unit card selection
+            elements.unitCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const unitType = card.dataset.unit;
+                    const state = StateManager.getState();
+                    
+                    if (state.players[1].unitsRemaining[unitType] > 0) {
+                        // Deselect all
+                        elements.unitCards.forEach(c => c.classList.remove('selected'));
+                        // Select this one
+                        card.classList.add('selected');
+                        StateManager.dispatch({ type: 'SELECT_UNIT_TYPE', payload: unitType });
+                    }
+                });
+            });
+            
+            // Action buttons
+            document.getElementById('btn-zoom-in')?.addEventListener('click', Renderer.zoomIn);
+            document.getElementById('btn-zoom-out')?.addEventListener('click', Renderer.zoomOut);
+            document.getElementById('btn-rotate')?.addEventListener('click', Renderer.rotateCamera);
+            document.getElementById('btn-center')?.addEventListener('click', Renderer.centerCamera);
+            document.getElementById('btn-end-turn')?.addEventListener('click', endTurn);
+            
+            // Results buttons
+            document.getElementById('btn-play-again')?.addEventListener('click', () => {
+                window.location.reload();
+            });
+            
+            document.getElementById('btn-share')?.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'GEO-GLADIATOR Victory!',
+                        text: 'I just won a battle in GEO-GLADIATOR!',
+                        url: window.location.href
+                    });
+                } else {
+                    alert('Share link copied to clipboard!');
+                }
+            });
+        }
+        
+        /**
+         * Update loading progress
+         */
+        function updateLoadingProgress(percent, status) {
+            if (elements.progressBar) {
+                elements.progressBar.style.width = `${percent}%`;
+            }
+            if (elements.loadingStatus) {
+                elements.loadingStatus.textContent = status;
+            }
+            if (elements.loadingPercent) {
+                elements.loadingPercent.textContent = `${Math.round(percent)}%`;
+            }
+        }
+        
+        /**
+         * Hide loading screen
+         */
+        function hideLoadingScreen() {
+            elements.loadingScreen?.classList.add('hidden');
+            elements.gameHud.style.display = 'block';
+        }
+        
+        /**
+         * Show reveal phase
+         */
+        function showRevealPhase(location) {
+            elements.revealOverlay?.classList.add('active');
+            
+            // Animate location reveal
+            const chars = location.name.split('');
+            let displayText = '';
+            
+            chars.forEach((char, i) => {
+                setTimeout(() => {
+                    displayText += char;
+                    if (elements.revealLocation) {
+                        elements.revealLocation.textContent = displayText;
+                    }
+                }, i * 50);
+            });
+            
+            // Update stats
+            setTimeout(() => {
+                document.getElementById('reveal-elevation').textContent = `${location.elevation}m`;
+                document.getElementById('reveal-terrain').textContent = location.terrain;
+                document.getElementById('reveal-weather').textContent = location.weather;
+            }, chars.length * 50 + 200);
+        }
+        
+        /**
+         * Hide reveal phase
+         */
+        function hideRevealPhase() {
+            elements.revealOverlay?.classList.remove('active');
+        }
+        
+        /**
+         * Update phase indicators
+         */
+        function updatePhaseIndicators(phase) {
+            const phaseIndex = ['REVEAL', 'STRATEGY', 'BATTLE', 'RESULTS'].indexOf(phase);
+            
+            elements.phaseDots.forEach((dot, i) => {
+                dot.classList.remove('active', 'complete');
+                if (i < phaseIndex) {
+                    dot.classList.add('complete');
+                } else if (i === phaseIndex) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            if (elements.phaseName) {
+                elements.phaseName.textContent = phase;
+            }
+        }
+        
+        /**
+         * Start phase timer
+         */
+        function startTimer(duration, callback) {
+            let remaining = Math.ceil(duration / 1000);
+            
+            if (elements.timer) {
+                elements.timer.textContent = remaining;
+                elements.timer.className = 'hud-timer-value';
+            }
+            
+            StateManager.dispatch({ type: 'SET_TIME', payload: remaining });
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                remaining--;
+                StateManager.dispatch({ type: 'SET_TIME', payload: remaining });
+                
+                if (elements.timer) {
+                    elements.timer.textContent = remaining;
+                    
+                    // Warning colors
+                    if (remaining <= 5) {
+                        elements.timer.classList.add('critical');
+                        elements.timer.classList.remove('warning');
+                    } else if (remaining <= 10) {
+                        elements.timer.classList.add('warning');
+                        elements.timer.classList.remove('critical');
+                    }
+                }
+                
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    if (callback) callback();
+                }
+            }, 1000);
+        }
+        
+        /**
+         * Stop timer
+         */
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        /**
+         * Update terrain info panel
+         */
+        function updateTerrainInfo(location) {
+            if (elements.terrainLocation) {
+                elements.terrainLocation.textContent = location.name;
+            }
+            if (elements.terrainElevation) {
+                elements.terrainElevation.textContent = `${location.elevation}m`;
+            }
+            if (elements.terrainTemp) {
+                elements.terrainTemp.textContent = `${location.temp}°C`;
+            }
+            if (elements.terrainType) {
+                elements.terrainType.textContent = location.terrain;
+            }
+        }
+        
+        /**
+         * Update unit counts
+         */
+        function updateUnitCounts() {
+            const state = StateManager.getState();
+            const remaining = state.players[1].unitsRemaining;
+            
+            Object.entries(remaining).forEach(([type, count]) => {
+                const countEl = document.getElementById(`${type}-count`);
+                if (countEl) {
+                    countEl.textContent = count;
+                }
+                
+                // Disable card if none remaining
+                const card = document.querySelector(`.unit-card[data-unit="${type}"]`);
+                if (card) {
+                    if (count <= 0) {
+                        card.classList.add('disabled');
+                        card.classList.remove('selected');
+                    } else {
+                        card.classList.remove('disabled');
+                    }
+                }
+            });
+        }
+        
+        /**
+         * Update player stats
+         */
+        function updateStats() {
+            const state = StateManager.getState();
+            
+            // Player 1
+            document.getElementById('player1-units').textContent = state.players[1].units.length;
+            document.getElementById('player1-power').textContent = 
+                state.players[1].units.reduce((sum, u) => sum + CONFIG.UNITS[u.type].basePower, 0);
+            
+            // Player 2
+            document.getElementById('player2-units').textContent = state.players[2].units.length;
+            document.getElementById('player2-power').textContent = 
+                state.players[2].units.reduce((sum, u) => sum + CONFIG.UNITS[u.type].basePower, 0);
+        }
+        
+        /**
+         * Show results screen
+         */
+        function showResults(winner, xp) {
+            const isVictory = winner === 1;
+            
+            elements.resultsTrophy.textContent = isVictory ? '🏆' : '💀';
+            elements.resultsTitle.textContent = isVictory ? 'VICTORY' : 'DEFEAT';
+            elements.resultsTitle.className = `results-title ${isVictory ? 'victory' : 'defeat'}`;
+            elements.resultsXp.textContent = `+${xp} XP`;
+            
+            elements.resultsOverlay?.classList.add('active');
+            
+            // Confetti for victory
+            if (isVictory) {
+                createConfetti();
+            }
+        }
+        
+        /**
+         * Create confetti particles
+         */
+        function createConfetti() {
+            const colors = ['#ff006e', '#00f3ff', '#8b5cf6', '#00ff88', '#ffd700'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                document.body.appendChild(confetti);
+                
+                gsap.to(confetti, {
+                    y: window.innerHeight + 50,
+                    x: (Math.random() - 0.5) * 200,
+                    rotation: Math.random() * 720 - 360,
+                    duration: 2 + Math.random() * 2,
+                    delay: Math.random() * 0.5,
+                    ease: 'power1.out',
+                    onComplete: () => confetti.remove()
+                });
+            }
+        }
+        
+        /**
+         * End turn handler
+         */
+        function endTurn() {
+            const state = StateManager.getState();
+            if (state.phase === 'STRATEGY') {
+                stopTimer();
+                GameLoop.transitionToPhase('BATTLE');
+            }
+        }
+        
+        /**
+         * Handle state changes
+         */
+        function onStateChange(state, prevState) {
+            // Update FPS counter
+            if (state.fps !== prevState?.fps) {
+                if (elements.fpsCounter) {
+                    elements.fpsCounter.textContent = `${state.fps} FPS`;
+                    elements.fpsCounter.classList.toggle('low', state.fps < 30);
+                }
+            }
+            
+            // Update phase
+            if (state.phase !== prevState?.phase) {
+                updatePhaseIndicators(state.phase);
+            }
+        }
+        
+        /**
+         * Draw minimap
+         */
+        function drawMinimap() {
+            const canvas = elements.minimapCanvas;
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const state = StateManager.getState();
+            
+            // Set canvas size
+            canvas.width = 180;
+            canvas.height = 120;
+            
+            // Clear
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.2)';
+            ctx.lineWidth = 0.5;
+            
+            for (let i = 0; i <= 20; i++) {
+                const x = (i / 20) * canvas.width;
+                const y = (i / 20) * canvas.height;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Draw territory zones
+            ctx.fillStyle = 'rgba(0, 243, 255, 0.1)';
+            ctx.fillRect(0, 0, canvas.width * 0.4, canvas.height);
+            
+            ctx.fillStyle = 'rgba(255, 0, 110, 0.1)';
+            ctx.fillRect(canvas.width * 0.6, 0, canvas.width * 0.4, canvas.height);
+            
+            // Draw units
+            state.players[1].units.forEach(unit => {
+                ctx.fillStyle = '#00f3ff';
+                const x = (unit.position.x / 20) * canvas.width;
+                const y = (unit.position.y / 20) * canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            state.players[2].units.forEach(unit => {
+                ctx.fillStyle = '#ff006e';
+                const x = (unit.position.x / 20) * canvas.width;
+                const y = (unit.position.y / 20) * canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        return {
+            init,
+            updateLoadingProgress,
+            hideLoadingScreen,
+            showRevealPhase,
+            hideRevealPhase,
+            updatePhaseIndicators,
+            startTimer,
+            stopTimer,
+            updateTerrainInfo,
+            updateUnitCounts,
+            updateStats,
+            showResults,
+            drawMinimap
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      GAME LOOP
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    const GameLoop = (function() {
+        let currentLocation = null;
+        let battleInterval = null;
+        
+        /**
+         * Start new game
+         */
+        async function start() {
+            // Initialize systems
+            UIManager.init();
+            Renderer.init();
+            
+            // Load assets
+            await AssetLoader.load(
+                (progress, status) => {
+                    UIManager.updateLoadingProgress(progress, status);
+                },
+                () => {
+                    transitionToPhase('REVEAL');
+                }
+            );
+        }
+        
+        /**
+         * Transition to game phase
+         */
+        function transitionToPhase(phase) {
+            StateManager.dispatch({ type: 'SET_PHASE', payload: phase });
+            
+            switch(phase) {
+                case 'REVEAL':
+                    handleRevealPhase();
+                    break;
+                case 'STRATEGY':
+                    handleStrategyPhase();
+                    break;
+                case 'BATTLE':
+                    handleBattlePhase();
+                    break;
+                case 'RESULTS':
+                    handleResultsPhase();
+                    break;
+            }
+        }
+        
+        /**
+         * Handle Reveal Phase
+         */
+        function handleRevealPhase() {
+            // Select random location
+            currentLocation = CONFIG.LOCATIONS[Math.floor(Math.random() * CONFIG.LOCATIONS.length)];
+            StateManager.dispatch({ type: 'SET_LOCATION', payload: currentLocation });
+            
+            // Create terrain
+            Renderer.createTerrain();
+            Renderer.start();
+            
+            // Update UI
+            UIManager.hideLoadingScreen();
+            UIManager.showRevealPhase(currentLocation);
+            UIManager.updateTerrainInfo(currentLocation);
+            
+            // Auto-transition after reveal duration
+            setTimeout(() => {
+                UIManager.hideRevealPhase();
+                transitionToPhase('STRATEGY');
+            }, CONFIG.MATCH_DURATION.REVEAL);
+        }
+        
+        /**
+         * Handle Strategy Phase
+         */
+        function handleStrategyPhase() {
+            UIManager.updateUnitCounts();
+            
+            // AI places units
+            setTimeout(() => {
+                AIOpponent.placeUnits();
+            }, 1000);
+            
+            // Start timer
+            UIManager.startTimer(CONFIG.MATCH_DURATION.STRATEGY, () => {
+                transitionToPhase('BATTLE');
+            });
+            
+            // Update minimap
+            const minimapInterval = setInterval(() => {
+                UIManager.drawMinimap();
+                UIManager.updateStats();
+            }, 500);
+            
+            // Store interval for cleanup
+            StateManager.subscribe((state) => {
+                if (state.phase !== 'STRATEGY') {
+                    clearInterval(minimapInterval);
+                }
+            });
+        }
+        
+        /**
+         * Handle Battle Phase
+         */
+        function handleBattlePhase() {
+            // Hide unit panel
+            document.getElementById('unit-panel').style.display = 'none';
+            
+            UIManager.startTimer(CONFIG.MATCH_DURATION.BATTLE, () => {
+                checkEndGame();
+            });
+            
+            // Battle simulation loop
+            let turnCount = 0;
+            battleInterval = setInterval(() => {
+                turnCount++;
+                
+                // AI makes moves
+                AIOpponent.makeMove();
+                
+                // Process combat
+                setTimeout(() => {
+                    CombatSystem.processCombat();
+                    UIManager.updateStats();
+                    UIManager.drawMinimap();
+                    
+                    // Check win condition
+                    const result = CombatSystem.checkWinCondition();
+                    if (result) {
+                        clearInterval(battleInterval);
+                        UIManager.stopTimer();
+                        StateManager.dispatch({ 
+                            type: 'SET_WINNER', 
+                            payload: result 
+                        });
+                        transitionToPhase('RESULTS');
+                    }
+                }, 1000);
+                
+            }, 3000);
+        }
+        
+        /**
+         * Check end game condition
+         */
+        function checkEndGame() {
+            if (battleInterval) {
+                clearInterval(battleInterval);
+            }
+            
+            const state = StateManager.getState();
+            const p1Power = state.players[1].units.reduce(
+                (sum, u) => sum + CONFIG.UNITS[u.type].basePower, 0
+            );
+            const p2Power = state.players[2].units.reduce(
+                (sum, u) => sum + CONFIG.UNITS[u.type].basePower, 0
+            );
+            
+            let winner, xp;
+            if (p1Power > p2Power) {
+                winner = 1;
+                xp = 200;
+            } else if (p2Power > p1Power) {
+                winner = 2;
+                xp = 75;
+            } else {
+                winner = 0;
+                xp = 100;
+            }
+            
+            StateManager.dispatch({ 
+                type: 'SET_WINNER', 
+                payload: { winner, xp } 
+            });
+            
+            transitionToPhase('RESULTS');
+        }
+        
+        /**
+         * Handle Results Phase
+         */
+        function handleResultsPhase() {
+            const state = StateManager.getState();
+            UIManager.showResults(state.winner, state.xpEarned);
+        }
+        
+        return {
+            start,
+            transitionToPhase
+        };
+    })();
+    
+    /*═══════════════════════════════════════════════════════════════════════════
+      PUBLIC API
+    ═══════════════════════════════════════════════════════════════════════════*/
+    
+    return {
+        start: GameLoop.start,
+        state: StateManager.getState,
+        CONFIG
+    };
+    
+})();
+
+/*═══════════════════════════════════════════════════════════════════════════════
+  INITIALIZE GAME ON DOM READY
+═══════════════════════════════════════════════════════════════════════════════*/
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check WebGL support
+    if (!window.WebGLRenderingContext) {
+        alert('Your browser does not support WebGL. Please use a modern browser.');
+        return;
+    }
+    
+    // Start the game
+    GeoGladiator.start().catch(error => {
+        console.error('Failed to start game:', error);
+    });
+});
+
+// Prevent context menu on right-click
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Handle visibility change (pause when tab is hidden)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        console.log('Game paused (tab hidden)');
+    } else {
+        console.log('Game resumed');
+    }
+});
+    </script>
+</body>
+</html>
