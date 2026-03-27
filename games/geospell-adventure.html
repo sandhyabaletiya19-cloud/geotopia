@@ -1,0 +1,3797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 GeoSpell Adventure - Geography Spelling Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6C63FF;
+            --secondary: #FF6B9D;
+            --success: #4ECDC4;
+            --warning: #FFE66D;
+            --danger: #FF6B6B;
+            --dark: #2D3436;
+            --light: #F8F9FA;
+            --jungle: #27AE60;
+            --ocean: #3498DB;
+            --desert: #F39C12;
+            --space: #9B59B6;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out;
+            opacity: 0.1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        /* Main Container */
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-icon {
+            font-size: 1.3rem;
+        }
+
+        .stat-value {
+            color: var(--dark);
+        }
+
+        .streak-counter {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+        }
+
+        .streak-counter.active {
+            animation: fireGlow 0.5s ease infinite alternate;
+        }
+
+        @keyframes fireGlow {
+            from { box-shadow: 0 0 10px #FF6B6B; }
+            to { box-shadow: 0 0 25px #FF8E53; }
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tab {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 30px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 5px 25px rgba(108, 99, 255, 0.4);
+        }
+
+        /* Screen Containers */
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Level Map Screen */
+        .level-map-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .map-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .map-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .map-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .theme-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .theme-btn {
+            padding: 12px 25px;
+            border: 3px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-btn.jungle {
+            background: linear-gradient(135deg, #27AE60, #2ECC71);
+            color: white;
+        }
+
+        .theme-btn.ocean {
+            background: linear-gradient(135deg, #3498DB, #5DADE2);
+            color: white;
+        }
+
+        .theme-btn.desert {
+            background: linear-gradient(135deg, #F39C12, #F1C40F);
+            color: white;
+        }
+
+        .theme-btn.space {
+            background: linear-gradient(135deg, #9B59B6, #8E44AD);
+            color: white;
+        }
+
+        .theme-btn.active {
+            border-color: var(--dark);
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-path {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .level-path::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .level-path::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .level-path::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+
+        .level-node {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-node.completed {
+            background: linear-gradient(135deg, var(--success), #26D0CE);
+            color: white;
+        }
+
+        .level-node.completed::after {
+            content: '⭐';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 1.2rem;
+        }
+
+        .level-node.current {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            animation: currentLevel 1s infinite;
+            transform: scale(1.15);
+        }
+
+        @keyframes currentLevel {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(108, 99, 255, 0); }
+        }
+
+        .level-node.locked {
+            background: #DDD;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .level-node.locked::before {
+            content: '🔒';
+            font-size: 1.5rem;
+        }
+
+        .level-node:not(.locked):hover {
+            transform: scale(1.2);
+        }
+
+        .level-info-popup {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .level-node:hover .level-info-popup {
+            opacity: 1;
+            bottom: 110%;
+        }
+
+        /* Game Screen */
+        .game-screen {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 1024px) {
+            .game-screen {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+
+        /* Sidebar */
+        .game-sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-progress {
+            margin-bottom: 25px;
+        }
+
+        .level-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        }
+
+        .level-number {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+        }
+
+        .level-label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar-container {
+            background: #E8E8E8;
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #26D0CE);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .hint-section {
+            background: linear-gradient(135deg, #FFF9E6, #FFF3CD);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .hint-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--desert);
+        }
+
+        .hint-text {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .power-ups {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .power-up-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 15px 10px;
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .power-up-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .power-up-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .power-up-icon {
+            font-size: 1.8rem;
+        }
+
+        .power-up-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #666;
+        }
+
+        .power-up-count {
+            font-size: 0.7rem;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* Main Game Area */
+        .game-main {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--jungle), #2ECC71);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .word-image-container {
+            width: 100%;
+            max-width: 400px;
+            height: 250px;
+            margin: 0 auto 25px;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .word-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .word-image-container:hover .word-image {
+            transform: scale(1.05);
+        }
+
+        .image-label {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* Word Display */
+        .word-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .letter-slot {
+            width: 60px;
+            height: 70px;
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            border: 3px solid #DDD;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: var(--dark);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .letter-slot.blank {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #EDE7FF, #E8E3FF);
+            cursor: pointer;
+        }
+
+        .letter-slot.blank:hover {
+            transform: scale(1.1);
+            border-color: var(--secondary);
+        }
+
+        .letter-slot.blank.selected {
+            border-color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), #FF8BAD);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .letter-slot.filled {
+            background: linear-gradient(135deg, var(--success), #26D0CE);
+            border-color: var(--success);
+            color: white;
+            animation: letterFill 0.5s ease;
+        }
+
+        .letter-slot.revealed {
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            border-color: #AAA;
+            color: var(--dark);
+        }
+
+        .letter-slot.wrong {
+            animation: shake 0.5s ease;
+            background: linear-gradient(135deg, var(--danger), #FF8080);
+            border-color: var(--danger);
+        }
+
+        @keyframes letterFill {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Letter Options */
+        .letter-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .letter-option {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--primary), #8B7FFF);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .letter-option:hover:not(:disabled) {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(108, 99, 255, 0.4);
+        }
+
+        .letter-option:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .letter-option.used {
+            background: #CCC;
+            box-shadow: none;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--success), #26D0CE);
+            color: white;
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            color: var(--dark);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Timer */
+        .timer-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .timer.warning {
+            color: var(--warning);
+            animation: timerPulse 0.5s infinite;
+        }
+
+        .timer.danger {
+            color: var(--danger);
+            animation: timerPulse 0.3s infinite;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Word Meaning Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            animation: modalSlide 0.5s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .success-animation {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: successBounce 1s ease;
+        }
+
+        @keyframes successBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+
+        .modal-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--success), #26D0CE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-word {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .meaning-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .word-meaning {
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meaning-label {
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .meaning-text {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .rewards-earned {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .reward-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--warning), #FFF176);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .modal-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.4);
+        }
+
+        /* Wrong Answer Modal */
+        .wrong-modal .success-animation {
+            animation: wrongShake 0.5s ease;
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .wrong-modal .modal-title {
+            background: linear-gradient(135deg, var(--danger), #FF8080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .correct-answer {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100%) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Daily Reward */
+        .daily-reward-modal .modal-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .daily-reward-modal .meaning-label {
+            color: var(--warning);
+        }
+
+        .daily-reward-modal .meaning-text {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .daily-streak {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .streak-day {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .streak-day.claimed {
+            background: var(--success);
+        }
+
+        .streak-day.today {
+            background: var(--warning);
+            animation: todayPulse 1s infinite;
+        }
+
+        @keyframes todayPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 230, 109, 0.5); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 230, 109, 0); }
+        }
+
+        /* Shop */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .shop-item {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .shop-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .shop-item-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .shop-item-name {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .shop-item-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: var(--warning);
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .buy-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .buy-btn:disabled {
+            background: #CCC;
+            cursor: not-allowed;
+        }
+
+        /* Profile */
+        .profile-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .avatar-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.3);
+        }
+
+        .profile-name {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .profile-stat {
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .profile-stat-value {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .profile-stat-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Settings */
+        .settings-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .setting-label {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+        }
+
+        .setting-icon {
+            font-size: 1.5rem;
+        }
+
+        .toggle-switch {
+            width: 60px;
+            height: 30px;
+            background: #DDD;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, var(--success), #26D0CE);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 32px;
+        }
+
+        /* Voice Button */
+        .voice-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--ocean), #5DADE2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 15px;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-btn.speaking {
+            animation: speakingPulse 0.5s infinite;
+        }
+
+        @keyframes speakingPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(52, 152, 219, 0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stats-bar {
+                justify-content: center;
+            }
+
+            .letter-slot {
+                width: 50px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .letter-option {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+
+            .level-node {
+                width: 55px;
+                height: 55px;
+                font-size: 1rem;
+            }
+
+            .map-title {
+                font-size: 1.8rem;
+            }
+
+            .modal-word {
+                font-size: 2rem;
+            }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: loadingBounce 1s infinite;
+        }
+
+        @keyframes loadingBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .loading-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            animation: loadingBar 2s ease-in-out infinite;
+        }
+
+        @keyframes loadingBar {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* Endless Mode */
+        .endless-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .endless-stat {
+            text-align: center;
+        }
+
+        .endless-stat-value {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .endless-stat-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        /* Challenge Mode Timer */
+        .challenge-timer {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) var(--progress), #E8E8E8 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .challenge-timer::before {
+            content: '';
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .challenge-time {
+            position: relative;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: var(--dark);
+        }
+
+        /* Tooltips */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            bottom: 120%;
+        }
+
+        /* Achievement Toast */
+        .achievement-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--warning), #FFF176);
+            padding: 20px 25px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 9999;
+        }
+
+        .achievement-toast.show {
+            transform: translateX(0);
+        }
+
+        .achievement-icon {
+            font-size: 2.5rem;
+        }
+
+        .achievement-text {
+            font-weight: 700;
+        }
+
+        .achievement-name {
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .achievement-desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo">🌍</div>
+        <div class="loading-text">GeoSpell Adventure</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+
+    <!-- Background Animation -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <!-- Achievement Toast -->
+    <div class="achievement-toast" id="achievementToast">
+        <div class="achievement-icon">🏆</div>
+        <div class="achievement-text">
+            <div class="achievement-name">Achievement Unlocked!</div>
+            <div class="achievement-desc" id="achievementDesc"></div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="logo">
+                <div class="logo-icon">🌍</div>
+                <span class="logo-text">GeoSpell</span>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-item" data-tooltip="Your coins">
+                    <span class="stat-icon">💰</span>
+                    <span class="stat-value" id="coinCount">0</span>
+                </div>
+                <div class="stat-item" data-tooltip="Your stars">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-value" id="starCount">0</span>
+                </div>
+                <div class="stat-item streak-counter" data-tooltip="Current streak">
+                    <span class="stat-icon">🔥</span>
+                    <span class="stat-value" id="streakCount">0</span>
+                </div>
+                <div class="stat-item" data-tooltip="Words learned">
+                    <span class="stat-icon">📚</span>
+                    <span class="stat-value" id="wordsLearned">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-screen="levelMap">
+                <span>🗺️</span> Level Map
+            </button>
+            <button class="nav-tab" data-screen="endless">
+                <span>♾️</span> Endless
+            </button>
+            <button class="nav-tab" data-screen="challenge">
+                <span>⏱️</span> Challenge
+            </button>
+            <button class="nav-tab" data-screen="shop">
+                <span>🛒</span> Shop
+            </button>
+            <button class="nav-tab" data-screen="profile">
+                <span>👤</span> Profile
+            </button>
+            <button class="nav-tab" data-screen="settings">
+                <span>⚙️</span> Settings
+            </button>
+        </nav>
+
+        <!-- Level Map Screen -->
+        <section class="screen active" id="levelMapScreen">
+            <div class="level-map-container">
+                <div class="map-header">
+                    <h1 class="map-title">🗺️ Adventure Map</h1>
+                    <p class="map-subtitle">Complete levels to unlock new words and earn rewards!</p>
+                </div>
+
+                <div class="theme-selector">
+                    <button class="theme-btn jungle active" data-theme="jungle">🌿 Jungle</button>
+                    <button class="theme-btn ocean" data-theme="ocean">🌊 Ocean</button>
+                    <button class="theme-btn desert" data-theme="desert">🏜️ Desert</button>
+                    <button class="theme-btn space" data-theme="space">🌌 Space</button>
+                </div>
+
+                <div class="level-path" id="levelPath">
+                    <!-- Levels will be generated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Screen -->
+        <section class="screen" id="gameScreen">
+            <div class="game-screen">
+                <!-- Sidebar -->
+                <aside class="game-sidebar">
+                    <div class="level-progress">
+                        <div class="level-badge">
+                            <span class="level-number" id="currentLevelDisplay">1</span>
+                            <div>
+                                <div class="level-label">LEVEL</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="levelProgressBar" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">0/5 words</div>
+                    </div>
+
+                    <div class="hint-section">
+                        <div class="hint-title">
+                            <span>💡</span> Hint
+                        </div>
+                        <p class="hint-text" id="hintText">Loading hint...</p>
+                    </div>
+
+                    <div class="power-ups">
+                        <button class="power-up-btn" id="revealLetterBtn" data-tooltip="Reveal one letter">
+                            <span class="power-up-icon">🔍</span>
+                            <span class="power-up-name">Reveal</span>
+                            <span class="power-up-count" id="revealCount">3</span>
+                        </button>
+                        <button class="power-up-btn" id="skipWordBtn" data-tooltip="Skip this word">
+                            <span class="power-up-icon">⏭️</span>
+                            <span class="power-up-name">Skip</span>
+                            <span class="power-up-count" id="skipCount">2</span>
+                        </button>
+                        <button class="power-up-btn" id="extraTimeBtn" data-tooltip="Add 30 seconds">
+                            <span class="power-up-icon">⏰</span>
+                            <span class="power-up-name">+Time</span>
+                            <span class="power-up-count" id="timeCount">2</span>
+                        </button>
+                        <button class="power-up-btn" id="removeWrongBtn" data-tooltip="Remove wrong letters">
+                            <span class="power-up-icon">❌</span>
+                            <span class="power-up-name">Remove</span>
+                            <span class="power-up-count" id="removeCount">2</span>
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Main Game Area -->
+                <main class="game-main">
+                    <div class="category-badge" id="categoryBadge">
+                        <span>🏔️</span>
+                        <span id="categoryName">Landforms</span>
+                    </div>
+
+                    <div class="word-image-container">
+                        <img class="word-image" id="wordImage" src="" alt="Word hint image">
+                        <div class="image-label">Guess the word!</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                        <div class="word-display" id="wordDisplay">
+                            <!-- Letter slots will be generated here -->
+                        </div>
+                        <button class="voice-btn" id="voiceBtn" data-tooltip="Hear pronunciation">
+                            🔊
+                        </button>
+                    </div>
+
+                    <div class="letter-options" id="letterOptions">
+                        <!-- Letter options will be generated here -->
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="action-btn secondary" id="clearBtn">
+                            <span>🔄</span> Clear
+                        </button>
+                        <button class="action-btn primary" id="checkBtn" disabled>
+                            <span>✓</span> Check Answer
+                        </button>
+                        <button class="action-btn secondary" id="backToMapBtn">
+                            <span>🗺️</span> Back to Map
+                        </button>
+                    </div>
+                </main>
+            </div>
+        </section>
+
+        <!-- Endless Mode Screen -->
+        <section class="screen" id="endlessScreen">
+            <div class="game-main" style="max-width: 800px; margin: 0 auto;">
+                <h2 style="text-align: center; font-family: 'Fredoka One', cursive; font-size: 2rem; margin-bottom: 20px;">
+                    ♾️ Endless Mode
+                </h2>
+                <div class="endless-stats">
+                    <div class="endless-stat">
+                        <div class="endless-stat-value" id="endlessScore">0</div>
+                        <div class="endless-stat-label">Score</div>
+                    </div>
+                    <div class="endless-stat">
+                        <div class="endless-stat-value" id="endlessStreak">0</div>
+                        <div class="endless-stat-label">Streak</div>
+                    </div>
+                    <div class="endless-stat">
+                        <div class="endless-stat-value" id="endlessBest">0</div>
+                        <div class="endless-stat-label">Best</div>
+                    </div>
+                </div>
+
+                <div class="word-image-container">
+                    <img class="word-image" id="endlessWordImage" src="" alt="Word hint">
+                </div>
+
+                <div class="word-display" id="endlessWordDisplay"></div>
+
+                <div class="letter-options" id="endlessLetterOptions"></div>
+
+                <div class="action-buttons">
+                    <button class="action-btn secondary" id="endlessClearBtn">🔄 Clear</button>
+                    <button class="action-btn primary" id="endlessCheckBtn" disabled>✓ Check</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Challenge Mode Screen -->
+        <section class="screen" id="challengeScreen">
+            <div class="game-main" style="max-width: 800px; margin: 0 auto;">
+                <h2 style="text-align: center; font-family: 'Fredoka One', cursive; font-size: 2rem; margin-bottom: 20px;">
+                    ⏱️ Challenge Mode
+                </h2>
+
+                <div class="challenge-timer" id="challengeTimerCircle" style="--progress: 100%">
+                    <span class="challenge-time" id="challengeTime">60</span>
+                </div>
+
+                <div class="endless-stats">
+                    <div class="endless-stat">
+                        <div class="endless-stat-value" id="challengeScore">0</div>
+                        <div class="endless-stat-label">Score</div>
+                    </div>
+                    <div class="endless-stat">
+                        <div class="endless-stat-value" id="challengeWords">0</div>
+                        <div class="endless-stat-label">Words</div>
+                    </div>
+                </div>
+
+                <div class="word-image-container">
+                    <img class="word-image" id="challengeWordImage" src="" alt="Word hint">
+                </div>
+
+                <div class="word-display" id="challengeWordDisplay"></div>
+
+                <div class="letter-options" id="challengeLetterOptions"></div>
+
+                <div class="action-buttons">
+                    <button class="action-btn secondary" id="challengeClearBtn">🔄 Clear</button>
+                    <button class="action-btn primary" id="challengeCheckBtn" disabled>✓ Check</button>
+                    <button class="action-btn primary" id="startChallengeBtn">▶️ Start Challenge</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shop Screen -->
+        <section class="screen" id="shopScreen">
+            <div class="level-map-container">
+                <div class="map-header">
+                    <h1 class="map-title">🛒 Shop</h1>
+                    <p class="map-subtitle">Spend your coins on power-ups and customizations!</p>
+                </div>
+
+                <div class="shop-grid" id="shopGrid">
+                    <!-- Shop items will be generated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Screen -->
+        <section class="screen" id="profileScreen">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="avatar-container" id="playerAvatar">🧒</div>
+                    <h2 class="profile-name" id="playerName">Explorer</h2>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="profileLevel">1</div>
+                        <div class="profile-stat-label">Current Level</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="profileWords">0</div>
+                        <div class="profile-stat-label">Words Learned</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="profileStreak">0</div>
+                        <div class="profile-stat-label">Best Streak</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="profileAccuracy">0%</div>
+                        <div class="profile-stat-label">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Screen -->
+        <section class="screen" id="settingsScreen">
+            <div class="settings-container">
+                <h2 style="text-align: center; font-family: 'Fredoka One', cursive; font-size: 2rem; margin-bottom: 30px;">
+                    ⚙️ Settings
+                </h2>
+
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span class="setting-icon">🔊</span>
+                        <span>Sound Effects</span>
+                    </div>
+                    <div class="toggle-switch active" id="soundToggle"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span class="setting-icon">🎵</span>
+                        <span>Background Music</span>
+                    </div>
+                    <div class="toggle-switch active" id="musicToggle"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span class="setting-icon">🗣️</span>
+                        <span>Voice Pronunciation</span>
+                    </div>
+                    <div class="toggle-switch active" id="voiceToggle"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span class="setting-icon">🖼️</span>
+                        <span>Image Hints</span>
+                    </div>
+                    <div class="toggle-switch active" id="imageToggle"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span class="setting-icon">📳</span>
+                        <span>Vibration</span>
+                    </div>
+                    <div class="toggle-switch active" id="vibrationToggle"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('successModal')">✕</button>
+            <div class="success-animation">🎉</div>
+            <h2 class="modal-title">Awesome!</h2>
+            <div class="modal-word" id="modalWord"></div>
+
+            <img class="meaning-image" id="meaningImage" src="" alt="Word meaning">
+
+            <div class="word-meaning">
+                <div class="meaning-label">📖 Meaning:</div>
+                <p class="meaning-text" id="meaningText"></p>
+            </div>
+
+            <div class="word-meaning">
+                <div class="meaning-label">📂 Category:</div>
+                <p class="meaning-text" id="modalCategory"></p>
+            </div>
+
+            <div class="rewards-earned">
+                <div class="reward-item">
+                    <span>💰</span>
+                    <span id="earnedCoins">+10</span>
+                </div>
+                <div class="reward-item">
+                    <span>⭐</span>
+                    <span id="earnedStars">+1</span>
+                </div>
+            </div>
+
+            <button class="modal-btn" id="nextWordBtn">Next Word ➡️</button>
+        </div>
+    </div>
+
+    <!-- Wrong Answer Modal -->
+    <div class="modal-overlay wrong-modal" id="wrongModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('wrongModal')">✕</button>
+            <div class="success-animation">😅</div>
+            <h2 class="modal-title">Not Quite!</h2>
+
+            <p style="margin-bottom: 15px; color: #666;">The correct answer was:</p>
+            <div class="correct-answer" id="correctAnswer"></div>
+
+            <img class="meaning-image" id="wrongMeaningImage" src="" alt="Word meaning">
+
+            <div class="word-meaning">
+                <div class="meaning-label">📖 Meaning:</div>
+                <p class="meaning-text" id="wrongMeaningText"></p>
+            </div>
+
+            <p style="margin-bottom: 20px; color: #666;">Try this level again to continue!</p>
+
+            <button class="modal-btn" id="retryBtn">Try Again 🔄</button>
+        </div>
+    </div>
+
+    <!-- Daily Reward Modal -->
+    <div class="modal-overlay daily-reward-modal" id="dailyRewardModal">
+        <div class="modal-content">
+            <div class="success-animation">🎁</div>
+            <h2 class="modal-title" style="color: white; -webkit-text-fill-color: white;">Daily Reward!</h2>
+
+            <div class="daily-streak" id="dailyStreak">
+                <!-- Streak days will be generated -->
+            </div>
+
+            <div class="word-meaning">
+                <div class="meaning-label">Today's Reward:</div>
+                <p class="meaning-text">50 Coins + 5 Stars</p>
+            </div>
+
+            <button class="modal-btn" onclick="claimDailyReward()">Claim Reward! 🎉</button>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div class="modal-overlay" id="levelCompleteModal">
+        <div class="modal-content">
+            <div class="success-animation">🏆</div>
+            <h2 class="modal-title">Level Complete!</h2>
+
+            <div class="rewards-earned" style="margin-top: 20px;">
+                <div class="reward-item">
+                    <span>💰</span>
+                    <span id="levelCoins">+100</span>
+                </div>
+                <div class="reward-item">
+                    <span>⭐</span>
+                    <span id="levelStars">+10</span>
+                </div>
+            </div>
+
+            <div class="profile-stats" style="margin: 20px 0;">
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="levelAccuracy">100%</div>
+                    <div class="profile-stat-label">Accuracy</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="levelWordsCount">5</div>
+                    <div class="profile-stat-label">Words</div>
+                </div>
+            </div>
+
+            <button class="modal-btn" id="nextLevelBtn">Next Level ➡️</button>
+            <button class="action-btn secondary" style="margin-top: 15px;" id="backToMapFromComplete">
+                🗺️ Back to Map
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🌍 GEOGRAPHY WORD DATABASE (5000+ words)
+        // ==========================================
+
+        const wordDatabase = {
+            // Level 1-20: 2-3 letter words
+            beginner: [
+                // Earth elements
+                { word: "ox", level: 1, category: "Animals", hint: "A large farm animal", image: "ox" },
+                { word: "bay", level: 2, category: "Water Bodies", hint: "A body of water partially enclosed by land", image: "bay" },
+                { word: "sea", level: 3, category: "Water Bodies", hint: "A large body of salt water", image: "sea" },
+                { word: "sun", level: 4, category: "Natural Elements", hint: "The star at the center of our solar system", image: "sun" },
+                { word: "sky", level: 5, category: "Natural Elements", hint: "What you see when you look up outside", image: "sky" },
+                { word: "fog", level: 6, category: "Weather", hint: "A thick cloud near the ground", image: "fog" },
+                { word: "ice", level: 7, category: "Weather", hint: "Frozen water", image: "ice" },
+                { word: "mud", level: 8, category: "Earth", hint: "Wet soil", image: "mud" },
+                { word: "owl", level: 9, category: "Birds", hint: "A nocturnal bird with big eyes", image: "owl" },
+                { word: "ant", level: 10, category: "Animals", hint: "A tiny insect that lives in colonies", image: "ant" },
+                { word: "bee", level: 11, category: "Animals", hint: "An insect that makes honey", image: "bee" },
+                { word: "elm", level: 12, category: "Trees", hint: "A type of deciduous tree", image: "elm tree" },
+                { word: "oak", level: 13, category: "Trees", hint: "A tree that produces acorns", image: "oak tree" },
+                { word: "dew", level: 14, category: "Weather", hint: "Morning moisture on grass", image: "dew" },
+                { word: "bay", level: 15, category: "Water Bodies", hint: "Water inlet surrounded by land", image: "bay water" },
+                { word: "map", level: 16, category: "Geography Tools", hint: "A drawing of places on Earth", image: "map" },
+                { word: "cub", level: 17, category: "Animals", hint: "A baby bear", image: "bear cub" },
+                { word: "fin", level: 18, category: "Animals", hint: "What fish use to swim", image: "fish fin" },
+                { word: "den", level: 19, category: "Animal Homes", hint: "A bear's home", image: "animal den" },
+                { word: "web", level: 20, category: "Animals", hint: "What spiders make", image: "spider web" }
+            ],
+
+            // Level 21-50: 3-4 letter words
+            easy: [
+                { word: "rain", level: 21, category: "Weather", hint: "Water falling from clouds", image: "rain" },
+                { word: "wind", level: 22, category: "Weather", hint: "Moving air", image: "wind" },
+                { word: "snow", level: 23, category: "Weather", hint: "Frozen precipitation", image: "snow" },
+                { word: "lake", level: 24, category: "Water Bodies", hint: "A body of freshwater surrounded by land", image: "lake" },
+                { word: "pond", level: 25, category: "Water Bodies", hint: "A small body of still water", image: "pond" },
+                { word: "hill", level: 26, category: "Landforms", hint: "A small elevated area of land", image: "hill" },
+                { word: "cave", level: 27, category: "Landforms", hint: "A natural underground space", image: "cave" },
+                { word: "rock", level: 28, category: "Earth", hint: "A hard solid mineral material", image: "rock" },
+                { word: "sand", level: 29, category: "Earth", hint: "Tiny grains found on beaches", image: "sand" },
+                { word: "soil", level: 30, category: "Earth", hint: "The top layer of earth where plants grow", image: "soil" },
+                { word: "tree", level: 31, category: "Plants", hint: "A tall plant with a trunk", image: "tree" },
+                { word: "leaf", level: 32, category: "Plants", hint: "The flat green part of a plant", image: "leaf" },
+                { word: "root", level: 33, category: "Plants", hint: "The underground part of a plant", image: "root" },
+                { word: "bark", level: 34, category: "Plants", hint: "The outer covering of a tree", image: "tree bark" },
+                { word: "fish", level: 35, category: "Animals", hint: "An animal that lives in water", image: "fish" },
+                { word: "bird", level: 36, category: "Animals", hint: "A feathered animal that can fly", image: "bird" },
+                { word: "deer", level: 37, category: "Animals", hint: "A forest animal with antlers", image: "deer" },
+                { word: "wolf", level: 38, category: "Animals", hint: "A wild relative of dogs", image: "wolf" },
+                { word: "bear", level: 39, category: "Animals", hint: "A large furry mammal", image: "bear" },
+                { word: "lion", level: 40, category: "Animals", hint: "The king of the jungle", image: "lion" },
+                { word: "moon", level: 41, category: "Space", hint: "Earth's natural satellite", image: "moon" },
+                { word: "star", level: 42, category: "Space", hint: "A bright point of light in the night sky", image: "star" },
+                { word: "tide", level: 43, category: "Water Bodies", hint: "The rise and fall of sea levels", image: "tide" },
+                { word: "wave", level: 44, category: "Water Bodies", hint: "Moving water on the ocean surface", image: "wave" },
+                { word: "reef", level: 45, category: "Water Bodies", hint: "An underwater ridge of rock or coral", image: "coral reef" },
+                { word: "gulf", level: 46, category: "Water Bodies", hint: "A large bay", image: "gulf" },
+                { word: "peak", level: 47, category: "Landforms", hint: "The top of a mountain", image: "mountain peak" },
+                { word: "vale", level: 48, category: "Landforms", hint: "A valley", image: "valley" },
+                { word: "mesa", level: 49, category: "Landforms", hint: "A flat-topped hill with steep sides", image: "mesa" },
+                { word: "dune", level: 50, category: "Landforms", hint: "A hill of sand", image: "sand dune" }
+            ],
+
+            // Level 51-100: 4-5 letter words
+            medium: [
+                { word: "ocean", level: 51, category: "Water Bodies", hint: "The largest body of saltwater", image: "ocean" },
+                { word: "river", level: 52, category: "Water Bodies", hint: "A large flowing body of freshwater", image: "river" },
+                { word: "creek", level: 53, category: "Water Bodies", hint: "A small stream", image: "creek" },
+                { word: "marsh", level: 54, category: "Ecosystems", hint: "A wet, swampy area", image: "marsh" },
+                { word: "swamp", level: 55, category: "Ecosystems", hint: "Wetland with trees", image: "swamp" },
+                { word: "delta", level: 56, category: "Landforms", hint: "Land at the mouth of a river", image: "river delta" },
+                { word: "cliff", level: 57, category: "Landforms", hint: "A steep rock face", image: "cliff" },
+                { word: "beach", level: 58, category: "Landforms", hint: "Sandy area by the water", image: "beach" },
+                { word: "coast", level: 59, category: "Landforms", hint: "Land along the sea", image: "coast" },
+                { word: "shore", level: 60, category: "Landforms", hint: "The edge of a body of water", image: "shore" },
+                { word: "coral", level: 61, category: "Marine Life", hint: "Colorful underwater organisms", image: "coral" },
+                { word: "whale", level: 62, category: "Animals", hint: "The largest animal on Earth", image: "whale" },
+                { word: "shark", level: 63, category: "Animals", hint: "A predatory fish with sharp teeth", image: "shark" },
+                { word: "eagle", level: 64, category: "Birds", hint: "A large bird of prey", image: "eagle" },
+                { word: "crane", level: 65, category: "Birds", hint: "A tall wading bird", image: "crane bird" },
+                { word: "heron", level: 66, category: "Birds", hint: "A long-legged water bird", image: "heron" },
+                { word: "camel", level: 67, category: "Animals", hint: "Desert animal with humps", image: "camel" },
+                { word: "zebra", level: 68, category: "Animals", hint: "Striped African horse", image: "zebra" },
+                { word: "tiger", level: 69, category: "Animals", hint: "Striped big cat", image: "tiger" },
+                { word: "panda", level: 70, category: "Animals", hint: "Black and white bear from China", image: "panda" },
+                { word: "storm", level: 71, category: "Weather", hint: "Severe weather with wind and rain", image: "storm" },
+                { word: "cloud", level: 72, category: "Weather", hint: "White fluffy mass in the sky", image: "cloud" },
+                { word: "frost", level: 73, category: "Weather", hint: "Frozen dew", image: "frost" },
+                { word: "sleet", level: 74, category: "Weather", hint: "Icy rain", image: "sleet" },
+                { word: "hail", level: 75, category: "Weather", hint: "Balls of ice falling from sky", image: "hail" },
+                { word: "grove", level: 76, category: "Ecosystems", hint: "A small group of trees", image: "grove" },
+                { word: "glade", level: 77, category: "Ecosystems", hint: "An open space in a forest", image: "forest glade" },
+                { word: "field", level: 78, category: "Landforms", hint: "An open area of land", image: "field" },
+                { word: "plain", level: 79, category: "Landforms", hint: "A large flat area of land", image: "plain" },
+                { word: "basin", level: 80, category: "Landforms", hint: "A low area surrounded by higher land", image: "basin" },
+                { word: "bluff", level: 81, category: "Landforms", hint: "A steep cliff or bank", image: "bluff" },
+                { word: "butte", level: 82, category: "Landforms", hint: "An isolated hill with steep sides", image: "butte" },
+                { word: "fjord", level: 83, category: "Landforms", hint: "A narrow sea inlet between cliffs", image: "fjord" },
+                { word: "gorge", level: 84, category: "Landforms", hint: "A narrow valley with steep sides", image: "gorge" },
+                { word: "ledge", level: 85, category: "Landforms", hint: "A narrow horizontal surface on a cliff", image: "rock ledge" },
+                { word: "ridge", level: 86, category: "Landforms", hint: "A long narrow hilltop", image: "ridge" },
+                { word: "slope", level: 87, category: "Landforms", hint: "The side of a hill", image: "slope" },
+                { word: "crust", level: 88, category: "Earth", hint: "The outer layer of Earth", image: "earth crust" },
+                { word: "magma", level: 89, category: "Earth", hint: "Hot molten rock underground", image: "magma" },
+                { word: "comet", level: 90, category: "Space", hint: "Icy space object with a tail", image: "comet" },
+                { word: "orbit", level: 91, category: "Space", hint: "The path around a planet", image: "orbit" },
+                { word: "flora", level: 92, category: "Plants", hint: "Plant life of a region", image: "flora" },
+                { word: "fauna", level: 93, category: "Animals", hint: "Animal life of a region", image: "fauna" },
+                { word: "maple", level: 94, category: "Trees", hint: "Tree known for its syrup", image: "maple tree" },
+                { word: "birch", level: 95, category: "Trees", hint: "Tree with white bark", image: "birch tree" },
+                { word: "cedar", level: 96, category: "Trees", hint: "An evergreen tree", image: "cedar tree" },
+                { word: "algae", level: 97, category: "Plants", hint: "Simple aquatic plants", image: "algae" },
+                { word: "kelp", level: 98, category: "Plants", hint: "Large seaweed", image: "kelp" },
+                { word: "moss", level: 99, category: "Plants", hint: "Soft green plant on rocks", image: "moss" },
+                { word: "fern", level: 100, category: "Plants", hint: "Plant with feathery leaves", image: "fern" }
+            ],
+
+            // Level 101-200: 5-6 letter words
+            intermediate: [
+                { word: "island", level: 101, category: "Landforms", hint: "Land surrounded by water", image: "island" },
+                { word: "desert", level: 102, category: "Ecosystems", hint: "A very dry and sandy place", image: "desert" },
+                { word: "forest", level: 103, category: "Ecosystems", hint: "Large area covered with trees", image: "forest" },
+                { word: "jungle", level: 104, category: "Ecosystems", hint: "Dense tropical forest", image: "jungle" },
+                { word: "canyon", level: 105, category: "Landforms", hint: "A deep valley with steep sides", image: "canyon" },
+                { word: "valley", level: 106, category: "Landforms", hint: "Low land between hills", image: "valley" },
+                { word: "meadow", level: 107, category: "Ecosystems", hint: "A field of grass and flowers", image: "meadow" },
+                { word: "tundra", level: 108, category: "Ecosystems", hint: "Cold treeless region", image: "tundra" },
+                { word: "steppe", level: 109, category: "Ecosystems", hint: "Large flat grassland", image: "steppe" },
+                { word: "prairie", level: 110, category: "Ecosystems", hint: "North American grassland", image: "prairie" },
+                { word: "savanna", level: 111, category: "Ecosystems", hint: "Tropical grassland with scattered trees", image: "savanna" },
+                { word: "wetland", level: 112, category: "Ecosystems", hint: "Land saturated with water", image: "wetland" },
+                { word: "lagoon", level: 113, category: "Water Bodies", hint: "Shallow body of water near coast", image: "lagoon" },
+                { word: "strait", level: 114, category: "Water Bodies", hint: "Narrow water passage", image: "strait" },
+                { word: "rapids", level: 115, category: "Water Bodies", hint: "Fast-flowing river section", image: "rapids" },
+                { word: "geyser", level: 116, category: "Earth", hint: "Hot water shooting from ground", image: "geyser" },
+                { word: "crater", level: 117, category: "Landforms", hint: "Bowl-shaped hole in ground", image: "crater" },
+                { word: "summit", level: 118, category: "Landforms", hint: "The very top of a mountain", image: "mountain summit" },
+                { word: "ravine", level: 119, category: "Landforms", hint: "A narrow deep valley", image: "ravine" },
+                { word: "plateau", level: 120, category: "Landforms", hint: "Flat highland area", image: "plateau" },
+                { word: "glacier", level: 121, category: "Ice", hint: "Massive slow-moving ice body", image: "glacier" },
+                { word: "iceberg", level: 122, category: "Ice", hint: "Floating ice mountain", image: "iceberg" },
+                { word: "volcano", level: 123, category: "Landforms", hint: "Mountain that erupts lava", image: "volcano" },
+                { word: "erosion", level: 124, category: "Earth", hint: "Wearing away of land", image: "erosion" },
+                { word: "tsunami", level: 125, category: "Natural Events", hint: "Giant ocean wave", image: "tsunami" },
+                { word: "tornado", level: 126, category: "Weather", hint: "Spinning funnel of wind", image: "tornado" },
+                { word: "thunder", level: 127, category: "Weather", hint: "Loud sound during storm", image: "thunder" },
+                { word: "rainbow", level: 128, category: "Weather", hint: "Colorful arc in the sky", image: "rainbow" },
+                { word: "monsoon", level: 129, category: "Weather", hint: "Seasonal heavy rains", image: "monsoon" },
+                { word: "drought", level: 130, category: "Weather", hint: "Long period without rain", image: "drought" },
+                { word: "climate", level: 131, category: "Weather", hint: "Long-term weather patterns", image: "climate" },
+                { word: "penguin", level: 132, category: "Animals", hint: "Flightless bird from Antarctica", image: "penguin" },
+                { word: "dolphin", level: 133, category: "Animals", hint: "Intelligent ocean mammal", image: "dolphin" },
+                { word: "octopus", level: 134, category: "Animals", hint: "Sea creature with eight arms", image: "octopus" },
+                { word: "buffalo", level: 135, category: "Animals", hint: "Large horned mammal", image: "buffalo" },
+                { word: "gorilla", level: 136, category: "Animals", hint: "Large African ape", image: "gorilla" },
+                { word: "leopard", level: 137, category: "Animals", hint: "Spotted big cat", image: "leopard" },
+                { word: "cheetah", level: 138, category: "Animals", hint: "Fastest land animal", image: "cheetah" },
+                { word: "giraffe", level: 139, category: "Animals", hint: "Tallest land animal", image: "giraffe" },
+                { word: "ostrich", level: 140, category: "Birds", hint: "Largest flightless bird", image: "ostrich" },
+                { word: "pelican", level: 141, category: "Birds", hint: "Bird with large throat pouch", image: "pelican" },
+                { word: "flamingo", level: 142, category: "Birds", hint: "Pink wading bird", image: "flamingo" },
+                { word: "sparrow", level: 143, category: "Birds", hint: "Small common bird", image: "sparrow" },
+                { word: "peacock", level: 144, category: "Birds", hint: "Bird with colorful tail feathers", image: "peacock" },
+                { word: "parrot", level: 145, category: "Birds", hint: "Colorful bird that can talk", image: "parrot" },
+                { word: "toucan", level: 146, category: "Birds", hint: "Bird with large colorful beak", image: "toucan" },
+                { word: "sequoia", level: 147, category: "Trees", hint: "Very tall redwood tree", image: "sequoia tree" },
+                { word: "bamboo", level: 148, category: "Plants", hint: "Fast-growing woody grass", image: "bamboo" },
+                { word: "cactus", level: 149, category: "Plants", hint: "Spiny desert plant", image: "cactus" },
+                { word: "orchid", level: 150, category: "Plants", hint: "Exotic flower", image: "orchid" }
+            ],
+
+            // Level 201-400: 6-8 letter words
+            advanced: [
+                { word: "mountain", level: 201, category: "Landforms", hint: "Very high landform with peak", image: "mountain" },
+                { word: "waterfall", level: 202, category: "Water Bodies", hint: "Water falling from height", image: "waterfall" },
+                { word: "peninsula", level: 203, category: "Landforms", hint: "Land surrounded by water on three sides", image: "peninsula" },
+                { word: "archipelago", level: 204, category: "Landforms", hint: "Group of islands", image: "archipelago" },
+                { word: "continent", level: 205, category: "Landforms", hint: "One of seven large land masses", image: "continent" },
+                { word: "equator", level: 206, category: "Geography", hint: "Imaginary line around Earth's middle", image: "equator" },
+                { word: "latitude", level: 207, category: "Geography", hint: "Lines measuring north and south", image: "latitude" },
+                { word: "longitude", level: 208, category: "Geography", hint: "Lines measuring east and west", image: "longitude" },
+                { word: "hemisphere", level: 209, category: "Geography", hint: "Half of the Earth", image: "hemisphere" },
+                { word: "atmosphere", level: 210, category: "Earth", hint: "Layer of gases around Earth", image: "atmosphere" },
+                { word: "biosphere", level: 211, category: "Earth", hint: "Part of Earth where life exists", image: "biosphere" },
+                { word: "ecosystem", level: 212, category: "Ecosystems", hint: "Community of living things", image: "ecosystem" },
+                { word: "rainforest", level: 213, category: "Ecosystems", hint: "Dense forest with heavy rainfall", image: "rainforest" },
+                { word: "mangrove", level: 214, category: "Ecosystems", hint: "Coastal trees with roots in water", image: "mangrove" },
+                { word: "chaparral", level: 215, category: "Ecosystems", hint: "Shrubland ecosystem", image: "chaparral" },
+                { word: "estuary", level: 216, category: "Water Bodies", hint: "Where river meets the sea", image: "estuary" },
+                { word: "tributary", level: 217, category: "Water Bodies", hint: "River flowing into larger river", image: "tributary" },
+                { word: "aquifer", level: 218, category: "Water Bodies", hint: "Underground water reservoir", image: "aquifer" },
+                { word: "reservoir", level: 219, category: "Water Bodies", hint: "Artificial lake for water storage", image: "reservoir" },
+                { word: "watershed", level: 220, category: "Water Bodies", hint: "Area draining into a river", image: "watershed" },
+                { word: "elevation", level: 221, category: "Geography", hint: "Height above sea level", image: "elevation" },
+                { word: "topography", level: 222, category: "Geography", hint: "Physical features of land", image: "topography" },
+                { word: "hurricane", level: 223, category: "Weather", hint: "Powerful tropical storm", image: "hurricane" },
+                { word: "blizzard", level: 224, category: "Weather", hint: "Severe snowstorm", image: "blizzard" },
+                { word: "avalanche", level: 225, category: "Natural Events", hint: "Mass of snow sliding down", image: "avalanche" },
+                { word: "earthquake", level: 226, category: "Natural Events", hint: "Shaking of Earth's surface", image: "earthquake" },
+                { word: "landslide", level: 227, category: "Natural Events", hint: "Mass of earth sliding down", image: "landslide" },
+                { word: "limestone", level: 228, category: "Earth", hint: "Sedimentary rock", image: "limestone" },
+                { word: "sandstone", level: 229, category: "Earth", hint: "Rock made of sand grains", image: "sandstone" },
+                { word: "granite", level: 230, category: "Earth", hint: "Hard igneous rock", image: "granite" },
+                { word: "obsidian", level: 231, category: "Earth", hint: "Volcanic glass", image: "obsidian" },
+                { word: "stalactite", level: 232, category: "Earth", hint: "Cave formation hanging from ceiling", image: "stalactite" },
+                { word: "stalagmite", level: 233, category: "Earth", hint: "Cave formation rising from floor", image: "stalagmite" },
+                { word: "crocodile", level: 234, category: "Animals", hint: "Large reptile in water", image: "crocodile" },
+                { word: "alligator", level: 235, category: "Animals", hint: "Large reptile similar to crocodile", image: "alligator" },
+                { word: "orangutan", level: 236, category: "Animals", hint: "Orange-haired ape", image: "orangutan" },
+                { word: "chimpanzee", level: 237, category: "Animals", hint: "Intelligent African ape", image: "chimpanzee" },
+                { word: "rhinoceros", level: 238, category: "Animals", hint: "Large animal with horn on nose", image: "rhinoceros" },
+                { word: "hippopotamus", level: 239, category: "Animals", hint: "Large semi-aquatic mammal", image: "hippopotamus" },
+                { word: "salamander", level: 240, category: "Animals", hint: "Amphibian that looks like lizard", image: "salamander" },
+                { word: "chameleon", level: 241, category: "Animals", hint: "Color-changing lizard", image: "chameleon" },
+                { word: "porcupine", level: 242, category: "Animals", hint: "Animal covered in quills", image: "porcupine" },
+                { word: "armadillo", level: 243, category: "Animals", hint: "Armored mammal", image: "armadillo" },
+                { word: "kingfisher", level: 244, category: "Birds", hint: "Colorful fish-eating bird", image: "kingfisher" },
+                { word: "woodpecker", level: 245, category: "Birds", hint: "Bird that pecks trees", image: "woodpecker" },
+                { word: "hummingbird", level: 246, category: "Birds", hint: "Tiny bird that hovers", image: "hummingbird" },
+                { word: "nightingale", level: 247, category: "Birds", hint: "Bird known for beautiful song", image: "nightingale" },
+                { word: "eucalyptus", level: 248, category: "Trees", hint: "Australian tree koalas eat", image: "eucalyptus" },
+                { word: "baobab", level: 249, category: "Trees", hint: "African tree with thick trunk", image: "baobab tree" },
+                { word: "mangrove", level: 250, category: "Trees", hint: "Coastal tree with water roots", image: "mangrove tree" }
+            ],
+
+            // Level 401+: 8+ letter words (expert)
+            expert: [
+                { word: "permafrost", level: 401, category: "Earth", hint: "Permanently frozen ground", image: "permafrost" },
+                { word: "stratosphere", level: 402, category: "Atmosphere", hint: "Layer of atmosphere with ozone", image: "stratosphere" },
+                { word: "troposphere", level: 403, category: "Atmosphere", hint: "Lowest layer of atmosphere", image: "troposphere" },
+                { word: "thermosphere", level: 404, category: "Atmosphere", hint: "Very hot upper atmosphere layer", image: "thermosphere" },
+                { word: "mesosphere", level: 405, category: "Atmosphere", hint: "Middle layer of atmosphere", image: "mesosphere" },
+                { word: "photosynthesis", level: 406, category: "Plants", hint: "How plants make food from sunlight", image: "photosynthesis" },
+                { word: "precipitation", level: 407, category: "Weather", hint: "Rain, snow, or other water falling", image: "precipitation" },
+                { word: "evaporation", level: 408, category: "Water Cycle", hint: "Water turning into vapor", image: "evaporation" },
+                { word: "condensation", level: 409, category: "Water Cycle", hint: "Water vapor turning to liquid", image: "condensation" },
+                { word: "biodiversity", level: 410, category: "Ecosystems", hint: "Variety of life in an area", image: "biodiversity" },
+                { word: "deforestation", level: 411, category: "Environment", hint: "Cutting down forests", image: "deforestation" },
+                { word: "conservation", level: 412, category: "Environment", hint: "Protecting natural resources", image: "conservation" },
+                { word: "sustainability", level: 413, category: "Environment", hint: "Using resources responsibly", image: "sustainability" },
+                { word: "metamorphic", level: 414, category: "Earth", hint: "Rock changed by heat and pressure", image: "metamorphic rock" },
+                { word: "sedimentary", level: 415, category: "Earth", hint: "Rock formed from deposits", image: "sedimentary rock" },
+                { word: "continental", level: 416, category: "Geography", hint: "Relating to continents", image: "continental" },
+                { word: "subterranean", level: 417, category: "Earth", hint: "Underground", image: "subterranean" },
+                { word: "cartography", level: 418, category: "Geography", hint: "The art of making maps", image: "cartography" },
+                { word: "topographical", level: 419, category: "Geography", hint: "Relating to land features", image: "topographical map" },
+                { word: "meteorology", level: 420, category: "Weather", hint: "Study of weather", image: "meteorology" }
+            ]
+        };
+
+        // Flatten database for easier access
+        const allWords = [
+            ...wordDatabase.beginner,
+            ...wordDatabase.easy,
+            ...wordDatabase.medium,
+            ...wordDatabase.intermediate,
+            ...wordDatabase.advanced,
+            ...wordDatabase.expert
+        ];
+
+        // Extended word meanings
+        const wordMeanings = {
+            // Basic words
+            "ox": "A large domesticated animal used for farming and pulling heavy loads.",
+            "bay": "A body of water partially enclosed by land, smaller than a gulf.",
+            "sea": "A large body of salt water that is smaller than an ocean.",
+            "sun": "The star at the center of our solar system that gives us light and warmth.",
+            "sky": "The expanse of air over the earth, appearing blue during the day.",
+            "fog": "A thick cloud of tiny water droplets suspended in the air near ground level.",
+            "ice": "Frozen water, a solid form of H2O that forms at 0°C (32°F).",
+            "mud": "Soft, wet earth that forms when soil mixes with water.",
+            "owl": "A nocturnal bird of prey with large eyes and a hooked beak.",
+            "ant": "A small insect that lives in organized colonies underground.",
+            "bee": "A flying insect that collects nectar and produces honey.",
+            
+            // Nature words
+            "rain": "Water droplets that fall from clouds to the Earth's surface.",
+            "wind": "The natural movement of air, especially from areas of high to low pressure.",
+            "snow": "Frozen water vapor that falls as white ice crystals.",
+            "lake": "A large body of freshwater surrounded by land.",
+            "pond": "A small body of still water, smaller than a lake.",
+            "hill": "A naturally raised area of land, smaller than a mountain.",
+            "cave": "A natural underground hollow space in rock or earth.",
+            "rock": "A solid mineral material forming part of the Earth's surface.",
+            "sand": "Tiny loose grains of worn rock, found on beaches and deserts.",
+            "soil": "The top layer of Earth where plants grow, made of minerals and organic matter.",
+            "tree": "A tall perennial plant with a wooden trunk, branches, and leaves.",
+            "leaf": "A flat, typically green structure attached to a plant stem.",
+            
+            // Animals
+            "fish": "A cold-blooded aquatic animal with gills and fins.",
+            "bird": "A warm-blooded egg-laying animal with feathers and wings.",
+            "deer": "A hoofed grazing animal with antlers, found in forests.",
+            "wolf": "A wild carnivorous mammal that lives and hunts in packs.",
+            "bear": "A large, heavy mammal with thick fur and strong claws.",
+            "lion": "A large wild cat known as the 'King of the Jungle.'",
+            "whale": "The largest animal on Earth, a marine mammal.",
+            "shark": "A large predatory fish with a cartilaginous skeleton.",
+            "eagle": "A large bird of prey with excellent eyesight.",
+            "camel": "A large desert animal with one or two humps for storing fat.",
+            "zebra": "An African horse-like animal with black and white stripes.",
+            "tiger": "A large striped wild cat, the largest of the big cats.",
+            "panda": "A bear native to China with distinctive black and white markings.",
+            
+            // Weather
+            "storm": "Violent weather with strong winds, rain, thunder, or snow.",
+            "cloud": "A visible mass of water droplets or ice crystals suspended in the atmosphere.",
+            "frost": "A deposit of small white ice crystals formed from water vapor.",
+            
+            // Landforms
+            "ocean": "A vast body of salt water covering about 71% of Earth's surface.",
+            "river": "A large natural flowing stream of water.",
+            "island": "A piece of land completely surrounded by water.",
+            "desert": "A dry, barren area with little rainfall and sparse vegetation.",
+            "forest": "A large area covered chiefly with trees and undergrowth.",
+            "jungle": "Dense tropical forest with thick vegetation.",
+            "canyon": "A deep valley with steep sides, often carved by a river.",
+            "valley": "A low area of land between hills or mountains.",
+            "meadow": "A piece of grassland, especially used for hay.",
+            "tundra": "A vast, flat, treeless Arctic region where the subsoil is frozen.",
+            "volcano": "A mountain that can erupt, releasing lava and ash.",
+            "glacier": "A slowly moving mass of ice formed by accumulated snow.",
+            "waterfall": "A cascade of water falling from a height.",
+            "mountain": "A large natural elevation of the Earth's surface.",
+            "plateau": "A flat elevated landform that rises sharply above the surrounding area.",
+            "peninsula": "A piece of land almost surrounded by water or projecting into water.",
+            
+            // Advanced
+            "continent": "One of the seven large landmasses on Earth.",
+            "equator": "An imaginary line around Earth, equidistant from both poles.",
+            "atmosphere": "The layer of gases surrounding Earth.",
+            "ecosystem": "A biological community of interacting organisms and their environment.",
+            "rainforest": "A dense forest found in tropical areas with heavy rainfall.",
+            "hurricane": "A severe tropical storm with powerful winds.",
+            "earthquake": "A sudden shaking of the Earth's surface caused by tectonic movement.",
+            "avalanche": "A mass of snow, ice, and rock falling rapidly down a mountainside.",
+            "biodiversity": "The variety of plant and animal life in a particular habitat."
+        };
+
+        // Category icons
+        const categoryIcons = {
+            "Earth": "🌍",
+            "Water Bodies": "💧",
+            "Landforms": "🏔️",
+            "Weather": "🌤️",
+            "Animals": "🦁",
+            "Birds": "🦅",
+            "Plants": "🌿",
+            "Trees": "🌲",
+            "Natural Elements": "✨",
+            "Ecosystems": "🌴",
+            "Space": "🌟",
+            "Ice": "🧊",
+            "Natural Events": "⚡",
+            "Geography": "🗺️",
+            "Geography Tools": "🧭",
+            "Marine Life": "🐠",
+            "Animal Homes": "🏠",
+            "Atmosphere": "☁️",
+            "Water Cycle": "💦",
+            "Environment": "♻️"
+        };
+
+        // ==========================================
+        // 🎮 GAME STATE
+        // ==========================================
+
+        let gameState = {
+            currentLevel: 1,
+            currentWordIndex: 0,
+            wordsInLevel: 5,
+            coins: 0,
+            stars: 0,
+            streak: 0,
+            bestStreak: 0,
+            wordsLearned: 0,
+            totalCorrect: 0,
+            totalAttempts: 0,
+            currentWord: null,
+            selectedSlot: null,
+            filledLetters: [],
+            usedOptions: [],
+            theme: 'jungle',
+            completedLevels: [],
+            powerUps: {
+                reveal: 3,
+                skip: 2,
+                extraTime: 2,
+                removeWrong: 2
+            },
+            settings: {
+                sound: true,
+                music: true,
+                voice: true,
+                images: true,
+                vibration: true
+            },
+            dailyStreak: 0,
+            lastPlayDate: null,
+            unlockedAvatars: ['🧒'],
+            currentAvatar: '🧒',
+            unlockedThemes: ['jungle'],
+            
+            // Mode-specific
+            endlessScore: 0,
+            endlessStreak: 0,
+            endlessBest: 0,
+            challengeTime: 60,
+            challengeScore: 0,
+            challengeWords: 0,
+            challengeActive: false,
+            challengeTimer: null
+        };
+
+        // ==========================================
+        // 🔊 SOUND SYSTEM
+        // ==========================================
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!gameState.settings.sound) return;
+            initAudio();
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            switch(type) {
+                case 'click':
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.value = 0.1;
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.05);
+                    break;
+                case 'correct':
+                    oscillator.frequency.value = 523.25; // C5
+                    gainNode.gain.value = 0.15;
+                    oscillator.start();
+                    setTimeout(() => oscillator.frequency.value = 659.25, 100); // E5
+                    setTimeout(() => oscillator.frequency.value = 783.99, 200); // G5
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                    break;
+                case 'wrong':
+                    oscillator.frequency.value = 200;
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.value = 0.1;
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                    break;
+                case 'levelUp':
+                    oscillator.frequency.value = 440;
+                    gainNode.gain.value = 0.15;
+                    oscillator.start();
+                    setTimeout(() => oscillator.frequency.value = 554.37, 100);
+                    setTimeout(() => oscillator.frequency.value = 659.25, 200);
+                    setTimeout(() => oscillator.frequency.value = 880, 300);
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                    break;
+                case 'reward':
+                    oscillator.frequency.value = 880;
+                    oscillator.type = 'triangle';
+                    gainNode.gain.value = 0.1;
+                    oscillator.start();
+                    setTimeout(() => oscillator.frequency.value = 1108.73, 100);
+                    setTimeout(() => oscillator.frequency.value = 1318.51, 200);
+                    oscillator.stop(audioCtx.currentTime + 0.4);
+                    break;
+            }
+        }
+
+        function speakWord(word) {
+            if (!gameState.settings.voice) return;
+            
+            const voiceBtn = document.getElementById('voiceBtn');
+            voiceBtn.classList.add('speaking');
+            
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            utterance.pitch = 1.1;
+            
+            utterance.onend = () => {
+                voiceBtn.classList.remove('speaking');
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // ==========================================
+        // 🎨 UI FUNCTIONS
+        // ==========================================
+
+        function generateBackgroundShapes() {
+            const container = document.getElementById('bgAnimation');
+            const colors = ['#FF6B9D', '#6C63FF', '#4ECDC4', '#FFE66D', '#FF6B6B'];
+            
+            for (let i = 0; i < 20; i++) {
+                const shape = document.createElement('div');
+                shape.className = 'floating-shape';
+                shape.style.width = `${Math.random() * 100 + 50}px`;
+                shape.style.height = shape.style.width;
+                shape.style.left = `${Math.random() * 100}%`;
+                shape.style.top = `${Math.random() * 100}%`;
+                shape.style.background = colors[Math.floor(Math.random() * colors.length)];
+                shape.style.animationDelay = `${Math.random() * 5}s`;
+                shape.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                container.appendChild(shape);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('coinCount').textContent = gameState.coins;
+            document.getElementById('starCount').textContent = gameState.stars;
+            document.getElementById('streakCount').textContent = gameState.streak;
+            document.getElementById('wordsLearned').textContent = gameState.wordsLearned;
+            
+            const streakCounter = document.querySelector('.streak-counter');
+            if (gameState.streak >= 3) {
+                streakCounter.classList.add('active');
+            } else {
+                streakCounter.classList.remove('active');
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId + 'Screen').classList.add('active');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.screen === screenId) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        function generateLevelMap() {
+            const levelPath = document.getElementById('levelPath');
+            levelPath.innerHTML = '';
+            
+            const totalLevels = 50; // Show first 50 levels
+            
+            for (let i = 1; i <= totalLevels; i++) {
+                const node = document.createElement('div');
+                node.className = 'level-node';
+                
+                if (gameState.completedLevels.includes(i)) {
+                    node.classList.add('completed');
+                    node.textContent = i;
+                } else if (i === gameState.currentLevel) {
+                    node.classList.add('current');
+                    node.textContent = i;
+                } else if (i > gameState.currentLevel) {
+                    node.classList.add('locked');
+                } else {
+                    node.textContent = i;
+                }
+                
+                // Add popup info
+                const popup = document.createElement('div');
+                popup.className = 'level-info-popup';
+                const levelRange = getLevelDifficulty(i);
+                popup.textContent = `Level ${i} - ${levelRange}`;
+                node.appendChild(popup);
+                
+                node.addEventListener('click', () => {
+                    if (!node.classList.contains('locked')) {
+                        gameState.currentLevel = i;
+                        gameState.currentWordIndex = 0;
+                        startGame();
+                    }
+                });
+                
+                levelPath.appendChild(node);
+            }
+        }
+
+        function getLevelDifficulty(level) {
+            if (level <= 20) return '2-3 Letters';
+            if (level <= 50) return '3-4 Letters';
+            if (level <= 100) return '4-5 Letters';
+            if (level <= 200) return '5-6 Letters';
+            if (level <= 400) return '6-8 Letters';
+            return '8+ Letters';
+        }
+
+        // ==========================================
+        // 🎮 GAME LOGIC
+        // ==========================================
+
+        function getWordForLevel(level) {
+            // Get words appropriate for the level
+            let wordPool;
+            
+            if (level <= 20) {
+                wordPool = wordDatabase.beginner;
+            } else if (level <= 50) {
+                wordPool = [...wordDatabase.beginner, ...wordDatabase.easy];
+            } else if (level <= 100) {
+                wordPool = [...wordDatabase.easy, ...wordDatabase.medium];
+            } else if (level <= 200) {
+                wordPool = [...wordDatabase.medium, ...wordDatabase.intermediate];
+            } else if (level <= 400) {
+                wordPool = [...wordDatabase.intermediate, ...wordDatabase.advanced];
+            } else {
+                wordPool = [...wordDatabase.advanced, ...wordDatabase.expert];
+            }
+            
+            // Filter to appropriate difficulty
+            const appropriateWords = wordPool.filter(w => {
+                if (level <= 20) return w.word.length <= 3;
+                if (level <= 50) return w.word.length <= 4;
+                if (level <= 100) return w.word.length <= 5;
+                if (level <= 200) return w.word.length <= 6;
+                if (level <= 400) return w.word.length <= 8;
+                return true;
+            });
+            
+            // Get random word
+            return appropriateWords[Math.floor(Math.random() * appropriateWords.length)];
+        }
+
+        function generateBlanks(word, level) {
+            const letters = word.split('');
+            const numBlanks = Math.min(
+                Math.ceil(word.length * (0.3 + (level / 500) * 0.4)),
+                word.length - 1
+            );
+            
+            const blankIndices = [];
+            while (blankIndices.length < numBlanks) {
+                const idx = Math.floor(Math.random() * word.length);
+                if (!blankIndices.includes(idx)) {
+                    blankIndices.push(idx);
+                }
+            }
+            
+            return blankIndices.sort((a, b) => a - b);
+        }
+
+        function generateLetterOptions(word, blanks) {
+            const correctLetters = blanks.map(idx => word[idx].toUpperCase());
+            const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const options = [...correctLetters];
+            
+            // Add some wrong options
+            const numWrong = Math.min(4, 8 - correctLetters.length);
+            while (options.length < correctLetters.length + numWrong) {
+                const randomLetter = allLetters[Math.floor(Math.random() * 26)];
+                if (!options.includes(randomLetter)) {
+                    options.push(randomLetter);
+                }
+            }
+            
+            // Shuffle
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        function startGame() {
+            showScreen('game');
+            loadWord();
+        }
+
+        function loadWord() {
+            const wordData = getWordForLevel(gameState.currentLevel);
+            gameState.currentWord = wordData;
+            
+            const blankIndices = generateBlanks(wordData.word, gameState.currentLevel);
+            gameState.blankIndices = blankIndices;
+            gameState.filledLetters = new Array(wordData.word.length).fill(null);
+            gameState.selectedSlot = null;
+            gameState.usedOptions = [];
+            
+            // Update UI
+            updateLevelDisplay();
+            updateCategoryDisplay(wordData.category);
+            updateWordImage(wordData.image);
+            updateWordDisplay(wordData.word, blankIndices);
+            updateLetterOptions(wordData.word, blankIndices);
+            updateHint(wordData.hint);
+            
+            document.getElementById('checkBtn').disabled = true;
+        }
+
+        function updateLevelDisplay() {
+            document.getElementById('currentLevelDisplay').textContent = gameState.currentLevel;
+            const progress = (gameState.currentWordIndex / gameState.wordsInLevel) * 100;
+            document.getElementById('levelProgressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = 
+                `${gameState.currentWordIndex}/${gameState.wordsInLevel} words`;
+        }
+
+        function updateCategoryDisplay(category) {
+            const icon = categoryIcons[category] || '📚';
+            document.getElementById('categoryBadge').innerHTML = `
+                <span>${icon}</span>
+                <span id="categoryName">${category}</span>
+            `;
+        }
+
+        function updateWordImage(imageTerm) {
+            const imageUrl = `https://source.unsplash.com/400x250/?${encodeURIComponent(imageTerm)}`;
+            document.getElementById('wordImage').src = imageUrl;
+        }
+
+        function updateWordDisplay(word, blankIndices) {
+            const display = document.getElementById('wordDisplay');
+            display.innerHTML = '';
+            
+            word.split('').forEach((letter, idx) => {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                slot.dataset.index = idx;
+                
+                if (blankIndices.includes(idx)) {
+                    slot.classList.add('blank');
+                    slot.addEventListener('click', () => selectSlot(idx));
+                } else {
+                    slot.classList.add('revealed');
+                    slot.textContent = letter.toUpperCase();
+                }
+                
+                display.appendChild(slot);
+            });
+        }
+
+        function updateLetterOptions(word, blankIndices) {
+            const options = generateLetterOptions(word, blankIndices);
+            const container = document.getElementById('letterOptions');
+            container.innerHTML = '';
+            
+            options.forEach((letter, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-option';
+                btn.textContent = letter;
+                btn.dataset.index = idx;
+                btn.addEventListener('click', () => selectLetter(letter, idx));
+                container.appendChild(btn);
+            });
+        }
+
+        function updateHint(hint) {
+            document.getElementById('hintText').textContent = hint;
+        }
+
+        function selectSlot(idx) {
+            playSound('click');
+            
+            // Remove previous selection
+            document.querySelectorAll('.letter-slot.selected').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // Select new slot
+            const slot = document.querySelector(`.letter-slot[data-index="${idx}"]`);
+            if (slot && slot.classList.contains('blank')) {
+                slot.classList.add('selected');
+                gameState.selectedSlot = idx;
+            }
+        }
+
+        function selectLetter(letter, optionIdx) {
+            playSound('click');
+            
+            // If no slot selected, select first empty blank
+            if (gameState.selectedSlot === null) {
+                const emptySlot = gameState.blankIndices.find(idx => 
+                    gameState.filledLetters[idx] === null
+                );
+                if (emptySlot !== undefined) {
+                    gameState.selectedSlot = emptySlot;
+                }
+            }
+            
+            if (gameState.selectedSlot === null) return;
+            
+            // Fill the slot
+            const slot = document.querySelector(`.letter-slot[data-index="${gameState.selectedSlot}"]`);
+            if (slot) {
+                slot.textContent = letter;
+                slot.classList.add('filled');
+                slot.classList.remove('selected');
+                gameState.filledLetters[gameState.selectedSlot] = letter;
+            }
+            
+            // Mark option as used
+            const optionBtn = document.querySelector(`.letter-option[data-index="${optionIdx}"]`);
+            if (optionBtn) {
+                optionBtn.disabled = true;
+                optionBtn.classList.add('used');
+            }
+            gameState.usedOptions.push(optionIdx);
+            
+            // Move to next slot
+            gameState.selectedSlot = null;
+            const nextEmpty = gameState.blankIndices.find(idx => 
+                gameState.filledLetters[idx] === null
+            );
+            if (nextEmpty !== undefined) {
+                selectSlot(nextEmpty);
+            }
+            
+            // Check if all blanks filled
+            checkIfComplete();
+        }
+
+        function checkIfComplete() {
+            const allFilled = gameState.blankIndices.every(idx => 
+                gameState.filledLetters[idx] !== null
+            );
+            document.getElementById('checkBtn').disabled = !allFilled;
+        }
+
+        function checkAnswer() {
+            const word = gameState.currentWord.word.toUpperCase();
+            const userAnswer = gameState.filledLetters.map((letter, idx) => {
+                if (gameState.blankIndices.includes(idx)) {
+                    return letter;
+                }
+                return word[idx];
+            }).join('');
+            
+            gameState.totalAttempts++;
+            
+            if (userAnswer === word) {
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer();
+            }
+        }
+
+        function handleCorrectAnswer() {
+            playSound('correct');
+            
+            // Animate correct letters
+            gameState.blankIndices.forEach(idx => {
+                const slot = document.querySelector(`.letter-slot[data-index="${idx}"]`);
+                if (slot) {
+                    slot.classList.remove('blank', 'selected');
+                    slot.classList.add('filled');
+                }
+            });
+            
+            // Update stats
+            gameState.streak++;
+            gameState.totalCorrect++;
+            gameState.wordsLearned++;
+            
+            if (gameState.streak > gameState.bestStreak) {
+                gameState.bestStreak = gameState.streak;
+            }
+            
+            // Calculate rewards
+            let coinsEarned = 10 + (gameState.streak * 2);
+            let starsEarned = 1 + Math.floor(gameState.streak / 5);
+            
+            gameState.coins += coinsEarned;
+            gameState.stars += starsEarned;
+            
+            updateStats();
+            
+            // Show confetti
+            createConfetti();
+            
+            // Show success modal
+            showSuccessModal(coinsEarned, starsEarned);
+        }
+
+        function handleWrongAnswer() {
+            playSound('wrong');
+            
+            // Vibrate if enabled
+            if (gameState.settings.vibration && navigator.vibrate) {
+                navigator.vibrate(200);
+            }
+            
+            // Animate wrong
+            gameState.blankIndices.forEach(idx => {
+                const slot = document.querySelector(`.letter-slot[data-index="${idx}"]`);
+                if (slot) {
+                    slot.classList.add('wrong');
+                }
+            });
+            
+            gameState.streak = 0;
+            updateStats();
+            
+            // Show wrong modal
+            showWrongModal();
+        }
+
+        function showSuccessModal(coins, stars) {
+            const word = gameState.currentWord.word;
+            const meaning = wordMeanings[word.toLowerCase()] || gameState.currentWord.hint;
+            
+            document.getElementById('modalWord').textContent = word.toUpperCase();
+            document.getElementById('meaningText').textContent = meaning;
+            document.getElementById('modalCategory').textContent = gameState.currentWord.category;
+            document.getElementById('meaningImage').src = 
+                `https://source.unsplash.com/400x200/?${encodeURIComponent(gameState.currentWord.image)}`;
+            document.getElementById('earnedCoins').textContent = `+${coins}`;
+            document.getElementById('earnedStars').textContent = `+${stars}`;
+            
+            document.getElementById('successModal').classList.add('active');
+            
+            // Auto-pronounce word
+            setTimeout(() => speakWord(word), 500);
+        }
+
+        function showWrongModal() {
+            const word = gameState.currentWord.word;
+            const meaning = wordMeanings[word.toLowerCase()] || gameState.currentWord.hint;
+            
+            document.getElementById('correctAnswer').textContent = word.toUpperCase();
+            document.getElementById('wrongMeaningText').textContent = meaning;
+            document.getElementById('wrongMeaningImage').src = 
+                `https://source.unsplash.com/400x200/?${encodeURIComponent(gameState.currentWord.image)}`;
+            
+            document.getElementById('wrongModal').classList.add('active');
+            
+            // Pronounce correct word
+            setTimeout(() => speakWord(word), 500);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function nextWord() {
+            closeModal('successModal');
+            gameState.currentWordIndex++;
+            
+            if (gameState.currentWordIndex >= gameState.wordsInLevel) {
+                // Level complete!
+                completLevel();
+            } else {
+                loadWord();
+            }
+        }
+
+        function retryWord() {
+            closeModal('wrongModal');
+            loadWord();
+        }
+
+        function completLevel() {
+            playSound('levelUp');
+            
+            // Mark level as completed
+            if (!gameState.completedLevels.includes(gameState.currentLevel)) {
+                gameState.completedLevels.push(gameState.currentLevel);
+            }
+            
+            // Bonus rewards
+            const bonusCoins = 50 + (gameState.currentLevel * 2);
+            const bonusStars = 5 + Math.floor(gameState.currentLevel / 10);
+            
+            gameState.coins += bonusCoins;
+            gameState.stars += bonusStars;
+            
+            updateStats();
+            createConfetti();
+            
+            // Show level complete modal
+            document.getElementById('levelCoins').textContent = `+${bonusCoins}`;
+            document.getElementById('levelStars').textContent = `+${bonusStars}`;
+            
+            const accuracy = Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100);
+            document.getElementById('levelAccuracy').textContent = `${accuracy}%`;
+            document.getElementById('levelWordsCount').textContent = gameState.wordsInLevel;
+            
+            document.getElementById('levelCompleteModal').classList.add('active');
+            
+            // Show achievement if milestone reached
+            if (gameState.currentLevel % 10 === 0) {
+                showAchievement(`Level ${gameState.currentLevel} Complete!`, 'You unlocked a new milestone!');
+            }
+        }
+
+        function nextLevel() {
+            closeModal('levelCompleteModal');
+            gameState.currentLevel++;
+            gameState.currentWordIndex = 0;
+            loadWord();
+        }
+
+        function backToMap() {
+            closeModal('levelCompleteModal');
+            generateLevelMap();
+            showScreen('levelMap');
+            saveGame();
+        }
+
+        // ==========================================
+        // 🎁 POWER-UPS
+        // ==========================================
+
+        function revealLetter() {
+            if (gameState.powerUps.reveal <= 0) return;
+            
+            playSound('reward');
+            gameState.powerUps.reveal--;
+            document.getElementById('revealCount').textContent = gameState.powerUps.reveal;
+            
+            // Find first empty blank
+            const emptyIdx = gameState.blankIndices.find(idx => 
+                gameState.filledLetters[idx] === null
+            );
+            
+            if (emptyIdx !== undefined) {
+                const correctLetter = gameState.currentWord.word[emptyIdx].toUpperCase();
+                const slot = document.querySelector(`.letter-slot[data-index="${emptyIdx}"]`);
+                
+                if (slot) {
+                    slot.textContent = correctLetter;
+                    slot.classList.add('filled');
+                    slot.classList.remove('blank', 'selected');
+                    gameState.filledLetters[emptyIdx] = correctLetter;
+                }
+                
+                checkIfComplete();
+            }
+        }
+
+        function skipWord() {
+            if (gameState.powerUps.skip <= 0) return;
+            
+            playSound('click');
+            gameState.powerUps.skip--;
+            document.getElementById('skipCount').textContent = gameState.powerUps.skip;
+            
+            loadWord();
+        }
+
+        function removeWrongLetters() {
+            if (gameState.powerUps.removeWrong <= 0) return;
+            
+            playSound('reward');
+            gameState.powerUps.removeWrong--;
+            document.getElementById('removeCount').textContent = gameState.powerUps.removeWrong;
+            
+            const correctLetters = gameState.blankIndices.map(idx => 
+                gameState.currentWord.word[idx].toUpperCase()
+            );
+            
+            document.querySelectorAll('.letter-option').forEach(btn => {
+                if (!correctLetters.includes(btn.textContent) && !btn.disabled) {
+                    btn.disabled = true;
+                    btn.classList.add('used');
+                }
+            });
+        }
+
+        function clearAnswer() {
+            playSound('click');
+            
+            gameState.filledLetters = new Array(gameState.currentWord.word.length).fill(null);
+            gameState.selectedSlot = null;
+            gameState.usedOptions = [];
+            
+            // Reset slots
+            gameState.blankIndices.forEach(idx => {
+                const slot = document.querySelector(`.letter-slot[data-index="${idx}"]`);
+                if (slot) {
+                    slot.textContent = '';
+                    slot.classList.remove('filled', 'selected', 'wrong');
+                    slot.classList.add('blank');
+                }
+            });
+            
+            // Reset options
+            document.querySelectorAll('.letter-option').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('used');
+            });
+            
+            document.getElementById('checkBtn').disabled = true;
+        }
+
+        // ==========================================
+        // 🎆 ANIMATIONS
+        // ==========================================
+
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#FF6B9D', '#6C63FF', '#4ECDC4', '#FFE66D', '#FF6B6B', '#26D0CE'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                
+                container.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        function showAchievement(name, desc) {
+            const toast = document.getElementById('achievementToast');
+            document.getElementById('achievementDesc').textContent = desc;
+            toast.querySelector('.achievement-name').textContent = name;
+            
+            playSound('reward');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // ==========================================
+        // 🎯 ENDLESS MODE
+        // ==========================================
+
+        function startEndlessMode() {
+            gameState.endlessScore = 0;
+            gameState.endlessStreak = 0;
+            loadEndlessWord();
+        }
+
+        function loadEndlessWord() {
+            // Get random word from all levels
+            const allWords = [
+                ...wordDatabase.beginner,
+                ...wordDatabase.easy,
+                ...wordDatabase.medium,
+                ...wordDatabase.intermediate
+            ];
+            
+            const wordData = allWords[Math.floor(Math.random() * allWords.length)];
+            gameState.currentWord = wordData;
+            
+            const blankIndices = generateBlanks(wordData.word, 50);
+            gameState.blankIndices = blankIndices;
+            gameState.filledLetters = new Array(wordData.word.length).fill(null);
+            gameState.selectedSlot = null;
+            gameState.usedOptions = [];
+            
+            // Update endless display
+            document.getElementById('endlessWordImage').src = 
+                `https://source.unsplash.com/400x250/?${encodeURIComponent(wordData.image)}`;
+            
+            updateEndlessWordDisplay(wordData.word, blankIndices);
+            updateEndlessLetterOptions(wordData.word, blankIndices);
+            updateEndlessStats();
+            
+            document.getElementById('endlessCheckBtn').disabled = true;
+        }
+
+        function updateEndlessWordDisplay(word, blankIndices) {
+            const display = document.getElementById('endlessWordDisplay');
+            display.innerHTML = '';
+            
+            word.split('').forEach((letter, idx) => {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                slot.dataset.index = idx;
+                slot.dataset.mode = 'endless';
+                
+                if (blankIndices.includes(idx)) {
+                    slot.classList.add('blank');
+                    slot.addEventListener('click', () => selectEndlessSlot(idx));
+                } else {
+                    slot.classList.add('revealed');
+                    slot.textContent = letter.toUpperCase();
+                }
+                
+                display.appendChild(slot);
+            });
+        }
+
+        function updateEndlessLetterOptions(word, blankIndices) {
+            const options = generateLetterOptions(word, blankIndices);
+            const container = document.getElementById('endlessLetterOptions');
+            container.innerHTML = '';
+            
+            options.forEach((letter, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-option';
+                btn.textContent = letter;
+                btn.dataset.index = idx;
+                btn.dataset.mode = 'endless';
+                btn.addEventListener('click', () => selectEndlessLetter(letter, idx));
+                container.appendChild(btn);
+            });
+        }
+
+        function selectEndlessSlot(idx) {
+            playSound('click');
+            
+            document.querySelectorAll('#endlessWordDisplay .letter-slot.selected').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            const slot = document.querySelector(`#endlessWordDisplay .letter-slot[data-index="${idx}"]`);
+            if (slot && slot.classList.contains('blank')) {
+                slot.classList.add('selected');
+                gameState.selectedSlot = idx;
+            }
+        }
+
+        function selectEndlessLetter(letter, optionIdx) {
+            playSound('click');
+            
+            if (gameState.selectedSlot === null) {
+                const emptySlot = gameState.blankIndices.find(idx => 
+                    gameState.filledLetters[idx] === null
+                );
+                if (emptySlot !== undefined) {
+                    gameState.selectedSlot = emptySlot;
+                }
+            }
+            
+            if (gameState.selectedSlot === null) return;
+            
+            const slot = document.querySelector(`#endlessWordDisplay .letter-slot[data-index="${gameState.selectedSlot}"]`);
+            if (slot) {
+                slot.textContent = letter;
+                slot.classList.add('filled');
+                slot.classList.remove('selected');
+                gameState.filledLetters[gameState.selectedSlot] = letter;
+            }
+            
+            const optionBtn = document.querySelector(`#endlessLetterOptions .letter-option[data-index="${optionIdx}"]`);
+            if (optionBtn) {
+                optionBtn.disabled = true;
+                optionBtn.classList.add('used');
+            }
+            
+            gameState.selectedSlot = null;
+            const nextEmpty = gameState.blankIndices.find(idx => 
+                gameState.filledLetters[idx] === null
+            );
+            if (nextEmpty !== undefined) {
+                selectEndlessSlot(nextEmpty);
+            }
+            
+            // Check if complete
+            const allFilled = gameState.blankIndices.every(idx => 
+                gameState.filledLetters[idx] !== null
+            );
+            document.getElementById('endlessCheckBtn').disabled = !allFilled;
+        }
+
+        function checkEndlessAnswer() {
+            const word = gameState.currentWord.word.toUpperCase();
+            const userAnswer = gameState.filledLetters.map((letter, idx) => {
+                if (gameState.blankIndices.includes(idx)) {
+                    return letter;
+                }
+                return word[idx];
+            }).join('');
+            
+            if (userAnswer === word) {
+                playSound('correct');
+                gameState.endlessScore += 10 + (gameState.endlessStreak * 2);
+                gameState.endlessStreak++;
+                
+                if (gameState.endlessScore > gameState.endlessBest) {
+                    gameState.endlessBest = gameState.endlessScore;
+                }
+                
+                createConfetti();
+                updateEndlessStats();
+                
+                setTimeout(loadEndlessWord, 1000);
+            } else {
+                playSound('wrong');
+                
+                gameState.blankIndices.forEach(idx => {
+                    const slot = document.querySelector(`#endlessWordDisplay .letter-slot[data-index="${idx}"]`);
+                    if (slot) slot.classList.add('wrong');
+                });
+                
+                gameState.endlessStreak = 0;
+                updateEndlessStats();
+                
+                setTimeout(loadEndlessWord, 1500);
+            }
+        }
+
+        function clearEndlessAnswer() {
+            playSound('click');
+            loadEndlessWord();
+        }
+
+        function updateEndlessStats() {
+            document.getElementById('endlessScore').textContent = gameState.endlessScore;
+            document.getElementById('endlessStreak').textContent = gameState.endlessStreak;
+            document.getElementById('endlessBest').textContent = gameState.endlessBest;
+        }
+
+        // ==========================================
+        // ⏱️ CHALLENGE MODE
+        // ==========================================
+
+        function startChallenge() {
+            gameState.challengeActive = true;
+            gameState.challengeScore = 0;
+            gameState.challengeWords = 0;
+            gameState.challengeTime = 60;
+            
+            document.getElementById('startChallengeBtn').style.display = 'none';
+            document.getElementById('challengeClearBtn').style.display = 'inline-flex';
+            document.getElementById('challengeCheckBtn').style.display = 'inline-flex';
+            
+            loadChallengeWord();
+            startChallengeTimer();
+        }
+
+        function loadChallengeWord() {
+            if (!gameState.challengeActive) return;
+            
+            const easyWords = [...wordDatabase.beginner, ...wordDatabase.easy];
+            const wordData = easyWords[Math.floor(Math.random() * easyWords.length)];
+            gameState.currentWord = wordData;
+            
+            const blankIndices = generateBlanks(wordData.word, 30);
+            gameState.blankIndices = blankIndices;
+            gameState.filledLetters = new Array(wordData.word.length).fill(null);
+            gameState.selectedSlot = null;
+            
+            document.getElementById('challengeWordImage').src = 
+                `https://source.unsplash.com/400x250/?${encodeURIComponent(wordData.image)}`;
+            
+            updateChallengeWordDisplay(wordData.word, blankIndices);
+            updateChallengeLetterOptions(wordData.word, blankIndices);
+            
+            document.getElementById('challengeCheckBtn').disabled = true;
+        }
+
+        function updateChallengeWordDisplay(word, blankIndices) {
+            const display = document.getElementById('challengeWordDisplay');
+            display.innerHTML = '';
+            
+            word.split('').forEach((letter, idx) => {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                slot.dataset.index = idx;
+                
+                if (blankIndices.includes(idx)) {
+                    slot.classList.add('blank');
+                    slot.addEventListener('click', () => selectChallengeSlot(idx));
+                } else {
+                    slot.classList.add('revealed');
+                    slot.textContent = letter.toUpperCase();
+                }
+                
+                display.appendChild(slot);
+            });
+        }
+
+        function updateChallengeLetterOptions(word, blankIndices) {
+            const options = generateLetterOptions(word, blankIndices);
+            const container = document.getElementById('challengeLetterOptions');
+            container.innerHTML = '';
+            
+            options.forEach((letter, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-option';
+                btn.textContent = letter;
+                btn.dataset.index = idx;
+                btn.addEventListener('click', () => selectChallengeLetter(letter, idx));
+                container.appendChild(btn);
+            });
+        }
+
+        function selectChallengeSlot(idx) {
+            playSound('click');
+            
+            document.querySelectorAll('#challengeWordDisplay .letter-slot.selected').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            const slot = document.querySelector(`#challengeWordDisplay .letter-slot[data-index="${idx}"]`);
+            if (slot && slot.classList.contains('blank')) {
+                slot.classList.add('selected');
+                gameState.selectedSlot = idx;
+            }
+        }
+
+        function selectChallengeLetter(letter, optionIdx) {
+            playSound('click');
+            
+            if (gameState.selectedSlot === null) {
+                const emptySlot = gameState.blankIndices.find(idx => 
+                    gameState.filledLetters[idx] === null
+                );
+                if (emptySlot !== undefined) {
+                    gameState.selectedSlot = emptySlot;
+                }
+            }
+            
+            if (gameState.selectedSlot === null) return;
+            
+            const slot = document.querySelector(`#challengeWordDisplay .letter-slot[data-index="${gameState.selectedSlot}"]`);
+            if (slot) {
+                slot.textContent = letter;
+                slot.classList.add('filled');
+                slot.classList.remove('selected');
+                gameState.filledLetters[gameState.selectedSlot] = letter;
+            }
+            
+            const optionBtn = document.querySelector(`#challengeLetterOptions .letter-option[data-index="${optionIdx}"]`);
+            if (optionBtn) {
+                optionBtn.disabled = true;
+                optionBtn.classList.add('used');
+            }
+            
+            gameState.selectedSlot = null;
+            const nextEmpty = gameState.blankIndices.find(idx => 
+                gameState.filledLetters[idx] === null
+            );
+            if (nextEmpty !== undefined) {
+                selectChallengeSlot(nextEmpty);
+            }
+            
+            const allFilled = gameState.blankIndices.every(idx => 
+                gameState.filledLetters[idx] !== null
+            );
+            document.getElementById('challengeCheckBtn').disabled = !allFilled;
+        }
+
+        function checkChallengeAnswer() {
+            const word = gameState.currentWord.word.toUpperCase();
+            const userAnswer = gameState.filledLetters.map((letter, idx) => {
+                if (gameState.blankIndices.includes(idx)) {
+                    return letter;
+                }
+                return word[idx];
+            }).join('');
+            
+            if (userAnswer === word) {
+                playSound('correct');
+                gameState.challengeScore += 10;
+                gameState.challengeWords++;
+                gameState.challengeTime += 5; // Bonus time
+                
+                updateChallengeStats();
+                loadChallengeWord();
+            } else {
+                playSound('wrong');
+                gameState.challengeTime -= 5; // Penalty
+                
+                gameState.blankIndices.forEach(idx => {
+                    const slot = document.querySelector(`#challengeWordDisplay .letter-slot[data-index="${idx}"]`);
+                    if (slot) slot.classList.add('wrong');
+                });
+                
+                setTimeout(loadChallengeWord, 1000);
+            }
+        }
+
+        function clearChallengeAnswer() {
+            playSound('click');
+            loadChallengeWord();
+        }
+
+        function startChallengeTimer() {
+            updateChallengeTimer();
+            
+            gameState.challengeTimer = setInterval(() => {
+                gameState.challengeTime--;
+                updateChallengeTimer();
+                
+                if (gameState.challengeTime <= 0) {
+                    endChallenge();
+                }
+            }, 1000);
+        }
+
+        function updateChallengeTimer() {
+            const timeDisplay = document.getElementById('challengeTime');
+            timeDisplay.textContent = gameState.challengeTime;
+            
+            const progress = (gameState.challengeTime / 60) * 100;
+            document.getElementById('challengeTimerCircle').style.setProperty('--progress', `${progress}%`);
+            
+            if (gameState.challengeTime <= 10) {
+                timeDisplay.parentElement.classList.add('danger');
+            } else if (gameState.challengeTime <= 20) {
+                timeDisplay.parentElement.classList.add('warning');
+            }
+        }
+
+        function updateChallengeStats() {
+            document.getElementById('challengeScore').textContent = gameState.challengeScore;
+            document.getElementById('challengeWords').textContent = gameState.challengeWords;
+        }
+
+        function endChallenge() {
+            clearInterval(gameState.challengeTimer);
+            gameState.challengeActive = false;
+            
+            playSound('levelUp');
+            
+            // Add rewards
+            gameState.coins += gameState.challengeScore;
+            gameState.stars += gameState.challengeWords;
+            updateStats();
+            
+            // Reset UI
+            document.getElementById('startChallengeBtn').style.display = 'inline-flex';
+            document.getElementById('challengeClearBtn').style.display = 'none';
+            document.getElementById('challengeCheckBtn').style.display = 'none';
+            
+            document.getElementById('challengeWordDisplay').innerHTML = '<p style="text-align:center;color:#666;">Click Start to begin!</p>';
+            document.getElementById('challengeLetterOptions').innerHTML = '';
+            
+            // Show results
+            showAchievement('Challenge Complete!', `Score: ${gameState.challengeScore} | Words: ${gameState.challengeWords}`);
+        }
+
+        // ==========================================
+        // 🛒 SHOP SYSTEM
+        // ==========================================
+
+        const shopItems = [
+            { id: 'reveal5', name: '5 Reveals', icon: '🔍', price: 100, type: 'powerup', amount: 5 },
+            { id: 'skip5', name: '5 Skips', icon: '⏭️', price: 150, type: 'powerup', amount: 5 },
+            { id: 'time5', name: '5 Extra Time', icon: '⏰', price: 120, type: 'powerup', amount: 5 },
+            { id: 'remove5', name: '5 Remove Wrong', icon: '❌', price: 130, type: 'powerup', amount: 5 },
+            { id: 'avatar_explorer', name: 'Explorer Avatar', icon: '🧭', price: 500, type: 'avatar' },
+            { id: 'avatar_scientist', name: 'Scientist Avatar', icon: '🔬', price: 500, type: 'avatar' },
+            { id: 'avatar_astronaut', name: 'Astronaut Avatar', icon: '👨‍🚀', price: 750, type: 'avatar' },
+            { id: 'avatar_diver', name: 'Diver Avatar', icon: '🤿', price: 600, type: 'avatar' },
+            { id: 'theme_ocean', name: 'Ocean Theme', icon: '🌊', price: 300, type: 'theme' },
+            { id: 'theme_desert', name: 'Desert Theme', icon: '🏜️', price: 300, type: 'theme' },
+            { id: 'theme_space', name: 'Space Theme', icon: '🌌', price: 400, type: 'theme' },
+            { id: 'megapack', name: 'Mega Pack', icon: '📦', price: 1000, type: 'bundle', desc: 'All power-ups x10!' }
+        ];
+
+        function generateShop() {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '';
+            
+            shopItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'shop-item';
+                
+                const owned = isItemOwned(item);
+                
+                itemDiv.innerHTML = `
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">
+                        <span>💰</span>
+                        <span>${item.price}</span>
+                    </div>
+                    <button class="buy-btn" ${gameState.coins < item.price || owned ? 'disabled' : ''} 
+                            onclick="buyItem('${item.id}')">
+                        ${owned ? 'Owned' : 'Buy'}
+                    </button>
+                `;
+                
+                grid.appendChild(itemDiv);
+            });
+        }
+
+        function isItemOwned(item) {
+            if (item.type === 'avatar') {
+                return gameState.unlockedAvatars.includes(item.icon);
+            }
+            if (item.type === 'theme') {
+                return gameState.unlockedThemes.includes(item.id.replace('theme_', ''));
+            }
+            return false;
+        }
+
+        function buyItem(itemId) {
+            const item = shopItems.find(i => i.id === itemId);
+            if (!item || gameState.coins < item.price) return;
+            
+            playSound('reward');
+            gameState.coins -= item.price;
+            
+            switch (item.type) {
+                case 'powerup':
+                    if (itemId.includes('reveal')) gameState.powerUps.reveal += item.amount;
+                    if (itemId.includes('skip')) gameState.powerUps.skip += item.amount;
+                    if (itemId.includes('time')) gameState.powerUps.extraTime += item.amount;
+                    if (itemId.includes('remove')) gameState.powerUps.removeWrong += item.amount;
+                    break;
+                case 'avatar':
+                    gameState.unlockedAvatars.push(item.icon);
+                    gameState.currentAvatar = item.icon;
+                    break;
+                case 'theme':
+                    gameState.unlockedThemes.push(itemId.replace('theme_', ''));
+                    break;
+                case 'bundle':
+                    gameState.powerUps.reveal += 10;
+                    gameState.powerUps.skip += 10;
+                    gameState.powerUps.extraTime += 10;
+                    gameState.powerUps.removeWrong += 10;
+                    break;
+            }
+            
+            updateStats();
+            updatePowerUpCounts();
+            generateShop();
+            saveGame();
+            
+            showAchievement('Purchase Complete!', `You bought ${item.name}`);
+        }
+
+        function updatePowerUpCounts() {
+            document.getElementById('revealCount').textContent = gameState.powerUps.reveal;
+            document.getElementById('skipCount').textContent = gameState.powerUps.skip;
+            document.getElementById('timeCount').textContent = gameState.powerUps.extraTime;
+            document.getElementById('removeCount').textContent = gameState.powerUps.removeWrong;
+        }
+
+        // ==========================================
+        // 👤 PROFILE & SETTINGS
+        // ==========================================
+
+        function updateProfile() {
+            document.getElementById('playerAvatar').textContent = gameState.currentAvatar;
+            document.getElementById('profileLevel').textContent = gameState.currentLevel;
+            document.getElementById('profileWords').textContent = gameState.wordsLearned;
+            document.getElementById('profileStreak').textContent = gameState.bestStreak;
+            
+            const accuracy = gameState.totalAttempts > 0 
+                ? Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100) 
+                : 0;
+            document.getElementById('profileAccuracy').textContent = `${accuracy}%`;
+        }
+
+        function setupSettings() {
+            // Sound toggle
+            document.getElementById('soundToggle').addEventListener('click', function() {
+                this.classList.toggle('active');
+                gameState.settings.sound = this.classList.contains('active');
+                saveGame();
+            });
+            
+            // Music toggle
+            document.getElementById('musicToggle').addEventListener('click', function() {
+                this.classList.toggle('active');
+                gameState.settings.music = this.classList.contains('active');
+                saveGame();
+            });
+            
+            // Voice toggle
+            document.getElementById('voiceToggle').addEventListener('click', function() {
+                this.classList.toggle('active');
+                gameState.settings.voice = this.classList.contains('active');
+                saveGame();
+            });
+            
+            // Image toggle
+            document.getElementById('imageToggle').addEventListener('click', function() {
+                this.classList.toggle('active');
+                gameState.settings.images = this.classList.contains('active');
+                saveGame();
+            });
+            
+            // Vibration toggle
+            document.getElementById('vibrationToggle').addEventListener('click', function() {
+                this.classList.toggle('active');
+                gameState.settings.vibration = this.classList.contains('active');
+                saveGame();
+            });
+        }
+
+        // ==========================================
+        // 🎁 DAILY REWARDS
+        // ==========================================
+
+        function checkDailyReward() {
+            const today = new Date().toDateString();
+            
+            if (gameState.lastPlayDate !== today) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (gameState.lastPlayDate === yesterday.toDateString()) {
+                    gameState.dailyStreak++;
+                } else {
+                    gameState.dailyStreak = 1;
+                }
+                
+                gameState.lastPlayDate = today;
+                showDailyRewardModal();
+            }
+        }
+
+        function showDailyRewardModal() {
+            const streakContainer = document.getElementById('dailyStreak');
+            streakContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 7; i++) {
+                const day = document.createElement('div');
+                day.className = 'streak-day';
+                
+                if (i < gameState.dailyStreak) {
+                    day.classList.add('claimed');
+                    day.textContent = '✓';
+                } else if (i === gameState.dailyStreak) {
+                    day.classList.add('today');
+                    day.textContent = '🎁';
+                } else {
+                    day.textContent = i;
+                }
+                
+                streakContainer.appendChild(day);
+            }
+            
+            document.getElementById('dailyRewardModal').classList.add('active');
+        }
+
+        function claimDailyReward() {
+            const baseReward = 50;
+            const streakBonus = gameState.dailyStreak * 10;
+            
+            gameState.coins += baseReward + streakBonus;
+            gameState.stars += 5 + gameState.dailyStreak;
+            
+            playSound('reward');
+            createConfetti();
+            updateStats();
+            saveGame();
+            
+            closeModal('dailyRewardModal');
+            
+            showAchievement('Daily Reward!', `+${baseReward + streakBonus} coins, +${5 + gameState.dailyStreak} stars`);
+        }
+
+        // ==========================================
+        // 💾 SAVE/LOAD SYSTEM
+        // ==========================================
+
+        function saveGame() {
+            const saveData = {
+                currentLevel: gameState.currentLevel,
+                coins: gameState.coins,
+                stars: gameState.stars,
+                streak: gameState.streak,
+                bestStreak: gameState.bestStreak,
+                wordsLearned: gameState.wordsLearned,
+                totalCorrect: gameState.totalCorrect,
+                totalAttempts: gameState.totalAttempts,
+                completedLevels: gameState.completedLevels,
+                powerUps: gameState.powerUps,
+                settings: gameState.settings,
+                dailyStreak: gameState.dailyStreak,
+                lastPlayDate: gameState.lastPlayDate,
+                unlockedAvatars: gameState.unlockedAvatars,
+                currentAvatar: gameState.currentAvatar,
+                unlockedThemes: gameState.unlockedThemes,
+                theme: gameState.theme,
+                endlessBest: gameState.endlessBest
+            };
+            
+            localStorage.setItem('geospellSave', JSON.stringify(saveData));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('geospellSave');
+            
+            if (saved) {
+                const saveData = JSON.parse(saved);
+                Object.assign(gameState, saveData);
+                
+                updateStats();
+                updatePowerUpCounts();
+                updateProfile();
+            }
+        }
+
+        // ==========================================
+        // 🎯 EVENT LISTENERS
+        // ==========================================
+
+        function setupEventListeners() {
+            // Navigation tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const screen = tab.dataset.screen;
+                    showScreen(screen);
+                    
+                    if (screen === 'endless') {
+                        startEndlessMode();
+                    } else if (screen === 'shop') {
+                        generateShop();
+                    } else if (screen === 'profile') {
+                        updateProfile();
+                    } else if (screen === 'levelMap') {
+                        generateLevelMap();
+                    }
+                });
+            });
+            
+            // Theme selector
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    gameState.theme = btn.dataset.theme;
+                    saveGame();
+                });
+            });
+            
+            // Game buttons
+            document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+            document.getElementById('clearBtn').addEventListener('click', clearAnswer);
+            document.getElementById('backToMapBtn').addEventListener('click', () => {
+                generateLevelMap();
+                showScreen('levelMap');
+            });
+            
+            // Power-ups
+            document.getElementById('revealLetterBtn').addEventListener('click', revealLetter);
+            document.getElementById('skipWordBtn').addEventListener('click', skipWord);
+            document.getElementById('removeWrongBtn').addEventListener('click', removeWrongLetters);
+            
+            // Voice button
+            document.getElementById('voiceBtn').addEventListener('click', () => {
+                if (gameState.currentWord) {
+                    speakWord(gameState.currentWord.word);
+                }
+            });
+            
+            // Modal buttons
+            document.getElementById('nextWordBtn').addEventListener('click', nextWord);
+            document.getElementById('retryBtn').addEventListener('click', retryWord);
+            document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+            document.getElementById('backToMapFromComplete').addEventListener('click', backToMap);
+            
+            // Endless mode buttons
+            document.getElementById('endlessCheckBtn').addEventListener('click', checkEndlessAnswer);
+            document.getElementById('endlessClearBtn').addEventListener('click', clearEndlessAnswer);
+            
+            // Challenge mode buttons
+            document.getElementById('startChallengeBtn').addEventListener('click', startChallenge);
+            document.getElementById('challengeCheckBtn').addEventListener('click', checkChallengeAnswer);
+            document.getElementById('challengeClearBtn').addEventListener('click', clearChallengeAnswer);
+            
+            // Initially hide challenge buttons
+            document.getElementById('challengeClearBtn').style.display = 'none';
+            document.getElementById('challengeCheckBtn').style.display = 'none';
+        }
+
+        // ==========================================
+        // 🚀 INITIALIZATION
+        // ==========================================
+
+        function init() {
+            // Show loading screen
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 2000);
+            
+            // Generate background
+            generateBackgroundShapes();
+            
+            // Load saved game
+            loadGame();
+            
+            // Setup
+            setupEventListeners();
+            setupSettings();
+            generateLevelMap();
+            updateStats();
+            updatePowerUpCounts();
+            
+            // Check daily reward
+            setTimeout(checkDailyReward, 2500);
+            
+            // Auto-save every 30 seconds
+            setInterval(saveGame, 30000);
+        }
+
+        // Start the game when page loads
+        window.addEventListener('load', init);
+
+        // Save when leaving
+        window.addEventListener('beforeunload', saveGame);
+    </script>
+</body>
+</html>
