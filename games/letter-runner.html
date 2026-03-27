@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Letter Runner</title>
+    <title>Letter Runner - Subway Style</title>
     <style>
         * {
             margin: 0;
@@ -15,8 +15,10 @@
         body {
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a2e;
+            background: #000;
             touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
         }
         
         #gameCanvas {
@@ -26,91 +28,449 @@
             left: 0;
         }
         
-        #ui {
+        /* Top UI Bar */
+        #topUI {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .score-panel {
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5));
+            border: 2px solid rgba(255,215,0,0.5);
+            border-radius: 15px;
+            padding: 12px 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .score-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .score-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        
+        .multiplier {
+            font-size: 14px;
+            color: #00ff88;
+            margin-top: 2px;
+        }
+        
+        /* Word Display */
+        #wordPanel {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .target-word {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        #letterSlots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+        
+        .letter-slot {
+            width: 42px;
+            height: 48px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.3);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .letter-slot.filled {
+            background: linear-gradient(180deg, #FFD700, #FFA500);
+            border-color: #FFD700;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255,215,0,0.6), 0 4px 15px rgba(0,0,0,0.3);
+            animation: slotPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes slotPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        
+        .stat-item {
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5));
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 8px 15px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-icon {
+            font-size: 18px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        /* Word Complete Animation */
+        #wordComplete {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,215,0,0.4);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 200;
+            text-align: center;
+        }
+        
+        #wordComplete.show {
+            animation: wordCompleteAnim 1.5s ease-out forwards;
+        }
+        
+        @keyframes wordCompleteAnim {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.5) rotateX(90deg);
+            }
+            30% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.2) rotateX(0deg);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1) rotateX(0deg);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, -80%) scale(0.8) rotateX(-20deg);
+            }
+        }
+        
+        .word-points {
+            font-size: 28px;
+            color: #00ff88;
+            display: block;
+            margin-top: 10px;
+        }
+        
+        /* Start Screen */
+        #startScreen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-        }
-        
-        #score {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        #wordDisplay {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        #collectedLetters {
-            position: absolute;
-            top: 60px;
-            left: 20px;
+            background: linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 50%, #1a0a2e 100%);
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            max-width: 300px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            overflow: hidden;
         }
         
-        .letter-tile {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
+        .start-bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255,0,128,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0,200,255,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255,215,0,0.1) 0%, transparent 60%);
+            animation: bgPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .game-logo {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .logo-text {
+            font-size: 56px;
+            font-weight: 900;
+            background: linear-gradient(180deg, #FFD700 0%, #FF8C00 50%, #FF4500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 4px 8px rgba(255,140,0,0.5));
+            letter-spacing: -2px;
+        }
+        
+        .logo-subtitle {
+            font-size: 18px;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-top: -5px;
+        }
+        
+        .character-preview {
+            font-size: 120px;
+            margin: 30px 0;
+            animation: characterFloat 2s ease-in-out infinite;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+        }
+        
+        @keyframes characterFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .start-btn {
+            position: relative;
+            padding: 18px 70px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #000;
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 30px rgba(255,165,0,0.4),
+                0 4px 0 #cc8400,
+                inset 0 2px 0 rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 40px rgba(255,165,0,0.5),
+                0 6px 0 #cc8400,
+                inset 0 2px 0 rgba(255,255,255,0.4);
+        }
+        
+        .start-btn:active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 4px 20px rgba(255,165,0,0.4),
+                0 2px 0 #cc8400,
+                inset 0 2px 0 rgba(255,255,255,0.4);
+        }
+        
+        .controls-info {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .controls-title {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .controls-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-key {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            font-weight: bold;
+            font-size: 20px;
             color: #fff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            animation: popIn 0.3s ease;
         }
         
-        @keyframes popIn {
-            0% { transform: scale(0); }
-            70% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+        .control-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
         }
         
-        #wordFormed {
+        /* Game Over Screen */
+        #gameOverScreen {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 64px;
-            font-weight: bold;
-            color: #ffd700;
-            text-shadow: 0 0 20px rgba(255,215,0,0.8), 0 4px 8px rgba(0,0,0,0.5);
-            opacity: 0;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(20,0,40,0.95));
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
         }
         
-        #wordFormed.show {
-            animation: wordPop 1.5s ease forwards;
+        #gameOverScreen.show {
+            display: flex;
+            animation: fadeIn 0.5s ease;
         }
         
-        @keyframes wordPop {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
-            40% { transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -100%) scale(1); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        #gameOver {
+        .game-over-title {
+            font-size: 52px;
+            font-weight: 900;
+            color: #ff4757;
+            text-shadow: 0 0 30px rgba(255,71,87,0.5);
+            margin-bottom: 30px;
+        }
+        
+        .final-stats {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .final-stat {
+            text-align: center;
+            padding: 20px 30px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+        }
+        
+        .final-stat-value {
+            font-size: 36px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        
+        .final-stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+        
+        .words-list {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .words-list-title {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .words-formed {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 400px;
+        }
+        
+        .formed-word {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .restart-btn {
+            padding: 16px 60px;
+            font-size: 20px;
+            font-weight: 800;
+            color: #000;
+            background: linear-gradient(180deg, #00ff88 0%, #00cc6a 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 30px rgba(0,255,136,0.3),
+                0 4px 0 #00994d;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 40px rgba(0,255,136,0.4),
+                0 6px 0 #00994d;
+        }
+        
+        /* Pause Overlay */
+        #pauseOverlay {
             position: absolute;
             top: 0;
             left: 0;
@@ -118,976 +478,1304 @@
             height: 100%;
             background: rgba(0,0,0,0.8);
             display: none;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            pointer-events: auto;
+            z-index: 500;
+            backdrop-filter: blur(5px);
         }
         
-        #gameOver.show {
+        #pauseOverlay.show {
             display: flex;
         }
         
-        #gameOver h1 {
-            font-size: 64px;
-            color: #ff4757;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-        }
-        
-        #gameOver .final-score {
-            font-size: 32px;
+        .pause-text {
+            font-size: 48px;
+            font-weight: 900;
             color: #fff;
-            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
         }
         
-        #gameOver .words-formed {
-            font-size: 24px;
-            color: #ffd700;
-            margin-bottom: 40px;
-        }
-        
-        #restartBtn {
-            padding: 20px 60px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            pointer-events: auto;
-        }
-        
-        #restartBtn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(102,126,234,0.5);
-        }
-        
-        #startScreen {
+        /* Mobile Controls */
+        #mobileControls {
             position: absolute;
-            top: 0;
+            bottom: 20px;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            right: 0;
+            display: none;
             justify-content: center;
-            pointer-events: auto;
+            gap: 20px;
+            z-index: 100;
+            pointer-events: none;
         }
         
-        #startScreen h1 {
-            font-size: 56px;
-            color: #fff;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
+        @media (max-width: 768px) {
+            #mobileControls {
+                display: flex;
+            }
+            
+            .logo-text {
+                font-size: 36px;
+            }
+            
+            .character-preview {
+                font-size: 80px;
+            }
+            
+            .start-btn {
+                padding: 15px 50px;
+                font-size: 20px;
+            }
+            
+            .controls-grid {
+                gap: 12px;
+            }
+            
+            .control-key {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .letter-slot {
+                width: 36px;
+                height: 42px;
+                font-size: 20px;
+            }
+            
+            .score-value {
+                font-size: 22px;
+            }
         }
         
-        #startScreen .subtitle {
-            font-size: 20px;
-            color: #aaa;
-            margin-bottom: 40px;
-        }
-        
-        #startScreen .dino-preview {
-            font-size: 100px;
-            margin-bottom: 40px;
-            animation: bounce 1s ease infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        #startBtn {
-            padding: 20px 80px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(17,153,142,0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            pointer-events: auto;
-        }
-        
-        #startBtn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(17,153,142,0.5);
-        }
-        
-        .controls-hint {
-            margin-top: 40px;
-            font-size: 16px;
-            color: #888;
-            text-align: center;
-        }
-        
-        #combo {
+        /* Speed Lines Effect */
+        .speed-line {
             position: absolute;
-            top: 120px;
-            right: 20px;
-            font-size: 20px;
-            color: #38ef7d;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            height: 2px;
+            pointer-events: none;
+            z-index: 50;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <div id="ui">
-        <div id="score">Score: 0</div>
-        <div id="combo"></div>
-        <div id="wordDisplay">Letters:</div>
-        <div id="collectedLetters"></div>
-        <div id="wordFormed"></div>
-        
-        <div id="startScreen">
-            <h1>🦖 LETTER RUNNER</h1>
-            <p class="subtitle">Collect letters, form words, run forever!</p>
-            <div class="dino-preview">🦖</div>
-            <button id="startBtn">START GAME</button>
-            <div class="controls-hint">
-                ⬅️ ➡️ Move &nbsp;|&nbsp; ⬆️ Jump &nbsp;|&nbsp; ⬇️ Slide<br>
-                <small>Swipe on mobile</small>
-            </div>
+    
+    <!-- Top UI -->
+    <div id="topUI">
+        <div class="score-panel">
+            <div class="score-label">Score</div>
+            <div class="score-value" id="scoreDisplay">0</div>
+            <div class="multiplier" id="multiplierDisplay">x1</div>
         </div>
         
-        <div id="gameOver">
-            <h1>GAME OVER</h1>
-            <div class="final-score">Score: <span id="finalScore">0</span></div>
-            <div class="words-formed">Words Formed: <span id="wordsCount">0</span></div>
-            <button id="restartBtn">PLAY AGAIN</button>
+        <div class="stats-panel">
+            <div class="stat-item">
+                <span class="stat-icon">📝</span>
+                <span class="stat-value" id="wordsDisplay">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-value" id="speedDisplay">1</span>
+            </div>
         </div>
     </div>
     
+    <!-- Word Panel -->
+    <div id="wordPanel">
+        <div class="target-word">Collect Letters</div>
+        <div id="letterSlots"></div>
+    </div>
+    
+    <!-- Word Complete Animation -->
+    <div id="wordComplete">
+        <span id="completedWord"></span>
+        <span class="word-points" id="wordPoints"></span>
+    </div>
+    
+    <!-- Start Screen -->
+    <div id="startScreen">
+        <div class="start-bg-pattern"></div>
+        <div class="game-logo">
+            <div class="logo-text">LETTER RUNNER</div>
+            <div class="logo-subtitle">Word Chase</div>
+        </div>
+        <div class="character-preview">🦊</div>
+        <button class="start-btn" id="startBtn">TAP TO PLAY</button>
+        <div class="controls-info">
+            <div class="controls-title">Controls</div>
+            <div class="controls-grid">
+                <div class="control-item">
+                    <div class="control-key">←</div>
+                    <div class="control-label">Left</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-key">→</div>
+                    <div class="control-label">Right</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-key">↑</div>
+                    <div class="control-label">Jump</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-key">↓</div>
+                    <div class="control-label">Roll</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen">
+        <div class="game-over-title">GAME OVER</div>
+        <div class="final-stats">
+            <div class="final-stat">
+                <div class="final-stat-value" id="finalScore">0</div>
+                <div class="final-stat-label">Score</div>
+            </div>
+            <div class="final-stat">
+                <div class="final-stat-value" id="finalWords">0</div>
+                <div class="final-stat-label">Words</div>
+            </div>
+            <div class="final-stat">
+                <div class="final-stat-value" id="finalDistance">0m</div>
+                <div class="final-stat-label">Distance</div>
+            </div>
+        </div>
+        <div class="words-list">
+            <div class="words-list-title">Words Formed</div>
+            <div class="words-formed" id="wordsFormedList"></div>
+        </div>
+        <button class="restart-btn" id="restartBtn">PLAY AGAIN</button>
+    </div>
+    
+    <!-- Pause Overlay -->
+    <div id="pauseOverlay">
+        <div class="pause-text">PAUSED</div>
+    </div>
+
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        resize();
-        window.addEventListener('resize', resize);
-        
-        const WORDS = [
-            'CAT', 'DOG', 'RUN', 'FUN', 'SUN', 'HAT', 'BAT', 'RAT', 'MAP', 'CAP',
-            'TOP', 'HOP', 'POP', 'CUP', 'CUT', 'BUT', 'NUT', 'HUT', 'JOG', 'LOG',
-            'FOG', 'BOX', 'FOX', 'MIX', 'SIX', 'FIX', 'WAX', 'TAX', 'MAX', 'JAM',
-            'HAM', 'RAM', 'DAM', 'VAN', 'TAN', 'PAN', 'FAN', 'MAN', 'CAN', 'BAN',
-            'RED', 'BED', 'LED', 'PEN', 'TEN', 'HEN', 'MEN', 'DEN', 'WET', 'SET',
-            'PET', 'NET', 'GET', 'LET', 'BET', 'JET', 'MET', 'YET', 'BIG', 'DIG',
-            'FIG', 'JIG', 'PIG', 'RIG', 'WIG', 'ZIP', 'TIP', 'SIP', 'HIP', 'DIP',
-            'RIP', 'LIP', 'BIT', 'FIT', 'HIT', 'KIT', 'SIT', 'WIT', 'WIN', 'PIN',
-            'TIN', 'BIN', 'SIN', 'FIN', 'DIN', 'GOT', 'HOT', 'NOT', 'POT', 'ROT',
-            'COT', 'DOT', 'LOT', 'BUS', 'GUM', 'SUM', 'MUM', 'HUM', 'TUB', 'RUB',
-            'SUB', 'PUB', 'DUB', 'HUB', 'BUD', 'MUD', 'CUD', 'BUG', 'HUG', 'JUG',
-            'MUG', 'RUG', 'TUG', 'DUG', 'BUN', 'GUN', 'NUN', 'PUN', 'RUN', 'ACE',
-            'GAME', 'PLAY', 'JUMP', 'FAST', 'STAR', 'WORD', 'COIN', 'GOLD', 'HERO',
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Resize canvas
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    
+    // Word Database
+    const WORDS = {
+        3: ['CAT', 'DOG', 'RUN', 'FUN', 'SUN', 'HAT', 'BAT', 'RAT', 'MAP', 'CAP', 
+            'TOP', 'HOP', 'POP', 'CUP', 'CUT', 'NUT', 'HUT', 'JOG', 'LOG', 'FOG',
+            'BOX', 'FOX', 'MIX', 'SIX', 'FIX', 'JAM', 'HAM', 'VAN', 'TAN', 'PAN',
+            'FAN', 'MAN', 'CAN', 'RED', 'BED', 'PEN', 'TEN', 'HEN', 'MEN', 'WET',
+            'SET', 'PET', 'NET', 'GET', 'LET', 'BET', 'JET', 'BIG', 'DIG', 'FIG',
+            'PIG', 'RIG', 'WIG', 'ZIP', 'TIP', 'SIP', 'HIP', 'DIP', 'RIP', 'LIP',
+            'BIT', 'FIT', 'HIT', 'KIT', 'SIT', 'WIT', 'WIN', 'PIN', 'TIN', 'BIN',
+            'GOT', 'HOT', 'NOT', 'POT', 'ROT', 'DOT', 'LOT', 'BUS', 'GUM', 'SUM',
+            'HUM', 'TUB', 'RUB', 'SUB', 'PUB', 'BUD', 'MUD', 'BUG', 'HUG', 'JUG',
+            'MUG', 'RUG', 'TUG', 'BUN', 'GUN', 'ACE', 'ICE', 'AGE', 'OAK', 'OWL'],
+        4: ['GAME', 'PLAY', 'JUMP', 'FAST', 'STAR', 'WORD', 'COIN', 'GOLD', 'HERO',
             'FIRE', 'WIND', 'RAIN', 'SNOW', 'TREE', 'BIRD', 'FISH', 'FROG', 'DUCK',
-            'BEAR', 'LION', 'WOLF', 'DEER', 'GOAT', 'LAMB', 'PORK', 'BEEF', 'FOOD',
-            'CAKE', 'RICE', 'MILK', 'SALT', 'FISH', 'MEAT', 'CORN', 'BEAN', 'PLUM',
-            'DINO', 'ROAR', 'WILD', 'FREE', 'COOL', 'NICE', 'GOOD', 'BEST', 'MEGA',
-            'SUPER', 'HYPER', 'ULTRA', 'POWER', 'SPEED', 'QUICK', 'SWIFT', 'BLAST',
-            'FLASH', 'STORM', 'NIGHT', 'LIGHT', 'MAGIC', 'SPELL', 'QUEST', 'BONUS'
-        ];
+            'BEAR', 'LION', 'WOLF', 'DEER', 'GOAT', 'LAMB', 'CAKE', 'RICE', 'MILK',
+            'SALT', 'MEAT', 'CORN', 'BEAN', 'PLUM', 'DINO', 'ROAR', 'WILD', 'FREE',
+            'COOL', 'NICE', 'GOOD', 'BEST', 'MEGA', 'ROAD', 'PATH', 'LANE', 'DASH',
+            'RUSH', 'ZOOM', 'BOLT', 'SURF', 'WAVE', 'TIDE', 'MOON', 'GLOW', 'NEON'],
+        5: ['SUPER', 'HYPER', 'ULTRA', 'POWER', 'SPEED', 'QUICK', 'SWIFT', 'BLAST',
+            'FLASH', 'STORM', 'NIGHT', 'LIGHT', 'MAGIC', 'SPELL', 'QUEST', 'BONUS',
+            'CHASE', 'RIDER', 'RACER', 'TRAIN', 'TRACK', 'SCORE', 'POINT', 'CROWN',
+            'SHINE', 'SPARK', 'BLAZE', 'FLAME', 'FROST', 'OCEAN', 'BEACH', 'WORLD']
+    };
+    
+    // Game State
+    const game = {
+        state: 'start',
+        score: 0,
+        multiplier: 1,
+        wordsFormed: 0,
+        wordsFormedList: [],
+        distance: 0,
+        speed: 8,
+        baseSpeed: 8,
+        maxSpeed: 20,
+        targetWord: '',
+        collectedLetters: [],
+        lastTime: 0,
+        deltaTime: 0
+    };
+    
+    // Player
+    const player = {
+        lane: 1,
+        targetLane: 1,
+        x: 0,
+        y: 0,
+        width: 60,
+        height: 80,
+        isJumping: false,
+        isRolling: false,
+        jumpVelocity: 0,
+        jumpHeight: 0,
+        rollTimer: 0,
+        runFrame: 0,
+        runTimer: 0,
+        invincible: false,
+        invincibleTimer: 0
+    };
+    
+    // Lane Configuration
+    const lanes = {
+        count: 3,
+        width: 100,
+        positions: [-100, 0, 100]
+    };
+    
+    // Game Objects
+    let obstacles = [];
+    let letters = [];
+    let coins = [];
+    let particles = [];
+    let trackLines = [];
+    
+    // Environment
+    const env = {
+        groundY: 0,
+        horizon: 0,
+        trackOffset: 0,
+        buildingOffset: 0,
+        skyGradient: null,
+        timeOfDay: 0
+    };
+    
+    // Initialize track lines
+    function initTrackLines() {
+        trackLines = [];
+        for (let i = 0; i < 20; i++) {
+            trackLines.push({
+                z: i * 100,
+                opacity: 1
+            });
+        }
+    }
+    
+    // Get random word
+    function getRandomWord() {
+        const difficulty = Math.min(5, 3 + Math.floor(game.wordsFormed / 5));
+        const wordList = WORDS[difficulty] || WORDS[3];
+        return wordList[Math.floor(Math.random() * wordList.length)];
+    }
+    
+    // Setup new target word
+    function setupNewWord() {
+        game.targetWord = getRandomWord();
+        game.collectedLetters = [];
+        updateLetterSlots();
+    }
+    
+    // Update letter slots UI
+    function updateLetterSlots() {
+        const container = document.getElementById('letterSlots');
+        container.innerHTML = '';
         
-        const LANE_COUNT = 3;
-        const LANE_WIDTH = 120;
-        const ROAD_WIDTH = LANE_WIDTH * LANE_COUNT;
+        for (let i = 0; i < game.targetWord.length; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'letter-slot';
+            
+            if (i < game.collectedLetters.length) {
+                slot.classList.add('filled');
+                slot.textContent = game.collectedLetters[i];
+            } else {
+                slot.textContent = game.targetWord[i];
+            }
+            
+            container.appendChild(slot);
+        }
+    }
+    
+    // Spawn letter
+    function spawnLetter() {
+        if (game.collectedLetters.length >= game.targetWord.length) return;
         
-        class Player {
-            constructor() {
-                this.lane = 1;
-                this.targetLane = 1;
-                this.x = 0;
-                this.y = 0;
-                this.z = 100;
-                this.width = 60;
-                this.height = 80;
-                this.isJumping = false;
-                this.isSliding = false;
-                this.jumpVelocity = 0;
-                this.jumpHeight = 0;
-                this.slideTimer = 0;
-                this.runFrame = 0;
-                this.runTimer = 0;
-                this.laneChangeSpeed = 0.15;
-            }
-            
-            update(dt, speed) {
-                this.lane += (this.targetLane - this.lane) * this.laneChangeSpeed;
-                
-                if (this.isJumping) {
-                    this.jumpHeight += this.jumpVelocity;
-                    this.jumpVelocity -= 0.8;
-                    if (this.jumpHeight <= 0) {
-                        this.jumpHeight = 0;
-                        this.isJumping = false;
-                    }
-                }
-                
-                if (this.isSliding) {
-                    this.slideTimer -= dt;
-                    if (this.slideTimer <= 0) {
-                        this.isSliding = false;
-                    }
-                }
-                
-                this.runTimer += dt * speed * 0.01;
-                if (this.runTimer > 0.1) {
-                    this.runTimer = 0;
-                    this.runFrame = (this.runFrame + 1) % 4;
-                }
-            }
-            
-            jump() {
-                if (!this.isJumping && !this.isSliding) {
-                    this.isJumping = true;
-                    this.jumpVelocity = 18;
-                }
-            }
-            
-            slide() {
-                if (!this.isJumping && !this.isSliding) {
-                    this.isSliding = true;
-                    this.slideTimer = 600;
-                }
-            }
-            
-            moveLeft() {
-                if (this.targetLane > 0) {
-                    this.targetLane--;
-                }
-            }
-            
-            moveRight() {
-                if (this.targetLane < LANE_COUNT - 1) {
-                    this.targetLane++;
-                }
-            }
-            
-            draw(ctx, roadX, roadY, perspective) {
-                const laneX = roadX + (this.lane - 1) * LANE_WIDTH * perspective + LANE_WIDTH * perspective / 2;
-                const baseY = roadY - 20;
-                const scale = perspective * 1.2;
-                const w = this.width * scale;
-                const h = this.height * scale;
-                const jumpOffset = this.jumpHeight * scale;
-                
-                ctx.save();
-                ctx.translate(laneX, baseY - jumpOffset);
-                
-                if (this.isSliding) {
-                    ctx.rotate(-Math.PI / 6);
-                    ctx.scale(1, 0.5);
-                }
-                
-                ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                ctx.shadowBlur = 15;
-                ctx.shadowOffsetY = 10 + jumpOffset * 0.5;
-                
-                const bodyColor = '#2ed573';
-                const bellyColor = '#7bed9f';
-                const spotColor = '#1e8449';
-                
-                ctx.fillStyle = bodyColor;
-                ctx.beginPath();
-                ctx.ellipse(0, -h * 0.4, w * 0.35, h * 0.35, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = bellyColor;
-                ctx.beginPath();
-                ctx.ellipse(w * 0.08, -h * 0.35, w * 0.2, h * 0.25, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = bodyColor;
-                ctx.beginPath();
-                ctx.ellipse(-w * 0.15, -h * 0.7, w * 0.28, h * 0.22, -0.2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.ellipse(-w * 0.05, -h * 0.75, w * 0.12, w * 0.12, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#333';
-                ctx.beginPath();
-                ctx.ellipse(-w * 0.02, -h * 0.74, w * 0.06, w * 0.06, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(-w * 0.01, -h * 0.76, w * 0.02, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = bodyColor;
-                ctx.beginPath();
-                ctx.moveTo(-w * 0.35, -h * 0.65);
-                ctx.quadraticCurveTo(-w * 0.5, -h * 0.7, -w * 0.45, -h * 0.55);
-                ctx.quadraticCurveTo(-w * 0.4, -h * 0.5, -w * 0.3, -h * 0.55);
-                ctx.fill();
-                
-                const legOffset1 = Math.sin(this.runFrame * Math.PI / 2) * 10;
-                const legOffset2 = Math.sin((this.runFrame + 2) * Math.PI / 2) * 10;
-                
-                ctx.fillStyle = bodyColor;
-                ctx.beginPath();
-                ctx.ellipse(-w * 0.1, -h * 0.1 + legOffset1, w * 0.12, h * 0.12, 0.3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.ellipse(w * 0.15, -h * 0.1 + legOffset2, w * 0.12, h * 0.12, -0.3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = bodyColor;
-                ctx.beginPath();
-                ctx.ellipse(-w * 0.25, -h * 0.45, w * 0.08, h * 0.06, -0.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.ellipse(w * 0.1, -h * 0.5 + Math.sin(this.runFrame) * 3, w * 0.06, h * 0.05, 0.5, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = bodyColor;
-                ctx.beginPath();
-                ctx.moveTo(w * 0.3, -h * 0.35);
-                ctx.quadraticCurveTo(w * 0.5, -h * 0.4, w * 0.45, -h * 0.3);
-                ctx.quadraticCurveTo(w * 0.4, -h * 0.25, w * 0.25, -h * 0.3);
-                ctx.fill();
-                
-                ctx.fillStyle = spotColor;
-                ctx.beginPath();
-                ctx.arc(-w * 0.05, -h * 0.5, w * 0.05, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(w * 0.15, -h * 0.45, w * 0.04, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(w * 0.0, -h * 0.35, w * 0.03, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.restore();
-            }
-            
-            getHitbox(roadX, roadY, perspective) {
-                const laneX = roadX + (this.lane - 1) * LANE_WIDTH * perspective + LANE_WIDTH * perspective / 2;
-                const baseY = roadY - 20;
-                const scale = perspective * 1.2;
-                const w = this.width * scale * 0.6;
-                const h = this.isSliding ? this.height * scale * 0.3 : this.height * scale * 0.7;
-                const jumpOffset = this.jumpHeight * scale;
-                
-                return {
-                    x: laneX - w / 2,
-                    y: baseY - h - jumpOffset,
-                    width: w,
-                    height: h
-                };
+        const nextLetter = game.targetWord[game.collectedLetters.length];
+        const lane = Math.floor(Math.random() * 3);
+        
+        // Sometimes spawn wrong letters too
+        let letter = nextLetter;
+        if (Math.random() < 0.3) {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            letter = alphabet[Math.floor(Math.random() * 26)];
+        }
+        
+        letters.push({
+            lane: lane,
+            z: 1500,
+            letter: letter,
+            isTarget: letter === nextLetter,
+            collected: false,
+            rotation: 0,
+            bobOffset: Math.random() * Math.PI * 2,
+            scale: 1
+        });
+    }
+    
+    // Spawn obstacle
+    function spawnObstacle() {
+        const types = ['barrier', 'train', 'low'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const lane = Math.floor(Math.random() * 3);
+        
+        // Don't spawn on same lane as recent obstacle
+        const recentObs = obstacles.filter(o => o.z > 1200);
+        const usedLanes = recentObs.map(o => o.lane);
+        
+        let finalLane = lane;
+        if (usedLanes.includes(lane)) {
+            const available = [0, 1, 2].filter(l => !usedLanes.includes(l));
+            if (available.length > 0) {
+                finalLane = available[Math.floor(Math.random() * available.length)];
             }
         }
         
-        class Obstacle {
-            constructor(lane, type) {
-                this.lane = lane;
-                this.z = 1000;
-                this.type = type;
-                this.width = type === 'barrier' ? 100 : 80;
-                this.height = type === 'barrier' ? 60 : type === 'low' ? 30 : 80;
-            }
+        obstacles.push({
+            lane: finalLane,
+            z: 1500,
+            type: type,
+            width: type === 'train' ? 80 : 90,
+            height: type === 'low' ? 40 : type === 'train' ? 150 : 80,
+            hit: false
+        });
+    }
+    
+    // Spawn coin
+    function spawnCoin() {
+        const lane = Math.floor(Math.random() * 3);
+        const heightVariation = Math.random() < 0.3 ? 60 : 0;
+        
+        coins.push({
+            lane: lane,
+            z: 1500,
+            heightOffset: heightVariation,
+            collected: false,
+            rotation: 0
+        });
+    }
+    
+    // Create particles
+    function createParticles(x, y, color, count = 10) {
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 15,
+                vy: (Math.random() - 0.5) * 15 - 5,
+                size: Math.random() * 8 + 4,
+                color: color,
+                life: 1,
+                decay: 0.02 + Math.random() * 0.02
+            });
+        }
+    }
+    
+    // Create letter collect effect
+    function createLetterEffect(x, y, letter) {
+        for (let i = 0; i < 15; i++) {
+            const angle = (i / 15) * Math.PI * 2;
+            particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * 8,
+                vy: Math.sin(angle) * 8,
+                size: 6,
+                color: '#FFD700',
+                life: 1,
+                decay: 0.03
+            });
+        }
+    }
+    
+    // Word complete animation
+    function showWordComplete(word, points) {
+        const wordEl = document.getElementById('wordComplete');
+        const wordText = document.getElementById('completedWord');
+        const pointsText = document.getElementById('wordPoints');
+        
+        wordText.textContent = word + '!';
+        pointsText.textContent = '+' + points;
+        
+        wordEl.classList.remove('show');
+        void wordEl.offsetWidth;
+        wordEl.classList.add('show');
+        
+        // Create celebration particles
+        for (let i = 0; i < 50; i++) {
+            const x = canvas.width / 2 + (Math.random() - 0.5) * 300;
+            const y = canvas.height / 2;
+            const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#A855F7', '#00FF88'];
+            createParticles(x, y, colors[Math.floor(Math.random() * colors.length)], 3);
+        }
+    }
+    
+    // Update game
+    function update(currentTime) {
+        if (game.state !== 'playing') return;
+        
+        game.deltaTime = Math.min(currentTime - game.lastTime, 50);
+        game.lastTime = currentTime;
+        
+        const dt = game.deltaTime;
+        const speedFactor = game.speed / 60;
+        
+        // Update distance and speed
+        game.distance += game.speed * 0.1;
+        game.speed = Math.min(game.maxSpeed, game.baseSpeed + game.distance * 0.001);
+        
+        // Update track offset
+        env.trackOffset = (env.trackOffset + game.speed * 2) % 100;
+        env.buildingOffset = (env.buildingOffset + game.speed * 0.5) % 400;
+        
+        // Update player lane
+        const laneSpeed = 0.15;
+        player.lane += (player.targetLane - player.lane) * laneSpeed;
+        player.x = lanes.positions[1] + (player.lane - 1) * lanes.width;
+        
+        // Jump physics
+        if (player.isJumping) {
+            player.jumpHeight += player.jumpVelocity;
+            player.jumpVelocity -= 1.2;
             
-            update(speed) {
-                this.z -= speed;
+            if (player.jumpHeight <= 0) {
+                player.jumpHeight = 0;
+                player.isJumping = false;
             }
+        }
+        
+        // Roll timer
+        if (player.isRolling) {
+            player.rollTimer -= dt;
+            if (player.rollTimer <= 0) {
+                player.isRolling = false;
+            }
+        }
+        
+        // Invincibility
+        if (player.invincible) {
+            player.invincibleTimer -= dt;
+            if (player.invincibleTimer <= 0) {
+                player.invincible = false;
+            }
+        }
+        
+        // Run animation
+        player.runTimer += dt;
+        if (player.runTimer > 80) {
+            player.runTimer = 0;
+            player.runFrame = (player.runFrame + 1) % 8;
+        }
+        
+        // Update obstacles
+        obstacles.forEach(obs => {
+            obs.z -= game.speed;
+        });
+        obstacles = obstacles.filter(o => o.z > -200);
+        
+        // Update letters
+        letters.forEach(letter => {
+            letter.z -= game.speed;
+            letter.rotation += 0.05;
+        });
+        letters = letters.filter(l => l.z > -200 && !l.collected);
+        
+        // Update coins
+        coins.forEach(coin => {
+            coin.z -= game.speed;
+            coin.rotation += 0.1;
+        });
+        coins = coins.filter(c => c.z > -200 && !c.collected);
+        
+        // Update particles
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.5;
+            p.life -= p.decay;
+        });
+        particles = particles.filter(p => p.life > 0);
+        
+        // Spawn objects
+        if (Math.random() < 0.02 * speedFactor) spawnObstacle();
+        if (Math.random() < 0.03 * speedFactor) spawnLetter();
+        if (Math.random() < 0.04 * speedFactor) spawnCoin();
+        
+        // Check collisions
+        checkCollisions();
+        
+        // Update UI
+        updateUI();
+    }
+    
+    // Check collisions
+    function checkCollisions() {
+        const playerZ = 100;
+        const playerLane = Math.round(player.lane);
+        
+        // Player hitbox
+        const pH = {
+            minZ: playerZ - 30,
+            maxZ: playerZ + 30,
+            lane: playerLane,
+            height: player.isRolling ? 30 : 80,
+            jumpHeight: player.jumpHeight
+        };
+        
+        // Check obstacles
+        obstacles.forEach(obs => {
+            if (obs.hit) return;
             
-            draw(ctx, roadX, roadY, roadWidth) {
-                if (this.z < 50 || this.z > 800) return;
+            if (obs.z > pH.minZ && obs.z < pH.maxZ && obs.lane === pH.lane) {
+                // Check if player avoided obstacle
+                if (obs.type === 'low' && player.isRolling) return;
+                if (obs.type !== 'low' && player.jumpHeight > 60) return;
+                if (player.invincible) return;
                 
-                const perspective = 800 / (800 + this.z);
-                const x = roadX + (this.lane - 1) * LANE_WIDTH * perspective + LANE_WIDTH * perspective / 2;
-                const y = roadY - this.z * 0.15;
-                const scale = perspective;
-                const w = this.width * scale;
-                const h = this.height * scale;
+                // Hit!
+                obs.hit = true;
+                gameOver();
+            }
+        });
+        
+        // Check letters
+        letters.forEach(letter => {
+            if (letter.collected) return;
+            
+            if (letter.z > pH.minZ - 20 && letter.z < pH.maxZ + 20 && 
+                Math.abs(letter.lane - player.lane) < 0.6) {
                 
-                ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetY = 5;
+                letter.collected = true;
                 
-                if (this.type === 'barrier') {
-                    const gradient = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y);
-                    gradient.addColorStop(0, '#ff6b6b');
-                    gradient.addColorStop(0.5, '#ee5a5a');
-                    gradient.addColorStop(1, '#c44');
-                    ctx.fillStyle = gradient;
+                // Check if correct letter
+                const nextNeeded = game.targetWord[game.collectedLetters.length];
+                
+                if (letter.letter === nextNeeded) {
+                    game.collectedLetters.push(letter.letter);
+                    game.score += 50 * game.multiplier;
+                    createLetterEffect(canvas.width / 2, canvas.height * 0.6, letter.letter);
+                    updateLetterSlots();
                     
-                    ctx.beginPath();
-                    ctx.roundRect(x - w/2, y - h, w, h, 5 * scale);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = '#fff';
-                    const stripeW = w / 6;
-                    for (let i = 0; i < 3; i++) {
-                        ctx.fillRect(x - w/2 + stripeW + i * stripeW * 2, y - h, stripeW, h);
+                    // Check word complete
+                    if (game.collectedLetters.length === game.targetWord.length) {
+                        const wordPoints = game.targetWord.length * 100 * game.multiplier;
+                        game.score += wordPoints;
+                        game.wordsFormed++;
+                        game.wordsFormedList.push(game.targetWord);
+                        game.multiplier = Math.min(5, game.multiplier + 0.5);
+                        
+                        showWordComplete(game.targetWord, wordPoints);
+                        
+                        setTimeout(() => {
+                            setupNewWord();
+                        }, 1000);
                     }
-                } else if (this.type === 'low') {
-                    const gradient = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y);
-                    gradient.addColorStop(0, '#ffa502');
-                    gradient.addColorStop(1, '#ff7f00');
-                    ctx.fillStyle = gradient;
-                    
-                    ctx.beginPath();
-                    ctx.roundRect(x - w/2, y - h, w, h, 3 * scale);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                    ctx.fillRect(x - w/2, y - h/2, w, h/2);
                 } else {
-                    const gradient = ctx.createLinearGradient(x, y - h, x, y);
-                    gradient.addColorStop(0, '#a55');
-                    gradient.addColorStop(0.5, '#855');
-                    gradient.addColorStop(1, '#644');
-                    ctx.fillStyle = gradient;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(x, y - h);
-                    ctx.lineTo(x + w/2, y - h * 0.3);
-                    ctx.lineTo(x + w/3, y);
-                    ctx.lineTo(x - w/3, y);
-                    ctx.lineTo(x - w/2, y - h * 0.3);
-                    ctx.closePath();
-                    ctx.fill();
-                    
-                    ctx.fillStyle = '#966';
-                    ctx.beginPath();
-                    ctx.arc(x - w * 0.15, y - h * 0.5, w * 0.08, 0, Math.PI * 2);
-                    ctx.fill();
+                    // Wrong letter
+                    game.score += 10;
+                    createParticles(canvas.width / 2, canvas.height * 0.6, '#888', 5);
                 }
-                
-                ctx.restore();
             }
+        });
+        
+        // Check coins
+        coins.forEach(coin => {
+            if (coin.collected) return;
             
-            getHitbox(roadX, roadY) {
-                if (this.z < 50 || this.z > 200) return null;
+            if (coin.z > pH.minZ - 20 && coin.z < pH.maxZ + 20 && 
+                Math.abs(coin.lane - player.lane) < 0.6) {
                 
-                const perspective = 800 / (800 + this.z);
-                const x = roadX + (this.lane - 1) * LANE_WIDTH * perspective + LANE_WIDTH * perspective / 2;
-                const y = roadY - this.z * 0.15;
-                const scale = perspective;
-                const w = this.width * scale * 0.7;
-                const h = this.height * scale * 0.8;
-                
-                return {
-                    x: x - w / 2,
-                    y: y - h,
-                    width: w,
-                    height: h,
-                    type: this.type
-                };
+                const heightDiff = Math.abs(player.jumpHeight - coin.heightOffset);
+                if (heightDiff < 50) {
+                    coin.collected = true;
+                    game.score += 25 * game.multiplier;
+                    createParticles(canvas.width / 2, canvas.height * 0.6, '#FFD700', 8);
+                }
             }
+        });
+    }
+    
+    // Update UI
+    function updateUI() {
+        document.getElementById('scoreDisplay').textContent = Math.floor(game.score).toLocaleString();
+        document.getElementById('multiplierDisplay').textContent = 'x' + game.multiplier.toFixed(1);
+        document.getElementById('wordsDisplay').textContent = game.wordsFormed;
+        document.getElementById('speedDisplay').textContent = Math.floor(game.speed);
+    }
+    
+    // Draw game
+    function draw() {
+        const w = canvas.width;
+        const h = canvas.height;
+        
+        env.groundY = h * 0.75;
+        env.horizon = h * 0.35;
+        
+        // Clear
+        ctx.fillStyle = '#1a0a2e';
+        ctx.fillRect(0, 0, w, h);
+        
+        // Draw sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, env.horizon);
+        skyGrad.addColorStop(0, '#0a0015');
+        skyGrad.addColorStop(0.5, '#1a0a2e');
+        skyGrad.addColorStop(1, '#2d1b4e');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, w, env.horizon);
+        
+        // Stars
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        for (let i = 0; i < 50; i++) {
+            const x = (i * 73 + env.buildingOffset * 0.1) % w;
+            const y = (i * 37) % (env.horizon * 0.8);
+            const size = (Math.sin(Date.now() * 0.002 + i) + 1) * 1.5;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
         }
         
-        class Letter {
-            constructor(lane, letter) {
-                this.lane = lane;
-                this.z = 1000;
-                this.letter = letter;
-                this.collected = false;
-                this.rotation = 0;
-                this.bobOffset = Math.random() * Math.PI * 2;
+        // City silhouette
+        drawCityscape(w, h);
+        
+        // Ground
+        const groundGrad = ctx.createLinearGradient(0, env.horizon, 0, h);
+        groundGrad.addColorStop(0, '#2a1a4a');
+        groundGrad.addColorStop(0.3, '#1a0a2e');
+        groundGrad.addColorStop(1, '#0a0015');
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(0, env.horizon, w, h - env.horizon);
+        
+        // Draw track
+        drawTrack(w, h);
+        
+        // Draw game objects (sorted by z)
+        const allObjects = [
+            ...obstacles.map(o => ({...o, type: 'obstacle', objType: o.type})),
+            ...letters.map(l => ({...l, type: 'letter'})),
+            ...coins.map(c => ({...c, type: 'coin'}))
+        ].sort((a, b) => b.z - a.z);
+        
+        allObjects.forEach(obj => {
+            if (obj.type === 'obstacle') {
+                drawObstacle(obj, w, h);
+            } else if (obj.type === 'letter') {
+                drawLetter(obj, w, h);
+            } else if (obj.type === 'coin') {
+                drawCoin(obj, w, h);
             }
-            
-            update(speed, time) {
-                this.z -= speed;
-                this.rotation += 0.03;
-            }
-            
-            draw(ctx, roadX, roadY, time) {
-                if (this.z < 50 || this.z > 800 || this.collected) return;
-                
-                const perspective = 800 / (800 + this.z);
-                const x = roadX + (this.lane - 1) * LANE_WIDTH * perspective + LANE_WIDTH * perspective / 2;
-                const bob = Math.sin(time * 0.005 + this.bobOffset) * 8;
-                const y = roadY - this.z * 0.15 - 40 * perspective + bob;
-                const scale = perspective;
-                const size = 50 * scale;
-                
-                ctx.save();
-                ctx.translate(x, y);
-                
-                ctx.shadowColor = 'rgba(102, 126, 234, 0.6)';
-                ctx.shadowBlur = 20;
-                
-                const gradient = ctx.createLinearGradient(-size/2, -size/2, size/2, size/2);
-                gradient.addColorStop(0, '#667eea');
-                gradient.addColorStop(1, '#764ba2');
-                ctx.fillStyle = gradient;
-                
+        });
+        
+        // Draw player
+        drawPlayer(w, h);
+        
+        // Draw particles
+        particles.forEach(p => {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        
+        // Speed lines
+        if (game.speed > 12) {
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 10; i++) {
+                const x = (Date.now() * 0.5 + i * 150) % w;
+                const y = env.horizon + Math.random() * (h - env.horizon) * 0.5;
                 ctx.beginPath();
-                ctx.roundRect(-size/2, -size/2, size, size, 8 * scale);
-                ctx.fill();
-                
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.beginPath();
-                ctx.roundRect(-size/2 + 3, -size/2 + 3, size - 6, size/3, 5 * scale);
-                ctx.fill();
-                
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#fff';
-                ctx.font = `bold ${size * 0.65}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(this.letter, 0, 2);
-                
-                ctx.restore();
-            }
-            
-            getHitbox(roadX, roadY) {
-                if (this.z < 80 || this.z > 150 || this.collected) return null;
-                
-                const perspective = 800 / (800 + this.z);
-                const x = roadX + (this.lane - 1) * LANE_WIDTH * perspective + LANE_WIDTH * perspective / 2;
-                const y = roadY - this.z * 0.15 - 40 * perspective;
-                const size = 50 * perspective;
-                
-                return {
-                    x: x - size / 2,
-                    y: y - size / 2,
-                    width: size,
-                    height: size
-                };
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 50 - game.speed * 2, y);
+                ctx.stroke();
             }
         }
+    }
+    
+    // Draw cityscape
+    function drawCityscape(w, h) {
+        const buildingColors = ['#1a0a2e', '#2a1a4a', '#3a2a5a'];
         
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.vx = (Math.random() - 0.5) * 10;
-                this.vy = (Math.random() - 0.5) * 10 - 5;
-                this.life = 1;
-                this.color = color;
-                this.size = Math.random() * 8 + 4;
-            }
+        for (let layer = 0; layer < 3; layer++) {
+            ctx.fillStyle = buildingColors[layer];
+            const offset = env.buildingOffset * (0.2 + layer * 0.1);
             
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.3;
-                this.life -= 0.02;
-            }
-            
-            draw(ctx) {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-            }
-        }
-        
-        class Game {
-            constructor() {
-                this.player = new Player();
-                this.obstacles = [];
-                this.letters = [];
-                this.particles = [];
-                this.collectedLetters = [];
-                this.score = 0;
-                this.wordsFormed = 0;
-                this.speed = 5;
-                this.baseSpeed = 5;
-                this.maxSpeed = 15;
-                this.gameTime = 0;
-                this.isRunning = false;
-                this.isGameOver = false;
-                this.lastObstacleZ = 500;
-                this.lastLetterZ = 300;
-                this.roadOffset = 0;
-                this.dayNightCycle = 0;
+            for (let i = -1; i < w / 100 + 2; i++) {
+                const x = (i * 100 - offset % 100);
+                const bh = 50 + Math.sin(i * 2.5 + layer) * 30 + layer * 20;
+                const bw = 60 + Math.random() * 20;
                 
-                this.setupControls();
-            }
-            
-            setupControls() {
-                document.addEventListener('keydown', (e) => {
-                    if (!this.isRunning || this.isGameOver) return;
-                    switch(e.key) {
-                        case 'ArrowLeft': this.player.moveLeft(); break;
-                        case 'ArrowRight': this.player.moveRight(); break;
-                        case 'ArrowUp': this.player.jump(); break;
-                        case 'ArrowDown': this.player.slide(); break;
-                    }
-                });
+                ctx.fillRect(x, env.horizon - bh, bw, bh);
                 
-                let touchStartX = 0;
-                let touchStartY = 0;
-                
-                canvas.addEventListener('touchstart', (e) => {
-                    touchStartX = e.touches[0].clientX;
-                    touchStartY = e.touches[0].clientY;
-                });
-                
-                canvas.addEventListener('touchend', (e) => {
-                    if (!this.isRunning || this.isGameOver) return;
-                    
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const touchEndY = e.changedTouches[0].clientY;
-                    const dx = touchEndX - touchStartX;
-                    const dy = touchEndY - touchStartY;
-                    
-                    if (Math.abs(dx) > Math.abs(dy)) {
-                        if (dx > 30) this.player.moveRight();
-                        else if (dx < -30) this.player.moveLeft();
-                    } else {
-                        if (dy < -30) this.player.jump();
-                        else if (dy > 30) this.player.slide();
-                    }
-                });
-                
-                document.getElementById('startBtn').addEventListener('click', () => this.start());
-                document.getElementById('restartBtn').addEventListener('click', () => this.restart());
-            }
-            
-            start() {
-                document.getElementById('startScreen').style.display = 'none';
-                this.isRunning = true;
-                this.gameLoop();
-            }
-            
-            restart() {
-                this.player = new Player();
-                this.obstacles = [];
-                this.letters = [];
-                this.particles = [];
-                this.collectedLetters = [];
-                this.score = 0;
-                this.wordsFormed = 0;
-                this.speed = this.baseSpeed;
-                this.gameTime = 0;
-                this.isGameOver = false;
-                this.lastObstacleZ = 500;
-                this.lastLetterZ = 300;
-                
-                document.getElementById('gameOver').classList.remove('show');
-                document.getElementById('collectedLetters').innerHTML = '';
-                this.updateUI();
-                this.isRunning = true;
-                this.gameLoop();
-            }
-            
-            spawnObstacle() {
-                if (this.lastObstacleZ > 300) {
-                    this.lastObstacleZ = 800 + Math.random() * 200;
-                    const lane = Math.floor(Math.random() * LANE_COUNT);
-                    const types = ['barrier', 'low', 'rock'];
-                    const type = types[Math.floor(Math.random() * types.length)];
-                    this.obstacles.push(new Obstacle(lane, type));
-                }
-            }
-            
-            spawnLetter() {
-                if (this.lastLetterZ > 200) {
-                    this.lastLetterZ = 600 + Math.random() * 300;
-                    const lane = Math.floor(Math.random() * LANE_COUNT);
-                    const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-                    this.letters.push(new Letter(lane, letter));
-                }
-            }
-            
-            checkWordFormation() {
-                const collected = this.collectedLetters.join('');
-                
-                for (const word of WORDS) {
-                    if (collected.endsWith(word)) {
-                        this.formWord(word);
-                        return;
-                    }
-                }
-                
-                if (this.collectedLetters.length > 8) {
-                    this.collectedLetters.shift();
-                    this.updateLetterDisplay();
-                }
-            }
-            
-            formWord(word) {
-                const wordEl = document.getElementById('wordFormed');
-                wordEl.textContent = word + '!';
-                wordEl.classList.remove('show');
-                void wordEl.offsetWidth;
-                wordEl.classList.add('show');
-                
-                const points = word.length * 100;
-                this.score += points;
-                this.wordsFormed++;
-                
-                for (let i = 0; i < word.length; i++) {
-                    this.collectedLetters.pop();
-                }
-                this.updateLetterDisplay();
-                
-                for (let i = 0; i < 20; i++) {
-                    this.particles.push(new Particle(
-                        width / 2 + (Math.random() - 0.5) * 200,
-                        height / 2,
-                        ['#ffd700', '#ff6b6b', '#4ecdc4', '#667eea'][Math.floor(Math.random() * 4)]
-                    ));
-                }
-            }
-            
-            updateLetterDisplay() {
-                const container = document.getElementById('collectedLetters');
-                container.innerHTML = '';
-                this.collectedLetters.forEach((letter, i) => {
-                    const tile = document.createElement('div');
-                    tile.className = 'letter-tile';
-                    tile.textContent = letter;
-                    tile.style.animationDelay = `${i * 0.05}s`;
-                    container.appendChild(tile);
-                });
-            }
-            
-            checkCollisions() {
-                const roadX = width / 2 - ROAD_WIDTH / 2;
-                const roadY = height * 0.85;
-                const perspective = 800 / (800 + 100);
-                
-                const playerHitbox = this.player.getHitbox(roadX, roadY, perspective);
-                
-                for (const obstacle of this.obstacles) {
-                    const obsHitbox = obstacle.getHitbox(roadX, roadY);
-                    if (!obsHitbox) continue;
-                    
-                    if (this.boxCollision(playerHitbox, obsHitbox)) {
-                        if (obsHitbox.type === 'low' && this.player.isSliding) continue;
-                        if (obsHitbox.type !== 'low' && this.player.jumpHeight > 40) continue;
-                        
-                        this.gameOver();
-                        return;
-                    }
-                }
-                
-                for (const letter of this.letters) {
-                    if (letter.collected) continue;
-                    const letterHitbox = letter.getHitbox(roadX, roadY);
-                    if (!letterHitbox) continue;
-                    
-                    if (this.boxCollision(playerHitbox, letterHitbox)) {
-                        letter.collected = true;
-                        this.collectedLetters.push(letter.letter);
-                        this.score += 10;
-                        this.updateLetterDisplay();
-                        this.checkWordFormation();
-                        
-                        for (let i = 0; i < 10; i++) {
-                            this.particles.push(new Particle(
-                                letterHitbox.x + letterHitbox.width / 2,
-                                letterHitbox.y + letterHitbox.height / 2,
-                                ['#667eea', '#764ba2'][Math.floor(Math.random() * 2)]
-                            ));
+                // Windows
+                if (layer === 2) {
+                    ctx.fillStyle = 'rgba(255,200,100,0.3)';
+                    for (let wy = 0; wy < bh - 15; wy += 15) {
+                        for (let wx = 10; wx < bw - 10; wx += 15) {
+                            if (Math.random() > 0.3) {
+                                ctx.fillRect(x + wx, env.horizon - bh + wy + 5, 8, 8);
+                            }
                         }
                     }
+                    ctx.fillStyle = buildingColors[layer];
                 }
             }
+        }
+    }
+    
+    // Draw track
+    function drawTrack(w, h) {
+        const centerX = w / 2;
+        const trackWidth = 350;
+        
+        // Track base
+        ctx.fillStyle = '#1a1a2e';
+        ctx.beginPath();
+        ctx.moveTo(centerX - trackWidth / 2, h);
+        ctx.lineTo(centerX + trackWidth / 2, h);
+        ctx.lineTo(centerX + 40, env.horizon);
+        ctx.lineTo(centerX - 40, env.horizon);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Track lines
+        ctx.strokeStyle = '#4a3a6a';
+        ctx.lineWidth = 3;
+        
+        for (let i = 0; i < 20; i++) {
+            const z = (i * 100 + env.trackOffset) % 2000;
+            if (z < 100) continue;
             
-            boxCollision(a, b) {
-                return a.x < b.x + b.width &&
-                       a.x + a.width > b.x &&
-                       a.y < b.y + b.height &&
-                       a.y + a.height > b.y;
+            const perspective = 500 / (500 + z);
+            const y = env.horizon + (h - env.horizon) * (1 - perspective);
+            const lineWidth = trackWidth * perspective;
+            
+            ctx.globalAlpha = perspective;
+            ctx.beginPath();
+            ctx.moveTo(centerX - lineWidth / 2, y);
+            ctx.lineTo(centerX + lineWidth / 2, y);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        
+        // Lane dividers
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([20, 30]);
+        
+        for (let lane = 0; lane < 2; lane++) {
+            ctx.beginPath();
+            const laneOffset = (lane - 0.5) * lanes.width;
+            ctx.moveTo(centerX + laneOffset * 0.3, env.horizon);
+            ctx.lineTo(centerX + laneOffset, h);
+            ctx.stroke();
+        }
+        ctx.setLineDash([]);
+        
+        // Track edges (rails)
+        ctx.strokeStyle = '#8B7355';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(centerX - trackWidth / 2, h);
+        ctx.lineTo(centerX - 40, env.horizon);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX + trackWidth / 2, h);
+        ctx.lineTo(centerX + 40, env.horizon);
+        ctx.stroke();
+    }
+    
+    // Draw obstacle
+    function drawObstacle(obs, w, h) {
+        if (obs.z < 50) return;
+        
+        const perspective = 500 / (500 + obs.z);
+        const centerX = w / 2;
+        const x = centerX + (obs.lane - 1) * lanes.width * perspective;
+        const y = env.horizon + (h - env.horizon) * (1 - perspective) * 0.9;
+        const scale = perspective * 1.5;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        
+        if (obs.objType === 'barrier') {
+            // Red barrier
+            const gradient = ctx.createLinearGradient(-40, -60, 40, 0);
+            gradient.addColorStop(0, '#ff4444');
+            gradient.addColorStop(0.5, '#cc2222');
+            gradient.addColorStop(1, '#991111');
+            ctx.fillStyle = gradient;
+            
+            ctx.beginPath();
+            ctx.roundRect(-45, -70, 90, 70, 8);
+            ctx.fill();
+            
+            // Stripes
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(-35 + i * 20, -60, 10, 50);
             }
             
-            gameOver() {
-                this.isGameOver = true;
-                this.isRunning = false;
-                document.getElementById('finalScore').textContent = this.score;
-                document.getElementById('wordsCount').textContent = this.wordsFormed;
-                document.getElementById('gameOver').classList.add('show');
-            }
+            // Warning sign
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.moveTo(0, -90);
+            ctx.lineTo(-15, -70);
+            ctx.lineTo(15, -70);
+            ctx.closePath();
+            ctx.fill();
             
-            updateUI() {
-                document.getElementById('score').textContent = `Score: ${this.score}`;
-            }
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('!', 0, -74);
             
-            update(dt) {
-                this.gameTime += dt;
-                this.dayNightCycle += dt * 0.0001;
-                
-                this.speed = Math.min(this.maxSpeed, this.baseSpeed + this.gameTime * 0.0005);
-                
-                this.roadOffset = (this.roadOffset + this.speed * 2) % 50;
-                
-                this.player.update(dt, this.speed);
-                
-                for (const obs of this.obstacles) {
-                    obs.update(this.speed);
-                    this.lastObstacleZ = Math.min(this.lastObstacleZ, obs.z);
-                }
-                
-                for (const letter of this.letters) {
-                    letter.update(this.speed, this.gameTime);
-                    this.lastLetterZ = Math.min(this.lastLetterZ, letter.z);
-                }
-                
-                this.obstacles = this.obstacles.filter(o => o.z > 0);
-                this.letters = this.letters.filter(l => l.z > 0 && !l.collected);
-                
-                for (const p of this.particles) {
-                    p.update();
-                }
-                this.particles = this.particles.filter(p => p.life > 0);
-                
-                this.spawnObstacle();
-                this.spawnLetter();
-                
-                this.checkCollisions();
-                
-                this.score += Math.floor(this.speed * 0.1);
-                this.updateUI();
-            }
+        } else if (obs.objType === 'train') {
+            // Train car
+            const gradient = ctx.createLinearGradient(-35, -120, 35, 0);
+            gradient.addColorStop(0, '#3498db');
+            gradient.addColorStop(0.5, '#2980b9');
+            gradient.addColorStop(1, '#1a5276');
+            ctx.fillStyle = gradient;
             
-            draw() {
-                const dayProgress = (Math.sin(this.dayNightCycle) + 1) / 2;
-                
-                const skyTop = this.lerpColor([25, 25, 112], [135, 206, 235], dayProgress);
-                const skyBottom = this.lerpColor([75, 0, 130], [255, 200, 150], dayProgress);
-                
-                const gradient = ctx.createLinearGradient(0, 0, 0, height);
-                gradient.addColorStop(0, `rgb(${skyTop.join(',')})`);
-                gradient.addColorStop(1, `rgb(${skyBottom.join(',')})`);
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, width, height);
-                
-                if (dayProgress > 0.3) {
-                    ctx.fillStyle = '#fff7aa';
-                    ctx.shadowColor = '#ffd700';
-                    ctx.shadowBlur = 50;
-                    ctx.beginPath();
-                    ctx.arc(width * 0.8, height * 0.15, 40, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-                
-                this.drawMountains(dayProgress);
-                this.drawRoad();
-                
-                const sortedObjects = [...this.obstacles, ...this.letters].sort((a, b) => b.z - a.z);
-                
-                const roadX = width / 2 - ROAD_WIDTH / 2;
-                const roadY = height * 0.85;
-                
-                for (const obj of sortedObjects) {
-                    if (obj instanceof Obstacle) {
-                        obj.draw(ctx, roadX, roadY, ROAD_WIDTH);
-                    } else {
-                        obj.draw(ctx, roadX, roadY, this.gameTime);
-                    }
-                }
-                
-                const perspective = 800 / (800 + 100);
-                this.player.draw(ctx, roadX, roadY, perspective);
-                
-                for (const p of this.particles) {
-                    p.draw(ctx);
-                }
-            }
+            ctx.beginPath();
+            ctx.roundRect(-35, -120, 70, 120, 5);
+            ctx.fill();
             
-            drawMountains(dayProgress) {
-                const baseColor = this.lerpColor([60, 60, 80], [100, 140, 100], dayProgress);
-                
-                for (let layer = 0; layer < 3; layer++) {
-                    const layerColor = baseColor.map(c => c - layer * 20);
-                    ctx.fillStyle = `rgb(${layerColor.map(c => Math.max(0, c)).join(',')})`;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(0, height * 0.5);
-                    
-                    for (let x = 0; x <= width; x += 50) {
-                        const y = height * 0.5 - 
-                                  Math.sin(x * 0.01 + layer) * 50 - 
-                                  Math.sin(x * 0.02 + layer * 2) * 30 -
-                                  layer * 30;
-                        ctx.lineTo(x, y);
-                    }
-                    
-                    ctx.lineTo(width, height * 0.6);
-                    ctx.lineTo(0, height * 0.6);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            }
+            // Windows
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.fillRect(-25, -100, 20, 25);
+            ctx.fillRect(5, -100, 20, 25);
+            ctx.fillRect(-25, -60, 20, 25);
+            ctx.fillRect(5, -60, 20, 25);
             
-            drawRoad() {
-                const roadY = height * 0.85;
-                const vanishY = height * 0.4;
-                const roadTopWidth = 60;
-                
-                ctx.fillStyle = '#3a3a5a';
-                ctx.beginPath();
-                ctx.moveTo(width / 2 - ROAD_WIDTH / 2, roadY);
-                ctx.lineTo(width / 2 + ROAD_WIDTH / 2, roadY);
-                ctx.lineTo(width / 2 + roadTopWidth / 2, vanishY);
-                ctx.lineTo(width / 2 - roadTopWidth / 2, vanishY);
-                ctx.closePath();
-                ctx.fill();
-                
-                ctx.strokeStyle = '#666';
-                ctx.lineWidth = 2;
-                for (let i = 0; i <= LANE_COUNT; i++) {
-                    const bottomX = width / 2 - ROAD_WIDTH / 2 + i * LANE_WIDTH;
-                    const topX = width / 2 - roadTopWidth / 2 + i * (roadTopWidth / LANE_COUNT);
-                    ctx.beginPath();
-                    ctx.moveTo(bottomX, roadY);
-                    ctx.lineTo(topX, vanishY);
-                    ctx.stroke();
-                }
-                
-                ctx.fillStyle = '#fffa';
-                for (let z = this.roadOffset; z < 800; z += 50) {
-                    const perspective = 800 / (800 + z);
-                    const y = roadY - (roadY - vanishY) * (1 - perspective);
-                    const dashWidth = 40 * perspective;
-                    const dashHeight = 15 * perspective;
-                    
-                    for (let lane = 0; lane < LANE_COUNT; lane++) {
-                        const laneWidth = ROAD_WIDTH * perspective;
-                        const x = width / 2 - laneWidth / 2 + lane * (laneWidth / LANE_COUNT) + laneWidth / LANE_COUNT / 2;
-                        
-                        ctx.globalAlpha = perspective;
-                        ctx.fillRect(x - dashWidth / 2, y - dashHeight, dashWidth, dashHeight);
-                    }
-                }
-                ctx.globalAlpha = 1;
-            }
+            // Details
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(-30, -125, 60, 5);
             
-            lerpColor(c1, c2, t) {
-                return c1.map((c, i) => Math.round(c + (c2[i] - c) * t));
-            }
+        } else if (obs.objType === 'low') {
+            // Low obstacle (roll under)
+            const gradient = ctx.createLinearGradient(-50, -35, 50, 0);
+            gradient.addColorStop(0, '#f39c12');
+            gradient.addColorStop(1, '#d68910');
+            ctx.fillStyle = gradient;
             
-            gameLoop() {
-                if (!this.isRunning) return;
-                
-                const dt = 16.67;
-                this.update(dt);
-                this.draw();
-                
-                requestAnimationFrame(() => this.gameLoop());
+            ctx.beginPath();
+            ctx.roundRect(-50, -35, 100, 35, 5);
+            ctx.fill();
+            
+            // Warning stripes
+            ctx.fillStyle = '#000';
+            for (let i = 0; i < 5; i++) {
+                ctx.save();
+                ctx.translate(-40 + i * 20, -17);
+                ctx.rotate(-0.3);
+                ctx.fillRect(-5, -15, 10, 30);
+                ctx.restore();
             }
         }
         
-        const game = new Game();
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(0, 5, 40, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+    
+    // Draw letter
+    function drawLetter(letter, w, h) {
+        if (letter.z < 50) return;
+        
+        const perspective = 500 / (500 + letter.z);
+        const centerX = w / 2;
+        const x = centerX + (letter.lane - 1) * lanes.width * perspective;
+        const bob = Math.sin(Date.now() * 0.005 + letter.bobOffset) * 10;
+        const y = env.horizon + (h - env.horizon) * (1 - perspective) * 0.85 - 50 * perspective + bob;
+        const scale = perspective * 1.8;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.rotate(Math.sin(letter.rotation) * 0.1);
+        
+        // Glow
+        ctx.shadowColor = letter.isTarget ? '#FFD700' : '#888';
+        ctx.shadowBlur = 20;
+        
+        // Letter box
+        const gradient = ctx.createLinearGradient(-25, -30, 25, 30);
+        if (letter.isTarget) {
+            gradient.addColorStop(0, '#FFD700');
+            gradient.addColorStop(0.5, '#FFA500');
+            gradient.addColorStop(1, '#FF8C00');
+        } else {
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+        }
+        ctx.fillStyle = gradient;
+        
+        ctx.beginPath();
+        ctx.roundRect(-25, -28, 50, 56, 10);
+        ctx.fill();
+        
+        // Shine
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.beginPath();
+        ctx.roundRect(-22, -25, 44, 20, 8);
+        ctx.fill();
+        
+        // Letter
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = letter.isTarget ? '#000' : '#fff';
+        ctx.font = 'bold 36px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(letter.letter, 0, 2);
+        
+        ctx.restore();
+    }
+    
+    // Draw coin
+    function drawCoin(coin, w, h) {
+        if (coin.z < 50) return;
+        
+        const perspective = 500 / (500 + coin.z);
+        const centerX = w / 2;
+        const x = centerX + (coin.lane - 1) * lanes.width * perspective;
+        const y = env.horizon + (h - env.horizon) * (1 - perspective) * 0.85 - (30 + coin.heightOffset) * perspective;
+        const scale = perspective * 1.2;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        
+        // Coin
+        ctx.shadowColor = '#FFD700';
+        ctx.shadowBlur = 15;
+        
+        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 18);
+        gradient.addColorStop(0, '#FFE55C');
+        gradient.addColorStop(0.7, '#FFD700');
+        gradient.addColorStop(1, '#B8860B');
+        ctx.fillStyle = gradient;
+        
+        // 3D rotation effect
+        const scaleX = Math.abs(Math.cos(coin.rotation));
+        ctx.scale(scaleX || 0.1, 1);
+        
+        ctx.beginPath();
+        ctx.arc(0, 0, 18, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Dollar sign
+        if (scaleX > 0.5) {
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#B8860B';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', 0, 1);
+        }
+        
+        ctx.restore();
+    }
+    
+    // Draw player (Fox character)
+    function drawPlayer(w, h) {
+        const centerX = w / 2;
+        const x = centerX + (player.lane - 1) * lanes.width * 0.8;
+        const groundY = env.groundY - 20;
+        const jumpOffset = player.jumpHeight;
+        const y = groundY - jumpOffset;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(0, groundY - y + 10, 35 - jumpOffset * 0.2, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Invincibility flash
+        if (player.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
+            ctx.globalAlpha = 0.5;
+        }
+        
+        const scale = player.isRolling ? 0.6 : 1;
+        ctx.scale(scale, scale);
+        
+        if (player.isRolling) {
+            ctx.rotate(Date.now() * 0.02);
+        }
+        
+        // Body
+        const bodyGradient = ctx.createLinearGradient(-30, -80, 30, 0);
+        bodyGradient.addColorStop(0, '#FF7F50');
+        bodyGradient.addColorStop(0.5, '#FF6347');
+        bodyGradient.addColorStop(1, '#E55B3C');
+        ctx.fillStyle = bodyGradient;
+        
+        // Main body
+        ctx.beginPath();
+        ctx.ellipse(0, -45, 28, 35, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Head
+        ctx.beginPath();
+        ctx.ellipse(0, -85, 25, 22, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Ears
+        ctx.beginPath();
+        ctx.moveTo(-18, -100);
+        ctx.lineTo(-25, -125);
+        ctx.lineTo(-8, -105);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(18, -100);
+        ctx.lineTo(25, -125);
+        ctx.lineTo(8, -105);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Inner ears
+        ctx.fillStyle = '#FFB6A3';
+        ctx.beginPath();
+        ctx.moveTo(-16, -102);
+        ctx.lineTo(-20, -118);
+        ctx.lineTo(-10, -106);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(16, -102);
+        ctx.lineTo(20, -118);
+        ctx.lineTo(10, -106);
+        ctx.closePath();
+        ctx.fill();
+        
+        // White face markings
+        ctx.fillStyle = '#FFF5EE';
+        ctx.beginPath();
+        ctx.ellipse(0, -78, 15, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Chest
+        ctx.beginPath();
+        ctx.ellipse(0, -35, 18, 22, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Eyes
+        ctx.fillStyle = '#2C1810';
+        ctx.beginPath();
+        ctx.ellipse(-10, -90, 6, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(10, -90, 6, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Eye shine
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(-8, -92, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(12, -92, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Nose
+        ctx.fillStyle = '#2C1810';
+        ctx.beginPath();
+        ctx.ellipse(0, -80, 5, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Smile
+        ctx.strokeStyle = '#2C1810';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -77, 8, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+        
+        // Legs animation
+        const legOffset = Math.sin(player.runFrame * 0.8) * 15;
+        
+        ctx.fillStyle = '#E55B3C';
+        // Left leg
+        ctx.beginPath();
+        ctx.ellipse(-12, -10 + legOffset, 10, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Right leg
+        ctx.beginPath();
+        ctx.ellipse(12, -10 - legOffset, 10, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Tail
+        ctx.fillStyle = '#FF7F50';
+        ctx.beginPath();
+        ctx.moveTo(25, -40);
+        ctx.quadraticCurveTo(55, -50 + Math.sin(Date.now() * 0.01) * 10, 45, -70);
+        ctx.quadraticCurveTo(30, -55, 25, -50);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Tail tip
+        ctx.fillStyle = '#FFF5EE';
+        ctx.beginPath();
+        ctx.ellipse(45, -68, 8, 6, -0.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+    
+    // Game over
+    function gameOver() {
+        game.state = 'gameover';
+        
+        document.getElementById('finalScore').textContent = Math.floor(game.score).toLocaleString();
+        document.getElementById('finalWords').textContent = game.wordsFormed;
+        document.getElementById('finalDistance').textContent = Math.floor(game.distance) + 'm';
+        
+        const wordsList = document.getElementById('wordsFormedList');
+        wordsList.innerHTML = '';
+        game.wordsFormedList.slice(-10).forEach(word => {
+            const span = document.createElement('span');
+            span.className = 'formed-word';
+            span.textContent = word;
+            wordsList.appendChild(span);
+        });
+        
+        document.getElementById('gameOverScreen').classList.add('show');
+    }
+    
+    // Start game
+    function startGame() {
+        game.state = 'playing';
+        game.score = 0;
+        game.multiplier = 1;
+        game.wordsFormed = 0;
+        game.wordsFormedList = [];
+        game.distance = 0;
+        game.speed = game.baseSpeed;
+        game.lastTime = performance.now();
+        
+        player.lane = 1;
+        player.targetLane = 1;
+        player.jumpHeight = 0;
+        player.isJumping = false;
+        player.isRolling = false;
+        player.invincible = false;
+        
+        obstacles = [];
+        letters = [];
+        coins = [];
+        particles = [];
+        
+        initTrackLines();
+        setupNewWord();
+        
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('gameOverScreen').classList.remove('show');
+    }
+    
+    // Game loop
+    function gameLoop(currentTime) {
+        update(currentTime);
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+    
+    // Controls
+    document.addEventListener('keydown', (e) => {
+        if (game.state !== 'playing') return;
+        
+        switch (e.key) {
+            case 'ArrowLeft':
+            case 'a':
+            case 'A':
+                if (player.targetLane > 0) player.targetLane--;
+                break;
+            case 'ArrowRight':
+            case 'd':
+            case 'D':
+                if (player.targetLane < 2) player.targetLane++;
+                break;
+            case 'ArrowUp':
+            case 'w':
+            case 'W':
+            case ' ':
+                if (!player.isJumping && !player.isRolling) {
+                    player.isJumping = true;
+                    player.jumpVelocity = 22;
+                }
+                break;
+            case 'ArrowDown':
+            case 's':
+            case 'S':
+                if (!player.isJumping && !player.isRolling) {
+                    player.isRolling = true;
+                    player.rollTimer = 600;
+                }
+                break;
+        }
+    });
+    
+    // Touch controls
+    let touchStartX = 0;
+    let touchStartY = 0;
+    
+    canvas.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    canvas.addEventListener('touchend', (e) => {
+        if (game.state !== 'playing') return;
+        
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+        
+        const minSwipe = 30;
+        
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > minSwipe && player.targetLane < 2) {
+                player.targetLane++;
+            } else if (dx < -minSwipe && player.targetLane > 0) {
+                player.targetLane--;
+            }
+        } else {
+            if (dy < -minSwipe && !player.isJumping && !player.isRolling) {
+                player.isJumping = true;
+                player.jumpVelocity = 22;
+            } else if (dy > minSwipe && !player.isJumping && !player.isRolling) {
+                player.isRolling = true;
+                player.rollTimer = 600;
+            }
+        }
+    }, { passive: true });
+    
+    // Button events
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('restartBtn').addEventListener('click', startGame);
+    
+    // Initialize
+    initTrackLines();
+    requestAnimationFrame(gameLoop);
     </script>
 </body>
 </html>
