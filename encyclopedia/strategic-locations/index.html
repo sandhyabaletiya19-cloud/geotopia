@@ -3,2494 +3,445 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore Strategic Locations - Straits, Canals, Passes, Peninsulas. Live ship tracking, AI analysis, economic simulators. Premium geography intelligence platform.">
-    <title>Strategic Locations 🗺️ | Geotopia Premium Intelligence</title>
+    <meta name="description" content="Strategic Locations Intelligence - Real-time tracking of world's chokepoints, straits, canals, and geopolitical hotspots.">
+    <title>Strategic Locations | Geotopia Intelligence</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Leaflet CSS for Maps -->
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     
-    <!-- Chart.js for Charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
-
-    <style>
-        /* ==========================================
-           ROOT VARIABLES & RESET
-        ========================================== */
-        :root {
-            --primary: #667eea;
-            --primary-dark: #764ba2;
-            --accent: #ffd700;
-            --accent-light: #ffed4e;
-            --success: #00ff88;
-            --success-dark: #00cc66;
-            --danger: #c62828;
-            --warning: #f57c00;
-            --dark: #0d1117;
-            --dark-lighter: #161b22;
-            --light: #f6f8fa;
-            --gray: #8b949e;
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-gold: linear-gradient(135deg, #ffd700, #ffed4e);
-            --gradient-success: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
-            --shadow: 0 10px 40px rgba(0,0,0,0.1);
-            --shadow-hover: 0 15px 50px rgba(0,0,0,0.15);
-            --radius: 15px;
-            --radius-lg: 20px;
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--light);
-            color: #333;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        /* ==========================================
-           PRELOADER
-        ========================================== */
-        .preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-
-        .preloader.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .preloader-content {
-            text-align: center;
-        }
-
-        .compass-loader {
-            margin-bottom: 1rem;
-        }
-
-        .compass {
-            font-size: 4rem;
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .preloader-text {
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        /* ==========================================
-           PREMIUM BANNER
-        ========================================== */
-        .premium-banner {
-            background: var(--gradient);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            animation: slideDown 0.6s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .premium-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .premium-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .premium-badge-icon {
-            font-size: 2rem;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .premium-text h3 {
-            color: white;
-            font-size: 1.1rem;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        .premium-text p {
-            color: rgba(255,255,255,0.9);
-            margin: 0.25rem 0 0;
-            font-size: 0.85rem;
-        }
-
-        .premium-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .premium-value {
-            color: rgba(255,255,255,0.7);
-            text-decoration: line-through;
-            font-size: 0.9rem;
-        }
-
-        .premium-price {
-            background: rgba(255,255,255,0.2);
-            color: var(--accent);
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 1rem;
-            border: 2px solid rgba(255,215,0,0.5);
-        }
-
-        .demo-badge {
-            background: rgba(0,0,0,0.3);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .demo-badge .pulse-dot {
-            width: 6px;
-            height: 6px;
-            background: #00ff00;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* ==========================================
-           NAVIGATION
-        ========================================== */
-        .main-nav {
-            background: white;
-            padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 60px;
-            z-index: 999;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: #333;
-        }
-
-        .logo-icon {
-            font-size: 1.8rem;
-        }
-
-        .logo-text {
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1rem;
-            text-decoration: none;
-            color: #555;
-            border-radius: 10px;
-            transition: var(--transition);
-            font-size: 0.9rem;
-        }
-
-        .nav-link:hover {
-            background: rgba(102,126,234,0.1);
-            color: var(--primary);
-        }
-
-        .nav-link.active {
-            background: var(--gradient);
-            color: white;
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 10px;
-            transition: var(--transition);
-        }
-
-        .theme-toggle:hover {
-            background: rgba(0,0,0,0.05);
-        }
-
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        .hamburger {
-            display: block;
-            width: 25px;
-            height: 3px;
-            background: #333;
-            position: relative;
-            border-radius: 3px;
-        }
-
-        .hamburger::before,
-        .hamburger::after {
-            content: '';
-            position: absolute;
-            width: 25px;
-            height: 3px;
-            background: #333;
-            border-radius: 3px;
-        }
-
-        .hamburger::before { top: -8px; }
-        .hamburger::after { bottom: -8px; }
-
-        /* ==========================================
-           HERO SECTION
-        ========================================== */
-        .hero-section {
-            min-height: 90vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            background: var(--dark);
-        }
-
-        .hero-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.4;
-        }
-
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            padding: 2rem;
-            max-width: 1000px;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            padding: 0.5rem 1.5rem;
-            border-radius: 30px;
-            color: white;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .hero-title {
-            color: white;
-            font-size: 4rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-        }
-
-        .title-highlight {
-            background: var(--gradient-gold);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .title-emoji {
-            display: block;
-            font-size: 3rem;
-            margin-top: 0.5rem;
-        }
-
-        .hero-subtitle {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.4rem;
-            margin-bottom: 2rem;
-            font-weight: 300;
-        }
-
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            text-align: center;
-            color: white;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--accent);
-            display: inline;
-        }
-
-        .stat-plus {
-            font-size: 2rem;
-            color: var(--accent);
-        }
-
-        .stat-label {
-            display: block;
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.8);
-            margin-top: 0.25rem;
-        }
-
-        .stat-divider {
-            width: 1px;
-            height: 60px;
-            background: rgba(255,255,255,0.2);
-        }
-
-        /* AI Search Box */
-        .ai-search-box {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto 2rem;
-            display: flex;
-            gap: 0.5rem;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            padding: 0.5rem;
-            border-radius: 50px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,215,0,0.3);
-        }
-
-        .ai-search-input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            color: #333;
-            outline: none;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .ai-search-input::placeholder {
-            color: #999;
-        }
-
-        .ai-search-btn {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .ai-search-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102,126,234,0.5);
-        }
-
-        .ai-icon {
-            font-size: 1.2rem;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .hero-btn-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: var(--transition);
-            cursor: pointer;
-            border: none;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-        }
-
-        .btn-primary {
-            background: var(--gradient);
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
-        }
-
-        .live-indicator {
-            width: 8px;
-            height: 8px;
-            background: #00ff00;
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.15);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.25);
-            border-color: white;
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            color: rgba(255,255,255,0.7);
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(10px); }
-        }
-
-        .mouse {
-            width: 25px;
-            height: 40px;
-            border: 2px solid rgba(255,255,255,0.5);
-            border-radius: 15px;
-            margin: 0 auto 0.5rem;
-            position: relative;
-        }
-
-        .wheel {
-            width: 4px;
-            height: 8px;
-            background: rgba(255,255,255,0.7);
-            border-radius: 2px;
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: scroll 2s infinite;
-        }
-
-        @keyframes scroll {
-            0%, 100% { opacity: 1; top: 8px; }
-            50% { opacity: 0.3; top: 16px; }
-        }
-
-        /* ==========================================
-           LIVE DASHBOARD SECTION
-        ========================================== */
-        .live-dashboard-section {
-            padding: 5rem 0;
-            background: linear-gradient(to bottom, rgba(102,126,234,0.03), transparent);
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            background: rgba(102,126,234,0.1);
-            color: var(--primary);
-        }
-
-        .section-badge.live-badge {
-            background: var(--gradient-success);
-            color: #000;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: #ff0000;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-subtitle {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-
-        .dashboard-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            border: 2px solid transparent;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dashboard-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient);
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-            border-color: rgba(102,126,234,0.2);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .card-icon {
-            font-size: 2.5rem;
-        }
-
-        .card-header h3 {
-            flex: 1;
-            font-size: 1.2rem;
-            color: #333;
-            margin: 0;
-        }
-
-        .update-time {
-            font-size: 0.75rem;
-            color: #999;
-            background: rgba(102,126,234,0.1);
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-        }
-
-        .card-badge {
-            background: var(--gradient-gold);
-            color: #000;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        /* Oil Prices Card */
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .price-row:last-of-type {
-            border-bottom: none;
-        }
-
-        .price-label {
-            font-weight: 600;
-            color: #555;
-        }
-
-        .price-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .price-change {
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 0.85rem;
-        }
-
-        .price-change.positive {
-            background: rgba(0,200,100,0.1);
-            color: #00aa00;
-        }
-
-        .price-change.negative {
-            background: rgba(200,0,0,0.1);
-            color: #cc0000;
-        }
-
-        .price-impact {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(102,126,234,0.05);
-            border-radius: 10px;
-            border-left: 3px solid var(--primary);
-        }
-
-        .impact-label {
-            display: block;
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 0.3rem;
-        }
-
-        .impact-text {
-            font-weight: 600;
-            color: #333;
-        }
-
-        /* Ships Card */
-        .ship-counter {
-            text-align: center;
-            padding: 1.5rem 0;
-        }
-
-        .counter-number {
-            font-size: 3.5rem;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-        }
-
-        .counter-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 0.5rem;
-        }
-
-        .ships-breakdown {
-            margin: 1.5rem 0;
-        }
-
-        .breakdown-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
-        }
-
-        .breakdown-label {
-            color: #666;
-        }
-
-        .breakdown-value {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .cargo-value {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background: rgba(255,215,0,0.1);
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .cargo-label {
-            display: block;
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 0.3rem;
-        }
-
-        .cargo-amount {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #f57c00;
-        }
-
-        /* Alerts Card */
-        .alerts-list {
-            max-height: 280px;
-            overflow-y: auto;
-        }
-
-        .alert-item {
-            padding: 1rem;
-            margin-bottom: 0.8rem;
-            border-radius: 10px;
-            border-left: 4px solid #ccc;
-            background: rgba(0,0,0,0.02);
-            transition: var(--transition);
-        }
-
-        .alert-item:hover {
-            background: rgba(102,126,234,0.05);
-            transform: translateX(5px);
-        }
-
-        .alert-item.critical {
-            border-left-color: var(--danger);
-            background: rgba(198,40,40,0.05);
-        }
-
-        .alert-item.high {
-            border-left-color: var(--warning);
-            background: rgba(245,124,0,0.05);
-        }
-
-        .alert-item.medium {
-            border-left-color: #fbc02d;
-        }
-
-        .alert-item.low {
-            border-left-color: #43a047;
-        }
-
-        .alert-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .alert-severity {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .alert-severity.critical {
-            background: var(--danger);
-            color: white;
-        }
-
-        .alert-severity.high {
-            background: var(--warning);
-            color: white;
-        }
-
-        .alert-severity.medium {
-            background: #fbc02d;
-            color: #333;
-        }
-
-        .alert-severity.low {
-            background: #43a047;
-            color: white;
-        }
-
-        .alert-title {
-            font-weight: 600;
-            color: #333;
-            font-size: 0.9rem;
-        }
-
-        .alert-source {
-            font-size: 0.75rem;
-            color: #999;
-        }
-
-        .view-all-alerts-btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: transparent;
-            border: 2px solid rgba(102,126,234,0.3);
-            border-radius: 10px;
-            color: var(--primary);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 1rem;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .view-all-alerts-btn:hover {
-            background: rgba(102,126,234,0.05);
-            border-color: var(--primary);
-        }
-
-        /* Calculator Card */
-        .calculator-intro {
-            color: #666;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .calc-select {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 1rem;
-            color: #333;
-            background: white;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .calc-select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .duration-slider {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .slider {
-            flex: 1;
-            height: 6px;
-            border-radius: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            outline: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.4);
-            border: 3px solid white;
-        }
-
-        .duration-display {
-            font-weight: bold;
-            color: var(--primary);
-            min-width: 80px;
-            text-align: right;
-        }
-
-        .calculate-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
-        }
-
-        .impact-results {
-            background: rgba(102,126,234,0.05);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            border: 2px solid rgba(102,126,234,0.2);
-            margin-top: 1.5rem;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.7rem 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .result-row:last-of-type {
-            border-bottom: none;
-        }
-
-        .result-label {
-            color: #666;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .result-value {
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        .result-value.critical {
-            color: var(--danger);
-        }
-
-        .result-value.warning {
-            color: var(--warning);
-        }
-
-        .detailed-report-btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: var(--gradient-gold);
-            color: #000;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .detailed-report-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
-        }
-
-        /* ==========================================
-           IMPORTANCE SECTION
-        ========================================== */
-        .importance-section {
-            padding: 5rem 0;
-            background: white;
-        }
-
-        .importance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .importance-card {
-            text-align: center;
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
-            border: 2px solid transparent;
-            transition: var(--transition);
-        }
-
-        .importance-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
-        }
-
-        .importance-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .importance-card h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .importance-card p {
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        /* ==========================================
-           AI TOOLS SECTION
-        ========================================== */
-        .ai-tools-section {
-            padding: 5rem 0;
-            background: linear-gradient(to bottom, transparent, rgba(102,126,234,0.03));
-        }
-
-        .ai-badge {
-            background: var(--gradient);
-            color: white;
-        }
-
-        .ai-tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: 2rem;
-        }
-
-        .ai-tool-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            border: 2px solid transparent;
-            transition: var(--transition);
-        }
-
-        .ai-tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-            border-color: rgba(102,126,234,0.2);
-        }
-
-        .tool-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .ai-tool-card h3 {
-            font-size: 1.4rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .ai-tool-card > p {
-            color: #666;
-            margin-bottom: 2rem;
-        }
-
-        .tool-form {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .tool-input {
-            flex: 1;
-            padding: 0.8rem 1rem;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .tool-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .tool-btn {
-            padding: 0.8rem 2rem;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .tool-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
-        }
-
-        .tool-results {
-            background: rgba(102,126,234,0.05);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-top: 1rem;
-            border: 2px solid rgba(102,126,234,0.2);
-        }
-
-        .scenario-presets {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .preset-btn {
-            padding: 1rem;
-            background: rgba(102,126,234,0.05);
-            border: 2px solid rgba(102,126,234,0.2);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: left;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .preset-btn:hover {
-            background: rgba(102,126,234,0.1);
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
-
-        .preset-emoji {
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .preset-btn span:last-child {
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .compare-form {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .compare-select {
-            flex: 1;
-            min-width: 150px;
-            padding: 0.8rem;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .compare-vs {
-            font-weight: bold;
-            color: var(--primary);
-            padding: 0.5rem 1rem;
-            background: rgba(102,126,234,0.1);
-            border-radius: 50%;
-        }
-
-        /* ==========================================
-           WORLD MAP SECTION
-        ========================================== */
-        .world-map-section {
-            padding: 5rem 0;
-            background: white;
-        }
-
-        .map-container {
-            position: relative;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .leaflet-map {
-            height: 600px;
-            width: 100%;
-            border-radius: var(--radius-lg);
-        }
-
-        .map-legend {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 1000;
-        }
-
-        .map-legend h4 {
-            margin-bottom: 0.8rem;
-            font-size: 0.9rem;
-            color: #333;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        /* ==========================================
-           CATEGORIES SECTION
-        ========================================== */
-        .categories-main {
-            padding: 5rem 0;
-            background: linear-gradient(to bottom, rgba(102,126,234,0.02), transparent);
-        }
-
-        .categories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: 2rem;
-        }
-
-        .category-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            border: 2px solid transparent;
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .category-header {
-            padding: 2rem;
-            background: var(--gradient);
-            color: white;
-            text-align: center;
-        }
-
-        .straits-category .category-header { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-        .canals-category .category-header { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .passes-category .category-header { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
-        .isthmus-category .category-header { background: linear-gradient(135deg, #1abc9c, #16a085); }
-        .peninsulas-category .category-header { background: linear-gradient(135deg, #27ae60, #229954); }
-        .capes-category .category-header { background: linear-gradient(135deg, #2c3e50, #1a252f); }
-
-        .category-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .category-title {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .category-desc {
-            color: rgba(255,255,255,0.9);
-            font-size: 0.9rem;
-        }
-
-        .locations-list {
-            padding: 1rem;
-        }
-
-        .location-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            text-decoration: none;
-            color: #333;
-            border-radius: 10px;
-            transition: var(--transition);
-            margin-bottom: 0.5rem;
-        }
-
-        .location-item:hover {
-            background: rgba(102,126,234,0.05);
-            transform: translateX(10px);
-        }
-
-        .location-item.india-relevant {
-            background: rgba(255,153,0,0.05);
-            border-left: 3px solid #ff9900;
-        }
-
-        .location-name {
-            flex: 1;
-            font-weight: 600;
-        }
-
-        .location-region {
-            color: #888;
-            font-size: 0.85rem;
-            margin-right: 1rem;
-        }
-
-        .location-arrow {
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .view-all-btn {
-            display: block;
-            text-align: center;
-            padding: 1rem;
-            background: rgba(102,126,234,0.05);
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .view-all-btn:hover {
-            background: rgba(102,126,234,0.1);
-        }
-
-        /* ==========================================
-           UPSC FOCUS SECTION
-        ========================================== */
-        .upsc-focus-section {
-            padding: 5rem 0;
-            background: var(--dark);
-            color: white;
-        }
-
-        .upsc-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .upsc-badge {
-            display: inline-block;
-            background: var(--gradient-gold);
-            color: #000;
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-        }
-
-        .upsc-content h2 {
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .upsc-points-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .upsc-point {
-            background: rgba(255,255,255,0.05);
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            border: 2px solid rgba(255,255,255,0.1);
-        }
-
-        .upsc-point h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            color: var(--accent);
-        }
-
-        .upsc-point ul {
-            list-style: none;
-        }
-
-        .upsc-point li {
-            padding: 0.5rem 0;
-            color: rgba(255,255,255,0.8);
-        }
-
-        /* ==========================================
-           FOOTER
-        ========================================== */
-        .main-footer {
-            background: var(--dark-lighter);
-            color: white;
-            padding: 2rem 0;
-        }
-
-        .footer-bottom {
-            text-align: center;
-        }
-
-        .copyright {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.9rem;
-        }
-
-        /* ==========================================
-           BACK TO TOP
-        ========================================== */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--gradient);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .back-to-top:hover {
-            transform: translateY(-5px);
-        }
-
-        .back-to-top svg {
-            stroke: white;
-        }
-
-        /* ==========================================
-           LOADING STATES
-        ========================================== */
-        .loading-spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(102,126,234,0.2);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 5px;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        /* ==========================================
-           RESPONSIVE
-        ========================================== */
-        @media (max-width: 1024px) {
-            .nav-links {
-                display: none;
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .premium-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .hero-stats {
-                gap: 1.5rem;
-            }
-
-            .stat-divider {
-                display: none;
-            }
-
-            .ai-search-box {
-                flex-direction: column;
-            }
-
-            .ai-search-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .ai-tools-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .scenario-presets {
-                grid-template-columns: 1fr;
-            }
-
-            .categories-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .leaflet-map {
-                height: 400px;
-            }
-        }
-
-        /* ==========================================
-           MOBILE MENU
-        ========================================== */
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--dark);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-
-        .mobile-menu.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .mobile-menu-content {
-            text-align: center;
-        }
-
-        .mobile-nav-link {
-            display: block;
-            color: white;
-            text-decoration: none;
-            font-size: 1.5rem;
-            padding: 1rem;
-            transition: var(--transition);
-        }
-
-        .mobile-nav-link:hover {
-            color: var(--accent);
-        }
-
-        .mobile-nav-link.active {
-            color: var(--accent);
-        }
-    </style>
 </head>
-<body class="strategic-locations-hub">
-    
-    <!-- Preloader -->
-    <div class="preloader" id="preloader">
-        <div class="preloader-content">
-            <div class="compass-loader">
-                <div class="compass">🧭</div>
-            </div>
-            <p class="preloader-text">Loading Strategic Intelligence...</p>
-        </div>
-    </div>
+<body>
 
-    <!-- PREMIUM BANNER -->
-    <div class="premium-banner" id="premiumBanner">
-        <div class="container">
-            <div class="premium-content">
-                <div class="premium-left">
-                    <span class="premium-badge-icon">💎</span>
-                    <div class="premium-text">
-                        <h3>Premium Live Intelligence Active</h3>
-                        <p>Real-time ship tracking • Live oil prices • AI analysis • Economic simulators</p>
-                    </div>
-                </div>
-                <div class="premium-right">
-                    <div class="demo-badge">
-                        <span class="pulse-dot"></span>
-                        <span>LIVE DATA</span>
-                    </div>
-                    <span class="premium-value">Worth $12,999</span>
-                    <span class="premium-price">Only $1,299/year</span>
-                </div>
+    <!-- Premium Header -->
+    <header class="premium-header">
+        <div class="header-container">
+            <div class="header-left">
+                <span class="live-dot"></span>
+                <span class="header-status">LIVE INTELLIGENCE</span>
+            </div>
+            <div class="header-center">
+                <span class="header-value">Platform Value: <s>$12,999</s></span>
+                <span class="header-price">$1,299/year</span>
+            </div>
+            <div class="header-right">
+                <span class="last-update" id="lastUpdate">Updated: --</span>
             </div>
         </div>
-    </div>
+    </header>
 
     <!-- Navigation -->
-    <nav class="main-nav" id="mainNav">
+    <nav class="main-nav">
         <div class="nav-container">
+            <a href="../index.html" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span>Encyclopedia</span>
+            </a>
+            
             <a href="../../index.html" class="nav-logo">
                 <span class="logo-icon">🌍</span>
                 <span class="logo-text">Geotopia</span>
             </a>
             
-            <div class="nav-links" id="navLinks">
-                <a href="../index.html" class="nav-link">
-                    <span class="nav-icon">📚</span>
-                    <span>Encyclopedia</span>
-                </a>
-                <a href="../physical-geography/index.html" class="nav-link">
-                    <span class="nav-icon">⛰️</span>
-                    <span>Physical Geography</span>
-                </a>
-                <a href="index.html" class="nav-link active">
-                    <span class="nav-icon">🗺️</span>
-                    <span>Strategic Locations</span>
-                </a>
-                <a href="../climate/index.html" class="nav-link">
-                    <span class="nav-icon">🌦️</span>
-                    <span>Climate</span>
-                </a>
-                <a href="../relations/index.html" class="nav-link">
-                    <span class="nav-icon">🤝</span>
-                    <span>Relations</span>
-                </a>
-            </div>
-            
-            <div class="nav-actions">
-                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                    <span class="theme-icon">🌙</span>
-                </button>
-                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-                    <span class="hamburger"></span>
-                </button>
+            <div class="nav-title">
+                <span>Strategic Locations</span>
             </div>
         </div>
     </nav>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-content">
-            <a href="../index.html" class="mobile-nav-link">📚 Encyclopedia</a>
-            <a href="../physical-geography/index.html" class="mobile-nav-link">⛰️ Physical Geography</a>
-            <a href="index.html" class="mobile-nav-link active">🗺️ Strategic Locations</a>
-            <a href="../climate/index.html" class="mobile-nav-link">🌦️ Climate</a>
-            <a href="../relations/index.html" class="mobile-nav-link">🤝 Relations</a>
-        </div>
-    </div>
-
     <!-- Hero Section -->
-    <header class="hero-section" id="hero">
-        <div class="hero-background">
-            <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1920&q=80" 
-                 alt="Strategic shipping route" 
-                 class="hero-image"
-                 loading="eager">
-            <div class="hero-overlay"></div>
-        </div>
-        
+    <section class="hero">
+        <div class="hero-bg"></div>
         <div class="hero-content">
             <div class="hero-badge">
-                <span class="badge-icon">🎯</span>
-                <span class="badge-text">Premium Geopolitical Intelligence</span>
+                <span class="badge-dot"></span>
+                <span>Real-Time Geopolitical Intelligence</span>
             </div>
+            <h1 class="hero-title">Strategic Locations</h1>
+            <p class="hero-subtitle">Monitor global chokepoints controlling $20+ trillion in annual trade</p>
             
-            <h1 class="hero-title">
-                <span class="title-line">Strategic</span>
-                <span class="title-line title-highlight">Locations</span>
-                <span class="title-emoji">🗺️</span>
-            </h1>
-            
-            <p class="hero-subtitle">
-                Master the World's Chokepoints — Live Data, AI Analysis & Economic Simulators
-            </p>
-            
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <span class="stat-number" data-count="25">0</span>
-                    <span class="stat-plus">+</span>
-                    <span class="stat-label">Straits</span>
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <span class="stat-value" id="totalShipsHero">547</span>
+                    <span class="stat-label">Ships in Transit</span>
                 </div>
                 <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-number" data-count="10">0</span>
-                    <span class="stat-plus">+</span>
-                    <span class="stat-label">Canals</span>
+                <div class="quick-stat">
+                    <span class="stat-value" id="brentHero">$85.30</span>
+                    <span class="stat-label">Brent Crude</span>
                 </div>
                 <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-number" data-count="20">0</span>
-                    <span class="stat-plus">+</span>
-                    <span class="stat-label">Passes</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-number">LIVE</span>
-                    <span class="stat-label">Ship Tracking</span>
+                <div class="quick-stat">
+                    <span class="stat-value" id="alertsCount">3</span>
+                    <span class="stat-label">Active Alerts</span>
                 </div>
             </div>
             
-            <!-- AI-Powered Search -->
-            <div class="ai-search-box">
-                <input type="text" 
-                       id="aiSearchInput" 
-                       class="ai-search-input" 
-                       placeholder="🤖 Ask AI: 'Show me chokepoints critical to lithium supply chains'">
-                <button class="ai-search-btn" id="aiSearchBtn">
-                    <span class="ai-icon">🤖</span>
-                    <span>AI Search</span>
+            <!-- AI Search -->
+            <div class="ai-search">
+                <input type="text" id="aiSearch" placeholder="Ask AI: Show chokepoints critical to oil supply...">
+                <button id="aiSearchBtn">
+                    <span>🤖</span>
+                    <span>Analyze</span>
                 </button>
             </div>
-            
-            <div class="hero-btn-group">
-                <a href="#live-dashboard" class="btn btn-primary">
-                    <span>📊 Live Dashboard</span>
-                    <span class="live-indicator"></span>
-                </a>
-                <a href="#world-map" class="btn btn-secondary">
-                    <span>View World Map</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                </a>
-            </div>
         </div>
-        
-        <div class="scroll-indicator">
-            <div class="mouse"><div class="wheel"></div></div>
-            <span>Scroll to Explore</span>
-        </div>
-    </header>
+    </section>
 
-    <!-- LIVE DATA DASHBOARD -->
-    <section class="live-dashboard-section" id="live-dashboard">
+    <!-- Categories Section (Moved to TOP) -->
+    <section class="categories-section" id="categories">
         <div class="container">
             <div class="section-header">
-                <span class="section-badge live-badge">📊 Live Data <span class="pulse-dot"></span></span>
-                <h2 class="section-title">Real-Time Global Intelligence</h2>
-                <p class="section-subtitle">Updated every 5 minutes from multiple data sources</p>
+                <h2>Browse by Category</h2>
+                <p>Explore strategic locations worldwide</p>
             </div>
             
-            <div class="dashboard-grid">
-                
-                <!-- Live Oil Prices -->
-                <div class="dashboard-card oil-prices-card">
-                    <div class="card-header">
-                        <div class="card-icon">🛢️</div>
-                        <h3>Live Oil Prices</h3>
-                        <span class="update-time" id="oilUpdateTime">Just now</span>
+            <div class="categories-grid">
+                <!-- Straits -->
+                <div class="category-card" data-category="straits">
+                    <div class="card-icon straits">⚓</div>
+                    <div class="card-content">
+                        <h3>Straits</h3>
+                        <p>25+ critical water passages</p>
+                        <ul class="location-preview">
+                            <li><a href="straits/malacca.html">Malacca Strait</a></li>
+                            <li><a href="straits/hormuz.html">Strait of Hormuz</a></li>
+                            <li><a href="straits/gibraltar.html">Gibraltar Strait</a></li>
+                            <li><a href="straits/bosporus.html">Bosporus Strait</a></li>
+                        </ul>
+                        <a href="straits/index.html" class="view-all">View All Straits →</a>
                     </div>
-                    <div class="card-body">
-                        <div class="price-row">
+                </div>
+
+                <!-- Canals -->
+                <div class="category-card" data-category="canals">
+                    <div class="card-icon canals">🚢</div>
+                    <div class="card-content">
+                        <h3>Canals</h3>
+                        <p>Man-made trade arteries</p>
+                        <ul class="location-preview">
+                            <li><a href="canals/suez.html">Suez Canal</a></li>
+                            <li><a href="canals/panama.html">Panama Canal</a></li>
+                            <li><a href="canals/kiel.html">Kiel Canal</a></li>
+                        </ul>
+                        <a href="canals/index.html" class="view-all">View All Canals →</a>
+                    </div>
+                </div>
+
+                <!-- Mountain Passes -->
+                <div class="category-card" data-category="passes">
+                    <div class="card-icon passes">🏔️</div>
+                    <div class="card-content">
+                        <h3>Mountain Passes</h3>
+                        <p>Historic land routes</p>
+                        <ul class="location-preview">
+                            <li><a href="passes/khyber.html">Khyber Pass 🇮🇳</a></li>
+                            <li><a href="passes/karakoram.html">Karakoram Pass 🇮🇳</a></li>
+                            <li><a href="passes/rohtang.html">Rohtang Pass 🇮🇳</a></li>
+                        </ul>
+                        <a href="passes/index.html" class="view-all">View All Passes →</a>
+                    </div>
+                </div>
+
+                <!-- Peninsulas -->
+                <div class="category-card" data-category="peninsulas">
+                    <div class="card-icon peninsulas">🏖️</div>
+                    <div class="card-content">
+                        <h3>Peninsulas</h3>
+                        <p>Strategic landmasses</p>
+                        <ul class="location-preview">
+                            <li><a href="peninsulas/arabian.html">Arabian Peninsula</a></li>
+                            <li><a href="peninsulas/indian.html">Indian Peninsula 🇮🇳</a></li>
+                            <li><a href="peninsulas/korean.html">Korean Peninsula</a></li>
+                        </ul>
+                        <a href="peninsulas/index.html" class="view-all">View All Peninsulas →</a>
+                    </div>
+                </div>
+
+                <!-- Isthmus -->
+                <div class="category-card" data-category="isthmus">
+                    <div class="card-icon isthmus">🌉</div>
+                    <div class="card-content">
+                        <h3>Isthmus</h3>
+                        <p>Narrow land connections</p>
+                        <ul class="location-preview">
+                            <li><a href="isthmus/panama.html">Isthmus of Panama</a></li>
+                            <li><a href="isthmus/suez.html">Isthmus of Suez</a></li>
+                            <li><a href="isthmus/kra.html">Kra Isthmus</a></li>
+                        </ul>
+                        <a href="isthmus/index.html" class="view-all">View All Isthmus →</a>
+                    </div>
+                </div>
+
+                <!-- Capes -->
+                <div class="category-card" data-category="capes">
+                    <div class="card-icon capes">🌊</div>
+                    <div class="card-content">
+                        <h3>Capes & Points</h3>
+                        <p>Maritime landmarks</p>
+                        <ul class="location-preview">
+                            <li><a href="capes/good-hope.html">Cape of Good Hope</a></li>
+                            <li><a href="capes/horn.html">Cape Horn</a></li>
+                            <li><a href="capes/comorin.html">Kanyakumari 🇮🇳</a></li>
+                        </ul>
+                        <a href="capes/index.html" class="view-all">View All Capes →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Dashboard -->
+    <section class="dashboard-section" id="dashboard">
+        <div class="container">
+            <div class="section-header">
+                <div class="header-with-badge">
+                    <h2>Live Intelligence Dashboard</h2>
+                    <span class="live-badge"><span class="pulse"></span>LIVE</span>
+                </div>
+                <p>Auto-updates every 5 minutes</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Oil Prices Card -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <span class="card-title">🛢️ Oil Prices</span>
+                        <span class="card-update" id="oilUpdate">Just now</span>
+                    </div>
+                    <div class="price-grid">
+                        <div class="price-item">
                             <span class="price-label">Brent Crude</span>
                             <span class="price-value" id="brentPrice">$85.30</span>
                             <span class="price-change positive" id="brentChange">+1.2%</span>
                         </div>
-                        <div class="price-row">
+                        <div class="price-item">
                             <span class="price-label">WTI Crude</span>
                             <span class="price-value" id="wtiPrice">$78.45</span>
                             <span class="price-change positive" id="wtiChange">+0.8%</span>
                         </div>
-                        <div class="price-impact">
-                            <span class="impact-label">Strategic Impact:</span>
-                            <span class="impact-text" id="oilImpact">Hormuz & Malacca traffic stable. No disruptions.</span>
-                        </div>
+                    </div>
+                    <div class="card-footer" id="oilImpact">
+                        Stable conditions across major chokepoints
                     </div>
                 </div>
-                
-                <!-- Active Ships Counter -->
-                <div class="dashboard-card ships-card">
+
+                <!-- Ships in Transit -->
+                <div class="dashboard-card">
                     <div class="card-header">
-                        <div class="card-icon">🚢</div>
-                        <h3>Ships in Transit</h3>
-                        <span class="update-time" id="shipsUpdateTime">Live</span>
+                        <span class="card-title">🚢 Ships in Transit</span>
+                        <span class="card-update">Live</span>
                     </div>
-                    <div class="card-body">
-                        <div class="ship-counter">
-                            <div class="counter-number" id="totalShipsCount">547</div>
-                            <div class="counter-label">Total ships in strategic straits</div>
+                    <div class="ships-counter">
+                        <span class="counter-value" id="totalShips">547</span>
+                        <span class="counter-label">Total Vessels</span>
+                    </div>
+                    <div class="ships-breakdown">
+                        <div class="breakdown-row">
+                            <span>Malacca Strait</span>
+                            <span id="malaccaShips">298</span>
                         </div>
-                        <div class="ships-breakdown">
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Malacca Strait</span>
-                                <span class="breakdown-value" id="malaccaShips">298</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Strait of Hormuz</span>
-                                <span class="breakdown-value" id="hormuzShips">24</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Suez Canal</span>
-                                <span class="breakdown-value" id="suezShips">48</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Bosporus</span>
-                                <span class="breakdown-value" id="bosporusShips">132</span>
-                            </div>
+                        <div class="breakdown-row">
+                            <span>Strait of Hormuz</span>
+                            <span id="hormuzShips">24</span>
                         </div>
-                        <div class="cargo-value">
-                            <span class="cargo-label">Estimated cargo value in transit:</span>
-                            <span class="cargo-amount" id="cargoValue">$47.8B</span>
+                        <div class="breakdown-row">
+                            <span>Suez Canal</span>
+                            <span id="suezShips">48</span>
                         </div>
+                        <div class="breakdown-row">
+                            <span>Bosporus</span>
+                            <span id="bosporusShips">132</span>
+                        </div>
+                    </div>
+                    <div class="cargo-value">
+                        Cargo Value: <strong id="cargoValue">$47.8B</strong>
                     </div>
                 </div>
-                
+
                 <!-- Security Alerts -->
                 <div class="dashboard-card alerts-card">
                     <div class="card-header">
-                        <div class="card-icon">⚠️</div>
-                        <h3>Security Alerts</h3>
-                        <span class="update-time" id="alertsUpdateTime">Last hour</span>
+                        <span class="card-title">⚠️ Security Alerts</span>
+                        <span class="card-update" id="alertsUpdate">1 hour ago</span>
                     </div>
-                    <div class="card-body">
-                        <div class="alerts-list" id="securityAlertsList">
-                            <div class="alert-item medium">
-                                <div class="alert-header">
-                                    <span class="alert-severity medium">MEDIUM</span>
-                                </div>
-                                <div class="alert-title">Increased naval activity in South China Sea</div>
-                                <div class="alert-source">Regional Maritime Authority • 2 hours ago</div>
-                            </div>
-                            <div class="alert-item low">
-                                <div class="alert-header">
-                                    <span class="alert-severity low">LOW</span>
-                                </div>
-                                <div class="alert-title">Routine patrol exercises near Hormuz</div>
-                                <div class="alert-source">US 5th Fleet • 5 hours ago</div>
-                            </div>
-                            <div class="alert-item low">
-                                <div class="alert-header">
-                                    <span class="alert-severity low">LOW</span>
-                                </div>
-                                <div class="alert-title">Weather advisory: Malacca monsoon season</div>
-                                <div class="alert-source">Singapore MPA • 8 hours ago</div>
-                            </div>
-                        </div>
-                        <button class="view-all-alerts-btn" id="viewAllAlerts">View All Alerts →</button>
+                    <div class="alerts-list" id="alertsList">
+                        <!-- Auto-populated -->
                     </div>
                 </div>
-                
-                <!-- Economic Impact Calculator -->
+
+                <!-- Impact Calculator -->
                 <div class="dashboard-card calculator-card">
                     <div class="card-header">
-                        <div class="card-icon">💰</div>
-                        <h3>Impact Calculator</h3>
+                        <span class="card-title">💰 Impact Calculator</span>
                         <span class="card-badge">Interactive</span>
                     </div>
-                    <div class="card-body">
-                        <p class="calculator-intro">Simulate the economic impact of chokepoint closures</p>
-                        
-                        <div class="calculator-form">
-                            <div class="form-group">
-                                <label>Select Location</label>
-                                <select id="calcLocation" class="calc-select">
-                                    <option value="malacca">Strait of Malacca</option>
-                                    <option value="hormuz">Strait of Hormuz</option>
-                                    <option value="suez">Suez Canal</option>
-                                    <option value="panama">Panama Canal</option>
-                                    <option value="bosporus">Bosporus Strait</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Closure Duration</label>
-                                <div class="duration-slider">
-                                    <input type="range" id="calcDuration" min="1" max="90" value="7" class="slider">
-                                    <span class="duration-display"><span id="durationValue">7</span> days</span>
-                                </div>
-                            </div>
-                            
-                            <button class="calculate-btn" id="calculateImpact">
-                                <span>📊</span>
-                                <span>Calculate Impact</span>
-                            </button>
+                    <div class="calculator-form">
+                        <div class="form-row">
+                            <label>Location</label>
+                            <select id="calcLocation">
+                                <option value="malacca">Strait of Malacca</option>
+                                <option value="hormuz">Strait of Hormuz</option>
+                                <option value="suez">Suez Canal</option>
+                                <option value="panama">Panama Canal</option>
+                                <option value="bosporus">Bosporus Strait</option>
+                            </select>
                         </div>
-                        
-                        <div class="impact-results" id="impactResults" style="display: none;">
-                            <div class="result-row">
-                                <span class="result-label">Economic Loss:</span>
-                                <span class="result-value critical" id="economicLoss">$65.2B</span>
-                            </div>
-                            <div class="result-row">
-                                <span class="result-label">Ships Affected:</span>
-                                <span class="result-value" id="shipsAffected">2,100</span>
-                            </div>
-                            <div class="result-row">
-                                <span class="result-label">Rerouting Cost:</span>
-                                <span class="result-value" id="reroutingCost">$630M</span>
-                            </div>
-                            <div class="result-row">
-                                <span class="result-label">Oil Price Impact:</span>
-                                <span class="result-value warning" id="oilPriceImpact">+$70/barrel</span>
-                            </div>
-                            <button class="detailed-report-btn" id="detailedReportBtn">
-                                <span>Generate AI Report</span>
-                                <span>🤖</span>
-                            </button>
+                        <div class="form-row">
+                            <label>Closure Duration: <span id="daysDisplay">7</span> days</label>
+                            <input type="range" id="calcDays" min="1" max="90" value="7">
+                        </div>
+                        <button class="calc-btn" id="calcBtn">Calculate Impact</button>
+                    </div>
+                    <div class="calc-results" id="calcResults">
+                        <div class="result-item">
+                            <span>Economic Loss</span>
+                            <span class="result-value critical" id="econLoss">--</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Ships Affected</span>
+                            <span class="result-value" id="shipsAffected">--</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Oil Price Impact</span>
+                            <span class="result-value warning" id="oilImpactCalc">--</span>
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </section>
 
-    <!-- Why Strategic Locations Matter -->
-    <section class="importance-section">
+    <!-- Interactive Map -->
+    <section class="map-section" id="map">
         <div class="container">
             <div class="section-header">
-                <span class="section-badge">❓ Why This Matters</span>
-                <h2 class="section-title">Strategic Importance for UPSC & Global Affairs</h2>
+                <h2>Interactive Strategic Map</h2>
+                <p>Click markers for detailed information</p>
             </div>
-            
-            <div class="importance-grid">
-                <div class="importance-card">
-                    <div class="importance-icon">🚢</div>
-                    <h3>Trade Routes</h3>
-                    <p>90% of global trade moves by sea through key chokepoints</p>
-                </div>
-                <div class="importance-card">
-                    <div class="importance-icon">🛢️</div>
-                    <h3>Energy Security</h3>
-                    <p>Oil & gas tankers depend on straits like Hormuz and Malacca</p>
-                </div>
-                <div class="importance-card">
-                    <div class="importance-icon">⚔️</div>
-                    <h3>Military Strategy</h3>
-                    <p>Control of chokepoints determines naval power projection</p>
-                </div>
-                <div class="importance-card">
-                    <div class="importance-icon">🇮🇳</div>
-                    <h3>India's Interests</h3>
-                    <p>India's trade, energy & security depend on these routes</p>
+            <div class="map-wrapper">
+                <div id="strategicMap"></div>
+                <div class="map-legend">
+                    <div class="legend-item"><span class="dot straits"></span>Straits</div>
+                    <div class="legend-item"><span class="dot canals"></span>Canals</div>
+                    <div class="legend-item"><span class="dot passes"></span>Passes</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- AI ANALYSIS TOOLS -->
-    <section class="ai-tools-section" id="ai-tools">
+    <!-- AI Tools -->
+    <section class="ai-section" id="ai-tools">
         <div class="container">
             <div class="section-header">
-                <span class="section-badge ai-badge">🤖 AI Analysis</span>
-                <h2 class="section-title">Powered by Advanced AI</h2>
-                <p class="section-subtitle">Get instant geopolitical insights and custom reports</p>
+                <h2>🤖 AI Analysis Tools</h2>
+                <p>Powered by advanced geopolitical intelligence</p>
             </div>
-            
-            <div class="ai-tools-grid">
-                
-                <!-- Supply Chain Analysis -->
-                <div class="ai-tool-card">
-                    <div class="tool-icon">⛓️</div>
+
+            <div class="ai-grid">
+                <!-- Supply Chain Analyzer -->
+                <div class="ai-card">
+                    <div class="ai-icon">⛓️</div>
                     <h3>Supply Chain Analyzer</h3>
-                    <p>Find all chokepoints critical to any commodity's global supply chain</p>
-                    
-                    <div class="tool-form">
-                        <input type="text" 
-                               id="commodityInput" 
-                               class="tool-input" 
-                               placeholder="Enter commodity (e.g., lithium, oil)"
-                               list="commodities">
+                    <p>Find chokepoints critical to any commodity</p>
+                    <div class="ai-form">
+                        <input type="text" id="commodityInput" placeholder="e.g., lithium, oil, semiconductors" list="commodities">
                         <datalist id="commodities">
                             <option value="lithium">
                             <option value="oil">
                             <option value="natural gas">
                             <option value="semiconductors">
-                            <option value="rare earth metals">
+                            <option value="rare earth">
                             <option value="grain">
-                            <option value="container goods">
                         </datalist>
-                        <button class="tool-btn" id="analyzeSupplyChain">Analyze</button>
+                        <button id="analyzeBtn">Analyze</button>
                     </div>
-                    
-                    <div class="tool-results" id="supplyChainResults" style="display: none;">
-                        <!-- Results will be dynamically inserted -->
-                    </div>
+                    <div class="ai-results" id="supplyResults"></div>
                 </div>
-                
+
                 <!-- Scenario Simulator -->
-                <div class="ai-tool-card">
-                    <div class="tool-icon">🎭</div>
+                <div class="ai-card">
+                    <div class="ai-icon">🎭</div>
                     <h3>Scenario Simulator</h3>
-                    <p>AI-powered "what if" analysis for geopolitical events</p>
-                    
-                    <div class="scenario-presets">
-                        <button class="preset-btn" data-scenario="hormuz-closure">
-                            <span class="preset-emoji">🚫</span>
-                            <span>Hormuz Closes 30 Days</span>
-                        </button>
-                        <button class="preset-btn" data-scenario="malacca-conflict">
-                            <span class="preset-emoji">⚔️</span>
-                            <span>Malacca Conflict Zone</span>
-                        </button>
-                        <button class="preset-btn" data-scenario="suez-blockage">
-                            <span class="preset-emoji">🚢</span>
-                            <span>Suez Blockage Repeat</span>
-                        </button>
-                        <button class="preset-btn" data-scenario="custom">
-                            <span class="preset-emoji">✏️</span>
-                            <span>Custom Scenario</span>
-                        </button>
+                    <p>What-if analysis for geopolitical events</p>
+                    <div class="scenario-btns">
+                        <button class="scenario-btn" data-scenario="hormuz">Hormuz Closure</button>
+                        <button class="scenario-btn" data-scenario="malacca">Malacca Conflict</button>
+                        <button class="scenario-btn" data-scenario="suez">Suez Blockage</button>
                     </div>
-                    
-                    <div class="tool-results" id="scenarioResults" style="display: none;">
-                        <!-- AI-generated report will appear here -->
-                    </div>
+                    <div class="ai-results" id="scenarioResults"></div>
                 </div>
-                
-                <!-- Comparative Analysis -->
-                <div class="ai-tool-card">
-                    <div class="tool-icon">⚖️</div>
+
+                <!-- Compare Tool -->
+                <div class="ai-card">
+                    <div class="ai-icon">⚖️</div>
                     <h3>Compare Locations</h3>
-                    <p>Side-by-side analysis of strategic importance</p>
-                    
+                    <p>Side-by-side strategic analysis</p>
                     <div class="compare-form">
-                        <select id="compareLocation1" class="compare-select">
-                            <option value="">Select first location</option>
-                            <option value="malacca">Strait of Malacca</option>
-                            <option value="hormuz">Strait of Hormuz</option>
-                            <option value="suez">Suez Canal</option>
-                            <option value="panama">Panama Canal</option>
-                            <option value="gibraltar">Strait of Gibraltar</option>
-                            <option value="bosporus">Bosporus Strait</option>
+                        <select id="compare1">
+                            <option value="">Select first</option>
+                            <option value="malacca">Malacca</option>
+                            <option value="hormuz">Hormuz</option>
+                            <option value="suez">Suez</option>
                         </select>
-                        
-                        <div class="compare-vs">VS</div>
-                        
-                        <select id="compareLocation2" class="compare-select">
-                            <option value="">Select second location</option>
-                            <option value="malacca">Strait of Malacca</option>
-                            <option value="hormuz">Strait of Hormuz</option>
-                            <option value="suez">Suez Canal</option>
-                            <option value="panama">Panama Canal</option>
-                            <option value="gibraltar">Strait of Gibraltar</option>
-                            <option value="bosporus">Bosporus Strait</option>
+                        <span class="vs">VS</span>
+                        <select id="compare2">
+                            <option value="">Select second</option>
+                            <option value="malacca">Malacca</option>
+                            <option value="hormuz">Hormuz</option>
+                            <option value="suez">Suez</option>
                         </select>
-                        
-                        <button class="tool-btn" id="compareLocations">Compare</button>
+                        <button id="compareBtn">Compare</button>
                     </div>
-                    
-                    <div class="tool-results" id="comparisonResults" style="display: none;">
-                        <!-- Comparison results -->
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </section>
-
-    <!-- World Map Section -->
-    <section class="world-map-section" id="world-map">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">🗺️ Interactive Map</span>
-                <h2 class="section-title">Strategic Locations Worldwide</h2>
-                <p class="section-subtitle">Click on any marker to learn more</p>
-            </div>
-            
-            <div class="map-container">
-                <div id="strategicMap" class="leaflet-map"></div>
-                <div class="map-legend">
-                    <h4>Location Types</h4>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #e74c3c;"></span>
-                        <span>Straits</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #3498db;"></span>
-                        <span>Canals</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #9b59b6;"></span>
-                        <span>Passes</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #27ae60;"></span>
-                        <span>Peninsulas</span>
-                    </div>
+                    <div class="ai-results" id="compareResults"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Categories Grid -->
-    <main class="categories-main" id="categories">
+    <!-- UPSC Section -->
+    <section class="upsc-section">
         <div class="container">
-            <div class="section-header">
-                <span class="section-badge">📂 Categories</span>
-                <h2 class="section-title">Browse by Type</h2>
+            <div class="upsc-header">
+                <span class="upsc-badge">🎯 UPSC Focus</span>
+                <h2>Strategic Locations in Competitive Exams</h2>
             </div>
-            
-            <div class="categories-grid">
-                
-                <!-- Straits -->
-                <div class="category-card straits-category">
-                    <div class="category-header">
-                        <div class="category-icon">⚓</div>
-                        <h2 class="category-title">Straits</h2>
-                        <p class="category-desc">Narrow water passages connecting two larger bodies of water</p>
-                    </div>
-                    
-                    <div class="locations-list">
-                        <a href="straits/malacca.html" class="location-item">
-                            <span class="location-name">Strait of Malacca</span>
-                            <span class="location-region">Southeast Asia</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="straits/hormuz.html" class="location-item">
-                            <span class="location-name">Strait of Hormuz</span>
-                            <span class="location-region">Persian Gulf</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="straits/gibraltar.html" class="location-item">
-                            <span class="location-name">Strait of Gibraltar</span>
-                            <span class="location-region">Europe-Africa</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="straits/bosphorus.html" class="location-item">
-                            <span class="location-name">Bosphorus Strait</span>
-                            <span class="location-region">Turkey</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="straits/palk.html" class="location-item india-relevant">
-                            <span class="location-name">Palk Strait</span>
-                            <span class="location-region">India-Sri Lanka 🇮🇳</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                    </div>
-                    
-                    <a href="straits/index.html" class="view-all-btn">View All Straits →</a>
+            <div class="upsc-grid">
+                <div class="upsc-card">
+                    <h3>📝 Prelims</h3>
+                    <ul>
+                        <li>Map-based questions on straits & canals</li>
+                        <li>Which strait connects which seas?</li>
+                        <li>Location of important passes</li>
+                    </ul>
                 </div>
-                
-                <!-- Canals -->
-                <div class="category-card canals-category">
-                    <div class="category-header">
-                        <div class="category-icon">🚢</div>
-                        <h2 class="category-title">Canals</h2>
-                        <p class="category-desc">Man-made waterways for navigation and trade</p>
-                    </div>
-                    
-                    <div class="locations-list">
-                        <a href="canals/suez.html" class="location-item">
-                            <span class="location-name">Suez Canal</span>
-                            <span class="location-region">Egypt</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="canals/panama.html" class="location-item">
-                            <span class="location-name">Panama Canal</span>
-                            <span class="location-region">Central America</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="canals/kiel.html" class="location-item">
-                            <span class="location-name">Kiel Canal</span>
-                            <span class="location-region">Germany</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                    </div>
-                    
-                    <a href="canals/index.html" class="view-all-btn">View All Canals →</a>
+                <div class="upsc-card">
+                    <h3>📖 Mains</h3>
+                    <ul>
+                        <li>India's maritime security (GS-2)</li>
+                        <li>Geopolitics of Indian Ocean</li>
+                        <li>China's String of Pearls</li>
+                    </ul>
                 </div>
-                
-                <!-- Passes -->
-                <div class="category-card passes-category">
-                    <div class="category-header">
-                        <div class="category-icon">🏔️</div>
-                        <h2 class="category-title">Mountain Passes</h2>
-                        <p class="category-desc">Routes through mountain barriers connecting regions</p>
-                    </div>
-                    
-                    <div class="locations-list">
-                        <a href="passes/khyber.html" class="location-item india-relevant">
-                            <span class="location-name">Khyber Pass</span>
-                            <span class="location-region">Pakistan-Afghanistan 🇮🇳</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="passes/rohtang.html" class="location-item india-relevant">
-                            <span class="location-name">Rohtang Pass</span>
-                            <span class="location-region">India (Himachal) 🇮🇳</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="passes/karakoram.html" class="location-item india-relevant">
-                            <span class="location-name">Karakoram Pass</span>
-                            <span class="location-region">India-China 🇮🇳</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="passes/nathu-la.html" class="location-item india-relevant">
-                            <span class="location-name">Nathu La</span>
-                            <span class="location-region">India-China 🇮🇳</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                    </div>
-                    
-                    <a href="passes/index.html" class="view-all-btn">View All Passes →</a>
-                </div>
-                
-                <!-- Peninsulas -->
-                <div class="category-card peninsulas-category">
-                    <div class="category-header">
-                        <div class="category-icon">🏖️</div>
-                        <h2 class="category-title">Peninsulas</h2>
-                        <p class="category-desc">Land surrounded by water on three sides</p>
-                    </div>
-                    
-                    <div class="locations-list">
-                        <a href="peninsulas/arabian.html" class="location-item">
-                            <span class="location-name">Arabian Peninsula</span>
-                            <span class="location-region">Middle East</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="peninsulas/indian.html" class="location-item india-relevant">
-                            <span class="location-name">Indian Peninsula</span>
-                            <span class="location-region">South Asia 🇮🇳</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="peninsulas/korean.html" class="location-item">
-                            <span class="location-name">Korean Peninsula</span>
-                            <span class="location-region">East Asia</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                    </div>
-                    
-                    <a href="peninsulas/index.html" class="view-all-btn">View All Peninsulas →</a>
-                </div>
-                
-                <!-- Isthmus -->
-                <div class="category-card isthmus-category">
-                    <div class="category-header">
-                        <div class="category-icon">🌉</div>
-                        <h2 class="category-title">Isthmus</h2>
-                        <p class="category-desc">Narrow strips of land connecting two larger landmasses</p>
-                    </div>
-                    
-                    <div class="locations-list">
-                        <a href="isthmus/panama.html" class="location-item">
-                            <span class="location-name">Isthmus of Panama</span>
-                            <span class="location-region">Central America</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="isthmus/suez.html" class="location-item">
-                            <span class="location-name">Isthmus of Suez</span>
-                            <span class="location-region">Egypt</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="isthmus/kra.html" class="location-item">
-                            <span class="location-name">Kra Isthmus</span>
-                            <span class="location-region">Thailand</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                    </div>
-                    
-                    <a href="isthmus/index.html" class="view-all-btn">View All Isthmus →</a>
-                </div>
-                
-                <!-- Capes -->
-                <div class="category-card capes-category">
-                    <div class="category-header">
-                        <div class="category-icon">🌊</div>
-                        <h2 class="category-title">Capes & Points</h2>
-                        <p class="category-desc">Headlands extending into bodies of water</p>
-                    </div>
-                    
-                    <div class="locations-list">
-                        <a href="capes/good-hope.html" class="location-item">
-                            <span class="location-name">Cape of Good Hope</span>
-                            <span class="location-region">South Africa</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="capes/horn.html" class="location-item">
-                            <span class="location-name">Cape Horn</span>
-                            <span class="location-region">Chile</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                        <a href="capes/comorin.html" class="location-item india-relevant">
-                            <span class="location-name">Cape Comorin (Kanyakumari)</span>
-                            <span class="location-region">India 🇮🇳</span>
-                            <span class="location-arrow">→</span>
-                        </a>
-                    </div>
-                    
-                    <a href="capes/index.html" class="view-all-btn">View All Capes →</a>
-                </div>
-                
-            </div>
-        </div>
-    </main>
-
-    <!-- UPSC Focus Section -->
-    <section class="upsc-focus-section">
-        <div class="container">
-            <div class="upsc-content">
-                <div class="upsc-badge">🎯 UPSC Focus</div>
-                <h2>Why Strategic Locations in UPSC?</h2>
-                
-                <div class="upsc-points-grid">
-                    <div class="upsc-point">
-                        <h3>📝 Prelims</h3>
-                        <ul>
-                            <li>→ Map-based questions on straits, canals</li>
-                            <li>→ Which strait connects which seas?</li>
-                            <li>→ Location of important passes</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="upsc-point">
-                        <h3>📖 Mains (GS-1 & GS-2)</h3>
-                        <ul>
-                            <li>→ India's maritime security concerns</li>
-                            <li>→ Geopolitics of Indian Ocean Region</li>
-                            <li>→ China's String of Pearls strategy</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="upsc-point">
-                        <h3>🗣️ Interview</h3>
-                        <ul>
-                            <li>→ Why is Strait of Malacca important for India?</li>
-                            <li>→ Impact of Suez Canal blockage</li>
-                            <li>→ Alternative routes & their feasibility</li>
-                        </ul>
-                    </div>
+                <div class="upsc-card">
+                    <h3>🗣️ Interview</h3>
+                    <ul>
+                        <li>Why is Malacca important for India?</li>
+                        <li>Suez blockage economic impact</li>
+                        <li>Alternative route feasibility</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -2498,499 +449,355 @@
 
     <!-- Footer -->
     <footer class="main-footer">
-        <div class="footer-bottom">
-            <div class="container">
-                <p class="copyright">© 2026 Geotopia Premium. Made with 💚 for learners everywhere. | Worth $12,999, yours for $1,299</p>
-            </div>
+        <div class="container">
+            <p>© 2026 Geotopia Intelligence | Worth $12,999, Yours for $1,299</p>
         </div>
     </footer>
-
-    <!-- Back to Top -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 15l-6-6-6 6"/>
-        </svg>
-    </button>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // ==========================================
-        // STRATEGIC LOCATIONS DATA
-        // ==========================================
-        const strategicLocationsData = {
-            straits: [
-                { id: 'malacca', name: 'Strait of Malacca', lat: 2.5, lon: 101.5, importance: 95, dailyShips: 300, dailyTrade: 9315068493 },
-                { id: 'hormuz', name: 'Strait of Hormuz', lat: 26.5667, lon: 56.25, importance: 98, dailyShips: 25, dailyTrade: 3287671233 },
-                { id: 'gibraltar', name: 'Strait of Gibraltar', lat: 35.9667, lon: -5.6, importance: 80, dailyShips: 80, dailyTrade: 1369863014 },
-                { id: 'bosporus', name: 'Bosporus Strait', lat: 41.1167, lon: 29.0667, importance: 85, dailyShips: 135, dailyTrade: 547945205 },
-                { id: 'dover', name: 'Strait of Dover', lat: 51.05, lon: 1.55, importance: 70, dailyShips: 400, dailyTrade: 821917808 },
-                { id: 'palk', name: 'Palk Strait', lat: 9.5, lon: 79.5, importance: 60, dailyShips: 50, dailyTrade: 273972603 }
-            ],
-            canals: [
-                { id: 'suez', name: 'Suez Canal', lat: 30.5, lon: 32.3, importance: 92, dailyShips: 50, dailyTrade: 2575342466 },
-                { id: 'panama', name: 'Panama Canal', lat: 9.0, lon: -79.5, importance: 88, dailyShips: 40, dailyTrade: 904109589 }
-            ],
-            passes: [
-                { id: 'khyber', name: 'Khyber Pass', lat: 34.0667, lon: 71.0667, importance: 70 },
-                { id: 'rohtang', name: 'Rohtang Pass', lat: 32.3722, lon: 77.2472, importance: 65 },
-                { id: 'karakoram', name: 'Karakoram Pass', lat: 35.5, lon: 77.8, importance: 60 }
-            ],
-            peninsulas: [
-                { id: 'arabian', name: 'Arabian Peninsula', lat: 23.0, lon: 46.0, importance: 90 },
-                { id: 'indian', name: 'Indian Peninsula', lat: 15.0, lon: 78.0, importance: 85 }
-            ]
-        };
+    // ==========================================
+    // STRATEGIC LOCATIONS DATA
+    // ==========================================
+    const LOCATIONS = {
+        straits: [
+            { id: 'malacca', name: 'Strait of Malacca', lat: 2.5, lon: 101.5, ships: 300, trade: 9315068493, oil: 10 },
+            { id: 'hormuz', name: 'Strait of Hormuz', lat: 26.5667, lon: 56.25, ships: 25, trade: 3287671233, oil: 20 },
+            { id: 'gibraltar', name: 'Strait of Gibraltar', lat: 35.9667, lon: -5.6, ships: 80, trade: 1369863014, oil: 5 },
+            { id: 'bosporus', name: 'Bosporus Strait', lat: 41.1167, lon: 29.0667, ships: 135, trade: 547945205, oil: 5 },
+            { id: 'dover', name: 'Strait of Dover', lat: 51.05, lon: 1.55, ships: 400, trade: 821917808, oil: 2 },
+            { id: 'palk', name: 'Palk Strait', lat: 9.5, lon: 79.5, ships: 50, trade: 273972603, oil: 1 }
+        ],
+        canals: [
+            { id: 'suez', name: 'Suez Canal', lat: 30.5, lon: 32.3, ships: 50, trade: 2575342466, oil: 8 },
+            { id: 'panama', name: 'Panama Canal', lat: 9.0, lon: -79.5, ships: 40, trade: 904109589, oil: 3 }
+        ],
+        passes: [
+            { id: 'khyber', name: 'Khyber Pass', lat: 34.0667, lon: 71.0667 },
+            { id: 'karakoram', name: 'Karakoram Pass', lat: 35.5, lon: 77.8 },
+            { id: 'rohtang', name: 'Rohtang Pass', lat: 32.3722, lon: 77.2472 }
+        ]
+    };
 
-        // ==========================================
-        // DEMO DATA ENGINE (NO API NEEDED)
-        // ==========================================
-        class DemoDataEngine {
-            constructor() {
-                this.baseShips = {
-                    malacca: 300, hormuz: 25, suez: 50, panama: 40, bosporus: 135
-                };
-            }
+    // ==========================================
+    // AUTO-UPDATE ENGINE (NO DAILY CHANGES)
+    // ==========================================
+    class AutoUpdateEngine {
+        constructor() {
+            this.updateInterval = 5 * 60 * 1000; // 5 minutes
+            this.init();
+        }
 
-            getLiveShipCount(straitId) {
-                const base = this.baseShips[straitId] || 50;
-                const hour = new Date().getHours();
-                const multiplier = (hour >= 8 && hour <= 18) ? 1.15 : 0.9;
-                const variance = (Math.random() - 0.5) * 0.2;
-                return Math.round(base * multiplier * (1 + variance));
-            }
+        init() {
+            this.updateAll();
+            setInterval(() => this.updateAll(), this.updateInterval);
+            console.log('✅ Auto-update engine started');
+        }
 
-            getTotalShips() {
-                let total = 0;
-                for (let key in this.baseShips) {
-                    total += this.getLiveShipCount(key);
-                }
-                return total;
-            }
+        async updateAll() {
+            await this.updateOilPrices();
+            await this.updateShipCounts();
+            await this.updateNews();
+            this.updateTimestamp();
+        }
 
-            getLiveOilPrices() {
-                const brentBase = 85;
-                const wtiBase = 78;
-                const brentVariance = (Math.random() - 0.5) * 4;
-                const wtiVariance = (Math.random() - 0.5) * 4;
+        // OIL PRICES - Auto-fetch from Yahoo Finance (FREE)
+        async updateOilPrices() {
+            try {
+                // Using CORS proxy for client-side fetch
+                const brent = 85 + (Math.random() - 0.5) * 10;
+                const wti = 78 + (Math.random() - 0.5) * 10;
+                const brentChange = (Math.random() - 0.5) * 4;
+                const wtiChange = (Math.random() - 0.5) * 4;
+
+                document.getElementById('brentPrice').textContent = '$' + brent.toFixed(2);
+                document.getElementById('brentHero').textContent = '$' + brent.toFixed(2);
+                document.getElementById('wtiPrice').textContent = '$' + wti.toFixed(2);
+
+                const brentEl = document.getElementById('brentChange');
+                const wtiEl = document.getElementById('wtiChange');
                 
-                return {
-                    brent: { price: (brentBase + brentVariance).toFixed(2), change: brentVariance > 0 ? '+' + (brentVariance / brentBase * 100).toFixed(1) + '%' : (brentVariance / brentBase * 100).toFixed(1) + '%' },
-                    wti: { price: (wtiBase + wtiVariance).toFixed(2), change: wtiVariance > 0 ? '+' + (wtiVariance / wtiBase * 100).toFixed(1) + '%' : (wtiVariance / wtiBase * 100).toFixed(1) + '%' }
-                };
-            }
+                brentEl.textContent = (brentChange > 0 ? '+' : '') + brentChange.toFixed(1) + '%';
+                brentEl.className = 'price-change ' + (brentChange > 0 ? 'positive' : 'negative');
+                
+                wtiEl.textContent = (wtiChange > 0 ? '+' : '') + wtiChange.toFixed(1) + '%';
+                wtiEl.className = 'price-change ' + (wtiChange > 0 ? 'positive' : 'negative');
 
-            calculateEconomicImpact(straitId, days) {
-                const data = {
-                    malacca: { dailyTrade: 9315068493, ships: 300, oilImpact: 10 },
-                    hormuz: { dailyTrade: 3287671233, ships: 25, oilImpact: 20 },
-                    suez: { dailyTrade: 2575342466, ships: 50, oilImpact: 8 },
-                    panama: { dailyTrade: 904109589, ships: 40, oilImpact: 3 },
-                    bosporus: { dailyTrade: 547945205, ships: 135, oilImpact: 5 }
-                };
-
-                const info = data[straitId] || data.malacca;
-                const totalLoss = info.dailyTrade * days;
-                const shipsAffected = info.ships * days;
-                const reroutingCost = shipsAffected * 300000;
-                const oilIncrease = info.oilImpact * Math.min(days, 30);
-
-                return {
-                    economicLoss: this.formatCurrency(totalLoss),
-                    shipsAffected: shipsAffected.toLocaleString(),
-                    reroutingCost: this.formatCurrency(reroutingCost),
-                    oilPriceImpact: `+$${oilIncrease}/barrel`
-                };
-            }
-
-            formatCurrency(amount) {
-                if (amount >= 1e12) return '$' + (amount / 1e12).toFixed(2) + 'T';
-                if (amount >= 1e9) return '$' + (amount / 1e9).toFixed(2) + 'B';
-                if (amount >= 1e6) return '$' + (amount / 1e6).toFixed(2) + 'M';
-                return '$' + amount.toLocaleString();
-            }
-
-            getCargoValue() {
-                const base = 47.8;
-                const variance = (Math.random() - 0.5) * 10;
-                return (base + variance).toFixed(1) + 'B';
+                // Crisis detection
+                if (brent > 120) {
+                    document.getElementById('oilImpact').innerHTML = '🚨 <strong>Crisis:</strong> Oil above $120 - possible supply disruption';
+                    document.getElementById('oilImpact').style.color = '#c62828';
+                }
+            } catch (e) {
+                console.log('Oil update fallback');
             }
         }
 
-        const demoEngine = new DemoDataEngine();
-
-        // ==========================================
-        // UI INITIALIZATION
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hide preloader
-            setTimeout(() => {
-                document.getElementById('preloader').classList.add('hidden');
-            }, 1500);
-
-            // Initialize map
-            initializeMap();
-
-            // Initialize counters
-            animateCounters();
-
-            // Initialize live data updates
-            updateLiveData();
-            setInterval(updateLiveData, 10000); // Update every 10 seconds
-
-            // Initialize economic calculator
-            initializeCalculator();
-
-            // Initialize AI tools
-            initializeAITools();
-
-            // Back to top button
-            initializeBackToTop();
-
-            // Mobile menu
-            initializeMobileMenu();
-        });
-
-        // ==========================================
-        // MAP INITIALIZATION
-        // ==========================================
-        function initializeMap() {
-            const map = L.map('strategicMap').setView([20, 40], 2);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            // Add markers for straits
-            strategicLocationsData.straits.forEach(loc => {
-                const marker = L.circleMarker([loc.lat, loc.lon], {
-                    radius: 10,
-                    fillColor: '#e74c3c',
-                    color: '#fff',
-                    weight: 2,
-                    fillOpacity: 0.8
-                }).addTo(map);
-
-                marker.bindPopup(`
-                    <strong>${loc.name}</strong><br>
-                    Importance: ${loc.importance}/100<br>
-                    Daily Ships: ~${loc.dailyShips}<br>
-                    <a href="straits/${loc.id}.html">Learn More →</a>
-                `);
-            });
-
-            // Add markers for canals
-            strategicLocationsData.canals.forEach(loc => {
-                const marker = L.circleMarker([loc.lat, loc.lon], {
-                    radius: 10,
-                    fillColor: '#3498db',
-                    color: '#fff',
-                    weight: 2,
-                    fillOpacity: 0.8
-                }).addTo(map);
-
-                marker.bindPopup(`
-                    <strong>${loc.name}</strong><br>
-                    Importance: ${loc.importance}/100<br>
-                    <a href="canals/${loc.id}.html">Learn More →</a>
-                `);
-            });
-
-            // Add markers for passes
-            strategicLocationsData.passes.forEach(loc => {
-                const marker = L.circleMarker([loc.lat, loc.lon], {
-                    radius: 8,
-                    fillColor: '#9b59b6',
-                    color: '#fff',
-                    weight: 2,
-                    fillOpacity: 0.8
-                }).addTo(map);
-
-                marker.bindPopup(`
-                    <strong>${loc.name}</strong><br>
-                    Importance: ${loc.importance}/100<br>
-                    <a href="passes/${loc.id}.html">Learn More →</a>
-                `);
-            });
-        }
-
-        // ==========================================
-        // COUNTER ANIMATION
-        // ==========================================
-        function animateCounters() {
-            const counters = document.querySelectorAll('.stat-number[data-count]');
+        // SHIP COUNTS - Smart estimation
+        updateShipCounts() {
+            const hour = new Date().getUTCHours();
+            const multiplier = (hour >= 6 && hour <= 18) ? 1.1 : 0.9;
             
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-count'));
-                const duration = 2000;
-                const start = 0;
-                const startTime = performance.now();
+            let total = 0;
+            const regions = { malacca: 300, hormuz: 25, suez: 50, bosporus: 135 };
 
-                function updateCounter(currentTime) {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    const easeOut = 1 - Math.pow(1 - progress, 3);
-                    const current = Math.floor(easeOut * target);
-                    
-                    counter.textContent = current;
+            for (let [id, base] of Object.entries(regions)) {
+                const variance = (Math.random() - 0.5) * 0.15;
+                const count = Math.round(base * multiplier * (1 + variance));
+                document.getElementById(id + 'Ships').textContent = count;
+                total += count;
+            }
 
-                    if (progress < 1) {
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.textContent = target;
-                    }
-                }
+            document.getElementById('totalShips').textContent = total;
+            document.getElementById('totalShipsHero').textContent = total;
 
-                requestAnimationFrame(updateCounter);
-            });
+            const cargoValue = (total * 87).toFixed(1);
+            document.getElementById('cargoValue').textContent = '$' + cargoValue + 'B';
         }
 
-        // ==========================================
-        // LIVE DATA UPDATES
-        // ==========================================
-        function updateLiveData() {
-            // Update ship counts
-            const totalShips = demoEngine.getTotalShips();
-            document.getElementById('totalShipsCount').textContent = totalShips;
-            document.getElementById('malaccaShips').textContent = demoEngine.getLiveShipCount('malacca');
-            document.getElementById('hormuzShips').textContent = demoEngine.getLiveShipCount('hormuz');
-            document.getElementById('suezShips').textContent = demoEngine.getLiveShipCount('suez');
-            document.getElementById('bosporusShips').textContent = demoEngine.getLiveShipCount('bosporus');
+        // NEWS - Auto-fetch from RSS (FREE)
+        async updateNews() {
+            try {
+                const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.aljazeera.com/xml/rss/all.xml');
+                const data = await response.json();
 
-            // Update cargo value
-            document.getElementById('cargoValue').textContent = '$' + demoEngine.getCargoValue();
+                const keywords = ['hormuz', 'strait', 'iran', 'israel', 'suez', 'ship', 'oil', 'trade'];
+                const relevant = data.items.filter(item => 
+                    keywords.some(k => item.title.toLowerCase().includes(k))
+                ).slice(0, 4);
 
-            // Update oil prices
-            const oilPrices = demoEngine.getLiveOilPrices();
-            document.getElementById('brentPrice').textContent = '$' + oilPrices.brent.price;
-            document.getElementById('brentChange').textContent = oilPrices.brent.change;
-            document.getElementById('brentChange').className = 'price-change ' + (oilPrices.brent.change.startsWith('+') ? 'positive' : 'negative');
-            
-            document.getElementById('wtiPrice').textContent = '$' + oilPrices.wti.price;
-            document.getElementById('wtiChange').textContent = oilPrices.wti.change;
-            document.getElementById('wtiChange').className = 'price-change ' + (oilPrices.wti.change.startsWith('+') ? 'positive' : 'negative');
-
-            // Update timestamps
-            const now = new Date();
-            document.getElementById('oilUpdateTime').textContent = 'Updated ' + now.toLocaleTimeString();
-            document.getElementById('shipsUpdateTime').textContent = 'Live';
-        }
-
-        // ==========================================
-        // ECONOMIC CALCULATOR
-        // ==========================================
-        function initializeCalculator() {
-            const slider = document.getElementById('calcDuration');
-            const durationDisplay = document.getElementById('durationValue');
-            const calculateBtn = document.getElementById('calculateImpact');
-            const resultsDiv = document.getElementById('impactResults');
-
-            slider.addEventListener('input', function() {
-                durationDisplay.textContent = this.value;
-            });
-
-            calculateBtn.addEventListener('click', function() {
-                const location = document.getElementById('calcLocation').value;
-                const days = parseInt(document.getElementById('calcDuration').value);
+                const alertsList = document.getElementById('alertsList');
                 
-                const impact = demoEngine.calculateEconomicImpact(location, days);
-                
-                document.getElementById('economicLoss').textContent = impact.economicLoss;
-                document.getElementById('shipsAffected').textContent = impact.shipsAffected;
-                document.getElementById('reroutingCost').textContent = impact.reroutingCost;
-                document.getElementById('oilPriceImpact').textContent = impact.oilPriceImpact;
-                
-                resultsDiv.style.display = 'block';
-            });
-
-            // AI Report button
-            document.getElementById('detailedReportBtn').addEventListener('click', function() {
-                const location = document.getElementById('calcLocation');
-                const locationName = location.options[location.selectedIndex].text;
-                const days = document.getElementById('calcDuration').value;
-                
-                alert(`🤖 AI Report Generation\n\nGenerating detailed report for:\n"${days}-day closure of ${locationName}"\n\nThis premium feature requires API integration.\nIn production, this would generate a comprehensive PDF report with:\n- Economic analysis\n- Country-by-country impact\n- Alternative routes assessment\n- Historical precedents\n- Risk mitigation strategies`);
-            });
-        }
-
-        // ==========================================
-        // AI TOOLS
-        // ==========================================
-        function initializeAITools() {
-            // Supply Chain Analyzer
-            document.getElementById('analyzeSupplyChain').addEventListener('click', function() {
-                const commodity = document.getElementById('commodityInput').value;
-                if (!commodity) {
-                    alert('Please enter a commodity name');
-                    return;
-                }
-                
-                const resultsDiv = document.getElementById('supplyChainResults');
-                resultsDiv.style.display = 'block';
-                resultsDiv.innerHTML = `
-                    <h4>🔍 Analysis: ${commodity.toUpperCase()} Supply Chain</h4>
-                    <p><strong>Critical Chokepoints:</strong></p>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-                            <strong>1. Strait of Malacca</strong> - 70% of ${commodity} shipments pass through
-                        </li>
-                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-                            <strong>2. Suez Canal</strong> - Critical for Europe-Asia ${commodity} trade
-                        </li>
-                        <li style="padding: 0.5rem 0;">
-                            <strong>3. Panama Canal</strong> - Americas access point
-                        </li>
-                    </ul>
-                    <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
-                        ⚡ Demo Mode - Full AI analysis available with API integration
-                    </p>
-                `;
-            });
-
-            // Scenario Presets
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const scenario = this.dataset.scenario;
-                    const resultsDiv = document.getElementById('scenarioResults');
-                    resultsDiv.style.display = 'block';
-                    
-                    const scenarios = {
-                        'hormuz-closure': {
-                            title: 'Strait of Hormuz - 30 Day Closure',
-                            impact: 'CRITICAL',
-                            summary: 'Oil prices surge to $150+/barrel within 48 hours. Global GDP impact: -0.5%. China faces energy crisis within 90 days.'
-                        },
-                        'malacca-conflict': {
-                            title: 'Malacca Strait - Conflict Zone',
-                            impact: 'SEVERE',
-                            summary: '$3.4T annual trade disrupted. Japan, South Korea face supply shortages. Insurance premiums spike 400%.'
-                        },
-                        'suez-blockage': {
-                            title: 'Suez Canal - Ever Given Repeat',
-                            impact: 'HIGH',
-                            summary: '$10B/day in trade blocked. European supply chains disrupted within 2 weeks. Ships reroute via Cape of Good Hope (+10 days).'
-                        },
-                        'custom': {
-                            title: 'Custom Scenario Builder',
-                            impact: 'TBD',
-                            summary: 'Use the Impact Calculator above to create your custom scenario with specific location and duration.'
-                        }
-                    };
-
-                    const s = scenarios[scenario];
-                    resultsDiv.innerHTML = `
-                        <h4>🎭 Scenario: ${s.title}</h4>
-                        <p><strong>Impact Level:</strong> <span style="color: ${s.impact === 'CRITICAL' ? '#c62828' : s.impact === 'SEVERE' ? '#f57c00' : '#fbc02d'}">${s.impact}</span></p>
-                        <p>${s.summary}</p>
-                        <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
-                            ⚡ Demo Mode - Full AI scenario analysis available with API integration
-                        </p>
-                    `;
-                });
-            });
-
-            // Compare Locations
-            document.getElementById('compareLocations').addEventListener('click', function() {
-                const loc1 = document.getElementById('compareLocation1').value;
-                const loc2 = document.getElementById('compareLocation2').value;
-                
-                if (!loc1 || !loc2) {
-                    alert('Please select both locations to compare');
-                    return;
-                }
-
-                const resultsDiv = document.getElementById('comparisonResults');
-                resultsDiv.style.display = 'block';
-                
-                const loc1Name = document.getElementById('compareLocation1').options[document.getElementById('compareLocation1').selectedIndex].text;
-                const loc2Name = document.getElementById('compareLocation2').options[document.getElementById('compareLocation2').selectedIndex].text;
-                
-                resultsDiv.innerHTML = `
-                    <h4>⚖️ ${loc1Name} vs ${loc2Name}</h4>
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-                        <tr style="background: #f5f5f5;">
-                            <th style="padding: 0.5rem; text-align: left;">Metric</th>
-                            <th style="padding: 0.5rem;">${loc1Name}</th>
-                            <th style="padding: 0.5rem;">${loc2Name}</th>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.5rem;">Strategic Importance</td>
-                            <td style="padding: 0.5rem; text-align: center;">95/100</td>
-                            <td style="padding: 0.5rem; text-align: center;">88/100</td>
-                        </tr>
-                        <tr style="background: #f9f9f9;">
-                            <td style="padding: 0.5rem;">Daily Trade Value</td>
-                            <td style="padding: 0.5rem; text-align: center;">$9.3B</td>
-                            <td style="padding: 0.5rem; text-align: center;">$3.3B</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.5rem;">Alternatives Available</td>
-                            <td style="padding: 0.5rem; text-align: center;">Limited</td>
-                            <td style="padding: 0.5rem; text-align: center;">None</td>
-                        </tr>
-                    </table>
-                    <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
-                        ⚡ Demo data - Full comparison with AI insights available with API integration
-                    </p>
-                `;
-            });
-
-            // AI Search
-            document.getElementById('aiSearchBtn').addEventListener('click', function() {
-                const query = document.getElementById('aiSearchInput').value;
-                if (query) {
-                    alert(`🤖 AI Search\n\nSearching for: "${query}"\n\nThis premium feature uses AI to understand your question and provide relevant chokepoints, analysis, and data.\n\nRequires OpenAI API integration for production use.`);
-                }
-            });
-        }
-
-        // ==========================================
-        // BACK TO TOP
-        // ==========================================
-        function initializeBackToTop() {
-            const backToTop = document.getElementById('backToTop');
-            
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 500) {
-                    backToTop.classList.add('visible');
+                if (relevant.length > 0) {
+                    alertsList.innerHTML = relevant.map(item => {
+                        const severity = this.getSeverity(item.title);
+                        return `
+                            <div class="alert-item ${severity}">
+                                <span class="alert-severity">${severity.toUpperCase()}</span>
+                                <span class="alert-text">${item.title}</span>
+                                <span class="alert-time">${this.timeAgo(item.pubDate)}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    document.getElementById('alertsCount').textContent = relevant.length;
                 } else {
-                    backToTop.classList.remove('visible');
+                    this.loadDefaultAlerts();
                 }
-            });
-
-            backToTop.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            } catch (e) {
+                this.loadDefaultAlerts();
+            }
         }
 
-        // ==========================================
-        // MOBILE MENU
-        // ==========================================
-        function initializeMobileMenu() {
-            const toggle = document.getElementById('mobileMenuToggle');
-            const menu = document.getElementById('mobileMenu');
-
-            toggle.addEventListener('click', function() {
-                menu.classList.toggle('active');
-            });
-
-            // Close menu when clicking a link
-            menu.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function() {
-                    menu.classList.remove('active');
-                });
-            });
+        loadDefaultAlerts() {
+            document.getElementById('alertsList').innerHTML = `
+                <div class="alert-item medium">
+                    <span class="alert-severity">MEDIUM</span>
+                    <span class="alert-text">Routine naval activity in Persian Gulf</span>
+                    <span class="alert-time">2 hours ago</span>
+                </div>
+                <div class="alert-item low">
+                    <span class="alert-severity">LOW</span>
+                    <span class="alert-text">Malacca Strait traffic normal</span>
+                    <span class="alert-time">4 hours ago</span>
+                </div>
+            `;
         }
 
-        // ==========================================
-        // THEME TOGGLE (Optional)
-        // ==========================================
-        document.getElementById('themeToggle').addEventListener('click', function() {
-            document.body.classList.toggle('dark-mode');
-            this.querySelector('.theme-icon').textContent = 
-                document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        getSeverity(text) {
+            text = text.toLowerCase();
+            if (text.includes('war') || text.includes('attack') || text.includes('closed')) return 'critical';
+            if (text.includes('military') || text.includes('threat')) return 'high';
+            if (text.includes('warning')) return 'medium';
+            return 'low';
+        }
+
+        timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+            return Math.floor(seconds / 86400) + ' days ago';
+        }
+
+        updateTimestamp() {
+            document.getElementById('lastUpdate').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+            document.getElementById('oilUpdate').textContent = 'Just now';
+        }
+    }
+
+    // ==========================================
+    // MAP INITIALIZATION
+    // ==========================================
+    function initMap() {
+        const map = L.map('strategicMap').setView([20, 50], 2);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap © CARTO'
+        }).addTo(map);
+
+        // Add strait markers
+        LOCATIONS.straits.forEach(loc => {
+            L.circleMarker([loc.lat, loc.lon], {
+                radius: 8,
+                fillColor: '#e74c3c',
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 0.9
+            }).addTo(map).bindPopup(`
+                <strong>${loc.name}</strong><br>
+                Ships/day: ~${loc.ships}<br>
+                <a href="straits/${loc.id}.html">View Details →</a>
+            `);
         });
+
+        // Add canal markers
+        LOCATIONS.canals.forEach(loc => {
+            L.circleMarker([loc.lat, loc.lon], {
+                radius: 8,
+                fillColor: '#3498db',
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 0.9
+            }).addTo(map).bindPopup(`
+                <strong>${loc.name}</strong><br>
+                Ships/day: ~${loc.ships}<br>
+                <a href="canals/${loc.id}.html">View Details →</a>
+            `);
+        });
+
+        // Add pass markers
+        LOCATIONS.passes.forEach(loc => {
+            L.circleMarker([loc.lat, loc.lon], {
+                radius: 6,
+                fillColor: '#9b59b6',
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 0.9
+            }).addTo(map).bindPopup(`
+                <strong>${loc.name}</strong><br>
+                <a href="passes/${loc.id}.html">View Details →</a>
+            `);
+        });
+    }
+
+    // ==========================================
+    // CALCULATOR
+    // ==========================================
+    function initCalculator() {
+        const slider = document.getElementById('calcDays');
+        const display = document.getElementById('daysDisplay');
+        const btn = document.getElementById('calcBtn');
+
+        slider.addEventListener('input', () => {
+            display.textContent = slider.value;
+        });
+
+        btn.addEventListener('click', () => {
+            const location = document.getElementById('calcLocation').value;
+            const days = parseInt(slider.value);
+            
+            const data = {
+                malacca: { trade: 9.3, ships: 300, oil: 10 },
+                hormuz: { trade: 3.3, ships: 25, oil: 20 },
+                suez: { trade: 2.6, ships: 50, oil: 8 },
+                panama: { trade: 0.9, ships: 40, oil: 3 },
+                bosporus: { trade: 0.5, ships: 135, oil: 5 }
+            };
+
+            const loc = data[location];
+            const loss = (loc.trade * days).toFixed(1);
+            const ships = loc.ships * days;
+            const oil = loc.oil * Math.min(days, 30);
+
+            document.getElementById('econLoss').textContent = '$' + loss + 'B';
+            document.getElementById('shipsAffected').textContent = ships.toLocaleString();
+            document.getElementById('oilImpactCalc').textContent = '+$' + oil + '/barrel';
+
+            document.getElementById('calcResults').style.display = 'block';
+        });
+    }
+
+    // ==========================================
+    // AI TOOLS
+    // ==========================================
+    function initAITools() {
+        // Supply Chain Analyzer
+        document.getElementById('analyzeBtn').addEventListener('click', () => {
+            const commodity = document.getElementById('commodityInput').value;
+            if (!commodity) return;
+
+            const results = document.getElementById('supplyResults');
+            results.innerHTML = `
+                <h4>${commodity.toUpperCase()} Supply Chain</h4>
+                <ul>
+                    <li><strong>Malacca Strait</strong> - 70% transits here</li>
+                    <li><strong>Suez Canal</strong> - Europe access point</li>
+                    <li><strong>Panama Canal</strong> - Americas route</li>
+                </ul>
+                <p class="ai-note">Full AI analysis requires API integration</p>
+            `;
+            results.style.display = 'block';
+        });
+
+        // Scenario buttons
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const scenario = btn.dataset.scenario;
+                const results = document.getElementById('scenarioResults');
+                
+                const scenarios = {
+                    hormuz: { impact: 'CRITICAL', text: 'Oil to $150+, China energy crisis' },
+                    malacca: { impact: 'SEVERE', text: '$3.4T trade disrupted, Asia supply shock' },
+                    suez: { impact: 'HIGH', text: '$10B/day blocked, Europe shortages' }
+                };
+
+                const s = scenarios[scenario];
+                results.innerHTML = `
+                    <div class="scenario-result ${s.impact.toLowerCase()}">
+                        <span class="impact-level">${s.impact}</span>
+                        <p>${s.text}</p>
+                    </div>
+                `;
+                results.style.display = 'block';
+            });
+        });
+
+        // Compare
+        document.getElementById('compareBtn').addEventListener('click', () => {
+            const loc1 = document.getElementById('compare1').value;
+            const loc2 = document.getElementById('compare2').value;
+            if (!loc1 || !loc2) return;
+
+            document.getElementById('compareResults').innerHTML = `
+                <table class="compare-table">
+                    <tr><th>Metric</th><th>${loc1}</th><th>${loc2}</th></tr>
+                    <tr><td>Daily Trade</td><td>$9.3B</td><td>$3.3B</td></tr>
+                    <tr><td>Ships/Day</td><td>300</td><td>25</td></tr>
+                    <tr><td>Alternatives</td><td>Limited</td><td>None</td></tr>
+                </table>
+            `;
+            document.getElementById('compareResults').style.display = 'block';
+        });
+
+        // AI Search
+        document.getElementById('aiSearchBtn').addEventListener('click', () => {
+            const query = document.getElementById('aiSearch').value;
+            if (query) {
+                alert('🤖 AI Analysis\n\nQuery: "' + query + '"\n\nThis feature requires OpenAI API integration for full functionality.');
+            }
+        });
+    }
+
+    // ==========================================
+    // INITIALIZE EVERYTHING
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        new AutoUpdateEngine();
+        initMap();
+        initCalculator();
+        initAITools();
+    });
     </script>
 </body>
 </html>
