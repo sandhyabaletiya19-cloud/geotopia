@@ -171,9 +171,9 @@ class GamesApp {
     selectGame(gameId) {
         // External game: Letter Runner
         if (gameId === 'letter-runner') {
-            this.launchExternalGame('games/letter-runner.html');
-            return;
-        }
+    this.launchExternalGame('letter-runner.html');
+    return;
+}
         
         this.currentGame = gameId;
         this.stopTimer();
