@@ -1,56 +1,83 @@
 // geotopia/encyclopedia/strategic-locations/config.js
 
 const API_CONFIG = {
-    // Free tier APIs (upgrade to paid for production)
-    shipTracking: {
-        provider: 'AISHub', // Free alternative to MarineTraffic
-        endpoint: 'https://data.aishub.net/ws.php',
-        // Get free key at: http://www.aishub.net/
-        apiKey: 'YOUR_AISHUB_KEY_HERE'
+    // === REQUIRED (FREE) ===
+    map: {
+        provider: 'Mapbox',
+        apiKey: 'YOUR_MAPBOX_KEY_HERE', // Get free: https://account.mapbox.com/
+        fallback: 'OpenStreetMap' // Works without key
     },
     
-    oilPrices: {
-        provider: 'Alpha Vantage',
-        endpoint: 'https://www.alphavantage.co/query',
-        // Get free key at: https://www.alphavantage.co/support/#api-key
-        apiKey: 'YOUR_ALPHAVANTAGE_KEY_HERE'
-    },
-    
+    // === OPTIONAL (FREE) ===
     weather: {
         provider: 'OpenWeatherMap',
         endpoint: 'https://api.openweathermap.org/data/2.5/weather',
-        // Get free key at: https://openweathermap.org/api
-        apiKey: 'YOUR_OPENWEATHER_KEY_HERE'
+        apiKey: 'YOUR_OPENWEATHER_KEY_HERE', // Get free: https://openweathermap.org/api
+        enabled: false, // Set to true when you have key
+        useDemo: true   // Use demo data if no key
     },
     
     news: {
         provider: 'NewsAPI',
         endpoint: 'https://newsapi.org/v2/everything',
-        // Get free key at: https://newsapi.org/
-        apiKey: 'YOUR_NEWSAPI_KEY_HERE'
+        apiKey: 'YOUR_NEWSAPI_KEY_HERE', // Get free: https://newsapi.org/register
+        enabled: false,
+        useDemo: true
     },
     
+    oilPrices: {
+        provider: 'Alpha Vantage',
+        endpoint: 'https://www.alphavantage.co/query',
+        apiKey: 'YOUR_ALPHAVANTAGE_KEY_HERE', // Get free: https://www.alphavantage.co/support/#api-key
+        enabled: false,
+        useDemo: true
+    },
+    
+    // === AI (Optional - Use only when you have budget) ===
     ai: {
         provider: 'OpenAI',
         endpoint: 'https://api.openai.com/v1/chat/completions',
-        // Get key at: https://platform.openai.com/api-keys
-        apiKey: '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',
-        model: 'gpt-4'
+        apiKey: 'YOUR_OPENAI_KEY_HERE', // You already have this
+        model: 'gpt-4o-mini', // Cheaper model: $0.00015 per 1K tokens
+        enabled: false, // Set to true when you want to use
+        useDemo: true   // Use template responses
     },
     
-    map: {
-        provider: 'Mapbox',
-        // Get free key at: https://account.mapbox.com/
-        apiKey: 'YOUR_MAPBOX_KEY_HERE'
+    // === SHIP TRACKING (Demo Mode Default) ===
+    shipTracking: {
+        provider: 'Demo', // Change to 'MarineTraffic' when you get paid plan
+        endpoint: null,
+        apiKey: null,
+        useDemo: true, // Always use demo for now
+        demoData: {
+            // We'll generate realistic fake data
+            updateInterval: 5000, // Update every 5 seconds for realism
+            variance: 0.1 // 10% random variation
+        }
     }
 };
 
-// Rate limiting & caching
-const CACHE_DURATION = {
-    ships: 5 * 60 * 1000,        // 5 minutes
-    prices: 15 * 60 * 1000,      // 15 minutes
-    weather: 30 * 60 * 1000,     // 30 minutes
-    news: 60 * 60 * 1000         // 1 hour
+// Feature toggles - Turn on/off based on available keys
+const FEATURES = {
+    liveShipTracking: true,      // Always ON (using demo data)
+    liveOilPrices: false,        // ON when you add Alpha Vantage key
+    securityAlerts: false,       // ON when you add NewsAPI key
+    weatherData: false,          // ON when you add OpenWeather key
+    aiAnalysis: false,           // ON when you want to spend on OpenAI
+    economicCalculator: true,    // Always ON (no API needed)
+    interactiveMap: true         // Always ON (uses free Mapbox/OSM)
 };
 
-export default API_CONFIG;
+// Demo mode settings
+const DEMO_CONFIG = {
+    enabled: true,
+    showBadge: true, // Shows "Demo Mode" badge
+    realisticData: true, // Generate realistic-looking data
+    messages: {
+        demo: '📊 Demo Mode - Upgrade for live data',
+        partial: '⚡ Limited API calls remaining',
+        full: '🔴 Live Data Active'
+    }
+};
+
+export { API_CONFIG, FEATURES, DEMO_CONFIG };
