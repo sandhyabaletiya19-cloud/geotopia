@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="tools">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive climate tools - 3D globe, city climate comparison, climate analog finder, live trackers, calculators, and data downloads.">
+    <title>Interactive Climate Tools | Geotopia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="atmosphere-bg">
+        <div class="cloud-layer"></div>
+        <div class="cloud-layer"></div>
+        <div class="cloud-layer"></div>
+    </div>
+    
+    <nav class="nav-main">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="nav-logo-icon">🌍</span>
+                <span>Geotopia Climate</span>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Hub</a></li>
+                <li><a href="koppen-complete.html" class="nav-link">Köppen System</a></li>
+                <li><a href="climate-controls.html" class="nav-link">Climate Controls</a></li>
+                <li><a href="phenomena-storms.html" class="nav-link">Storms</a></li>
+                <li><a href="biomes-terrestrial.html" class="nav-link">Biomes</a></li>
+                <li><a href="climate-change-dashboard.html" class="nav-link">Climate Change</a></li>
+                <li><a href="interactive-tools.html" class="nav-link active">Tools</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero" style="min-height: 35vh;">
+        <div class="hero-visual">
+            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80" 
+                 alt="Earth from space" loading="eager">
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">🔧 Interactive</div>
+                <h1 class="hero-title">Climate Tools</h1>
+                <p class="hero-description">
+                    Explore climate data with interactive maps, compare cities, 
+                    find climate analogs, and download datasets.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Tool Navigation -->
+        <section class="container mt-2xl">
+            <div class="tabs">
+                <button class="tab active" onclick="showTool('globe')">🌐 Climate Globe</button>
+                <button class="tab" onclick="showTool('compare')">🔄 Compare Cities</button>
+                <button class="tab" onclick="showTool('analog')">🔮 Climate Analog</button>
+                <button class="tab" onclick="showTool('calculators')">🧮 Calculators</button>
+                <button class="tab" onclick="showTool('trackers')">📡 Live Trackers</button>
+            </div>
+        </section>
+
+        <!-- TOOL 1: Climate Globe -->
+        <section class="container mt-lg tool-content" id="tool-globe">
+            <div class="card">
+                <div class="card-content">
+                    <h2 class="mb-md">🌐 Interactive Climate Globe</h2>
+                    <p class="text-gray mb-lg">Click anywhere on the map to see climate data for that location.</p>
+                    
+                    <!-- Map Container -->
+                    <div id="climateMap" style="height: 500px; border-radius: 8px; overflow: hidden;"></div>
+                    
+                    <!-- Layer Controls -->
+                    <div class="grid grid-4 mt-lg">
+                        <div>
+                            <label class="text-sm text-gray">Map Layer</label>
+                            <select id="mapLayer" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;" onchange="changeMapLayer()">
+                                <option value="standard">Standard</option>
+                                <option value="satellite">Satellite</option>
+                                <option value="terrain">Terrain</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">Overlay</label>
+                            <select id="mapOverlay" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                                <option value="none">None</option>
+                                <option value="temperature">Temperature</option>
+                                <option value="precipitation">Precipitation</option>
+                                <option value="koppen">Köppen Zones</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">Search Location</label>
+                            <input type="text" id="locationSearch" placeholder="Enter city name..." 
+                                   style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">&nbsp;</label>
+                            <button class="btn btn-primary w-full" onclick="searchLocation()">Search</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Location Info Panel -->
+                    <div id="locationInfo" class="mt-lg" style="display: none;">
+                        <div class="grid grid-2">
+                            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                                <h4 class="text-primary mb-md" id="locationName">Selected Location</h4>
+                                <div class="grid grid-2">
+                                    <div>
+                                        <div class="text-sm text-gray">Coordinates</div>
+                                        <div id="locationCoords">--</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray">Köppen Climate</div>
+                                        <div id="locationKoppen">--</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray">Annual Temp</div>
+                                        <div id="locationTemp">--</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray">Annual Precip</div>
+                                        <div id="locationPrecip">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                                <h4 class="text-primary mb-md">Monthly Climate</h4>
+                                <canvas id="locationClimograph" height="150"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL 2: Compare Cities -->
+        <section class="container mt-lg tool-content" id="tool-compare" style="display: none;">
+            <div class="card">
+                <div class="card-content">
+                    <h2 class="mb-md">🔄 Compare City Climates</h2>
+                    <p class="text-gray mb-lg">Select 2-4 cities to compare their climate data side by side.</p>
+                    
+                    <div class="grid grid-4 mb-lg">
+                        <div>
+                            <label class="text-sm text-gray">City 1</label>
+                            <select id="city1" class="city-select" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;" onchange="updateComparison()">
+                                <option value="">Select city...</option>
+                                <option value="london">London, UK</option>
+                                <option value="newyork">New York, USA</option>
+                                <option value="tokyo">Tokyo, Japan</option>
+                                <option value="sydney">Sydney, Australia</option>
+                                <option value="cairo">Cairo, Egypt</option>
+                                <option value="moscow">Moscow, Russia</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="mumbai">Mumbai, India</option>
+                                <option value="dubai">Dubai, UAE</option>
+                                <option value="beijing">Beijing, China</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">City 2</label>
+                            <select id="city2" class="city-select" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;" onchange="updateComparison()">
+                                <option value="">Select city...</option>
+                                <option value="london">London, UK</option>
+                                <option value="newyork">New York, USA</option>
+                                <option value="tokyo">Tokyo, Japan</option>
+                                <option value="sydney">Sydney, Australia</option>
+                                <option value="cairo">Cairo, Egypt</option>
+                                <option value="moscow">Moscow, Russia</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="mumbai">Mumbai, India</option>
+                                <option value="dubai">Dubai, UAE</option>
+                                <option value="beijing">Beijing, China</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">City 3 (optional)</label>
+                            <select id="city3" class="city-select" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;" onchange="updateComparison()">
+                                <option value="">Select city...</option>
+                                <option value="london">London, UK</option>
+                                <option value="newyork">New York, USA</option>
+                                <option value="tokyo">Tokyo, Japan</option>
+                                <option value="sydney">Sydney, Australia</option>
+                                <option value="cairo">Cairo, Egypt</option>
+                                <option value="moscow">Moscow, Russia</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="mumbai">Mumbai, India</option>
+                                <option value="dubai">Dubai, UAE</option>
+                                <option value="beijing">Beijing, China</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">City 4 (optional)</label>
+                            <select id="city4" class="city-select" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;" onchange="updateComparison()">
+                                <option value="">Select city...</option>
+                                <option value="london">London, UK</option>
+                                <option value="newyork">New York, USA</option>
+                                <option value="tokyo">Tokyo, Japan</option>
+                                <option value="sydney">Sydney, Australia</option>
+                                <option value="cairo">Cairo, Egypt</option>
+                                <option value="moscow">Moscow, Russia</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="mumbai">Mumbai, India</option>
+                                <option value="dubai">Dubai, UAE</option>
+                                <option value="beijing">Beijing, China</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Comparison Charts -->
+                    <div id="comparisonResults">
+                        <div class="grid grid-2">
+                            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                                <h4 class="text-primary mb-md">Temperature Comparison</h4>
+                                <canvas id="tempCompareChart" height="200"></canvas>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                                <h4 class="text-primary mb-md">Precipitation Comparison</h4>
+                                <canvas id="precipCompareChart" height="200"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Comparison Table -->
+                        <div class="table-container mt-lg">
+                            <table class="data-table" id="comparisonTable">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th id="th-city1">City 1</th>
+                                        <th id="th-city2">City 2</th>
+                                        <th id="th-city3">City 3</th>
+                                        <th id="th-city4">City 4</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Köppen Classification</td>
+                                        <td id="koppen1">-</td>
+                                        <td id="koppen2">-</td>
+                                        <td id="koppen3">-</td>
+                                        <td id="koppen4">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Annual Mean Temp</td>
+                                        <td id="annualTemp1">-</td>
+                                        <td id="annualTemp2">-</td>
+                                        <td id="annualTemp3">-</td>
+                                        <td id="annualTemp4">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Annual Precipitation</td>
+                                        <td id="annualPrecip1">-</td>
+                                        <td id="annualPrecip2">-</td>
+                                        <td id="annualPrecip3">-</td>
+                                        <td id="annualPrecip4">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hottest Month</td>
+                                        <td id="hottest1">-</td>
+                                        <td id="hottest2">-</td>
+                                        <td id="hottest3">-</td>
+                                        <td id="hottest4">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Coldest Month</td>
+                                        <td id="coldest1">-</td>
+                                        <td id="coldest2">-</td>
+                                        <td id="coldest3">-</td>
+                                        <td id="coldest4">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL 3: Climate Analog Finder -->
+        <section class="container mt-lg tool-content" id="tool-analog" style="display: none;">
+            <div class="card">
+                <div class="card-content">
+                    <h2 class="mb-md">🔮 Climate Analog Finder</h2>
+                    <p class="text-gray mb-lg">
+                        Find cities today that have a climate similar to your city's projected future climate. 
+                        Or find places with similar current climates.
+                    </p>
+                    
+                    <div class="grid grid-3 mb-lg">
+                        <div>
+                            <label class="text-sm text-gray">Select Your City</label>
+                            <select id="analogCity" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                                <option value="">Select city...</option>
+                                <option value="london">London, UK</option>
+                                <option value="newyork">New York, USA</option>
+                                <option value="chicago">Chicago, USA</option>
+                                <option value="losangeles">Los Angeles, USA</option>
+                                <option value="seattle">Seattle, USA</option>
+                                <option value="paris">Paris, France</option>
+                                <option value="berlin">Berlin, Germany</option>
+                                <option value="tokyo">Tokyo, Japan</option>
+                                <option value="sydney">Sydney, Australia</option>
+                                <option value="toronto">Toronto, Canada</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">Scenario</label>
+                            <select id="analogScenario" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                                <option value="current">Current Climate Match</option>
+                                <option value="2050">2050 Climate (medium emissions)</option>
+                                <option value="2100">2100 Climate (high emissions)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray">&nbsp;</label>
+                            <button class="btn btn-primary w-full" onclick="findAnalogs()">Find Analogs</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results -->
+                    <div id="analogResults" style="display: none;">
+                        <h3 class="text-primary mb-md" id="analogTitle">Climate Analogs for London (2050)</h3>
+                        
+                        <div class="grid grid-5" id="analogCards">
+                            <!-- Filled dynamically -->
+                        </div>
+                        
+                        <div class="mt-lg" style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                            <h4 class="text-primary mb-md">What This Means</h4>
+                            <p class="text-gray text-sm" id="analogExplanation">
+                                By 2050, London's climate is projected to become similar to Barcelona's 
+                                current climate - warmer, drier summers and milder winters.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL 4: Calculators -->
+        <section class="container mt-lg tool-content" id="tool-calculators" style="display: none;">
+            <div class="card">
+                <div class="card-content">
+                    <h2 class="mb-lg">🧮 Climate Calculators</h2>
+                    
+                    <div class="grid grid-2">
+                        <!-- Sun Angle Calculator -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <h3 class="text-primary mb-md">☀️ Sun Angle Calculator</h3>
+                            <p class="text-gray text-sm mb-md">
+                                Calculate the sun's maximum altitude for any location and date.
+                            </p>
+                            
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Latitude (°)</label>
+                                <input type="number" id="sunLat" placeholder="e.g., 51.5" value="51.5"
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Date</label>
+                                <input type="date" id="sunDate" 
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <button class="btn btn-primary w-full mb-md" onclick="calculateSunAngle2()">Calculate</button>
+                            
+                            <div id="sunResult" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; display: none;">
+                                <div class="flex justify-between">
+                                    <span class="text-gray">Max Sun Altitude:</span>
+                                    <span id="sunAltitude" class="text-primary font-bold">--</span>
+                                </div>
+                                <div class="flex justify-between mt-sm">
+                                    <span class="text-gray">Day Length:</span>
+                                    <span id="dayLength" class="text-primary font-bold">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Altitude Temperature Calculator -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <h3 class="text-primary mb-md">⛰️ Altitude Temperature</h3>
+                            <p class="text-gray text-sm mb-md">
+                                Calculate temperature at different altitudes using lapse rate.
+                            </p>
+                            
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Base Temperature (°C)</label>
+                                <input type="number" id="altBaseTemp" placeholder="e.g., 25" value="25"
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Elevation Change (m)</label>
+                                <input type="number" id="altElevation" placeholder="e.g., 3000" value="3000"
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <button class="btn btn-primary w-full mb-md" onclick="calculateAltTemp()">Calculate</button>
+                            
+                            <div id="altResult" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; display: none;">
+                                <div class="flex justify-between">
+                                    <span class="text-gray">Temperature Drop:</span>
+                                    <span id="tempDrop" class="text-info font-bold">--</span>
+                                </div>
+                                <div class="flex justify-between mt-sm">
+                                    <span class="text-gray">Temperature at Altitude:</span>
+                                    <span id="tempAtAlt" class="text-primary font-bold">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heat Index Calculator -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <h3 class="text-primary mb-md">🌡️ Heat Index (Feels Like)</h3>
+                            <p class="text-gray text-sm mb-md">
+                                Calculate how hot it actually feels when humidity is factored in.
+                            </p>
+                            
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Temperature (°C)</label>
+                                <input type="number" id="heatTemp" placeholder="e.g., 35" value="35"
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Relative Humidity (%)</label>
+                                <input type="number" id="heatHumidity" placeholder="e.g., 70" value="70"
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <button class="btn btn-primary w-full mb-md" onclick="calculateHeatIndex()">Calculate</button>
+                            
+                            <div id="heatResult" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; display: none;">
+                                <div class="flex justify-between">
+                                    <span class="text-gray">Feels Like:</span>
+                                    <span id="feelsLike" class="font-bold">--</span>
+                                </div>
+                                <div class="flex justify-between mt-sm">
+                                    <span class="text-gray">Risk Level:</span>
+                                    <span id="heatRisk" class="font-bold">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wind Chill Calculator -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <h3 class="text-primary mb-md">❄️ Wind Chill</h3>
+                            <p class="text-gray text-sm mb-md">
+                                Calculate how cold it feels when wind is factored in.
+                            </p>
+                            
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Temperature (°C)</label>
+                                <input type="number" id="chillTemp" placeholder="e.g., -10" value="-10"
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <div class="mb-md">
+                                <label class="text-sm text-gray">Wind Speed (km/h)</label>
+                                <input type="number" id="chillWind" placeholder="e.g., 30" value="30"
+                                       style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+                            </div>
+                            <button class="btn btn-primary w-full mb-md" onclick="calculateWindChill()">Calculate</button>
+                            
+                            <div id="chillResult" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; display: none;">
+                                <div class="flex justify-between">
+                                    <span class="text-gray">Feels Like:</span>
+                                    <span id="chillFeels" class="text-info font-bold">--</span>
+                                </div>
+                                <div class="flex justify-between mt-sm">
+                                    <span class="text-gray">Frostbite Risk:</span>
+                                    <span id="frostbiteRisk" class="font-bold">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL 5: Live Trackers -->
+        <section class="container mt-lg mb-3xl tool-content" id="tool-trackers" style="display: none;">
+            <div class="card">
+                <div class="card-content">
+                    <h2 class="mb-lg">📡 Live Weather & Climate Trackers</h2>
+                    
+                    <div class="grid grid-2">
+                        <!-- Hurricane Tracker -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="text-danger mb-0">🌀 Hurricane Tracker</h3>
+                                <span class="live-indicator">LIVE</span>
+                            </div>
+                            <p class="text-gray text-sm mb-md">
+                                Real-time tracking of tropical cyclones worldwide.
+                            </p>
+                            <a href="https://www.nhc.noaa.gov/" target="_blank" class="btn btn-primary w-full">
+                                Open NHC Tracker →
+                            </a>
+                        </div>
+
+                        <!-- Wildfire Tracker -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="text-warning mb-0">🔥 Wildfire Tracker</h3>
+                                <span class="live-indicator">LIVE</span>
+                            </div>
+                            <p class="text-gray text-sm mb-md">
+                                Active fires detected by NASA satellites (FIRMS).
+                            </p>
+                            <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" class="btn btn-primary w-full">
+                                Open NASA FIRMS →
+                            </a>
+                        </div>
+
+                        <!-- Wind Map -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="text-info mb-0">🌬️ Global Wind Map</h3>
+                                <span class="live-indicator">LIVE</span>
+                            </div>
+                            <p class="text-gray text-sm mb-md">
+                                Beautiful visualization of global wind patterns in real-time.
+                            </p>
+                            <a href="https://earth.nullschool.net/" target="_blank" class="btn btn-primary w-full">
+                                Open Earth Wind Map →
+                            </a>
+                        </div>
+
+                        <!-- Air Quality -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="text-success mb-0">💨 Air Quality Index</h3>
+                                <span class="live-indicator">LIVE</span>
+                            </div>
+                            <p class="text-gray text-sm mb-md">
+                                Global air quality monitoring and forecasts.
+                            </p>
+                            <a href="https://www.iqair.com/earth" target="_blank" class="btn btn-primary w-full">
+                                Open IQAir Map →
+                            </a>
+                        </div>
+
+                        <!-- Sea Ice -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="mb-0" style="color: #a8e6cf;">🧊 Arctic Sea Ice</h3>
+                                <span class="live-indicator">DAILY</span>
+                            </div>
+                            <p class="text-gray text-sm mb-md">
+                                Daily updates on Arctic and Antarctic sea ice extent.
+                            </p>
+                            <a href="https://nsidc.org/arcticseaicenews/" target="_blank" class="btn btn-primary w-full">
+                                Open NSIDC →
+                            </a>
+                        </div>
+
+                        <!-- CO2 -->
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                            <div class="flex justify-between items-center mb-md">
+                                <h3 class="text-warning mb-0">🏭 CO₂ Levels</h3>
+                                <span class="live-indicator">DAILY</span>
+                            </div>
+                            <p class="text-gray text-sm mb-md">
+                                Daily CO₂ measurements from Mauna Loa Observatory.
+                            </p>
+                            <a href="https://gml.noaa.gov/ccgg/trends/" target="_blank" class="btn btn-primary w-full">
+                                Open NOAA CO₂ →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <div class="footer-copyright">© 2024 Geotopia Climate</div>
+                <div class="flex gap-md">
+                    <a href="index.html">Climate Hub</a>
+                    <a href="educational-glossary.html">Glossary</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // CITY CLIMATE DATA
+        // ═══════════════════════════════════════════════════════════════
+        const cityData = {
+            london: {
+                name: 'London', koppen: 'Cfb', annualTemp: 11.3, annualPrecip: 602,
+                temp: [5,5,7,9,13,16,18,18,15,11,8,6],
+                precip: [55,40,42,44,49,45,57,59,49,69,59,55]
+            },
+            newyork: {
+                name: 'New York', koppen: 'Cfa', annualTemp: 12.8, annualPrecip: 1268,
+                temp: [1,2,6,12,17,22,25,24,20,14,9,4],
+                precip: [92,78,111,107,111,112,117,107,109,98,102,102]
+            },
+            tokyo: {
+                name: 'Tokyo', koppen: 'Cfa', annualTemp: 15.4, annualPrecip: 1530,
+                temp: [6,6,9,14,19,22,26,27,24,18,13,8],
+                precip: [52,56,118,125,138,168,154,168,210,198,93,51]
+            },
+            sydney: {
+                name: 'Sydney', koppen: 'Cfa', annualTemp: 18.1, annualPrecip: 1215,
+                temp: [23,23,22,19,16,13,12,13,16,18,20,22],
+                precip: [102,118,131,127,123,132,98,81,69,77,83,78]
+            },
+            cairo: {
+                name: 'Cairo', koppen: 'BWh', annualTemp: 21.7, annualPrecip: 25,
+                temp: [14,15,17,21,25,28,28,28,26,24,19,15],
+                precip: [5,4,4,1,1,0,0,0,0,1,3,6]
+            },
+            moscow: {
+                name: 'Moscow', koppen: 'Dfb', annualTemp: 5.8, annualPrecip: 707,
+                temp: [-8,-6,0,8,14,18,20,18,12,6,-1,-5],
+                precip: [52,41,35,38,52,80,85,82,68,71,55,52]
+            },
+            singapore: {
+                name: 'Singapore', koppen: 'Af', annualTemp: 27.5, annualPrecip: 2340,
+                temp: [26,27,27,28,28,28,28,28,27,27,27,26],
+                precip: [243,162,185,179,172,162,159,176,169,194,257,265]
+            },
+            mumbai: {
+                name: 'Mumbai', koppen: 'Am', annualTemp: 27.2, annualPrecip: 2422,
+                temp: [25,26,28,30,31,29,28,27,28,29,28,26],
+                precip: [1,0,0,1,20,547,868,553,341,117,14,3]
+            },
+            dubai: {
+                name: 'Dubai', koppen: 'BWh', annualTemp: 27.2, annualPrecip: 78,
+                temp: [19,20,23,27,31,33,35,36,33,29,25,21],
+                precip: [11,36,22,8,1,0,0,0,0,1,3,15]
+            },
+            beijing: {
+                name: 'Beijing', koppen: 'Dwa', annualTemp: 12.9, annualPrecip: 571,
+                temp: [-3,-1,6,14,20,24,26,25,20,13,5,-1],
+                precip: [3,6,9,26,35,78,185,160,46,22,6,2]
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════
+        // TOOL SWITCHING
+        // ═══════════════════════════════════════════════════════════════
+        function showTool(toolId) {
+            document.querySelectorAll('.tool-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById('tool-' + toolId).style.display = 'block';
+            event.target.classList.add('active');
+            
+            // Initialize map if showing globe
+            if (toolId === 'globe' && !window.mapInitialized) {
+                initMap();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // MAP INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════
+        let map;
+        function initMap() {
+            map = L.map('climateMap').setView([20, 0], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap, © CartoDB'
+            }).addTo(map);
+            
+            map.on('click', function(e) {
+                showLocationInfo(e.latlng.lat, e.latlng.lng);
+            });
+            
+            window.mapInitialized = true;
+        }
+
+        function showLocationInfo(lat, lng) {
+            document.getElementById('locationInfo').style.display = 'block';
+            document.getElementById('locationCoords').textContent = `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`;
+            
+            // Estimate climate based on latitude (simplified)
+            let koppen = 'Unknown';
+            let temp = 15 - Math.abs(lat) * 0.5;
+            let precip = 1000;
+            
+            if (Math.abs(lat) < 10) { koppen = 'Af (Tropical)'; temp = 27; precip = 2000; }
+            else if (Math.abs(lat) < 25) { koppen = 'Aw (Tropical Savanna)'; temp = 25; precip = 1200; }
+            else if (Math.abs(lat) < 35) { koppen = 'Csa/Cfa (Subtropical)'; temp = 18; precip = 800; }
+            else if (Math.abs(lat) < 55) { koppen = 'Cfb/Dfb (Temperate)'; temp = 10; precip = 700; }
+            else if (Math.abs(lat) < 70) { koppen = 'Dfc (Subarctic)'; temp = 0; precip = 400; }
+            else { koppen = 'ET/EF (Polar)'; temp = -15; precip = 200; }
+            
+            document.getElementById('locationKoppen').textContent = koppen;
+            document.getElementById('locationTemp').textContent = temp.toFixed(1) + '°C';
+            document.getElementById('locationPrecip').textContent = precip + ' mm';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // COMPARISON TOOL
+        // ═══════════════════════════════════════════════════════════════
+        let tempCompareChart, precipCompareChart;
+
+        function updateComparison() {
+            const cities = [
+                document.getElementById('city1').value,
+                document.getElementById('city2').value,
+                document.getElementById('city3').value,
+                document.getElementById('city4').value
+            ].filter(c => c);
+            
+            if (cities.length < 2) return;
+            
+            const colors = ['#ff6b35', '#4d96ff', '#6bcb77', '#ffd93d'];
+            const datasets_temp = [];
+            const datasets_precip = [];
+            
+            cities.forEach((cityKey, i) => {
+                const city = cityData[cityKey];
+                if (!city) return;
+                
+                datasets_temp.push({
+                    label: city.name,
+                    data: city.temp,
+                    borderColor: colors[i],
+                    backgroundColor: 'transparent',
+                    tension: 0.4
+                });
+                
+                datasets_precip.push({
+                    label: city.name,
+                    data: city.precip,
+                    backgroundColor: colors[i] + '80',
+                    borderColor: colors[i]
+                });
+                
+                // Update table
+                document.getElementById(`th-city${i+1}`).textContent = city.name;
+                document.getElementById(`koppen${i+1}`).textContent = city.koppen;
+                document.getElementById(`annualTemp${i+1}`).textContent = city.annualTemp + '°C';
+                document.getElementById(`annualPrecip${i+1}`).textContent = city.annualPrecip + ' mm';
+                document.getElementById(`hottest${i+1}`).textContent = Math.max(...city.temp) + '°C';
+                document.getElementById(`coldest${i+1}`).textContent = Math.min(...city.temp) + '°C';
+            });
+            
+            // Clear unused columns
+            for (let i = cities.length; i < 4; i++) {
+                document.getElementById(`th-city${i+1}`).textContent = '-';
+                document.getElementById(`koppen${i+1}`).textContent = '-';
+                document.getElementById(`annualTemp${i+1}`).textContent = '-';
+                document.getElementById(`annualPrecip${i+1}`).textContent = '-';
+                document.getElementById(`hottest${i+1}`).textContent = '-';
+                document.getElementById(`coldest${i+1}`).textContent = '-';
+            }
+            
+            // Update charts
+            const ctx1 = document.getElementById('tempCompareChart').getContext('2d');
+            const ctx2 = document.getElementById('precipCompareChart').getContext('2d');
+            
+            if (tempCompareChart) tempCompareChart.destroy();
+            if (precipCompareChart) precipCompareChart.destroy();
+            
+            const labels = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+            
+            tempCompareChart = new Chart(ctx1, {
+                type: 'line',
+                data: { labels, datasets: datasets_temp },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#b8c5d4' } } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#b8c5d4' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#b8c5d4', callback: v => v + '°C' } }
+                    }
+                }
+            });
+            
+            precipCompareChart = new Chart(ctx2, {
+                type: 'bar',
+                data: { labels, datasets: datasets_precip },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#b8c5d4' } } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#b8c5d4' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#b8c5d4', callback: v => v + 'mm' } }
+                    }
+                }
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CLIMATE ANALOG FINDER
+        // ═══════════════════════════════════════════════════════════════
+        const analogData = {
+            london: { current: ['Dublin', 'Amsterdam', 'Brussels'], 2050: ['Barcelona', 'Porto', 'Milan'], 2100: ['Madrid', 'Rome', 'Athens'] },
+            newyork: { current: ['Philadelphia', 'Baltimore', 'Seoul'], 2050: ['Memphis', 'Little Rock'], 2100: ['Miami', 'Houston'] },
+            chicago: { current: ['Detroit', 'Toronto', 'Warsaw'], 2050: ['Kansas City', 'Nashville'], 2100: ['Dallas', 'Austin'] },
+            losangeles: { current: ['Perth', 'Cape Town', 'Santiago'], 2050: ['Phoenix suburbs', 'Tijuana'], 2100: ['Las Vegas', 'Desert climate'] },
+            seattle: { current: ['Vancouver', 'Portland', 'Dublin'], 2050: ['San Francisco', 'Lisbon'], 2100: ['Los Angeles', 'Barcelona'] },
+            paris: { current: ['London', 'Cologne', 'Brussels'], 2050: ['Bordeaux', 'Milan', 'Turin'], 2100: ['Madrid', 'Rome', 'Nice'] },
+            berlin: { current: ['Warsaw', 'Prague', 'Vienna'], 2050: ['Milan', 'Lyon', 'Zagreb'], 2100: ['Rome', 'Barcelona', 'Nice'] },
+            tokyo: { current: ['Shanghai', 'Taipei', 'Sydney'], 2050: ['Taipei', 'Hong Kong'], 2100: ['Bangkok suburbs', 'Manila'] },
+            sydney: { current: ['Perth', 'Cape Town', 'Los Angeles'], 2050: ['Brisbane', 'Sao Paulo'], 2100: ['Townsville', 'Rio de Janeiro'] },
+            toronto: { current: ['Detroit', 'Chicago', 'Warsaw'], 2050: ['New York', 'Philadelphia'], 2100: ['Washington DC', 'Nashville'] }
+        };
+
+        function findAnalogs() {
+            const city = document.getElementById('analogCity').value;
+            const scenario = document.getElementById('analogScenario').value;
+            
+            if (!city || !analogData[city]) {
+                alert('Please select a city');
+                return;
+            }
+            
+            const analogs = analogData[city][scenario] || analogData[city].current;
+            const cityName = city.charAt(0).toUpperCase() + city.slice(1);
+            
+            let scenarioText = 'Current';
+            if (scenario === '2050') scenarioText = '2050 (medium emissions)';
+            if (scenario === '2100') scenarioText = '2100 (high emissions)';
+            
+            document.getElementById('analogTitle').textContent = `Climate Analogs for ${cityName} - ${scenarioText}`;
+            
+            const cardsHtml = analogs.map((analog, i) => `
+                <div class="card text-center">
+                    <div class="card-content">
+                        <div class="metric-value text-primary" style="font-size: 1.25rem;">#${i+1}</div>
+                        <h4 class="mt-sm">${analog}</h4>
+                        <div class="text-sm text-gray">${100 - i*5}% match</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('analogCards').innerHTML = cardsHtml;
+            
+            const explanations = {
+                current: `These cities currently have climates most similar to ${cityName}.`,
+                2050: `By 2050 under medium emissions, ${cityName}'s climate is projected to shift to resemble these cities' current climates.`,
+                2100: `By 2100 under high emissions, ${cityName}'s climate could be as warm as these cities are today - a dramatic shift.`
+            };
+            document.getElementById('analogExplanation').textContent = explanations[scenario];
+            
+            document.getElementById('analogResults').style.display = 'block';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CALCULATORS
+        // ═══════════════════════════════════════════════════════════════
+        function calculateSunAngle2() {
+            const lat = parseFloat(document.getElementById('sunLat').value);
+            const dateStr = document.getElementById('sunDate').value;
+            
+            if (isNaN(lat)) {
+                alert('Please enter a valid latitude');
+                return;
+            }
+            
+            // Get day of year
+            let dayOfYear = 172; // Default to summer solstice
+            if (dateStr) {
+                const date = new Date(dateStr);
+                const start = new Date(date.getFullYear(), 0, 0);
+                dayOfYear = Math.floor((date - start) / (1000 * 60 * 60 * 24));
+            }
+            
+            // Calculate declination angle
+            const declination = 23.45 * Math.sin((360/365) * (dayOfYear - 81) * Math.PI / 180);
+            
+            // Calculate max sun altitude
+            const maxAltitude = 90 - Math.abs(lat - declination);
+            
+            // Estimate day length (simplified)
+            const hourAngle = Math.acos(-Math.tan(lat * Math.PI/180) * Math.tan(declination * Math.PI/180));
+            const dayLengthHours = 2 * hourAngle * 12 / Math.PI;
+            
+            document.getElementById('sunAltitude').textContent = maxAltitude.toFixed(1) + '°';
+            document.getElementById('dayLength').textContent = dayLengthHours.toFixed(1) + ' hours';
+            document.getElementById('sunResult').style.display = 'block';
+        }
+
+        function calculateAltTemp() {
+            const baseTemp = parseFloat(document.getElementById('altBaseTemp').value);
+            const elevation = parseFloat(document.getElementById('altElevation').value);
+            
+            if (isNaN(baseTemp) || isNaN(elevation)) {
+                alert('Please enter valid numbers');
+                return;
+            }
+            
+            const tempDrop = (elevation / 1000) * 6.5;
+            const tempAtAlt = baseTemp - tempDrop;
+            
+            document.getElementById('tempDrop').textContent = '-' + tempDrop.toFixed(1) + '°C';
+            document.getElementById('tempAtAlt').textContent = tempAtAlt.toFixed(1) + '°C';
+            document.getElementById('altResult').style.display = 'block';
+        }
+
+        function calculateHeatIndex() {
+            const T = parseFloat(document.getElementById('heatTemp').value);
+            const RH = parseFloat(document.getElementById('heatHumidity').value);
+            
+            if (isNaN(T) || isNaN(RH)) {
+                alert('Please enter valid numbers');
+                return;
+            }
+            
+            // Simplified heat index formula (Celsius)
+            const HI = T + 0.33 * (RH/100 * 6.105 * Math.exp(17.27 * T / (237.7 + T))) - 4;
+            
+            let risk = 'Low';
+            let color = '#2ed573';
+            if (HI >= 27 && HI < 32) { risk = 'Caution'; color = '#f39c12'; }
+            else if (HI >= 32 && HI < 41) { risk = 'Extreme Caution'; color = '#ff6b35'; }
+            else if (HI >= 41 && HI < 54) { risk = 'Danger'; color = '#e74c3c'; }
+            else if (HI >= 54) { risk = 'Extreme Danger'; color = '#8e44ad'; }
+            
+            document.getElementById('feelsLike').textContent = HI.toFixed(1) + '°C';
+            document.getElementById('feelsLike').style.color = color;
+            document.getElementById('heatRisk').textContent = risk;
+            document.getElementById('heatRisk').style.color = color;
+            document.getElementById('heatResult').style.display = 'block';
+        }
+
+        function calculateWindChill() {
+            const T = parseFloat(document.getElementById('chillTemp').value);
+            const V = parseFloat(document.getElementById('chillWind').value);
+            
+            if (isNaN(T) || isNaN(V)) {
+                alert('Please enter valid numbers');
+                return;
+            }
+            
+            // Wind chill formula (Celsius, km/h)
+            const WC = 13.12 + 0.6215 * T - 11.37 * Math.pow(V, 0.16) + 0.3965 * T * Math.pow(V, 0.16);
+            
+            let risk = 'Low risk';
+            let color = '#2ed573';
+            if (WC <= -10 && WC > -28) { risk = 'Risk of frostbite in 30 min'; color = '#f39c12'; }
+            else if (WC <= -28 && WC > -40) { risk = 'Risk of frostbite in 10-30 min'; color = '#ff6b35'; }
+            else if (WC <= -40 && WC > -55) { risk = 'Risk of frostbite in 5-10 min'; color = '#e74c3c'; }
+            else if (WC <= -55) { risk = 'Risk of frostbite in under 2 min!'; color = '#8e44ad'; }
+            
+            document.getElementById('chillFeels').textContent = WC.toFixed(1) + '°C';
+            document.getElementById('frostbiteRisk').textContent = risk;
+            document.getElementById('frostbiteRisk').style.color = color;
+            document.getElementById('chillResult').style.display = 'block';
+        }
+
+        // Initialize map on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            document.getElementById('sunDate').valueAsDate = new Date();
+        });
+
+        document.querySelector('.nav-toggle')?.addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
