@@ -10,6 +10,628 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Atmosphere-Ocean Page Specific Styles */
+        
+        /* Live Status Indicator */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(46, 213, 115, 0.1);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #2ed573;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #2ed573;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        /* Expandable Sections */
+        .expandable-section {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .expandable-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            transition: background 0.2s ease;
+        }
+        
+        .expandable-header:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+        
+        .expandable-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .expandable-toggle {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .expandable-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .expandable-section.expanded .expandable-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .expandable-body {
+            display: none;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .expandable-section.expanded .expandable-body {
+            display: block;
+        }
+        
+        /* Atmospheric Layer Card */
+        .layer-card {
+            position: relative;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .layer-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .layer-card.expanded {
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+        
+        .layer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .layer-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .layer-icon {
+            font-size: 1.5rem;
+        }
+        
+        .layer-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .layer-altitude {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .layer-expand-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .layer-card.expanded .layer-expand-btn {
+            transform: rotate(180deg);
+        }
+        
+        .layer-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .layer-card.expanded .layer-details {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .layer-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .layer-stat {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .layer-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .layer-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        /* Cloud Card */
+        .cloud-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cloud-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .cloud-card.expanded {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--color-primary);
+        }
+        
+        .cloud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .cloud-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cloud-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .cloud-latin {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .cloud-brief {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+        }
+        
+        .cloud-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .cloud-card.expanded .cloud-details {
+            display: block;
+        }
+        
+        /* Ocean Current Visual */
+        .current-flow {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        
+        .current-arrow {
+            width: 30px;
+            height: 4px;
+            border-radius: 2px;
+            position: relative;
+        }
+        
+        .current-arrow.warm {
+            background: linear-gradient(90deg, #ff6b35, #ffd93d);
+        }
+        
+        .current-arrow.cold {
+            background: linear-gradient(90deg, #4d96ff, #a8e6cf);
+        }
+        
+        .current-arrow::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+        }
+        
+        /* ENSO Status Card */
+        .enso-status-card {
+            background: linear-gradient(135deg, rgba(77, 150, 255, 0.1), rgba(255, 107, 53, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .enso-current {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .enso-index {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Monitoring Dashboard */
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .monitor-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .monitor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient);
+        }
+        
+        .monitor-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .monitor-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        
+        .monitor-unit {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        .monitor-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+        
+        .monitor-trend.up { background: rgba(255, 71, 87, 0.15); color: #ff4757; }
+        .monitor-trend.down { background: rgba(46, 213, 115, 0.15); color: #2ed573; }
+        .monitor-trend.neutral { background: rgba(255, 165, 2, 0.15); color: #ffa502; }
+        
+        /* Pressure System Visual */
+        .pressure-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            padding: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .pressure-system {
+            text-align: center;
+        }
+        
+        .pressure-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+        
+        .pressure-circle.high {
+            background: linear-gradient(135deg, rgba(77, 150, 255, 0.3), rgba(46, 213, 115, 0.3));
+            border: 3px solid #4d96ff;
+        }
+        
+        .pressure-circle.low {
+            background: linear-gradient(135deg, rgba(255, 71, 87, 0.3), rgba(255, 107, 53, 0.3));
+            border: 3px solid #ff4757;
+        }
+        
+        .pressure-arrow {
+            position: absolute;
+            font-size: 1.5rem;
+        }
+        
+        .pressure-circle.high .pressure-arrow { animation: rotateClockwise 8s linear infinite; }
+        .pressure-circle.low .pressure-arrow { animation: rotateCounterClockwise 8s linear infinite; }
+        
+        @keyframes rotateClockwise {
+            from { transform: rotate(0deg) translateX(50px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(50px) rotate(-360deg); }
+        }
+        
+        @keyframes rotateCounterClockwise {
+            from { transform: rotate(0deg) translateX(50px) rotate(0deg); }
+            to { transform: rotate(-360deg) translateX(50px) rotate(360deg); }
+        }
+        
+        /* Jet Stream Visual */
+        .jet-stream-visual {
+            background: linear-gradient(180deg, #1a1a40 0%, #2d2d60 50%, #1a1a40 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+        }
+        
+        .jet-stream-path {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(77, 150, 255, 0.8) 20%, 
+                rgba(168, 230, 207, 0.8) 50%, 
+                rgba(77, 150, 255, 0.8) 80%, 
+                transparent 100%
+            );
+            filter: blur(3px);
+            animation: jetFlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes jetFlow {
+            0%, 100% { 
+                clip-path: polygon(0 30%, 20% 60%, 40% 20%, 60% 70%, 80% 30%, 100% 50%, 100% 70%, 80% 50%, 60% 90%, 40% 40%, 20% 80%, 0 50%);
+            }
+            50% { 
+                clip-path: polygon(0 50%, 20% 30%, 40% 70%, 60% 20%, 80% 60%, 100% 40%, 100% 60%, 80% 80%, 60% 40%, 40% 90%, 20% 50%, 0 70%);
+            }
+        }
+        
+        /* Ocean Zone Diagram */
+        .ocean-zones {
+            background: linear-gradient(180deg, 
+                #87CEEB 0%, 
+                #4682B4 15%, 
+                #1E3A5F 35%, 
+                #0a1628 60%, 
+                #050a10 100%
+            );
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .ocean-zone {
+            padding: 1rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .ocean-zone:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .ocean-zone:last-child {
+            border-bottom: none;
+        }
+        
+        .ocean-zone-name {
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .ocean-zone-depth {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.25rem;
+        }
+        
+        .ocean-zone-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.5rem;
+        }
+        
+        /* Oscillation Cards */
+        .oscillation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .oscillation-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .oscillation-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-3px);
+        }
+        
+        .oscillation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .oscillation-abbr {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .oscillation-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .oscillation-status.positive { background: rgba(255, 107, 53, 0.2); color: #ff6b35; }
+        .oscillation-status.negative { background: rgba(77, 150, 255, 0.2); color: #4d96ff; }
+        .oscillation-status.neutral { background: rgba(168, 230, 207, 0.2); color: #a8e6cf; }
+        
+        /* Stat Row */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .layer-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .pressure-visual {
+                gap: 2rem;
+            }
+            
+            .pressure-circle {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+            
+            .monitor-value {
+                font-size: 1.75rem;
+            }
+            
+            .enso-current {
+                font-size: 2.25rem;
+            }
+            
+            .oscillation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .layer-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .expandable-header {
+                padding: 1rem;
+            }
+            
+            .expandable-body {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="atmosphere-bg">
@@ -52,92 +674,592 @@
                     The fluid envelopes that make Earth habitable. Atmospheric layers, clouds, 
                     pressure systems, currents, and circulation patterns.
                 </p>
+                <div class="live-indicator mt-md">
+                    <span class="live-dot"></span>
+                    <span>Live Data • March 28, 2026</span>
+                </div>
             </div>
         </div>
     </header>
 
     <main>
-        <!-- Atmospheric Layers -->
+        <!-- Live Monitoring Dashboard -->
         <section class="container mt-2xl">
-            <h2 class="mb-lg">🌍 Atmospheric Layers</h2>
+            <div class="flex justify-between align-center mb-lg flex-wrap gap-md">
+                <h2>📡 Live Atmosphere-Ocean Status</h2>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>Real-time • March 28, 2026</span>
+                </div>
+            </div>
             
-            <div class="card">
-                <div class="card-content">
-                    <div style="background: linear-gradient(180deg, #000010 0%, #0a0a30 10%, #1a1a50 25%, #4a6fa5 45%, #87CEEB 70%, #98d8e8 100%); border-radius: 8px; padding: 1.5rem; position: relative;">
+            <div class="monitor-grid">
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #4d96ff, #a8e6cf);">
+                    <div class="monitor-title">Global Mean Sea Level</div>
+                    <div class="monitor-value">+108.2</div>
+                    <div class="monitor-unit">mm above 1993 baseline</div>
+                    <div class="monitor-trend up">↑ +4.2mm this year</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #ff6b35, #ffd93d);">
+                    <div class="monitor-title">CO₂ Concentration</div>
+                    <div class="monitor-value">427.8</div>
+                    <div class="monitor-unit">ppm (Mauna Loa)</div>
+                    <div class="monitor-trend up">↑ +2.6 ppm/year</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #a8e6cf, #4d96ff);">
+                    <div class="monitor-title">ENSO Index (ONI)</div>
+                    <div class="monitor-value">-0.4</div>
+                    <div class="monitor-unit">Weak La Niña conditions</div>
+                    <div class="monitor-trend neutral">→ Neutral expected Q3</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #ff4757, #ff6b81);">
+                    <div class="monitor-title">Ocean Heat Content</div>
+                    <div class="monitor-value">+15.2</div>
+                    <div class="monitor-unit">ZJ above 1971-2000 avg</div>
+                    <div class="monitor-trend up">↑ Record high</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #6c5ce7, #a29bfe);">
+                    <div class="monitor-title">Arctic Sea Ice Extent</div>
+                    <div class="monitor-value">13.8</div>
+                    <div class="monitor-unit">million km²</div>
+                    <div class="monitor-trend down">↓ 5% below avg</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #fdcb6e, #f39c12);">
+                    <div class="monitor-title">Ocean pH (Global Avg)</div>
+                    <div class="monitor-value">8.07</div>
+                    <div class="monitor-unit">Acidification ongoing</div>
+                    <div class="monitor-trend down">↓ -0.12 since 1750</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Atmospheric Composition -->
+        <section class="container mt-3xl">
+            <div class="expandable-section" id="atmosphereComposition">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>🧪</span>
+                        <span>Atmospheric Composition</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <div class="grid grid-2 gap-xl">
+                        <div>
+                            <h4 class="text-primary mb-md">Major Components (Dry Air)</h4>
+                            <div class="stat-row">
+                                <span class="stat-label">Nitrogen (N₂)</span>
+                                <span class="stat-value">78.08%</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Oxygen (O₂)</span>
+                                <span class="stat-value">20.95%</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Argon (Ar)</span>
+                                <span class="stat-value">0.93%</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Carbon Dioxide (CO₂)</span>
+                                <span class="stat-value text-warning">0.0428%</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Other gases</span>
+                                <span class="stat-value">0.003%</span>
+                            </div>
+                        </div>
                         
-                        <!-- Exosphere -->
-                        <div style="padding: 1rem; margin-bottom: 0.5rem;">
-                            <h4 class="text-white">🛸 Exosphere (500-10,000 km)</h4>
-                            <p class="text-sm" style="color: rgba(255,255,255,0.7);">
-                                Transition to space. Satellites orbit here. Molecules can escape to space. 
-                                Contains hydrogen and helium.
-                            </p>
-                        </div>
-
-                        <!-- Thermosphere -->
-                        <div style="padding: 1rem; margin-bottom: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.3);">
-                            <h4 class="text-white">🌌 Thermosphere (80-500 km)</h4>
-                            <p class="text-sm" style="color: rgba(255,255,255,0.7);">
-                                Extremely hot (1500°C) but feels cold (few molecules). Aurora occurs here. 
-                                ISS orbits at 400 km. Radio waves reflect off ionosphere.
-                            </p>
-                        </div>
-
-                        <!-- Mesosphere -->
-                        <div style="padding: 1rem; margin-bottom: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.3);">
-                            <h4 class="text-white">☄️ Mesosphere (50-80 km)</h4>
-                            <p class="text-sm" style="color: rgba(255,255,255,0.7);">
-                                Coldest layer (-90°C at top). Meteors burn up here. Noctilucent clouds form. 
-                                Too high for aircraft, too low for spacecraft.
-                            </p>
-                        </div>
-
-                        <!-- Stratosphere -->
-                        <div style="padding: 1rem; margin-bottom: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.3);">
-                            <h4 class="text-white">🛩️ Stratosphere (12-50 km)</h4>
-                            <p class="text-sm" style="color: rgba(255,255,255,0.7);">
-                                Contains ozone layer (UV protection). Temperature increases with height. 
-                                Jets fly in lower stratosphere. Stable, no weather.
-                            </p>
-                        </div>
-
-                        <!-- Troposphere -->
-                        <div style="padding: 1rem; border-top: 1px dashed rgba(255,255,255,0.3);">
-                            <h4 class="text-white">⛅ Troposphere (0-12 km)</h4>
-                            <p class="text-sm" style="color: rgba(255,255,255,0.7);">
-                                Where we live. Contains 80% of atmosphere mass. All weather happens here. 
-                                Temperature decreases ~6.5°C per km. Extends to 18km at equator.
-                            </p>
+                        <div>
+                            <h4 class="text-primary mb-md">Trace Greenhouse Gases</h4>
+                            <div class="stat-row">
+                                <span class="stat-label">Methane (CH₄)</span>
+                                <span class="stat-value">1,923 ppb</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Nitrous Oxide (N₂O)</span>
+                                <span class="stat-value">336 ppb</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Ozone (O₃) - surface</span>
+                                <span class="stat-value">20-100 ppb</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Water Vapor</span>
+                                <span class="stat-value">0-4% (variable)</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">CFCs (total)</span>
+                                <span class="stat-value">~1 ppb (declining)</span>
+                            </div>
+                            
+                            <div class="mt-md" style="background: rgba(255, 165, 2, 0.1); padding: 1rem; border-radius: 8px;">
+                                <p class="text-sm text-warning mb-0">
+                                    <strong>⚠️ Note:</strong> Despite being only 0.04% of the atmosphere, 
+                                    CO₂ is critical for Earth's temperature. Pre-industrial level was 280 ppm.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Cloud Types -->
+        <!-- Atmospheric Layers - EXPANDED -->
+        <section class="container mt-3xl">
+            <h2 class="mb-lg">🌍 Atmospheric Layers</h2>
+            
+            <div class="card">
+                <div class="card-content">
+                    <div id="atmosphereLayers" style="background: linear-gradient(180deg, #000010 0%, #0a0a30 10%, #1a1a50 25%, #4a6fa5 45%, #87CEEB 70%, #98d8e8 100%); border-radius: 12px; padding: 1rem;">
+                        
+                        <!-- Exosphere -->
+                        <div class="layer-card" data-layer="exosphere" style="background: rgba(0,0,0,0.3);">
+                            <div class="layer-header">
+                                <div class="layer-title">
+                                    <span class="layer-icon">🛸</span>
+                                    <div>
+                                        <div class="layer-name">Exosphere</div>
+                                        <div class="layer-altitude">500 - 10,000 km</div>
+                                    </div>
+                                </div>
+                                <button class="layer-expand-btn">▼</button>
+                            </div>
+                            <p class="text-sm" style="color: rgba(255,255,255,0.7); margin-top: 0.5rem;">
+                                Transition to space. Satellites orbit here. Molecules can escape to space.
+                            </p>
+                            <div class="layer-details">
+                                <div class="layer-stats">
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">~1,500°C</div>
+                                        <div class="layer-stat-label">Temperature (varies)</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">~0</div>
+                                        <div class="layer-stat-label">Pressure (near vacuum)</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">H, He</div>
+                                        <div class="layer-stat-label">Main gases</div>
+                                    </div>
+                                </div>
+                                <h5 class="text-primary mb-sm">Key Features</h5>
+                                <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                    <li>No clear upper boundary - gradually merges with space</li>
+                                    <li>Geocorona (hydrogen cloud) extends to 100,000 km</li>
+                                    <li>GPS satellites orbit at ~20,200 km</li>
+                                    <li>Geostationary satellites at 35,786 km</li>
+                                    <li>Particles can travel 100s of km without collisions</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Thermosphere -->
+                        <div class="layer-card" data-layer="thermosphere" style="background: rgba(10,10,40,0.5); border-top: 1px dashed rgba(255,255,255,0.3);">
+                            <div class="layer-header">
+                                <div class="layer-title">
+                                    <span class="layer-icon">🌌</span>
+                                    <div>
+                                        <div class="layer-name">Thermosphere</div>
+                                        <div class="layer-altitude">80 - 500 km</div>
+                                    </div>
+                                </div>
+                                <button class="layer-expand-btn">▼</button>
+                            </div>
+                            <p class="text-sm" style="color: rgba(255,255,255,0.7); margin-top: 0.5rem;">
+                                Extremely hot (1,500°C) but feels cold due to few molecules. Aurora occurs here.
+                            </p>
+                            <div class="layer-details">
+                                <div class="layer-stats">
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">500-2,000°C</div>
+                                        <div class="layer-stat-label">Temperature</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">10⁻⁶ mb</div>
+                                        <div class="layer-stat-label">Pressure</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">400 km</div>
+                                        <div class="layer-stat-label">ISS Orbit</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">100 km</div>
+                                        <div class="layer-stat-label">Kármán Line</div>
+                                    </div>
+                                </div>
+                                <h5 class="text-primary mb-sm">Key Features</h5>
+                                <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                    <li><strong>Aurora:</strong> Charged particles from solar wind collide with gases</li>
+                                    <li><strong>Ionosphere:</strong> Ionized layer reflects radio waves (60-1000 km)</li>
+                                    <li><strong>International Space Station:</strong> Orbits at ~400 km</li>
+                                    <li><strong>Kármán Line:</strong> Official edge of space at 100 km</li>
+                                    <li>Temperature increases with altitude (absorbs UV and X-rays)</li>
+                                    <li>Satellites in LEO experience drag, slowly losing altitude</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Mesosphere -->
+                        <div class="layer-card" data-layer="mesosphere" style="background: rgba(30,30,80,0.5); border-top: 1px dashed rgba(255,255,255,0.3);">
+                            <div class="layer-header">
+                                <div class="layer-title">
+                                    <span class="layer-icon">☄️</span>
+                                    <div>
+                                        <div class="layer-name">Mesosphere</div>
+                                        <div class="layer-altitude">50 - 80 km</div>
+                                    </div>
+                                </div>
+                                <button class="layer-expand-btn">▼</button>
+                            </div>
+                            <p class="text-sm" style="color: rgba(255,255,255,0.7); margin-top: 0.5rem;">
+                                Coldest layer (-90°C at mesopause). Meteors burn up here creating "shooting stars."
+                            </p>
+                            <div class="layer-details">
+                                <div class="layer-stats">
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">-90°C</div>
+                                        <div class="layer-stat-label">Min Temp (top)</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">0.01 mb</div>
+                                        <div class="layer-stat-label">Pressure</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">99.9%</div>
+                                        <div class="layer-stat-label">Meteors burn here</div>
+                                    </div>
+                                </div>
+                                <h5 class="text-primary mb-sm">Key Features</h5>
+                                <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                    <li><strong>Mesopause:</strong> Coldest point in atmosphere (-90°C)</li>
+                                    <li><strong>Noctilucent clouds:</strong> Highest clouds, visible at twilight</li>
+                                    <li><strong>Sprites & elves:</strong> Lightning phenomena above thunderstorms</li>
+                                    <li>Too high for aircraft, too low for spacecraft = "ignorosphere"</li>
+                                    <li>Temperature decreases with altitude</li>
+                                    <li>Only explored by sounding rockets</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Stratosphere -->
+                        <div class="layer-card" data-layer="stratosphere" style="background: rgba(74,111,165,0.5); border-top: 1px dashed rgba(255,255,255,0.3);">
+                            <div class="layer-header">
+                                <div class="layer-title">
+                                    <span class="layer-icon">🛩️</span>
+                                    <div>
+                                        <div class="layer-name">Stratosphere</div>
+                                        <div class="layer-altitude">12 - 50 km</div>
+                                    </div>
+                                </div>
+                                <button class="layer-expand-btn">▼</button>
+                            </div>
+                            <p class="text-sm" style="color: rgba(255,255,255,0.7); margin-top: 0.5rem;">
+                                Contains ozone layer (UV protection). Temperature increases with height. Jets cruise here.
+                            </p>
+                            <div class="layer-details">
+                                <div class="layer-stats">
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">-60 to 0°C</div>
+                                        <div class="layer-stat-label">Temperature</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">1 mb</div>
+                                        <div class="layer-stat-label">Pressure (top)</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">15-35 km</div>
+                                        <div class="layer-stat-label">Ozone Layer</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">12 km</div>
+                                        <div class="layer-stat-label">Jet Cruise Alt</div>
+                                    </div>
+                                </div>
+                                <h5 class="text-primary mb-sm">Key Features</h5>
+                                <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                    <li><strong>Ozone layer:</strong> Absorbs 97-99% of UV radiation</li>
+                                    <li><strong>Temperature inversion:</strong> Warms with altitude (ozone absorbs UV)</li>
+                                    <li><strong>Stable air:</strong> No convection, no weather</li>
+                                    <li><strong>Commercial jets:</strong> Cruise in lower stratosphere (10-12 km)</li>
+                                    <li><strong>Weather balloons:</strong> Reach 30-40 km</li>
+                                    <li>Volcanic eruptions can inject aerosols, cooling climate</li>
+                                </ul>
+                                <div class="mt-md" style="background: rgba(46, 213, 115, 0.1); padding: 0.75rem; border-radius: 8px;">
+                                    <p class="text-sm text-success mb-0">
+                                        <strong>✓ Good news:</strong> Ozone hole recovering! Expected full recovery by 2066 
+                                        (Antarctic) thanks to Montreal Protocol banning CFCs.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Troposphere -->
+                        <div class="layer-card" data-layer="troposphere" style="background: rgba(135,206,235,0.3); border-top: 1px dashed rgba(255,255,255,0.3);">
+                            <div class="layer-header">
+                                <div class="layer-title">
+                                    <span class="layer-icon">⛅</span>
+                                    <div>
+                                        <div class="layer-name">Troposphere</div>
+                                        <div class="layer-altitude">0 - 12 km (18 km at equator)</div>
+                                    </div>
+                                </div>
+                                <button class="layer-expand-btn">▼</button>
+                            </div>
+                            <p class="text-sm" style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">
+                                Where we live. Contains 80% of atmosphere mass. ALL weather happens here.
+                            </p>
+                            <div class="layer-details">
+                                <div class="layer-stats">
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">+15 to -60°C</div>
+                                        <div class="layer-stat-label">Temperature</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">1013 mb</div>
+                                        <div class="layer-stat-label">Sea Level Pressure</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">-6.5°C/km</div>
+                                        <div class="layer-stat-label">Lapse Rate</div>
+                                    </div>
+                                    <div class="layer-stat">
+                                        <div class="layer-stat-value">80%</div>
+                                        <div class="layer-stat-label">Of Atmosphere Mass</div>
+                                    </div>
+                                </div>
+                                <h5 class="text-primary mb-sm">Key Features</h5>
+                                <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                    <li><strong>All weather:</strong> Clouds, rain, snow, storms, hurricanes</li>
+                                    <li><strong>Convection:</strong> Hot air rises, cold air sinks = mixing</li>
+                                    <li><strong>Lapse rate:</strong> ~6.5°C cooler per 1 km altitude</li>
+                                    <li><strong>Tropopause:</strong> Boundary with stratosphere (jets avoid turbulence)</li>
+                                    <li><strong>Variable height:</strong> 8 km at poles, 18 km at equator</li>
+                                    <li><strong>Water vapor:</strong> 99% of atmospheric water is here</li>
+                                    <li><strong>Greenhouse effect:</strong> Traps heat, maintains habitable temperature</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pressure Systems -->
+        <section class="container mt-3xl">
+            <h2 class="mb-lg">🔄 Pressure Systems</h2>
+            
+            <div class="card">
+                <div class="card-content">
+                    <div class="pressure-visual">
+                        <div class="pressure-system">
+                            <div class="pressure-circle high">
+                                <span>H</span>
+                                <span class="pressure-arrow">➜</span>
+                            </div>
+                            <h4 class="text-info mb-xs">High Pressure</h4>
+                            <p class="text-sm text-gray">Anticyclone</p>
+                            <ul class="text-sm text-gray text-left mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Air sinks & spreads out</li>
+                                <li>Clockwise rotation (NH)</li>
+                                <li>Clear skies, fair weather</li>
+                                <li>Light winds at center</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="font-size: 2rem; color: var(--text-secondary);">⟷</div>
+                        
+                        <div class="pressure-system">
+                            <div class="pressure-circle low">
+                                <span>L</span>
+                                <span class="pressure-arrow">➜</span>
+                            </div>
+                            <h4 class="text-danger mb-xs">Low Pressure</h4>
+                            <p class="text-sm text-gray">Cyclone</p>
+                            <ul class="text-sm text-gray text-left mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Air rises & converges</li>
+                                <li>Counter-clockwise (NH)</li>
+                                <li>Clouds, rain, storms</li>
+                                <li>Strong winds</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-lg" style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px;">
+                        <h4 class="text-primary mb-md">Global Pressure Belts</h4>
+                        <div class="grid grid-3 gap-md">
+                            <div>
+                                <h5 class="text-sm mb-xs">Equatorial Low (ITCZ)</h5>
+                                <p class="text-xs text-gray">0° - Rising hot air, convergence zone, heavy rainfall, tropical rainforests</p>
+                            </div>
+                            <div>
+                                <h5 class="text-sm mb-xs">Subtropical High</h5>
+                                <p class="text-xs text-gray">~30° N/S - Descending air, deserts form (Sahara, Sonoran, Kalahari)</p>
+                            </div>
+                            <div>
+                                <h5 class="text-sm mb-xs">Subpolar Low</h5>
+                                <p class="text-xs text-gray">~60° N/S - Rising air, polar front, stormy, mid-latitude cyclones</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Jet Streams -->
+        <section class="container mt-3xl">
+            <div class="expandable-section" id="jetStreams">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>💨</span>
+                        <span>Jet Streams</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <div class="jet-stream-visual mb-lg">
+                        <div style="position: absolute; top: 1rem; left: 1rem; z-index: 10;">
+                            <div class="text-sm text-white" style="opacity: 0.8;">Polar Jet Stream</div>
+                            <div class="text-xs text-gray">~60°N, 9-12 km altitude</div>
+                        </div>
+                        <div style="position: absolute; bottom: 1rem; left: 1rem; z-index: 10;">
+                            <div class="text-sm text-white" style="opacity: 0.8;">Subtropical Jet Stream</div>
+                            <div class="text-xs text-gray">~30°N, 10-16 km altitude</div>
+                        </div>
+                        <div class="jet-stream-path"></div>
+                        <div class="jet-stream-path" style="top: 70%; opacity: 0.6;"></div>
+                    </div>
+                    
+                    <div class="grid grid-2 gap-xl">
+                        <div>
+                            <h4 class="text-primary mb-md">What Are Jet Streams?</h4>
+                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                <li>Narrow bands of fast-moving air (160-320 km/h)</li>
+                                <li>Flow from west to east in both hemispheres</li>
+                                <li>Meander in wave patterns (Rossby waves)</li>
+                                <li>Located near tropopause (8-12 km)</li>
+                                <li>Form at boundaries between air masses</li>
+                                <li>Crucial for weather prediction</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-primary mb-md">Weather Impacts</h4>
+                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                <li><strong>Storm steering:</strong> Guides mid-latitude cyclones</li>
+                                <li><strong>Cold outbreaks:</strong> Southward dips bring Arctic air</li>
+                                <li><strong>Heat waves:</strong> Northward ridges trap hot air</li>
+                                <li><strong>Blocking patterns:</strong> Persistent weather extremes</li>
+                                <li><strong>Flight times:</strong> Faster eastbound, slower westbound</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-lg" style="background: rgba(255, 71, 87, 0.1); padding: 1rem; border-radius: 8px;">
+                        <h5 class="text-danger mb-sm">⚠️ Climate Change Effect</h5>
+                        <p class="text-sm text-gray mb-0">
+                            Arctic warming faster than lower latitudes is weakening the temperature gradient that drives the polar jet. 
+                            This causes more meandering patterns ("wavy jet stream"), leading to more persistent extreme weather events - 
+                            prolonged heat waves, cold snaps, floods, and droughts.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cloud Types - EXPANDED -->
         <section class="container mt-3xl">
             <h2 class="mb-lg">☁️ Cloud Classification</h2>
+            <p class="text-gray mb-lg">Click any cloud type for detailed information, weather prediction tips, and formation process.</p>
             
-            <div class="grid grid-3">
+            <div class="grid grid-3 gap-lg">
                 <!-- HIGH CLOUDS -->
                 <div class="card">
                     <div class="card-content">
                         <h3 class="text-primary mb-sm">High Clouds (6-12 km)</h3>
-                        <p class="text-xs text-gray mb-md">Made of ice crystals</p>
+                        <p class="text-xs text-gray mb-md">Made of ice crystals | Prefix: Cirro-</p>
                         
-                        <div class="mb-md">
-                            <h4 class="text-sm mb-xs">Cirrus ☁️</h4>
-                            <p class="text-gray text-sm">Wispy, hair-like. Fair weather but may indicate front approaching.</p>
+                        <div class="cloud-card mb-md" data-cloud="cirrus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🪶</div>
+                                    <div class="cloud-name">Cirrus</div>
+                                    <div class="cloud-latin">"Curl of hair"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Wispy, hair-like streaks. Fair weather, but may indicate front approaching in 24-48 hours.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather signal</span>
+                                    <span class="stat-value">Fair → Change</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Altitude</span>
+                                    <span class="stat-value">6-13 km</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Composition</span>
+                                    <span class="stat-value">Ice crystals</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    <strong>Formation:</strong> Ice crystals form from water vapor at high altitude. 
+                                    Wind stretches them into characteristic wisps. "Mare's tails" indicate strong upper winds.
+                                </p>
+                            </div>
                         </div>
                         
-                        <div class="mb-md">
-                            <h4 class="text-sm mb-xs">Cirrostratus 🌤️</h4>
-                            <p class="text-gray text-sm">Thin sheet, creates halo around sun/moon. Rain in 12-24 hours.</p>
+                        <div class="cloud-card mb-md" data-cloud="cirrostratus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🌤️</div>
+                                    <div class="cloud-name">Cirrostratus</div>
+                                    <div class="cloud-latin">"Curl + layer"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Thin, milky sheet covering sky. Creates halo around sun/moon. Rain likely in 12-24 hours.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather signal</span>
+                                    <span class="stat-value text-warning">Rain coming</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Key feature</span>
+                                    <span class="stat-value">22° halo</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    <strong>Forecasting tip:</strong> "Ring around the moon, rain coming soon." 
+                                    Ice crystals refract light creating 22° halo. Often precedes warm fronts.
+                                </p>
+                            </div>
                         </div>
                         
-                        <div>
-                            <h4 class="text-sm mb-xs">Cirrocumulus 🐑</h4>
-                            <p class="text-gray text-sm">"Mackerel sky" - small ripples. Usually fair weather.</p>
+                        <div class="cloud-card" data-cloud="cirrocumulus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🐑</div>
+                                    <div class="cloud-name">Cirrocumulus</div>
+                                    <div class="cloud-latin">"Curl + heap"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">"Mackerel sky" - small white ripples. Usually fair weather, rare cloud type.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather signal</span>
+                                    <span class="stat-value">Fair weather</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Pattern</span>
+                                    <span class="stat-value">Fish scale ripples</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    <strong>Saying:</strong> "Mackerel sky, mackerel sky, never long wet, never long dry."
+                                    Small-scale turbulence at high altitude creates the ripple pattern.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -146,16 +1268,81 @@
                 <div class="card">
                     <div class="card-content">
                         <h3 class="text-primary mb-sm">Middle Clouds (2-6 km)</h3>
-                        <p class="text-xs text-gray mb-md">Water droplets, some ice</p>
+                        <p class="text-xs text-gray mb-md">Water droplets & ice | Prefix: Alto-</p>
                         
-                        <div class="mb-md">
-                            <h4 class="text-sm mb-xs">Altostratus ☁️</h4>
-                            <p class="text-gray text-sm">Gray sheet covering sky. Sun appears "watery." Rain likely coming.</p>
+                        <div class="cloud-card mb-md" data-cloud="altostratus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">☁️</div>
+                                    <div class="cloud-name">Altostratus</div>
+                                    <div class="cloud-latin">"High + layer"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Gray/blue sheet covering sky. Sun appears "watery." Steady rain likely within hours.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather signal</span>
+                                    <span class="stat-value text-warning">Rain in 6-12 hrs</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Visibility</span>
+                                    <span class="stat-value">Sun dimly visible</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    <strong>Formation:</strong> Wide-scale lifting ahead of warm front. 
+                                    Thickens into nimbostratus as front approaches. Ground shadows faint or absent.
+                                </p>
+                            </div>
                         </div>
                         
-                        <div>
-                            <h4 class="text-sm mb-xs">Altocumulus 🌥️</h4>
-                            <p class="text-gray text-sm">Gray/white patches. "Mare's tails." May indicate thunderstorms.</p>
+                        <div class="cloud-card mb-md" data-cloud="altocumulus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🌥️</div>
+                                    <div class="cloud-name">Altocumulus</div>
+                                    <div class="cloud-latin">"High + heap"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Gray/white patches or rolls. Morning altocumulus may indicate afternoon thunderstorms.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather signal</span>
+                                    <span class="stat-value">Variable</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Element size</span>
+                                    <span class="stat-value">1-5° wide</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    <strong>Test:</strong> Hold arm out, element width = 1-3 fingers (cirrocumulus = smaller, 1 finger).
+                                    Summer morning altocumulus + humid air = thunderstorms by afternoon.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="cloud-card" data-cloud="altocumulus-lent">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🛸</div>
+                                    <div class="cloud-name">Lenticular</div>
+                                    <div class="cloud-latin">"Altocumulus lenticularis"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Lens/UFO shaped. Forms over mountains. Indicates strong mountain winds, turbulence.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Location</span>
+                                    <span class="stat-value">Downwind of mountains</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">For pilots</span>
+                                    <span class="stat-value text-danger">Severe turbulence</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    Air flows over mountain, oscillates in standing waves. Cloud forms at wave crests.
+                                    Appears stationary but air constantly flows through it.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -164,76 +1351,323 @@
                 <div class="card">
                     <div class="card-content">
                         <h3 class="text-primary mb-sm">Low Clouds (0-2 km)</h3>
-                        <p class="text-xs text-gray mb-md">Water droplets</p>
+                        <p class="text-xs text-gray mb-md">Water droplets | No prefix</p>
                         
-                        <div class="mb-md">
-                            <h4 class="text-sm mb-xs">Stratus 🌫️</h4>
-                            <p class="text-gray text-sm">Gray blanket, overcast. Drizzle possible. Fog is stratus at surface.</p>
+                        <div class="cloud-card mb-md" data-cloud="stratus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🌫️</div>
+                                    <div class="cloud-name">Stratus</div>
+                                    <div class="cloud-latin">"Layer"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Gray blanket, uniform layer. Drizzle possible. Fog is stratus touching ground.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather</span>
+                                    <span class="stat-value">Drizzle, gray</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Base height</span>
+                                    <span class="stat-value">0-600 m</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    Forms from lifted fog or cooling of moist air layer. May persist for days.
+                                    Common in coastal areas, valleys. "Marine layer" in California.
+                                </p>
+                            </div>
                         </div>
                         
-                        <div class="mb-md">
-                            <h4 class="text-sm mb-xs">Stratocumulus 🌥️</h4>
-                            <p class="text-gray text-sm">Lumpy gray/white. Most common cloud type. Usually dry.</p>
+                        <div class="cloud-card mb-md" data-cloud="stratocumulus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🌥️</div>
+                                    <div class="cloud-name">Stratocumulus</div>
+                                    <div class="cloud-latin">"Layer + heap"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Lumpy, gray/white rolls. Most common cloud type globally. Usually no precipitation.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Coverage</span>
+                                    <span class="stat-value">~23% of Earth</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather</span>
+                                    <span class="stat-value">Mostly dry</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    Forms from spreading cumulus or breaking stratus. Important for climate - 
+                                    reflects sunlight, provides cooling. Uncertain how climate change affects coverage.
+                                </p>
+                            </div>
                         </div>
                         
-                        <div>
-                            <h4 class="text-sm mb-xs">Nimbostratus 🌧️</h4>
-                            <p class="text-gray text-sm">Dark gray, continuous rain/snow. Hides sun completely.</p>
+                        <div class="cloud-card" data-cloud="nimbostratus">
+                            <div class="cloud-header">
+                                <div>
+                                    <div class="cloud-icon">🌧️</div>
+                                    <div class="cloud-name">Nimbostratus</div>
+                                    <div class="cloud-latin">"Rain + layer"</div>
+                                </div>
+                            </div>
+                            <div class="cloud-brief">Dark gray, thick layer. Continuous moderate rain or snow for hours. Sun completely hidden.</div>
+                            <div class="cloud-details">
+                                <div class="stat-row">
+                                    <span class="stat-label">Weather</span>
+                                    <span class="stat-value text-info">Steady rain/snow</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Duration</span>
+                                    <span class="stat-value">Hours to days</span>
+                                </div>
+                                <p class="text-xs text-gray mt-sm">
+                                    Associated with warm fronts, occluded fronts. Extends through multiple layers.
+                                    No thunder/lightning - that's cumulonimbus. "Nimbus" = rain-bearing.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Vertical Development Clouds -->
-            <div class="grid grid-2 mt-lg">
-                <div class="card">
+            <div class="grid grid-2 mt-xl gap-lg">
+                <div class="card" style="border-left: 4px solid #2ed573;">
                     <div class="card-content">
-                        <h3 class="text-primary mb-sm">Cumulus ☁️</h3>
-                        <p class="text-gray text-sm">
-                            "Cauliflower" puffy clouds. Fair weather cumulus = nice day. 
-                            Can grow into cumulonimbus. Flat base, rounded top.
-                        </p>
+                        <div class="flex gap-md align-start">
+                            <div style="font-size: 3rem;">☁️</div>
+                            <div>
+                                <h3 class="mb-xs">Cumulus</h3>
+                                <p class="text-sm text-gray mb-md">
+                                    Puffy "cotton ball" clouds with flat bases and cauliflower tops. 
+                                    Fair weather cumulus = nice day. Can grow into storms.
+                                </p>
+                                <div class="stat-row">
+                                    <span class="stat-label">Fair weather type</span>
+                                    <span class="stat-value text-success">Cumulus humilis</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Growing type</span>
+                                    <span class="stat-value text-warning">Cumulus congestus</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Formation</span>
+                                    <span class="stat-value">Convection (thermals)</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card">
+                
+                <div class="card" style="border-left: 4px solid #ff4757;">
                     <div class="card-content">
-                        <h3 class="text-danger mb-sm">Cumulonimbus ⛈️</h3>
-                        <p class="text-gray text-sm">
-                            The thunderstorm cloud. Can reach 12+ km. Produces lightning, 
-                            heavy rain, hail, tornadoes. Anvil top from hitting stratosphere.
-                        </p>
+                        <div class="flex gap-md align-start">
+                            <div style="font-size: 3rem;">⛈️</div>
+                            <div>
+                                <h3 class="text-danger mb-xs">Cumulonimbus</h3>
+                                <p class="text-sm text-gray mb-md">
+                                    THE thunderstorm cloud. Can reach 12+ km. Produces lightning, 
+                                    heavy rain, hail, tornadoes. Anvil top from hitting tropopause.
+                                </p>
+                                <div class="stat-row">
+                                    <span class="stat-label">Height</span>
+                                    <span class="stat-value">Up to 20 km</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Updrafts</span>
+                                    <span class="stat-value">Up to 50 m/s</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Hazards</span>
+                                    <span class="stat-value text-danger">All severe weather</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Clouds -->
+            <div class="expandable-section mt-xl" id="specialClouds">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>✨</span>
+                        <span>Special & Rare Cloud Types</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <div class="grid grid-3 gap-lg">
+                        <div class="cloud-card">
+                            <div class="cloud-icon">🌊</div>
+                            <div class="cloud-name">Asperitas</div>
+                            <div class="cloud-brief">Wave-like, chaotic undersides. Newest official cloud type (2017). Dramatic but usually not severe.</div>
+                        </div>
+                        <div class="cloud-card">
+                            <div class="cloud-icon">🍃</div>
+                            <div class="cloud-name">Morning Glory</div>
+                            <div class="cloud-brief">Rare roll cloud in Australia. Can be 1000 km long. Glider pilots ride them.</div>
+                        </div>
+                        <div class="cloud-card">
+                            <div class="cloud-icon">🎭</div>
+                            <div class="cloud-name">Mammatus</div>
+                            <div class="cloud-brief">Pouch-like bulges underneath clouds. Often seen after severe storms. Dramatic sunset lighting.</div>
+                        </div>
+                        <div class="cloud-card">
+                            <div class="cloud-icon">💫</div>
+                            <div class="cloud-name">Noctilucent</div>
+                            <div class="cloud-brief">Highest clouds (80 km). Visible at twilight, electric blue. Made of ice on meteor dust.</div>
+                        </div>
+                        <div class="cloud-card">
+                            <div class="cloud-icon">🍄</div>
+                            <div class="cloud-name">Pyrocumulus</div>
+                            <div class="cloud-brief">Forms from fire heat. Can create own thunderstorms (pyrocumulonimbus) and fire tornadoes.</div>
+                        </div>
+                        <div class="cloud-card">
+                            <div class="cloud-icon">🌈</div>
+                            <div class="cloud-name">Nacreous</div>
+                            <div class="cloud-brief">Polar stratospheric clouds. Iridescent colors. Beautiful but indicate ozone destruction.</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Ocean Currents -->
+        <!-- Ocean Zones -->
+        <section class="container mt-3xl">
+            <h2 class="mb-lg">🌊 Ocean Zones</h2>
+            
+            <div class="grid grid-2 gap-xl">
+                <div class="card">
+                    <div class="card-content">
+                        <h3 class="text-primary mb-md">Depth Zones</h3>
+                        <div class="ocean-zones">
+                            <div class="ocean-zone">
+                                <div class="ocean-zone-name">☀️ Epipelagic (Sunlight Zone)</div>
+                                <div class="ocean-zone-depth">0 - 200 m</div>
+                                <div class="ocean-zone-desc">Photosynthesis occurs. 90% of marine life. All coral reefs.</div>
+                            </div>
+                            <div class="ocean-zone">
+                                <div class="ocean-zone-name">🌅 Mesopelagic (Twilight Zone)</div>
+                                <div class="ocean-zone-depth">200 - 1,000 m</div>
+                                <div class="ocean-zone-desc">Some light penetrates. Many bioluminescent creatures.</div>
+                            </div>
+                            <div class="ocean-zone">
+                                <div class="ocean-zone-name">🌑 Bathypelagic (Midnight Zone)</div>
+                                <div class="ocean-zone-depth">1,000 - 4,000 m</div>
+                                <div class="ocean-zone-desc">No light. Cold (4°C). Giant squid, anglerfish.</div>
+                            </div>
+                            <div class="ocean-zone">
+                                <div class="ocean-zone-name">⬛ Abyssopelagic (Abyss)</div>
+                                <div class="ocean-zone-depth">4,000 - 6,000 m</div>
+                                <div class="ocean-zone-desc">Near-freezing. Extreme pressure. Sparse life.</div>
+                            </div>
+                            <div class="ocean-zone">
+                                <div class="ocean-zone-name">⚫ Hadopelagic (Trenches)</div>
+                                <div class="ocean-zone-depth">6,000 - 11,000 m</div>
+                                <div class="ocean-zone-desc">Ocean trenches. Mariana Trench: 10,994 m. Extreme life forms.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-content">
+                        <h3 class="text-primary mb-md">Ocean Statistics</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Ocean Coverage</span>
+                            <span class="stat-value">71% of Earth</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Total Volume</span>
+                            <span class="stat-value">1.335 billion km³</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Average Depth</span>
+                            <span class="stat-value">3,688 m</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Deepest Point</span>
+                            <span class="stat-value">10,994 m (Challenger Deep)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Average Salinity</span>
+                            <span class="stat-value">35 g/kg (3.5%)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Heat Capacity</span>
+                            <span class="stat-value">1000x atmosphere</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">CO₂ Absorbed</span>
+                            <span class="stat-value">~30% of human emissions</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Explored</span>
+                            <span class="stat-value text-warning">Only ~5-10%</span>
+                        </div>
+                        
+                        <div class="mt-md" style="background: rgba(77, 150, 255, 0.1); padding: 1rem; border-radius: 8px;">
+                            <p class="text-sm text-info mb-0">
+                                <strong>💡 Key insight:</strong> Oceans have absorbed 90% of the excess heat 
+                                from global warming, preventing even more atmospheric warming - but at the cost 
+                                of marine ecosystem health.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ocean Currents - EXPANDED -->
         <section class="container mt-3xl">
             <h2 class="mb-lg">🌊 Ocean Circulation</h2>
             
-            <div class="grid grid-2">
+            <div class="grid grid-2 gap-xl">
                 <div class="card">
                     <div class="card-content">
                         <h3 class="text-primary mb-md">Surface Currents (Wind-Driven)</h3>
                         <p class="text-gray text-sm mb-md">
                             Top 400m, driven by prevailing winds. Form circular gyres in each ocean basin.
+                            Transport heat from equator toward poles.
                         </p>
                         
                         <h4 class="text-sm text-warning mb-sm">Major Warm Currents</h4>
-                        <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0 0 1rem 0;">
-                            <li><strong>Gulf Stream:</strong> Warms Western Europe (+10°C)</li>
-                            <li><strong>Kuroshio:</strong> Warms Japan</li>
-                            <li><strong>Brazil Current:</strong> Warms SE South America</li>
-                            <li><strong>Agulhas:</strong> Warms SE Africa</li>
-                        </ul>
+                        <div class="current-flow">
+                            <span class="current-arrow warm"></span>
+                            <span class="text-sm"><strong>Gulf Stream:</strong> Warms Western Europe (+10°C warmer than same latitudes elsewhere)</span>
+                        </div>
+                        <div class="current-flow">
+                            <span class="current-arrow warm"></span>
+                            <span class="text-sm"><strong>Kuroshio:</strong> Warms Japan, Pacific Northwest</span>
+                        </div>
+                        <div class="current-flow">
+                            <span class="current-arrow warm"></span>
+                            <span class="text-sm"><strong>Brazil Current:</strong> Warms SE South America</span>
+                        </div>
+                        <div class="current-flow">
+                            <span class="current-arrow warm"></span>
+                            <span class="text-sm"><strong>Agulhas:</strong> Warms SE Africa, leaks into Atlantic</span>
+                        </div>
                         
-                        <h4 class="text-sm text-info mb-sm">Major Cold Currents</h4>
-                        <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0;">
-                            <li><strong>California:</strong> Cools US West Coast + fog</li>
-                            <li><strong>Humboldt:</strong> Creates Atacama Desert</li>
-                            <li><strong>Benguela:</strong> Creates Namib Desert</li>
-                            <li><strong>Canary:</strong> Cools NW Africa</li>
-                        </ul>
+                        <h4 class="text-sm text-info mb-sm mt-lg">Major Cold Currents</h4>
+                        <div class="current-flow">
+                            <span class="current-arrow cold"></span>
+                            <span class="text-sm"><strong>California:</strong> Cools US West Coast, creates fog</span>
+                        </div>
+                        <div class="current-flow">
+                            <span class="current-arrow cold"></span>
+                            <span class="text-sm"><strong>Humboldt (Peru):</strong> World's most productive fishery, creates Atacama Desert</span>
+                        </div>
+                        <div class="current-flow">
+                            <span class="current-arrow cold"></span>
+                            <span class="text-sm"><strong>Benguela:</strong> Creates Namib Desert</span>
+                        </div>
+                        <div class="current-flow">
+                            <span class="current-arrow cold"></span>
+                            <span class="text-sm"><strong>Labrador:</strong> Brings icebergs south (Titanic)</span>
+                        </div>
                     </div>
                 </div>
 
@@ -242,56 +1676,140 @@
                         <h3 class="text-primary mb-md">Thermohaline Circulation</h3>
                         <p class="text-gray text-sm mb-md">
                             "The Great Ocean Conveyor Belt" - deep circulation driven by 
-                            temperature and salinity differences. Takes 1000 years for full cycle.
+                            temperature (thermo) and salinity (haline) differences. Takes ~1000 years for full cycle.
                         </p>
                         
-                        <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-size: 0.75rem; font-family: monospace;">
-                            <div class="text-info">NORTH ATLANTIC</div>
-                            <div>Warm water cools, becomes dense, sinks</div>
-                            <div>↓</div>
-                            <div class="text-gray">Deep water flows south</div>
-                            <div>↓</div>
-                            <div class="text-gray">Around Antarctica</div>
-                            <div>↓</div>
-                            <div class="text-gray">Into Pacific & Indian Oceans</div>
-                            <div>↓</div>
-                            <div class="text-warning">Upwells, warms, returns at surface</div>
+                        <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-size: 0.8rem; font-family: monospace;">
+                            <div class="text-info">🔵 NORTH ATLANTIC</div>
+                            <div class="text-gray">Warm surface water cools, releases heat to atmosphere</div>
+                            <div class="text-gray">Evaporation increases salinity → dense water sinks</div>
+                            <div style="text-align: center; padding: 0.5rem;">↓ 2-4 km deep ↓</div>
+                            <div class="text-gray">North Atlantic Deep Water (NADW) flows south</div>
+                            <div style="text-align: center; padding: 0.5rem;">↓</div>
+                            <div class="text-gray">Circulates around Antarctica</div>
+                            <div style="text-align: center; padding: 0.5rem;">↓</div>
+                            <div class="text-gray">Spreads into Pacific & Indian Oceans</div>
+                            <div style="text-align: center; padding: 0.5rem;">↓</div>
+                            <div class="text-warning">🔴 Gradually upwells, warms, returns at surface</div>
                         </div>
                         
                         <div class="mt-md">
-                            <h4 class="text-sm text-danger mb-sm">⚠️ Climate Risk</h4>
+                            <h4 class="text-sm text-danger mb-sm">⚠️ Climate Risk (2026 Update)</h4>
                             <p class="text-gray text-sm">
-                                Freshwater from Greenland ice melt is slowing this circulation. 
-                                Already 15% weaker. Collapse would severely cool Europe.
+                                AMOC (Atlantic Meridional Overturning Circulation) now <strong>15-20% weaker</strong> 
+                                than 1950. Freshwater from Greenland ice melt reduces salinity, preventing sinking.
+                                <br><br>
+                                <strong>Risk:</strong> Further weakening could severely cool NW Europe, shift tropical 
+                                rain belts, and accelerate sea level rise on US East Coast. Tipping point possible.
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upwelling Section -->
+            <div class="expandable-section mt-xl" id="upwelling">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>⬆️</span>
+                        <span>Upwelling & Downwelling</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <div class="grid grid-2 gap-xl">
+                        <div>
+                            <h4 class="text-info mb-md">Coastal Upwelling</h4>
+                            <p class="text-sm text-gray mb-md">
+                                Wind blows parallel to coast → surface water moves offshore (Ekman transport) 
+                                → deep, cold, nutrient-rich water rises to replace it.
+                            </p>
+                            <div class="stat-row">
+                                <span class="stat-label">Peru/Humboldt</span>
+                                <span class="stat-value">20% of world's fish catch</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">California</span>
+                                <span class="stat-value">Creates fog, cool summers</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Benguela (Namibia)</span>
+                                <span class="stat-value">Creates coastal desert</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Canary (NW Africa)</span>
+                                <span class="stat-value">Rich fishing grounds</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-warning mb-md">Importance</h4>
+                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                <li><strong>Nutrients:</strong> Brings nitrogen, phosphorus to surface</li>
+                                <li><strong>Phytoplankton:</strong> Explosive growth at base of food web</li>
+                                <li><strong>Fisheries:</strong> Most productive fishing zones globally</li>
+                                <li><strong>Climate:</strong> Cools coastal regions, creates fog</li>
+                                <li><strong>CO₂:</strong> Some outgassing, but also carbon sequestration</li>
+                            </ul>
+                            <div class="mt-md" style="background: rgba(255, 71, 87, 0.1); padding: 0.75rem; border-radius: 8px;">
+                                <p class="text-xs text-danger mb-0">
+                                    <strong>El Niño risk:</strong> Stops Peru upwelling → fishery collapse, 
+                                    anchoveta die-off, economic impacts, seabird/seal mortality.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ENSO -->
-        <section class="container mt-3xl mb-3xl">
+        <!-- ENSO - EXPANDED -->
+        <section class="container mt-3xl">
             <h2 class="mb-lg">🔄 ENSO: El Niño & La Niña</h2>
             
-            <div class="grid grid-3">
+            <!-- Current Status -->
+            <div class="enso-status-card mb-xl">
+                <div class="text-sm text-gray mb-sm">Current ENSO Status (March 2026)</div>
+                <div class="enso-current" style="color: #4d96ff;">Weak La Niña</div>
+                <div class="enso-index">ONI: -0.4°C</div>
+                <div class="text-sm text-gray">
+                    Expected to transition to neutral conditions by Q3 2026.<br>
+                    Following the strong El Niño of 2023-2024.
+                </div>
+            </div>
+            
+            <div class="grid grid-3 gap-lg">
                 <div class="card" style="border-top: 4px solid #ff6b35;">
                     <div class="card-content">
                         <h3 class="text-warning mb-md">🔴 El Niño</h3>
                         <p class="text-gray text-sm mb-md">
-                            Warm water moves east across Pacific. Trade winds weaken. 
-                            Typically raises global temperature.
+                            Warm water moves east across Pacific. Trade winds weaken or reverse. 
+                            Typically raises global temperature by 0.1-0.2°C.
                         </p>
                         
-                        <h4 class="text-sm text-primary mb-sm">Effects</h4>
-                        <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0;">
-                            <li>South America: Heavy rains, floods</li>
-                            <li>Australia: Drought, fires</li>
-                            <li>Indonesia: Drought</li>
-                            <li>Africa: Drought in south/east</li>
-                            <li>US: Wet South, warm North</li>
-                            <li>Fewer Atlantic hurricanes</li>
+                        <h4 class="text-sm text-primary mb-sm">Global Effects</h4>
+                        <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0 0 1rem 0;">
+                            <li><strong>South America:</strong> Heavy rains, floods in Peru/Ecuador</li>
+                            <li><strong>Australia:</strong> Drought, increased wildfire risk</li>
+                            <li><strong>Indonesia:</strong> Drought, forest fires</li>
+                            <li><strong>Africa:</strong> Drought in south/east</li>
+                            <li><strong>US:</strong> Wet South, warm North, less snowpack</li>
+                            <li><strong>Atlantic:</strong> Fewer hurricanes (wind shear)</li>
+                            <li><strong>India:</strong> Weaker monsoon, potential drought</li>
                         </ul>
+                        
+                        <h4 class="text-sm text-primary mb-sm">Recent Strong Events</h4>
+                        <div class="stat-row">
+                            <span class="stat-label">2023-2024</span>
+                            <span class="stat-value">+2.0°C (Super)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">2015-2016</span>
+                            <span class="stat-value">+2.6°C (Super)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">1997-1998</span>
+                            <span class="stat-value">+2.4°C (Super)</span>
+                        </div>
                     </div>
                 </div>
 
@@ -300,18 +1818,33 @@
                         <h3 class="text-info mb-md">🔵 La Niña</h3>
                         <p class="text-gray text-sm mb-md">
                             Cold water dominates eastern Pacific. Trade winds strengthen. 
-                            Often follows El Niño.
+                            Often follows El Niño. Can last 2-3 years ("double/triple dip").
                         </p>
                         
-                        <h4 class="text-sm text-primary mb-sm">Effects</h4>
-                        <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0;">
-                            <li>South America: Drought</li>
-                            <li>Australia: Heavy rains, floods</li>
-                            <li>Indonesia: Heavy rains</li>
-                            <li>Africa: Floods in east</li>
-                            <li>US: Dry South, cold North</li>
-                            <li>More Atlantic hurricanes</li>
+                        <h4 class="text-sm text-primary mb-sm">Global Effects</h4>
+                        <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0 0 1rem 0;">
+                            <li><strong>South America:</strong> Drought in Peru/Ecuador</li>
+                            <li><strong>Australia:</strong> Heavy rains, floods</li>
+                            <li><strong>Indonesia:</strong> Heavy rains</li>
+                            <li><strong>Africa:</strong> Floods in east</li>
+                            <li><strong>US:</strong> Dry South, cold North, more snow</li>
+                            <li><strong>Atlantic:</strong> More hurricanes (less shear)</li>
+                            <li><strong>India:</strong> Stronger monsoon, potential floods</li>
                         </ul>
+                        
+                        <h4 class="text-sm text-primary mb-sm">Recent Events</h4>
+                        <div class="stat-row">
+                            <span class="stat-label">2020-2023</span>
+                            <span class="stat-value">"Triple dip"</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">2010-2012</span>
+                            <span class="stat-value">Strong</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">2007-2008</span>
+                            <span class="stat-value">Strong</span>
+                        </div>
                     </div>
                 </div>
 
@@ -319,15 +1852,253 @@
                     <div class="card-content">
                         <h3 class="mb-md" style="color: #a8e6cf;">⚪ Neutral</h3>
                         <p class="text-gray text-sm mb-md">
-                            Normal Pacific conditions. Neither warming nor cooling anomaly.
+                            Normal Pacific conditions. Neither warming nor cooling anomaly. 
+                            ONI between -0.5°C and +0.5°C.
                         </p>
                         
-                        <div class="metric-card mt-lg" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; text-align: center;">
-                            <div class="text-sm text-gray">Current Status (2024)</div>
-                            <span class="cell-badge warning mt-sm" style="font-size: 1rem; padding: 0.5rem 1rem;">
-                                El Niño → Neutral
-                            </span>
+                        <h4 class="text-sm text-primary mb-sm">ENSO Thresholds</h4>
+                        <div class="stat-row">
+                            <span class="stat-label">El Niño</span>
+                            <span class="stat-value">ONI ≥ +0.5°C</span>
                         </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Neutral</span>
+                            <span class="stat-value">-0.5 to +0.5°C</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">La Niña</span>
+                            <span class="stat-value">ONI ≤ -0.5°C</span>
+                        </div>
+                        
+                        <div class="mt-lg" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+                            <h4 class="text-sm mb-sm">ENSO Cycle</h4>
+                            <ul class="text-xs text-gray" style="padding-left: 1rem; margin: 0;">
+                                <li>Irregular cycle: 2-7 years</li>
+                                <li>Most powerful climate fluctuation</li>
+                                <li>Affects weather worldwide</li>
+                                <li>Predictable 6-9 months ahead</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Other Climate Oscillations -->
+        <section class="container mt-3xl mb-3xl">
+            <div class="expandable-section" id="oscillations">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>🔄</span>
+                        <span>Other Climate Oscillations</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <p class="text-gray mb-lg">Beyond ENSO, several other oscillations affect regional climate patterns. Here's their current status as of March 2026:</p>
+                    
+                    <div class="oscillation-grid">
+                        <div class="oscillation-card">
+                            <div class="oscillation-header">
+                                <div>
+                                    <div class="oscillation-abbr text-info">NAO</div>
+                                    <div class="text-sm text-gray">North Atlantic Oscillation</div>
+                                </div>
+                                <span class="oscillation-status positive">Positive</span>
+                            </div>
+                            <p class="text-sm text-gray mb-md">
+                                Pressure difference between Iceland Low and Azores High. Affects Europe, eastern North America.
+                            </p>
+                            <div class="stat-row">
+                                <span class="stat-label">Positive phase</span>
+                                <span class="stat-value">Mild, wet Europe</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Negative phase</span>
+                                <span class="stat-value">Cold Europe, snowy</span>
+                            </div>
+                        </div>
+                        
+                        <div class="oscillation-card">
+                            <div class="oscillation-header">
+                                <div>
+                                    <div class="oscillation-abbr text-warning">PDO</div>
+                                    <div class="text-sm text-gray">Pacific Decadal Oscillation</div>
+                                </div>
+                                <span class="oscillation-status negative">Cool Phase</span>
+                            </div>
+                            <p class="text-sm text-gray mb-md">
+                                20-30 year cycle in North Pacific. Affects fisheries, precipitation, temperature patterns.
+                            </p>
+                            <div class="stat-row">
+                                <span class="stat-label">Warm phase</span>
+                                <span class="stat-value">Enhances El Niño</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Cool phase</span>
+                                <span class="stat-value">Enhances La Niña</span>
+                            </div>
+                        </div>
+                        
+                        <div class="oscillation-card">
+                            <div class="oscillation-header">
+                                <div>
+                                    <div class="oscillation-abbr text-danger">IOD</div>
+                                    <div class="text-sm text-gray">Indian Ocean Dipole</div>
+                                </div>
+                                <span class="oscillation-status neutral">Neutral</span>
+                            </div>
+                            <p class="text-sm text-gray mb-md">
+                                Temperature difference across Indian Ocean. Affects Australia, Indonesia, East Africa.
+                            </p>
+                            <div class="stat-row">
+                                <span class="stat-label">Positive</span>
+                                <span class="stat-value">Australia drought</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Negative</span>
+                                <span class="stat-value">Australia floods</span>
+                            </div>
+                        </div>
+                        
+                        <div class="oscillation-card">
+                            <div class="oscillation-header">
+                                <div>
+                                    <div class="oscillation-abbr" style="color: #a8e6cf;">AO</div>
+                                    <div class="text-sm text-gray">Arctic Oscillation</div>
+                                </div>
+                                <span class="oscillation-status negative">Negative</span>
+                            </div>
+                            <p class="text-sm text-gray mb-md">
+                                Pressure pattern over Arctic. When negative, polar vortex weakens, cold air spills south.
+                            </p>
+                            <div class="stat-row">
+                                <span class="stat-label">Positive</span>
+                                <span class="stat-value">Cold stays Arctic</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Negative</span>
+                                <span class="stat-value">Cold outbreaks</span>
+                            </div>
+                        </div>
+                        
+                        <div class="oscillation-card">
+                            <div class="oscillation-header">
+                                <div>
+                                    <div class="oscillation-abbr" style="color: #f39c12;">MJO</div>
+                                    <div class="text-sm text-gray">Madden-Julian Oscillation</div>
+                                </div>
+                                <span class="oscillation-status positive">Phase 5</span>
+                            </div>
+                            <p class="text-sm text-gray mb-md">
+                                30-60 day cycle of tropical rainfall moving eastward. Affects monsoons, tropical cyclones.
+                            </p>
+                            <div class="stat-row">
+                                <span class="stat-label">Cycle</span>
+                                <span class="stat-value">30-60 days</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">8 phases</span>
+                                <span class="stat-value">Around globe</span>
+                            </div>
+                        </div>
+                        
+                        <div class="oscillation-card">
+                            <div class="oscillation-header">
+                                <div>
+                                    <div class="oscillation-abbr" style="color: #e17055;">AMO</div>
+                                    <div class="text-sm text-gray">Atlantic Multidecadal Oscillation</div>
+                                </div>
+                                <span class="oscillation-status positive">Warm Phase</span>
+                            </div>
+                            <p class="text-sm text-gray mb-md">
+                                60-80 year cycle in Atlantic. Affects hurricanes, Sahel rainfall, European climate.
+                            </p>
+                            <div class="stat-row">
+                                <span class="stat-label">Warm phase</span>
+                                <span class="stat-value">More hurricanes</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Cool phase</span>
+                                <span class="stat-value">Fewer hurricanes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ocean Acidification -->
+        <section class="container mt-3xl mb-3xl">
+            <div class="expandable-section" id="oceanAcidification">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>🧪</span>
+                        <span>Ocean Acidification</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <div class="grid grid-2 gap-xl">
+                        <div>
+                            <h4 class="text-danger mb-md">The Other CO₂ Problem</h4>
+                            <p class="text-sm text-gray mb-md">
+                                Ocean absorbs ~30% of atmospheric CO₂. This forms carbonic acid, lowering pH. 
+                                Ocean is now 30% more acidic than pre-industrial times.
+                            </p>
+                            
+                            <div class="stat-row">
+                                <span class="stat-label">Pre-industrial pH</span>
+                                <span class="stat-value">8.19</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Current pH (2026)</span>
+                                <span class="stat-value text-warning">8.07</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Change</span>
+                                <span class="stat-value text-danger">-0.12 units (30% more acidic)</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">2100 projection</span>
+                                <span class="stat-value">7.8-7.95</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-warning mb-md">Impacts</h4>
+                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                <li><strong>Coral reefs:</strong> Harder to build skeletons, bleaching</li>
+                                <li><strong>Shellfish:</strong> Thinner shells, larvae mortality</li>
+                                <li><strong>Pteropods:</strong> "Sea butterflies" shells dissolving</li>
+                                <li><strong>Fish:</strong> Behavior changes, smell/hearing affected</li>
+                                <li><strong>Plankton:</strong> Some species affected, base of food web</li>
+                                <li><strong>Kelp forests:</strong> Some may benefit (more CO₂)</li>
+                            </ul>
+                            
+                            <div class="mt-md" style="background: rgba(255, 71, 87, 0.1); padding: 0.75rem; border-radius: 8px;">
+                                <p class="text-xs text-danger mb-0">
+                                    <strong>⚠️ Irreversible:</strong> Ocean acidification takes thousands of years to reverse naturally. 
+                                    Current rate is fastest in 300 million years.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Navigation -->
+        <section class="container mb-3xl">
+            <div class="card" style="background: linear-gradient(135deg, rgba(77, 150, 255, 0.1), rgba(168, 230, 207, 0.1));">
+                <div class="card-content text-center" style="padding: 2rem;">
+                    <h3 class="mb-md">Explore Related Topics</h3>
+                    <div class="flex justify-center gap-md flex-wrap">
+                        <a href="climate-controls.html" class="btn btn-ghost">🌡️ Climate Controls</a>
+                        <a href="phenomena-storms.html" class="btn btn-ghost">🌀 Storm Systems</a>
+                        <a href="phenomena-precipitation.html" class="btn btn-ghost">🌧️ Precipitation</a>
+                        <a href="climate-change-dashboard.html" class="btn btn-ghost">📊 Climate Change</a>
+                        <a href="biomes-aquatic.html" class="btn btn-ghost">🐠 Aquatic Biomes</a>
                     </div>
                 </div>
             </div>
@@ -337,19 +2108,114 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-bottom">
-                <div class="footer-copyright">© 2024 Geotopia Climate</div>
-                <div class="flex gap-md">
+                <div class="footer-copyright">© 2024 Geotopia Climate • Data updated March 28, 2026</div>
+                <div class="flex gap-md flex-wrap">
                     <a href="index.html">Climate Hub</a>
                     <a href="climate-controls.html">Climate Controls</a>
+                    <a href="biomes-aquatic.html">Aquatic Biomes</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <script>
+        // Mobile Navigation Toggle
         document.querySelector('.nav-toggle')?.addEventListener('click', () => {
             document.querySelector('.nav-links').classList.toggle('active');
         });
+
+        // Generic Expandable Sections
+        const expandableSections = document.querySelectorAll('.expandable-section');
+        expandableSections.forEach(section => {
+            const header = section.querySelector('.expandable-header');
+            header.addEventListener('click', () => {
+                section.classList.toggle('expanded');
+            });
+        });
+
+        // Atmospheric Layer Cards
+        const layerCards = document.querySelectorAll('.layer-card');
+        layerCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Close other cards
+                layerCards.forEach(c => {
+                    if (c !== card) c.classList.remove('expanded');
+                });
+                // Toggle this card
+                card.classList.toggle('expanded');
+            });
+        });
+
+        // Cloud Cards
+        const cloudCards = document.querySelectorAll('.cloud-card');
+        cloudCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                card.classList.toggle('expanded');
+            });
+        });
+
+        // Oscillation Cards
+        const oscillationCards = document.querySelectorAll('.oscillation-card');
+        oscillationCards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('expanded');
+            });
+        });
+
+        // Animate monitoring values on load
+        const animateValue = (element, start, end, duration, suffix = '') => {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = (progress * (end - start) + start).toFixed(1);
+                element.textContent = value + suffix;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px'
+        };
+
+        const animationObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Animate cards on scroll
+        document.querySelectorAll('.card, .monitor-card, .oscillation-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            animationObserver.observe(card);
+        });
+
+        // Keyboard accessibility
+        document.querySelectorAll('.layer-card, .cloud-card, .expandable-header, .oscillation-card').forEach(el => {
+            el.setAttribute('tabindex', '0');
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    el.click();
+                }
+            });
+        });
+
+        // Console message
+        console.log('%c🌍 Geotopia Atmosphere & Ocean', 'font-size: 20px; font-weight: bold; color: #4d96ff;');
+        console.log('%cExplore Earth\'s fluid envelopes', 'font-size: 12px; color: #888;');
+        console.log('%cLive data as of March 28, 2026', 'font-size: 11px; color: #666;');
     </script>
 </body>
 </html>
