@@ -10,6 +10,638 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Enhanced Biomes Page Styles */
+        
+        /* Biome Glance Cards - Expandable */
+        .biome-glance-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .biome-glance-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+        
+        .biome-glance-card.expanded {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--color-primary);
+        }
+        
+        .biome-glance-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        
+        .biome-glance-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .biome-glance-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .biome-glance-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .biome-expand-indicator {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .biome-glance-card.expanded .biome-expand-indicator {
+            transform: rotate(180deg);
+        }
+        
+        /* Expanded Content Panel */
+        .biome-glance-expanded {
+            display: none;
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .biome-glance-expanded.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .biome-expanded-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .biome-expanded-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+        
+        .biome-expanded-section h4 {
+            font-size: 0.9rem;
+            color: var(--color-primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .biome-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .biome-stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .biome-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .biome-stat-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+        
+        /* Live Status Indicator */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(46, 213, 115, 0.1);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #2ed573;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #2ed573;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        /* Biome Table Expandable Rows */
+        .biome-table-row {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .biome-table-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .biome-table-row.expanded {
+            background: rgba(var(--color-primary-rgb), 0.1);
+        }
+        
+        .biome-expanded-row {
+            display: none;
+        }
+        
+        .biome-expanded-row.active {
+            display: table-row;
+        }
+        
+        .biome-expanded-content {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 0.5rem;
+        }
+        
+        .biome-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .biome-detail-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        .biome-detail-card h5 {
+            font-size: 0.8rem;
+            color: var(--color-primary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Progress Bar for Coverage */
+        .coverage-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .coverage-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        /* Species Count Animation */
+        .species-counter {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-success);
+        }
+        
+        /* Chart Container Fix */
+        .biome-chart-container {
+            position: relative;
+            height: 180px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        /* Ecosystem Health Meter */
+        .health-meter {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        
+        .health-bar {
+            flex: 1;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+        
+        .health-fill.critical { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+        .health-fill.warning { background: linear-gradient(90deg, #ffa502, #ff7f50); }
+        .health-fill.good { background: linear-gradient(90deg, #2ed573, #7bed9f); }
+        
+        .health-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: right;
+        }
+        
+        /* Grid Adjustments for Mobile */
+        .glance-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .glance-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .glance-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .biome-glance-card {
+                padding: 1.25rem 1rem;
+            }
+            
+            .biome-glance-icon {
+                font-size: 2.5rem;
+            }
+            
+            .biome-glance-value {
+                font-size: 1.5rem;
+            }
+            
+            .biome-glance-title {
+                font-size: 0.95rem;
+            }
+            
+            .biome-expanded-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .biome-detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .biome-glance-expanded {
+                padding: 1.25rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .glance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .biome-glance-card {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                text-align: left;
+                padding: 1rem;
+            }
+            
+            .biome-glance-icon {
+                font-size: 2.5rem;
+                margin-bottom: 0;
+            }
+            
+            .biome-glance-info {
+                flex: 1;
+            }
+            
+            .biome-expand-indicator {
+                position: static;
+            }
+        }
+        
+        /* Live Monitoring Section */
+        .live-monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .monitor-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .monitor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient);
+        }
+        
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .monitor-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .monitor-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+        
+        .monitor-unit {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .monitor-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+        
+        .monitor-trend.up {
+            background: rgba(46, 213, 115, 0.15);
+            color: #2ed573;
+        }
+        
+        .monitor-trend.down {
+            background: rgba(255, 71, 87, 0.15);
+            color: #ff4757;
+        }
+        
+        .monitor-trend.neutral {
+            background: rgba(255, 165, 2, 0.15);
+            color: #ffa502;
+        }
+        
+        /* Biome Relationship Diagram */
+        .climate-biome-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .climate-biome-link:last-child {
+            margin-bottom: 0;
+        }
+        
+        .link-climate {
+            background: rgba(var(--color-primary-rgb), 0.2);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .link-arrow {
+            color: var(--text-secondary);
+        }
+        
+        .link-biome {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        
+        /* Threat Level Badges */
+        .threat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .threat-badge.critical {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+        
+        .threat-badge.high {
+            background: rgba(255, 107, 53, 0.2);
+            color: #ff6b35;
+        }
+        
+        .threat-badge.moderate {
+            background: rgba(255, 165, 2, 0.2);
+            color: #ffa502;
+        }
+        
+        .threat-badge.low {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+        }
+        
+        /* Expandable Section Pattern */
+        .expandable-section {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .expandable-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            transition: background 0.2s ease;
+        }
+        
+        .expandable-header:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+        
+        .expandable-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .expandable-toggle {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .expandable-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .expandable-section.expanded .expandable-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .expandable-body {
+            display: none;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .expandable-section.expanded .expandable-body {
+            display: block;
+        }
+        
+        /* Interactive Map Placeholder */
+        .biome-map-container {
+            position: relative;
+            height: 350px;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.3), rgba(42, 82, 152, 0.3));
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .biome-map-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        }
+        
+        .biome-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        /* Records Section */
+        .record-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .record-icon {
+            font-size: 2rem;
+        }
+        
+        .record-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .record-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .record-detail {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
 </head>
 <body>
     <div class="atmosphere-bg">
@@ -52,64 +684,765 @@
                     Earth's major land ecosystems - how climate creates rainforests, deserts, 
                     grasslands, and frozen tundra. Comparison matrix and deep dives.
                 </p>
+                <div class="live-indicator mt-md">
+                    <span class="live-dot"></span>
+                    <span>Live Data • Updated March 28, 2026</span>
+                </div>
             </div>
         </div>
     </header>
 
     <main>
-        <!-- Quick Overview -->
+        <!-- Quick Overview - EXPANDED with clickable cards -->
         <section class="container mt-2xl">
-            <h2 class="mb-lg">🗺️ Biomes at a Glance</h2>
-            <div class="grid grid-5">
-                <div class="card text-center">
-                    <div class="card-content">
-                        <div style="font-size: 2.5rem;">🌴</div>
-                        <h4 class="mt-sm mb-xs">Tropical Rainforest</h4>
-                        <div class="metric-value text-success" style="font-size: 1.5rem;">6%</div>
-                        <div class="text-sm text-gray">of land</div>
+            <div class="flex justify-between align-center mb-lg flex-wrap gap-md">
+                <h2>🗺️ Biomes at a Glance</h2>
+                <span class="text-sm text-gray">Click any biome for detailed breakdown</span>
+            </div>
+            
+            <div class="glance-grid" id="biomeGlanceGrid">
+                <!-- Tropical Rainforest -->
+                <div class="biome-glance-card" data-biome="rainforest">
+                    <span class="biome-glance-icon">🌴</span>
+                    <div class="biome-glance-info">
+                        <h4 class="biome-glance-title">Tropical Rainforest</h4>
+                        <div class="biome-glance-value text-success">6%</div>
+                        <div class="biome-glance-label">of land</div>
+                    </div>
+                    <div class="biome-expand-indicator">▼</div>
+                </div>
+                
+                <!-- Desert -->
+                <div class="biome-glance-card" data-biome="desert">
+                    <span class="biome-glance-icon">🏜️</span>
+                    <div class="biome-glance-info">
+                        <h4 class="biome-glance-title">Desert</h4>
+                        <div class="biome-glance-value text-warning">33%</div>
+                        <div class="biome-glance-label">of land</div>
+                    </div>
+                    <div class="biome-expand-indicator">▼</div>
+                </div>
+                
+                <!-- Taiga -->
+                <div class="biome-glance-card" data-biome="taiga">
+                    <span class="biome-glance-icon">🌲</span>
+                    <div class="biome-glance-info">
+                        <h4 class="biome-glance-title">Taiga</h4>
+                        <div class="biome-glance-value text-info">17%</div>
+                        <div class="biome-glance-label">of land</div>
+                    </div>
+                    <div class="biome-expand-indicator">▼</div>
+                </div>
+                
+                <!-- Grassland -->
+                <div class="biome-glance-card" data-biome="grassland">
+                    <span class="biome-glance-icon">🌾</span>
+                    <div class="biome-glance-info">
+                        <h4 class="biome-glance-title">Grassland</h4>
+                        <div class="biome-glance-value text-primary">25%</div>
+                        <div class="biome-glance-label">of land</div>
+                    </div>
+                    <div class="biome-expand-indicator">▼</div>
+                </div>
+                
+                <!-- Tundra -->
+                <div class="biome-glance-card" data-biome="tundra">
+                    <span class="biome-glance-icon">❄️</span>
+                    <div class="biome-glance-info">
+                        <h4 class="biome-glance-title">Tundra</h4>
+                        <div class="biome-glance-value" style="color: #a8e6cf;">10%</div>
+                        <div class="biome-glance-label">of land</div>
+                    </div>
+                    <div class="biome-expand-indicator">▼</div>
+                </div>
+                
+                <!-- Expanded Panels for Each Biome -->
+                <!-- Tropical Rainforest Expanded -->
+                <div class="biome-glance-expanded" data-for="rainforest">
+                    <div class="biome-expanded-grid">
+                        <div class="biome-expanded-section">
+                            <h4>📊 Key Statistics</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Total Area</span>
+                                <span class="biome-stat-value">8.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Annual Precipitation</span>
+                                <span class="biome-stat-value">2,000-10,000mm</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Temperature Range</span>
+                                <span class="biome-stat-value">20-34°C</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Growing Season</span>
+                                <span class="biome-stat-value">365 days</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Primary Productivity</span>
+                                <span class="biome-stat-value">2,200 g/m²/year</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🌿 Biodiversity (Live Count)</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Plant Species</span>
+                                <span class="biome-stat-value text-success">~80,000</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Mammal Species</span>
+                                <span class="biome-stat-value">~400</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Bird Species</span>
+                                <span class="biome-stat-value">~1,300</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Insect Species</span>
+                                <span class="biome-stat-value">~30M</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">% of Global Species</span>
+                                <span class="biome-stat-value text-success">50%+</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🏛️ Major Regions</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🌎 Amazon Basin</span>
+                                <span class="biome-stat-value">5.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🌍 Congo Basin</span>
+                                <span class="biome-stat-value">2.0M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🌏 SE Asia/Indonesia</span>
+                                <span class="biome-stat-value">0.8M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🌏 New Guinea</span>
+                                <span class="biome-stat-value">0.3M km²</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>⚠️ Threat Status (2026)</h4>
+                            <div class="threat-badge critical mb-sm">CRITICAL</div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Deforestation Rate</span>
+                                <span class="biome-stat-value text-danger">4.7M ha/year</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Lost Since 1970</span>
+                                <span class="biome-stat-value">17%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Projected 2050 Loss</span>
+                                <span class="biome-stat-value">25-40%</span>
+                            </div>
+                            <div class="health-meter mt-sm">
+                                <div class="health-bar">
+                                    <div class="health-fill warning" style="width: 62%;"></div>
+                                </div>
+                                <span class="health-value">62%</span>
+                            </div>
+                            <div class="text-xs text-gray mt-xs">Ecosystem Integrity</div>
+                        </div>
                     </div>
                 </div>
-                <div class="card text-center">
-                    <div class="card-content">
-                        <div style="font-size: 2.5rem;">🏜️</div>
-                        <h4 class="mt-sm mb-xs">Desert</h4>
-                        <div class="metric-value text-warning" style="font-size: 1.5rem;">33%</div>
-                        <div class="text-sm text-gray">of land</div>
+                
+                <!-- Desert Expanded -->
+                <div class="biome-glance-expanded" data-for="desert">
+                    <div class="biome-expanded-grid">
+                        <div class="biome-expanded-section">
+                            <h4>📊 Key Statistics</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Total Area</span>
+                                <span class="biome-stat-value">49.3M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Hot Deserts</span>
+                                <span class="biome-stat-value">20.9M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Cold Deserts</span>
+                                <span class="biome-stat-value">28.4M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Annual Precipitation</span>
+                                <span class="biome-stat-value"><250mm</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Daily Temp Swing</span>
+                                <span class="biome-stat-value">Up to 45°C</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🏜️ Largest Deserts</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Antarctic (cold)</span>
+                                <span class="biome-stat-value">14.2M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Arctic (cold)</span>
+                                <span class="biome-stat-value">13.9M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Sahara (hot)</span>
+                                <span class="biome-stat-value">9.2M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Arabian (hot)</span>
+                                <span class="biome-stat-value">2.3M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Gobi (cold)</span>
+                                <span class="biome-stat-value">1.3M km²</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🦎 Adaptations</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Nocturnal Activity</span>
+                                <span class="biome-stat-value">75% species</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Water Storage</span>
+                                <span class="biome-stat-value">Cacti, camels</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Deep Roots</span>
+                                <span class="biome-stat-value">Up to 50m</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Metabolic Water</span>
+                                <span class="biome-stat-value">Kangaroo rat</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>📈 Expansion Trend (2026)</h4>
+                            <div class="threat-badge moderate mb-sm">EXPANDING</div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Desertification Rate</span>
+                                <span class="biome-stat-value">12M ha/year</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Population Affected</span>
+                                <span class="biome-stat-value">2.1 billion</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Sahara Expansion</span>
+                                <span class="biome-stat-value">+10% since 1920</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Countries at Risk</span>
+                                <span class="biome-stat-value">110+</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card text-center">
-                    <div class="card-content">
-                        <div style="font-size: 2.5rem;">🌲</div>
-                        <h4 class="mt-sm mb-xs">Taiga</h4>
-                        <div class="metric-value text-info" style="font-size: 1.5rem;">17%</div>
-                        <div class="text-sm text-gray">of land</div>
+                
+                <!-- Taiga Expanded -->
+                <div class="biome-glance-expanded" data-for="taiga">
+                    <div class="biome-expanded-grid">
+                        <div class="biome-expanded-section">
+                            <h4>📊 Key Statistics</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Total Area</span>
+                                <span class="biome-stat-value">17M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">% of World's Forest</span>
+                                <span class="biome-stat-value">29%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Temperature Range</span>
+                                <span class="biome-stat-value">-54 to 30°C</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Growing Season</span>
+                                <span class="biome-stat-value">80-150 days</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Daylight (Summer)</span>
+                                <span class="biome-stat-value">Up to 24 hrs</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🌲 Dominant Trees</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Spruce</span>
+                                <span class="biome-stat-value">35%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Pine</span>
+                                <span class="biome-stat-value">25%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Fir</span>
+                                <span class="biome-stat-value">20%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Larch</span>
+                                <span class="biome-stat-value">15%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Birch (deciduous)</span>
+                                <span class="biome-stat-value">5%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🌍 Geographic Distribution</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Russia</span>
+                                <span class="biome-stat-value">5.7M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Canada</span>
+                                <span class="biome-stat-value">5.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Alaska</span>
+                                <span class="biome-stat-value">0.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Scandinavia</span>
+                                <span class="biome-stat-value">0.6M km²</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🔥 Fire & Carbon (2026)</h4>
+                            <div class="threat-badge high mb-sm">HIGH RISK</div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Carbon Stored</span>
+                                <span class="biome-stat-value">700 Gt</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">2025 Fire Season</span>
+                                <span class="biome-stat-value">18.4M ha</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Permafrost Thaw</span>
+                                <span class="biome-stat-value">+40% by 2100</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Northward Shift</span>
+                                <span class="biome-stat-value">100km/century</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card text-center">
-                    <div class="card-content">
-                        <div style="font-size: 2.5rem;">🌾</div>
-                        <h4 class="mt-sm mb-xs">Grassland</h4>
-                        <div class="metric-value text-primary" style="font-size: 1.5rem;">25%</div>
-                        <div class="text-sm text-gray">of land</div>
+                
+                <!-- Grassland Expanded -->
+                <div class="biome-glance-expanded" data-for="grassland">
+                    <div class="biome-expanded-grid">
+                        <div class="biome-expanded-section">
+                            <h4>📊 Key Statistics</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Total Area</span>
+                                <span class="biome-stat-value">37.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Tropical Savanna</span>
+                                <span class="biome-stat-value">20M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Temperate Grassland</span>
+                                <span class="biome-stat-value">17.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Annual Precipitation</span>
+                                <span class="biome-stat-value">250-1,500mm</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Soil Carbon</span>
+                                <span class="biome-stat-value">200+ t/ha</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🗺️ Regional Names</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🇺🇸 Prairie</span>
+                                <span class="biome-stat-value">N. America</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🇦🇷 Pampas</span>
+                                <span class="biome-stat-value">S. America</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🇷🇺 Steppe</span>
+                                <span class="biome-stat-value">Eurasia</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🇰🇪 Savanna</span>
+                                <span class="biome-stat-value">Africa</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">🇿🇦 Veld</span>
+                                <span class="biome-stat-value">South Africa</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🦬 Keystone Species</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">African Elephant</span>
+                                <span class="biome-stat-value">415,000</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">American Bison</span>
+                                <span class="biome-stat-value">500,000</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Wildebeest</span>
+                                <span class="biome-stat-value">1.5M</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Prairie Dog</span>
+                                <span class="biome-stat-value">10-20M</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🌾 Agricultural Conversion</h4>
+                            <div class="threat-badge critical mb-sm">MOST CONVERTED</div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Native Remaining</span>
+                                <span class="biome-stat-value text-danger"><10%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Cropland</span>
+                                <span class="biome-stat-value">70%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">US Tallgrass Lost</span>
+                                <span class="biome-stat-value">99%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Food Production</span>
+                                <span class="biome-stat-value">70% of crops</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card text-center">
-                    <div class="card-content">
-                        <div style="font-size: 2.5rem;">❄️</div>
-                        <h4 class="mt-sm mb-xs">Tundra</h4>
-                        <div class="metric-value" style="font-size: 1.5rem; color: #a8e6cf;">10%</div>
-                        <div class="text-sm text-gray">of land</div>
+                
+                <!-- Tundra Expanded -->
+                <div class="biome-glance-expanded" data-for="tundra">
+                    <div class="biome-expanded-grid">
+                        <div class="biome-expanded-section">
+                            <h4>📊 Key Statistics</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Total Area</span>
+                                <span class="biome-stat-value">15M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Arctic Tundra</span>
+                                <span class="biome-stat-value">11.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Alpine Tundra</span>
+                                <span class="biome-stat-value">3.5M km²</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Growing Season</span>
+                                <span class="biome-stat-value">50-60 days</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Permafrost Depth</span>
+                                <span class="biome-stat-value">25-1000m</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🥶 Temperature Extremes</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Winter Average</span>
+                                <span class="biome-stat-value">-34°C</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Summer Average</span>
+                                <span class="biome-stat-value">3-12°C</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Record Low</span>
+                                <span class="biome-stat-value">-68°C</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Polar Night</span>
+                                <span class="biome-stat-value">Up to 6 months</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🦌 Wildlife</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Caribou/Reindeer</span>
+                                <span class="biome-stat-value">4.7M</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Musk Ox</span>
+                                <span class="biome-stat-value">135,000</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Arctic Fox</span>
+                                <span class="biome-stat-value">Several 100K</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Polar Bear</span>
+                                <span class="biome-stat-value">26,000</span>
+                            </div>
+                        </div>
+                        
+                        <div class="biome-expanded-section">
+                            <h4>🌡️ Climate Change Hotspot</h4>
+                            <div class="threat-badge critical mb-sm">FASTEST WARMING</div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Warming Rate</span>
+                                <span class="biome-stat-value text-danger">4x global</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Permafrost Thaw</span>
+                                <span class="biome-stat-value">25% by 2100</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Methane Release</span>
+                                <span class="biome-stat-value">1,400 Gt C</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Shrub Expansion</span>
+                                <span class="biome-stat-value">+52% since 1980</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Comparison Matrix -->
+        <!-- Live Biome Monitoring Dashboard -->
         <section class="container mt-3xl">
-            <h2 class="mb-lg">📊 Biome Comparison Matrix</h2>
+            <div class="flex justify-between align-center mb-lg flex-wrap gap-md">
+                <h2>📡 Live Biome Monitoring</h2>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>Real-time satellite data • March 28, 2026</span>
+                </div>
+            </div>
+            
+            <div class="live-monitor-grid">
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #2ed573, #26de81);">
+                    <div class="monitor-header">
+                        <div>
+                            <div class="monitor-title">Global Forest Cover</div>
+                            <div class="monitor-value">4.06B</div>
+                            <div class="monitor-unit">hectares remaining</div>
+                        </div>
+                        <div class="monitor-trend down">
+                            <span>↓</span>
+                            <span>-4.7M ha/yr</span>
+                        </div>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 31%; background: linear-gradient(90deg, #2ed573, #26de81);"></div>
+                    </div>
+                    <div class="text-xs text-gray mt-sm">31% of land surface</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #ff6b35, #ffd93d);">
+                    <div class="monitor-header">
+                        <div>
+                            <div class="monitor-title">Desertification</div>
+                            <div class="monitor-value">12M</div>
+                            <div class="monitor-unit">hectares/year expanding</div>
+                        </div>
+                        <div class="monitor-trend up">
+                            <span>↑</span>
+                            <span>+8%</span>
+                        </div>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 33%; background: linear-gradient(90deg, #ff6b35, #ffd93d);"></div>
+                    </div>
+                    <div class="text-xs text-gray mt-sm">33% of land is desert/arid</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #a8e6cf, #88d8b0);">
+                    <div class="monitor-header">
+                        <div>
+                            <div class="monitor-title">Permafrost Status</div>
+                            <div class="monitor-value">-2.1°C</div>
+                            <div class="monitor-unit">avg. temperature rise</div>
+                        </div>
+                        <div class="monitor-trend down">
+                            <span>↓</span>
+                            <span>Thawing</span>
+                        </div>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 65%; background: linear-gradient(90deg, #a8e6cf, #88d8b0);"></div>
+                    </div>
+                    <div class="text-xs text-gray mt-sm">65% still intact (declining)</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #ff4757, #ff6b81);">
+                    <div class="monitor-header">
+                        <div>
+                            <div class="monitor-title">Amazon Tipping Point</div>
+                            <div class="monitor-value">17.4%</div>
+                            <div class="monitor-unit">deforested (critical: 20%)</div>
+                        </div>
+                        <div class="monitor-trend neutral">
+                            <span>⚠</span>
+                            <span>Near limit</span>
+                        </div>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 87%; background: linear-gradient(90deg, #ff4757, #ff6b81);"></div>
+                    </div>
+                    <div class="text-xs text-gray mt-sm">87% of way to tipping point</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #4d96ff, #6bcb77);">
+                    <div class="monitor-header">
+                        <div>
+                            <div class="monitor-title">Boreal Fire Season</div>
+                            <div class="monitor-value">18.4M</div>
+                            <div class="monitor-unit">hectares burned (2025)</div>
+                        </div>
+                        <div class="monitor-trend up">
+                            <span>↑</span>
+                            <span>+45% vs avg</span>
+                        </div>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 145%; max-width: 100%; background: linear-gradient(90deg, #ff6b35, #ff4757);"></div>
+                    </div>
+                    <div class="text-xs text-gray mt-sm">145% of 20-year average</div>
+                </div>
+                
+                <div class="monitor-card" style="--gradient: linear-gradient(90deg, #f1c40f, #f39c12);">
+                    <div class="monitor-header">
+                        <div>
+                            <div class="monitor-title">Native Grassland</div>
+                            <div class="monitor-value">8.2%</div>
+                            <div class="monitor-unit">of original remaining</div>
+                        </div>
+                        <div class="monitor-trend down">
+                            <span>↓</span>
+                            <span>-0.5%/yr</span>
+                        </div>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 8.2%; background: linear-gradient(90deg, #f1c40f, #f39c12);"></div>
+                    </div>
+                    <div class="text-xs text-gray mt-sm">Most converted biome on Earth</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Climate-Biome Relationship -->
+        <section class="container mt-3xl">
+            <div class="expandable-section" id="climateBiomeRelation">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>🔗</span>
+                        <span>Climate → Biome Relationships</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <p class="text-gray mb-lg">Climate determines biome distribution. Temperature and precipitation are the primary controls.</p>
+                    
+                    <div class="grid grid-2 gap-xl">
+                        <div>
+                            <h4 class="text-primary mb-md">Temperature Control</h4>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(255, 71, 87, 0.3);">Hot</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🌴 Tropical Rainforest (wet) / 🏜️ Desert (dry)</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(255, 165, 2, 0.3);">Warm</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🌳 Tropical Savanna / 🌿 Mediterranean</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(46, 213, 115, 0.3);">Mild</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🌳 Temperate Forest / 🌾 Temperate Grassland</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(77, 150, 255, 0.3);">Cold</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🌲 Taiga (Boreal Forest)</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(168, 230, 207, 0.3);">Frozen</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">❄️ Tundra / 🧊 Ice Cap</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-primary mb-md">Precipitation Control</h4>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(46, 213, 115, 0.3);">>2000mm</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🌴 Rainforest / 🌲 Temperate Rainforest</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(77, 150, 255, 0.3);">1000-2000</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🌳 Deciduous Forest / 🌳 Savanna</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(241, 196, 15, 0.3);">500-1000</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🌾 Grassland / 🌿 Woodland</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(255, 165, 2, 0.3);">250-500</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🏜️ Semi-arid / Steppe</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(255, 71, 87, 0.3);"><250mm</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">🏜️ Desert (hot or cold)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-xl">
+                        <h4 class="text-primary mb-md">The Whittaker Biome Diagram Concept</h4>
+                        <p class="text-gray text-sm">
+                            Biomes can be plotted on a graph with temperature on the Y-axis and precipitation on the X-axis. 
+                            This creates predictable zones where specific biomes occur. For example, high temperature + 
+                            high precipitation = tropical rainforest, while high temperature + low precipitation = desert.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Matrix - EXPANDED with clickable rows -->
+        <section class="container mt-3xl">
+            <div class="flex justify-between align-center mb-lg flex-wrap gap-md">
+                <h2>📊 Biome Comparison Matrix</h2>
+                <span class="text-sm text-gray">Click any row for detailed breakdown</span>
+            </div>
             
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table" id="biomeComparisonTable">
                     <thead>
                         <tr>
                             <th>Biome</th>
@@ -120,10 +1453,12 @@
                             <th>Soil</th>
                             <th>Plants</th>
                             <th>Animals</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+                        <!-- Tropical Rainforest -->
+                        <tr class="biome-table-row" data-biome-row="tropical-rf">
                             <td><strong>🌴 Tropical Rainforest</strong></td>
                             <td><span class="cell-climate-code tropical">Af</span></td>
                             <td class="cell-temp hot">25-28°C</td>
@@ -132,8 +1467,59 @@
                             <td>Oxisol (poor)</td>
                             <td>Broadleaf evergreen</td>
                             <td>🦜🐒🐆🦋</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="tropical-rf">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🌳 Forest Structure</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Emergent Layer:</strong> 60-80m, giant trees pierce canopy</li>
+                                                <li><strong>Canopy:</strong> 30-45m, continuous layer, 70-90% of wildlife</li>
+                                                <li><strong>Understory:</strong> 10-30m, shade-tolerant plants</li>
+                                                <li><strong>Shrub Layer:</strong> 3-10m, limited light</li>
+                                                <li><strong>Forest Floor:</strong> <2% sunlight, rapid decomposition</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌧️ Climate Details</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>No dry season (>60mm every month)</li>
+                                                <li>Humidity: 77-88% constant</li>
+                                                <li>Daily temperature swing: only 5-8°C</li>
+                                                <li>Rainfall often in afternoon convective storms</li>
+                                                <li>Evapotranspiration creates 50-75% of own rainfall</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🧬 Biodiversity Hotspot</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>50% of Earth's species on 6% of land</li>
+                                                <li>1 hectare: 100-300 tree species</li>
+                                                <li>Amazon: 10% of all species on Earth</li>
+                                                <li>Many species still undiscovered</li>
+                                                <li>Highest speciation rates globally</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>👥 Human Impact</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Home to 300M people globally</li>
+                                                <li>25% of modern medicines sourced here</li>
+                                                <li>Slash-and-burn: 4.7M hectares/year lost</li>
+                                                <li>Primary drivers: beef, soy, palm oil, logging</li>
+                                                <li>Indigenous peoples protect 80% of biodiversity</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Tropical Savanna -->
+                        <tr class="biome-table-row" data-biome-row="savanna">
                             <td><strong>🌳 Tropical Savanna</strong></td>
                             <td><span class="cell-climate-code tropical">Aw</span></td>
                             <td class="cell-temp hot">20-30°C</td>
@@ -142,8 +1528,57 @@
                             <td>Variable</td>
                             <td>Grasses + scattered trees</td>
                             <td>🦁🐘🦒🦓</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="savanna">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🔥 Fire Ecology</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Fire essential to maintain savanna</li>
+                                                <li>Burns every 1-5 years naturally</li>
+                                                <li>Grasses recover in weeks; trees suppressed</li>
+                                                <li>Without fire → converts to woodland</li>
+                                                <li>Many plants fire-adapted (thick bark, underground roots)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🦁 Megafauna Paradise</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Africa: highest large mammal diversity</li>
+                                                <li>Great Migration: 1.5M wildebeest</li>
+                                                <li>Elephants: ecosystem engineers</li>
+                                                <li>Lions, leopards, cheetahs as apex predators</li>
+                                                <li>Grazing maintains grass dominance</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌍 Global Distribution</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>African Savanna: Serengeti, Kruger, Maasai Mara</li>
+                                                <li>Brazilian Cerrado: 2M km² (50% converted)</li>
+                                                <li>Australian Outback: tropical north</li>
+                                                <li>Indian Deccan: dry deciduous</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌡️ Wet-Dry Cycle</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Wet season: 4-8 months, monsoon rains</li>
+                                                <li>Dry season: 4-8 months, water stress</li>
+                                                <li>Animal migrations follow rain</li>
+                                                <li>Trees often deciduous or semi-deciduous</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Hot Desert -->
+                        <tr class="biome-table-row" data-biome-row="hot-desert">
                             <td><strong>🏜️ Hot Desert</strong></td>
                             <td><span class="cell-climate-code dry">BWh</span></td>
                             <td class="cell-temp extreme">-5 to 45°C</td>
@@ -152,8 +1587,59 @@
                             <td>Aridisol (dry)</td>
                             <td>Cacti, shrubs</td>
                             <td>🦎🐪🦂🐍</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="hot-desert">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🌡️ Extreme Conditions</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Record: 56.7°C (Death Valley, 1913)</li>
+                                                <li>Ground temp: can exceed 70°C</li>
+                                                <li>Daily swing: up to 45°C difference</li>
+                                                <li>Night frost possible in winter</li>
+                                                <li>Years can pass without rain in hyperarid zones</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌵 Plant Adaptations</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Succulents:</strong> Store water in stems/leaves</li>
+                                                <li><strong>CAM photosynthesis:</strong> Stomata open at night</li>
+                                                <li><strong>Deep roots:</strong> Mesquite reaches 50m+</li>
+                                                <li><strong>Ephemeral bloom:</strong> Entire life cycle in weeks</li>
+                                                <li><strong>Spines:</strong> Reduce water loss, deter herbivores</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🦎 Animal Adaptations</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Nocturnal:</strong> 75% active only at night</li>
+                                                <li><strong>Burrowing:</strong> Cooler underground</li>
+                                                <li><strong>Estivation:</strong> Summer dormancy</li>
+                                                <li><strong>Metabolic water:</strong> Kangaroo rat never drinks</li>
+                                                <li><strong>Heat radiation:</strong> Large ears (fennec fox)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🏜️ Major Hot Deserts</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Sahara:</strong> 9.2M km² (Africa)</li>
+                                                <li><strong>Arabian:</strong> 2.3M km² (Middle East)</li>
+                                                <li><strong>Sonoran:</strong> 0.3M km² (N. America)</li>
+                                                <li><strong>Kalahari:</strong> 0.9M km² (Southern Africa)</li>
+                                                <li><strong>Thar:</strong> 0.2M km² (India/Pakistan)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Cold Desert -->
+                        <tr class="biome-table-row" data-biome-row="cold-desert">
                             <td><strong>🏔️ Cold Desert</strong></td>
                             <td><span class="cell-climate-code dry">BWk</span></td>
                             <td class="cell-temp cool">-30 to 30°C</td>
@@ -162,8 +1648,57 @@
                             <td>Aridisol</td>
                             <td>Shrubs, sagebrush</td>
                             <td>🐇🦅🐺</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="cold-desert">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🥶 Cold Desert Characteristics</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Long, cold winters with snow</li>
+                                                <li>Short, hot summers</li>
+                                                <li>Low precipitation (rain shadow effect common)</li>
+                                                <li>Wide temperature range: -40°C to +40°C annually</li>
+                                                <li>Wind-driven erosion shapes landscape</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🗺️ Major Cold Deserts</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Antarctic:</strong> 14.2M km² (largest desert!)</li>
+                                                <li><strong>Gobi:</strong> 1.3M km² (Mongolia/China)</li>
+                                                <li><strong>Patagonian:</strong> 0.67M km² (Argentina)</li>
+                                                <li><strong>Great Basin:</strong> 0.49M km² (USA)</li>
+                                                <li><strong>Karakum:</strong> 0.35M km² (Central Asia)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌿 Vegetation</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Sagebrush dominates North American cold deserts</li>
+                                                <li>Saxaul trees in Asian cold deserts</li>
+                                                <li>Plants often spiny or waxy-leaved</li>
+                                                <li>Growth concentrated in brief spring</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🦘 Wildlife</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Bactrian camel (Gobi) - two humps for fat storage</li>
+                                                <li>Snow leopard (edges of Central Asian deserts)</li>
+                                                <li>Pronghorn, jackrabbits (Great Basin)</li>
+                                                <li>Wild ass, gazelles (Asian steppes)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Temperate Grassland -->
+                        <tr class="biome-table-row" data-biome-row="temp-grass">
                             <td><strong>🌾 Temperate Grassland</strong></td>
                             <td><span class="cell-climate-code dry">BSk</span></td>
                             <td class="cell-temp cool">-10 to 30°C</td>
@@ -172,8 +1707,58 @@
                             <td>Mollisol (rich)</td>
                             <td>Tallgrass, shortgrass</td>
                             <td>🦬🦅🐕</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="temp-grass">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🌾 Grassland Types</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Tallgrass:</strong> >1m height, 750-1000mm rain (E. prairie)</li>
+                                                <li><strong>Mixed grass:</strong> 0.5-1m, transitional zone</li>
+                                                <li><strong>Shortgrass:</strong> <0.5m, 250-500mm rain (W. plains)</li>
+                                                <li>Height decreases westward in N. America</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🪱 World's Best Soils</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Mollisols: deep, dark, organic-rich</li>
+                                                <li>Topsoil depth: 1-2 meters</li>
+                                                <li>Formed over 10,000+ years</li>
+                                                <li>Grass roots constantly add organic matter</li>
+                                                <li>Why these became world's breadbaskets</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🦬 Historic Megafauna</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>N. America: 30-60M bison (pre-1800)</li>
+                                                <li>Asia: Millions of saiga antelope</li>
+                                                <li>Grazing maintained grass dominance</li>
+                                                <li>Prairie dogs: 5 billion (1900) → 10-20M today</li>
+                                                <li>Keystone species create habitat for 150+ species</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🚜 Agricultural Conversion</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Most converted biome on Earth</li>
+                                                <li>US Tallgrass: 99% converted to crops</li>
+                                                <li>Ukrainian Steppe: 90%+ plowed</li>
+                                                <li>Produces 70% of world's grain</li>
+                                                <li>Soil erosion: losing 1cm/decade</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Mediterranean -->
+                        <tr class="biome-table-row" data-biome-row="mediterranean">
                             <td><strong>🌿 Mediterranean</strong></td>
                             <td><span class="cell-climate-code temperate">Csa/b</span></td>
                             <td class="cell-temp mild">10-30°C</td>
@@ -182,8 +1767,59 @@
                             <td>Alfisol</td>
                             <td>Chaparral, maquis</td>
                             <td>🦎🐰🦌</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="mediterranean">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>☀️ Climate Pattern</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Wet, mild winters / Hot, dry summers</li>
+                                                <li>70% of rain falls October-March</li>
+                                                <li>Summer drought: 3-5 months</li>
+                                                <li>Found on west coasts, 30-40° latitude</li>
+                                                <li>Only 2% of world's land surface</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🗺️ Five Regions</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>🇪🇸 Mediterranean Basin (original)</li>
+                                                <li>🇺🇸 California Chaparral</li>
+                                                <li>🇨🇱 Chilean Matorral</li>
+                                                <li>🇿🇦 South African Fynbos</li>
+                                                <li>🇦🇺 SW Australian Kwongan</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🔥 Fire Adaptation</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Fire-dependent ecosystem</li>
+                                                <li>Many plants require fire to germinate</li>
+                                                <li>Thick bark, resprouting from roots</li>
+                                                <li>Fire return interval: 30-100 years</li>
+                                                <li>Human fire suppression causes fuel buildup</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌺 Biodiversity Hotspot</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Fynbos: 9,000 plant species (70% endemic)</li>
+                                                <li>California: 4,426 native plants (30% endemic)</li>
+                                                <li>High endemism due to isolation</li>
+                                                <li>Many species with restricted ranges</li>
+                                                <li>Highly threatened by urbanization</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Temperate Forest -->
+                        <tr class="biome-table-row" data-biome-row="temp-forest">
                             <td><strong>🌳 Temperate Forest</strong></td>
                             <td><span class="cell-climate-code temperate">Cfa/Cfb</span></td>
                             <td class="cell-temp mild">-5 to 25°C</td>
@@ -192,8 +1828,58 @@
                             <td>Alfisol</td>
                             <td>Oak, maple, beech</td>
                             <td>🦌🦊🐻🦉</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="temp-forest">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🍂 Seasonal Cycle</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Spring:</strong> Rapid leaf emergence, wildflower bloom</li>
+                                                <li><strong>Summer:</strong> Full canopy, high productivity</li>
+                                                <li><strong>Autumn:</strong> Spectacular color change, leaf fall</li>
+                                                <li><strong>Winter:</strong> Dormancy, bare branches</li>
+                                                <li>Growing season: 140-200 days</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌳 Forest Types</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Deciduous:</strong> E. North America, Europe, E. Asia</li>
+                                                <li><strong>Mixed:</strong> Deciduous + conifers</li>
+                                                <li><strong>Temperate Rainforest:</strong> Pacific NW, Chile, NZ</li>
+                                                <li>Dominant trees: Oak, maple, beech, hickory</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🍁 Leaf Color Science</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Chlorophyll breakdown reveals pigments</li>
+                                                <li>Carotenoids: yellow, orange (always present)</li>
+                                                <li>Anthocyanins: red, purple (produced in fall)</li>
+                                                <li>Cool nights + sunny days = best colors</li>
+                                                <li>Climate change shifting peak by 2-3 weeks</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>📊 Recovery Success</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Most regrown biome (from historic lows)</li>
+                                                <li>E. US: 80% forest now vs 40% in 1900</li>
+                                                <li>Europe: forest cover increasing</li>
+                                                <li>Secondary forest differs from old-growth</li>
+                                                <li>Only 1% of original old-growth remains (E. US)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Taiga -->
+                        <tr class="biome-table-row" data-biome-row="taiga">
                             <td><strong>🌲 Taiga (Boreal)</strong></td>
                             <td><span class="cell-climate-code continental">Dfc</span></td>
                             <td class="cell-temp cold">-40 to 20°C</td>
@@ -202,8 +1888,59 @@
                             <td>Spodosol (acidic)</td>
                             <td>Spruce, fir, pine</td>
                             <td>🐻🦌🐺🦫</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="taiga">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🌲 Conifer Adaptations</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Needle leaves:</strong> Reduce water loss, shed snow</li>
+                                                <li><strong>Conical shape:</strong> Snow slides off</li>
+                                                <li><strong>Flexible branches:</strong> Bend don't break</li>
+                                                <li><strong>Evergreen:</strong> Photosynthesize immediately in spring</li>
+                                                <li><strong>Dark color:</strong> Absorbs more sun warmth</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🧊 Permafrost Zones</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Continuous permafrost: far north</li>
+                                                <li>Discontinuous: central taiga</li>
+                                                <li>Active layer: 0.5-2m thaws seasonally</li>
+                                                <li>Trees shallow-rooted (drunk forest)</li>
+                                                <li>Thawing permafrost = methane release</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🔥 Fire Regime</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Natural fire return: 50-200 years</li>
+                                                <li>Lightning-ignited fires common</li>
+                                                <li>Large fires: 1-10M hectares possible</li>
+                                                <li>2021 Siberian fires: 18M hectares</li>
+                                                <li>Climate change increasing fire severity</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>💨 Carbon Giant</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Stores more carbon than tropical forests</li>
+                                                <li>Mostly in soils and peat (not trees)</li>
+                                                <li>~700 gigatons of carbon</li>
+                                                <li>Peatlands: 5,000-10,000 years of accumulation</li>
+                                                <li>Critical for climate regulation</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Tundra -->
+                        <tr class="biome-table-row" data-biome-row="tundra">
                             <td><strong>❄️ Tundra</strong></td>
                             <td><span class="cell-climate-code polar">ET</span></td>
                             <td class="cell-temp freezing">-30 to 10°C</td>
@@ -212,8 +1949,59 @@
                             <td>Gelisol (frozen)</td>
                             <td>Moss, lichen, shrubs</td>
                             <td>🐻‍❄️🦭🦌🦊</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
                         </tr>
-                        <tr>
+                        <tr class="biome-expanded-row" data-for-row="tundra">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>❄️ Why Treeless?</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Warmest month <10°C (tree line definition)</li>
+                                                <li>Growing season: only 50-60 days</li>
+                                                <li>Permafrost blocks deep rooting</li>
+                                                <li>Extreme wind exposure</li>
+                                                <li>Winter: -40°C common, up to -68°C</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌿 Plant Strategies</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Low, cushion growth (wind protection)</li>
+                                                <li>Dark colors absorb warmth</li>
+                                                <li>Hairy leaves reduce water loss</li>
+                                                <li>Rapid flowering in brief summer</li>
+                                                <li>Lichens: extreme cold tolerance</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🦌 Migration Patterns</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Caribou: 5,000km annual migration</li>
+                                                <li>Summer: calving grounds in tundra</li>
+                                                <li>Winter: retreat to boreal forest</li>
+                                                <li>Arctic tern: 70,000km annual journey</li>
+                                                <li>Millions of migratory birds breed here</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌡️ Climate Change Ground Zero</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Warming 2-4x faster than global average</li>
+                                                <li>Arctic amplification in action</li>
+                                                <li>Shrubs expanding northward</li>
+                                                <li>Permafrost thaw accelerating</li>
+                                                <li>Could release 1,400 Gt carbon (2x atmosphere)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Ice Cap -->
+                        <tr class="biome-table-row" data-biome-row="ice-cap">
                             <td><strong>🧊 Ice Cap</strong></td>
                             <td><span class="cell-climate-code polar">EF</span></td>
                             <td class="cell-temp freezing">-60 to 0°C</td>
@@ -222,13 +2010,159 @@
                             <td>None (ice)</td>
                             <td>None</td>
                             <td>🐧🦭 (margins)</td>
+                            <td><button class="btn btn-sm btn-ghost">▼</button></td>
+                        </tr>
+                        <tr class="biome-expanded-row" data-for-row="ice-cap">
+                            <td colspan="9">
+                                <div class="biome-expanded-content">
+                                    <div class="biome-detail-grid">
+                                        <div class="biome-detail-card">
+                                            <h5>🧊 Ice Sheet Facts</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li><strong>Antarctica:</strong> 14M km², 26.5M km³ ice</li>
+                                                <li><strong>Greenland:</strong> 1.7M km², 2.85M km³ ice</li>
+                                                <li>Ice thickness: up to 4.5km (Antarctica)</li>
+                                                <li>Contains 68% of freshwater on Earth</li>
+                                                <li>If melted: 70m sea level rise</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🌡️ Extreme Cold</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Record: -89.2°C (Vostok, 1983)</li>
+                                                <li>Satellite record: -98°C (2018)</li>
+                                                <li>Summer "warmth": up to -20°C</li>
+                                                <li>Katabatic winds: 300+ km/h</li>
+                                                <li>Feels like -100°C with windchill</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>🐧 Margin Life</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Life only at ice sheet margins</li>
+                                                <li>Emperor penguins: breed at -40°C</li>
+                                                <li>Antarctic krill: keystone species</li>
+                                                <li>Ice algae: base of food web</li>
+                                                <li>Seals, whales depend on ice margins</li>
+                                            </ul>
+                                        </div>
+                                        <div class="biome-detail-card">
+                                            <h5>📉 Ice Loss (2026 Data)</h5>
+                                            <ul class="text-sm text-gray" style="padding-left: 1rem; margin: 0;">
+                                                <li>Greenland: -280 Gt/year (increasing)</li>
+                                                <li>Antarctica: -150 Gt/year (accelerating)</li>
+                                                <li>Sea level contribution: 1.1mm/year</li>
+                                                <li>West Antarctic ice sheet: unstable</li>
+                                                <li>Thwaites Glacier: "Doomsday glacier"</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Detailed Biome Cards -->
+        <!-- World Records Section -->
+        <section class="container mt-3xl">
+            <div class="expandable-section" id="biomeRecords">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>🏆</span>
+                        <span>Biome World Records</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <div class="grid grid-3 gap-lg">
+                        <div class="record-card">
+                            <div class="record-icon">🌳</div>
+                            <div class="record-info">
+                                <h4>Tallest Tree</h4>
+                                <div class="record-value">116m</div>
+                                <div class="record-detail">Hyperion (Coast Redwood), California temperate rainforest</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🏜️</div>
+                            <div class="record-info">
+                                <h4>Driest Place</h4>
+                                <div class="record-value">0.76mm/yr</div>
+                                <div class="record-detail">Atacama Desert, Chile - some spots no rain recorded</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🌧️</div>
+                            <div class="record-info">
+                                <h4>Wettest Biome Spot</h4>
+                                <div class="record-value">11,871mm/yr</div>
+                                <div class="record-detail">Mawsynram, India - tropical monsoon forest</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🌡️</div>
+                            <div class="record-info">
+                                <h4>Hottest Recorded</h4>
+                                <div class="record-value">56.7°C</div>
+                                <div class="record-detail">Death Valley, USA (1913) - hot desert biome</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🥶</div>
+                            <div class="record-info">
+                                <h4>Coldest Recorded</h4>
+                                <div class="record-value">-89.2°C</div>
+                                <div class="record-detail">Vostok Station, Antarctica (1983) - ice cap</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🌿</div>
+                            <div class="record-info">
+                                <h4>Most Species/Hectare</h4>
+                                <div class="record-value">942 trees</div>
+                                <div class="record-detail">Ecuador cloud forest - 1 hectare plot</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🪵</div>
+                            <div class="record-info">
+                                <h4>Oldest Tree</h4>
+                                <div class="record-value">5,068 years</div>
+                                <div class="record-detail">Methuselah (Bristlecone Pine), alpine/desert edge</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🦬</div>
+                            <div class="record-info">
+                                <h4>Largest Land Migration</h4>
+                                <div class="record-value">1.5M animals</div>
+                                <div class="record-detail">Serengeti wildebeest, tropical savanna</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-card">
+                            <div class="record-icon">🌾</div>
+                            <div class="record-info">
+                                <h4>Deepest Soil</h4>
+                                <div class="record-value">4.5m topsoil</div>
+                                <div class="record-detail">Ukrainian Chernozem, temperate grassland</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Biome Cards - KEEPING ALL ORIGINAL -->
         <section class="container mt-3xl">
             <h2 class="mb-lg">🌍 Biome Deep Dives</h2>
             
@@ -512,6 +2446,198 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- NEW: MEDITERRANEAN -->
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1555400082-cb48946f2e26?w=800&q=80" 
+                         alt="Mediterranean landscape" class="card-image" style="height: 200px;">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: linear-gradient(135deg, #f39c12, #e17055);">🌿</div>
+                            <div>
+                                <h3 class="card-title mb-0">Mediterranean</h3>
+                                <span class="card-subtitle">Hot-summer, wet-winter climate</span>
+                            </div>
+                        </div>
+
+                        <div class="quick-facts mt-md" style="padding: 0.75rem;">
+                            <div class="fact-item" style="padding: 0.5rem;">
+                                <div class="fact-value" style="font-size: 1rem;">2%</div>
+                                <div class="fact-label">of land</div>
+                            </div>
+                            <div class="fact-item" style="padding: 0.5rem;">
+                                <div class="fact-value" style="font-size: 1rem;">20%</div>
+                                <div class="fact-label">endemic plants</div>
+                            </div>
+                            <div class="fact-item" style="padding: 0.5rem;">
+                                <div class="fact-value" style="font-size: 1rem;">5</div>
+                                <div class="fact-label">regions</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-md">
+                            <h4 class="text-sm text-primary mb-sm">Five Mediterranean Regions</h4>
+                            <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>🇪🇸 Mediterranean Basin (maquis/garrigue)</li>
+                                <li>🇺🇸 California (chaparral)</li>
+                                <li>🇨🇱 Central Chile (matorral)</li>
+                                <li>🇿🇦 Cape Region (fynbos)</li>
+                                <li>🇦🇺 SW Australia (kwongan)</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-md">
+                            <h4 class="text-sm text-warning mb-sm">🔥 Fire-Adapted</h4>
+                            <p class="text-gray text-sm">
+                                Many species require fire to germinate. Thick bark, resprouting roots.
+                                Human fire suppression causes dangerous fuel buildup.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: TROPICAL SAVANNA -->
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=80" 
+                         alt="African savanna" class="card-image" style="height: 200px;">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: linear-gradient(135deg, #f1c40f, #e67e22);">🦁</div>
+                            <div>
+                                <h3 class="card-title mb-0">Tropical Savanna</h3>
+                                <span class="card-subtitle">Grassland with scattered trees</span>
+                            </div>
+                        </div>
+
+                        <div class="quick-facts mt-md" style="padding: 0.75rem;">
+                            <div class="fact-item" style="padding: 0.5rem;">
+                                <div class="fact-value" style="font-size: 1rem;">20M</div>
+                                <div class="fact-label">km²</div>
+                            </div>
+                            <div class="fact-item" style="padding: 0.5rem;">
+                                <div class="fact-value" style="font-size: 1rem;">1.5M</div>
+                                <div class="fact-label">wildebeest</div>
+                            </div>
+                            <div class="fact-item" style="padding: 0.5rem;">
+                                <div class="fact-value" style="font-size: 1rem;">Wet/Dry</div>
+                                <div class="fact-label">seasons</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-md">
+                            <h4 class="text-sm text-primary mb-sm">Iconic Locations</h4>
+                            <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>🇹🇿 Serengeti (Tanzania)</li>
+                                <li>🇰🇪 Maasai Mara (Kenya)</li>
+                                <li>🇧🇷 Cerrado (Brazil) - 50% converted</li>
+                                <li>🇦🇺 Northern Australia</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-md">
+                            <h4 class="text-sm text-primary mb-sm">Key Processes</h4>
+                            <ul class="text-gray text-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Fire every 1-5 years maintains grass</li>
+                                <li>Grazing by megaherbivores</li>
+                                <li>Wet-dry seasonality drives migrations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Human Impact Summary -->
+        <section class="container mt-3xl">
+            <div class="expandable-section" id="humanImpact">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>👥</span>
+                        <span>Human Impact on Biomes (2026 Summary)</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <div class="grid grid-2 gap-xl">
+                        <div>
+                            <h4 class="text-danger mb-md">Most Threatened Biomes</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">1. Temperate Grassland</span>
+                                <span class="biome-stat-value text-danger">99% converted</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">2. Mediterranean</span>
+                                <span class="biome-stat-value text-danger">70%+ developed</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">3. Tropical Rainforest</span>
+                                <span class="biome-stat-value text-warning">17% lost since 1970</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">4. Temperate Forest</span>
+                                <span class="biome-stat-value text-warning">Only 1% old-growth</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">5. Tropical Savanna</span>
+                                <span class="biome-stat-value text-warning">50% of Cerrado gone</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-success mb-md">Recovery Stories</h4>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">E. US Forest</span>
+                                <span class="biome-stat-value text-success">40% → 80%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">European Forest</span>
+                                <span class="biome-stat-value text-success">+10M ha since 1990</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">China Reforestation</span>
+                                <span class="biome-stat-value text-success">+50M ha planted</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">Costa Rica Forest</span>
+                                <span class="biome-stat-value text-success">25% → 52%</span>
+                            </div>
+                            <div class="biome-stat-row">
+                                <span class="biome-stat-label">American Bison</span>
+                                <span class="biome-stat-value text-success">~1,000 → 500,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-xl">
+                        <h4 class="text-primary mb-md">Conservation Priorities by Biome</h4>
+                        <div class="grid grid-3 gap-md">
+                            <div class="biome-detail-card">
+                                <h5>🌴 Rainforest</h5>
+                                <p class="text-sm text-gray">Stop deforestation, indigenous rights, REDD+ payments, sustainable agriculture certification</p>
+                            </div>
+                                                        <div class="biome-detail-card">
+                                <h5>🌾 Grassland</h5>
+                                <p class="text-sm text-gray">Protect remaining native prairies, regenerative grazing, restore bison, soil carbon credits</p>
+                            </div>
+                            <div class="biome-detail-card">
+                                <h5>🌲 Taiga</h5>
+                                <p class="text-sm text-gray">Fire management, reduce logging, protect peatlands, monitor permafrost</p>
+                            </div>
+                            <div class="biome-detail-card">
+                                <h5>❄️ Tundra</h5>
+                                <p class="text-sm text-gray">Limit industrial development, protect caribou migration routes, monitor methane</p>
+                            </div>
+                            <div class="biome-detail-card">
+                                <h5>🏜️ Desert</h5>
+                                <p class="text-sm text-gray">Combat desertification, sustainable water use, protect oases, solar development balance</p>
+                            </div>
+                            <div class="biome-detail-card">
+                                <h5>🌿 Mediterranean</h5>
+                                <p class="text-sm text-gray">Fire management, urban growth limits, protect endemic species, climate adaptation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -559,6 +2685,245 @@
                             <div class="text-xs text-gray">Desert</div>
                         </div>
                     </div>
+                    
+                    <!-- NEW: Expanded carbon details -->
+                    <div class="mt-xl" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                        <h4 class="text-primary mb-md">Where Carbon is Stored</h4>
+                        <div class="grid grid-2 gap-lg">
+                            <div>
+                                <div class="biome-stat-row">
+                                    <span class="biome-stat-label">🌴 Rainforest</span>
+                                    <span class="biome-stat-value">75% in living biomass</span>
+                                </div>
+                                <div class="biome-stat-row">
+                                    <span class="biome-stat-label">🌲 Taiga</span>
+                                    <span class="biome-stat-value">85% in soil & peat</span>
+                                </div>
+                                <div class="biome-stat-row">
+                                    <span class="biome-stat-label">🌾 Grassland</span>
+                                    <span class="biome-stat-value">95% below ground</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="biome-stat-row">
+                                    <span class="biome-stat-label">❄️ Tundra permafrost</span>
+                                    <span class="biome-stat-value">1,400 Gt frozen</span>
+                                </div>
+                                <div class="biome-stat-row">
+                                    <span class="biome-stat-label">🌳 Temperate</span>
+                                    <span class="biome-stat-value">50/50 split</span>
+                                </div>
+                                <div class="biome-stat-row">
+                                    <span class="biome-stat-label">🌿 Peatlands</span>
+                                    <span class="biome-stat-value">30% of soil carbon</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray mt-md">
+                            <strong>Key insight:</strong> Taiga and tundra store more carbon than tropical forests, but mostly in soil. 
+                            This makes them extremely vulnerable to climate warming, which accelerates decomposition and permafrost thaw.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Biome Shifts Section -->
+        <section class="container mt-3xl">
+            <div class="expandable-section" id="biomeShifts">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>🔄</span>
+                        <span>Climate-Driven Biome Shifts (Projected 2026-2100)</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <p class="text-gray mb-lg">Climate change is causing biomes to shift poleward and upward in elevation. Some may disappear entirely.</p>
+                    
+                    <div class="grid grid-2 gap-xl">
+                        <div>
+                            <h4 class="text-warning mb-md">Expected Shifts</h4>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(168, 230, 207, 0.3);">Tundra</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">Shrinking 30-50% as taiga moves north</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(77, 150, 255, 0.3);">Taiga</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">Shifting north 100-500km by 2100</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(46, 213, 115, 0.3);">Temperate</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">Replacing boreal in some regions</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(255, 165, 2, 0.3);">Grassland</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">Expanding into former forest zones</span>
+                            </div>
+                            <div class="climate-biome-link">
+                                <span class="link-climate" style="background: rgba(255, 107, 53, 0.3);">Desert</span>
+                                <span class="link-arrow">→</span>
+                                <span class="link-biome">Expanding into semi-arid regions</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-danger mb-md">Critical Tipping Points</h4>
+                            <div class="record-card mb-md">
+                                <div class="record-icon">🌴</div>
+                                <div class="record-info">
+                                    <h4>Amazon Dieback</h4>
+                                    <div class="record-value">20-25% deforestation</div>
+                                    <div class="record-detail">Could flip to savanna, releasing 90 Gt carbon</div>
+                                </div>
+                            </div>
+                            <div class="record-card mb-md">
+                                <div class="record-icon">❄️</div>
+                                <div class="record-info">
+                                    <h4>Permafrost Collapse</h4>
+                                    <div class="record-value">+2°C global warming</div>
+                                    <div class="record-detail">Irreversible thaw, methane release feedback</div>
+                                </div>
+                            </div>
+                            <div class="record-card">
+                                <div class="record-icon">🌲</div>
+                                <div class="record-info">
+                                    <h4>Boreal Fire Regime</h4>
+                                    <div class="record-value">2x fire frequency</div>
+                                    <div class="record-detail">Converting carbon sink to carbon source</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-xl">
+                        <h4 class="text-info mb-md">Alpine Biome Squeeze</h4>
+                        <p class="text-gray text-sm">
+                            Mountain species are moving upslope at ~11m/decade. But mountains have finite height. 
+                            Species adapted to highest elevations have nowhere to go—facing extinction. 
+                            Alpine tundra could lose 40-90% of current range by 2100.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ecosystem Services -->
+        <section class="container mt-3xl mb-3xl">
+            <div class="expandable-section" id="ecosystemServices">
+                <div class="expandable-header">
+                    <div class="expandable-title">
+                        <span>💰</span>
+                        <span>Ecosystem Services Value by Biome</span>
+                    </div>
+                    <button class="expandable-toggle">▼</button>
+                </div>
+                <div class="expandable-body">
+                    <p class="text-gray mb-lg">Biomes provide trillions in ecosystem services annually. These are conservative estimates of nature's economic contributions.</p>
+                    
+                    <div class="grid grid-3 gap-lg">
+                        <div class="biome-detail-card">
+                            <h5>🌴 Tropical Forest</h5>
+                            <div class="species-counter">$2,007/ha/yr</div>
+                            <ul class="text-sm text-gray mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Carbon sequestration</li>
+                                <li>Rainfall generation</li>
+                                <li>Biodiversity reservoir</li>
+                                <li>Medicinal compounds</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="biome-detail-card">
+                            <h5>🌊 Coastal Wetlands</h5>
+                            <div class="species-counter">$194,000/ha/yr</div>
+                            <ul class="text-sm text-gray mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Storm protection</li>
+                                <li>Fisheries nursery</li>
+                                <li>Water filtration</li>
+                                <li>Carbon storage</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="biome-detail-card">
+                            <h5>🌾 Grassland</h5>
+                            <div class="species-counter">$906/ha/yr</div>
+                            <ul class="text-sm text-gray mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Soil formation</li>
+                                <li>Water cycling</li>
+                                <li>Pollination services</li>
+                                <li>Grazing support</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="biome-detail-card">
+                            <h5>🌲 Temperate Forest</h5>
+                            <div class="species-counter">$1,127/ha/yr</div>
+                            <ul class="text-sm text-gray mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Air purification</li>
+                                <li>Water regulation</li>
+                                <li>Timber production</li>
+                                <li>Recreation value</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="biome-detail-card">
+                            <h5>🏜️ Desert</h5>
+                            <div class="species-counter">$275/ha/yr</div>
+                            <ul class="text-sm text-gray mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Mineral resources</li>
+                                <li>Solar energy potential</li>
+                                <li>Unique biodiversity</li>
+                                <li>Cultural value</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="biome-detail-card">
+                            <h5>❄️ Tundra/Polar</h5>
+                            <div class="species-counter">$267/ha/yr</div>
+                            <ul class="text-sm text-gray mt-sm" style="padding-left: 1rem; margin: 0;">
+                                <li>Climate regulation</li>
+                                <li>Carbon storage</li>
+                                <li>Freshwater reserves</li>
+                                <li>Scientific value</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-xl" style="background: rgba(46, 213, 115, 0.1); border-color: rgba(46, 213, 115, 0.3);">
+                        <div class="card-content">
+                            <div class="flex justify-between align-center flex-wrap gap-md">
+                                <div>
+                                    <h4 class="text-success mb-xs">Total Global Ecosystem Services</h4>
+                                    <p class="text-gray text-sm mb-0">Annual value of nature's contributions to humanity</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="species-counter" style="font-size: 2.5rem;">$125-145 Trillion</div>
+                                    <div class="text-sm text-gray">per year (1.5x global GDP)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Quiz Teaser -->
+        <section class="container mt-3xl mb-3xl">
+            <div class="card" style="background: linear-gradient(135deg, rgba(77, 150, 255, 0.15), rgba(107, 203, 119, 0.15)); border-color: rgba(77, 150, 255, 0.3);">
+                <div class="card-content text-center" style="padding: 3rem 2rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">🧠</div>
+                    <h3 class="mb-sm">Test Your Biome Knowledge</h3>
+                    <p class="text-gray mb-lg" style="max-width: 600px; margin: 0 auto 1.5rem;">
+                        Think you know your biomes? Take our interactive quiz to test your knowledge 
+                        about climate-ecosystem relationships, species adaptations, and conservation challenges.
+                    </p>
+                    <a href="interactive-tools.html" class="btn btn-primary btn-lg">
+                        Go to Interactive Tools →
+                    </a>
                 </div>
             </div>
         </section>
@@ -567,20 +2932,170 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-bottom">
-                <div class="footer-copyright">© 2024 Geotopia Climate</div>
-                <div class="flex gap-md">
+                <div class="footer-copyright">© 2024 Geotopia Climate • Data updated March 28, 2026</div>
+                <div class="flex gap-md flex-wrap">
                     <a href="index.html">Climate Hub</a>
                     <a href="biomes-aquatic.html">Aquatic Biomes</a>
                     <a href="koppen-complete.html">Köppen System</a>
+                    <a href="climate-change-impacts.html">Climate Impacts</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <script>
+        // Mobile Navigation Toggle
         document.querySelector('.nav-toggle')?.addEventListener('click', () => {
             document.querySelector('.nav-links').classList.toggle('active');
         });
+
+        // Biome Glance Cards - Expandable
+        const biomeGlanceCards = document.querySelectorAll('.biome-glance-card');
+        const biomeExpandedPanels = document.querySelectorAll('.biome-glance-expanded');
+
+        biomeGlanceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const biomeId = card.dataset.biome;
+                const isExpanded = card.classList.contains('expanded');
+                
+                // Close all cards and panels
+                biomeGlanceCards.forEach(c => c.classList.remove('expanded'));
+                biomeExpandedPanels.forEach(p => p.classList.remove('active'));
+                
+                // If wasn't expanded, open this one
+                if (!isExpanded) {
+                    card.classList.add('expanded');
+                    const panel = document.querySelector(`.biome-glance-expanded[data-for="${biomeId}"]`);
+                    if (panel) {
+                        panel.classList.add('active');
+                        // Smooth scroll to panel on mobile
+                        if (window.innerWidth < 768) {
+                            setTimeout(() => {
+                                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }, 100);
+                        }
+                    }
+                }
+            });
+        });
+
+        // Biome Table Row Expansion
+        const biomeTableRows = document.querySelectorAll('.biome-table-row');
+        
+        biomeTableRows.forEach(row => {
+            row.addEventListener('click', () => {
+                const biomeRowId = row.dataset.biomeRow;
+                const isExpanded = row.classList.contains('expanded');
+                const expandedRow = document.querySelector(`.biome-expanded-row[data-for-row="${biomeRowId}"]`);
+                
+                // Close all expanded rows first
+                document.querySelectorAll('.biome-table-row').forEach(r => r.classList.remove('expanded'));
+                document.querySelectorAll('.biome-expanded-row').forEach(r => r.classList.remove('active'));
+                
+                // Toggle this row
+                if (!isExpanded && expandedRow) {
+                    row.classList.add('expanded');
+                    expandedRow.classList.add('active');
+                    
+                    // Update button text
+                    const btn = row.querySelector('.btn');
+                    if (btn) btn.textContent = '▲';
+                }
+                
+                // Reset all button texts
+                document.querySelectorAll('.biome-table-row').forEach(r => {
+                    const btn = r.querySelector('.btn');
+                    if (btn) {
+                        btn.textContent = r.classList.contains('expanded') ? '▲' : '▼';
+                    }
+                });
+            });
+        });
+
+        // Generic Expandable Sections
+        const expandableSections = document.querySelectorAll('.expandable-section');
+        
+        expandableSections.forEach(section => {
+            const header = section.querySelector('.expandable-header');
+            
+            header.addEventListener('click', () => {
+                section.classList.toggle('expanded');
+            });
+        });
+
+        // Animate numbers on scroll (for live monitoring)
+        const animateValue = (element, start, end, duration) => {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px'
+        };
+
+        const animationObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Animate cards on scroll
+        document.querySelectorAll('.card, .monitor-card, .record-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            animationObserver.observe(card);
+        });
+
+        // Coverage bar animations
+        const coverageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const fill = entry.target.querySelector('.coverage-fill, .health-fill');
+                    if (fill) {
+                        const width = fill.style.width;
+                        fill.style.width = '0%';
+                        setTimeout(() => {
+                            fill.style.width = width;
+                        }, 100);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.coverage-bar, .health-bar').forEach(bar => {
+            coverageObserver.observe(bar);
+        });
+
+        // Add keyboard navigation for accessibility
+        document.querySelectorAll('.biome-glance-card, .biome-table-row, .expandable-header').forEach(el => {
+            el.setAttribute('tabindex', '0');
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    el.click();
+                }
+            });
+        });
+
+        // Console welcome message
+        console.log('%c🌍 Geotopia Biomes', 'font-size: 20px; font-weight: bold; color: #2ed573;');
+        console.log('%cExplore Earth\'s terrestrial ecosystems', 'font-size: 12px; color: #888;');
+        console.log('%cLive data as of March 28, 2026', 'font-size: 11px; color: #666;');
     </script>
 </body>
 </html>
