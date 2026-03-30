@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Capes & Points | Geotopia Encyclopedia</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        /* ============================================
+           OCEANIC FRONTIER THEME - CSS Variables
+           ============================================ */
+        :root {
+            /* Primary: Deep Ocean */
+            --ocean-abyss: #0a1628;
+            --ocean-deep: #0f2744;
+            --ocean-medium: #163d5c;
+            --ocean-light: #1e5074;
+            --ocean-surface: #2a6a8a;
+            
+            /* Accent: Coral Sunset */
+            --coral-primary: #ff6b6b;
+            --coral-glow: #ff8787;
+            --coral-dark: #ee5a5a;
+            --coral-deep: #c44d4d;
+            
+            /* Secondary: Seafoam Teal */
+            --teal-primary: #20c997;
+            --teal-glow: #38d9a9;
+            --teal-dark: #12b886;
+            --teal-deep: #0ca678;
+            
+            /* Tertiary: Lighthouse Gold */
+            --gold-primary: #ffd43b;
+            --gold-glow: #ffe066;
+            --gold-dark: #fab005;
+            
+            /* Wave Colors */
+            --wave-crest: #74c0fc;
+            --wave-trough: #339af0;
+            --foam-white: #e7f5ff;
+            
+            /* Text */
+            --text-primary: #f8f9fa;
+            --text-secondary: #ced4da;
+            --text-muted: #868e96;
+            --text-dark: #495057;
+            
+            /* Status */
+            --status-safe: #51cf66;
+            --status-caution: #fcc419;
+            --status-danger: #ff6b6b;
+            --status-info: #339af0;
+            
+            /* Severity */
+            --severity-extreme: #ff4757;
+            --severity-high: #ff7f50;
+            --severity-moderate: #ffa502;
+            --severity-low: #2ed573;
+            --severity-minimal: #1e90ff;
+            
+            /* Glass Morphism */
+            --glass-bg: rgba(15, 39, 68, 0.85);
+            --glass-border: rgba(116, 192, 252, 0.15);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            
+            /* Gradients */
+            --gradient-ocean: linear-gradient(180deg, #0a1628 0%, #0f2744 50%, #163d5c 100%);
+            --gradient-sunset: linear-gradient(135deg, #ff6b6b 0%, #ffd43b 100%);
+            --gradient-wave: linear-gradient(90deg, #339af0 0%, #20c997 50%, #339af0 100%);
+            --gradient-card: linear-gradient(145deg, rgba(30, 80, 116, 0.6) 0%, rgba(15, 39, 68, 0.9) 100%);
+            --gradient-hero: linear-gradient(180deg, rgba(10, 22, 40, 0.3) 0%, rgba(10, 22, 40, 0.95) 100%);
+            
+            /* Special Effects */
+            --glow-coral: 0 0 30px rgba(255, 107, 107, 0.4);
+            --glow-teal: 0 0 30px rgba(32, 201, 151, 0.4);
+            --glow-wave: 0 0 20px rgba(116, 192, 252, 0.3);
+            --lighthouse-beam: 0 0 60px rgba(255, 212, 59, 0.6);
+        }
+
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient-ocean);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           ANIMATED OCEAN BACKGROUND
+           ============================================ */
+        .ocean-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C150,120 350,0 600,60 C850,120 1050,0 1200,60 L1200,120 L0,120 Z' fill='rgba(116,192,252,0.1)'/%3E%3C/svg%3E") repeat-x;
+            animation: wave 15s linear infinite;
+        }
+
+        .wave:nth-child(2) {
+            bottom: 10px;
+            opacity: 0.5;
+            animation: wave 12s linear infinite reverse;
+        }
+
+        .wave:nth-child(3) {
+            bottom: 20px;
+            opacity: 0.3;
+            animation: wave 20s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Lighthouse Beacon Effect */
+        .lighthouse-beacon {
+            position: fixed;
+            top: 50px;
+            right: 50px;
+            width: 10px;
+            height: 10px;
+            background: var(--gold-primary);
+            border-radius: 50%;
+            animation: beacon 4s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes beacon {
+            0%, 100% { box-shadow: var(--lighthouse-beam), 0 0 5px var(--gold-primary); opacity: 1; }
+            50% { box-shadow: 0 0 10px rgba(255, 212, 59, 0.2); opacity: 0.3; }
+        }
+
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-brand i {
+            font-size: 1.8rem;
+            color: var(--coral-primary);
+        }
+
+        .nav-brand span {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient-sunset);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a:hover {
+            color: var(--coral-primary);
+        }
+
+        /* Cape Selector Dropdown */
+        .cape-selector {
+            position: relative;
+        }
+
+        .cape-select {
+            appearance: none;
+            background: linear-gradient(145deg, var(--ocean-medium), var(--ocean-deep));
+            border: 2px solid var(--coral-primary);
+            border-radius: 12px;
+            padding: 12px 45px 12px 20px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 280px;
+            box-shadow: var(--glow-coral);
+            transition: all 0.3s ease;
+        }
+
+        .cape-select:hover {
+            border-color: var(--coral-glow);
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.5);
+        }
+
+        .cape-select:focus {
+            outline: none;
+            border-color: var(--teal-primary);
+            box-shadow: var(--glow-teal);
+        }
+
+        .cape-selector::after {
+            content: '▼';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--coral-primary);
+            pointer-events: none;
+            font-size: 0.8rem;
+        }
+
+        .cape-select optgroup {
+            background: var(--ocean-deep);
+            color: var(--coral-primary);
+            font-weight: 700;
+            padding: 10px;
+        }
+
+        .cape-select option {
+            background: var(--ocean-abyss);
+            color: var(--text-primary);
+            padding: 12px;
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            position: relative;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 120px 5% 60px;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(116,192,252,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            z-index: -1;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(to top, var(--ocean-abyss), transparent);
+        }
+
+        /* Compass Rose Animation */
+        .compass-rose {
+            position: absolute;
+            top: 50%;
+            right: 10%;
+            transform: translateY(-50%);
+            width: 400px;
+            height: 400px;
+            opacity: 0.1;
+            animation: compassSpin 60s linear infinite;
+        }
+
+        @keyframes compassSpin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(81, 207, 102, 0.2);
+            border: 1px solid var(--status-safe);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--status-safe);
+            margin-bottom: 1.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-badge.caution {
+            background: rgba(252, 196, 25, 0.2);
+            border-color: var(--status-caution);
+            color: var(--status-caution);
+        }
+
+        .status-badge.danger {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: var(--status-danger);
+            color: var(--status-danger);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--wave-crest) 50%, var(--coral-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        /* Quick Stats */
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--coral-primary);
+            box-shadow: var(--glow-coral);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--coral-primary);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Meta Badges */
+        .meta-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(116, 192, 252, 0.1);
+            border: 1px solid var(--wave-crest);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            color: var(--wave-crest);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .action-btn.primary {
+            background: var(--gradient-sunset);
+            color: var(--ocean-abyss);
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow-coral);
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--teal-primary);
+            color: var(--teal-primary);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--teal-primary);
+            color: var(--ocean-abyss);
+        }
+
+        /* ============================================
+           MAIN CONTENT
+           ============================================ */
+        .main-content {
+            padding: 0 5% 4rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-card);
+            border: 2px solid var(--coral-primary);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            color: var(--coral-primary);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* ============================================
+           BOTTOM LINE BOX
+           ============================================ */
+        .bottom-line-box {
+            background: linear-gradient(145deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05));
+            border: 2px solid var(--coral-primary);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bottom-line-box::before {
+            content: '60 SECONDS';
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--coral-primary);
+            color: var(--ocean-abyss);
+            padding: 8px 20px;
+            border-radius: 0 18px 0 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .bottom-line-box h3 {
+            color: var(--coral-primary);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .bottom-line-list {
+            list-style: none;
+        }
+
+        .bottom-line-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .bottom-line-list li:last-child {
+            border-bottom: none;
+        }
+
+        .bottom-line-list li::before {
+            content: '▸';
+            color: var(--coral-primary);
+            font-weight: bold;
+        }
+
+        /* ============================================
+           DATA CARDS & GRIDS
+           ============================================ */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .data-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .data-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--teal-primary);
+            box-shadow: var(--glow-teal);
+        }
+
+        .data-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-card-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(32, 201, 151, 0.2);
+            border-radius: 10px;
+            color: var(--teal-primary);
+        }
+
+        .data-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .data-card ul {
+            list-style: none;
+        }
+
+        .data-card li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .data-card li i {
+            color: var(--coral-primary);
+            width: 16px;
+        }
+
+        /* ============================================
+           DATA TABLE
+           ============================================ */
+        .data-table-wrapper {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            background: var(--gradient-card);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: rgba(255, 107, 107, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--coral-primary);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--coral-primary);
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+
+        .data-table tr:hover td {
+            background: rgba(116, 192, 252, 0.05);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ============================================
+           INFO BOXES
+           ============================================ */
+        .info-box {
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .info-box.warning {
+            background: rgba(252, 196, 25, 0.1);
+            border-left: 4px solid var(--status-caution);
+        }
+
+        .info-box.danger {
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 4px solid var(--status-danger);
+        }
+
+        .info-box.info {
+            background: rgba(51, 154, 240, 0.1);
+            border-left: 4px solid var(--status-info);
+        }
+
+        .info-box.success {
+            background: rgba(81, 207, 102, 0.1);
+            border-left: 4px solid var(--status-safe);
+        }
+
+        .info-box-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ============================================
+           MAP CONTAINER
+           ============================================ */
+        .map-container {
+            height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid var(--glass-border);
+            margin: 2rem 0;
+        }
+
+        .map-container .leaflet-container {
+            background: var(--ocean-abyss);
+        }
+
+        /* ============================================
+           CHART CONTAINER
+           ============================================ */
+        .chart-container {
+            background: var(--gradient-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        /* ============================================
+           THREAT MATRIX
+           ============================================ */
+        .threat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .threat-card {
+            background: var(--gradient-card);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid var(--severity-high);
+        }
+
+        .threat-card.extreme {
+            border-left-color: var(--severity-extreme);
+        }
+
+        .threat-card.high {
+            border-left-color: var(--severity-high);
+        }
+
+        .threat-card.moderate {
+            border-left-color: var(--severity-moderate);
+        }
+
+        .threat-card.low {
+            border-left-color: var(--severity-low);
+        }
+
+        .threat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .threat-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .threat-level {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .threat-level.extreme {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--severity-extreme);
+        }
+
+        .threat-level.high {
+            background: rgba(255, 127, 80, 0.2);
+            color: var(--severity-high);
+        }
+
+        .threat-level.moderate {
+            background: rgba(255, 165, 2, 0.2);
+            color: var(--severity-moderate);
+        }
+
+        .threat-level.low {
+            background: rgba(46, 213, 115, 0.2);
+            color: var(--severity-low);
+        }
+
+        /* ============================================
+           TIMELINE
+           ============================================ */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--coral-primary), var(--teal-primary));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: var(--coral-primary);
+            border-radius: 50%;
+            border: 3px solid var(--ocean-abyss);
+        }
+
+        .timeline-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--coral-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content {
+            background: var(--gradient-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ============================================
+           SWOT ANALYSIS
+           ============================================ */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .swot-card {
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .swot-card.strengths {
+            background: rgba(81, 207, 102, 0.1);
+            border: 1px solid var(--status-safe);
+        }
+
+        .swot-card.weaknesses {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid var(--status-danger);
+        }
+
+        .swot-card.opportunities {
+            background: rgba(51, 154, 240, 0.1);
+            border: 1px solid var(--status-info);
+        }
+
+        .swot-card.threats {
+            background: rgba(255, 165, 2, 0.1);
+            border: 1px solid var(--status-caution);
+        }
+
+        .swot-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .swot-card.strengths .swot-title { color: var(--status-safe); }
+        .swot-card.weaknesses .swot-title { color: var(--status-danger); }
+        .swot-card.opportunities .swot-title { color: var(--status-info); }
+        .swot-card.threats .swot-title { color: var(--status-caution); }
+
+        .swot-card ul {
+            list-style: none;
+        }
+
+        .swot-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .swot-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .swot-card.strengths li::before { color: var(--status-safe); }
+        .swot-card.weaknesses li::before { color: var(--status-danger); }
+        .swot-card.opportunities li::before { color: var(--status-info); }
+        .swot-card.threats li::before { color: var(--status-caution); }
+
+        /* ============================================
+           SCORECARD
+           ============================================ */
+        .scorecard {
+            background: var(--gradient-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .score-label {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .score-bar {
+            flex: 2;
+            height: 8px;
+            background: var(--ocean-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .score-fill.excellent { background: var(--status-safe); }
+        .score-fill.good { background: var(--teal-primary); }
+        .score-fill.moderate { background: var(--status-caution); }
+        .score-fill.poor { background: var(--status-danger); }
+
+        .score-value {
+            width: 50px;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--coral-primary);
+        }
+
+        /* ============================================
+           VERDICT BOX
+           ============================================ */
+        .verdict-box {
+            background: linear-gradient(145deg, rgba(32, 201, 151, 0.1), rgba(32, 201, 151, 0.05));
+            border: 2px solid var(--teal-primary);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .verdict-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--teal-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .verdict-summary {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .verdict-takeaways {
+            background: rgba(10, 22, 40, 0.5);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .verdict-takeaways h4 {
+            color: var(--coral-primary);
+            margin-bottom: 1rem;
+        }
+
+        .verdict-takeaways ul {
+            list-style: none;
+        }
+
+        .verdict-takeaways li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .verdict-takeaways li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--teal-primary);
+            font-weight: bold;
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            background: var(--ocean-abyss);
+            border-top: 1px solid var(--glass-border);
+            padding: 3rem 5%;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            color: var(--coral-primary);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            padding: 0.4rem 0;
+        }
+
+        .footer-section a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--teal-primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 1024px) {
+            .compass-rose {
+                width: 250px;
+                height: 250px;
+                opacity: 0.05;
+            }
+            
+            .swot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+            
+            .cape-select {
+                min-width: 100%;
+            }
+            
+            .hero {
+                padding: 100px 5% 40px;
+                min-height: auto;
+            }
+            
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .compass-rose {
+                display: none;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .lighthouse-beacon {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .meta-badges {
+                flex-direction: column;
+            }
+            
+            .meta-badge {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ============================================
+           PRINT STYLES
+           ============================================ */
+        @media print {
+            .navbar,
+            .lighthouse-beacon,
+            .ocean-bg,
+            .quick-actions,
+            .action-btn {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .hero {
+                min-height: auto;
+                padding: 20px;
+            }
+            
+            .hero-title {
+                background: none;
+                -webkit-text-fill-color: black;
+                color: black;
+            }
+            
+            .data-card,
+            .chart-container,
+            .bottom-line-box,
+            .verdict-box {
+                break-inside: avoid;
+                border: 1px solid #ccc;
+                background: white;
+            }
+        }
+
+        /* ============================================
+           LOADING ANIMATION
+           ============================================ */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--ocean-abyss);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--ocean-light);
+            border-top-color: var(--coral-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Charting coordinates...</p>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="ocean-bg">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+    
+    <!-- Lighthouse Beacon -->
+    <div class="lighthouse-beacon"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="../../../index.html" class="nav-brand">
+            <i class="fas fa-compass"></i>
+            <span>GEOTOPIA</span>
+        </a>
+        
+        <ul class="nav-links">
+            <li><a href="../../index.html"><i class="fas fa-home"></i> Encyclopedia</a></li>
+            <li><a href="../index.html"><i class="fas fa-map-marker-alt"></i> Strategic Locations</a></li>
+            <li><a href="../straits/index.html"><i class="fas fa-water"></i> Straits</a></li>
+            <li><a href="../mountain-passes/index.html"><i class="fas fa-mountain"></i> Passes</a></li>
+        </ul>
+        
+        <div class="cape-selector">
+            <select class="cape-select" id="capeSelector" onchange="selectCape(this.value)">
+                <option value="">🧭 Select Cape/Point</option>
+                
+                <optgroup label="🔴 TIER 1: Historic Navigation">
+                    <option value="cape-of-good-hope">🇿🇦 Cape of Good Hope</option>
+                    <option value="cape-horn">🇨🇱 Cape Horn</option>
+                    <option value="cape-agulhas">🇿🇦 Cape Agulhas (Africa's Tip)</option>
+                    <option value="cabo-da-roca">🇵🇹 Cabo da Roca (Europe's Edge)</option>
+                    <option value="north-cape">🇳🇴 North Cape (Nordkapp)</option>
+                </optgroup>
+                
+                <optgroup label="🟠 TIER 2: Strategic Points">
+                    <option value="cape-guardafui">🇸🇴 Cape Guardafui (Horn of Africa)</option>
+                    <option value="point-nemo">🌊 Point Nemo (Oceanic Pole)</option>
+                    <option value="cape-comorin">🇮🇳 Cape Comorin (Kanyakumari)</option>
+                    <option value="cape-finisterre">🇪🇸 Cape Finisterre</option>
+                    <option value="cape-leeuwin">🇦🇺 Cape Leeuwin</option>
+                </optgroup>
+                
+                <optgroup label="🟡 TIER 3: Regional Landmarks">
+                    <option value="cape-hatteras">🇺🇸 Cape Hatteras</option>
+                    <option value="cape-cod">🇺🇸 Cape Cod</option>
+                    <option value="cape-york">🇦🇺 Cape York</option>
+                    <option value="cape-reinga">🇳🇿 Cape Reinga</option>
+                    <option value="cape-bojador">🇲🇦 Cape Bojador</option>
+                </optgroup>
+                
+                <optgroup label="🟢 TIER 4: Other Notable">
+                    <option value="cape-town-point">🇿🇦 Cape Town Point</option>
+                    <option value="lands-end">🇬🇧 Land's End</option>
+                    <option value="point-barrow">🇺🇸 Point Barrow (Alaska)</option>
+                    <option value="cape-dezhnev">🇷🇺 Cape Dezhnev</option>
+                    <option value="cape-prince-of-wales">🇺🇸 Cape Prince of Wales</option>
+                </optgroup>
+            </select>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero">
+        <div class="hero-bg"></div>
+        
+        <!-- Compass SVG Background -->
+        <svg class="compass-rose" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(255,107,107,0.3)" stroke-width="2"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(32,201,151,0.2)" stroke-width="1"/>
+            <circle cx="100" cy="100" r="60" fill="none" stroke="rgba(116,192,252,0.2)" stroke-width="1"/>
+            <path d="M100,5 L105,100 L100,195 L95,100 Z" fill="rgba(255,107,107,0.4)"/>
+            <path d="M5,100 L100,95 L195,100 L100,105 Z" fill="rgba(32,201,151,0.3)"/>
+            <circle cx="100" cy="100" r="10" fill="rgba(255,212,59,0.5)"/>
+        </svg>
+        
+        <div class="hero-content">
+            <div class="status-badge" id="statusBadge">
+                <i class="fas fa-anchor"></i>
+                <span id="statusText">NAVIGATIONAL LANDMARK</span>
+            </div>
+            
+            <h1 class="hero-title" id="heroTitle">🧭 Cape of Good Hope</h1>
+            <p class="hero-subtitle" id="heroSubtitle">"Where the Atlantic Meets the Indian Ocean"</p>
+            
+            <!-- Quick Stats -->
+            <div class="hero-stats" id="heroStats">
+                <div class="stat-card">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-value" id="statLat">34.35°S</div>
+                    <div class="stat-label">Latitude</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌐</div>
+                    <div class="stat-value" id="statLon">18.47°E</div>
+                    <div class="stat-label">Longitude</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📏</div>
+                    <div class="stat-value" id="statElevation">238m</div>
+                    <div class="stat-label">Elevation</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value" id="statDanger">HIGH</div>
+                    <div class="stat-label">Nav. Hazard</div>
+                </div>
+            </div>
+            
+            <!-- Meta Badges -->
+            <div class="meta-badges" id="metaBadges">
+                <span class="meta-badge"><i class="fas fa-flag"></i> South Africa</span>
+                <span class="meta-badge"><i class="fas fa-water"></i> Atlantic/Indian Junction</span>
+                <span class="meta-badge"><i class="fas fa-ship"></i> Historic Trade Route</span>
+                <span class="meta-badge"><i class="fas fa-calendar"></i> Discovered 1488</span>
+                <span class="meta-badge"><i class="fas fa-wind"></i> Roaring Forties</span>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="#map" class="action-btn primary">
+                    <i class="fas fa-map-marked-alt"></i> View on Map
+                </a>
+                <a href="#strategic" class="action-btn secondary">
+                    <i class="fas fa-crosshairs"></i> Strategic Analysis
+                </a>
+                <a href="#history" class="action-btn secondary">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <button class="action-btn secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- BOTTOM LINE BOX -->
+        <div class="bottom-line-box">
+            <h3><i class="fas fa-bolt"></i> IF YOU ONLY HAVE 60 SECONDS:</h3>
+            <ul class="bottom-line-list" id="bottomLineList">
+                <li><strong>NOT actually Africa's southernmost point</strong> - Cape Agulhas is 150km southeast</li>
+                <li><strong>Historic gateway</strong> - Rounding this cape opened Europe-Asia sea trade (1488)</li>
+                <li><strong>Navigation hazard</strong> - Strong currents, fierce storms, "Graveyard of Ships"</li>
+                <li><strong>Strategic bypass</strong> - Alternative to Suez Canal for supertankers</li>
+                <li><strong>Two oceans meet</strong> - Cold Benguela Current meets warm Agulhas Current</li>
+            </ul>
+        </div>
+
+        <!-- SECTION: GEOGRAPHIC PROFILE -->
+        <section class="section" id="profile">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-globe-africa"></i></div>
+                <div>
+                    <h2 class="section-title">Geographic Profile</h2>
+                    <p class="section-subtitle">Physical characteristics & coordinates</p>
+                </div>
+            </div>
+            
+            <div class="data-table-wrapper">
+                <table class="data-table" id="profileTable">
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-map-pin"></i> Coordinates</td>
+                        <td><span class="mono">34°21'25"S, 18°28'26"E</span></td>
+                        <td>Cape Peninsula, South Africa</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-mountain"></i> Elevation</td>
+                        <td>238 meters (Cape Point)</td>
+                        <td>Lighthouse at 249m</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-flag"></i> Country</td>
+                        <td>🇿🇦 South Africa</td>
+                        <td>Western Cape Province</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-water"></i> Bodies of Water</td>
+                        <td>Atlantic Ocean / Indian Ocean</td>
+                        <td>Traditional meeting point</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-ruler"></i> Distance to Cape Agulhas</td>
+                        <td>~150 km Southeast</td>
+                        <td>True southernmost point</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-city"></i> Nearest Major City</td>
+                        <td>Cape Town (60 km)</td>
+                        <td>Table Mountain visible</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION: INTERACTIVE MAP -->
+        <section class="section" id="map">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-map"></i></div>
+                <div>
+                    <h2 class="section-title">Location Map</h2>
+                    <p class="section-subtitle">Interactive geographic visualization</p>
+                </div>
+            </div>
+            
+            <div class="map-container" id="mainMap"></div>
+        </section>
+
+        <!-- SECTION: STRATEGIC IMPORTANCE -->
+        <section class="section" id="strategic">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-crosshairs"></i></div>
+                <div>
+                    <h2 class="section-title">Strategic Importance</h2>
+                    <p class="section-subtitle">Why this location matters geopolitically</p>
+                </div>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-icon"><i class="fas fa-route"></i></div>
+                        <h3 class="data-card-title">Trade Route Significance</h3>
+                    </div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Historic Europe-Asia maritime connection</li>
+                        <li><i class="fas fa-check"></i> Suez Canal alternative for large vessels</li>
+                        <li><i class="fas fa-check"></i> VLCC/ULCC tanker route (too large for Suez)</li>
+                        <li><i class="fas fa-check"></i> Strategic during Suez closures (1956, 1967, 2021)</li>
+                        <li><i class="fas fa-check"></i> ~11,000+ ships annually round the Cape</li>
+                    </ul>
+                </div>
+                
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3 class="data-card-title">Military/Naval Value</h3>
+                    </div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> South African Navy patrols</li>
+                        <li><i class="fas fa-check"></i> Cold War strategic chokepoint</li>
+                        <li><i class="fas fa-check"></i> Submarine monitoring station nearby</li>
+                        <li><i class="fas fa-check"></i> NATO interest during apartheid era</li>
+                        <li><i class="fas fa-check"></i> BRICS naval exercises region</li>
+                    </ul>
+                </div>
+                
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <h3 class="data-card-title">Economic Impact</h3>
+                    </div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> $5+ trillion cargo annually via Cape route</li>
+                        <li><i class="fas fa-check"></i> 20% of global oil shipments (supertankers)</li>
+                        <li><i class="fas fa-check"></i> Tourism: 1M+ visitors/year to Cape Point</li>
+                        <li><i class="fas fa-check"></i> Fishing industry hub</li>
+                        <li><i class="fas fa-check"></i> Ship resupply/bunkering at Cape Town</li>
+                    </ul>
+                </div>
+                
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-icon"><i class="fas fa-anchor"></i></div>
+                        <h3 class="data-card-title">Navigation Details</h3>
+                    </div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Cape Point Lighthouse: Fl(3) 30s, 87m range</li>
+                        <li><i class="fas fa-check"></i> Traffic Separation Scheme in effect</li>
+                        <li><i class="fas fa-check"></i> Mandatory ship reporting (CAPE TOWN MRCC)</li>
+                        <li><i class="fas fa-check"></i> Pilot recommended for inshore passage</li>
+                        <li><i class="fas fa-check"></i> VHF Channel 16 monitoring</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: HAZARDS & RISKS -->
+        <section class="section" id="hazards">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div>
+                    <h2 class="section-title">Hazards & Risks</h2>
+                    <p class="section-subtitle">Navigation dangers and maritime threats</p>
+                </div>
+            </div>
+            
+            <div class="threat-grid">
+                <div class="threat-card extreme">
+                    <div class="threat-header">
+                        <span class="threat-title"><i class="fas fa-wind"></i> Storm Systems</span>
+                        <span class="threat-level extreme">EXTREME</span>
+                    </div>
+                    <ul>
+                        <li>• "Roaring Forties" wind belt</li>
+                        <li>• 15-20m waves in winter storms</li>
+                        <li>• Sudden weather changes</li>
+                        <li>• Force 10+ gales common</li>
+                    </ul>
+                </div>
+                
+                <div class="threat-card high">
+                    <div class="threat-header">
+                        <span class="threat-title"><i class="fas fa-water"></i> Rogue Waves</span>
+                        <span class="threat-level high">HIGH</span>
+                    </div>
+                    <ul>
+                        <li>• Agulhas Current interaction</li>
+                        <li>• 30m+ freak waves documented</li>
+                        <li>• Ship structural damage</li>
+                        <li>• MV Onomichi (2023) incident</li>
+                    </ul>
+                </div>
+                
+                <div class="threat-card high">
+                    <div class="threat-header">
+                        <span class="threat-title"><i class="fas fa-random"></i> Strong Currents</span>
+                        <span class="threat-level high">HIGH</span>
+                    </div>
+                    <ul>
+                        <li>• Agulhas Current (warm, southward)</li>
+                        <li>• Benguela Current (cold, northward)</li>
+                        <li>• 5+ knot currents</li>
+                        <li>• Current reversals</li>
+                    </ul>
+                </div>
+                
+                <div class="threat-card moderate">
+                    <div class="threat-header">
+                        <span class="threat-title"><i class="fas fa-smog"></i> Fog & Visibility</span>
+                        <span class="threat-level moderate">MODERATE</span>
+                    </div>
+                    <ul>
+                        <li>• Cold water fog banks</li>
+                        <li>• Seasonal (summer worst)</li>
+                        <li>• Radar essential</li>
+                        <li>• Reduced to 50m visibility</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-box danger" style="margin-top: 1.5rem;">
+                <div class="info-box-title">
+                    <i class="fas fa-skull-crossbones"></i> "GRAVEYARD OF SHIPS"
+                </div>
+                <p>Over 2,000 shipwrecks documented along the Cape coast. Notable: SS Waratah (1909, 211 lives), BOS 400 (1994), Seli 1 (2009).</p>
+            </div>
+        </section>
+
+        <!-- SECTION: WEATHER & CONDITIONS -->
+        <section class="section" id="weather">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-cloud-sun"></i></div>
+                <div>
+                    <h2 class="section-title">Weather & Conditions</h2>
+                    <p class="section-subtitle">Seasonal patterns and climate data</p>
+                </div>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="chart-container">
+                    <h4 class="chart-title">Average Wave Height by Month</h4>
+                    <div class="chart-wrapper">
+                        <canvas id="waveChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h4 class="chart-title">Wind Speed Distribution</h4>
+                    <div class="chart-wrapper">
+                        <canvas id="windChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-table-wrapper" style="margin-top: 1.5rem;">
+                <table class="data-table">
+                    <tr>
+                        <th>Season</th>
+                        <th>Conditions</th>
+                        <th>Avg. Wind</th>
+                        <th>Wave Height</th>
+                        <th>Rating</th>
+                    </tr>
+                    <tr>
+                        <td>Summer (Dec-Feb)</td>
+                        <td>SE winds, fog risk</td>
+                        <td>15-25 knots</td>
+                        <td>2-4m</td>
+                        <td><span class="threat-level low">BEST</span></td>
+                    </tr>
+                    <tr>
+                        <td>Autumn (Mar-May)</td>
+                        <td>Variable, transitional</td>
+                        <td>20-30 knots</td>
+                        <td>3-6m</td>
+                        <td><span class="threat-level moderate">FAIR</span></td>
+                    </tr>
+                    <tr>
+                        <td>Winter (Jun-Aug)</td>
+                        <td>NW storms, cold fronts</td>
+                        <td>30-50 knots</td>
+                        <td>5-15m</td>
+                        <td><span class="threat-level extreme">DANGEROUS</span></td>
+                    </tr>
+                    <tr>
+                        <td>Spring (Sep-Nov)</td>
+                        <td>Variable, improving</td>
+                        <td>20-35 knots</td>
+                        <td>3-7m</td>
+                        <td><span class="threat-level high">CAUTION</span></td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION: HISTORY -->
+        <section class="section" id="history">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-history"></i></div>
+                <div>
+                    <h2 class="section-title">Historical Timeline</h2>
+                    <p class="section-subtitle">Key events in the cape's maritime history</p>
+                </div>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">1488</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">European Discovery</h4>
+                        <p>Bartolomeu Dias becomes first European to round the cape, names it "Cape of Storms"</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">1497</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">India Route Opened</h4>
+                        <p>Vasco da Gama rounds the cape, establishing sea route to India</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">1652</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Dutch Settlement</h4>
+                        <p>Jan van Riebeeck establishes supply station at Cape Town for VOC ships</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">1860</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">First Lighthouse</h4>
+                        <p>Cape Point Lighthouse constructed at 238m elevation</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">1869</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Suez Opens</h4>
+                        <p>Suez Canal opens, reducing Cape route traffic dramatically</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">1967-1975</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Suez Closure Revival</h4>
+                        <p>Six-Day War closes Suez; Cape route sees massive traffic resurgence</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">2021</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Ever Given Incident</h4>
+                        <p>Suez blockage prompts renewed interest in Cape route as backup</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: SWOT ANALYSIS -->
+        <section class="section" id="swot">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-th-large"></i></div>
+                <div>
+                    <h2 class="section-title">SWOT Analysis</h2>
+                    <p class="section-subtitle">Strategic assessment of this location</p>
+                </div>
+            </div>
+            
+            <div class="swot-grid">
+                <div class="swot-card strengths">
+                    <h4 class="swot-title"><i class="fas fa-plus-circle"></i> Strengths</h4>
+                    <ul>
+                        <li>No draft restrictions (unlimited ship size)</li>
+                        <li>No transit fees (unlike Suez/Panama)</li>
+                        <li>Well-charted, established route</li>
+                        <li>Modern port facilities at Cape Town</li>
+                        <li>24/7 SAR coverage</li>
+                    </ul>
+                </div>
+                
+                <div class="swot-card weaknesses">
+                    <h4 class="swot-title"><i class="fas fa-minus-circle"></i> Weaknesses</h4>
+                    <ul>
+                        <li>Extreme weather conditions</li>
+                        <li>Adds 6,000+ nm vs Suez route</li>
+                        <li>Higher fuel costs</li>
+                        <li>Insurance premiums elevated</li>
+                        <li>Limited emergency shelter</li>
+                    </ul>
+                </div>
+                
+                <div class="swot-card opportunities">
+                    <h4 class="swot-title"><i class="fas fa-lightbulb"></i> Opportunities</h4>
+                    <ul>
+                        <li>VLCC/ULCC preferred route</li>
+                        <li>Suez alternative during crises</li>
+                        <li>Growing Africa trade</li>
+                        <li>LNG bunkering expansion</li>
+                        <li>Tourism development</li>
+                    </ul>
+                </div>
+                
+                <div class="swot-card threats">
+                    <h4 class="swot-title"><i class="fas fa-exclamation-circle"></i> Threats</h4>
+                    <ul>
+                        <li>Climate change intensifying storms</li>
+                        <li>Piracy in adjacent waters</li>
+                        <li>Infrastructure competition</li>
+                        <li>Environmental regulations</li>
+                        <li>Political instability risk</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: SCORECARD -->
+        <section class="section" id="scorecard">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-star"></i></div>
+                <div>
+                    <h2 class="section-title">Strategic Scorecard</h2>
+                    <p class="section-subtitle">Rating across key dimensions</p>
+                </div>
+            </div>
+            
+            <div class="scorecard">
+                <div class="score-item">
+                    <span class="score-label">Historic Significance</span>
+                    <div class="score-bar">
+                        <div class="score-fill excellent" style="width: 95%;"></div>
+                    </div>
+                    <span class="score-value">9.5/10</span>
+                </div>
+                
+                <div class="score-item">
+                    <span class="score-label">Navigation Difficulty</span>
+                    <div class="score-bar">
+                        <div class="score-fill poor" style="width: 85%;"></div>
+                    </div>
+                    <span class="score-value">8.5/10</span>
+                </div>
+                
+                <div class="score-item">
+                    <span class="score-label">Trade Importance</span>
+                    <div class="score-bar">
+                        <div class="score-fill good" style="width: 75%;"></div>
+                    </div>
+                    <span class="score-value">7.5/10</span>
+                </div>
+                
+                <div class="score-item">
+                    <span class="score-label">Strategic Military Value</span>
+                    <div class="score-bar">
+                        <div class="score-fill moderate" style="width: 60%;"></div>
+                    </div>
+                    <span class="score-value">6.0/10</span>
+                </div>
+                
+                <div class="score-item">
+                    <span class="score-label">Infrastructure Quality</span>
+                    <div class="score-bar">
+                        <div class="score-fill good" style="width: 80%;"></div>
+                    </div>
+                    <span class="score-value">8.0/10</span>
+                </div>
+                
+                <div class="score-item">
+                    <span class="score-label">Tourism Value</span>
+                    <div class="score-bar">
+                        <div class="score-fill excellent" style="width: 90%;"></div>
+                    </div>
+                    <span class="score-value">9.0/10</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: VERDICT -->
+        <section class="section" id="verdict">
+            <div class="verdict-box">
+                <h3 class="verdict-title">
+                    <i class="fas fa-gavel"></i> STRATEGIC VERDICT
+                </h3>
+                <p class="verdict-summary">
+                    <strong>Cape of Good Hope</strong> remains one of Earth's most significant maritime waypoints—a symbol of human exploration and a critical backup to the Suez Canal. While modern shipping prefers shorter routes, the Cape's unlimited draft capacity makes it indispensable for the world's largest vessels.
+                </p>
+                <div class="verdict-takeaways">
+                    <h4><i class="fas fa-key"></i> KEY TAKEAWAYS</h4>
+                    <ul>
+                        <li><strong>For Shippers:</strong> Essential VLCC/ULCC route; factor 7-10 extra days vs Suez</li>
+                        <li><strong>For Strategists:</strong> Critical chokepoint alternative; monitor Suez disruptions</li>
+                        <li><strong>For Investors:</strong> Cape Town port expansion opportunities</li>
+                        <li><strong>For Travelers:</strong> UNESCO site, 1M+ annual visitors, world-class scenery</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: RELATED LOCATIONS -->
+        <section class="section" id="related">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-link"></i></div>
+                <div>
+                    <h2 class="section-title">Related Locations</h2>
+                    <p class="section-subtitle">Connected strategic points</p>
+                </div>
+            </div>
+            
+            <div class="cards-grid">
+                <a href="cape-agulhas.html" class="data-card" style="text-decoration: none;">
+                    <div class="data-card-header">
+                        <div class="data-card-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <h3 class="data-card-title">Cape Agulhas</h3>
+                    </div>
+                    <ul>
+                        <li><i class="fas fa-arrow-right"></i> True southernmost point of Africa</li>
+                        <li><i class="fas fa-arrow-right"></i> 150km southeast of Good Hope</li>
+                        <li><i class="fas fa-arrow-right"></i> Official ocean divide point</li>
+                    </ul>
+                </a>
+                
+                <a href="cape-horn.html" class="data-card" style="text-decoration: none;">
+                    <div class="data-card-header">
+                        <div class="data-card-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <h3 class="data-card-title">Cape Horn</h3>
+                    </div>
+                    <ul>
+                        <li><i class="fas fa-arrow-right"></i> South America's southern tip</li>
+                        <li><i class="fas fa-arrow-right"></i> Pre-Panama Canal route</li>
+                        <li><i class="fas fa-arrow-right"></i> Even more treacherous conditions</li>
+                    </ul>
+                </a>
+                
+                <a href="../straits/mozambique-channel.html" class="data-card" style="text-decoration: none;">
+                    <div class="data-card-header">
+                        <div class="data-card-icon"><i class="fas fa-water"></i></div>
+                        <h3 class="data-card-title">Mozambique Channel</h3>
+                    </div>
+                    <ul>
+                        <li><i class="fas fa-arrow-right"></i> Alternative routing option</li>
+                        <li><i class="fas fa-arrow-right"></i> East Africa trade corridor</li>
+                        <li><i class="fas fa-arrow-right"></i> Piracy risk considerations</li>
+                    </ul>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="../../../index.html">Home</a></li>
+                    <li><a href="../../index.html">Encyclopedia</a></li>
+                    <li><a href="../index.html">Strategic Locations</a></li>
+                    <li><a href="./index.html">All Capes & Points</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Related Categories</h4>
+                <ul>
+                    <li><a href="../straits/index.html">Straits</a></li>
+                    <li><a href="../canals/index.html">Canals</a></li>
+                    <li><a href="../mountain-passes/index.html">Mountain Passes</a></li>
+                    <li><a href="../../infrastructure/ports/index.html">Ports</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Data Sources</h4>
+                <ul>
+                    <li><a href="#">IMO</a></li>
+                    <li><a href="#">NOAA</a></li>
+                    <li><a href="#">SA Navy</a></li>
+                    <li><a href="#">Lloyd's List</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>About</h4>
+                <ul>
+                    <li><a href="#">Methodology</a></li>
+                    <li><a href="#">Updates</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">GitHub</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Geotopia | Strategic Geographic Intelligence | Last Updated: <span id="lastUpdated"></span></p>
+        </div>
+    </footer>
+
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
+    <script>
+        // ============================================
+        // CAPE DATA OBJECT
+        // ============================================
+        const CAPES_DATA = {
+            "cape-of-good-hope": {
+                name: "Cape of Good Hope",
+                country: "South Africa",
+                flag: "🇿🇦",
+                tagline: "Where the Atlantic Meets the Indian Ocean",
+                coordinates: { lat: -34.3568, lon: 18.4740 },
+                elevation: "238m",
+                status: "NAVIGATIONAL LANDMARK",
+                statusClass: "",
+                dangerLevel: "HIGH",
+                waterBodies: "Atlantic Ocean / Indian Ocean",
+                discoveredYear: 1488,
+                bottomLine: [
+                    "<strong>NOT actually Africa's southernmost point</strong> - Cape Agulhas is 150km southeast",
+                    "<strong>Historic gateway</strong> - Rounding this cape opened Europe-Asia sea trade (1488)",
+                    "<strong>Navigation hazard</strong> - Strong currents, fierce storms, 'Graveyard of Ships'",
+                    "<strong>Strategic bypass</strong> - Alternative to Suez Canal for supertankers",
+                    "<strong>Two oceans meet</strong> - Cold Benguela Current meets warm Agulhas Current"
+                ],
+                metaBadges: [
+                    { icon: "fas fa-flag", text: "South Africa" },
+                    { icon: "fas fa-water", text: "Atlantic/Indian Junction" },
+                    { icon: "fas fa-ship", text: "Historic Trade Route" },
+                    { icon: "fas fa-calendar", text: "Discovered 1488" },
+                    { icon: "fas fa-wind", text: "Roaring Forties" }
+                ],
+                stats: {
+                    lat: "34.35°S",
+                    lon: "18.47°E",
+                    elevation: "238m",
+                    danger: "HIGH"
+                }
+            },
+            "cape-horn": {
+                name: "Cape Horn",
+                country: "Chile",
+                flag: "🇨🇱",
+                tagline: "The Sailors' Mount Everest",
+                coordinates: { lat: -55.9789, lon: -67.2743 },
+                elevation: "424m",
+                status: "EXTREME HAZARD",
+                statusClass: "danger",
+                dangerLevel: "EXTREME",
+                waterBodies: "Pacific Ocean / Atlantic Ocean",
+                discoveredYear: 1616,
+                bottomLine: [
+                    "<strong>Southernmost headland of South America</strong> - Gateway between oceans",
+                    "<strong>Most dangerous shipping route in history</strong> - 800+ ships lost",
+                    "<strong>Furious Fifties</strong> - Winds routinely exceed 100 km/h",
+                    "<strong>Pre-Panama vital route</strong> - Only Pacific-Atlantic connection",
+                    "<strong>Sailing achievement</strong> - Rounding Cape Horn still a maritime milestone"
+                ],
+                metaBadges: [
+                    { icon: "fas fa-flag", text: "Chile" },
+                    { icon: "fas fa-water", text: "Pacific/Atlantic Junction" },
+                    { icon: "fas fa-skull", text: "Most Dangerous Cape" },
+                    { icon: "fas fa-calendar", text: "Discovered 1616" },
+                    { icon: "fas fa-wind", text: "Furious Fifties" }
+                ],
+                stats: {
+                    lat: "55.98°S",
+                    lon: "67.27°W",
+                    elevation: "424m",
+                    danger: "EXTREME"
+                }
+            },
+            "cape-agulhas": {
+                name: "Cape Agulhas",
+                country: "South Africa",
+                flag: "🇿🇦",
+                tagline: "Africa's True Southernmost Point",
+                coordinates: { lat: -34.8333, lon: 20.0167 },
+                elevation: "140m",
+                status: "GEOGRAPHIC LANDMARK",
+                statusClass: "",
+                dangerLevel: "HIGH",
+                waterBodies: "Atlantic Ocean / Indian Ocean (Official)",
+                discoveredYear: 1488,
+                bottomLine: [
+                    "<strong>Official southernmost point of Africa</strong> - NOT Cape of Good Hope",
+                    "<strong>True ocean divide</strong> - Where Atlantic officially meets Indian Ocean",
+                    "<strong>Agulhas Current terminates here</strong> - Creates dangerous wave conditions",
+                    "<strong>Named for compass needle</strong> - Portuguese 'Cabo das Agulhas'",
+                    "<strong>Shipwreck coast</strong> - Over 250 wrecks documented"
+                ],
+                metaBadges: [
+                    { icon: "fas fa-flag", text: "South Africa" },
+                    { icon: "fas fa-map-marker-alt", text: "True Southern Tip" },
+                    { icon: "fas fa-water", text: "Official Ocean Divide" },
+                    { icon: "fas fa-compass", text: "Needle Cape" },
+                    { icon: "fas fa-ship", text: "250+ Shipwrecks" }
+                ],
+                stats: {
+                    lat: "34.83°S",
+                    lon: "20.01°E",
+                    elevation: "140m",
+                    danger: "HIGH"
+                }
+            },
+            "point-nemo": {
+                name: "Point Nemo",
+                country: "International Waters",
+                flag: "🌊",
+                tagline: "The Oceanic Pole of Inaccessibility",
+                coordinates: { lat: -48.8767, lon: -123.3933 },
+                elevation: "0m (sea level)",
+                status: "REMOTE POINT",
+                statusClass: "info",
+                dangerLevel: "N/A",
+                waterBodies: "South Pacific Ocean",
+                discoveredYear: 1992,
+                bottomLine: [
+                    "<strong>Most remote point on Earth from land</strong> - 2,688 km to nearest coast",
+                    "<strong>Spacecraft cemetery</strong> - 250+ deorbited satellites rest here",
+                    "<strong>Nearest humans often astronauts</strong> - ISS passes closer than any land",
+                    "<strong>Named after Captain Nemo</strong> - Jules Verne's fictional character",
+                    "<strong>No commercial shipping</strong> - Too remote for any practical use"
+                ],
+                metaBadges: [
+                    { icon: "fas fa-globe", text: "International Waters" },
+                    { icon: "fas fa-satellite", text: "Spacecraft Cemetery" },
+                    { icon: "fas fa-ruler", text: "2,688 km to Land" },
+                    { icon: "fas fa-rocket", text: "ISS Closer Than Land" },
+                    { icon: "fas fa-book", text: "Named for Fiction" }
+                ],
+                stats: {
+                    lat: "48.88°S",
+                    lon: "123.39°W",
+                    elevation: "0m",
+                    danger: "N/A"
+                }
+            },
+            "north-cape": {
+                name: "North Cape (Nordkapp)",
+                country: "Norway",
+                flag: "🇳🇴",
+                tagline: "Edge of the Civilized World",
+                coordinates: { lat: 71.1685, lon: 25.7828 },
+                elevation: "307m",
+                status: "ARCTIC LANDMARK",
+                statusClass: "",
+                dangerLevel: "MODERATE",
+                waterBodies: "Barents Sea / Arctic Ocean",
+                discoveredYear: 1553,
+                bottomLine: [
+                    "<strong>Northernmost point of mainland Europe</strong> - (technically Knivskjellodden is 1.5km further)",
+                    "<strong>Midnight Sun destination</strong> - 24-hour daylight mid-May to late July",
+                    "<strong>Polar Night</strong> - 24-hour darkness mid-November to late January",
+                    "<strong>307m vertical cliff</strong> - Dramatic plateau overlooking Arctic",
+                    "<strong>250,000+ annual visitors</strong> - Major tourist destination"
+                ],
+                metaBadges: [
+                    { icon: "fas fa-flag", text: "Norway" },
+                    { icon: "fas fa-sun", text: "Midnight Sun" },
+                    { icon: "fas fa-moon", text: "Polar Night" },
+                    { icon: "fas fa-mountain", text: "307m Cliff" },
+                    { icon: "fas fa-users", text: "250K Visitors/Year" }
+                ],
+                stats: {
+                    lat: "71.17°N",
+                    lon: "25.78°E",
+                    elevation: "307m",
+                    danger: "MODERATE"
+                }
+            }
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        let currentCape = 'cape-of-good-hope';
+        let map = null;
+        let waveChart = null;
+        let windChart = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading after content loads
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 800);
+
+            // Initialize with default cape
+            initializePage(currentCape);
+            
+            // Set last updated date
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+            
+            // Initialize GSAP animations
+            initAnimations();
+        });
+
+        // ============================================
+        // CAPE SELECTOR
+        // ============================================
+        function selectCape(capeId) {
+            if (!capeId || !CAPES_DATA[capeId]) return;
+            
+            currentCape = capeId;
+            
+            // Show loading
+            document.getElementById('loading').classList.remove('hidden');
+            
+            setTimeout(() => {
+                initializePage(capeId);
+                document.getElementById('loading').classList.add('hidden');
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 500);
+        }
+
+        function initializePage(capeId) {
+            const cape = CAPES_DATA[capeId];
+            if (!cape) return;
+
+            // Update Hero
+            document.getElementById('heroTitle').innerHTML = `🧭 ${cape.name}`;
+            document.getElementById('heroSubtitle').textContent = `"${cape.tagline}"`;
+            
+            // Update Status Badge
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.className = `status-badge ${cape.statusClass}`;
+            document.getElementById('statusText').textContent = cape.status;
+            
+            // Update Stats
+            document.getElementById('statLat').textContent = cape.stats.lat;
+            document.getElementById('statLon').textContent = cape.stats.lon;
+            document.getElementById('statElevation').textContent = cape.stats.elevation;
+            document.getElementById('statDanger').textContent = cape.stats.danger;
+            
+            // Update Meta Badges
+            const badgesContainer = document.getElementById('metaBadges');
+            badgesContainer.innerHTML = cape.metaBadges.map(badge => `
+                <span class="meta-badge"><i class="${badge.icon}"></i> ${badge.text}</span>
+            `).join('');
+            
+            // Update Bottom Line
+            const bottomLineList = document.getElementById('bottomLineList');
+            bottomLineList.innerHTML = cape.bottomLine.map(item => `<li>${item}</li>`).join('');
+            
+            // Initialize Map
+            initMap(cape.coordinates.lat, cape.coordinates.lon, cape.name);
+            
+            // Initialize Charts
+            initCharts();
+            
+            // Update page title
+            document.title = `${cape.name} | Geotopia Encyclopedia`;
+        }
+
+        // ============================================
+        // MAP INITIALIZATION
+        // ============================================
+        function initMap(lat, lon, name) {
+            if (map) {
+                map.remove();
+            }
+            
+            map = L.map('mainMap', {
+                center: [lat, lon],
+                zoom: 8,
+                zoomControl: true
+            });
+            
+            // Dark theme tiles
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Custom marker
+            const markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="
+                    background: linear-gradient(135deg, #ff6b6b, #ffd43b);
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50% 50% 50% 0;
+                    transform: rotate(-45deg);
+                    border: 3px solid white;
+                    box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+                "></div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+            
+            L.marker([lat, lon], { icon: markerIcon })
+                .addTo(map)
+                .bindPopup(`<strong>📍 ${name}</strong><br>Coordinates: ${lat.toFixed(4)}°, ${lon.toFixed(4)}°`)
+                .openPopup();
+            
+            // Add circle for area of influence
+            L.circle([lat, lon], {
+                color: '#ff6b6b',
+                fillColor: '#ff6b6b',
+                fillOpacity: 0.1,
+                radius: 50000
+            }).addTo(map);
+        }
+
+        // ============================================
+        // CHARTS INITIALIZATION
+        // ============================================
+        function initCharts() {
+            // Destroy existing charts
+            if (waveChart) waveChart.destroy();
+            if (windChart) windChart.destroy();
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ced4da',
+                            font: { family: 'Inter' }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#868e96' },
+                        grid: { color: 'rgba(116, 192, 252, 0.1)' }
+                    },
+                    y: {
+                        ticks: { color: '#868e96' },
+                        grid: { color: 'rgba(116, 192, 252, 0.1)' }
+                    }
+                }
+            };
+
+            // Wave Chart
+            const waveCtx = document.getElementById('waveChart').getContext('2d');
+            waveChart = new Chart(waveCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Avg Wave Height (m)',
+                        data: [3.2, 3.0, 3.5, 4.2, 5.5, 7.2, 8.5, 7.8, 5.5, 4.2, 3.5, 3.0],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Max Wave Height (m)',
+                        data: [6, 5.5, 7, 9, 12, 15, 18, 16, 11, 8, 6.5, 5.5],
+                        borderColor: '#ffd43b',
+                        backgroundColor: 'rgba(255, 212, 59, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // Wind Chart
+            const windCtx = document.getElementById('windChart').getContext('2d');
+            windChart = new Chart(windCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Calm\n(<10kt)', 'Light\n(10-20kt)', 'Moderate\n(20-30kt)', 'Strong\n(30-40kt)', 'Gale\n(40-50kt)', 'Storm\n(>50kt)'],
+                    datasets: [{
+                        label: 'Summer (%)',
+                        data: [15, 35, 30, 15, 4, 1],
+                        backgroundColor: '#20c997'
+                    }, {
+                        label: 'Winter (%)',
+                        data: [5, 15, 25, 30, 18, 7],
+                        backgroundColor: '#ff6b6b'
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // GSAP ANIMATIONS
+        // ============================================
+        function initAnimations() {
+            // Animate stat cards on scroll
+            gsap.utils.toArray('.stat-card').forEach((card, i) => {
+                gsap.from(card, {
+                    scrollTrigger: card,
+                    opacity: 0,
+                    y: 30,
+                    duration: 0.6,
+                    delay: i * 0.1
+                });
+            });
+            
+            // Animate data cards
+            gsap.utils.toArray('.data-card').forEach((card, i) => {
+                gsap.from(card, {
+                    scrollTrigger: card,
+                    opacity: 0,
+                    y: 40,
+                    duration: 0.6,
+                    delay: i * 0.1
+                });
+            });
+            
+            // Animate timeline items
+            gsap.utils.toArray('.timeline-item').forEach((item, i) => {
+                gsap.from(item, {
+                    scrollTrigger: item,
+                    opacity: 0,
+                    x: -30,
+                    duration: 0.5,
+                    delay: i * 0.15
+                });
+            });
+
+            // Animate score bars
+            gsap.utils.toArray('.score-fill').forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                gsap.to(bar, {
+                    width: width,
+                    duration: 1.5,
+                    ease: 'power2.out',
+                    scrollTrigger: bar
+                });
+            });
+        }
+
+        // ============================================
+        // PRINT FUNCTIONALITY
+        // ============================================
+        window.addEventListener('beforeprint', function() {
+            // Prepare charts for printing
+            if (waveChart) waveChart.resize();
+            if (windChart) windChart.resize();
+        });
+    </script>
+</body>
+</html>
