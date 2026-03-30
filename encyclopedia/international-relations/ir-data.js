@@ -799,7 +799,7 @@ const IR_DATA = {
           joined: 2017,
           significance: "First time both as full members in same organization",
           summits: "Attend but minimal bilateral interaction",
-          2025Summit: "India hosted, Pakistan PM attended (brief PM handshake)",
+          Summit2025: "India hosted, Pakistan PM attended (brief PM handshake)",
           potential: "Platform for dialogue on sidelines"
         },
 
