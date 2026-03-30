@@ -1670,9 +1670,8 @@ const IR_DATA = {
           opportunity: "Space exploration",
           potential: "Joint Mars missions, asteroid mining rules",
           barrier: "US law bans NASA from China cooperation (Wolf Amendment)"
-        }
       },
-
+     {
       imaginedPeace: {
         title: "🌏 What if US & China Were Partners, Not Rivals?",
         
