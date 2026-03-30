@@ -7644,8 +7644,106 @@ function initializeMindMap() {
     const container = document.getElementById('mindMapContainer');
     if (!container || typeof d3 === 'undefined') return;
     
-    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 40px;">Mind map visualization - D3.js required</p>';
-   }
+    container.innerHTML = '';
+    
+    const width = container.clientWidth || 800;
+    const height = 500;
+    
+    // Create hierarchical data
+    const data = {
+        name: "Mountain Passes",
+        children: [
+            {
+                name: "🌏 Asia",
+                children: [
+                    { name: "Himalayas", value: mountainPasses.filter(p => p.region === 'himalaya').length },
+                    { name: "Karakoram", value: mountainPasses.filter(p => p.region === 'karakoram').length },
+                    { name: "Hindu Kush", value: mountainPasses.filter(p => p.region === 'hindu-kush').length },
+                    { name: "Central Asia", value: mountainPasses.filter(p => p.region === 'central-asia').length }
+                ]
+            },
+            {
+                name: "🌍 Europe",
+                children: [
+                    { name: "Alps", value: mountainPasses.filter(p => p.region === 'alps').length },
+                    { name: "Caucasus", value: mountainPasses.filter(p => p.region === 'caucasus').length }
+                ]
+            },
+            {
+                name: "🌎 Americas",
+                children: [
+                    { name: "Andes", value: mountainPasses.filter(p => p.region === 'andes').length },
+                    { name: "Rockies", value: mountainPasses.filter(p => p.region === 'rockies').length }
+                ]
+            },
+            {
+                name: "🌍 Africa",
+                children: [
+                    { name: "Atlas & Others", value: mountainPasses.filter(p => p.continent === 'africa').length }
+                ]
+            },
+            {
+                name: "🌏 Oceania",
+                children: [
+                    { name: "Southern Alps", value: mountainPasses.filter(p => p.continent === 'oceania').length }
+                ]
+            }
+        ]
+    };
+    
+    const svg = d3.select(container)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [-width / 2, -height / 2, width, height]);
+    
+    const root = d3.hierarchy(data);
+    
+    const treeLayout = d3.tree()
+        .size([2 * Math.PI, Math.min(width, height) / 2 - 80])
+        .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+    
+    treeLayout(root);
+    
+    // Links
+    svg.append("g")
+        .attr("fill", "none")
+        .attr("stroke", "rgba(0, 212, 255, 0.4)")
+        .attr("stroke-width", 1.5)
+        .selectAll("path")
+        .data(root.links())
+        .join("path")
+        .attr("d", d3.linkRadial()
+            .angle(d => d.x)
+            .radius(d => d.y));
+    
+    // Nodes
+    const node = svg.append("g")
+        .selectAll("g")
+        .data(root.descendants())
+        .join("g")
+        .attr("transform", d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y}, 0)`);
+    
+    node.append("circle")
+        .attr("r", d => d.children ? 6 : 4)
+        .attr("fill", d => {
+            if (!d.parent) return "#ffd700";  // Root
+            if (d.depth === 1) return "#00d4ff";  // Continents
+            return "#2a9d8f";  // Regions
+        })
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1.5);
+    
+    node.append("text")
+        .attr("dy", "0.31em")
+        .attr("x", d => d.x < Math.PI === !d.children ? 8 : -8)
+        .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
+        .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
+        .attr("fill", "#f0f6fc")
+        .attr("font-size", "12px")
+        .attr("font-weight", d => d.children ? "600" : "400")
+        .text(d => d.data.value ? `${d.data.name} (${d.data.value})` : d.data.name);
+}
 // ============================================
 // CONSOLE LOG
 // ============================================
