@@ -1521,7 +1521,7 @@ const IR_DATA = {
           cooperation: "2026 working group on AI safety (prevent rogue AI)"
         },
 
-        5G: {
+       Five5G: {
           huawei: "Global leader, banned in US, allies pressured to exclude",
           usAlternatives: "Nokia, Ericsson, Samsung promoted",
           chinaRollout: "Largest 5G network (1M+ stations)",
