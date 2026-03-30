@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilateral Relations | Unity Atlas - Geotopia</title>
+    
+    <!-- Existing CSS -->
+    <link rel="stylesheet" href="assets/css/ir-main.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    
+    <!-- Chart Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Country Page Specific Styles */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .country-header {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .countries-display {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .country-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .country-flag {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .country-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .country-info p {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .relation-arrow {
+            font-size: 2rem;
+            color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Relationship Score Banner */
+        .score-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .score-banner h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .score-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .score-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .score-emoji {
+            font-size: 4rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Navigation Tabs */
+        .section-nav {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            animation: fadeInUp 0.7s ease-out;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            min-width: max-content;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: var(--gray-100);
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray-700);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: var(--gray-200);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: fadeInUp 0.8s ease-out;
+            display: none;
+        }
+
+        .section-card.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .section-icon {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        /* Content Sections */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .info-box {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .info-box h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--gray-900);
+        }
+
+        .info-box ul {
+            list-style: none;
+        }
+
+        .info-box li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .info-box li::before {
+            content: "▪";
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gray-300);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            grid-column: 2;
+        }
+
+        .timeline-item:nth-child(even) .timeline-date {
+            grid-column: 1;
+            text-align: right;
+        }
+
+        .timeline-date {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.125rem;
+        }
+
+        .timeline-content {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .timeline-content h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--gray-900);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border: 4px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--gray-200);
+        }
+
+        /* Visualization Container */
+        .viz-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .viz-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .viz-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .viz-canvas {
+            min-height: 400px;
+        }
+
+        /* Source Citations */
+        .source-tag {
+            display: inline-block;
+            background: var(--info);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin: 0.25rem;
+            cursor: help;
+        }
+
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        /* Error State */
+        .error-message {
+            background: #fee;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item {
+                grid-template-columns: 1fr;
+                padding-left: 40px;
+            }
+
+            .timeline-item .timeline-date,
+            .timeline-item .timeline-content {
+                grid-column: 1 !important;
+                text-align: left !important;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .country-flag {
+                font-size: 2rem;
+            }
+
+            .countries-display {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="country-header">
+        <div class="header-content">
+            <div class="countries-display">
+                <div class="country-item">
+                    <span class="country-flag" id="country1Flag">🇮🇳</span>
+                    <div class="country-info">
+                        <h1 id="country1Name">India</h1>
+                        <p id="country1Capital">Capital: New Delhi</p>
+                    </div>
+                </div>
+                
+                <div class="relation-arrow">↔️</div>
+                
+                <div class="country-item">
+                    <span class="country-flag" id="country2Flag">🇵🇰</span>
+                    <div class="country-info">
+                        <h1 id="country2Name">Pakistan</h1>
+                        <p id="country2Capital">Capital: Islamabad</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Back to Atlas
+                </a>
+                <button class="btn btn-primary" id="switchBtn">
+                    <i class="fas fa-exchange-alt"></i> Switch View
+                </button>
+                <button class="btn btn-primary" id="shareBtn">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Relationship Score Banner -->
+    <section class="score-banner">
+        <h2>Relationship Strength Analysis</h2>
+        <div class="score-display">
+            <div class="score-circle">
+                <span class="score-number" id="strengthScore">25</span>
+                <span class="score-label">Overall Score</span>
+            </div>
+            <div class="score-emoji" id="relationEmoji">⚠️</div>
+            <div class="score-circle">
+                <span class="score-number" id="potentialScore">85</span>
+                <span class="score-label">Peace Potential</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Navigation Tabs -->
+        <nav class="section-nav">
+            <div class="nav-tabs" id="sectionTabs">
+                <button class="nav-tab active" data-section="overview">📊 Overview</button>
+                <button class="nav-tab" data-section="history">📜 History</button>
+                <button class="nav-tab" data-section="bilateral">🤝 Bilateral Ties</button>
+                <button class="nav-tab" data-section="agreements">📋 Treaties</button>
+                <button class="nav-tab" data-section="political">🏛️ Political</button>
+                <button class="nav-tab" data-section="economic">💰 Economic</button>
+                <button class="nav-tab" data-section="defense">🛡️ Defense</button>
+                <button class="nav-tab" data-section="people">👥 People-to-People</button>
+                <button class="nav-tab" data-section="connectivity">🚄 Connectivity</button>
+                <button class="nav-tab" data-section="multilateral">🌐 Multilateral</button>
+                <button class="nav-tab" data-section="sectoral">🔬 Sectoral</button>
+                <button class="nav-tab" data-section="influence">🎯 Third Parties</button>
+                <button class="nav-tab" data-section="concerns">⚠️ Concerns</button>
+                <button class="nav-tab" data-section="future">🔮 Future</button>
+                <button class="nav-tab" data-section="peace">🕊️ Peace Scenario</button>
+                <button class="nav-tab" data-section="interventions">🇺🇸 Interventions</button>
+            </div>
+        </nav>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading bilateral relationship data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-message" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Unable to Load Data</h3>
+            <p id="errorMessage"></p>
+        </div>
+
+        <!-- Section: Overview -->
+        <section id="section-overview" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">📊</span>
+                <h2 class="section-title">Relationship Overview</h2>
+            </div>
+            <div id="overviewContent"></div>
+        </section>
+
+        <!-- Section: Historical Background -->
+        <section id="section-history" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">📜</span>
+                <h2 class="section-title">Historical Background</h2>
+            </div>
+            <div id="historyContent"></div>
+        </section>
+
+        <!-- Section: Bilateral Ties -->
+        <section id="section-bilateral" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🤝</span>
+                <h2 class="section-title">Bilateral Diplomatic Ties</h2>
+            </div>
+            <div id="bilateralContent"></div>
+        </section>
+
+        <!-- Section: Agreements & Treaties -->
+        <section id="section-agreements" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">📋</span>
+                <h2 class="section-title">Agreements & Treaties</h2>
+            </div>
+            <div id="agreementsContent"></div>
+        </section>
+
+        <!-- Section: Political Relations -->
+        <section id="section-political" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🏛️</span>
+                <h2 class="section-title">Political Relations</h2>
+            </div>
+            <div id="politicalContent"></div>
+        </section>
+
+        <!-- Section: Economic & Trade -->
+        <section id="section-economic" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">💰</span>
+                <h2 class="section-title">Economic Relations & Trade</h2>
+            </div>
+            <div id="economicContent"></div>
+        </section>
+
+        <!-- Section: Defense & Security -->
+        <section id="section-defense" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🛡️</span>
+                <h2 class="section-title">Defense & Security</h2>
+            </div>
+            <div id="defenseContent"></div>
+        </section>
+
+        <!-- Section: People-to-People -->
+        <section id="section-people" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">👥</span>
+                <h2 class="section-title">People-to-People Connections</h2>
+            </div>
+            <div id="peopleContent"></div>
+        </section>
+
+        <!-- Section: Connectivity -->
+        <section id="section-connectivity" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🚄</span>
+                <h2 class="section-title">Physical & Digital Connectivity</h2>
+            </div>
+            <div id="connectivityContent"></div>
+        </section>
+
+        <!-- Section: Multilateral Forums -->
+        <section id="section-multilateral" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🌐</span>
+                <h2 class="section-title">Multilateral Engagement</h2>
+            </div>
+            <div id="multilateralContent"></div>
+        </section>
+
+        <!-- Section: Sectoral Cooperation -->
+        <section id="section-sectoral" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🔬</span>
+                <h2 class="section-title">Sectoral Cooperation</h2>
+            </div>
+            <div id="sectoralContent"></div>
+        </section>
+
+        <!-- Section: Third Party Influence -->
+        <section id="section-influence" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🎯</span>
+                <h2 class="section-title">Third Party Influence</h2>
+            </div>
+            <div id="influenceContent"></div>
+        </section>
+
+        <!-- Section: Areas of Concern -->
+        <section id="section-concerns" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">⚠️</span>
+                <h2 class="section-title">Areas of Concern</h2>
+            </div>
+            <div id="concernsContent"></div>
+        </section>
+
+        <!-- Section: Future Outlook -->
+        <section id="section-future" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🔮</span>
+                <h2 class="section-title">Future Outlook</h2>
+            </div>
+            <div id="futureContent"></div>
+        </section>
+
+        <!-- Section: Peace Scenario -->
+        <section id="section-peace" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🕊️</span>
+                <h2 class="section-title">Imaginary Peace Scenario</h2>
+            </div>
+            <div id="peaceContent"></div>
+        </section>
+
+        <!-- Section: US Interventions -->
+        <section id="section-interventions" class="section-card">
+            <div class="section-header">
+                <span class="section-icon">🇺🇸</span>
+                <h2 class="section-title">US Intervention Analysis</h2>
+            </div>
+            <div id="interventionsContent"></div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="assets/js/country-data.js"></script>
+    <script src="assets/js/visualizations.js"></script>
+    <script>
+        // Main Application Logic
+        class CountryRelationshipViewer {
+            constructor() {
+                this.country1Code = null;
+                this.country2Code = null;
+                this.relationshipData = null;
+                this.currentSection = 'overview';
+                
+                this.init();
+            }
+
+            init() {
+                // Get country codes from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                this.country1Code = urlParams.get('from');
+                this.country2Code = urlParams.get('to');
+
+                if (!this.country1Code || !this.country2Code) {
+                    this.showError('Missing country codes in URL');
+                    return;
+                }
+
+                // Load country information
+                this.loadCountryInfo();
+                
+                // Load relationship data
+                this.loadRelationshipData();
+                
+                // Setup event listeners
+                this.setupEventListeners();
+            }
+
+            loadCountryInfo() {
+                const country1 = CountryData.getByCode(this.country1Code);
+                const country2 = CountryData.getByCode(this.country2Code);
+
+                if (!country1 || !country2) {
+                    this.showError('Invalid country codes');
+                    return;
+                }
+
+                // Update header
+                document.getElementById('country1Flag').textContent = country1.flag;
+                document.getElementById('country1Name').textContent = country1.name;
+                document.getElementById('country1Capital').textContent = `Capital: ${country1.capital}`;
+
+                document.getElementById('country2Flag').textContent = country2.flag;
+                document.getElementById('country2Name').textContent = country2.name;
+                document.getElementById('country2Capital').textContent = `Capital: ${country2.capital}`;
+
+                // Update page title
+                document.title = `${country1.name} ↔️ ${country2.name} | Unity Atlas`;
+            }
+
+            async loadRelationshipData() {
+                try {
+                    // Determine which tier file to load
+                    const fileName = this.getTierFileName(this.country1Code);
+                    
+                    const response = await fetch(`assets/data/relationships/${fileName}`);
+                    if (!response.ok) throw new Error('Data file not found');
+                    
+                    const tierData = await response.json();
+                    
+                    // Find the specific relationship
+                    const relationshipKey = `${this.country1Code}-${this.country2Code}`;
+                    this.relationshipData = tierData[relationshipKey];
+                    
+                    if (!this.relationshipData) {
+                        throw new Error('Relationship data not found');
+                    }
+
+                    // Hide loading, show content
+                    document.getElementById('loadingState').style.display = 'none';
+                    
+                    // Render all sections
+                    this.renderAllSections();
+                    
+                    // Show first section
+                    document.getElementById('section-overview').classList.add('active');
+                    
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            getTierFileName(countryCode) {
+                // G20 countries
+                const g20 = ['USA', 'CHN', 'IND', 'RUS', 'BRA', 'GBR', 'FRA', 'DEU', 'JPN', 
+                            'ITA', 'CAN', 'KOR', 'AUS', 'MEX', 'IDN', 'TUR', 'SAU', 'ARG', 
+                            'ZAF', 'EUR'];
+                
+                if (g20.includes(countryCode)) {
+                    return 'tier1-g20.json';
+                }
+                
+                // For now, default to tier1 (you'll expand this logic later)
+                return 'tier1-g20.json';
+            }
+
+            renderAllSections() {
+                const data = this.relationshipData;
+                
+                // Update score banner
+                document.getElementById('strengthScore').textContent = data['00_overview'].strength_score;
+                document.getElementById('relationEmoji').textContent = data['00_overview'].relationship_emoji;
+                if (data['14_imaginary_peace_scenario']) {
+                    document.getElementById('potentialScore').textContent = 
+                        data['14_imaginary_peace_scenario'].peace_potential_score || 'N/A';
+                }
+
+                // Render each section
+                this.renderOverview(data['00_overview']);
+                this.renderHistory(data['01_historical_background']);
+                this.renderBilateral(data['02_bilateral_ties']);
+                this.renderAgreements(data['03_agreements_treaties']);
+                this.renderPolitical(data['04_political_relations']);
+                this.renderEconomic(data['05_economic_trade']);
+                this.renderDefense(data['06_defense_security']);
+                this.renderPeople(data['07_people_to_people']);
+                this.renderConnectivity(data['08_connectivity']);
+                this.renderMultilateral(data['09_multilateral_forums']);
+                this.renderSectoral(data['10_sectoral_cooperation']);
+                this.renderInfluence(data['11_influence_third_parties']);
+                this.renderConcerns(data['12_areas_of_concern']);
+                this.renderFuture(data['13_future_outlook']);
+                this.renderPeace(data['14_imaginary_peace_scenario']);
+                if (data['15_us_intervention_analysis']) {
+                    this.renderInterventions(data['15_us_intervention_analysis']);
+                }
+            }
+
+            renderOverview(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Summary</h3>
+                            <p>${data.summary}</p>
+                        </div>
+                        <div class="info-box">
+                            <h3>Key Facts</h3>
+                            <ul>
+                                ${data.key_facts.map(fact => `<li>${fact}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        ${data.statistics ? Object.entries(data.statistics).map(([key, value]) => `
+                            <div class="stat-card">
+                                <div class="stat-value">${value}</div>
+                                <div class="stat-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    ${data.visualizations ? this.renderVisualizations(data.visualizations) : ''}
+                `;
+                
+                document.getElementById('overviewContent').innerHTML = html;
+                
+                // Initialize visualizations
+                if (data.visualizations) {
+                    this.initializeVisualizations(data.visualizations);
+                }
+            }
+
+            renderHistory(data) {
+                const html = `
+                    <div class="timeline">
+                        ${data.timeline.map((event, index) => `
+                            <div class="timeline-item">
+                                <div class="timeline-date">${event.year}</div>
+                                <div class="timeline-content">
+                                    <h4>${event.event}</h4>
+                                    <p>${event.impact}</p>
+                                    ${event.source ? `<span class="source-tag" title="${event.source}">Source</span>` : ''}
+                                </div>
+                                <div class="timeline-dot"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    ${data.visualizations ? this.renderVisualizations(data.visualizations) : ''}
+                `;
+                
+                document.getElementById('historyContent').innerHTML = html;
+                
+                if (data.visualizations) {
+                    this.initializeVisualizations(data.visualizations);
+                }
+            }
+
+            renderBilateral(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Diplomatic Missions</h3>
+                            <ul>
+                                ${data.diplomatic_missions ? Object.entries(data.diplomatic_missions).map(([key, value]) => 
+                                    `<li><strong>${key}:</strong> ${value}</li>`
+                                ).join('') : '<li>Data pending verification</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>High-Level Visits</h3>
+                            <ul>
+                                ${data.state_visits ? data.state_visits.map(visit => 
+                                    `<li>${visit.date}: ${visit.description} ${visit.source ? `<span class="source-tag">${visit.source}</span>` : ''}</li>`
+                                ).join('') : '<li>Data pending verification</li>'}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('bilateralContent').innerHTML = html;
+            }
+
+            renderAgreements(data) {
+                const html = `
+                    <div class="content-grid">
+                        ${data.treaties && data.treaties.length > 0 ? data.treaties.map(treaty => `
+                            <div class="info-box">
+                                <h3>${treaty.name} (${treaty.year})</h3>
+                                <p><strong>Status:</strong> ${treaty.status}</p>
+                                <p><strong>Significance:</strong> ${treaty.significance}</p>
+                                ${treaty.source ? `<span class="source-tag" title="${treaty.source}">Source</span>` : ''}
+                            </div>
+                        `).join('') : '<p>No formal treaties recorded</p>'}
+                    </div>
+                `;
+                
+                document.getElementById('agreementsContent').innerHTML = html;
+            }
+
+            renderPolitical(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Dialogues & Mechanisms</h3>
+                            <ul>
+                                ${data.dialogues ? data.dialogues.map(d => `<li>${d}</li>`).join('') : '<li>None active</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Major Disputes</h3>
+                            <ul>
+                                ${data.disputes ? data.disputes.map(d => `<li>${d}</li>`).join('') : '<li>None recorded</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Convergence Points</h3>
+                            <ul>
+                                ${data.convergence ? data.convergence.map(c => `<li>${c}</li>`).join('') : '<li>Limited convergence</li>'}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('politicalContent').innerHTML = html;
+            }
+
+            renderEconomic(data) {
+                const html = `
+                    <div class="stats-grid">
+                        ${data.trade_volume ? `
+                            <div class="stat-card">
+                                <div class="stat-value">${data.trade_volume.total}</div>
+                                <div class="stat-label">Total Trade</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Top Exports</h3>
+                            <ul>
+                                ${data.top_exports ? data.top_exports.map(exp => `<li>${exp}</li>`).join('') : '<li>Data pending</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Top Imports</h3>
+                            <ul>
+                                ${data.top_imports ? data.top_imports.map(imp => `<li>${imp}</li>`).join('') : '<li>Data pending</li>'}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    ${data.visualizations ? this.renderVisualizations(data.visualizations) : ''}
+                `;
+                
+                document.getElementById('economicContent').innerHTML = html;
+                
+                if (data.visualizations) {
+                    this.initializeVisualizations(data.visualizations);
+                }
+            }
+
+            renderDefense(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Military Comparison</h3>
+                            ${data.military_comparison ? Object.entries(data.military_comparison).map(([key, value]) => 
+                                `<p><strong>${key}:</strong> ${value}</p>`
+                            ).join('') : '<p>Data pending</p>'}
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Cooperation Areas</h3>
+                            <ul>
+                                ${data.cooperation ? data.cooperation.map(c => `<li>${c}</li>`).join('') : '<li>No cooperation</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Border Status</h3>
+                            <p>${data.border_status || 'Data pending'}</p>
+                        </div>
+                    </div>
+                    
+                    ${data.visualizations ? this.renderVisualizations(data.visualizations) : ''}
+                `;
+                
+                document.getElementById('defenseContent').innerHTML = html;
+                
+                if (data.visualizations) {
+                    this.initializeVisualizations(data.visualizations);
+                }
+            }
+
+            renderPeople(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Visa Regime</h3>
+                            <p>${data.visa_regime || 'Data pending'}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Diaspora</h3>
+                            <p>${data.diaspora || 'Data pending'}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Student Exchange</h3>
+                            <p>${data.students || 'Data pending'}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Tourism</h3>
+                            <p>${data.tourism || 'Data pending'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('peopleContent').innerHTML = html;
+            }
+
+            renderConnectivity(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Air Connectivity</h3>
+                            <p>${data.air || 'No direct flights'}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Rail Links</h3>
+                            <p>${data.rail || 'No rail links'}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Road Connectivity</h3>
+                            <p>${data.road || 'No road links'}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Digital Infrastructure</h3>
+                            <p>${data.digital || 'Limited connectivity'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('connectivityContent').innerHTML = html;
+            }
+
+            renderMultilateral(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Common Memberships</h3>
+                            <ul>
+                                ${data.common_organizations ? data.common_organizations.map(org => 
+                                    `<li>${org}</li>`
+                                ).join('') : '<li>None</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Voting Alignment</h3>
+                            <p>${data.voting_alignment || 'Data pending'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('multilateralContent').innerHTML = html;
+            }
+
+            renderSectoral(data) {
+                const html = `
+                    <div class="content-grid">
+                        ${Object.entries(data).map(([sector, info]) => `
+                            <div class="info-box">
+                                <h3>${sector.replace(/_/g, ' ').toUpperCase()}</h3>
+                                <p>${typeof info === 'string' ? info : JSON.stringify(info)}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                document.getElementById('sectoralContent').innerHTML = html;
+            }
+
+            renderInfluence(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Major Influencers</h3>
+                            <ul>
+                                ${data.influencers ? data.influencers.map(inf => `<li>${inf}</li>`).join('') : '<li>None identified</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Proxy Relationships</h3>
+                            <ul>
+                                ${data.proxies ? data.proxies.map(p => `<li>${p}</li>`).join('') : '<li>None</li>'}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    ${data.visualizations ? this.renderVisualizations(data.visualizations) : ''}
+                `;
+                
+                document.getElementById('influenceContent').innerHTML = html;
+                
+                if (data.visualizations) {
+                    this.initializeVisualizations(data.visualizations);
+                }
+            }
+
+            renderConcerns(data) {
+                const html = `
+                    <div class="content-grid">
+                        ${data.disputes ? data.disputes.map(dispute => `
+                            <div class="info-box">
+                                <h3>${dispute.title}</h3>
+                                <p>${dispute.description}</p>
+                                ${dispute.source ? `<span class="source-tag">${dispute.source}</span>` : ''}
+                            </div>
+                        `).join('') : '<p>No major disputes recorded</p>'}
+                    </div>
+                `;
+                
+                document.getElementById('concernsContent').innerHTML = html;
+            }
+
+            renderFuture(data) {
+                const html = `
+                    <div class="content-grid">
+                        <div class="info-box">
+                            <h3>Short Term (1-2 years)</h3>
+                            <ul>
+                                ${data.short_term ? data.short_term.map(s => `<li>${s}</li>`).join('') : '<li>Status quo likely</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Medium Term (3-5 years)</h3>
+                            <ul>
+                                ${data.medium_term ? data.medium_term.map(m => `<li>${m}</li>`).join('') : '<li>Uncertain</li>'}
+                            </ul>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3>Long Term (5-10 years)</h3>
+                            <ul>
+                                ${data.long_term ? data.long_term.map(l => `<li>${l}</li>`).join('') : '<li>Highly uncertain</li>'}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('futureContent').innerHTML = html;
+            }
+
+            renderPeace(data) {
+                const html = `
+                    <div class="info-box">
+                        <h3>Vision</h3>
+                        <p>${data.vision || 'A peaceful, cooperative relationship...'}</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        ${data.quantified_benefits ? Object.entries(data.quantified_benefits).map(([key, value]) => `
+                            <div class="stat-card">
+                                <div class="stat-value">${value}</div>
+                                <div class="stat-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    ${data.visualizations ? this.renderVisualizations(data.visualizations) : ''}
+                    
+                    ${data.inspirational_quote ? `
+                        <blockquote style="border-left: 4px solid var(--primary); padding-left: 1.5rem; font-style: italic; margin-top: 2rem;">
+                            "${data.inspirational_quote}"
+                        </blockquote>
+                    ` : ''}
+                `;
+                
+                document.getElementById('peaceContent').innerHTML = html;
+                
+                if (data.visualizations) {
+                    this.initializeVisualizations(data.visualizations);
+                }
+            }
+
+            renderInterventions(data) {
+                const html = `
+                    <div class="content-grid">
+                        ${data.interventions ? data.interventions.map(intervention => `
+                            <div class="info-box">
+                                <h3>${intervention.title}</h3>
+                                <p><strong>Period:</strong> ${intervention.period}</p>
+                                <p>${intervention.description}</p>
+                                ${intervention.source ? `<span class="source-tag">${intervention.source}</span>` : ''}
+                            </div>
+                        `).join('') : '<p>No direct interventions recorded</p>'}
+                    </div>
+                    
+                    ${data.visualizations ? this.renderVisualizations(data.visualizations) : ''}
+                `;
+                
+                document.getElementById('interventionsContent').innerHTML = html;
+                
+                if (data.visualizations) {
+                    this.initializeVisualizations(data.visualizations);
+                }
+            }
+
+            renderVisualizations(vizArray) {
+                return vizArray.map((viz, index) => `
+                    <div class="viz-container" id="viz-${viz.type}-${index}">
+                        <div class="viz-header">
+                            <h3>${viz.title}</h3>
+                        </div>
+                        <div class="viz-canvas" id="canvas-${viz.type}-${index}">
+                            ${viz.type === 'd3' ? `<svg id="svg-${viz.type}-${index}"></svg>` : 
+                              `<canvas id="chart-${viz.type}-${index}"></canvas>`}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            initializeVisualizations(vizArray) {
+                vizArray.forEach((viz, index) => {
+                    const canvasId = `${viz.type === 'd3' ? 'svg' : 'chart'}-${viz.type}-${index}`;
+                    
+                    // Call appropriate visualization function from visualizations.js
+                    switch(viz.chart_type) {
+                        case 'timeline':
+                            if (window.VisualizationLibrary) {
+                                window.VisualizationLibrary.createTimeline(canvasId, viz.data);
+                            }
+                            break;
+                        case 'sankey':
+                            if (window.VisualizationLibrary) {
+                                window.VisualizationLibrary.createSankey(canvasId, viz.data);
+                            }
+                            break;
+                        case 'radar':
+                            if (window.VisualizationLibrary) {
+                                window.VisualizationLibrary.createRadar(canvasId, viz.data);
+                            }
+                            break;
+                        case 'bar':
+                            if (window.VisualizationLibrary) {
+                                window.VisualizationLibrary.createBar(canvasId, viz.data);
+                            }
+                            break;
+                        case 'network':
+                            if (window.VisualizationLibrary) {
+                                window.VisualizationLibrary.createNetwork(canvasId, viz.data);
+                            }
+                            break;
+                        // Add more chart types as needed
+                    }
+                });
+            }
+
+            setupEventListeners() {
+                // Tab navigation
+                const tabs = document.querySelectorAll('.nav-tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const section = tab.dataset.section;
+                        this.switchSection(section);
+                    });
+                });
+
+                // Switch button (swap countries)
+                document.getElementById('switchBtn').addEventListener('click', () => {
+                    window.location.href = `country.html?from=${this.country2Code}&to=${this.country1Code}`;
+                });
+
+                // Share button
+                document.getElementById('shareBtn').addEventListener('click', () => {
+                    this.shareRelationship();
+                });
+            }
+
+            switchSection(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('.section-card').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show selected section
+                document.getElementById(`section-${sectionId}`).classList.add('active');
+
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            shareRelationship() {
+                const url = window.location.href;
+                const country1 = CountryData.getByCode(this.country1Code);
+                const country2 = CountryData.getByCode(this.country2Code);
+                const text = `Check out ${country1.name} ↔️ ${country2.name} relations on Unity Atlas`;
+
+                if (navigator.share) {
+                    navigator.share({ title: document.title, text, url });
+                } else {
+                    navigator.clipboard.writeText(url);
+                    alert('Link copied to clipboard!');
+                }
+            }
+
+            showError(message) {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('errorState').style.display = 'block';
+                document.getElementById('errorMessage').textContent = message;
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new CountryRelationshipViewer();
+        });
+    </script>
+</body>
+</html>
