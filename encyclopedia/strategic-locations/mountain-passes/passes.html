@@ -6630,173 +6630,1032 @@ const mountainPasses = [
     //   - Low: 20+
     // ==========================================
 ];
+    // ============================================
+// GLOBAL VARIABLES
+// ============================================
+let map = null;
+let modalMap = null;
+let currentFilter = {
+    region: 'all',
+    status: 'all',
+    difficulty: 'all',
+    access: 'all',
+    continent: 'all',
+    minElevation: 0,
+    maxElevation: 8000,
+    search: ''
+};
+let displayedPasses = 20;
+let selectedForComparison = [];
 
 // ============================================
-// UTILITY FUNCTIONS FOR LIVE DATA SIMULATION
+// INITIALIZATION
 // ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+});
 
-function simulateWeatherUpdate(pass) {
-    const conditions = ['Clear', 'Cloudy', 'Light Snow', 'Heavy Snow', 'Rain', 'Fog', 'Storm'];
-    const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
-    return {
-        condition: randomCondition,
-        temperature: Math.round(Math.random() * 30 - 10) + '°C',
-        visibility: Math.round(Math.random() * 100) + '%',
-        windSpeed: Math.round(Math.random() * 60) + ' km/h'
-    };
-}
-
-function simulateTrafficUpdate(pass) {
-    const baseTraffic = pass.dailyTraffic || 100;
-    const variation = Math.random() * 0.4 - 0.2; // ±20% variation
-    return Math.round(baseTraffic * (1 + variation));
-}
-
-function calculateTravelTime(pass) {
-    const baseTime = pass.crossingTime;
-    // Parse the time string and add variation
-    const hours = parseFloat(baseTime) || 1;
-    const variation = Math.random() * 0.3 - 0.1; // ±10-20% variation
-    const adjustedTime = hours * (1 + variation);
+function initializeApp() {
+    updateClock();
+    setInterval(updateClock, 1000);
     
-    if (adjustedTime < 1) {
-        return Math.round(adjustedTime * 60) + ' minutes';
-    }
-    return adjustedTime.toFixed(1) + ' hours';
+    initializeGlobalMap();
+    renderPassesGrid();
+    renderComparisonTable();
+    initializeCharts();
+    initializeEventListeners();
+    initializeMindMap();
+    updateStatusCounts();
+    
+    setInterval(updateLiveData, 30000);
+    
+    console.log('Passes loaded:', mountainPasses.length);
+    console.log('First pass:', mountainPasses[0]?.name);
 }
 
-function getSeasonalStatus(pass) {
+function updateClock() {
     const now = new Date();
-    const month = now.getMonth() + 1; // 1-12
-    
-    // Parse open months
-    const openMonths = pass.openMonths.toLowerCase();
-    
-    // Simple logic for common patterns
-    if (openMonths.includes('year-round')) {
-        return 'open';
-    }
-    
-    // Northern hemisphere passes
-    if (pass.coordinates[0] > 0) {
-        // Summer months June-October
-        if (month >= 6 && month <= 10) {
-            return pass.status;
-        }
-        // Check if pass mentions year-round
-        if (openMonths.includes('year') || openMonths.includes('tunnel')) {
-            return 'restricted';
-        }
-        return 'closed';
-    }
-    
-    // Southern hemisphere (reversed seasons)
-    if (month >= 11 || month <= 4) {
-        return pass.status;
-    }
-    
-    return pass.status;
+    const timeStr = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    });
+    const dateStr = now.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+    const el = document.getElementById('currentTime');
+    if (el) el.textContent = `${dateStr} ${timeStr} UTC`;
 }
 
-// ============================================
-// ADDITIONAL HELPER FUNCTIONS
-// ============================================
-
-function getPassesByContinent(continent) {
-    return mountainPasses.filter(p => p.continent === continent);
+function updateLiveData() {
+    updateStatusCounts();
 }
 
-function getPassesByStatus(status) {
-    return mountainPasses.filter(p => p.status === status);
-}
-
-function getPassesByDifficulty(minDiff, maxDiff) {
-    return mountainPasses.filter(p => p.difficulty >= minDiff && p.difficulty <= maxDiff);
-}
-
-function getPassesByElevation(minElev, maxElev) {
-    return mountainPasses.filter(p => p.elevation >= minElev && p.elevation <= maxElev);
-}
-
-function getPassesForTrekking() {
-    return mountainPasses.filter(p => p.accessType === 'trek' || p.accessType === 'climb');
-}
-
-function getStrategicPasses() {
-    return mountainPasses.filter(p => p.strategicValue === 'critical' || p.strategicValue === 'high');
-}
-
-function getBorderCrossings() {
-    return mountainPasses.filter(p => p.isBorderCrossing);
-}
-
-function getPassesByCountry(country) {
-    return mountainPasses.filter(p => p.countries.includes(country));
-}
-
-function getHighestPasses(limit = 10) {
-    return [...mountainPasses].sort((a, b) => b.elevation - a.elevation).slice(0, limit);
-}
-
-function getMostDangerousPasses(limit = 10) {
-    return [...mountainPasses].sort((a, b) => {
-        const aRisk = Object.values(a.risks).reduce((sum, r) => sum + r, 0);
-        const bRisk = Object.values(b.risks).reduce((sum, r) => sum + r, 0);
-        return bRisk - aRisk;
-    }).slice(0, limit);
-}
-
-function filterPassesByQuery(query) {
-    const q = query.toLowerCase();
-    return mountainPasses.filter(p => 
-        p.name.toLowerCase().includes(q) ||
-        p.localName?.toLowerCase().includes(q) ||
-        p.countries.some(c => c.toLowerCase().includes(q)) ||
-        p.mountainRange.toLowerCase().includes(q) ||
-        p.region.toLowerCase().includes(q)
-    );
-}
-
-// ============================================
-// EXPORT FOR EXTERNAL USE (if needed)
-// ============================================
-
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        mountainPasses,
-        simulateWeatherUpdate,
-        simulateTrafficUpdate,
-        calculateTravelTime,
-        getSeasonalStatus,
-        getPassesByContinent,
-        getPassesByStatus,
-        getPassesByDifficulty,
-        getPassesByElevation,
-        getPassesForTrekking,
-        getStrategicPasses,
-        getBorderCrossings,
-        getPassesByCountry,
-        getHighestPasses,
-        getMostDangerousPasses,
-        searchPasses
+function updateStatusCounts() {
+    const counts = {
+        open: mountainPasses.filter(p => p.status === 'open').length,
+        restricted: mountainPasses.filter(p => p.status === 'restricted').length,
+        closed: mountainPasses.filter(p => p.status === 'closed').length,
+        seasonal: mountainPasses.filter(p => p.status === 'seasonal').length
     };
+    
+    const elements = {
+        'statusOpen': counts.open,
+        'statusRestricted': counts.restricted,
+        'statusClosed': counts.closed,
+        'statusSeasonal': counts.seasonal,
+        'openPasses': counts.open,
+        'closedPasses': counts.closed,
+        'totalPasses': mountainPasses.length
+    };
+    
+    Object.keys(elements).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = elements[id];
+    });
 }
 
 // ============================================
-// INITIALIZATION CHECK
+// MAP FUNCTIONS
 // ============================================
+function initializeGlobalMap() {
+    const mapContainer = document.getElementById('globalMap');
+    if (!mapContainer) return;
+    
+    map = L.map('globalMap', {
+        center: [30, 70],
+        zoom: 3,
+        minZoom: 2,
+        maxZoom: 15
+    });
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+    
+    mountainPasses.forEach(pass => {
+        const color = getElevationColor(pass.elevation);
+        const statusColor = getStatusColor(pass.status);
+        
+        const marker = L.circleMarker(pass.coordinates, {
+            radius: 8,
+            fillColor: color,
+            color: statusColor,
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+        }).addTo(map);
+        
+        marker.bindPopup(`
+            <div style="min-width: 200px;">
+                <h4 style="margin: 0 0 5px; color: #333;">${pass.name}</h4>
+                <p style="margin: 0 0 5px; color: #666;">${pass.countries.join(' - ')}</p>
+                <p style="margin: 0; font-weight: bold; color: ${color};">${pass.elevation.toLocaleString()}m</p>
+                <p style="margin: 5px 0 0; text-transform: capitalize;">${pass.status}</p>
+            </div>
+        `);
+        
+        marker.on('click', () => openPassModal(pass.id));
+    });
+}
 
+function getElevationColor(elevation) {
+    if (elevation >= 5500) return '#9d4edd';
+    if (elevation >= 4500) return '#e63946';
+    if (elevation >= 3500) return '#f4a261';
+    if (elevation >= 2500) return '#e9c46a';
+    if (elevation >= 1500) return '#2a9d8f';
+    return '#57cc99';
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'open': '#00c853',
+        'restricted': '#ff9800',
+        'closed': '#f44336',
+        'seasonal': '#9c27b0'
+    };
+    return colors[status] || '#607d8b';
+}
+
+// ============================================
+// FILTERING FUNCTIONS
+// ============================================
+function filterPasses() {
+    return mountainPasses.filter(pass => {
+        if (currentFilter.region !== 'all' && pass.region !== currentFilter.region) return false;
+        if (currentFilter.continent !== 'all' && pass.continent !== currentFilter.continent) return false;
+        if (currentFilter.status !== 'all' && pass.status !== currentFilter.status) return false;
+        
+        if (currentFilter.difficulty !== 'all') {
+            const diffRanges = {
+                'easy': [1, 3],
+                'moderate': [4, 6],
+                'hard': [7, 8],
+                'extreme': [9, 10]
+            };
+            const range = diffRanges[currentFilter.difficulty];
+            if (range && (pass.difficulty < range[0] || pass.difficulty > range[1])) return false;
+        }
+        
+        if (currentFilter.access !== 'all' && pass.accessType !== currentFilter.access) return false;
+        if (pass.elevation < currentFilter.minElevation || pass.elevation > currentFilter.maxElevation) return false;
+        
+        if (currentFilter.search) {
+            const searchLower = currentFilter.search.toLowerCase();
+            const matchName = pass.name.toLowerCase().includes(searchLower);
+            const matchCountry = pass.countries.some(c => c.toLowerCase().includes(searchLower));
+            const matchRange = pass.mountainRange.toLowerCase().includes(searchLower);
+            const matchLocal = pass.localName?.toLowerCase().includes(searchLower);
+            if (!matchName && !matchCountry && !matchRange && !matchLocal) return false;
+        }
+        
+        return true;
+    });
+}
+
+function searchPasses() {
+    const searchInput = document.getElementById('passSearch');
+    if (!searchInput) return;
+    
+    currentFilter.search = searchInput.value;
+    displayedPasses = 20;
+    renderPassesGrid();
+    renderComparisonTable();
+    
+    const dropdown = document.getElementById('searchDropdown');
+    if (dropdown) dropdown.classList.remove('active');
+    
+    document.getElementById('passes').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ============================================
+// RENDERING FUNCTIONS
+// ============================================
+function renderPassesGrid() {
+    const grid = document.getElementById('passesGrid');
+    if (!grid) return;
+    
+    const filteredPasses = filterPasses();
+    const passesToShow = filteredPasses.slice(0, displayedPasses);
+    
+    if (passesToShow.length === 0) {
+        grid.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No passes found matching your criteria.</div>';
+        return;
+    }
+    
+    grid.innerHTML = passesToShow.map(pass => createPassCard(pass)).join('');
+    
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        if (displayedPasses >= filteredPasses.length) {
+            loadMoreBtn.style.display = 'none';
+        } else {
+            loadMoreBtn.style.display = 'inline-block';
+            loadMoreBtn.innerHTML = `<i class="fas fa-plus"></i> Load More (${filteredPasses.length - displayedPasses} remaining)`;
+        }
+    }
+}
+
+function createPassCard(pass) {
+    const elevColor = getElevationColor(pass.elevation);
+    const statusClass = `status-${pass.status}`;
+    const priorityLevel = getPriorityLevel(pass.priority);
+    
+    return `
+        <div class="pass-card" onclick="openPassModal('${pass.id}')">
+            <div class="pass-card-header">
+                <div class="pass-card-title">
+                    <div class="pass-card-name">${pass.name}</div>
+                    <div class="pass-card-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${pass.countryFlags.join(' ')} ${pass.countries.join(' - ')}
+                    </div>
+                </div>
+                <div class="pass-elevation">
+                    <div class="elevation-value" style="color: ${elevColor};">${pass.elevation.toLocaleString()}</div>
+                    <div class="elevation-unit">meters</div>
+                </div>
+            </div>
+            <div class="pass-card-body">
+                <div class="pass-badges">
+                    <span class="pass-badge ${statusClass}">${pass.status}</span>
+                    <span class="pass-badge difficulty">Diff: ${pass.difficulty}/10</span>
+                    <span class="pass-badge type">${pass.accessType}</span>
+                </div>
+                <div class="pass-quick-stats">
+                    <div class="quick-stat">
+                        <div class="quick-stat-value">${pass.length}km</div>
+                        <div class="quick-stat-label">Length</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-value">${pass.openMonths.split(' ')[0]}</div>
+                        <div class="quick-stat-label">Open</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-value">${pass.risks?.altitude || 0}/5</div>
+                        <div class="quick-stat-label">Alt Risk</div>
+                    </div>
+                </div>
+            </div>
+            <div class="pass-card-footer">
+                <div class="pass-priority">
+                    <span>Priority:</span>
+                    <div class="priority-bar">
+                        ${[1,2,3,4,5].map(i => `
+                            <div class="priority-segment ${i <= priorityLevel ? 'active ' + getPriorityClass(pass.priority) : ''}"></div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="pass-actions">
+                    <button class="pass-action-btn" onclick="event.stopPropagation(); toggleCompare('${pass.id}')" title="Compare">
+                        <i class="fas fa-balance-scale"></i>
+                    </button>
+                    <button class="pass-action-btn" onclick="event.stopPropagation(); centerMapOnPass('${pass.id}')" title="Show on map">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function getPriorityLevel(priority) {
+    const levels = { 'critical': 5, 'high': 4, 'medium': 3, 'low': 2 };
+    return levels[priority] || 1;
+}
+
+function getPriorityClass(priority) {
+    const classes = { 'critical': 'critical', 'high': 'high', 'medium': 'medium', 'low': 'low' };
+    return classes[priority] || 'low';
+}
+
+// ============================================
+// COMPARISON TABLE
+// ============================================
+function renderComparisonTable() {
+    const tbody = document.getElementById('comparisonTableBody');
+    if (!tbody) return;
+    
+    const filteredPasses = filterPasses();
+    
+    tbody.innerHTML = filteredPasses.map(pass => `
+        <tr onclick="openPassModal('${pass.id}')" style="cursor: pointer;">
+            <td>
+                <strong>${pass.name}</strong><br>
+                <small style="color: var(--text-muted);">${pass.localName || ''}</small>
+            </td>
+            <td>
+                ${pass.countryFlags.join(' ')} ${pass.countries.join(', ')}<br>
+                <small style="color: var(--text-muted);">${pass.mountainRange}</small>
+            </td>
+            <td class="table-elevation" style="color: ${getElevationColor(pass.elevation)};">
+                ${pass.elevation.toLocaleString()}m
+            </td>
+            <td>
+                <span class="table-status ${pass.status}">${pass.status}</span>
+            </td>
+            <td>${pass.difficulty}/10</td>
+            <td>${pass.accessType}</td>
+            <td>${pass.openMonths.split('(')[0]}</td>
+            <td>${pass.risks ? ((Object.values(pass.risks).reduce((a,b) => a+b, 0) / 6).toFixed(1)) : 'N/A'}</td>
+            <td>${pass.strategicValue || 'N/A'}</td>
+        </tr>
+    `).join('');
+}
+
+// ============================================
+// MODAL FUNCTIONS
+// ============================================
+function openPassModal(passId) {
+    const pass = mountainPasses.find(p => p.id === passId);
+    if (!pass) {
+        console.error('Pass not found:', passId);
+        return;
+    }
+    
+    const modal = document.getElementById('passModal');
+    if (!modal) return;
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Header
+    const nameEl = document.getElementById('modalPassName');
+    const localEl = document.getElementById('modalLocalName');
+    const locEl = document.getElementById('modalLocation');
+    const elevEl = document.getElementById('modalElevation');
+    const elevFtEl = document.getElementById('modalElevationFt');
+    const badgesEl = document.getElementById('modalBadges');
+    
+    if (nameEl) nameEl.textContent = pass.name;
+    if (localEl) localEl.textContent = pass.localName || '';
+    if (locEl) locEl.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>${pass.countryFlags.join(' ')} ${pass.countries.join(' - ')} • ${pass.mountainRange}</span>`;
+    if (elevEl) elevEl.textContent = pass.elevation.toLocaleString();
+    if (elevFtEl) elevFtEl.textContent = `${Math.round(pass.elevation * 3.281).toLocaleString()} ft`;
+    
+    if (badgesEl) {
+        badgesEl.innerHTML = `
+            <span class="pass-badge status-${pass.status}">${pass.status}</span>
+            <span class="pass-badge difficulty">Difficulty: ${pass.difficulty}/10</span>
+            <span class="pass-badge type">${pass.accessType}</span>
+            ${pass.isBorderCrossing ? '<span class="pass-badge" style="background: rgba(255,215,0,0.15); color: var(--gold-primary); border: 1px solid var(--gold-primary);">Border Crossing</span>' : ''}
+            ${pass.tunnelAlternative ? '<span class="pass-badge" style="background: rgba(0,212,255,0.15); color: var(--ice-primary); border: 1px solid var(--ice-primary);">Tunnel Available</span>' : ''}
+        `;
+    }
+    
+    // Populate tabs
+    populateOverviewTab(pass);
+    populateAccessTab(pass);
+    populateRisksTab(pass);
+    populateStrategicTab(pass);
+    populateHistoryTab(pass);
+    populateEnvironmentTab(pass);
+    populateScenariosTab(pass);
+    populateTravelTab(pass);
+    
+    // Initialize modal map
+    setTimeout(() => initializeModalMap(pass), 100);
+}
+
+function closeModal() {
+    const modal = document.getElementById('passModal');
+    if (modal) modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    if (modalMap) {
+        modalMap.remove();
+        modalMap = null;
+    }
+}
+
+function initializeModalMap(pass) {
+    const mapContainer = document.getElementById('modalMap');
+    if (!mapContainer) return;
+    
+    mapContainer.innerHTML = '';
+    
+    modalMap = L.map(mapContainer, {
+        center: pass.coordinates,
+        zoom: 10
+    });
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(modalMap);
+    
+    const color = getElevationColor(pass.elevation);
+    L.circleMarker(pass.coordinates, {
+        radius: 12,
+        fillColor: color,
+        color: '#fff',
+        weight: 3,
+        fillOpacity: 0.8
+    }).addTo(modalMap).bindPopup(`<strong>${pass.name}</strong><br>${pass.elevation.toLocaleString()}m`).openPopup();
+    
+    setTimeout(() => modalMap.invalidateSize(), 200);
+}
+
+// ============================================
+// TAB POPULATION FUNCTIONS
+// ============================================
+function populateOverviewTab(pass) {
+    const quickFacts = document.getElementById('modalQuickFacts');
+    const physicalData = document.getElementById('modalPhysicalData');
+    const climate = document.getElementById('modalClimate');
+    
+    if (quickFacts) {
+        quickFacts.innerHTML = `
+            <li><span class="info-label">Coordinates</span><span class="info-value">${pass.coordinates[0].toFixed(4)}°, ${pass.coordinates[1].toFixed(4)}°</span></li>
+            <li><span class="info-label">Continent</span><span class="info-value">${pass.continent}</span></li>
+            <li><span class="info-label">Region</span><span class="info-value">${pass.region}</span></li>
+            <li><span class="info-label">Mountain Range</span><span class="info-value">${pass.mountainRange}</span></li>
+            <li><span class="info-label">Border Crossing</span><span class="info-value">${pass.isBorderCrossing ? 'Yes' : 'No'}</span></li>
+            <li><span class="info-label">Daily Traffic</span><span class="info-value">${pass.dailyTraffic?.toLocaleString() || 'N/A'}/day</span></li>
+        `;
+    }
+    
+    if (physicalData) {
+        physicalData.innerHTML = `
+            <li><span class="info-label">Length</span><span class="info-value">${pass.length} km</span></li>
+            <li><span class="info-label">Max Gradient</span><span class="info-value">${pass.maxGradient}%</span></li>
+            <li><span class="info-label">Road Type</span><span class="info-value">${pass.roadType}</span></li>
+            <li><span class="info-label">Crossing Time</span><span class="info-value">${pass.crossingTime}</span></li>
+            <li><span class="info-label">4x4 Required</span><span class="info-value">${pass.requires4x4 ? 'Yes' : 'No'}</span></li>
+            <li><span class="info-label">Tunnel Alternative</span><span class="info-value">${pass.tunnelAlternative ? 'Yes' : 'No'}</span></li>
+        `;
+    }
+    
+    if (climate && pass.climate) {
+        climate.innerHTML = `
+            <li><span class="info-label">Summer Temp</span><span class="info-value">${pass.climate.summerTemp}</span></li>
+            <li><span class="info-label">Winter Temp</span><span class="info-value">${pass.climate.winterTemp}</span></li>
+            <li><span class="info-label">Annual Snowfall</span><span class="info-value">${pass.climate.annualSnowfall}</span></li>
+            <li><span class="info-label">Monsoon Impact</span><span class="info-value">${pass.climate.monsoonImpact}</span></li>
+            <li><span class="info-label">Wind Severity</span><span class="info-value">${pass.climate.windSeverity}/5</span></li>
+        `;
+    }
+}
+
+function populateAccessTab(pass) {
+    const vehicleAccess = document.getElementById('modalVehicleAccess');
+    const seasonal = document.getElementById('modalSeasonal');
+    const infrastructure = document.getElementById('modalInfrastructure');
+    const trekking = document.getElementById('modalTrekking');
+    
+    if (vehicleAccess) {
+        vehicleAccess.innerHTML = `
+            <li><span class="info-label">Access Type</span><span class="info-value">${pass.accessType}</span></li>
+            <li><span class="info-label">Road Type</span><span class="info-value">${pass.roadType}</span></li>
+            <li><span class="info-label">4x4 Required</span><span class="info-value">${pass.requires4x4 ? 'Yes' : 'No'}</span></li>
+            <li><span class="info-label">Tunnel Available</span><span class="info-value">${pass.tunnelAlternative ? 'Yes' : 'No'}</span></li>
+        `;
+    }
+    
+    if (seasonal) {
+        seasonal.innerHTML = `
+            <li><span class="info-label">Open Months</span><span class="info-value">${pass.openMonths}</span></li>
+            <li><span class="info-label">Current Status</span><span class="info-value" style="color: ${getStatusColor(pass.status)};">${pass.status.toUpperCase()}</span></li>
+            <li><span class="info-label">Crossing Time</span><span class="info-value">${pass.crossingTime}</span></li>
+        `;
+    }
+    
+    if (infrastructure && pass.infrastructure) {
+        infrastructure.innerHTML = `
+            <li><span class="info-label">Shelters</span><span class="info-value">${pass.infrastructure.shelters}</span></li>
+            <li><span class="info-label">Fuel Stations</span><span class="info-value">${pass.infrastructure.fuelStations}</span></li>
+            <li><span class="info-label">Medical Facilities</span><span class="info-value">${pass.infrastructure.medical}</span></li>
+            <li><span class="info-label">Mobile Coverage</span><span class="info-value">${pass.infrastructure.mobileCoverage}%</span></li>
+            <li><span class="info-label">Emergency Services</span><span class="info-value">${pass.infrastructure.emergencyServices ? 'Available' : 'Limited'}</span></li>
+        `;
+    }
+    
+    if (trekking) {
+        trekking.innerHTML = `
+            <li><strong>Difficulty:</strong> ${pass.difficulty}/10</li>
+            <li><strong>Best Season:</strong> ${pass.openMonths}</li>
+            <li><strong>Duration:</strong> ${pass.crossingTime}</li>
+            <li><strong>Altitude Risk:</strong> ${pass.risks?.altitude || 0}/5</li>
+        `;
+    }
+}
+
+function populateRisksTab(pass) {
+    const riskMatrix = document.getElementById('modalRiskMatrix');
+    const hazards = document.getElementById('modalHazards');
+    const safety = document.getElementById('modalSafety');
+    
+    if (riskMatrix && pass.risks) {
+        const riskItems = [
+            { name: 'Avalanche', icon: '🏔️', value: pass.risks.avalanche },
+            { name: 'Landslide', icon: '🪨', value: pass.risks.landslide },
+            { name: 'Altitude', icon: '🫁', value: pass.risks.altitude },
+            { name: 'Weather', icon: '🌨️', value: pass.risks.weather },
+            { name: 'Security', icon: '⚠️', value: pass.risks.security },
+            { name: 'Road', icon: '🛣️', value: pass.risks.road }
+        ];
+        
+        riskMatrix.innerHTML = riskItems.map(risk => {
+            const riskClass = risk.value >= 4 ? 'critical' : risk.value >= 3 ? 'high' : risk.value >= 2 ? 'medium' : 'low';
+            return `
+                <div class="risk-item">
+                    <div class="risk-icon">${risk.icon}</div>
+                    <div class="risk-name">${risk.name}</div>
+                    <div class="risk-level">
+                        ${[1,2,3,4,5].map(i => `<div class="risk-dot ${i <= risk.value ? 'active ' + riskClass : ''}"></div>`).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    if (hazards) {
+        hazards.innerHTML = '<li>Check local conditions before travel</li><li>Weather can change rapidly at altitude</li><li>Carry emergency supplies</li>';
+    }
+    
+    if (safety) {
+        safety.innerHTML = '<li>Inform someone of your travel plans</li><li>Check road/trail status</li><li>Carry first aid kit</li>';
+    }
+}
+
+function populateStrategicTab(pass) {
+    const strategic = document.getElementById('modalStrategic');
+    const trade = document.getElementById('modalTrade');
+    const military = document.getElementById('modalMilitary');
+    
+    if (strategic) {
+        strategic.innerHTML = (pass.strategic || ['Information not available']).map(s => `<li>${s}</li>`).join('');
+    }
+    if (trade) {
+        trade.innerHTML = (pass.trade || ['Information not available']).map(t => `<li>${t}</li>`).join('');
+    }
+    if (military) {
+        military.innerHTML = (pass.military || ['Information not available']).map(m => `<li>${m}</li>`).join('');
+    }
+}
+
+function populateHistoryTab(pass) {
+    const timeline = document.getElementById('modalTimeline');
+    if (!timeline) return;
+    
+    if (!pass.history || pass.history.length === 0) {
+        timeline.innerHTML = '<p style="color: var(--text-muted); text-align: center;">History information not available.</p>';
+        return;
+    }
+    
+    timeline.innerHTML = pass.history.map(event => `
+        <div class="timeline-item">
+            <div class="timeline-date">${event.year}</div>
+            <div class="timeline-title">${event.event}</div>
+            <div class="timeline-desc">${event.desc}</div>
+        </div>
+    `).join('');
+}
+
+function populateEnvironmentTab(pass) {
+    const ecology = document.getElementById('modalEcology');
+    const sustainable = document.getElementById('modalSustainable');
+    const ecoTips = document.getElementById('modalEcoTips');
+    
+    if (ecology) {
+        ecology.innerHTML = (pass.ecology || ['Information not available']).map(e => `<li>${e}</li>`).join('');
+    }
+    if (sustainable) {
+        sustainable.innerHTML = (pass.sustainable || ['Practice Leave No Trace']).map(s => `<li>${s}</li>`).join('');
+    }
+    if (ecoTips) {
+        ecoTips.innerHTML = `
+            <li>Carry reusable water bottles</li>
+            <li>Pack out all trash</li>
+            <li>Stay on marked trails</li>
+            <li>Don't disturb wildlife</li>
+            <li>Support local communities</li>
+        `;
+    }
+}
+
+function populateScenariosTab(pass) {
+    const scenarios = document.getElementById('modalScenarios');
+    if (!scenarios) return;
+    
+    const whatIf = pass.whatIfNotExist || { title: 'What If This Pass Didn\'t Exist?', impacts: ['Analysis not available'] };
+    
+    scenarios.innerHTML = `
+        <div class="scenario-card">
+            <div class="scenario-header">
+                <div class="scenario-icon danger"><i class="fas fa-times-circle"></i></div>
+                <div class="scenario-title">${whatIf.title}</div>
+            </div>
+            <div class="scenario-content">
+                <ul class="bullet-list">
+                    ${whatIf.impacts.map(i => `<li>${i}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+function populateTravelTab(pass) {
+    const permits = document.getElementById('modalPermits');
+    const gear = document.getElementById('modalGear');
+    const tips = document.getElementById('modalTips');
+    
+    if (permits) {
+        permits.innerHTML = (pass.permits || ['Check local requirements']).map(p => `<li>${p}</li>`).join('');
+    }
+    if (gear) {
+        gear.innerHTML = (pass.gear || ['Standard travel equipment']).map(g => `<li>${g}</li>`).join('');
+    }
+    if (tips) {
+        tips.innerHTML = (pass.tips || ['Research conditions before travel']).map(t => `<li>${t}</li>`).join('');
+    }
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+function initializeEventListeners() {
+    // Search input - live search
+    const searchInput = document.getElementById('passSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            currentFilter.search = e.target.value;
+            
+            const dropdown = document.getElementById('searchDropdown');
+            if (e.target.value.length >= 2 && dropdown) {
+                const results = filterPasses().slice(0, 5);
+                dropdown.innerHTML = `
+                    <div class="dropdown-header">Quick Results (${filterPasses().length} total)</div>
+                    ${results.map(pass => `
+                        <div class="dropdown-item" onclick="openPassModal('${pass.id}')">
+                            <span class="dropdown-flag">${pass.countryFlags.join('')}</span>
+                            <div class="dropdown-info">
+                                <div class="dropdown-name">${pass.name}</div>
+                                <div class="dropdown-meta">${pass.countries.join(' - ')}</div>
+                            </div>
+                            <span class="dropdown-elevation" style="background: ${getElevationColor(pass.elevation)}20; color: ${getElevationColor(pass.elevation)};">${pass.elevation}m</span>
+                        </div>
+                    `).join('')}
+                `;
+                dropdown.classList.add('active');
+            } else if (dropdown) {
+                dropdown.classList.remove('active');
+            }
+            
+            displayedPasses = 20;
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchPasses();
+            }
+        });
+    }
+    
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-container')) {
+            const dropdown = document.getElementById('searchDropdown');
+            if (dropdown) dropdown.classList.remove('active');
+        }
+    });
+    
+    // Quick filters (continent)
+    document.querySelectorAll('.quick-filter').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.quick-filter').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter.continent = this.dataset.continent;
+            displayedPasses = 20;
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+    });
+    
+    // Region tabs
+    document.querySelectorAll('.region-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.region-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter.region = this.dataset.region;
+            displayedPasses = 20;
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+    });
+    
+    // Filter options
+    document.querySelectorAll('.filter-option[data-status]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-option[data-status]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter.status = this.dataset.status;
+            displayedPasses = 20;
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+    });
+    
+    document.querySelectorAll('.filter-option[data-difficulty]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-option[data-difficulty]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter.difficulty = this.dataset.difficulty;
+            displayedPasses = 20;
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+    });
+    
+    document.querySelectorAll('.filter-option[data-access]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-option[data-access]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter.access = this.dataset.access;
+            displayedPasses = 20;
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+    });
+    
+    // Elevation sliders
+    const minElev = document.getElementById('minElevation');
+    const maxElev = document.getElementById('maxElevation');
+    
+    if (minElev) {
+        minElev.addEventListener('input', function() {
+            currentFilter.minElevation = parseInt(this.value);
+            const display = document.getElementById('minElevValue');
+            if (display) display.textContent = this.value + 'm';
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+    }
+    
+    if (maxElev) {
+        maxElev.addEventListener('input', function() {
+            currentFilter.maxElevation = parseInt(this.value);
+            const display = document.getElementById('maxElevValue');
+            if (display) display.textContent = this.value + 'm';
+            renderPassesGrid();
+            renderComparisonTable();
+        });
+    }
+    
+    // Load more button
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            displayedPasses += 20;
+            renderPassesGrid();
+        });
+    }
+    
+    // Modal tabs
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+            const content = document.getElementById('tab-' + this.dataset.tab);
+            if (content) content.classList.add('active');
+            
+            if (this.dataset.tab === 'overview' && modalMap) {
+                setTimeout(() => modalMap.invalidateSize(), 100);
+            }
+        });
+    });
+    
+    // Modal close
+    const modal = document.getElementById('passModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function centerMapOnPass(passId) {
+    const pass = mountainPasses.find(p => p.id === passId);
+    if (pass && map) {
+        map.setView(pass.coordinates, 12);
+        document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function toggleCompare(passId) {
+    const index = selectedForComparison.indexOf(passId);
+    if (index > -1) {
+        selectedForComparison.splice(index, 1);
+    } else {
+        if (selectedForComparison.length >= 4) {
+            alert('Maximum 4 passes can be compared');
+            return;
+        }
+        selectedForComparison.push(passId);
+    }
+    console.log('Comparing:', selectedForComparison);
+}
+
+function showToast(message, type = 'info') {
+    console.log(`[${type}] ${message}`);
+}
+
+// ============================================
+// CHARTS (simplified)
+// ============================================
+function initializeCharts() {
+    createElevationChart();
+    createContinentChart();
+    createDifficultyChart();
+    createSeasonalChart();
+    createRiskChart();
+}
+
+function createElevationChart() {
+    const ctx = document.getElementById('elevationChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    
+    const ranges = [
+        { label: '<1,500m', count: mountainPasses.filter(p => p.elevation < 1500).length, color: '#57cc99' },
+        { label: '1,500-2,500m', count: mountainPasses.filter(p => p.elevation >= 1500 && p.elevation < 2500).length, color: '#2a9d8f' },
+        { label: '2,500-3,500m', count: mountainPasses.filter(p => p.elevation >= 2500 && p.elevation < 3500).length, color: '#e9c46a' },
+        { label: '3,500-4,500m', count: mountainPasses.filter(p => p.elevation >= 3500 && p.elevation < 4500).length, color: '#f4a261' },
+        { label: '4,500-5,500m', count: mountainPasses.filter(p => p.elevation >= 4500 && p.elevation < 5500).length, color: '#e63946' },
+        { label: '>5,500m', count: mountainPasses.filter(p => p.elevation >= 5500).length, color: '#9d4edd' }
+    ];
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ranges.map(r => r.label),
+            datasets: [{
+                data: ranges.map(r => r.count),
+                backgroundColor: ranges.map(r => r.color)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.6)' } },
+                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.6)' } }
+            }
+        }
+    });
+}
+
+function createContinentChart() {
+    const ctx = document.getElementById('continentChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    
+    const continents = ['asia', 'europe', 'americas', 'africa', 'oceania'];
+    const counts = continents.map(c => mountainPasses.filter(p => p.continent === c).length);
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Asia', 'Europe', 'Americas', 'Africa', 'Oceania'],
+            datasets: [{
+                data: counts,
+                backgroundColor: ['#e63946', '#00d4ff', '#ffd700', '#2a9d8f', '#9d4edd']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.8)' } } }
+        }
+    });
+}
+
+function createDifficultyChart() {
+    const ctx = document.getElementById('difficultyChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    
+    const diffRanges = [
+        { label: 'Easy (1-3)', count: mountainPasses.filter(p => p.difficulty <= 3).length },
+        { label: 'Moderate (4-6)', count: mountainPasses.filter(p => p.difficulty >= 4 && p.difficulty <= 6).length },
+        { label: 'Hard (7-8)', count: mountainPasses.filter(p => p.difficulty >= 7 && p.difficulty <= 8).length },
+        { label: 'Extreme (9-10)', count: mountainPasses.filter(p => p.difficulty >= 9).length }
+    ];
+    
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: diffRanges.map(r => r.label),
+            datasets: [{
+                label: 'Passes',
+                data: diffRanges.map(r => r.count),
+                fill: true,
+                backgroundColor: 'rgba(0, 212, 255, 0.2)',
+                borderColor: 'rgba(0, 212, 255, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: 'rgba(255,255,255,0.8)' } } }
+        }
+    });
+}
+
+function createSeasonalChart() {
+    const ctx = document.getElementById('seasonalChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const openCounts = [30, 32, 45, 55, 65, 70, 72, 71, 68, 55, 42, 28];
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Passes Open',
+                data: openCounts,
+                backgroundColor: 'rgba(0, 200, 83, 0.7)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.6)' } },
+                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.6)' } }
+            }
+        }
+    });
+}
+
+function createRiskChart() {
+    const ctx = document.getElementById('riskChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    
+    const riskTypes = ['avalanche', 'landslide', 'altitude', 'weather', 'security', 'road'];
+    const avgRisks = riskTypes.map(type => {
+        const total = mountainPasses.reduce((sum, p) => sum + (p.risks?.[type] || 0), 0);
+        return (total / mountainPasses.length).toFixed(1);
+    });
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Avalanche', 'Landslide', 'Altitude', 'Weather', 'Security', 'Road'],
+            datasets: [{
+                data: avgRisks,
+                backgroundColor: avgRisks.map(r => r >= 3.5 ? '#ff1744' : r >= 2.5 ? '#ff6d00' : '#ffd600')
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { max: 5, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.6)' } },
+                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.6)' } }
+            }
+        }
+    });
+}
+
+// ============================================
+// MIND MAP (simplified)
+// ============================================
+function initializeMindMap() {
+    const container = document.getElementById('mindMapContainer');
+    if (!container || typeof d3 === 'undefined') return;
+    
+    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 40px;">Mind map visualization - D3.js required</p>';
+}
+
+// ============================================
+// CONSOLE LOG
+// ============================================
 console.log(`Mountain Passes Database Loaded: ${mountainPasses.length} passes`);
 console.log(`Continents: ${[...new Set(mountainPasses.map(p => p.continent))].join(', ')}`);
 console.log(`Countries: ${[...new Set(mountainPasses.flatMap(p => p.countries))].length} countries`);
-console.log(`Status breakdown:`);
-console.log(`  - Open: ${mountainPasses.filter(p => p.status === 'open').length}`);
-console.log(`  - Restricted: ${mountainPasses.filter(p => p.status === 'restricted').length}`);
-console.log(`  - Closed: ${mountainPasses.filter(p => p.status === 'closed').length}`);
-console.log(`  - Seasonal: ${mountainPasses.filter(p => p.status === 'seasonal').length}`);
-    document.addEventListener('DOMContentLoaded', function() {
-    console.log('Passes loaded:', mountainPasses.length);
-    console.log('First pass:', mountainPasses[0]?.name);
+
 });
+
 </script>
-        
+</body>
+</html>
