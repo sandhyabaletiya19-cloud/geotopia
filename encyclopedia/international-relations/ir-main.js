@@ -1,443 +1,486 @@
-/* =====================================================
-   GEOTOPIA INTERNATIONAL RELATIONS - MAIN MODULE
-   ===================================================== */
+/**
+ * Unity Atlas - Main Application JavaScript
+ * Handles all interactions on the index page
+ */
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🌍 Geotopia IR Module Initialized');
-    
-    // Initialize all components
-    initCountrySelectors();
-    initFilters();
-    initFeaturedRelations();
-    initMajorCountries();
-    initCharts();
-    initEventListeners();
-});
+(function() {
+    'use strict';
 
-/* =====================================================
-   COUNTRY SELECTORS
-   ===================================================== */
-
-function initCountrySelectors() {
-    const select1 = document.getElementById('country1Select');
-    const select2 = document.getElementById('country2Select');
-    
-    if (!select1 || !select2) return;
-    
-    // Populate both selects with all countries
-    populateCountrySelect(select1);
-    populateCountrySelect(select2);
-    
-    // Search functionality
-    const search1 = document.getElementById('country1Search');
-    const search2 = document.getElementById('country2Search');
-    
-    if (search1) {
-        search1.addEventListener('input', (e) => filterCountrySelect(select1, e.target.value));
-    }
-    if (search2) {
-        search2.addEventListener('input', (e) => filterCountrySelect(select2, e.target.value));
-    }
-    
-    // Selection change handlers
-    select1.addEventListener('change', () => updateCountryPreview(1));
-    select2.addEventListener('change', () => updateCountryPreview(2));
-}
-
-function populateCountrySelect(selectElement) {
-    // Clear existing options except first
-    selectElement.innerHTML = '<option value="">-- Choose a country --</option>';
-    
-    // Group countries by region
-    const regions = {
-        'asia': { label: '🌏 Asia', countries: [] },
-        'europe': { label: '🌍 Europe', countries: [] },
-        'americas': { label: '🌎 Americas', countries: [] },
-        'africa': { label: '🌍 Africa', countries: [] },
-        'middle-east': { label: '🕌 Middle East', countries: [] },
-        'oceania': { label: '🏝️ Oceania', countries: [] }
+    // ==================== CONFIGURATION ====================
+    const CONFIG = {
+        countriesPerPage: 50,
+        animationDuration: 300,
+        searchDebounce: 300,
+        loaderMinTime: 2000
     };
-    
-    // Sort countries into regions
-    for (const [code, data] of Object.entries(IR_DATA.countries)) {
-        const region = data.region;
-        if (regions[region]) {
-            regions[region].countries.push({ code, ...data });
-        }
+
+    // ==================== STATE ====================
+    const state = {
+        currentPage: 1,
+        currentFilter: {
+            region: 'all',
+            grouping: 'all',
+            sort: 'name-asc',
+            search: ''
+        },
+        currentView: 'grid',
+        theme: localStorage.getItem('theme') || 'light',
+        isLoading: true,
+        displayedCountries: []
+    };
+
+    // ==================== DOM ELEMENTS ====================
+    const elements = {};
+
+    function cacheElements() {
+        elements.loader = document.getElementById('loader');
+        elements.app = document.getElementById('app');
+        elements.searchToggle = document.getElementById('searchToggle');
+        elements.searchOverlay = document.getElementById('searchOverlay');
+        elements.searchClose = document.getElementById('searchClose');
+        elements.globalSearch = document.getElementById('globalSearch');
+        elements.searchResults = document.getElementById('searchResults');
+        elements.themeToggle = document.getElementById('themeToggle');
+        elements.header = document.querySelector('.main-header');
+        elements.countryGrid = document.getElementById('countryGrid');
+        elements.countryList = document.getElementById('countryList');
+        elements.regionFilter = document.getElementById('regionFilter');
+        elements.groupingFilter = document.getElementById('groupingFilter');
+        elements.sortFilter = document.getElementById('sortFilter');
+        elements.countrySearchInline = document.getElementById('countrySearchInline');
+        elements.viewButtons = document.querySelectorAll('.view-btn');
+        elements.loadMore = document.getElementById('loadMore');
+        elements.loadStatus = document.getElementById('loadStatus');
+        elements.backToTop = document.getElementById('backToTop');
+        elements.startExploring = document.getElementById('startExploring');
+        elements.statNumbers = document.querySelectorAll('.stat-number');
+        elements.quickCards = document.querySelectorAll('.quick-card');
+        elements.filterChips = document.querySelectorAll('.filter-chip');
+        elements.suggestionChips = document.querySelectorAll('.suggestion-chip');
+        elements.navLinks = document.querySelectorAll('.nav-link');
     }
-    
-    // Sort countries within each region
-    for (const region of Object.values(regions)) {
-        region.countries.sort((a, b) => a.name.localeCompare(b.name));
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+        cacheElements();
+        initTheme();
+        initLoader();
+        initEventListeners();
+        initCountryGrid();
+        initAnimations();
+        initIntersectionObserver();
     }
-    
-    // Create optgroups
-    for (const [regionKey, regionData] of Object.entries(regions)) {
-        if (regionData.countries.length === 0) continue;
+
+    function initLoader() {
+        const startTime = Date.now();
         
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = regionData.label;
-        
-        for (const country of regionData.countries) {
-            const option = document.createElement('option');
-            option.value = country.code;
-            option.textContent = `${country.flag} ${country.name}`;
-            option.dataset.region = regionKey;
-            option.dataset.name = country.name.toLowerCase();
-            optgroup.appendChild(option);
-        }
-        
-        selectElement.appendChild(optgroup);
-    }
-}
-
-function filterCountrySelect(selectElement, query) {
-    const lowerQuery = query.toLowerCase();
-    const options = selectElement.querySelectorAll('option');
-    
-    options.forEach(option => {
-        if (!option.value) return; // Skip placeholder
-        const name = option.dataset.name || option.textContent.toLowerCase();
-        option.style.display = name.includes(lowerQuery) ? '' : 'none';
-    });
-}
-
-function updateCountryPreview(num) {
-    const select = document.getElementById(`country${num}Select`);
-    const flagImg = document.getElementById(`country${num}Flag`);
-    const nameSpan = document.getElementById(`country${num}Name`);
-    
-    const code = select.value;
-    const country = IR_DATA.getCountry(code);
-    
-    if (country) {
-        flagImg.src = IR_DATA.getFlagUrl(code);
-        flagImg.alt = country.name;
-        flagImg.style.display = 'block';
-        nameSpan.textContent = country.name;
-    } else {
-        flagImg.style.display = 'none';
-        nameSpan.textContent = 'Select a country';
-    }
-    
-    // Check if both countries are selected
-    checkSelectionComplete();
-}
-
-function checkSelectionComplete() {
-    const code1 = document.getElementById('country1Select').value;
-    const code2 = document.getElementById('country2Select').value;
-    const exploreBtn = document.getElementById('exploreBtn');
-    const exploreHint = document.getElementById('exploreHint');
-    
-    if (code1 && code2 && code1 !== code2) {
-        exploreBtn.disabled = false;
-        exploreHint.textContent = 'Click to explore this relationship!';
-        exploreHint.style.color = 'var(--success-color)';
-    } else if (code1 === code2 && code1) {
-        exploreBtn.disabled = true;
-        exploreHint.textContent = 'Please select two different countries';
-        exploreHint.style.color = 'var(--warning-color)';
-    } else {
-        exploreBtn.disabled = true;
-        exploreHint.textContent = 'Select two different countries to explore';
-        exploreHint.style.color = '';
-    }
-}
-
-/* =====================================================
-   FILTERS
-   ===================================================== */
-
-function initFilters() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Update active state
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        window.addEventListener('load', () => {
+            const elapsed = Date.now() - startTime;
+            const remaining = Math.max(0, CONFIG.loaderMinTime - elapsed);
             
-            // Apply filter
-            const filter = btn.dataset.filter;
-            applyRegionFilter(filter);
-        });
-    });
-}
-
-function applyRegionFilter(region) {
-    const selects = [
-        document.getElementById('country1Select'),
-        document.getElementById('country2Select')
-    ];
-    
-    selects.forEach(select => {
-        const options = select.querySelectorAll('option');
-        const optgroups = select.querySelectorAll('optgroup');
-        
-        optgroups.forEach(group => {
-            group.style.display = '';
-        });
-        
-        options.forEach(option => {
-            if (!option.value) return;
-            const optRegion = option.dataset.region;
-            if (region === 'all' || optRegion === region) {
-                option.style.display = '';
-            } else {
-                option.style.display = 'none';
-            }
-        });
-        
-        // Hide empty optgroups
-        optgroups.forEach(group => {
-            const visibleOptions = group.querySelectorAll('option:not([style*="display: none"])');
-            group.style.display = visibleOptions.length > 0 ? '' : 'none';
-        });
-    });
-}
-
-/* =====================================================
-   FEATURED RELATIONS
-   ===================================================== */
-
-function initFeaturedRelations() {
-    const grid = document.getElementById('featuredGrid');
-    if (!grid) return;
-    
-    grid.innerHTML = '';
-    
-    IR_DATA.featuredRelations.forEach(relation => {
-        const c1 = IR_DATA.getCountry(relation.country1);
-        const c2 = IR_DATA.getCountry(relation.country2);
-        
-        if (!c1 || !c2) return;
-        
-        const card = document.createElement('a');
-        card.href = `relationship.html?c1=${relation.country1}&c2=${relation.country2}`;
-        card.className = 'featured-card';
-        
-        card.innerHTML = `
-            <div class="flags">
-                <img src="${IR_DATA.getFlagUrl(relation.country1)}" alt="${c1.name}">
-                <span>⇄</span>
-                <img src="${IR_DATA.getFlagUrl(relation.country2)}" alt="${c2.name}">
-            </div>
-            <h4>${c1.name} & ${c2.name}</h4>
-            <div class="type-badge ${relation.type}">${relation.label}</div>
-        `;
-        
-        grid.appendChild(card);
-    });
-}
-
-/* =====================================================
-   MAJOR COUNTRIES
-   ===================================================== */
-
-function initMajorCountries() {
-    const grid = document.getElementById('majorCountriesGrid');
-    if (!grid) return;
-    
-    grid.innerHTML = '';
-    
-    IR_DATA.majorCountries.forEach(code => {
-        const country = IR_DATA.getCountry(code);
-        if (!country) return;
-        
-        const card = document.createElement('div');
-        card.className = 'major-country-card';
-        card.onclick = () => selectMajorCountry(code);
-        
-        card.innerHTML = `
-            <img src="${IR_DATA.getFlagUrl(code)}" alt="${country.name}">
-            <p>${country.name}</p>
-        `;
-        
-        grid.appendChild(card);
-    });
-}
-
-function selectMajorCountry(code) {
-    const select1 = document.getElementById('country1Select');
-    if (select1.value) {
-        // If country 1 is already selected, set country 2
-        const select2 = document.getElementById('country2Select');
-        select2.value = code;
-        updateCountryPreview(2);
-    } else {
-        // Set country 1
-        select1.value = code;
-        updateCountryPreview(1);
-    }
-    
-    // Scroll to selector
-    document.querySelector('.selector-section').scrollIntoView({ behavior: 'smooth' });
-}
-
-/* =====================================================
-   EXPLORE BUTTON & RELATIONSHIP DISPLAY
-   ===================================================== */
-
-function initEventListeners() {
-    // Explore button
-    const exploreBtn = document.getElementById('exploreBtn');
-    if (exploreBtn) {
-        exploreBtn.addEventListener('click', showRelationshipPreview);
-    }
-    
-    // Close button
-    const closeBtn = document.getElementById('closeSelection');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', hideRelationshipPreview);
-    }
-}
-
-async function showRelationshipPreview() {
-    const code1 = document.getElementById('country1Select').value;
-    const code2 = document.getElementById('country2Select').value;
-    
-    if (!code1 || !code2) return;
-    
-    const c1 = IR_DATA.getCountry(code1);
-    const c2 = IR_DATA.getCountry(code2);
-    
-    // Update display
-    document.getElementById('pair1Flag').src = IR_DATA.getFlagUrl(code1);
-    document.getElementById('pair1Name').textContent = c1.name;
-    document.getElementById('pair2Flag').src = IR_DATA.getFlagUrl(code2);
-    document.getElementById('pair2Name').textContent = c2.name;
-    
-    // Get relationship strength
-    const strength = IR_DATA.getRelationshipStrength(code1, code2);
-    const strengthFill = document.getElementById('strengthFill');
-    const strengthValue = document.getElementById('strengthValue');
-    
-    strengthFill.style.width = `${strength}%`;
-    strengthValue.textContent = `${strength}/100`;
-    
-    // Set relationship type
-    const relationshipType = document.getElementById('relationshipType');
-    if (strength >= 80) {
-        relationshipType.textContent = '🤝 Strong Alliance';
-    } else if (strength >= 60) {
-        relationshipType.textContent = '👥 Friendly Relations';
-    } else if (strength >= 40) {
-        relationshipType.textContent = '🤔 Complex Relationship';
-    } else if (strength >= 20) {
-        relationshipType.textContent = '😐 Strained Relations';
-    } else {
-        relationshipType.textContent = '⚔️ Hostile/Conflict';
-    }
-    
-    // Update view button
-    const viewBtn = document.getElementById('viewRelationshipBtn');
-    viewBtn.href = `relationship.html?c1=${code1}&c2=${code2}`;
-    
-    // Show display
-    document.getElementById('selectionDisplay').style.display = 'block';
-    
-    // Scroll to display
-    document.getElementById('selectionDisplay').scrollIntoView({ behavior: 'smooth' });
-}
-
-function hideRelationshipPreview() {
-    document.getElementById('selectionDisplay').style.display = 'none';
-}
-
-/* =====================================================
-   CHARTS (using Chart.js)
-   ===================================================== */
-
-function initCharts() {
-    // Relations by Type Chart
-    const relationsCtx = document.getElementById('relationsChart');
-    if (relationsCtx) {
-        new Chart(relationsCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Allies', 'Partners', 'Neutral', 'Strained', 'Hostile'],
-                datasets: [{
-                    data: [2500, 5000, 8000, 2800, 1006],
-                    backgroundColor: [
-                        '#2ec4b6',
-                        '#ffc857',
-                        '#8d99ae',
-                        '#ff9f1c',
-                        '#e63946'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: '#a0aec0' }
-                    }
-                }
-            }
+            setTimeout(() => {
+                elements.loader.classList.add('hidden');
+                elements.app.classList.add('loaded');
+                state.isLoading = false;
+                animateStats();
+            }, remaining);
         });
     }
-    
-    // Countries by Region Chart
-    const regionsCtx = document.getElementById('regionsChart');
-    if (regionsCtx) {
-        // Count countries per region
-        const regionCounts = {};
-        for (const country of Object.values(IR_DATA.countries)) {
-            regionCounts[country.region] = (regionCounts[country.region] || 0) + 1;
+
+    function initTheme() {
+        document.documentElement.setAttribute('data-theme', state.theme);
+        updateThemeIcon();
+    }
+
+    function initEventListeners() {
+        // Search
+        elements.searchToggle?.addEventListener('click', openSearch);
+        elements.searchClose?.addEventListener('click', closeSearch);
+        elements.searchOverlay?.addEventListener('click', (e) => {
+            if (e.target === elements.searchOverlay) closeSearch();
+        });
+        elements.globalSearch?.addEventListener('input', debounce(handleGlobalSearch, CONFIG.searchDebounce));
+        
+        // Theme
+        elements.themeToggle?.addEventListener('click', toggleTheme);
+        
+        // Scroll
+        window.addEventListener('scroll', handleScroll);
+        elements.backToTop?.addEventListener('click', scrollToTop);
+        
+        // Filters
+        elements.regionFilter?.addEventListener('change', handleFilterChange);
+        elements.groupingFilter?.addEventListener('change', handleFilterChange);
+        elements.sortFilter?.addEventListener('change', handleFilterChange);
+        elements.countrySearchInline?.addEventListener('input', debounce(handleFilterChange, CONFIG.searchDebounce));
+        
+        // View Toggle
+        elements.viewButtons?.forEach(btn => {
+            btn.addEventListener('click', () => handleViewChange(btn.dataset.view));
+        });
+        
+        // Load More
+        elements.loadMore?.addEventListener('click', loadMoreCountries);
+        
+        // Start Exploring
+        elements.startExploring?.addEventListener('click', () => {
+            document.getElementById('countrySelector')?.scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Quick Cards
+        elements.quickCards?.forEach(card => {
+            card.addEventListener('click', () => handleQuickCardClick(card.dataset.region));
+        });
+        
+        // Filter Chips
+        elements.filterChips?.forEach(chip => {
+            chip.addEventListener('click', () => handleFilterChipClick(chip));
+        });
+        
+        // Suggestion Chips
+        elements.suggestionChips?.forEach(chip => {
+            chip.addEventListener('click', () => {
+                elements.globalSearch.value = chip.textContent;
+                handleGlobalSearch();
+            });
+        });
+        
+        // Nav Links
+        elements.navLinks?.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleNavClick(link);
+            });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', handleKeyboard);
+    }
+
+    // ==================== SEARCH FUNCTIONALITY ====================
+    function openSearch() {
+        elements.searchOverlay.classList.add('active');
+        elements.globalSearch.focus();
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSearch() {
+        elements.searchOverlay.classList.remove('active');
+        elements.globalSearch.value = '';
+        document.body.style.overflow = '';
+        resetSearchResults();
+    }
+
+    function handleGlobalSearch() {
+        const query = elements.globalSearch.value.trim();
+        
+        if (query.length < 2) {
+            resetSearchResults();
+            return;
         }
         
-        new Chart(regionsCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Africa', 'Asia', 'Europe', 'Americas', 'Middle East', 'Oceania'],
-                datasets: [{
-                    label: 'Countries',
-                    data: [
-                        regionCounts['africa'] || 0,
-                        regionCounts['asia'] || 0,
-                        regionCounts['europe'] || 0,
-                        regionCounts['americas'] || 0,
-                        regionCounts['middle-east'] || 0,
-                        regionCounts['oceania'] || 0
-                    ],
-                    backgroundColor: '#57c5b6'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: '#a0aec0' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
-                    },
-                    x: {
-                        ticks: { color: '#a0aec0' },
-                        grid: { display: false }
-                    }
-                }
-            }
+        const results = searchCountries(query);
+        displaySearchResults(results, query);
+    }
+
+    function displaySearchResults(results, query) {
+        if (results.length === 0) {
+            elements.searchResults.innerHTML = `
+                <div class="search-no-results">
+                    <i class="fas fa-search"></i>
+                    <p>No results found for "${query}"</p>
+                    <span>Try different keywords or check spelling</span>
+                </div>
+            `;
+            return;
+        }
+        
+        const html = results.slice(0, 10).map(country => `
+            <a href="country.html?code=${country.code}" class="search-result-item">
+                <span class="result-flag">${country.flag}</span>
+                <div class="result-info">
+                    <span class="result-name">${highlightMatch(country.name, query)}</span>
+                    <span class="result-meta">${country.capital} • ${getRegionDisplayName(country.region)}</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        `).join('');
+        
+        elements.searchResults.innerHTML = html;
+    }
+
+    function highlightMatch(text, query) {
+        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    function resetSearchResults() {
+        elements.searchResults.innerHTML = `
+            <div class="search-placeholder">
+                <i class="fas fa-globe"></i>
+                <p>Start typing to search across 197 countries</p>
+            </div>
+        `;
+    }
+
+    // ==================== COUNTRY GRID ====================
+    function initCountryGrid() {
+        renderCountries();
+    }
+
+    function renderCountries() {
+        let countries = [...COUNTRIES_DATA];
+        
+        // Apply filters
+        if (state.currentFilter.region !== 'all') {
+            countries = countries.filter(c => c.region === state.currentFilter.region);
+        }
+        
+        if (state.currentFilter.grouping !== 'all') {
+            countries = countries.filter(c => c.groupings && c.groupings.includes(state.currentFilter.grouping));
+        }
+        
+        if (state.currentFilter.search) {
+            const query = state.currentFilter.search.toLowerCase();
+            countries = countries.filter(c => 
+                c.name.toLowerCase().includes(query) ||
+                c.capital.toLowerCase().includes(query)
+            );
+        }
+        
+        // Sort
+        countries = sortCountries(countries, state.currentFilter.sort);
+        
+        // Pagination
+        const endIndex = state.currentPage * CONFIG.countriesPerPage;
+        state.displayedCountries = countries.slice(0, endIndex);
+        
+        // Render based on view
+        if (state.currentView === 'grid') {
+            renderGridView(state.displayedCountries);
+        } else if (state.currentView === 'list') {
+            renderListView(state.displayedCountries);
+        }
+        
+        // Update status
+        updateLoadStatus(state.displayedCountries.length, countries.length);
+        
+        // Show/hide load more
+        if (endIndex >= countries.length) {
+            elements.loadMore.style.display = 'none';
+        } else {
+            elements.loadMore.style.display = 'flex';
+        }
+    }
+
+    function renderGridView(countries) {
+        elements.countryGrid.classList.remove('hidden');
+        elements.countryList.classList.add('hidden');
+        
+        const html = countries.map((country, index) => `
+            <a href="country.html?code=${country.code}" class="country-card stagger-enter" style="animation-delay: ${Math.min(index * 30, 500)}ms">
+                <div class="country-flag">${country.flag}</div>
+                <h4 class="country-name">${country.name}</h4>
+                <span class="country-region">${getRegionDisplayName(country.region)}</span>
+                <div class="country-meta">
+                    <span><i class="fas fa-city"></i> ${country.capital}</span>
+                    ${country.data_available ? '<span class="data-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                </div>
+            </a>
+        `).join('');
+        
+        elements.countryGrid.innerHTML = html;
+    }
+
+    function renderListView(countries) {
+        elements.countryList.classList.remove('hidden');
+        elements.countryGrid.classList.add('hidden');
+        
+        const html = countries.map((country, index) => `
+            <a href="country.html?code=${country.code}" class="country-list-item stagger-enter" style="animation-delay: ${Math.min(index * 20, 400)}ms">
+                <span class="country-flag">${country.flag}</span>
+                <div class="country-info">
+                    <h4 class="country-name">${country.name}</h4>
+                    <span class="country-region">${country.capital} • ${getRegionDisplayName(country.region)}</span>
+                </div>
+                <div class="country-stats">
+                    <span class="stat"><i class="fas fa-users"></i> ${formatNumber(country.population)}</span>
+                    <span class="stat"><i class="fas fa-dollar-sign"></i> ${formatNumber(country.gdp_usd)}</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        `).join('');
+        
+        elements.countryList.innerHTML = html;
+    }
+
+    function updateLoadStatus(shown, total) {
+        elements.loadStatus.textContent = `Showing ${shown} of ${total} countries`;
+    }
+
+    function loadMoreCountries() {
+        state.currentPage++;
+        renderCountries();
+    }
+
+    // ==================== FILTER HANDLERS ====================
+    function handleFilterChange() {
+        state.currentFilter.region = elements.regionFilter.value;
+        state.currentFilter.grouping = elements.groupingFilter.value;
+        state.currentFilter.sort = elements.sortFilter.value;
+        state.currentFilter.search = elements.countrySearchInline.value;
+        state.currentPage = 1;
+        renderCountries();
+    }
+
+    function handleViewChange(view) {
+        state.currentView = view;
+        
+        elements.viewButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        
+        renderCountries();
+    }
+
+    function handleQuickCardClick(region) {
+        if (region === 'g20' || region === 'brics' || region === 'unsc' || region === 'quad' || region === 'nato') {
+            elements.groupingFilter.value = region;
+            elements.regionFilter.value = 'all';
+        } else {
+            elements.regionFilter.value = region;
+            elements.groupingFilter.value = 'all';
+        }
+        
+        handleFilterChange();
+        document.getElementById('countrySelector')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function handleFilterChipClick(chip) {
+        elements.filterChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+    }
+
+    // ==================== THEME ====================
+    function toggleTheme() {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        localStorage.setItem('theme', state.theme);
+        updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+        const icon = elements.themeToggle?.querySelector('i');
+        if (icon) {
+            icon.className = state.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+    }
+
+    // ==================== SCROLL ====================
+    function handleScroll() {
+        const scrollY = window.scrollY;
+        
+        // Header
+        elements.header?.classList.toggle('scrolled', scrollY > 50);
+        
+        // Back to top
+        elements.backToTop?.classList.toggle('visible', scrollY > 500);
+    }
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==================== ANIMATIONS ====================
+    function initAnimations() {
+        // Add animation classes as elements come into view
+    }
+
+    function animateStats() {
+        elements.statNumbers?.forEach(stat => {
+            const target = parseInt(stat.dataset.count);
+            animateNumber(stat, 0, target, 2000);
         });
     }
-}
 
-/* =====================================================
-   UTILITY FUNCTIONS
-   ===================================================== */
+    function animateNumber(element, start, end, duration) {
+        const startTime = performance.now();
+        const range = end - start;
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+            
+            const current = Math.floor(start + range * easeProgress);
+            element.textContent = formatNumber(current);
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                element.textContent = formatNumber(end);
+            }
+        }
+        
+        requestAnimationFrame(update);
+    }
 
-function showLoading(element) {
-    element.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-}
+    function initIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fadeInUp');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.section-header, .featured-card, .exam-card').forEach(el => {
+            observer.observe(el);
+        });
+    }
 
-function showError(element, message) {
-    element.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${message}</div>`;
-}
+    // ==================== NAVIGATION ====================
+    function handleNavClick(link) {
+        elements.navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        
+        const section = link.dataset.section;
+        // Handle navigation based on section
+        console.log('Navigating to:', section);
+    }
+
+    // ==================== KEYBOARD ====================
+    function handleKeyboard(e) {
+        // Ctrl/Cmd + K for search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            openSearch();
+        }
+        
+        // Escape to close search
+        if (e.key === 'Escape' && elements.searchOverlay.classList.contains('active')) {
+            closeSearch();
+        }
+    }
+
+    // ==================== UTILITIES ====================
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // ==================== START ====================
+    document.addEventListener('DOMContentLoaded', init);
+
+})();
