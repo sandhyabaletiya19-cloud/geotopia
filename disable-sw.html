@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Disable Service Worker</title>
+</head>
+<body>
+    <h1>Removing Service Worker...</h1>
+    <div id="status">Working...</div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        // Unregister all service workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                if (registrations.length === 0) {
+                    statusDiv.innerHTML = '<p style="color: green;">✅ No service workers found!</p>';
+                    return;
+                }
+                
+                statusDiv.innerHTML = `<p>Found ${registrations.length} service worker(s). Removing...</p>`;
+                
+                let promises = registrations.map(registration => {
+                    return registration.unregister().then(success => {
+                        return `Removed: ${registration.scope}`;
+                    });
+                });
+                
+                Promise.all(promises).then(results => {
+                    statusDiv.innerHTML = '<p style="color: green;">✅ All service workers removed!</p><ul>' + 
+                        results.map(r => `<li>${r}</li>`).join('') + 
+                        '</ul>';
+                });
+            }).catch(err => {
+                statusDiv.innerHTML = `<p style="color: red;">❌ Error: ${err.message}</p>`;
+            });
+        } else {
+            statusDiv.innerHTML = '<p style="color: orange;">⚠️ Service workers not supported</p>';
+        }
+        
+        // Clear all caches
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                return Promise.all(names.map(name => caches.delete(name)));
+            }).then(() => {
+                console.log('✅ All caches cleared');
+            });
+        }
+    </script>
+    
+    <hr>
+    <h2>Next Steps:</h2>
+    <ol>
+        <li>Wait for "✅ All service workers removed!" message above</li>
+        <li>Press Ctrl+Shift+Delete and clear all browsing data</li>
+        <li>Close ALL browser windows</li>
+        <li>Reopen browser</li>
+        <li>Go back to your country.html page</li>
+    </ol>
+    
+    <button onclick="location.reload()">Refresh This Page</button>
+</body>
+</html>
