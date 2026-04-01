@@ -35,6 +35,19 @@
         elements.themeToggle = document.getElementById('themeToggle');
         elements.lastUpdated = document.getElementById('lastUpdated');
         elements.dataCompleteness = document.getElementById('dataCompleteness');
+        
+        // Section-specific elements
+        elements.foreignPolicyDoctrine = document.getElementById('foreignPolicyDoctrine');
+        elements.keyPrinciples = document.getElementById('keyPrinciples');
+        elements.strategicObjectives = document.getElementById('strategicObjectives');
+        elements.globalPositioning = document.getElementById('globalPositioning');
+        elements.historicalContext = document.getElementById('historicalContext');
+        elements.neighboursGrid = document.getElementById('neighboursGrid');
+        elements.majorPowersGrid = document.getElementById('majorPowersGrid');
+        elements.groupingsContent = document.getElementById('groupingsContent');
+        elements.diasporaOverview = document.getElementById('diasporaOverview');
+        elements.timelineContainer = document.getElementById('timelineContainer');
+        elements.examContent = document.getElementById('examContent');
     }
 
     // ==================== INITIALIZATION ====================
@@ -47,15 +60,15 @@
         state.countryCode = urlParams.get('code');
         
         if (!state.countryCode) {
-            showError('No country specified');
+            showError('No country specified. Please select a country from the homepage.');
             return;
         }
         
-        // Get basic country data
-        state.countryData = getCountryByCode(state.countryCode);
+        // Get basic country data from our local array
+        state.countryData = getCountryByCode(state.countryCode.toUpperCase());
         
         if (!state.countryData) {
-            showError('Country not found');
+            showError(`Country with code "${state.countryCode}" not found.`);
             return;
         }
         
@@ -75,8 +88,33 @@
         }, 500);
     }
 
+    function showError(message) {
+        elements.pageLoader.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Error</h2>
+                <p>${message}</p>
+                <a href="index.html" class="btn-primary">← Back to Homepage</a>
+            </div>
+        `;
+    }
+
     function initTheme() {
         document.documentElement.setAttribute('data-theme', state.theme);
+        updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+        const icon = elements.themeToggle?.querySelector('i');
+        if (icon) {
+            icon.className = state.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+    }
+
+    function toggleTheme() {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        localStorage.setItem('theme', state.theme);
         updateThemeIcon();
     }
 
@@ -109,26 +147,105 @@
         document.querySelectorAll('.exam-tab').forEach(tab => {
             tab.addEventListener('click', () => handleExamTabClick(tab));
         });
+
+        // Download and share buttons
+        document.getElementById('downloadData')?.addEventListener('click', downloadCountryData);
+        document.getElementById('shareBtn')?.addEventListener('click', shareCountry);
+    }
+
+    function handleScroll() {
+        const header = document.querySelector('.main-header');
+        header?.classList.toggle('scrolled', window.scrollY > 50);
+    }
+
+    function switchSection(sectionId) {
+        // Update tabs
+        elements.navTabs.forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.section === sectionId);
+        });
+        
+        // Update sections
+        elements.contentSections.forEach(section => {
+            section.classList.toggle('active', section.id === sectionId);
+        });
+        
+        state.activeSection = sectionId;
+        
+        // Scroll to top of content
+        document.querySelector('.country-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // ==================== DATA LOADING ====================
     async function loadForeignPolicyData() {
         try {
-            const response = await fetch(`countries/${state.countryCode}/foreign-policy.json`);
+            // NEW SIMPLER PATH: countries/ind-fp.json
+            const url = `countries/${state.countryCode.toLowerCase()}-fp.json`;
+            console.log('Loading foreign policy data from:', url);
+            
+            const response = await fetch(url);
             
             if (!response.ok) {
-                console.warn('Foreign policy data not available');
+                console.warn(`Foreign policy data not available for ${state.countryCode}`);
                 renderPlaceholderData();
                 return;
             }
             
             state.foreignPolicyData = await response.json();
+            console.log('Foreign policy data loaded successfully');
             renderForeignPolicyData();
             
         } catch (error) {
             console.warn('Error loading foreign policy data:', error);
             renderPlaceholderData();
         }
+    }
+
+    function renderPlaceholderData() {
+        // Show placeholder content when data is not available
+        const placeholderHTML = `
+            <div class="placeholder-content">
+                <i class="fas fa-database"></i>
+                <h3>Data Coming Soon</h3>
+                <p>Comprehensive foreign policy data for ${state.countryData.name} is being compiled.</p>
+                <p>Check back soon for complete coverage.</p>
+            </div>
+        `;
+        
+        elements.foreignPolicyDoctrine.innerHTML = placeholderHTML;
+        elements.keyPrinciples.innerHTML = '<p>Data being compiled...</p>';
+        elements.strategicObjectives.innerHTML = '<p>Data being compiled...</p>';
+        elements.globalPositioning.innerHTML = '<p>Data being compiled...</p>';
+        elements.historicalContext.innerHTML = '<p>Data being compiled...</p>';
+        
+        // Basic neighbour info from country-data.js
+        if (state.countryData.neighbors && state.countryData.neighbors.length > 0) {
+            elements.neighboursGrid.innerHTML = state.countryData.neighbors.map(code => {
+                const n = getCountryByCode(code);
+                if (!n) return '';
+                return `
+                    <div class="neighbour-card">
+                        <div class="neighbour-header">
+                            <span class="neighbour-flag">${n.flag}</span>
+                            <div class="neighbour-info">
+                                <h3>${n.name}</h3>
+                                <span class="relationship-type neutral">Data Pending</span>
+                            </div>
+                        </div>
+                        <div class="neighbour-footer">
+                            <a href="country.html?code=${n.code}" class="view-details">
+                                View ${n.name}'s Profile <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            elements.neighboursGrid.innerHTML = '<p class="no-data">Island nation - No land borders</p>';
+        }
+        
+        // Update footer
+        elements.lastUpdated.textContent = 'Pending';
+        elements.dataCompleteness.textContent = '0%';
     }
 
     // ==================== RENDERING ====================
@@ -152,6 +269,9 @@
         
         // Badges
         renderBadges(country);
+        
+        // Setup navigation arrows
+        setupCountryNavigation();
     }
 
     function renderBadges(country) {
@@ -165,26 +285,57 @@
             badgesHTML += `<span class="country-badge secondary">UNSC P5</span>`;
         }
         
-        // Key groupings
+        // Key groupings (show max 4)
         if (country.groupings) {
-            const keyGroupings = ['g20', 'g7', 'brics', 'nato', 'quad'];
+            const keyGroupings = ['g20', 'g7', 'brics', 'nato', 'quad', 'eu', 'asean'];
+            let count = 0;
             country.groupings.forEach(g => {
-                if (keyGroupings.includes(g)) {
+                if (keyGroupings.includes(g) && count < 4) {
                     badgesHTML += `<span class="country-badge success">${getGroupingDisplayName(g)}</span>`;
+                    count++;
                 }
             });
         }
         
         // Data available
         if (country.data_available) {
-            badgesHTML += `<span class="country-badge warning">Full Data Available</span>`;
+            badgesHTML += `<span class="country-badge warning"><i class="fas fa-check"></i> Full Data</span>`;
         }
         
         elements.countryBadges.innerHTML = badgesHTML;
     }
 
+    function setupCountryNavigation() {
+        // Find current country index
+        const currentIndex = COUNTRIES_DATA.findIndex(c => c.code === state.countryCode.toUpperCase());
+        
+        const prevBtn = document.getElementById('prevCountry');
+        const nextBtn = document.getElementById('nextCountry');
+        
+        if (currentIndex > 0) {
+            const prevCountry = COUNTRIES_DATA[currentIndex - 1];
+            prevBtn.href = `country.html?code=${prevCountry.code}`;
+            prevBtn.innerHTML = `<i class="fas fa-chevron-left"></i> ${prevCountry.name}`;
+        } else {
+            prevBtn.style.visibility = 'hidden';
+        }
+        
+        if (currentIndex < COUNTRIES_DATA.length - 1) {
+            const nextCountry = COUNTRIES_DATA[currentIndex + 1];
+            nextBtn.href = `country.html?code=${nextCountry.code}`;
+            nextBtn.innerHTML = `${nextCountry.name} <i class="fas fa-chevron-right"></i>`;
+        } else {
+            nextBtn.style.visibility = 'hidden';
+        }
+    }
+
     function renderForeignPolicyData() {
         const data = state.foreignPolicyData;
+        
+        if (!data) {
+            renderPlaceholderData();
+            return;
+        }
         
         // Overview section
         renderOverview(data);
@@ -212,122 +363,179 @@
     }
 
     function renderOverview(data) {
-        const overview = data['01_overview'] || {};
+        const overview = data['01_overview'] || data.overview || {};
         
         // Foreign Policy Doctrine
-        const doctrineEl = document.getElementById('foreignPolicyDoctrine');
         if (overview.foreign_policy_doctrine) {
-            doctrineEl.innerHTML = `<p>${overview.foreign_policy_doctrine}</p>`;
+            elements.foreignPolicyDoctrine.innerHTML = `<p>${overview.foreign_policy_doctrine}</p>`;
+        } else {
+            elements.foreignPolicyDoctrine.innerHTML = '<p class="no-data">Doctrine information being compiled...</p>';
         }
         
         // Key Principles
-        const principlesEl = document.getElementById('keyPrinciples');
         if (overview.key_principles && overview.key_principles.length > 0) {
-            principlesEl.innerHTML = `<ul>${overview.key_principles.map(p => `<li>${p}</li>`).join('')}</ul>`;
+            elements.keyPrinciples.innerHTML = `
+                <ul>
+                    ${overview.key_principles.map(p => `<li>${p}</li>`).join('')}
+                </ul>
+            `;
+        } else {
+            elements.keyPrinciples.innerHTML = '<p class="no-data">Data being compiled...</p>';
         }
         
         // Strategic Objectives
-        const objectivesEl = document.getElementById('strategicObjectives');
         if (overview.strategic_objectives && overview.strategic_objectives.length > 0) {
-            objectivesEl.innerHTML = `<ul>${overview.strategic_objectives.map(o => `<li>${o}</li>`).join('')}</ul>`;
+            elements.strategicObjectives.innerHTML = `
+                <ul>
+                    ${overview.strategic_objectives.map(o => `<li>${o}</li>`).join('')}
+                </ul>
+            `;
+        } else {
+            elements.strategicObjectives.innerHTML = '<p class="no-data">Data being compiled...</p>';
         }
         
         // Global Positioning
-        const positioningEl = document.getElementById('globalPositioning');
         if (overview.global_positioning) {
-            positioningEl.innerHTML = `<p>${overview.global_positioning}</p>`;
+            elements.globalPositioning.innerHTML = `<p>${overview.global_positioning}</p>`;
         }
         
         // Historical Context
-        const historyEl = document.getElementById('historicalContext');
         if (overview.historical_context) {
-            historyEl.innerHTML = `<p>${overview.historical_context}</p>`;
+            elements.historicalContext.innerHTML = `<p>${overview.historical_context}</p>`;
         }
     }
 
     function renderNeighbours(data) {
-        const neighbours = data['02_immediate_neighbours'] || {};
+        const neighbours = data['02_immediate_neighbours'] || data.immediate_neighbours || {};
         
         // Update stats
-        document.getElementById('totalNeighbours').textContent = `${neighbours.total || 0} Countries`;
-        document.getElementById('totalBorderLength').textContent = `${formatNumber(neighbours.border_length_km || 0)} km border`;
+        const totalEl = document.getElementById('totalNeighbours');
+        const borderEl = document.getElementById('totalBorderLength');
+        
+        if (totalEl) totalEl.textContent = `${neighbours.total || state.countryData.neighbors?.length || 0} Countries`;
+        if (borderEl) borderEl.textContent = `${formatNumber(neighbours.border_length_km || 0)} km border`;
         
         // Render neighbour cards
-        const grid = document.getElementById('neighboursGrid');
-        if (neighbours.countries && neighbours.countries.length > 0) {
-            grid.innerHTML = neighbours.countries.map(n => renderNeighbourCard(n)).join('');
+        const countries = neighbours.countries || [];
+        
+        if (countries.length > 0) {
+            elements.neighboursGrid.innerHTML = countries.map(n => renderNeighbourCard(n)).join('');
+        } else if (state.countryData.neighbors && state.countryData.neighbors.length > 0) {
+            // Fallback to basic data
+            elements.neighboursGrid.innerHTML = state.countryData.neighbors.map(code => {
+                const c = getCountryByCode(code);
+                if (!c) return '';
+                return `
+                    <div class="neighbour-card">
+                        <div class="neighbour-header">
+                            <span class="neighbour-flag">${c.flag}</span>
+                            <div class="neighbour-info">
+                                <h3>${c.name}</h3>
+                            </div>
+                        </div>
+                        <div class="neighbour-footer">
+                            <a href="country.html?code=${c.code}" class="view-details">
+                                View Profile <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         } else {
-            grid.innerHTML = '<p class="no-data">No land borders (Island nation)</p>';
+            elements.neighboursGrid.innerHTML = `
+                <div class="no-data-card">
+                    <i class="fas fa-water"></i>
+                    <p>Island Nation - No Land Borders</p>
+                </div>
+            `;
         }
     }
 
     function renderNeighbourCard(neighbour) {
         const country = getCountryByCode(neighbour.code);
-        const relationshipClass = neighbour.relationship_type?.toLowerCase().replace(' ', '-') || 'neutral';
+        const relationshipClass = (neighbour.relationship_type || 'neutral').toLowerCase().replace(/\s+/g, '-');
         
         return `
             <div class="neighbour-card">
                 <div class="neighbour-header">
                     <span class="neighbour-flag">${country?.flag || '🏳️'}</span>
                     <div class="neighbour-info">
-                        <h3>${neighbour.name}</h3>
-                        <span class="relationship-type ${relationshipClass}">${neighbour.relationship_type || 'Neutral'}</span>
+                        <h3>${neighbour.name || country?.name || 'Unknown'}</h3>
+                        <span class="relationship-type ${relationshipClass}">
+                            ${neighbour.relationship_type || 'Neutral'}
+                        </span>
                     </div>
                 </div>
+                
                 <div class="neighbour-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Border Length</span>
-                        <span class="detail-value">${formatNumber(neighbour.border_length_km || 0)} km</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Border Status</span>
-                        <span class="detail-value">${neighbour.border_status || '-'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Trade Volume</span>
-                        <span class="detail-value">${neighbour.trade_volume_usd || '-'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Visa Regime</span>
-                        <span class="detail-value">${neighbour.people_to_people?.visa_regime || '-'}</span>
-                    </div>
+                    ${neighbour.border_length_km ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Border Length</span>
+                            <span class="detail-value">${formatNumber(neighbour.border_length_km)} km</span>
+                        </div>
+                    ` : ''}
+                    ${neighbour.border_status ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Border Status</span>
+                            <span class="detail-value">${neighbour.border_status}</span>
+                        </div>
+                    ` : ''}
+                    ${neighbour.trade_volume_usd ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Trade Volume</span>
+                            <span class="detail-value">${neighbour.trade_volume_usd}</span>
+                        </div>
+                    ` : ''}
+                    ${neighbour.people_to_people?.visa_regime ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Visa Regime</span>
+                            <span class="detail-value">${neighbour.people_to_people.visa_regime}</span>
+                        </div>
+                    ` : ''}
                 </div>
-                ${neighbour.key_issues?.length ? `
+                
+                ${neighbour.key_issues && neighbour.key_issues.length > 0 ? `
                     <div class="neighbour-issues">
                         <h4>Key Issues</h4>
                         <div class="tag-list">
-                            ${neighbour.key_issues.map(i => `<span class="tag issue">${i}</span>`).join('')}
+                            ${neighbour.key_issues.slice(0, 4).map(i => `<span class="tag issue">${i}</span>`).join('')}
                         </div>
                     </div>
                 ` : ''}
-                ${neighbour.cooperation_areas?.length ? `
+                
+                ${neighbour.cooperation_areas && neighbour.cooperation_areas.length > 0 ? `
                     <div class="neighbour-cooperation">
                         <h4>Cooperation Areas</h4>
                         <div class="tag-list">
-                            ${neighbour.cooperation_areas.map(c => `<span class="tag cooperation">${c}</span>`).join('')}
+                            ${neighbour.cooperation_areas.slice(0, 4).map(c => `<span class="tag cooperation">${c}</span>`).join('')}
                         </div>
                     </div>
                 ` : ''}
+                
                 <div class="neighbour-footer">
                     <a href="country.html?code=${neighbour.code}" class="view-details">
-                        View ${neighbour.name}'s Profile <i class="fas fa-arrow-right"></i>
+                        View ${neighbour.name || 'Country'}'s Profile <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
         `;
     }
 
-        function renderMajorPowers(data) {
-        const powers = data['04_major_powers'] || {};
-        const grid = document.getElementById('majorPowersGrid');
-        
+    function renderMajorPowers(data) {
+        const powers = data['04_major_powers'] || data.major_powers || {};
         const powerCodes = Object.keys(powers);
+        
         if (powerCodes.length === 0) {
-            grid.innerHTML = '<p class="no-data">Major power relations data coming soon</p>';
+            elements.majorPowersGrid.innerHTML = `
+                <div class="no-data-card full-width">
+                    <i class="fas fa-handshake"></i>
+                    <p>Major power relations data coming soon</p>
+                </div>
+            `;
             return;
         }
         
-        grid.innerHTML = powerCodes.map(code => {
+        elements.majorPowersGrid.innerHTML = powerCodes.map(code => {
             const power = powers[code];
             const country = getCountryByCode(code);
             return renderMajorPowerCard(code, power, country);
@@ -341,353 +549,68 @@
                     <div class="power-identity">
                         <span class="power-flag">${country?.flag || '🏳️'}</span>
                         <div>
-                            <h3 class="power-name">${power.name || country?.name || code}</h3>
-                            <span class="relationship-framework">${power.relationship_framework || 'Bilateral Relations'}</span>
+                            <span class="power-name">${power.name || country?.name || code}</span>
+                            ${power.relationship_framework ? `
+                                <span class="relationship-framework">${power.relationship_framework}</span>
+                            ` : ''}
                         </div>
                     </div>
-                    <div class="strength-indicator">
-                        <span class="strength-score">${power.strength_score || '-'}</span>
-                        <span class="strength-label">Strength Score</span>
-                    </div>
+                    ${power.strength_score ? `
+                        <div class="strength-indicator">
+                            <span class="strength-score">${power.strength_score}</span>
+                            <span class="strength-label">Strength</span>
+                        </div>
+                    ` : ''}
                 </div>
+                
                 <div class="power-content">
                     <div class="power-sections">
-                        <div class="power-section">
-                            <h4><i class="fas fa-shield-alt"></i> Defense</h4>
-                            <ul>
-                                ${power.defense_cooperation?.joint_exercises?.slice(0, 3).map(ex => `<li>${ex}</li>`).join('') || '<li>Data pending</li>'}
-                            </ul>
-                        </div>
-                        <div class="power-section">
-                            <h4><i class="fas fa-chart-bar"></i> Economic</h4>
-                            <ul>
-                                <li>Trade: ${power.economic_ties?.trade_volume_usd || '-'}</li>
-                                <li>FDI: ${power.economic_ties?.fdi_usd || '-'}</li>
-                            </ul>
-                        </div>
-                        <div class="power-section">
-                            <h4><i class="fas fa-handshake"></i> Political</h4>
-                            <ul>
-                                ${power.political_engagement?.convergence_areas?.slice(0, 3).map(area => `<li>${area}</li>`).join('') || '<li>Data pending</li>'}
-                            </ul>
-                        </div>
+                        ${power.defense_cooperation ? `
+                            <div class="power-section">
+                                <h4><i class="fas fa-shield-alt"></i> Defense</h4>
+                                <ul>
+                                    ${power.defense_cooperation.joint_exercises?.slice(0, 3).map(e => `<li>${e}</li>`).join('') || '<li>Data pending</li>'}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${power.economic_ties ? `
+                            <div class="power-section">
+                                <h4><i class="fas fa-chart-line"></i> Economic</h4>
+                                <ul>
+                                    ${power.economic_ties.trade_volume_usd ? `<li>Trade: ${power.economic_ties.trade_volume_usd}</li>` : ''}
+                                    ${power.economic_ties.fdi_usd ? `<li>FDI: ${power.economic_ties.fdi_usd}</li>` : ''}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${power.political_engagement ? `
+                            <div class="power-section">
+                                <h4><i class="fas fa-landmark"></i> Political</h4>
+                                <ul>
+                                    ${power.political_engagement.convergence_areas?.slice(0, 3).map(a => `<li>${a}</li>`).join('') || '<li>Data pending</li>'}
+                                </ul>
+                            </div>
+                        ` : ''}
                     </div>
+                </div>
+                
+                <div class="power-footer">
+                    <a href="country.html?code=${code}" class="view-details">
+                        View Full Relations <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         `;
     }
 
     function renderGroupings(data) {
-        const regional = data['05_regional_groupings'] || {};
-        const global = data['06_global_groupings'] || {};
-        const exportControl = data['08_export_control_regimes'] || {};
+        const regional = data['05_regional_groupings'] || data.regional_groupings || {};
+        const global = data['06_global_groupings'] || data.global_groupings || {};
+        const exportControl = data['08_export_control_regimes'] || data.export_control_regimes || {};
         
-        // Render regional by default
-        renderGroupingCards('regional', regional);
-    }
-
-    function renderGroupingCards(type, groupings) {
-        const container = document.getElementById('groupingsContent');
-        
-        const codes = Object.keys(groupings);
-        if (codes.length === 0) {
-            container.innerHTML = '<p class="no-data">Grouping data coming soon</p>';
-            return;
-        }
-        
-        container.innerHTML = codes.map(code => {
-            const group = groupings[code];
-            return `
-                <div class="grouping-card">
-                    <div class="grouping-header">
-                        <div class="grouping-name">
-                            <h3>${group.name || code.toUpperCase()}</h3>
-                            <span>Joined: ${group.year_joined || '-'}</span>
-                        </div>
-                        <span class="membership-status ${(group.membership_status || 'member').toLowerCase()}">${group.membership_status || 'Member'}</span>
-                    </div>
-                    <div class="grouping-content">
-                        <p>${group.role || ''}</p>
-                        ${group.key_initiatives?.length ? `
-                            <div class="initiatives">
-                                <h4>Key Initiatives</h4>
-                                <ul>
-                                    ${group.key_initiatives.slice(0, 4).map(i => `<li>${i}</li>`).join('')}
-                                </ul>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function renderDiaspora(data) {
-        const diaspora = data['10_diaspora'] || {};
-        const container = document.getElementById('diasporaOverview');
-        
-        if (!diaspora.total_population) {
-            container.innerHTML = '<p class="no-data">Diaspora data coming soon</p>';
-            return;
-        }
-        
-        container.innerHTML = `
-            <div class="diaspora-stats">
-                <div class="diaspora-stat-card">
-                    <i class="fas fa-users"></i>
-                    <div>
-                        <span class="stat-value">${formatNumber(diaspora.total_population)}</span>
-                        <span class="stat-label">Total Diaspora Population</span>
-                    </div>
-                </div>
-                <div class="diaspora-stat-card">
-                    <i class="fas fa-percentage"></i>
-                    <div>
-                        <span class="stat-value">${diaspora.percentage_of_homeland || '-'}%</span>
-                        <span class="stat-label">Of Home Population</span>
-                    </div>
-                </div>
-                <div class="diaspora-stat-card">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <div>
-                        <span class="stat-value">${diaspora.remittances_usd || '-'}</span>
-                        <span class="stat-label">Annual Remittances</span>
-                    </div>
-                </div>
-            </div>
-            
-            ${diaspora.top_destinations?.length ? `
-                <div class="diaspora-destinations">
-                    <h3>Top Destinations</h3>
-                    <div class="destinations-grid">
-                        ${diaspora.top_destinations.slice(0, 6).map(dest => `
-                            <div class="destination-card">
-                                <span class="dest-country">${dest.country}</span>
-                                <span class="dest-population">${formatNumber(dest.population)}</span>
-                                <span class="dest-percentage">${dest.percentage}% of diaspora</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-            
-            ${diaspora.diaspora_engagement_policies?.length ? `
-                <div class="diaspora-policies">
-                    <h3>Engagement Policies</h3>
-                    <ul>
-                        ${diaspora.diaspora_engagement_policies.map(p => `<li>${p}</li>`).join('')}
-                    </ul>
-                </div>
-            ` : ''}
-        `;
-    }
-
-    function renderTimeline(data) {
-        const developments = data['11_contemporary_developments'] || {};
-        renderTimelineEvents('2025', developments);
-    }
-
-    function renderTimelineEvents(year, developments) {
-        const container = document.getElementById('timelineContainer');
-        
-        let events = [];
-        if (year === 'all') {
-            Object.keys(developments).forEach(y => {
-                if (Array.isArray(developments[y])) {
-                    events = events.concat(developments[y].map(e => ({...e, year: y})));
-                }
-            });
-        } else if (developments[year] && Array.isArray(developments[year])) {
-            events = developments[year];
-        }
-        
-        if (events.length === 0) {
-            container.innerHTML = '<p class="no-data">No events recorded for this period</p>';
-            return;
-        }
-        
-        // Sort by date descending
-        events.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        container.innerHTML = events.map(event => `
-            <div class="timeline-event">
-                <span class="event-date">${formatDate(event.date)}</span>
-                <div class="event-card">
-                    <span class="event-category">${event.category || 'General'}</span>
-                    <h4 class="event-title">${event.event}</h4>
-                    <p class="event-description">${event.significance || ''}</p>
-                    ${event.countries_involved?.length ? `
-                        <div class="event-countries">
-                            <span>Countries involved: ${event.countries_involved.join(', ')}</span>
-                        </div>
-                    ` : ''}
-                    ${event.exam_relevance ? `
-                        <span class="event-exam-tag">${event.exam_relevance}</span>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderExamFocus(data) {
-        const examFocus = data['13_exam_focus'] || {};
-        renderExamContent('upsc', examFocus);
-    }
-
-    function renderExamContent(examType, examFocus) {
-        const container = document.getElementById('examContent');
-        
-        let content = '';
-        
-        if (examType === 'upsc') {
-            const upscPrelims = examFocus.upsc_prelims || {};
-            const upscMains = examFocus.upsc_mains || {};
-            
-            content = `
-                <div class="exam-card">
-                    <h3><i class="fas fa-list-check"></i> Prelims Focus</h3>
-                    <ul class="exam-list">
-                        ${upscPrelims.important_facts?.slice(0, 10).map(f => `<li>${f}</li>`).join('') || '<li>Content coming soon</li>'}
-                    </ul>
-                </div>
-                <div class="exam-card">
-                    <h3><i class="fas fa-pen"></i> Mains Topics (${upscMains.gs_papers?.join(', ') || 'GS2'})</h3>
-                    <ul class="exam-list">
-                        ${upscMains.topics?.slice(0, 8).map(t => `<li>${t}</li>`).join('') || '<li>Content coming soon</li>'}
-                    </ul>
-                </div>
-                <div class="exam-card">
-                    <h3><i class="fas fa-star"></i> Must Know Facts</h3>
-                    <ul class="exam-list">
-                        ${examFocus.must_know_facts?.slice(0, 10).map(f => `<li>${f}</li>`).join('') || '<li>Content coming soon</li>'}
-                    </ul>
-                </div>
-            `;
-        } else if (examType === 'ssc') {
-            const ssc = examFocus.ssc_cgl || {};
-            
-            content = `
-                <div class="exam-card">
-                    <h3><i class="fas fa-book"></i> Important Topics</h3>
-                    <ul class="exam-list">
-                        ${ssc.important_topics?.map(t => `<li>${t}</li>`).join('') || '<li>Content coming soon</li>'}
-                    </ul>
-                </div>
-                <div class="exam-card">
-                    <h3><i class="fas fa-database"></i> Fact-Based Points</h3>
-                    <ul class="exam-list">
-                        ${ssc.fact_based_points?.slice(0, 15).map(f => `<li>${f}</li>`).join('') || '<li>Content coming soon</li>'}
-                    </ul>
-                </div>
-            `;
-        } else if (examType === 'state') {
-            const state = examFocus.state_psc || {};
-            
-            content = `
-                <div class="exam-card">
-                    <h3><i class="fas fa-map-marker-alt"></i> State Relevance</h3>
-                    <p>${state.relevance || 'Content coming soon'}</p>
-                </div>
-                <div class="exam-card">
-                    <h3><i class="fas fa-bullseye"></i> Focus Areas</h3>
-                    <ul class="exam-list">
-                        ${state.focus_areas?.map(f => `<li>${f}</li>`).join('') || '<li>Content coming soon</li>'}
-                    </ul>
-                </div>
-            `;
-        }
-        
-        container.innerHTML = content;
-    }
-
-    function renderMetadata(data) {
-        const metadata = data.metadata || {};
-        
-        elements.lastUpdated.textContent = data.last_updated || '-';
-        elements.dataCompleteness.textContent = metadata.data_completeness || '-';
-    }
-
-    function renderPlaceholderData() {
-        // Show placeholder message when JSON data isn't available
-        const sections = ['foreignPolicyDoctrine', 'keyPrinciples', 'strategicObjectives', 
-                          'globalPositioning', 'historicalContext'];
-        
-        sections.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.innerHTML = `<p class="no-data">Comprehensive foreign policy data for ${state.countryData.name} is being compiled. Check back soon!</p>`;
-            }
-        });
-        
-        // Neighbours based on country data
-        renderNeighboursFromBasicData();
-    }
-
-    function renderNeighboursFromBasicData() {
-        const country = state.countryData;
-        const grid = document.getElementById('neighboursGrid');
-        
-        if (!country.neighbors || country.neighbors.length === 0) {
-            document.getElementById('totalNeighbours').textContent = '0 Countries';
-            document.getElementById('totalBorderLength').textContent = 'Island Nation';
-            grid.innerHTML = '<p class="no-data">This is an island nation with no land borders</p>';
-            return;
-        }
-        
-        document.getElementById('totalNeighbours').textContent = `${country.neighbors.length} Countries`;
-        
-        grid.innerHTML = country.neighbors.map(code => {
-            const neighbor = getCountryByCode(code);
-            if (!neighbor) return '';
-            
-            return `
-                <div class="neighbour-card">
-                    <div class="neighbour-header">
-                        <span class="neighbour-flag">${neighbor.flag}</span>
-                        <div class="neighbour-info">
-                            <h3>${neighbor.name}</h3>
-                            <span class="relationship-type">Bilateral Relations</span>
-                        </div>
-                    </div>
-                    <div class="neighbour-details">
-                        <div class="detail-item">
-                            <span class="detail-label">Capital</span>
-                            <span class="detail-value">${neighbor.capital}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Population</span>
-                            <span class="detail-value">${formatNumber(neighbor.population)}</span>
-                        </div>
-                    </div>
-                    <div class="neighbour-footer">
-                        <a href="country.html?code=${neighbor.code}" class="view-details">
-                            View ${neighbor.name}'s Profile <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // ==================== EVENT HANDLERS ====================
-    function switchSection(sectionId) {
-        state.activeSection = sectionId;
-        
-        // Update tabs
-        elements.navTabs.forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.section === sectionId);
-        });
-        
-        // Update sections
-        elements.contentSections.forEach(section => {
-            section.classList.toggle('active', section.id === sectionId);
-        });
-        
-        // Scroll to top of content
-        window.scrollTo({
-            top: document.querySelector('.country-nav').offsetTop - 70,
-            behavior: 'smooth'
-        });
+        // Default to regional view
+        renderGroupingsContent('regional', regional, global, exportControl);
     }
 
     function handleGroupingTabClick(tab) {
@@ -695,18 +618,164 @@
         tab.classList.add('active');
         
         const type = tab.dataset.type;
-        const data = state.foreignPolicyData || {};
+        const data = state.foreignPolicyData;
         
+        const regional = data['05_regional_groupings'] || data.regional_groupings || {};
+        const global = data['06_global_groupings'] || data.global_groupings || {};
+        const exportControl = data['08_export_control_regimes'] || data.export_control_regimes || {};
+        
+        renderGroupingsContent(type, regional, global, exportControl);
+    }
+
+    function renderGroupingsContent(type, regional, global, exportControl) {
         let groupings = {};
-        if (type === 'regional') {
-            groupings = data['05_regional_groupings'] || {};
-        } else if (type === 'global') {
-            groupings = data['06_global_groupings'] || {};
-        } else if (type === 'export-control') {
-            groupings = data['08_export_control_regimes'] || {};
+        
+        switch(type) {
+            case 'regional':
+                groupings = regional;
+                break;
+            case 'global':
+                groupings = global;
+                break;
+            case 'export-control':
+                groupings = exportControl;
+                break;
         }
         
-        renderGroupingCards(type, groupings);
+        const keys = Object.keys(groupings);
+        
+        if (keys.length === 0) {
+            elements.groupingsContent.innerHTML = `
+                <div class="no-data-card">
+                    <i class="fas fa-sitemap"></i>
+                    <p>No ${type} groupings data available</p>
+                </div>
+            `;
+            return;
+        }
+        
+        elements.groupingsContent.innerHTML = keys.map(key => {
+            const g = groupings[key];
+            return `
+                <div class="grouping-card">
+                    <div class="grouping-header">
+                        <div class="grouping-name">
+                            <h3>${g.name || getGroupingDisplayName(key)}</h3>
+                            ${g.year_joined ? `<span>Member since ${g.year_joined}</span>` : ''}
+                        </div>
+                        <span class="membership-status ${(g.membership_status || 'member').toLowerCase()}">
+                            ${g.membership_status || 'Member'}
+                        </span>
+                    </div>
+                    
+                    ${g.role ? `<p class="grouping-role">${g.role}</p>` : ''}
+                    
+                    ${g.contributions && g.contributions.length > 0 ? `
+                        <div class="grouping-section">
+                            <h4>Contributions</h4>
+                            <ul>
+                                ${g.contributions.slice(0, 3).map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    
+                    ${g.key_initiatives && g.key_initiatives.length > 0 ? `
+                        <div class="grouping-section">
+                            <h4>Key Initiatives</h4>
+                            <div class="tag-list">
+                                ${g.key_initiatives.slice(0, 4).map(i => `<span class="tag">${i}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderDiaspora(data) {
+        const diaspora = data['10_diaspora'] || data.diaspora || {};
+        
+        if (!diaspora.total_population) {
+            elements.diasporaOverview.innerHTML = `
+                <div class="no-data-card">
+                    <i class="fas fa-globe"></i>
+                    <p>Diaspora data being compiled</p>
+                </div>
+            `;
+            return;
+        }
+        
+        elements.diasporaOverview.innerHTML = `
+            <div class="diaspora-stats">
+                <div class="diaspora-stat">
+                    <span class="stat-value">${formatNumber(diaspora.total_population)}</span>
+                    <span class="stat-label">Total Diaspora</span>
+                </div>
+                ${diaspora.remittances_usd ? `
+                    <div class="diaspora-stat">
+                        <span class="stat-value">${diaspora.remittances_usd}</span>
+                        <span class="stat-label">Remittances</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            ${diaspora.top_destinations && diaspora.top_destinations.length > 0 ? `
+                <div class="diaspora-destinations">
+                    <h3>Top Destinations</h3>
+                    <div class="destinations-grid">
+                        ${diaspora.top_destinations.slice(0, 6).map(d => `
+                            <div class="destination-card">
+                                <span class="destination-country">${d.country}</span>
+                                <span class="destination-population">${formatNumber(d.population)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+    }
+
+    function renderTimeline(data) {
+        const developments = data['11_contemporary_developments'] || data.contemporary_developments || {};
+        
+        // Get events from all years
+        let allEvents = [];
+        Object.keys(developments).forEach(year => {
+            if (Array.isArray(developments[year])) {
+                developments[year].forEach(event => {
+                    allEvents.push({ ...event, year });
+                });
+            }
+        });
+        
+        // Sort by date (most recent first)
+        allEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        if (allEvents.length === 0) {
+            elements.timelineContainer.innerHTML = `
+                <div class="no-data-card">
+                    <i class="fas fa-clock"></i>
+                    <p>Contemporary developments being documented</p>
+                </div>
+            `;
+            return;
+        }
+        
+        elements.timelineContainer.innerHTML = allEvents.slice(0, 10).map(event => `
+            <div class="timeline-event">
+                <span class="event-date">${event.date}</span>
+                <div class="event-card">
+                    <span class="event-category">${event.category || 'General'}</span>
+                    <h4 class="event-title">${event.event}</h4>
+                    ${event.significance ? `<p class="event-description">${event.significance}</p>` : ''}
+                    ${event.countries_involved && event.countries_involved.length > 0 ? `
+                        <div class="event-countries">
+                            ${event.countries_involved.map(c => `<span class="country-tag">${c}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('');
     }
 
     function handleTimelineFilterClick(filter) {
@@ -714,8 +783,50 @@
         filter.classList.add('active');
         
         const year = filter.dataset.year;
-        const developments = state.foreignPolicyData?.['11_contemporary_developments'] || {};
-        renderTimelineEvents(year, developments);
+        const developments = state.foreignPolicyData?.['11_contemporary_developments'] || 
+                            state.foreignPolicyData?.contemporary_developments || {};
+        
+        let events = [];
+        
+        if (year === 'all') {
+            Object.keys(developments).forEach(y => {
+                if (Array.isArray(developments[y])) {
+                    developments[y].forEach(event => events.push({ ...event, year: y }));
+                }
+            });
+        } else if (developments[year]) {
+            events = developments[year].map(e => ({ ...e, year }));
+        }
+        
+        events.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        if (events.length === 0) {
+            elements.timelineContainer.innerHTML = `
+                <div class="no-data-card">
+                    <i class="fas fa-clock"></i>
+                    <p>No events recorded for ${year}</p>
+                </div>
+            `;
+            return;
+        }
+        
+        elements.timelineContainer.innerHTML = events.map(event => `
+            <div class="timeline-event">
+                <span class="event-date">${event.date}</span>
+                <div class="event-card">
+                    <span class="event-category">${event.category || 'General'}</span>
+                    <h4 class="event-title">${event.event}</h4>
+                    ${event.significance ? `<p class="event-description">${event.significance}</p>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderExamFocus(data) {
+        const exam = data['13_exam_focus'] || data.exam_focus || {};
+        
+        // Default to UPSC view
+        renderExamContent('upsc', exam);
     }
 
     function handleExamTabClick(tab) {
@@ -723,49 +834,139 @@
         tab.classList.add('active');
         
         const examType = tab.dataset.exam;
-        const examFocus = state.foreignPolicyData?.['13_exam_focus'] || {};
-        renderExamContent(examType, examFocus);
+        const exam = state.foreignPolicyData?.['13_exam_focus'] || 
+                    state.foreignPolicyData?.exam_focus || {};
+        
+        renderExamContent(examType, exam);
     }
 
-    function handleScroll() {
-        const header = document.querySelector('.main-header');
-        header?.classList.toggle('scrolled', window.scrollY > 50);
-    }
-
-    function toggleTheme() {
-        state.theme = state.theme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', state.theme);
-        localStorage.setItem('theme', state.theme);
-        updateThemeIcon();
-    }
-
-    function updateThemeIcon() {
-        const icon = elements.themeToggle?.querySelector('i');
-        if (icon) {
-            icon.className = state.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    function renderExamContent(examType, examData) {
+        let content = '';
+        
+        switch(examType) {
+            case 'upsc':
+                const upscPrelims = examData.upsc_prelims || {};
+                const upscMains = examData.upsc_mains || {};
+                
+                content = `
+                    <div class="exam-card">
+                        <h3><i class="fas fa-list-check"></i> Prelims Focus</h3>
+                        ${upscPrelims.important_facts && upscPrelims.important_facts.length > 0 ? `
+                            <ul class="exam-list">
+                                ${upscPrelims.important_facts.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                        ` : '<p>Data being compiled...</p>'}
+                    </div>
+                    
+                    <div class="exam-card">
+                        <h3><i class="fas fa-pen"></i> Mains Focus</h3>
+                        ${upscMains.topics && upscMains.topics.length > 0 ? `
+                            <ul class="exam-list">
+                                ${upscMains.topics.map(t => `<li>${t}</li>`).join('')}
+                            </ul>
+                        ` : '<p>Data being compiled...</p>'}
+                    </div>
+                    
+                    ${examData.must_know_facts && examData.must_know_facts.length > 0 ? `
+                        <div class="exam-card">
+                            <h3><i class="fas fa-star"></i> Must-Know Facts</h3>
+                            <ul class="exam-list">
+                                ${examData.must_know_facts.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+                break;
+                
+            case 'ssc':
+                const ssc = examData.ssc_cgl || {};
+                content = `
+                    <div class="exam-card">
+                        <h3><i class="fas fa-book"></i> Important Topics</h3>
+                        ${ssc.important_topics && ssc.important_topics.length > 0 ? `
+                            <ul class="exam-list">
+                                ${ssc.important_topics.map(t => `<li>${t}</li>`).join('')}
+                            </ul>
+                        ` : '<p>Data being compiled...</p>'}
+                    </div>
+                    
+                    <div class="exam-card">
+                        <h3><i class="fas fa-database"></i> Fact-Based Points</h3>
+                        ${ssc.fact_based_points && ssc.fact_based_points.length > 0 ? `
+                            <ul class="exam-list">
+                                ${ssc.fact_based_points.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                        ` : '<p>Data being compiled...</p>'}
+                    </div>
+                `;
+                break;
+                
+            case 'state':
+                const statePsc = examData.state_psc || {};
+                content = `
+                    <div class="exam-card">
+                        <h3><i class="fas fa-map-marker-alt"></i> State PSC Relevance</h3>
+                        <p>${statePsc.relevance || 'Data being compiled...'}</p>
+                    </div>
+                    
+                    ${statePsc.focus_areas && statePsc.focus_areas.length > 0 ? `
+                        <div class="exam-card">
+                            <h3><i class="fas fa-bullseye"></i> Focus Areas</h3>
+                            <ul class="exam-list">
+                                ${statePsc.focus_areas.map(a => `<li>${a}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+                break;
         }
-    }
-
-    // ==================== UTILITIES ====================
-    function showError(message) {
-        elements.pageLoader.innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <h2>Error</h2>
-                <p>${message}</p>
-                <a href="index.html" class="btn-primary">← Back to Home</a>
+        
+        elements.examContent.innerHTML = content || `
+            <div class="no-data-card full-width">
+                <i class="fas fa-graduation-cap"></i>
+                <p>Exam-focused content being compiled</p>
             </div>
         `;
     }
 
-    function formatDate(dateString) {
-        if (!dateString) return '-';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
+    function renderMetadata(data) {
+        const metadata = data.metadata || {};
+        
+        elements.lastUpdated.textContent = metadata.last_verified || data.last_updated || 'Unknown';
+        elements.dataCompleteness.textContent = metadata.data_completeness || '0%';
+    }
+
+    // ==================== UTILITIES ====================
+    function downloadCountryData() {
+        if (!state.foreignPolicyData) {
+            alert('No data available to download');
+            return;
+        }
+        
+        const dataStr = JSON.stringify(state.foreignPolicyData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${state.countryCode.toLowerCase()}-foreign-policy.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function shareCountry() {
+        const url = window.location.href;
+        const title = `${state.countryData.name} - Foreign Policy | Unity Atlas`;
+        
+        if (navigator.share) {
+            navigator.share({ title, url });
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        }
     }
 
     // ==================== START ====================
