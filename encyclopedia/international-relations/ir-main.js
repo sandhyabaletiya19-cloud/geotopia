@@ -5,7 +5,7 @@
 
 (function() {
     'use strict';
-
+    
     // ==================== CONFIGURATION ====================
     const CONFIG = {
         countriesPerPage: 50,
