@@ -1,975 +1,955 @@
 /**
- * Unity Atlas - Country Page JavaScript
- * Handles country profile page functionality
+ * =====================================================
+ * UNITY ATLAS - COUNTRY PAGE JAVASCRIPT
+ * Version: 1.0.0 | April 2026
+ * Individual country foreign policy and relations
+ * =====================================================
  */
 
-(function() {
-    'use strict';
+'use strict';
 
-    // ==================== STATE ====================
-    const state = {
-        countryCode: null,
-        countryData: null,
-        foreignPolicyData: null,
-        activeSection: 'overview',
-        theme: localStorage.getItem('theme') || 'light'
-    };
+// =====================================================
+// COUNTRY PAGE CLASS
+// =====================================================
 
-    // ==================== DOM ELEMENTS ====================
-    const elements = {};
-
-    function cacheElements() {
-        elements.pageLoader = document.getElementById('pageLoader');
-        elements.app = document.getElementById('app');
-        elements.breadcrumbCountry = document.getElementById('breadcrumbCountry');
-        elements.countryFlag = document.getElementById('countryFlag');
-        elements.countryName = document.getElementById('countryName');
-        elements.officialName = document.getElementById('officialName');
-        elements.countryBadges = document.getElementById('countryBadges');
-        elements.capitalCity = document.getElementById('capitalCity');
-        elements.population = document.getElementById('population');
-        elements.gdp = document.getElementById('gdp');
-        elements.area = document.getElementById('area');
-        elements.navTabs = document.querySelectorAll('.nav-tab');
-        elements.contentSections = document.querySelectorAll('.content-section');
-        elements.themeToggle = document.getElementById('themeToggle');
-        elements.lastUpdated = document.getElementById('lastUpdated');
-        elements.dataCompleteness = document.getElementById('dataCompleteness');
+class CountryPage {
+    constructor() {
+        this.countryCode = null;
+        this.countryData = null;
+        this.relatedCountries = [];
+        this.currentFilter = 'all';
+        this.displayedRelations = 12;
+        this.orbitalPositions = [];
         
-        // Section-specific elements
-        elements.foreignPolicyDoctrine = document.getElementById('foreignPolicyDoctrine');
-        elements.keyPrinciples = document.getElementById('keyPrinciples');
-        elements.strategicObjectives = document.getElementById('strategicObjectives');
-        elements.globalPositioning = document.getElementById('globalPositioning');
-        elements.historicalContext = document.getElementById('historicalContext');
-        elements.neighboursGrid = document.getElementById('neighboursGrid');
-        elements.majorPowersGrid = document.getElementById('majorPowersGrid');
-        elements.groupingsContent = document.getElementById('groupingsContent');
-        elements.diasporaOverview = document.getElementById('diasporaOverview');
-        elements.timelineContainer = document.getElementById('timelineContainer');
-        elements.examContent = document.getElementById('examContent');
+        this.init();
     }
-
-    // ==================== INITIALIZATION ====================
-    async function init() {
-        cacheElements();
-        initTheme();
-        
+    
+    async init() {
         // Get country code from URL
         const urlParams = new URLSearchParams(window.location.search);
-        state.countryCode = urlParams.get('code');
+        this.countryCode = urlParams.get('c')?.toUpperCase();
         
-        if (!state.countryCode) {
-            showError('No country specified. Please select a country from the homepage.');
+        if (!this.countryCode) {
+            this.showError('No country specified');
             return;
         }
         
-        // Get basic country data from our local array
-        state.countryData = getCountryByCode(state.countryCode.toUpperCase());
+        // Show loading screen
+        this.showLoading();
         
-        if (!state.countryData) {
-            showError(`Country with code "${state.countryCode}" not found.`);
-            return;
-        }
-        
-        // Render basic info immediately
-        renderBasicInfo();
-        
-        // Load foreign policy data
-        await loadForeignPolicyData();
-        
-        // Initialize event listeners
-        initEventListeners();
-        
-        // Hide loader
-        setTimeout(() => {
-            elements.pageLoader.classList.add('hidden');
-            elements.app.classList.add('loaded');
-        }, 500);
-    }
-
-    function showError(message) {
-        elements.pageLoader.innerHTML = `
-            <div class="error-state">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h2>Error</h2>
-                <p>${message}</p>
-                <a href="index.html" class="btn-primary">← Back to Homepage</a>
-            </div>
-        `;
-    }
-
-    function initTheme() {
-        document.documentElement.setAttribute('data-theme', state.theme);
-        updateThemeIcon();
-    }
-
-    function updateThemeIcon() {
-        const icon = elements.themeToggle?.querySelector('i');
-        if (icon) {
-            icon.className = state.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        try {
+            // Load country data
+            await this.loadCountryData();
+            
+            // Render all sections
+            this.renderHero();
+            this.renderOrbitalVisualization();
+            this.renderForeignPolicy();
+            this.renderOrganizations();
+            this.renderRelations();
+            this.renderStatistics();
+            this.renderTimeline();
+            this.renderWhatIf();
+            
+            // Setup interactions
+            this.setupInteractions();
+            
+            // Initialize animations
+            this.initAnimations();
+            
+            // Hide loading screen
+            this.hideLoading();
+            
+        } catch (error) {
+            console.error('Error loading country page:', error);
+            this.showError('Failed to load country data');
         }
     }
-
-    function toggleTheme() {
-        state.theme = state.theme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', state.theme);
-        localStorage.setItem('theme', state.theme);
-        updateThemeIcon();
+    
+    // =====================================================
+    // DATA LOADING
+    // =====================================================
+    
+    async loadCountryData() {
+        // Get basic country info
+        const countryInfo = GeoTopia.utils.getCountryByCode(this.countryCode);
+        if (!countryInfo) {
+            throw new Error('Country not found');
+        }
+        
+        // Load detailed data
+        this.countryData = await GeoTopia.dataManager.loadCountryData(this.countryCode);
+        this.countryData.info = countryInfo;
+        
+        // Get related countries
+        this.relatedCountries = await GeoTopia.dataManager.getRelatedCountries(this.countryCode);
+        
+        // If no relations in data, generate sample relations with all countries
+        if (this.relatedCountries.length === 0) {
+            this.relatedCountries = this.generateSampleRelations();
+        }
+        
+        // Get organizations
+        this.countryData.organizations = GeoTopia.utils.getCountryOrganizations(this.countryCode);
     }
-
-    function initEventListeners() {
-        // Navigation tabs
-        elements.navTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const section = tab.dataset.section;
-                switchSection(section);
+    
+    generateSampleRelations() {
+        // Generate sample relations for demo purposes
+        const relations = [];
+        const relationTypes = ['Strategic Ally', 'Strategic Partner', 'Friendly', 'Neutral', 'Developing'];
+        const strengths = [9, 8, 7, 6, 5, 4];
+        
+        GeoTopia.COUNTRIES.forEach((country, index) => {
+            if (country.code === this.countryCode) return;
+            
+            // Determine relation based on region and other factors
+            let type = relationTypes[Math.floor(Math.random() * relationTypes.length)];
+            let strength = strengths[Math.floor(Math.random() * strengths.length)];
+            
+            // Same region = higher chance of strong relations
+            if (country.region === this.countryData.info.region) {
+                strength = Math.min(10, strength + 2);
+            }
+            
+            relations.push({
+                code: country.code,
+                name: country.name,
+                region: country.region,
+                relationStrength: strength,
+                relationType: type,
+                trade: Math.floor(Math.random() * 50000) + 1000,
+                treaties: Math.floor(Math.random() * 20) + 1,
+                diaspora: Math.floor(Math.random() * 500000)
             });
         });
         
-        // Theme toggle
-        elements.themeToggle?.addEventListener('click', toggleTheme);
+        // Sort by relation strength
+        relations.sort((a, b) => b.relationStrength - a.relationStrength);
         
-        // Scroll behavior for sticky nav
-        window.addEventListener('scroll', handleScroll);
-        
-        // Grouping tabs
-        document.querySelectorAll('.grouping-tab').forEach(tab => {
-            tab.addEventListener('click', () => handleGroupingTabClick(tab));
-        });
-        
-        // Timeline filters
-        document.querySelectorAll('.timeline-filter').forEach(filter => {
-            filter.addEventListener('click', () => handleTimelineFilterClick(filter));
-        });
-        
-        // Exam tabs
-        document.querySelectorAll('.exam-tab').forEach(tab => {
-            tab.addEventListener('click', () => handleExamTabClick(tab));
-        });
-
-        // Download and share buttons
-        document.getElementById('downloadData')?.addEventListener('click', downloadCountryData);
-        document.getElementById('shareBtn')?.addEventListener('click', shareCountry);
+        return relations;
     }
-
-    function handleScroll() {
-        const header = document.querySelector('.main-header');
-        header?.classList.toggle('scrolled', window.scrollY > 50);
+    
+    // =====================================================
+    // RENDER METHODS
+    // =====================================================
+    
+    renderHero() {
+        const country = this.countryData.info;
+        
+        // Update page title
+        document.title = `${country.name} | Unity Atlas - GeoTopia`;
+        
+        // Update breadcrumb
+        document.getElementById('breadcrumb-country').textContent = country.name;
+        
+        // Update hero section
+        const flagImg = document.getElementById('main-country-flag');
+        flagImg.src = GeoTopia.utils.getFlagUrl(country.code);
+        flagImg.alt = `${country.name} flag`;
+        
+        document.getElementById('country-name-large').textContent = country.name;
+        document.getElementById('country-region').textContent = `${country.region} • ${country.subregion}`;
+        
+        // Quick stats
+        const quickStats = document.getElementById('country-quick-stats');
+        quickStats.innerHTML = `
+            <div class="quick-stat">
+                <span class="quick-stat-value">${this.relatedCountries.length}</span>
+                <span class="quick-stat-label">Relations</span>
+            </div>
+            <div class="quick-stat">
+                <span class="quick-stat-value">${this.countryData.organizations?.length || 0}</span>
+                <span class="quick-stat-label">Organizations</span>
+            </div>
+            <div class="quick-stat">
+                <span class="quick-stat-value">${this.countryData.foreign_policy?.key_priorities?.length || 0}</span>
+                <span class="quick-stat-label">Priorities</span>
+            </div>
+        `;
     }
-
-    function switchSection(sectionId) {
-        // Update tabs
-        elements.navTabs.forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.section === sectionId);
+    
+    renderOrbitalVisualization() {
+        const container = document.getElementById('orbital-countries');
+        const svgConnections = document.getElementById('orbital-connections');
+        
+        if (!container) return;
+        
+        // Clear existing
+        container.innerHTML = '';
+        svgConnections.innerHTML = '';
+        
+        // Get top relations for orbital display (max 24)
+        const topRelations = this.relatedCountries.slice(0, 24);
+        
+        // Calculate positions on three orbital rings
+        const centerX = 350;
+        const centerY = 350;
+        const rings = [
+            { radius: 150, count: 6 },   // Inner ring
+            { radius: 225, count: 8 },   // Middle ring
+            { radius: 300, count: 10 }   // Outer ring
+        ];
+        
+        let relationIndex = 0;
+        this.orbitalPositions = [];
+        
+        rings.forEach((ring, ringIndex) => {
+            for (let i = 0; i < ring.count && relationIndex < topRelations.length; i++) {
+                const relation = topRelations[relationIndex];
+                const angle = (i / ring.count) * Math.PI * 2 - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * ring.radius;
+                const y = centerY + Math.sin(angle) * ring.radius;
+                
+                // Store position for connection lines
+                this.orbitalPositions.push({
+                    code: relation.code,
+                    x, y,
+                    relation
+                });
+                
+                // Create orbital country element
+                const countryEl = document.createElement('div');
+                countryEl.className = 'orbital-country';
+                countryEl.dataset.code = relation.code;
+                countryEl.dataset.ring = ringIndex;
+                countryEl.style.left = `${x}px`;
+                countryEl.style.top = `${y}px`;
+                countryEl.style.animationDelay = `${relationIndex * 0.05}s`;
+                
+                // Determine relation class
+                const relationClass = this.getRelationClass(relation.relationStrength);
+                
+                countryEl.innerHTML = `
+                    <div class="orbital-country-flag" style="border-color: var(--relation-${relationClass})">
+                        <img src="${GeoTopia.utils.getFlagUrl(relation.code)}" 
+                             alt="${relation.name}"
+                             loading="lazy"
+                             onerror="this.parentElement.innerHTML='${GeoTopia.utils.getFlagEmoji(relation.code)}'">
+                    </div>
+                    <span class="orbital-country-name">${relation.name}</span>
+                `;
+                
+                container.appendChild(countryEl);
+                
+                // Create connection line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                line.classList.add('connection-line', relationClass);
+                line.dataset.country = relation.code;
+                
+                // Create curved path to center
+                const midX = (centerX + x) / 2;
+                const midY = (centerY + y) / 2;
+                const curveOffset = 20;
+                const perpX = -(y - centerY) / ring.radius * curveOffset;
+                const perpY = (x - centerX) / ring.radius * curveOffset;
+                
+                line.setAttribute('d', `M ${centerX} ${centerY} Q ${midX + perpX} ${midY + perpY} ${x} ${y}`);
+                
+                svgConnections.appendChild(line);
+                
+                relationIndex++;
+            }
         });
         
-        // Update sections
-        elements.contentSections.forEach(section => {
-            section.classList.toggle('active', section.id === sectionId);
-        });
-        
-        state.activeSection = sectionId;
-        
-        // Scroll to top of content
-        document.querySelector('.country-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Add animation classes
+        setTimeout(() => {
+            container.querySelectorAll('.orbital-country').forEach((el, i) => {
+                setTimeout(() => {
+                    el.classList.add('active');
+                }, i * 50);
+            });
+        }, 500);
     }
-
-    // ==================== DATA LOADING ====================
-    async function loadForeignPolicyData() {
-        try {
-            // NEW SIMPLER PATH: countries/ind-fp.json
-            const url = `countries/${state.countryCode.toLowerCase()}-fp.json`;
-            console.log('Loading foreign policy data from:', url);
+    
+    getRelationClass(strength) {
+        if (strength >= 9) return 'ally';
+        if (strength >= 7) return 'strategic';
+        if (strength >= 5) return 'friendly';
+        if (strength >= 3) return 'neutral';
+        return 'tense';
+    }
+    
+    renderForeignPolicy() {
+        const fp = this.countryData.foreign_policy || {};
+        
+        // Core Principles
+        const principlesEl = document.getElementById('fp-principles');
+        if (fp.core_principles && fp.core_principles.length > 0) {
+            principlesEl.innerHTML = `
+                <ul>
+                    ${fp.core_principles.map(p => `<li>${p}</li>`).join('')}
+                </ul>
+            `;
+        } else {
+            principlesEl.innerHTML = `
+                <ul>
+                    <li>Sovereign equality of nations</li>
+                    <li>Peaceful resolution of disputes</li>
+                    <li>Non-interference in internal affairs</li>
+                    <li>Mutual respect and cooperation</li>
+                </ul>
+            `;
+        }
+        
+        // Key Priorities
+        const prioritiesEl = document.getElementById('fp-priorities');
+        if (fp.key_priorities && fp.key_priorities.length > 0) {
+            prioritiesEl.innerHTML = `
+                <ul>
+                    ${fp.key_priorities.map(p => `<li>${p}</li>`).join('')}
+                </ul>
+            `;
+        } else {
+            prioritiesEl.innerHTML = `
+                <ul>
+                    <li>Economic development partnerships</li>
+                    <li>Regional stability and security</li>
+                    <li>Climate change cooperation</li>
+                    <li>Technology and innovation exchange</li>
+                </ul>
+            `;
+        }
+        
+        // Strategic Vision
+        const visionEl = document.getElementById('fp-vision');
+        if (fp.strategic_vision) {
+            visionEl.innerHTML = `<p style="font-size: var(--text-base); line-height: 1.8;">${fp.strategic_vision}</p>`;
+        } else {
+            visionEl.innerHTML = `<p style="font-size: var(--text-base); line-height: 1.8;">Building a peaceful, prosperous, and sustainable future through multilateral cooperation, economic integration, and cultural exchange with nations across the globe.</p>`;
+        }
+        
+        // Render Mind Map
+        this.renderFPMindMap();
+    }
+    
+    renderFPMindMap() {
+        const container = document.getElementById('fp-mindmap');
+        if (!container) return;
+        
+        const countryName = this.countryData.info.name;
+        
+        // Create a simple mind map structure
+        container.innerHTML = `
+            <div class="mindmap-node central" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                ${countryName}<br>Foreign Policy
+            </div>
             
-            const response = await fetch(url);
+            <div class="mindmap-branch" style="position: absolute; top: 20%; left: 20%;">
+                <div class="mindmap-node">Bilateral<br>Relations</div>
+            </div>
             
-            if (!response.ok) {
-                console.warn(`Foreign policy data not available for ${state.countryCode}`);
-                renderPlaceholderData();
+            <div class="mindmap-branch" style="position: absolute; top: 20%; left: 70%;">
+                <div class="mindmap-node">Multilateral<br>Engagement</div>
+            </div>
+            
+            <div class="mindmap-branch" style="position: absolute; top: 70%; left: 15%;">
+                <div class="mindmap-node">Economic<br>Diplomacy</div>
+            </div>
+            
+            <div class="mindmap-branch" style="position: absolute; top: 70%; left: 50%; transform: translateX(-50%);">
+                <div class="mindmap-node">Security<br>Cooperation</div>
+            </div>
+            
+            <div class="mindmap-branch" style="position: absolute; top: 70%; left: 80%;">
+                <div class="mindmap-node">Cultural<br>Exchange</div>
+            </div>
+            
+            <svg class="mindmap-lines" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                <line x1="50%" y1="50%" x2="20%" y2="25%" stroke="var(--primary-400)" stroke-width="2" stroke-dasharray="5,5" opacity="0.5"/>
+                <line x1="50%" y1="50%" x2="70%" y2="25%" stroke="var(--primary-400)" stroke-width="2" stroke-dasharray="5,5" opacity="0.5"/>
+                <line x1="50%" y1="50%" x2="15%" y2="70%" stroke="var(--primary-400)" stroke-width="2" stroke-dasharray="5,5" opacity="0.5"/>
+                <line x1="50%" y1="50%" x2="50%" y2="75%" stroke="var(--primary-400)" stroke-width="2" stroke-dasharray="5,5" opacity="0.5"/>
+                <line x1="50%" y1="50%" x2="80%" y2="70%" stroke="var(--primary-400)" stroke-width="2" stroke-dasharray="5,5" opacity="0.5"/>
+            </svg>
+        `;
+        
+        // Add styles for mind map nodes
+        const style = document.createElement('style');
+        style.textContent = `
+            .mindmap-node {
+                padding: 1rem 1.5rem;
+                background: var(--bg-secondary);
+                border: 2px solid var(--border-medium);
+                border-radius: var(--radius-xl);
+                font-size: var(--text-sm);
+                font-weight: var(--font-medium);
+                color: var(--text-primary);
+                text-align: center;
+                line-height: 1.4;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .mindmap-node:hover {
+                border-color: var(--primary-400);
+                box-shadow: var(--shadow-glow);
+                transform: scale(1.05);
+            }
+            
+            .mindmap-node.central {
+                background: var(--gradient-primary);
+                border-color: var(--primary-500);
+                font-size: var(--text-base);
+                font-weight: var(--font-bold);
+                padding: 1.5rem 2rem;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    renderOrganizations() {
+        const container = document.getElementById('org-membership-grid');
+        if (!container) return;
+        
+        const orgs = this.countryData.organizations || [];
+        
+        if (orgs.length === 0) {
+            container.innerHTML = '<p class="text-center" style="grid-column: 1/-1; color: var(--text-muted);">Organization data loading...</p>';
+            return;
+        }
+        
+        container.innerHTML = orgs.map(org => `
+            <div class="org-membership-card" data-org="${org.id}">
+                <div class="org-membership-logo" style="background: ${org.color}20; color: ${org.color};">
+                    ${org.name}
+                </div>
+                <div class="org-membership-name">${org.fullName}</div>
+                <div class="org-membership-type">${org.type}</div>
+            </div>
+        `).join('');
+    }
+    
+    renderRelations() {
+        const container = document.getElementById('relations-grid');
+        if (!container) return;
+        
+        // Filter relations based on current filter
+        let filteredRelations = this.relatedCountries;
+        
+        if (this.currentFilter !== 'all') {
+            filteredRelations = this.relatedCountries.filter(r => {
+                const relClass = this.getRelationClass(r.relationStrength);
+                return relClass === this.currentFilter;
+            });
+        }
+        
+        // Limit displayed relations
+        const displayRelations = filteredRelations.slice(0, this.displayedRelations);
+        
+        container.innerHTML = displayRelations.map(relation => {
+            const relClass = this.getRelationClass(relation.relationStrength);
+            const strengthPercent = (relation.relationStrength / 10) * 100;
+            
+            return `
+                <a href="relationship.html?from=${this.countryCode}&to=${relation.code}" class="relation-card" data-code="${relation.code}">
+                    <div class="relation-card-header">
+                        <div class="relation-card-flag">
+                            <img src="${GeoTopia.utils.getFlagUrl(relation.code)}" 
+                                 alt="${relation.name}"
+                                 loading="lazy">
+                        </div>
+                        <div class="relation-card-info">
+                            <div class="relation-card-name">${relation.name}</div>
+                            <span class="relation-card-type ${relClass}">${relation.relationType}</span>
+                        </div>
+                    </div>
+                    <div class="relation-card-stats">
+                        <div class="relation-stat">
+                            <div class="relation-stat-value">$${GeoTopia.utils.formatNumber(relation.trade || 0)}</div>
+                            <div class="relation-stat-label">Trade (M)</div>
+                        </div>
+                        <div class="relation-stat">
+                            <div class="relation-stat-value">${relation.treaties || 0}</div>
+                            <div class="relation-stat-label">Treaties</div>
+                        </div>
+                        <div class="relation-stat">
+                            <div class="relation-stat-value">${GeoTopia.utils.formatNumber(relation.diaspora || 0)}</div>
+                            <div class="relation-stat-label">Diaspora</div>
+                        </div>
+                    </div>
+                    <div class="relation-card-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" style="width: ${strengthPercent}%; background: var(--relation-${relClass});"></div>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+        
+        // Show/hide load more button
+        const loadMoreContainer = document.getElementById('load-more-container');
+        if (filteredRelations.length > this.displayedRelations) {
+            loadMoreContainer.style.display = 'block';
+        } else {
+            loadMoreContainer.style.display = 'none';
+        }
+    }
+    
+    renderStatistics() {
+        const container = document.getElementById('country-stats-grid');
+        if (!container) return;
+        
+        const totalTrade = this.relatedCountries.reduce((sum, r) => sum + (r.trade || 0), 0);
+        const totalTreaties = this.relatedCountries.reduce((sum, r) => sum + (r.treaties || 0), 0);
+        const totalDiaspora = this.relatedCountries.reduce((sum, r) => sum + (r.diaspora || 0), 0);
+        
+        container.innerHTML = `
+            <div class="stat-card" data-aos="zoom-in">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <div class="stat-value" data-counter="${this.relatedCountries.length}">0</div>
+                <div class="stat-label">Bilateral Relations</div>
+            </div>
+            
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="100">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                </div>
+                <div class="stat-value">$<span data-counter="${Math.round(totalTrade / 1000)}">0</span>B</div>
+                <div class="stat-label">Total Trade Volume</div>
+            </div>
+            
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="stat-value" data-counter="${totalTreaties}">0</div>
+                <div class="stat-label">Active Treaties</div>
+            </div>
+            
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="300">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="stat-value" data-counter="${Math.round(totalDiaspora / 1000000)}">0</div>
+                <div class="stat-label">Diaspora (Millions)</div>
+            </div>
+        `;
+        
+        // Render charts placeholder
+        this.renderCharts();
+    }
+    
+    renderCharts() {
+        // Trade chart placeholder
+        const tradeChart = document.getElementById('trade-chart');
+        if (tradeChart) {
+            tradeChart.innerHTML = this.generateBarChart();
+        }
+        
+        // Diplomacy chart placeholder
+        const diplomacyChart = document.getElementById('diplomacy-chart');
+        if (diplomacyChart) {
+            diplomacyChart.innerHTML = this.generateLineChart();
+        }
+    }
+    
+    generateBarChart() {
+        const regions = ['Asia', 'Europe', 'Americas', 'Africa', 'Oceania'];
+        const maxVal = 100;
+        
+        return `
+            <div style="display: flex; align-items: flex-end; justify-content: space-around; height: 100%; padding: 2rem 0;">
+                ${regions.map((region, i) => {
+                    const value = Math.floor(Math.random() * 80) + 20;
+                    const height = (value / maxVal) * 200;
+                    return `
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                            <div style="width: 40px; height: ${height}px; background: linear-gradient(180deg, var(--primary-400), var(--primary-600)); border-radius: 4px 4px 0 0; transition: height 1s ease;" class="chart-bar-grow"></div>
+                            <span style="font-size: 12px; color: var(--text-muted);">${region}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    generateLineChart() {
+        return `
+            <div style="position: relative; height: 100%; padding: 1rem;">
+                <svg width="100%" height="200" viewBox="0 0 400 200" preserveAspectRatio="none">
+                    <!-- Grid lines -->
+                    <g stroke="var(--border-light)" stroke-width="1">
+                        <line x1="0" y1="50" x2="400" y2="50" />
+                        <line x1="0" y1="100" x2="400" y2="100" />
+                        <line x1="0" y1="150" x2="400" y2="150" />
+                    </g>
+                    
+                    <!-- Line chart -->
+                    <path d="M 0 150 L 66 130 L 133 100 L 200 110 L 266 70 L 333 50 L 400 30" 
+                          fill="none" 
+                          stroke="var(--primary-400)" 
+                          stroke-width="3"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="chart-line-draw" />
+                    
+                    <!-- Area fill -->
+                    <path d="M 0 150 L 66 130 L 133 100 L 200 110 L 266 70 L 333 50 L 400 30 L 400 200 L 0 200 Z" 
+                          fill="url(#gradient)" 
+                          opacity="0.3" />
+                    
+                    <!-- Gradient definition -->
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:var(--primary-400);stop-opacity:0.5" />
+                            <stop offset="100%" style="stop-color:var(--primary-400);stop-opacity:0" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Data points -->
+                    <g fill="var(--primary-400)">
+                        <circle cx="0" cy="150" r="4" />
+                        <circle cx="66" cy="130" r="4" />
+                        <circle cx="133" cy="100" r="4" />
+                        <circle cx="200" cy="110" r="4" />
+                        <circle cx="266" cy="70" r="4" />
+                        <circle cx="333" cy="50" r="4" />
+                        <circle cx="400" cy="30" r="4" />
+                    </g>
+                </svg>
+                
+                <!-- X-axis labels -->
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 0.5rem;">
+                    <span>2020</span>
+                    <span>2021</span>
+                    <span>2022</span>
+                    <span>2023</span>
+                    <span>2024</span>
+                    <span>2025</span>
+                    <span>2026</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderTimeline() {
+        const container = document.getElementById('diplomatic-timeline');
+        if (!container) return;
+        
+        // Sample timeline events (would come from data in production)
+        const events = [
+            { year: '2026', title: 'G20 Summit Participation', description: 'Active participation in shaping global economic policies and climate action frameworks.', milestone: true },
+            { year: '2025', title: 'New Trade Agreement Signed', description: 'Comprehensive economic partnership agreement with major trading partners.' },
+            { year: '2024', title: 'Defense Cooperation Expanded', description: 'Strengthened security partnerships and joint military exercises.' },
+            { year: '2023', title: 'Climate Commitment', description: 'Pledged ambitious carbon reduction targets at COP28.' },
+            { year: '2022', title: 'Digital Cooperation Framework', description: 'Established technology partnership agreements focusing on AI and cybersecurity.' },
+            { year: '2020', title: 'COVID-19 Response', description: 'International cooperation in vaccine distribution and pandemic response.', milestone: true }
+        ];
+        
+        container.innerHTML = events.map(event => `
+            <div class="timeline-item ${event.milestone ? 'milestone' : ''}" data-aos="fade-up">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">${event.year}</div>
+                    <div class="timeline-title">${event.title}</div>
+                    <div class="timeline-description">${event.description}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    renderWhatIf() {
+        const countryName = this.countryData.info.name;
+        
+        // Update What If content based on country
+        document.getElementById('whatif-economic').textContent = 
+            `If ${countryName} and its partners eliminated all trade barriers, regional GDP could grow by an additional 15-20%, creating millions of jobs.`;
+        
+        document.getElementById('whatif-peace').textContent = 
+            `Resolving regional disputes could redirect billions from defense to healthcare and education, transforming quality of life for millions.`;
+        
+        document.getElementById('whatif-innovation').textContent = 
+            `Joint research initiatives between ${countryName} and global partners could accelerate breakthroughs in renewable energy and medicine.`;
+        
+        document.getElementById('whatif-human').textContent = 
+            `Easier visa regimes and cultural exchanges would foster understanding, reduce prejudice, and create a generation of global citizens.`;
+    }
+    
+    // =====================================================
+    // INTERACTIONS
+    // =====================================================
+    
+    setupInteractions() {
+        // Orbital country hover/click
+        this.setupOrbitalInteractions();
+        
+        // Relations filter
+        this.setupRelationsFilter();
+        
+        // Relations search
+        this.setupRelationsSearch();
+        
+        // Load more button
+        this.setupLoadMore();
+        
+        // Scroll animations
+        this.setupScrollAnimations();
+    }
+    
+    setupOrbitalInteractions() {
+        const countries = document.querySelectorAll('.orbital-country');
+        const connections = document.querySelectorAll('.connection-line');
+        
+        countries.forEach(country => {
+            // Hover effect
+            country.addEventListener('mouseenter', () => {
+                const code = country.dataset.code;
+                
+                // Highlight this country's connection
+                connections.forEach(line => {
+                    if (line.dataset.country === code) {
+                        line.classList.add('highlighted');
+                    } else {
+                        line.style.opacity = '0.1';
+                    }
+                });
+                
+                // Show tooltip
+                this.showTooltip(country, code);
+            });
+            
+            country.addEventListener('mouseleave', () => {
+                // Reset connections
+                connections.forEach(line => {
+                    line.classList.remove('highlighted');
+                    line.style.opacity = '';
+                });
+                
+                // Hide tooltip
+                this.hideTooltip();
+            });
+            
+            // Click to navigate
+            country.addEventListener('click', () => {
+                const code = country.dataset.code;
+                window.location.href = `relationship.html?from=${this.countryCode}&to=${code}`;
+            });
+        });
+    }
+    
+    showTooltip(element, countryCode) {
+        const container = document.getElementById('tooltip-container');
+        const relation = this.relatedCountries.find(r => r.code === countryCode);
+        
+        if (!relation) return;
+        
+        const rect = element.getBoundingClientRect();
+        
+        container.innerHTML = `
+            <div class="tooltip tooltip-animate" style="position: fixed; top: ${rect.bottom + 10}px; left: ${rect.left - 100}px;">
+                <div class="tooltip-header">
+                    <div class="tooltip-flag">
+                        <img src="${GeoTopia.utils.getFlagUrl(countryCode)}" alt="${relation.name}">
+                    </div>
+                    <div class="tooltip-name">${relation.name}</div>
+                </div>
+                <div class="tooltip-content">
+                    <div class="tooltip-stat">
+                        <span class="tooltip-stat-label">Relation Type</span>
+                        <span class="tooltip-stat-value">${relation.relationType}</span>
+                    </div>
+                    <div class="tooltip-stat">
+                        <span class="tooltip-stat-label">Trade Volume</span>
+                        <span class="tooltip-stat-value">$${GeoTopia.utils.formatNumber(relation.trade || 0)}M</span>
+                    </div>
+                    <div class="tooltip-stat">
+                        <span class="tooltip-stat-label">Strength</span>
+                        <span class="tooltip-stat-value">${relation.relationStrength}/10</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    hideTooltip() {
+        const container = document.getElementById('tooltip-container');
+        container.innerHTML = '';
+    }
+    
+    setupRelationsFilter() {
+        const filterBtns = document.querySelectorAll('.relations-filters .filter-btn');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                this.currentFilter = btn.dataset.filter;
+                this.displayedRelations = 12;
+                this.renderRelations();
+            });
+        });
+    }
+    
+    setupRelationsSearch() {
+        const searchInput = document.getElementById('relations-search');
+        if (!searchInput) return;
+        
+        searchInput.addEventListener('input', GeoTopia.utils.debounce((e) => {
+            const query = e.target.value.toLowerCase().trim();
+            
+            if (!query) {
+                this.renderRelations();
                 return;
             }
             
-            state.foreignPolicyData = await response.json();
-            console.log('Foreign policy data loaded successfully');
-            renderForeignPolicyData();
+            // Filter relations by search
+            const filtered = this.relatedCountries.filter(r => 
+                r.name.toLowerCase().includes(query) ||
+                r.code.toLowerCase().includes(query) ||
+                r.region.toLowerCase().includes(query)
+            );
             
-        } catch (error) {
-            console.warn('Error loading foreign policy data:', error);
-            renderPlaceholderData();
-        }
-    }
-
-    function renderPlaceholderData() {
-        // Show placeholder content when data is not available
-        const placeholderHTML = `
-            <div class="placeholder-content">
-                <i class="fas fa-database"></i>
-                <h3>Data Coming Soon</h3>
-                <p>Comprehensive foreign policy data for ${state.countryData.name} is being compiled.</p>
-                <p>Check back soon for complete coverage.</p>
-            </div>
-        `;
-        
-        elements.foreignPolicyDoctrine.innerHTML = placeholderHTML;
-        elements.keyPrinciples.innerHTML = '<p>Data being compiled...</p>';
-        elements.strategicObjectives.innerHTML = '<p>Data being compiled...</p>';
-        elements.globalPositioning.innerHTML = '<p>Data being compiled...</p>';
-        elements.historicalContext.innerHTML = '<p>Data being compiled...</p>';
-        
-        // Basic neighbour info from country-data.js
-        if (state.countryData.neighbors && state.countryData.neighbors.length > 0) {
-            elements.neighboursGrid.innerHTML = state.countryData.neighbors.map(code => {
-                const n = getCountryByCode(code);
-                if (!n) return '';
+            // Render filtered results
+            const container = document.getElementById('relations-grid');
+            container.innerHTML = filtered.slice(0, 20).map(relation => {
+                const relClass = this.getRelationClass(relation.relationStrength);
+                const strengthPercent = (relation.relationStrength / 10) * 100;
+                
                 return `
-                    <div class="neighbour-card">
-                        <div class="neighbour-header">
-                            <span class="neighbour-flag">${n.flag}</span>
-                            <div class="neighbour-info">
-                                <h3>${n.name}</h3>
-                                <span class="relationship-type neutral">Data Pending</span>
+                    <a href="relationship.html?from=${this.countryCode}&to=${relation.code}" class="relation-card">
+                        <div class="relation-card-header">
+                            <div class="relation-card-flag">
+                                <img src="${GeoTopia.utils.getFlagUrl(relation.code)}" alt="${relation.name}">
+                            </div>
+                            <div class="relation-card-info">
+                                <div class="relation-card-name">${relation.name}</div>
+                                <span class="relation-card-type ${relClass}">${relation.relationType}</span>
                             </div>
                         </div>
-                        <div class="neighbour-footer">
-                            <a href="country.html?code=${n.code}" class="view-details">
-                                View ${n.name}'s Profile <i class="fas fa-arrow-right"></i>
-                            </a>
+                        <div class="relation-card-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" style="width: ${strengthPercent}%; background: var(--relation-${relClass});"></div>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 `;
             }).join('');
-        } else {
-            elements.neighboursGrid.innerHTML = '<p class="no-data">Island nation - No land borders</p>';
-        }
-        
-        // Update footer
-        elements.lastUpdated.textContent = 'Pending';
-        elements.dataCompleteness.textContent = '0%';
-    }
-
-    // ==================== RENDERING ====================
-    function renderBasicInfo() {
-        const country = state.countryData;
-        
-        // Update document title
-        document.title = `${country.name} - Foreign Policy | Unity Atlas`;
-        
-        // Hero section
-        elements.breadcrumbCountry.textContent = country.name;
-        elements.countryFlag.textContent = country.flag;
-        elements.countryName.textContent = country.name;
-        elements.officialName.textContent = country.official_name;
-        
-        // Quick stats
-        elements.capitalCity.textContent = country.capital;
-        elements.population.textContent = formatNumber(country.population);
-        elements.gdp.textContent = '$' + formatNumber(country.gdp_usd);
-        elements.area.textContent = formatNumber(country.area_km2);
-        
-        // Badges
-        renderBadges(country);
-        
-        // Setup navigation arrows
-        setupCountryNavigation();
-    }
-
-    function renderBadges(country) {
-        let badgesHTML = '';
-        
-        // Region badge
-        badgesHTML += `<span class="country-badge">${getRegionDisplayName(country.region)}</span>`;
-        
-        // UNSC permanent member
-        if (country.unsc_permanent) {
-            badgesHTML += `<span class="country-badge secondary">UNSC P5</span>`;
-        }
-        
-        // Key groupings (show max 4)
-        if (country.groupings) {
-            const keyGroupings = ['g20', 'g7', 'brics', 'nato', 'quad', 'eu', 'asean'];
-            let count = 0;
-            country.groupings.forEach(g => {
-                if (keyGroupings.includes(g) && count < 4) {
-                    badgesHTML += `<span class="country-badge success">${getGroupingDisplayName(g)}</span>`;
-                    count++;
-                }
-            });
-        }
-        
-        // Data available
-        if (country.data_available) {
-            badgesHTML += `<span class="country-badge warning"><i class="fas fa-check"></i> Full Data</span>`;
-        }
-        
-        elements.countryBadges.innerHTML = badgesHTML;
-    }
-
-    function setupCountryNavigation() {
-        // Find current country index
-        const currentIndex = COUNTRIES_DATA.findIndex(c => c.code === state.countryCode.toUpperCase());
-        
-        const prevBtn = document.getElementById('prevCountry');
-        const nextBtn = document.getElementById('nextCountry');
-        
-        if (currentIndex > 0) {
-            const prevCountry = COUNTRIES_DATA[currentIndex - 1];
-            prevBtn.href = `country.html?code=${prevCountry.code}`;
-            prevBtn.innerHTML = `<i class="fas fa-chevron-left"></i> ${prevCountry.name}`;
-        } else {
-            prevBtn.style.visibility = 'hidden';
-        }
-        
-        if (currentIndex < COUNTRIES_DATA.length - 1) {
-            const nextCountry = COUNTRIES_DATA[currentIndex + 1];
-            nextBtn.href = `country.html?code=${nextCountry.code}`;
-            nextBtn.innerHTML = `${nextCountry.name} <i class="fas fa-chevron-right"></i>`;
-        } else {
-            nextBtn.style.visibility = 'hidden';
-        }
-    }
-
-    function renderForeignPolicyData() {
-        const data = state.foreignPolicyData;
-        
-        if (!data) {
-            renderPlaceholderData();
-            return;
-        }
-        
-        // Overview section
-        renderOverview(data);
-        
-        // Neighbours section
-        renderNeighbours(data);
-        
-        // Major powers section
-        renderMajorPowers(data);
-        
-        // Groupings section
-        renderGroupings(data);
-        
-        // Diaspora section
-        renderDiaspora(data);
-        
-        // Timeline section
-        renderTimeline(data);
-        
-        // Exam section
-        renderExamFocus(data);
-        
-        // Footer metadata
-        renderMetadata(data);
-    }
-
-    function renderOverview(data) {
-        const overview = data['01_overview'] || data.overview || {};
-        
-        // Foreign Policy Doctrine
-        if (overview.foreign_policy_doctrine) {
-            elements.foreignPolicyDoctrine.innerHTML = `<p>${overview.foreign_policy_doctrine}</p>`;
-        } else {
-            elements.foreignPolicyDoctrine.innerHTML = '<p class="no-data">Doctrine information being compiled...</p>';
-        }
-        
-        // Key Principles
-        if (overview.key_principles && overview.key_principles.length > 0) {
-            elements.keyPrinciples.innerHTML = `
-                <ul>
-                    ${overview.key_principles.map(p => `<li>${p}</li>`).join('')}
-                </ul>
-            `;
-        } else {
-            elements.keyPrinciples.innerHTML = '<p class="no-data">Data being compiled...</p>';
-        }
-        
-        // Strategic Objectives
-        if (overview.strategic_objectives && overview.strategic_objectives.length > 0) {
-            elements.strategicObjectives.innerHTML = `
-                <ul>
-                    ${overview.strategic_objectives.map(o => `<li>${o}</li>`).join('')}
-                </ul>
-            `;
-        } else {
-            elements.strategicObjectives.innerHTML = '<p class="no-data">Data being compiled...</p>';
-        }
-        
-        // Global Positioning
-        if (overview.global_positioning) {
-            elements.globalPositioning.innerHTML = `<p>${overview.global_positioning}</p>`;
-        }
-        
-        // Historical Context
-        if (overview.historical_context) {
-            elements.historicalContext.innerHTML = `<p>${overview.historical_context}</p>`;
-        }
-    }
-
-    function renderNeighbours(data) {
-        const neighbours = data['02_immediate_neighbours'] || data.immediate_neighbours || {};
-        
-        // Update stats
-        const totalEl = document.getElementById('totalNeighbours');
-        const borderEl = document.getElementById('totalBorderLength');
-        
-        if (totalEl) totalEl.textContent = `${neighbours.total || state.countryData.neighbors?.length || 0} Countries`;
-        if (borderEl) borderEl.textContent = `${formatNumber(neighbours.border_length_km || 0)} km border`;
-        
-        // Render neighbour cards
-        const countries = neighbours.countries || [];
-        
-        if (countries.length > 0) {
-            elements.neighboursGrid.innerHTML = countries.map(n => renderNeighbourCard(n)).join('');
-        } else if (state.countryData.neighbors && state.countryData.neighbors.length > 0) {
-            // Fallback to basic data
-            elements.neighboursGrid.innerHTML = state.countryData.neighbors.map(code => {
-                const c = getCountryByCode(code);
-                if (!c) return '';
-                return `
-                    <div class="neighbour-card">
-                        <div class="neighbour-header">
-                            <span class="neighbour-flag">${c.flag}</span>
-                            <div class="neighbour-info">
-                                <h3>${c.name}</h3>
-                            </div>
-                        </div>
-                        <div class="neighbour-footer">
-                            <a href="country.html?code=${c.code}" class="view-details">
-                                View Profile <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        } else {
-            elements.neighboursGrid.innerHTML = `
-                <div class="no-data-card">
-                    <i class="fas fa-water"></i>
-                    <p>Island Nation - No Land Borders</p>
-                </div>
-            `;
-        }
-    }
-
-    function renderNeighbourCard(neighbour) {
-        const country = getCountryByCode(neighbour.code);
-        const relationshipClass = (neighbour.relationship_type || 'neutral').toLowerCase().replace(/\s+/g, '-');
-        
-        return `
-            <div class="neighbour-card">
-                <div class="neighbour-header">
-                    <span class="neighbour-flag">${country?.flag || '🏳️'}</span>
-                    <div class="neighbour-info">
-                        <h3>${neighbour.name || country?.name || 'Unknown'}</h3>
-                        <span class="relationship-type ${relationshipClass}">
-                            ${neighbour.relationship_type || 'Neutral'}
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="neighbour-details">
-                    ${neighbour.border_length_km ? `
-                        <div class="detail-item">
-                            <span class="detail-label">Border Length</span>
-                            <span class="detail-value">${formatNumber(neighbour.border_length_km)} km</span>
-                        </div>
-                    ` : ''}
-                    ${neighbour.border_status ? `
-                        <div class="detail-item">
-                            <span class="detail-label">Border Status</span>
-                            <span class="detail-value">${neighbour.border_status}</span>
-                        </div>
-                    ` : ''}
-                    ${neighbour.trade_volume_usd ? `
-                        <div class="detail-item">
-                            <span class="detail-label">Trade Volume</span>
-                            <span class="detail-value">${neighbour.trade_volume_usd}</span>
-                        </div>
-                    ` : ''}
-                    ${neighbour.people_to_people?.visa_regime ? `
-                        <div class="detail-item">
-                            <span class="detail-label">Visa Regime</span>
-                            <span class="detail-value">${neighbour.people_to_people.visa_regime}</span>
-                        </div>
-                    ` : ''}
-                </div>
-                
-                ${neighbour.key_issues && neighbour.key_issues.length > 0 ? `
-                    <div class="neighbour-issues">
-                        <h4>Key Issues</h4>
-                        <div class="tag-list">
-                            ${neighbour.key_issues.slice(0, 4).map(i => `<span class="tag issue">${i}</span>`).join('')}
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${neighbour.cooperation_areas && neighbour.cooperation_areas.length > 0 ? `
-                    <div class="neighbour-cooperation">
-                        <h4>Cooperation Areas</h4>
-                        <div class="tag-list">
-                            ${neighbour.cooperation_areas.slice(0, 4).map(c => `<span class="tag cooperation">${c}</span>`).join('')}
-                        </div>
-                    </div>
-                ` : ''}
-                
-                <div class="neighbour-footer">
-                    <a href="country.html?code=${neighbour.code}" class="view-details">
-                        View ${neighbour.name || 'Country'}'s Profile <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderMajorPowers(data) {
-        const powers = data['04_major_powers'] || data.major_powers || {};
-        const powerCodes = Object.keys(powers);
-        
-        if (powerCodes.length === 0) {
-            elements.majorPowersGrid.innerHTML = `
-                <div class="no-data-card full-width">
-                    <i class="fas fa-handshake"></i>
-                    <p>Major power relations data coming soon</p>
-                </div>
-            `;
-            return;
-        }
-        
-        elements.majorPowersGrid.innerHTML = powerCodes.map(code => {
-            const power = powers[code];
-            const country = getCountryByCode(code);
-            return renderMajorPowerCard(code, power, country);
-        }).join('');
-    }
-
-    function renderMajorPowerCard(code, power, country) {
-        return `
-            <div class="power-card">
-                <div class="power-header">
-                    <div class="power-identity">
-                        <span class="power-flag">${country?.flag || '🏳️'}</span>
-                        <div>
-                            <span class="power-name">${power.name || country?.name || code}</span>
-                            ${power.relationship_framework ? `
-                                <span class="relationship-framework">${power.relationship_framework}</span>
-                            ` : ''}
-                        </div>
-                    </div>
-                    ${power.strength_score ? `
-                        <div class="strength-indicator">
-                            <span class="strength-score">${power.strength_score}</span>
-                            <span class="strength-label">Strength</span>
-                        </div>
-                    ` : ''}
-                </div>
-                
-                <div class="power-content">
-                    <div class="power-sections">
-                        ${power.defense_cooperation ? `
-                            <div class="power-section">
-                                <h4><i class="fas fa-shield-alt"></i> Defense</h4>
-                                <ul>
-                                    ${power.defense_cooperation.joint_exercises?.slice(0, 3).map(e => `<li>${e}</li>`).join('') || '<li>Data pending</li>'}
-                                </ul>
-                            </div>
-                        ` : ''}
-                        
-                        ${power.economic_ties ? `
-                            <div class="power-section">
-                                <h4><i class="fas fa-chart-line"></i> Economic</h4>
-                                <ul>
-                                    ${power.economic_ties.trade_volume_usd ? `<li>Trade: ${power.economic_ties.trade_volume_usd}</li>` : ''}
-                                    ${power.economic_ties.fdi_usd ? `<li>FDI: ${power.economic_ties.fdi_usd}</li>` : ''}
-                                </ul>
-                            </div>
-                        ` : ''}
-                        
-                        ${power.political_engagement ? `
-                            <div class="power-section">
-                                <h4><i class="fas fa-landmark"></i> Political</h4>
-                                <ul>
-                                    ${power.political_engagement.convergence_areas?.slice(0, 3).map(a => `<li>${a}</li>`).join('') || '<li>Data pending</li>'}
-                                </ul>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-                
-                <div class="power-footer">
-                    <a href="country.html?code=${code}" class="view-details">
-                        View Full Relations <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderGroupings(data) {
-        const regional = data['05_regional_groupings'] || data.regional_groupings || {};
-        const global = data['06_global_groupings'] || data.global_groupings || {};
-        const exportControl = data['08_export_control_regimes'] || data.export_control_regimes || {};
-        
-        // Default to regional view
-        renderGroupingsContent('regional', regional, global, exportControl);
-    }
-
-    function handleGroupingTabClick(tab) {
-        document.querySelectorAll('.grouping-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        const type = tab.dataset.type;
-        const data = state.foreignPolicyData;
-        
-        const regional = data['05_regional_groupings'] || data.regional_groupings || {};
-        const global = data['06_global_groupings'] || data.global_groupings || {};
-        const exportControl = data['08_export_control_regimes'] || data.export_control_regimes || {};
-        
-        renderGroupingsContent(type, regional, global, exportControl);
-    }
-
-    function renderGroupingsContent(type, regional, global, exportControl) {
-        let groupings = {};
-        
-        switch(type) {
-            case 'regional':
-                groupings = regional;
-                break;
-            case 'global':
-                groupings = global;
-                break;
-            case 'export-control':
-                groupings = exportControl;
-                break;
-        }
-        
-        const keys = Object.keys(groupings);
-        
-        if (keys.length === 0) {
-            elements.groupingsContent.innerHTML = `
-                <div class="no-data-card">
-                    <i class="fas fa-sitemap"></i>
-                    <p>No ${type} groupings data available</p>
-                </div>
-            `;
-            return;
-        }
-        
-        elements.groupingsContent.innerHTML = keys.map(key => {
-            const g = groupings[key];
-            return `
-                <div class="grouping-card">
-                    <div class="grouping-header">
-                        <div class="grouping-name">
-                            <h3>${g.name || getGroupingDisplayName(key)}</h3>
-                            ${g.year_joined ? `<span>Member since ${g.year_joined}</span>` : ''}
-                        </div>
-                        <span class="membership-status ${(g.membership_status || 'member').toLowerCase()}">
-                            ${g.membership_status || 'Member'}
-                        </span>
-                    </div>
-                    
-                    ${g.role ? `<p class="grouping-role">${g.role}</p>` : ''}
-                    
-                    ${g.contributions && g.contributions.length > 0 ? `
-                        <div class="grouping-section">
-                            <h4>Contributions</h4>
-                            <ul>
-                                ${g.contributions.slice(0, 3).map(c => `<li>${c}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                    
-                    ${g.key_initiatives && g.key_initiatives.length > 0 ? `
-                        <div class="grouping-section">
-                            <h4>Key Initiatives</h4>
-                            <div class="tag-list">
-                                ${g.key_initiatives.slice(0, 4).map(i => `<span class="tag">${i}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }).join('');
-    }
-
-    function renderDiaspora(data) {
-        const diaspora = data['10_diaspora'] || data.diaspora || {};
-        
-        if (!diaspora.total_population) {
-            elements.diasporaOverview.innerHTML = `
-                <div class="no-data-card">
-                    <i class="fas fa-globe"></i>
-                    <p>Diaspora data being compiled</p>
-                </div>
-            `;
-            return;
-        }
-        
-        elements.diasporaOverview.innerHTML = `
-            <div class="diaspora-stats">
-                <div class="diaspora-stat">
-                    <span class="stat-value">${formatNumber(diaspora.total_population)}</span>
-                    <span class="stat-label">Total Diaspora</span>
-                </div>
-                ${diaspora.remittances_usd ? `
-                    <div class="diaspora-stat">
-                        <span class="stat-value">${diaspora.remittances_usd}</span>
-                        <span class="stat-label">Remittances</span>
-                    </div>
-                ` : ''}
-            </div>
             
-            ${diaspora.top_destinations && diaspora.top_destinations.length > 0 ? `
-                <div class="diaspora-destinations">
-                    <h3>Top Destinations</h3>
-                    <div class="destinations-grid">
-                        ${diaspora.top_destinations.slice(0, 6).map(d => `
-                            <div class="destination-card">
-                                <span class="destination-country">${d.country}</span>
-                                <span class="destination-population">${formatNumber(d.population)}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-        `;
+            // Hide load more
+            document.getElementById('load-more-container').style.display = 'none';
+            
+        }, 300));
     }
-
-    function renderTimeline(data) {
-        const developments = data['11_contemporary_developments'] || data.contemporary_developments || {};
+    
+    setupLoadMore() {
+        const btn = document.getElementById('load-more-btn');
+        if (!btn) return;
         
-        // Get events from all years
-        let allEvents = [];
-        Object.keys(developments).forEach(year => {
-            if (Array.isArray(developments[year])) {
-                developments[year].forEach(event => {
-                    allEvents.push({ ...event, year });
-                });
-            }
+        btn.addEventListener('click', () => {
+            this.displayedRelations += 12;
+            this.renderRelations();
         });
-        
-        // Sort by date (most recent first)
-        allEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        if (allEvents.length === 0) {
-            elements.timelineContainer.innerHTML = `
-                <div class="no-data-card">
-                    <i class="fas fa-clock"></i>
-                    <p>Contemporary developments being documented</p>
-                </div>
-            `;
-            return;
-        }
-        
-        elements.timelineContainer.innerHTML = allEvents.slice(0, 10).map(event => `
-            <div class="timeline-event">
-                <span class="event-date">${event.date}</span>
-                <div class="event-card">
-                    <span class="event-category">${event.category || 'General'}</span>
-                    <h4 class="event-title">${event.event}</h4>
-                    ${event.significance ? `<p class="event-description">${event.significance}</p>` : ''}
-                    ${event.countries_involved && event.countries_involved.length > 0 ? `
-                        <div class="event-countries">
-                            ${event.countries_involved.map(c => `<span class="country-tag">${c}</span>`).join('')}
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
     }
-
-    function handleTimelineFilterClick(filter) {
-        document.querySelectorAll('.timeline-filter').forEach(f => f.classList.remove('active'));
-        filter.classList.add('active');
-        
-        const year = filter.dataset.year;
-        const developments = state.foreignPolicyData?.['11_contemporary_developments'] || 
-                            state.foreignPolicyData?.contemporary_developments || {};
-        
-        let events = [];
-        
-        if (year === 'all') {
-            Object.keys(developments).forEach(y => {
-                if (Array.isArray(developments[y])) {
-                    developments[y].forEach(event => events.push({ ...event, year: y }));
+    
+    setupScrollAnimations() {
+        // Animate elements on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aos-animate');
+                    
+                    // Animate counters
+                    entry.target.querySelectorAll('[data-counter]').forEach(counter => {
+                        const target = parseInt(counter.dataset.counter, 10);
+                        GeoTopia.utils.animateCounter(counter, target);
+                    });
                 }
             });
-        } else if (developments[year]) {
-            events = developments[year].map(e => ({ ...e, year }));
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
+    }
+    
+    // =====================================================
+    // ANIMATIONS
+    // =====================================================
+    
+    initAnimations() {
+        // Add entrance animations to orbital countries
+        setTimeout(() => {
+            document.querySelectorAll('.orbital-country').forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translate(-50%, -50%) scale(0)';
+                
+                setTimeout(() => {
+                    el.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, i * 50);
+            });
+        }, 500);
+        
+        // Animate connection lines
+        document.querySelectorAll('.connection-line').forEach((line, i) => {
+            const length = line.getTotalLength ? line.getTotalLength() : 500;
+            line.style.strokeDasharray = length;
+            line.style.strokeDashoffset = length;
+            
+            setTimeout(() => {
+                line.style.transition = 'stroke-dashoffset 1s ease';
+                line.style.strokeDashoffset = '0';
+            }, 800 + i * 30);
+        });
+    }
+    
+    // =====================================================
+    // LOADING & ERROR STATES
+    // =====================================================
+    
+    showLoading() {
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+            loader.classList.remove('hidden');
         }
+    }
+    
+    hideLoading() {
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.add('hidden');
+            }, 500);
+        }
+    }
+    
+    showError(message) {
+        this.hideLoading();
         
-        events.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        if (events.length === 0) {
-            elements.timelineContainer.innerHTML = `
-                <div class="no-data-card">
-                    <i class="fas fa-clock"></i>
-                    <p>No events recorded for ${year}</p>
+        document.body.innerHTML = `
+            <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); color: var(--text-primary); text-align: center; padding: 2rem;">
+                <div>
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">🌐</div>
+                    <h1 style="margin-bottom: 1rem;">Oops!</h1>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">${message}</p>
+                    <a href="index.html" class="btn btn-primary">Back to Unity Atlas</a>
                 </div>
-            `;
-            return;
-        }
-        
-        elements.timelineContainer.innerHTML = events.map(event => `
-            <div class="timeline-event">
-                <span class="event-date">${event.date}</span>
-                <div class="event-card">
-                    <span class="event-category">${event.category || 'General'}</span>
-                    <h4 class="event-title">${event.event}</h4>
-                    ${event.significance ? `<p class="event-description">${event.significance}</p>` : ''}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderExamFocus(data) {
-        const exam = data['13_exam_focus'] || data.exam_focus || {};
-        
-        // Default to UPSC view
-        renderExamContent('upsc', exam);
-    }
-
-    function handleExamTabClick(tab) {
-        document.querySelectorAll('.exam-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        const examType = tab.dataset.exam;
-        const exam = state.foreignPolicyData?.['13_exam_focus'] || 
-                    state.foreignPolicyData?.exam_focus || {};
-        
-        renderExamContent(examType, exam);
-    }
-
-    function renderExamContent(examType, examData) {
-        let content = '';
-        
-        switch(examType) {
-            case 'upsc':
-                const upscPrelims = examData.upsc_prelims || {};
-                const upscMains = examData.upsc_mains || {};
-                
-                content = `
-                    <div class="exam-card">
-                        <h3><i class="fas fa-list-check"></i> Prelims Focus</h3>
-                        ${upscPrelims.important_facts && upscPrelims.important_facts.length > 0 ? `
-                            <ul class="exam-list">
-                                ${upscPrelims.important_facts.map(f => `<li>${f}</li>`).join('')}
-                            </ul>
-                        ` : '<p>Data being compiled...</p>'}
-                    </div>
-                    
-                    <div class="exam-card">
-                        <h3><i class="fas fa-pen"></i> Mains Focus</h3>
-                        ${upscMains.topics && upscMains.topics.length > 0 ? `
-                            <ul class="exam-list">
-                                ${upscMains.topics.map(t => `<li>${t}</li>`).join('')}
-                            </ul>
-                        ` : '<p>Data being compiled...</p>'}
-                    </div>
-                    
-                    ${examData.must_know_facts && examData.must_know_facts.length > 0 ? `
-                        <div class="exam-card">
-                            <h3><i class="fas fa-star"></i> Must-Know Facts</h3>
-                            <ul class="exam-list">
-                                ${examData.must_know_facts.map(f => `<li>${f}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                `;
-                break;
-                
-            case 'ssc':
-                const ssc = examData.ssc_cgl || {};
-                content = `
-                    <div class="exam-card">
-                        <h3><i class="fas fa-book"></i> Important Topics</h3>
-                        ${ssc.important_topics && ssc.important_topics.length > 0 ? `
-                            <ul class="exam-list">
-                                ${ssc.important_topics.map(t => `<li>${t}</li>`).join('')}
-                            </ul>
-                        ` : '<p>Data being compiled...</p>'}
-                    </div>
-                    
-                    <div class="exam-card">
-                        <h3><i class="fas fa-database"></i> Fact-Based Points</h3>
-                        ${ssc.fact_based_points && ssc.fact_based_points.length > 0 ? `
-                            <ul class="exam-list">
-                                ${ssc.fact_based_points.map(f => `<li>${f}</li>`).join('')}
-                            </ul>
-                        ` : '<p>Data being compiled...</p>'}
-                    </div>
-                `;
-                break;
-                
-            case 'state':
-                const statePsc = examData.state_psc || {};
-                content = `
-                    <div class="exam-card">
-                        <h3><i class="fas fa-map-marker-alt"></i> State PSC Relevance</h3>
-                        <p>${statePsc.relevance || 'Data being compiled...'}</p>
-                    </div>
-                    
-                    ${statePsc.focus_areas && statePsc.focus_areas.length > 0 ? `
-                        <div class="exam-card">
-                            <h3><i class="fas fa-bullseye"></i> Focus Areas</h3>
-                            <ul class="exam-list">
-                                ${statePsc.focus_areas.map(a => `<li>${a}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                `;
-                break;
-        }
-        
-        elements.examContent.innerHTML = content || `
-            <div class="no-data-card full-width">
-                <i class="fas fa-graduation-cap"></i>
-                <p>Exam-focused content being compiled</p>
             </div>
         `;
     }
+}
 
-    function renderMetadata(data) {
-        const metadata = data.metadata || {};
-        
-        elements.lastUpdated.textContent = metadata.last_verified || data.last_updated || 'Unknown';
-        elements.dataCompleteness.textContent = metadata.data_completeness || '0%';
-    }
+// =====================================================
+// INITIALIZE
+// =====================================================
 
-    // ==================== UTILITIES ====================
-    function downloadCountryData() {
-        if (!state.foreignPolicyData) {
-            alert('No data available to download');
-            return;
-        }
-        
-        const dataStr = JSON.stringify(state.foreignPolicyData, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${state.countryCode.toLowerCase()}-foreign-policy.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    function shareCountry() {
-        const url = window.location.href;
-        const title = `${state.countryData.name} - Foreign Policy | Unity Atlas`;
-        
-        if (navigator.share) {
-            navigator.share({ title, url });
-        } else {
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Link copied to clipboard!');
-            });
-        }
-    }
-
-    // ==================== START ====================
-    document.addEventListener('DOMContentLoaded', init);
-
-})();
+document.addEventListener('DOMContentLoaded', () => {
+    window.countryPage = new CountryPage();
+});
