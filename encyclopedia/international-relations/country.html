@@ -6,304 +6,1217 @@
     <meta name="description" content="Foreign Policy Profile - Unity Atlas">
     <title>Country Profile | Unity Atlas</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="ir-main.css">
-    <link rel="stylesheet" href="animations.css">
-    <link rel="stylesheet" href="country.css">
+    <style>
+        :root {
+            --bg-void: #050508;
+            --bg-deep: #0a0a0f;
+            --bg-surface: #111118;
+            --bg-elevated: #18181f;
+            --bg-card: #1e1e28;
+            
+            --accent: #c9a227;
+            --accent-light: #e8c547;
+            --accent-glow: rgba(201, 162, 39, 0.4);
+            
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            
+            --border-subtle: rgba(255, 255, 255, 0.04);
+            --border-light: rgba(255, 255, 255, 0.08);
+            --border-medium: rgba(255, 255, 255, 0.12);
+            
+            --glass: rgba(255, 255, 255, 0.02);
+            --glass-hover: rgba(255, 255, 255, 0.06);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-2xl: 32px;
+            
+            --font-display: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
+            --font-quote: 'Cormorant Garamond', serif;
+            
+            --transition-fast: 0.15s ease;
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Theme colors - will be overridden per country */
+            --theme-primary: var(--accent);
+            --theme-secondary: #8b5cf6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-void);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Country-specific themes */
+        .theme-IND { --theme-primary: #FF9933; --theme-secondary: #138808; }
+        .theme-USA { --theme-primary: #3C3B6E; --theme-secondary: #B22234; }
+        .theme-CHN { --theme-primary: #DE2910; --theme-secondary: #FFDE00; }
+        .theme-JPN { --theme-primary: #BC002D; --theme-secondary: #FFFFFF; }
+        .theme-RUS { --theme-primary: #0039A6; --theme-secondary: #D52B1E; }
+        .theme-GBR { --theme-primary: #012169; --theme-secondary: #C8102E; }
+        .theme-FRA { --theme-primary: #0055A4; --theme-secondary: #EF4135; }
+        .theme-DEU { --theme-primary: #000000; --theme-secondary: #DD0000; }
+        .theme-BRA { --theme-primary: #009739; --theme-secondary: #FEDD00; }
+        .theme-AUS { --theme-primary: #00008B; --theme-secondary: #FF0000; }
+
+        /* ===== LOADER ===== */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-void);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 48px;
+            background: rgba(5, 5, 8, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .header-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-mark {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--bg-void);
+        }
+
+        .logo-text {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color var(--transition-fast);
+        }
+
+        .breadcrumb a:hover { color: var(--accent); }
+        .breadcrumb span { color: var(--text-primary); font-weight: 500; }
+        .breadcrumb i { font-size: 0.7rem; color: var(--text-muted); }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border-light);
+            background: var(--glass);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background: var(--glass-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            position: relative;
+            min-height: 60vh;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 48px 60px;
+            margin-top: 76px;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+        }
+
+        .hero-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-gradient {
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(180deg, rgba(5,5,8,0.3) 0%, rgba(5,5,8,0.6) 50%, var(--bg-void) 100%),
+                radial-gradient(ellipse at 30% 70%, rgba(201,162,39,0.15) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .country-identity {
+            display: flex;
+            align-items: flex-end;
+            gap: 32px;
+        }
+
+        .country-flag {
+            font-size: 8rem;
+            line-height: 1;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+            animation: flagWave 4s ease-in-out infinite;
+        }
+
+        @keyframes flagWave {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .country-info {
+            padding-bottom: 16px;
+        }
+
+        .country-name {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .country-official {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .country-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badge {
+            padding: 8px 18px;
+            background: var(--glass);
+            border: 1px solid var(--border-light);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge.primary {
+            background: linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.1));
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .quick-stat {
+            background: var(--glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== NATIONAL SYMBOLS ===== */
+        .symbols-section {
+            padding: 80px 48px;
+            background: var(--bg-deep);
+        }
+
+        .section-header {
+            max-width: 1600px;
+            margin: 0 auto 48px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .symbols-grid {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .symbol-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .symbol-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .symbol-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .symbol-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .symbol-card:hover .symbol-image img {
+            transform: scale(1.1);
+        }
+
+        .symbol-type {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 6px 14px;
+            background: var(--bg-void);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+        }
+
+        .symbol-info {
+            padding: 24px;
+        }
+
+        .symbol-name {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+        }
+
+        .symbol-scientific {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ===== CONTENT TABS ===== */
+        .nav-tabs {
+            position: sticky;
+            top: 76px;
+            z-index: 100;
+            background: var(--bg-void);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 48px;
+        }
+
+        .nav-tabs-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            padding: 16px 0;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition-fast);
+        }
+
+        .nav-tab:hover {
+            background: var(--glass-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: var(--bg-void);
+        }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .content-section {
+            display: none;
+            padding: 60px 48px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+
+        .content-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .content-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content-card h3 i {
+            color: var(--accent);
+        }
+
+        .content-card p {
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        .principle-list {
+            list-style: none;
+        }
+
+        .principle-item {
+            display: flex;
+            gap: 16px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .principle-item:last-child {
+            border-bottom: none;
+        }
+
+        .principle-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.1));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .principle-content strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .principle-content span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== NEIGHBOURS ===== */
+        .neighbours-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .neighbour-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition-smooth);
+        }
+
+        .neighbour-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+        }
+
+        .neighbour-image {
+            height: 140px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neighbour-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .neighbour-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent, rgba(0,0,0,0.8));
+        }
+
+        .neighbour-flag {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            font-size: 2.5rem;
+            z-index: 1;
+        }
+
+        .neighbour-info {
+            padding: 20px;
+        }
+
+        .neighbour-name {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .neighbour-detail {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .neighbour-detail i {
+            color: var(--accent);
+            width: 16px;
+        }
+
+        .relation-badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .relation-badge.friendly {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .relation-badge.complex {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .relation-badge.tense {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            padding: 60px 48px 40px;
+            background: var(--bg-void);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer-nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-nav a:hover {
+            color: var(--accent);
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer-copyright .heart {
+            color: #e879f9;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .hero-content { flex-direction: column; align-items: flex-start; }
+            .quick-stats { grid-template-columns: repeat(4, 1fr); }
+            .content-grid { grid-template-columns: 1fr; }
+            .symbols-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 12px 20px; }
+            .breadcrumb { display: none; }
+            .hero { padding: 0 20px 40px; min-height: 50vh; }
+            .country-flag { font-size: 5rem; }
+            .country-name { font-size: 2.5rem; }
+            .quick-stats { grid-template-columns: repeat(2, 1fr); }
+            .symbols-section { padding: 60px 20px; }
+            .symbols-grid { grid-template-columns: 1fr; }
+            .content-section { padding: 40px 20px; }
+            .nav-tabs { padding: 0 20px; }
+            .footer { padding: 40px 20px; }
+            .footer-content { flex-direction: column; text-align: center; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Loading -->
-    <div class="page-loader" id="pageLoader">
+    <!-- Loader -->
+    <div class="loader" id="loader">
         <div class="loader-spinner"></div>
-        <p>Loading foreign policy data...</p>
+        <p style="color: var(--text-muted);">Loading country data...</p>
     </div>
 
-    <!-- Main Application -->
-    <div class="app-container" id="app">
-        <!-- Header -->
-        <header class="main-header">
-            <div class="header-content">
-                <a href="index.html" class="logo-section">
-                    <div class="logo-icon">
-                        <i class="fas fa-globe-americas"></i>
-                    </div>
-                    <div class="logo-text">
-                        <h1>Unity Atlas</h1>
-                        <span class="tagline">International Relations Encyclopedia</span>
-                    </div>
-                </a>
-                
-                <nav class="breadcrumb">
-                    <a href="index.html">Home</a>
-                    <i class="fas fa-chevron-right"></i>
-                    <a href="index.html#countrySelector">Countries</a>
-                    <i class="fas fa-chevron-right"></i>
-                    <span id="breadcrumbCountry">Loading...</span>
-                </nav>
-                
-                <div class="header-actions">
-                    <button class="btn-icon" id="searchToggle" aria-label="Search">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <button class="btn-icon" id="themeToggle" aria-label="Toggle Theme">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button class="btn-icon" id="shareBtn" aria-label="Share">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-mark"><i class="fas fa-globe-americas"></i></div>
+                <span class="logo-text">Unity Atlas</span>
+            </a>
+
+            <nav class="breadcrumb">
+                <a href="index.html">Home</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="index.html#countriesSection">Countries</a>
+                <i class="fas fa-chevron-right"></i>
+                <span id="breadcrumbCountry">Loading...</span>
+            </nav>
+
+            <div class="header-actions">
+                <button class="btn-icon" onclick="shareCountry()"><i class="fas fa-share-alt"></i></button>
+                <button class="btn-icon"><i class="far fa-bookmark"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <img id="heroBgImage" src="" alt="Country">
+            <div class="hero-gradient"></div>
+        </div>
+
+        <div class="hero-content">
+            <div class="country-identity">
+                <span class="country-flag" id="countryFlag">🏳️</span>
+                <div class="country-info">
+                    <h1 class="country-name" id="countryName">Loading...</h1>
+                    <p class="country-official" id="countryOfficial"></p>
+                    <div class="country-badges" id="countryBadges"></div>
                 </div>
             </div>
-        </header>
 
-        <!-- Country Hero -->
-        <section class="country-hero" id="countryHero">
-            <div class="hero-background"></div>
-            <div class="hero-content">
-                <div class="country-identity">
-                    <span class="country-flag-large" id="countryFlag">🏳️</span>
-                    <div class="country-details">
-                        <h1 id="countryName">Loading...</h1>
-                        <p class="official-name" id="officialName"></p>
-                        <div class="country-badges" id="countryBadges">
-                            <!-- Badges loaded dynamically -->
-                        </div>
+            <div class="quick-stats" id="quickStats">
+                <div class="quick-stat">
+                    <div class="stat-icon"><i class="fas fa-city"></i></div>
+                    <div>
+                        <span class="stat-value" id="statCapital">-</span>
+                        <span class="stat-label">Capital</span>
                     </div>
                 </div>
-                <div class="country-quick-stats">
-                    <div class="quick-stat">
-                        <i class="fas fa-city"></i>
-                        <div>
-                            <span class="stat-value" id="capitalCity">-</span>
-                            <span class="stat-label">Capital</span>
+                <div class="quick-stat">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div>
+                        <span class="stat-value" id="statPopulation">-</span>
+                        <span class="stat-label">Population</span>
+                    </div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                    <div>
+                        <span class="stat-value" id="statGDP">-</span>
+                        <span class="stat-label">GDP</span>
+                    </div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+                    <div>
+                        <span class="stat-value" id="statRelations">-</span>
+                        <span class="stat-label">Relations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- National Symbols -->
+    <section class="symbols-section" id="symbolsSection">
+        <div class="section-header">
+            <h2 class="section-title">🏛️ National Symbols</h2>
+            <p class="section-subtitle">Identity and heritage of the nation</p>
+        </div>
+        <div class="symbols-grid" id="symbolsGrid">
+            <!-- Loaded dynamically -->
+        </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+        <div class="nav-tabs-inner">
+            <button class="nav-tab active" data-section="overview">
+                <i class="fas fa-info-circle"></i> Overview
+            </button>
+            <button class="nav-tab" data-section="neighbours">
+                <i class="fas fa-border-all"></i> Neighbours
+            </button>
+            <button class="nav-tab" data-section="relations">
+                <i class="fas fa-handshake"></i> Major Powers
+            </button>
+            <button class="nav-tab" data-section="groupings">
+                <i class="fas fa-sitemap"></i> Groupings
+            </button>
+            <button class="nav-tab" data-section="timeline">
+                <i class="fas fa-clock"></i> Timeline
+            </button>
+            <button class="nav-tab" data-section="exam">
+                <i class="fas fa-graduation-cap"></i> Exam Focus
+            </button>
+        </div>
+    </nav>
+
+    <!-- Content Sections -->
+    <main>
+        <!-- Overview -->
+        <section class="content-section active" id="overview">
+            <div class="content-wrapper">
+                <div class="content-grid">
+                    <div>
+                        <div class="content-card">
+                            <h3><i class="fas fa-scroll"></i> Foreign Policy Doctrine</h3>
+                            <p id="doctrineText">Loading foreign policy information...</p>
+                        </div>
+
+                        <div class="content-card">
+                            <h3><i class="fas fa-bullseye"></i> Key Principles</h3>
+                            <ul class="principle-list" id="principlesList"></ul>
                         </div>
                     </div>
-                    <div class="quick-stat">
-                        <i class="fas fa-users"></i>
-                        <div>
-                            <span class="stat-value" id="population">-</span>
-                            <span class="stat-label">Population</span>
-                        </div>
-                    </div>
-                    <div class="quick-stat">
-                        <i class="fas fa-chart-line"></i>
-                        <div>
-                            <span class="stat-value" id="gdp">-</span>
-                            <span class="stat-label">GDP</span>
-                        </div>
-                    </div>
-                    <div class="quick-stat">
-                        <i class="fas fa-map"></i>
-                        <div>
-                            <span class="stat-value" id="area">-</span>
-                            <span class="stat-label">Area (km²)</span>
+
+                    <div>
+                        <div class="content-card">
+                            <h3><i class="fas fa-chess"></i> Strategic Position</h3>
+                            <p id="strategicText">Loading strategic analysis...</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Navigation Tabs -->
-        <nav class="country-nav" id="countryNav">
-            <div class="nav-container">
-                <button class="nav-tab active" data-section="overview">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Overview</span>
-                </button>
-                <button class="nav-tab" data-section="neighbours">
-                    <i class="fas fa-border-all"></i>
-                    <span>Neighbours</span>
-                </button>
-                <button class="nav-tab" data-section="major-powers">
-                    <i class="fas fa-handshake"></i>
-                    <span>Major Powers</span>
-                </button>
-                <button class="nav-tab" data-section="groupings">
-                    <i class="fas fa-sitemap"></i>
-                    <span>Groupings</span>
-                </button>
-                <button class="nav-tab" data-section="diaspora">
-                    <i class="fas fa-globe"></i>
-                    <span>Diaspora</span>
-                </button>
-                <button class="nav-tab" data-section="timeline">
-                    <i class="fas fa-clock"></i>
-                    <span>Timeline</span>
-                </button>
-                <button class="nav-tab" data-section="exam">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>Exam Focus</span>
-                </button>
+        <!-- Neighbours -->
+        <section class="content-section" id="neighbours">
+            <div class="content-wrapper">
+                <div class="section-header" style="text-align: left; margin-bottom: 32px;">
+                    <h2 class="section-title"><i class="fas fa-border-all"></i> Neighbouring Countries</h2>
+                    <p class="section-subtitle" id="neighboursInfo">Loading neighbours...</p>
+                </div>
+                <div class="neighbours-grid" id="neighboursGrid"></div>
             </div>
-        </nav>
+        </section>
 
-        <!-- Main Content -->
-        <main class="country-content">
-            <!-- Overview Section -->
-            <section class="content-section active" id="overview">
-                <div class="section-grid">
-                    <div class="main-column">
-                        <div class="content-card">
-                            <h2><i class="fas fa-flag"></i> Foreign Policy Doctrine</h2>
-                            <div class="card-content" id="foreignPolicyDoctrine">
-                                <div class="skeleton-text"></div>
-                                <div class="skeleton-text"></div>
-                                <div class="skeleton-text short"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="content-card">
-                            <h2><i class="fas fa-bullseye"></i> Key Principles</h2>
-                            <div class="card-content" id="keyPrinciples">
-                                <div class="skeleton-list"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="content-card">
-                            <h2><i class="fas fa-chess"></i> Strategic Objectives</h2>
-                            <div class="card-content" id="strategicObjectives">
-                                <div class="skeleton-list"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="side-column">
-                        <div class="content-card compact">
-                            <h3><i class="fas fa-globe-asia"></i> Global Positioning</h3>
-                            <div class="card-content" id="globalPositioning">
-                                <div class="skeleton-text"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="content-card compact">
-                            <h3><i class="fas fa-history"></i> Historical Context</h3>
-                            <div class="card-content" id="historicalContext">
-                                <div class="skeleton-text"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="content-card compact visualizations">
-                            <h3><i class="fas fa-chart-pie"></i> Foreign Policy Dimensions</h3>
-                            <div class="chart-container" id="radarChart">
-                                <!-- Chart rendered here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Neighbours Section -->
-            <section class="content-section" id="neighbours">
-                <div class="neighbours-header">
-                    <h2><i class="fas fa-border-all"></i> Immediate Neighbours</h2>
-                    <div class="neighbours-stats">
-                        <span id="totalNeighbours">0 Countries</span>
-                        <span id="totalBorderLength">0 km border</span>
-                    </div>
-                </div>
-                
-                <div class="neighbours-map" id="neighboursMap">
-                    <!-- Map rendered here -->
-                </div>
-                
-                <div class="neighbours-grid" id="neighboursGrid">
-                    <!-- Neighbour cards loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Major Powers Section -->
-            <section class="content-section" id="major-powers">
-                <h2><i class="fas fa-handshake"></i> Relations with Major Powers</h2>
-                <div class="powers-grid" id="majorPowersGrid">
-                    <!-- Major power cards loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Groupings Section -->
-            <section class="content-section" id="groupings">
-                <div class="groupings-tabs">
-                    <button class="grouping-tab active" data-type="regional">Regional</button>
-                    <button class="grouping-tab" data-type="global">Global</button>
-                    <button class="grouping-tab" data-type="export-control">Export Control</button>
-                </div>
-                
-                <div class="groupings-content" id="groupingsContent">
-                    <!-- Groupings loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Diaspora Section -->
-            <section class="content-section" id="diaspora">
-                <h2><i class="fas fa-globe"></i> Diaspora & People-to-People Ties</h2>
-                <div class="diaspora-overview" id="diasporaOverview">
-                    <!-- Diaspora data loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Timeline Section -->
-            <section class="content-section" id="timeline">
-                <h2><i class="fas fa-clock"></i> Contemporary Developments</h2>
-                <div class="timeline-filters">
-                    <button class="timeline-filter active" data-year="2025">2025</button>
-                    <button class="timeline-filter" data-year="2024">2024</button>
-                    <button class="timeline-filter" data-year="2023">2023</button>
-                    <button class="timeline-filter" data-year="all">All</button>
-                </div>
-                <div class="timeline-container" id="timelineContainer">
-                    <!-- Timeline events loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Exam Focus Section -->
-            <section class="content-section" id="exam">
-                <h2><i class="fas fa-graduation-cap"></i> Exam Preparation Focus</h2>
-                <div class="exam-tabs">
-                    <button class="exam-tab active" data-exam="upsc">UPSC CSE</button>
-                    <button class="exam-tab" data-exam="ssc">SSC CGL</button>
-                    <button class="exam-tab" data-exam="state">State PSC</button>
-                </div>
-                <div class="exam-content" id="examContent">
-                    <!-- Exam content loaded dynamically -->
-                </div>
-            </section>
-        </main>
-
-        <!-- Footer -->
-        <footer class="country-footer">
-            <div class="footer-content">
-                <div class="data-info">
-                    <p><i class="fas fa-database"></i> Data last updated: <span id="lastUpdated">-</span></p>
-                    <p><i class="fas fa-check-circle"></i> Completeness: <span id="dataCompleteness">-</span></p>
-                </div>
-                <div class="footer-actions">
-                    <button class="btn-outline" id="downloadData">
-                        <i class="fas fa-download"></i> Download Data
-                    </button>
-                    <button class="btn-outline" id="reportIssue">
-                        <i class="fas fa-flag"></i> Report Issue
-                    </button>
-                </div>
+        <!-- Other sections will be similar -->
+        <section class="content-section" id="relations">
+            <div class="content-wrapper">
+                <h2 class="section-title"><i class="fas fa-handshake"></i> Relations with Major Powers</h2>
+                <p style="color: var(--text-muted); margin-top: 20px;">Detailed relations data coming soon...</p>
             </div>
+        </section>
+
+        <section class="content-section" id="groupings">
+            <div class="content-wrapper">
+                <h2 class="section-title"><i class="fas fa-sitemap"></i> International Groupings</h2>
+                <div id="groupingsContent" style="margin-top: 24px;"></div>
+            </div>
+        </section>
+
+        <section class="content-section" id="timeline">
+            <div class="content-wrapper">
+                <h2 class="section-title"><i class="fas fa-clock"></i> Recent Developments</h2>
+                <p style="color: var(--text-muted); margin-top: 20px;">Timeline data coming soon...</p>
+            </div>
+        </section>
+
+        <section class="content-section" id="exam">
+            <div class="content-wrapper">
+                <h2 class="section-title"><i class="fas fa-graduation-cap"></i> Exam Preparation</h2>
+                <p style="color: var(--text-muted); margin-top: 20px;">Exam-focused content coming soon...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
             <div class="footer-nav">
                 <a href="index.html">← Back to All Countries</a>
-                <div class="country-nav-arrows">
-                    <a href="#" id="prevCountry" class="nav-arrow"><i class="fas fa-chevron-left"></i> Previous</a>
-                    <a href="#" id="nextCountry" class="nav-arrow">Next <i class="fas fa-chevron-right"></i></a>
-                </div>
+                <a href="#" id="prevCountry">← Previous</a>
+                <a href="#" id="nextCountry">Next →</a>
             </div>
-        </footer>
-    </div>
+            <div class="footer-copyright">
+                © 2025 <strong>Geotopia</strong>. All rights reserved. 
+                Made with <span class="heart">💜</span> by <strong>Sandhya Baletiya (S7B)</strong>
+            </div>
+        </div>
+    </footer>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="country-data.js"></script>
-    <script src="country-page.js"></script>
+    <script>
+        // ===== NATIONAL SYMBOLS DATABASE =====
+        const NATIONAL_SYMBOLS = {
+            'IND': {
+                bird: { name: 'Indian Peafowl', scientific: 'Pavo cristatus', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Peacock_Plumage.jpg' },
+                animal: { name: 'Bengal Tiger', scientific: 'Panthera tigris tigris', image: 'https://upload.wikimedia.org/wikipedia/commons/1/17/Tiger_in_Ranthambhore.jpg' },
+                flower: { name: 'Lotus', scientific: 'Nelumbo nucifera', image: 'https://upload.wikimedia.org/wikipedia/commons/e/ed/Sacred_lotus_Nelumbo_nucifera.jpg' },
+                tree: { name: 'Banyan', scientific: 'Ficus benghalensis', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Banyan_tree_Old_Lee_County_Courthouse.jpg' }
+            },
+            'USA': {
+                bird: { name: 'Bald Eagle', scientific: 'Haliaeetus leucocephalus', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Bald_Eagle_Portrait.jpg' },
+                animal: { name: 'American Bison', scientific: 'Bison bison', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/American_bison_k5680-1.jpg' },
+                flower: { name: 'Rose', scientific: 'Rosa', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Rosa_rubiginosa_1.jpg' },
+                tree: { name: 'Oak', scientific: 'Quercus', image: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Quercus_robur.jpg' }
+            },
+            'JPN': {
+                bird: { name: 'Green Pheasant', scientific: 'Phasianus versicolor', image: 'https://upload.wikimedia.org/wikipedia/commons/6/64/Green_Pheasant.jpg' },
+                animal: { name: 'Japanese Macaque', scientific: 'Macaca fuscata', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Macaca_fuscata_fuscata1.jpg' },
+                flower: { name: 'Cherry Blossom', scientific: 'Prunus serrulata', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Cerisier_du_Japon.jpg' },
+                tree: { name: 'Sugi (Japanese Cedar)', scientific: 'Cryptomeria japonica', image: 'https://upload.wikimedia.org/wikipedia/commons/d/d6/Cryptomeria_japonica1.jpg' }
+            }
+            // Add more countries...
+        };
+
+        const COUNTRY_HERO_IMAGES = {
+            'IND': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1920&q=80',
+            'USA': 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=1920&q=80',
+            'CHN': 'https://images.unsplash.com/photo-1508804052814-cd3ba865a116?w=1920&q=80',
+            'JPN': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&q=80',
+            'RUS': 'https://images.unsplash.com/photo-1513326738677-b964603b136d?w=1920&q=80',
+            'GBR': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80',
+            'FRA': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80',
+            'DEU': 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1920&q=80',
+            'BRA': 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1920&q=80',
+            'AUS': 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=1920&q=80'
+        };
+
+        const DEFAULT_HERO = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80';
+
+        // Foreign Policy Data (sample - would come from JSON files)
+        const FOREIGN_POLICY = {
+            'IND': {
+                doctrine: "India's foreign policy is guided by the principles of strategic autonomy, multi-alignment, and Neighbourhood First. The nation pursues a balanced approach maintaining partnerships with both Western powers and Eastern nations while championing the causes of the Global South. India believes in Vasudhaiva Kutumbakam - the world is one family.",
+                principles: [
+                    { icon: 'fa-balance-scale', title: 'Strategic Autonomy', desc: 'Independent foreign policy decisions based solely on national interest' },
+                    { icon: 'fa-globe', title: 'Multi-Alignment', desc: 'Engaging constructively with all major powers without formal alliances' },
+                    { icon: 'fa-home', title: 'Neighbourhood First', desc: 'Priority to building strong ties with immediate neighbours' },
+                    { icon: 'fa-hands-helping', title: 'Vasudhaiva Kutumbakam', desc: 'The world is one family - inclusive approach to global affairs' },
+                    { icon: 'fa-shield-alt', title: 'Non-Alignment 2.0', desc: 'Modern adaptation of non-aligned principles for multipolar world' }
+                ],
+                strategic: "India occupies a pivotal position in the Indo-Pacific, serving as a key counterbalance in the evolving global order. As the world's largest democracy and fastest-growing major economy, India is increasingly asserting its role as a leading power."
+            }
+        };
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const countryCode = urlParams.get('code') || 'IND';
+            
+            loadCountryPage(countryCode);
+            initTabs();
+        });
+
+        function loadCountryPage(code) {
+            // Get country from COUNTRIES_DATA
+            const country = COUNTRIES_DATA.find(c => c.code === code);
+            
+            if (!country) {
+                console.error('Country not found:', code);
+                document.getElementById('loader').classList.add('hidden');
+                return;
+            }
+
+            // Apply theme
+            document.body.className = `theme-${code}`;
+
+            // Update page title
+            document.title = `${country.name} - Foreign Policy | Unity Atlas`;
+
+            // Update breadcrumb
+            document.getElementById('breadcrumbCountry').textContent = country.name;
+
+            // Update hero
+            const heroImage = COUNTRY_HERO_IMAGES[code] || DEFAULT_HERO;
+            document.getElementById('heroBgImage').src = heroImage;
+            document.getElementById('countryFlag').textContent = country.flag;
+            document.getElementById('countryName').textContent = country.name;
+            document.getElementById('countryOfficial').textContent = country.official_name;
+
+            // Badges
+            const primaryGroups = ['g7', 'g20', 'brics', 'nato', 'eu', 'quad', 'saarc', 'asean'];
+            const badges = (country.groupings || [])
+                .filter(g => primaryGroups.includes(g))
+                .slice(0, 5)
+                .map(g => `<span class="badge primary">${g.toUpperCase()}</span>`)
+                .join('');
+            document.getElementById('countryBadges').innerHTML = badges || '<span class="badge">UN Member</span>';
+
+            // Quick stats
+            document.getElementById('statCapital').textContent = country.capital;
+            document.getElementById('statPopulation').textContent = formatPopulation(country.population);
+            document.getElementById('statGDP').textContent = formatGDP(country.gdp_usd);
+            document.getElementById('statRelations').textContent = country.neighbors ? country.neighbors.length : '0';
+
+            // National Symbols
+            renderSymbols(code);
+
+            // Foreign Policy
+            renderForeignPolicy(code);
+
+            // Neighbours
+            renderNeighbours(country);
+
+            // Groupings
+            renderGroupings(country);
+
+            // Hide loader
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 800);
+        }
+
+        function renderSymbols(code) {
+            const symbols = NATIONAL_SYMBOLS[code];
+            const grid = document.getElementById('symbolsGrid');
+
+            if (!symbols) {
+                grid.innerHTML = '<p style="color: var(--text-muted); grid-column: span 4; text-align: center;">National symbols data coming soon...</p>';
+                return;
+            }
+
+            const symbolTypes = [
+                { key: 'bird', label: 'National Bird' },
+                { key: 'animal', label: 'National Animal' },
+                { key: 'flower', label: 'National Flower' },
+                { key: 'tree', label: 'National Tree' }
+            ];
+
+            grid.innerHTML = symbolTypes.map(type => {
+                const sym = symbols[type.key];
+                if (!sym) return '';
+                return `
+                    <div class="symbol-card">
+                        <div class="symbol-image">
+                            <img src="${sym.image}" alt="${sym.name}" onerror="this.src='https://via.placeholder.com/400x200?text=${encodeURIComponent(sym.name)}'">
+                            <span class="symbol-type">${type.label}</span>
+                        </div>
+                        <div class="symbol-info">
+                            <h4 class="symbol-name">${sym.name}</h4>
+                            <p class="symbol-scientific">${sym.scientific}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderForeignPolicy(code) {
+            const fp = FOREIGN_POLICY[code];
+            
+            if (!fp) {
+                document.getElementById('doctrineText').textContent = 'Foreign policy data will be loaded from JSON files.';
+                document.getElementById('strategicText').textContent = 'Strategic analysis coming soon...';
+                return;
+            }
+
+            document.getElementById('doctrineText').textContent = fp.doctrine;
+            document.getElementById('strategicText').textContent = fp.strategic;
+
+            const principlesList = document.getElementById('principlesList');
+            principlesList.innerHTML = fp.principles.map(p => `
+                <li class="principle-item">
+                    <div class="principle-icon"><i class="fas ${p.icon}"></i></div>
+                    <div class="principle-content">
+                        <strong>${p.title}</strong>
+                        <span>${p.desc}</span>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function renderNeighbours(country) {
+            const grid = document.getElementById('neighboursGrid');
+            const info = document.getElementById('neighboursInfo');
+
+            if (!country.neighbors || country.neighbors.length === 0) {
+                info.textContent = 'Island nation - no land borders';
+                grid.innerHTML = '<p style="color: var(--text-muted);">This country has no land borders with other nations.</p>';
+                return;
+            }
+
+            info.textContent = `${country.neighbors.length} neighbouring countries`;
+
+            grid.innerHTML = country.neighbors.map(nCode => {
+                const neighbour = COUNTRIES_DATA.find(c => c.code === nCode);
+                if (!neighbour) return '';
+
+                return `
+                    <a href="country.html?code=${nCode}" class="neighbour-card">
+                        <div class="neighbour-image">
+                            <img src="${COUNTRY_HERO_IMAGES[nCode] || DEFAULT_HERO}" alt="${neighbour.name}">
+                            <span class="neighbour-flag">${neighbour.flag}</span>
+                        </div>
+                        <div class="neighbour-info">
+                            <h4 class="neighbour-name">${neighbour.name}</h4>
+                            <div class="neighbour-detail">
+                                <i class="fas fa-city"></i> ${neighbour.capital}
+                            </div>
+                            <div class="neighbour-detail">
+                                <i class="fas fa-users"></i> ${formatPopulation(neighbour.population)}
+                            </div>
+                            <span class="relation-badge friendly">Diplomatic Relations</span>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function renderGroupings(country) {
+            const content = document.getElementById('groupingsContent');
+            
+            if (!country.groupings || country.groupings.length === 0) {
+                content.innerHTML = '<p style="color: var(--text-muted);">This country is a member of the United Nations.</p>';
+                return;
+            }
+
+            const groupNames = {
+                'g20': { name: 'G20', full: 'Group of Twenty', members: 20 },
+                'g7': { name: 'G7', full: 'Group of Seven', members: 7 },
+                'brics': { name: 'BRICS+', full: 'Brazil, Russia, India, China, South Africa +', members: 10 },
+                'nato': { name: 'NATO', full: 'North Atlantic Treaty Organization', members: 32 },
+                'eu': { name: 'EU', full: 'European Union', members: 27 },
+                'quad': { name: 'QUAD', full: 'Quadrilateral Security Dialogue', members: 4 },
+                'saarc': { name: 'SAARC', full: 'South Asian Association for Regional Cooperation', members: 8 },
+                'asean': { name: 'ASEAN', full: 'Association of Southeast Asian Nations', members: 10 },
+                'sco': { name: 'SCO', full: 'Shanghai Cooperation Organisation', members: 9 },
+                'commonwealth': { name: 'Commonwealth', full: 'Commonwealth of Nations', members: 56 }
+            };
+
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                    ${country.groupings.map(g => {
+                        const info = groupNames[g] || { name: g.toUpperCase(), full: g, members: '?' };
+                        return `
+                            <div class="content-card" style="margin: 0;">
+                                <h3 style="margin-bottom: 12px;"><span style="color: var(--accent);">🌐</span> ${info.name}</h3>
+                                <p style="font-size: 0.9rem; margin-bottom: 8px;">${info.full}</p>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">${info.members} member nations</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // ===== TAB NAVIGATION =====
+        function initTabs() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    const sectionId = tab.dataset.section;
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+        function formatPopulation(pop) {
+            if (pop >= 1e9) return (pop / 1e9).toFixed(1) + 'B';
+            if (pop >= 1e6) return (pop / 1e6).toFixed(0) + 'M';
+            if (pop >= 1e3) return (pop / 1e3).toFixed(0) + 'K';
+            return pop.toString();
+        }
+
+        function formatGDP(gdp) {
+            if (gdp >= 1e12) return '$' + (gdp / 1e12).toFixed(1) + 'T';
+            if (gdp >= 1e9) return '$' + (gdp / 1e9).toFixed(0) + 'B';
+            return '$' + gdp;
+        }
+
+        function shareCountry() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link copied to clipboard!');
+            }
+        }
+    </script>
 </body>
 </html>
