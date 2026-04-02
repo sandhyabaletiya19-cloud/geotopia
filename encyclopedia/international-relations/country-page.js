@@ -67,67 +67,434 @@ class CountryPage {
     }
     
     // =====================================================
-    // DATA LOADING
-    // =====================================================
-    
-    async loadCountryData() {
-        // Get basic country info
+// DATA LOADING - ENHANCED VERSION
+// =====================================================
+
+async loadCountryData() {
+    try {
+        // Show loading indicator
+        this.showLoadingState('Loading country data...');
+        
+        // Get basic country info from fallback list
         const countryInfo = GeoTopia.utils.getCountryByCode(this.countryCode);
         if (!countryInfo) {
-            throw new Error('Country not found');
+            throw new Error(`Country ${this.countryCode} not found in database`);
         }
         
-        // Load detailed data
-        this.countryData = await GeoTopia.dataManager.loadCountryData(this.countryCode);
-        this.countryData.info = countryInfo;
+        // Load detailed data from JSON files
+        try {
+            this.countryData = await GeoTopia.dataManager.getCountryData(this.countryCode);
+            this.countryData.info = countryInfo;
+            
+            // Validate data structure
+            this.validateCountryData(this.countryData);
+            
+        } catch (error) {
+            console.warn(`⚠️ No JSON data for ${this.countryCode}, using fallback`);
+            // Create fallback data structure
+            this.countryData = this.createFallbackData(countryInfo);
+        }
         
-        // Get related countries
+        // Get related countries from relationships
         this.relatedCountries = await GeoTopia.dataManager.getRelatedCountries(this.countryCode);
         
-        // If no relations in data, generate sample relations with all countries
-        if (this.relatedCountries.length === 0) {
-            this.relatedCountries = this.generateSampleRelations();
+        // If no relations in data, generate intelligent relations
+        if (!this.relatedCountries || this.relatedCountries.length === 0) {
+            console.log('📊 Generating intelligent relations for', this.countryCode);
+            this.relatedCountries = this.generateIntelligentRelations(countryInfo);
         }
         
-        // Get organizations
+        // Limit to top 50 relations for performance
+        this.relatedCountries = this.relatedCountries.slice(0, 50);
+        
+        // Get international organizations
         this.countryData.organizations = GeoTopia.utils.getCountryOrganizations(this.countryCode);
+        
+        // Add metadata
+        this.countryData.metadata = {
+            dataSource: this.countryData.data_sources || ['GeoTopia Database'],
+            lastUpdated: this.countryData.last_updated || new Date().toISOString(),
+            relationshipCount: this.relatedCountries.length,
+            hasRealData: !!this.countryData.foreign_policy
+        };
+        
+        console.log('✅ Country data loaded:', this.countryCode);
+        
+    } catch (error) {
+        console.error('❌ Error loading country data:', error);
+        this.showError(`Failed to load data for ${this.countryCode}: ${error.message}`);
+        throw error;
+    }
+}
+
+/**
+ * Validate country data structure
+ */
+validateCountryData(data) {
+    const requiredFields = ['country_code', 'country_name'];
+    const missing = requiredFields.filter(field => !data[field]);
+    
+    if (missing.length > 0) {
+        console.warn('⚠️ Missing required fields:', missing);
     }
     
-    generateSampleRelations() {
-        // Generate sample relations for demo purposes
-        const relations = [];
-        const relationTypes = ['Strategic Ally', 'Strategic Partner', 'Friendly', 'Neutral', 'Developing'];
-        const strengths = [9, 8, 7, 6, 5, 4];
+    // Check data freshness
+    if (data.last_updated) {
+        const lastUpdate = new Date(data.last_updated);
+        const daysSinceUpdate = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
         
-        GeoTopia.COUNTRIES.forEach((country, index) => {
-            if (country.code === this.countryCode) return;
-            
-            // Determine relation based on region and other factors
-            let type = relationTypes[Math.floor(Math.random() * relationTypes.length)];
-            let strength = strengths[Math.floor(Math.random() * strengths.length)];
-            
-            // Same region = higher chance of strong relations
-            if (country.region === this.countryData.info.region) {
-                strength = Math.min(10, strength + 2);
-            }
-            
-            relations.push({
-                code: country.code,
-                name: country.name,
-                region: country.region,
-                relationStrength: strength,
-                relationType: type,
-                trade: Math.floor(Math.random() * 50000) + 1000,
-                treaties: Math.floor(Math.random() * 20) + 1,
-                diaspora: Math.floor(Math.random() * 500000)
-            });
-        });
-        
-        // Sort by relation strength
-        relations.sort((a, b) => b.relationStrength - a.relationStrength);
-        
-        return relations;
+        if (daysSinceUpdate > 90) {
+            console.warn(`⚠️ Data is ${Math.floor(daysSinceUpdate)} days old`);
+        }
     }
+}
+
+/**
+ * Create fallback data when JSON doesn't exist
+ */
+createFallbackData(countryInfo) {
+    return {
+        country_code: countryInfo.code,
+        country_name: countryInfo.name,
+        last_updated: new Date().toISOString(),
+        data_sources: ['GeoTopia Fallback Data'],
+        
+        foreign_policy: {
+            core_principles: [
+                'National sovereignty',
+                'International cooperation',
+                'Economic development'
+            ],
+            key_priorities: [
+                'Regional stability',
+                'Economic growth',
+                'Trade expansion'
+            ],
+            strategic_vision: 'Peaceful development and mutual prosperity'
+        },
+        
+        relationships: {},
+        
+        isFallback: true
+    };
+}
+
+/**
+ * Generate intelligent relations based on geographic, economic, and political factors
+ */
+generateIntelligentRelations(countryInfo) {
+    const relations = [];
+    const allCountries = GeoTopia.COUNTRIES || this.getFallbackCountryList();
+    
+    // Relation type weights
+    const relationTypes = {
+        'Strategic Ally': { weight: 0.05, strength: [8, 10] },
+        'Strategic Partner': { weight: 0.15, strength: [7, 9] },
+        'Friendly Relations': { weight: 0.30, strength: [6, 8] },
+        'Cooperative': { weight: 0.25, strength: [5, 7] },
+        'Neutral': { weight: 0.20, strength: [4, 6] },
+        'Developing Relations': { weight: 0.05, strength: [3, 5] }
+    };
+    
+    allCountries.forEach((country) => {
+        if (country.code === this.countryCode) return;
+        
+        // Calculate base relation strength
+        let baseStrength = this.calculateRelationStrength(countryInfo, country);
+        
+        // Determine relation type based on strength
+        let relationType = this.getRelationTypeByStrength(baseStrength);
+        
+        // Add some randomness within realistic bounds
+        const variation = (Math.random() - 0.5) * 1.5;
+        const finalStrength = Math.max(1, Math.min(10, baseStrength + variation));
+        
+        // Generate realistic trade volume based on country sizes and proximity
+        const tradeVolume = this.estimateTradeVolume(countryInfo, country, finalStrength);
+        
+        relations.push({
+            code: country.code,
+            name: country.name,
+            region: country.region,
+            continent: country.continent,
+            capital: country.capital,
+            
+            // Relationship metrics
+            relationStrength: parseFloat(finalStrength.toFixed(1)),
+            relationType: relationType,
+            
+            // Economic data
+            trade: tradeVolume,
+            tradeGrowth: (Math.random() * 20 - 5).toFixed(1), // -5% to +15%
+            
+            // Diplomatic data
+            treaties: this.estimateTreaties(finalStrength),
+            embassies: finalStrength > 6 ? 'Full Embassy' : finalStrength > 4 ? 'Consulate' : 'Limited',
+            
+            // People-to-people
+            diaspora: this.estimateDiaspora(countryInfo, country, finalStrength),
+            touristFlow: Math.floor(Math.random() * 1000000) + 10000,
+            
+            // Multilateral cooperation
+            sharedOrganizations: this.findSharedOrganizations(countryInfo.code, country.code),
+            
+            // Recent activity
+            lastMajorEvent: this.generateRecentEvent(country.name, relationType),
+            
+            // Metadata
+            isGenerated: true,
+            confidenceScore: this.calculateConfidenceScore(countryInfo, country)
+        });
+    });
+    
+    // Sort by relation strength (highest first)
+    relations.sort((a, b) => b.relationStrength - a.relationStrength);
+    
+    return relations;
+}
+
+/**
+ * Calculate relation strength based on multiple factors
+ */
+calculateRelationStrength(country1, country2) {
+    let strength = 5; // Base neutral
+    
+    // 1. Geographic proximity (same region = stronger)
+    if (country1.region === country2.region) {
+        strength += 2;
+    }
+    if (country1.continent === country2.continent) {
+        strength += 1;
+    }
+    
+    // 2. Major powers get higher relations
+    const majorPowers = ['USA', 'CHN', 'RUS', 'IND', 'GBR', 'FRA', 'DEU', 'JPN'];
+    if (majorPowers.includes(country1.code) || majorPowers.includes(country2.code)) {
+        strength += 1;
+    }
+    
+    // 3. Both major powers = very strong
+    if (majorPowers.includes(country1.code) && majorPowers.includes(country2.code)) {
+        strength += 1;
+    }
+    
+    // 4. Regional hubs
+    const regionalHubs = ['SAU', 'BRA', 'ZAF', 'AUS', 'TUR', 'IDN', 'MEX'];
+    if (regionalHubs.includes(country1.code) || regionalHubs.includes(country2.code)) {
+        strength += 0.5;
+    }
+    
+    // 5. Known tensions (reduce strength)
+    const tensions = {
+        'IND': ['PAK', 'CHN'],
+        'PAK': ['IND'],
+        'ISR': ['IRN', 'SYR', 'LBN'],
+        'IRN': ['ISR', 'SAU', 'USA'],
+        'PRK': ['KOR', 'USA', 'JPN'],
+        'RUS': ['UKR', 'GEO'],
+        'CHN': ['TWN', 'IND']
+    };
+    
+    if (tensions[country1.code]?.includes(country2.code)) {
+        strength = Math.max(2, strength - 4);
+    }
+    
+    // 6. Known alliances (increase strength)
+    const alliances = {
+        'USA': ['GBR', 'CAN', 'AUS', 'JPN', 'KOR', 'ISR', 'FRA', 'DEU'],
+        'GBR': ['USA', 'CAN', 'AUS', 'NZL'],
+        'RUS': ['BLR', 'KAZ', 'ARM'],
+        'CHN': ['PAK', 'RUS', 'KAZ'],
+        'IND': ['USA', 'JPN', 'FRA', 'ISR', 'ARE', 'BTN']
+    };
+    
+    if (alliances[country1.code]?.includes(country2.code)) {
+        strength = Math.min(10, strength + 2);
+    }
+    
+    return Math.max(1, Math.min(10, strength));
+}
+
+/**
+ * Get relation type based on strength
+ */
+getRelationTypeByStrength(strength) {
+    if (strength >= 9) return 'Strategic Ally';
+    if (strength >= 7.5) return 'Strategic Partner';
+    if (strength >= 6) return 'Friendly Relations';
+    if (strength >= 5) return 'Cooperative';
+    if (strength >= 3.5) return 'Neutral';
+    return 'Developing Relations';
+}
+
+/**
+ * Estimate bilateral trade volume
+ */
+estimateTradeVolume(country1, country2, strength) {
+    // Major economies base trade
+    const majorEconomies = {
+        'USA': 1000000, 'CHN': 900000, 'JPN': 500000, 'DEU': 450000,
+        'GBR': 350000, 'IND': 300000, 'FRA': 280000, 'BRA': 200000
+    };
+    
+    const base1 = majorEconomies[country1.code] || 50000;
+    const base2 = majorEconomies[country2.code] || 50000;
+    
+    // Trade volume correlates with relation strength and economy size
+    const baseVolume = Math.sqrt(base1 * base2) / 100;
+    const strengthMultiplier = strength / 10;
+    
+    // Regional proximity bonus
+    const proximityBonus = country1.region === country2.region ? 1.5 : 1;
+    
+    const volume = baseVolume * strengthMultiplier * proximityBonus;
+    
+    return Math.floor(volume * (0.8 + Math.random() * 0.4)); // Add 20% variance
+}
+
+/**
+ * Estimate number of bilateral treaties
+ */
+estimateTreaties(strength) {
+    const base = Math.floor(strength * 3);
+    const variance = Math.floor(Math.random() * 5);
+    return Math.max(1, base + variance);
+}
+
+/**
+ * Estimate diaspora population
+ */
+estimateDiaspora(country1, country2, strength) {
+    // Major diaspora destinations
+    const destinations = ['USA', 'GBR', 'CAN', 'AUS', 'ARE', 'SAU'];
+    const sources = ['IND', 'CHN', 'MEX', 'PHL', 'PAK', 'BGD'];
+    
+    let base = 10000;
+    
+    if (destinations.includes(country2.code) && sources.includes(country1.code)) {
+        base = 500000;
+    } else if (destinations.includes(country2.code)) {
+        base = 100000;
+    }
+    
+    const strengthFactor = strength / 10;
+    const diaspora = Math.floor(base * strengthFactor * (0.5 + Math.random()));
+    
+    return diaspora;
+}
+
+/**
+ * Find shared international organizations
+ */
+findSharedOrganizations(code1, code2) {
+    const orgs1 = GeoTopia.utils.getCountryOrganizations?.(code1) || ['UN'];
+    const orgs2 = GeoTopia.utils.getCountryOrganizations?.(code2) || ['UN'];
+    
+    const shared = orgs1.filter(org => orgs2.includes(org));
+    return shared.length > 0 ? shared : ['UN'];
+}
+
+/**
+ * Generate a realistic recent event
+ */
+generateRecentEvent(countryName, relationType) {
+    const events = {
+        'Strategic Ally': [
+            `Joint military exercise conducted`,
+            `Defense cooperation agreement signed`,
+            `Annual strategic dialogue held`
+        ],
+        'Strategic Partner': [
+            `High-level bilateral summit`,
+            `Trade agreement expansion`,
+            `Technology partnership announced`
+        ],
+        'Friendly Relations': [
+            `Foreign Minister visit`,
+            `Cultural exchange program launched`,
+            `Economic cooperation discussed`
+        ],
+        'Cooperative': [
+            `Working group meeting held`,
+            `Trade delegation visit`,
+            `Consular services expanded`
+        ],
+        'Neutral': [
+            `Diplomatic channels maintained`,
+            `Annual consultation`,
+            `Standard bilateral engagement`
+        ],
+        'Developing Relations': [
+            `First diplomatic contact`,
+            `Exploratory talks initiated`,
+            `Potential cooperation discussed`
+        ]
+    };
+    
+    const eventList = events[relationType] || events['Neutral'];
+    const event = eventList[Math.floor(Math.random() * eventList.length)];
+    
+    // Generate recent date (within last 6 months)
+    const daysAgo = Math.floor(Math.random() * 180);
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    
+    return `${date.toISOString().split('T')[0]}: ${event}`;
+}
+
+/**
+ * Calculate confidence score for generated data
+ */
+calculateConfidenceScore(country1, country2) {
+    // Higher confidence for:
+    // - Major powers
+    // - Same region
+    // - Known relationships
+    
+    let confidence = 50; // Base 50%
+    
+    const majorPowers = ['USA', 'CHN', 'RUS', 'IND', 'GBR', 'FRA', 'DEU', 'JPN'];
+    
+    if (majorPowers.includes(country1.code)) confidence += 15;
+    if (majorPowers.includes(country2.code)) confidence += 15;
+    if (country1.region === country2.region) confidence += 10;
+    if (country1.continent === country2.continent) confidence += 5;
+    
+    return Math.min(95, confidence); // Max 95% for generated data
+}
+
+/**
+ * Get fallback country list
+ */
+getFallbackCountryList() {
+    // Return the 197 countries list from data-manager.js
+    return GeoTopia.dataManager?.getFallbackCountryList?.() || [];
+}
+
+/**
+ * Show loading state
+ */
+showLoadingState(message) {
+    const loader = document.getElementById('page-loader');
+    if (loader) {
+        loader.querySelector('.loader-text').textContent = message || 'Loading...';
+        loader.style.display = 'flex';
+    }
+}
+
+/**
+ * Show error message
+ */
+showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+    
+    // Also log to console
+    console.error('❌', message);
+}
     
     // =====================================================
     // RENDER METHODS
