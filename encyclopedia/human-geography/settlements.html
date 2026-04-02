@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="World Settlements Geography - Urban systems, megacities, rural settlements, smart cities, and urbanization patterns.">
+    <title>Settlements Geography 🏙️ | Geotopia Encyclopedia</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Page Specific Styles -->
+    <style>
+        /* ============================================
+           SETTLEMENTS PAGE SPECIFIC STYLES
+           ============================================ */
+        
+        /* Live Stats Banner */
+        .live-stats-banner {
+            background: linear-gradient(135deg, #059669 0%, #0891b2 100%);
+            padding: 2rem;
+            margin: -2rem 0 2rem 0;
+        }
+        
+        .live-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .live-stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .live-stat-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .live-stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .live-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+        
+        .live-stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            color: #4ade80;
+            margin-top: 0.5rem;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 1.5s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        /* Content Container */
+        .page-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Map Section */
+        .map-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .map-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        #settlements-map {
+            height: 450px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 24px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        /* Accordion Sections */
+        .accordion-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .accordion-section details {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .accordion-section summary {
+            padding: 1.5rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #059669, #0891b2);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            user-select: none;
+            transition: all 0.3s ease;
+            list-style: none;
+        }
+        
+        .accordion-section summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .accordion-section summary::after {
+            content: '+';
+            margin-left: auto;
+            font-size: 1.5rem;
+            font-weight: 400;
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-section details[open] summary::after {
+            content: '−';
+        }
+        
+        .accordion-section summary:hover {
+            filter: brightness(1.05);
+        }
+        
+        .accordion-content {
+            padding: 2rem;
+        }
+        
+        /* Chart Container */
+        .chart-wrapper {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-wrapper h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #374151;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+        
+        .chart-container canvas {
+            max-height: 350px !important;
+        }
+        
+        /* Two Column Charts */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Stats Cards Grid */
+        .stats-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mini-stat-card {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid #059669;
+        }
+        
+        .mini-stat-card .label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mini-stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #065f46;
+        }
+        
+        .mini-stat-card .sub {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        /* Settlement Type Cards */
+        .settlement-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .settlement-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .settlement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .settlement-card-image {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .settlement-card-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        }
+        
+        .settlement-card-label {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            z-index: 1;
+        }
+        
+        .settlement-card-content {
+            padding: 1.25rem;
+        }
+        
+        .settlement-card-content p {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+        
+        .settlement-card-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .feature-tag {
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* Megacity Comparison */
+        .megacity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .megacity-card {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .megacity-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .megacity-flag {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .megacity-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .megacity-pop {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
+        }
+        
+        .megacity-pop small {
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+        
+        /* Flowchart */
+        .flowchart-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .flow-box {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 250px;
+            box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
+        }
+        
+        .flow-arrow {
+            font-size: 2rem;
+            color: #059669;
+        }
+        
+        /* Horizontal Flow */
+        .flowchart-horizontal {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .flowchart-horizontal .flow-arrow {
+            transform: rotate(0deg);
+        }
+        
+        /* Urban Hierarchy Pyramid */
+        .hierarchy-pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+        
+        .pyramid-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .pyramid-level:hover {
+            transform: scale(1.02);
+        }
+        
+        .level-1 {
+            width: 180px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        
+        .level-2 {
+            width: 280px;
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+        }
+        
+        .level-3 {
+            width: 380px;
+            background: linear-gradient(135deg, #d97706, #b45309);
+        }
+        
+        .level-4 {
+            width: 480px;
+            background: linear-gradient(135deg, #65a30d, #4d7c0f);
+        }
+        
+        .level-5 {
+            width: 580px;
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        
+        /* Info List */
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            border-bottom: 1px solid #e5e7eb;
+            line-height: 1.6;
+        }
+        
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .info-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #059669;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .info-list li strong {
+            color: #1f2937;
+        }
+        
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .data-table thead {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+        }
+        
+        .data-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.95rem;
+        }
+        
+        .data-table tbody tr:hover {
+            background: #f9fafb;
+        }
+        
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Mind Map */
+        .mindmap-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mindmap-node {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .mindmap-node:hover {
+            transform: scale(1.1);
+        }
+        
+        .mindmap-node small {
+            font-size: 0.7rem;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        
+        /* Smart City Features */
+        .smart-features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .smart-feature {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #0891b2;
+            transition: all 0.3s ease;
+        }
+        
+        .smart-feature:hover {
+            transform: translateY(-3px);
+        }
+        
+        .smart-feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .smart-feature h4 {
+            font-size: 1rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .smart-feature p {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        /* Comparison Cards */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .comparison-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+        
+        .formal-settlements {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-left: 4px solid #22c55e;
+        }
+        
+        .informal-settlements {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-left: 4px solid #ef4444;
+        }
+        
+        .comparison-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Progress Bars */
+        .progress-item {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+        
+        /* Footer */
+        .page-footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h4 {
+            color: #34d399;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        
+        .footer-section p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .live-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+            
+            .pyramid-level {
+                width: 100% !important;
+                max-width: 300px;
+            }
+            
+            #settlements-map {
+                height: 350px;
+            }
+            
+            .accordion-section summary {
+                padding: 1.25rem 1.5rem;
+                font-size: 1.1rem;
+            }
+            
+            .accordion-content {
+                padding: 1.5rem;
+            }
+            
+            .megacity-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .live-stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .live-stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .mindmap-container {
+                flex-direction: column;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .settlement-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>">
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <nav class="main-nav" id="mainNav">
+        <div class="nav-container">
+            <a href="../../index.html" class="nav-logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">Geotopia</span>
+            </a>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="../index.html" class="nav-link">
+                    <span class="nav-icon">📚</span>
+                    <span>Encyclopedia</span>
+                </a>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-icon">👥</span>
+                    <span>Human Geography</span>
+                </a>
+                <a href="settlements.html" class="nav-link active">
+                    <span class="nav-icon">🏙️</span>
+                    <span>Settlements</span>
+                </a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span class="hamburger"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section" id="hero">
+        <div class="hero-background">
+            <img src="https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80" 
+                 alt="World Cities" 
+                 class="hero-image"
+                 loading="eager">
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">🏙️</span>
+                <span class="badge-text">Urban Systems • 2026</span>
+            </div>
+            
+            <h1 class="hero-title">
+                <span class="title-line">Settlements</span>
+                <span class="title-line title-highlight">Geography</span>
+                <span class="title-emoji">🌆</span>
+            </h1>
+            
+            <p class="hero-subtitle">
+                Urban systems • Megacities • Rural settlements • Smart cities • Urbanization
+            </p>
+        </div>
+    </header>
+
+    <!-- Live Stats Banner -->
+    <section class="live-stats-banner">
+        <div class="live-stats-grid">
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🏙️</div>
+                <div class="live-stat-value">43</div>
+                <div class="live-stat-label">Megacities (10M+)</div>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>2026 Data</span>
+                </div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🌆</div>
+                <div class="live-stat-value">57.2%</div>
+                <div class="live-stat-label">Urban Population</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🏘️</div>
+                <div class="live-stat-value">1.1B</div>
+                <div class="live-stat-label">Slum Population</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🤖</div>
+                <div class="live-stat-value">158</div>
+                <div class="live-stat-label">Smart Cities</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🗼</div>
+                <div class="live-stat-value">Tokyo</div>
+                <div class="live-stat-label">Largest City (37.4M)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        
+        <!-- World Map -->
+        <div class="map-container">
+            <h2>🗺️ Global Megacities & Urban Agglomerations</h2>
+            <div id="settlements-map"></div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #dc2626;"></span>
+                    <span>30M+ (Megacity)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #ea580c;"></span>
+                    <span>20-30M</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #f59e0b;"></span>
+                    <span>15-20M</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #22c55e;"></span>
+                    <span>10-15M</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #3b82f6;"></span>
+                    <span>5-10M</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Sections -->
+        
+        <!-- Urban Systems -->
+        <div class="accordion-section">
+            <details open>
+                <summary>🏢 Urban Systems & Hierarchy</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">World Cities</div>
+                            <div class="value">10,000+</div>
+                            <div class="sub">100K+ population</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Metropolitan Areas</div>
+                            <div class="value">1,934</div>
+                            <div class="sub">300K+ population</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Global Cities</div>
+                            <div class="value">75</div>
+                            <div class="sub">Alpha, Beta, Gamma</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Primate Cities</div>
+                            <div class="value">45</div>
+                            <div class="sub">Dominant urban centers</div>
+                        </div>
+                    </div>
+                    
+                    <h3>📐 Urban Hierarchy Pyramid</h3>
+                    <div class="hierarchy-pyramid">
+                        <div class="pyramid-level level-1">🌐 Global Cities (5)<br><small>NYC, London, Tokyo, Paris, Singapore</small></div>
+                        <div class="pyramid-level level-2">🏛️ World Cities (25)<br><small>Sydney, Dubai, Frankfurt, Hong Kong</small></div>
+                        <div class="pyramid-level level-3">🌆 Major Metros (150+)<br><small>Regional economic centers</small></div>
+                        <div class="pyramid-level level-4">🏙️ Cities (2,500+)<br><small>National importance</small></div>
+                        <div class="pyramid-level level-5">🏘️ Towns & Small Cities (10,000+)<br><small>Local service centers</small></div>
+                    </div>
+                    
+                    <h3>📊 Central Place Theory (Christaller)</h3>
+                    <div class="charts-row">
+                        <div class="chart-wrapper">
+                            <h3>Urban Rank-Size Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="rankSizeChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-wrapper">
+                            <h3>City Size Categories (2026)</h3>
+                            <div class="chart-container">
+                                <canvas id="citySizeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>📋 Key Urban Models</h3>
+                    <ul class="info-list">
+                        <li><strong>Central Place Theory:</strong> Settlements organized in hexagonal patterns • Higher-order places serve larger hinterlands</li>
+                        <li><strong>Rank-Size Rule:</strong> 2nd largest city = 1/2 of largest • 3rd = 1/3 • Creates log-linear distribution</li>
+                        <li><strong>Primate City:</strong> Single dominant city 2x larger than second • Common in developing nations</li>
+                        <li><strong>World System Cities:</strong> Alpha++ (NYC, London) → Alpha+ → Alpha → Beta → Gamma classification</li>
+                        <li><strong>Urban Influence Zone:</strong> Distance decay model • Service availability decreases with distance</li>
+                    </ul>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Megacities -->
+        <div class="accordion-section">
+            <details>
+                <summary>🌃 Megacities 2026</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Total Megacities</div>
+                            <div class="value">43</div>
+                            <div class="sub">10M+ population each</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Megacity Population</div>
+                            <div class="value">815M</div>
+                            <div class="sub">10% of world</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Fastest Growing</div>
+                            <div class="value">Dhaka</div>
+                            <div class="sub">+3.2% annually</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">New by 2030</div>
+                            <div class="value">+10</div>
+                            <div class="sub">Projected additions</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🌍 World's Top 12 Megacities</h3>
+                    <div class="megacity-grid">
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇯🇵</div>
+                            <div class="megacity-name">Tokyo</div>
+                            <div class="megacity-pop">37.4<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇮🇳</div>
+                            <div class="megacity-name">Delhi</div>
+                            <div class="megacity-pop">32.9<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇨🇳</div>
+                            <div class="megacity-name">Shanghai</div>
+                            <div class="megacity-pop">28.5<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇧🇩</div>
+                            <div class="megacity-name">Dhaka</div>
+                            <div class="megacity-pop">22.5<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇧🇷</div>
+                            <div class="megacity-name">São Paulo</div>
+                            <div class="megacity-pop">22.4<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇲🇽</div>
+                            <div class="megacity-name">Mexico City</div>
+                            <div class="megacity-pop">21.8<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇪🇬</div>
+                            <div class="megacity-name">Cairo</div>
+                            <div class="megacity-pop">21.3<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇮🇳</div>
+                            <div class="megacity-name">Mumbai</div>
+                            <div class="megacity-pop">21.0<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇨🇳</div>
+                            <div class="megacity-name">Beijing</div>
+                            <div class="megacity-pop">20.9<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇺🇸</div>
+                            <div class="megacity-name">New York</div>
+                            <div class="megacity-pop">18.8<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇯🇵</div>
+                            <div class="megacity-name">Osaka</div>
+                            <div class="megacity-pop">19.0<small>M</small></div>
+                        </div>
+                        <div class="megacity-card">
+                            <div class="megacity-flag">🇳🇬</div>
+                            <div class="megacity-name">Lagos</div>
+                            <div class="megacity-pop">15.4<small>M</small></div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Megacity Growth Trends (1950-2030)</h3>
+                        <div class="chart-container">
+                            <canvas id="megacityGrowthChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <h3>🌍 Megacity Distribution by Continent</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Continent</th>
+                                <th>Count</th>
+                                <th>Largest</th>
+                                <th>Growth Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Asia</td><td>27</td><td>Tokyo (37.4M)</td><td>+2.1%</td></tr>
+                            <tr><td>Africa</td><td>6</td><td>Cairo (21.3M)</td><td>+3.4%</td></tr>
+                            <tr><td>Latin America</td><td>6</td><td>São Paulo (22.4M)</td><td>+1.2%</td></tr>
+                            <tr><td>Europe</td><td>2</td><td>Istanbul (15.6M)</td><td>+0.8%</td></tr>
+                            <tr><td>North America</td><td>2</td><td>New York (18.8M)</td><td>+0.5%</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>⚠️ Megacity Challenges</h3>
+                    <div class="mindmap-container">
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                            <strong>Traffic</strong>
+                            <small>Congestion crisis</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <strong>Housing</strong>
+                            <small>Affordability gap</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <strong>Pollution</strong>
+                            <small>Air quality issues</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                            <strong>Water</strong>
+                            <small>Supply strain</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                            <strong>Jobs</strong>
+                            <small>Informal economy</small>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Rural Settlements -->
+        <div class="accordion-section">
+            <details>
+                <summary>🏡 Rural Settlement Patterns</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Rural Population</div>
+                            <div class="value">3.47B</div>
+                            <div class="sub">42.8% of world</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Rural Decline</div>
+                            <div class="value">-0.3%</div>
+                            <div class="sub">Annual change</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Most Rural</div>
+                            <div class="value">Burundi</div>
+                            <div class="sub">86.5% rural</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Agricultural Workers</div>
+                            <div class="value">27%</div>
+                            <div class="sub">Global workforce</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🏘️ Settlement Pattern Types</h3>
+                    <div class="settlement-types">
+                        <div class="settlement-card">
+                            <div class="settlement-card-image" style="background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80');">
+                                <div class="settlement-card-label">Clustered (Nucleated)</div>
+                            </div>
+                            <div class="settlement-card-content">
+                                <p>Houses grouped around central point, common resource, or intersection.</p>
+                                <div class="settlement-card-features">
+                                    <span class="feature-tag">Europe</span>
+                                    <span class="feature-tag">Asia</span>
+                                    <span class="feature-tag">Defense</span>
+                                    <span class="feature-tag">Water source</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settlement-card">
+                            <div class="settlement-card-image" style="background-image: url('https://images.unsplash.com/photo-1500076656116-558758c991c1?w=800&q=80');">
+                                <div class="settlement-card-label">Dispersed (Scattered)</div>
+                            </div>
+                            <div class="settlement-card-content">
+                                <p>Isolated farmsteads spread across agricultural landscape.</p>
+                                <div class="settlement-card-features">
+                                    <span class="feature-tag">N. America</span>
+                                    <span class="feature-tag">Australia</span>
+                                    <span class="feature-tag">Individual farms</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settlement-card">
+                            <div class="settlement-card-image" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80');">
+                                <div class="settlement-card-label">Linear (String)</div>
+                            </div>
+                            <div class="settlement-card-content">
+                                <p>Buildings arranged along roads, rivers, or coastlines.</p>
+                                <div class="settlement-card-features">
+                                    <span class="feature-tag">River valleys</span>
+                                    <span class="feature-tag">Coasts</span>
+                                    <span class="feature-tag">Transport routes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-row">
+                        <div class="chart-wrapper">
+                            <h3>Rural vs Urban Population by Region</h3>
+                            <div class="chart-container">
+                                <canvas id="ruralUrbanChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-wrapper">
+                            <h3>Rural Population Trends</h3>
+                            <div class="chart-container">
+                                <canvas id="ruralTrendsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>📋 Rural Settlement Factors</h3>
+                    <ul class="info-list">
+                        <li><strong>Water Supply:</strong> Villages form near rivers, wells, springs • Critical for agriculture & survival</li>
+                        <li><strong>Terrain:</strong> Flat land preferred • Valley floors vs hilltop settlements for defense</li>
+                        <li><strong>Soil Quality:</strong> Fertile areas attract nucleated villages • Poor soil = dispersed pattern</li>
+                        <li><strong>Climate:</strong> Harsh climates = clustered for protection • Mild = dispersed possible</li>
+                        <li><strong>Land Tenure:</strong> Feudal systems = nucleated • Homesteading = dispersed</li>
+                        <li><strong>Transport:</strong> Linear patterns along roads, railways, rivers</li>
+                    </ul>
+                    
+                    <h3>🌍 Rural Population by Country Type</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Rural %</th>
+                                <th>Example Countries</th>
+                                <th>Main Activities</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Low Income</td><td>65.2%</td><td>Burundi, Niger, Chad</td><td>Subsistence farming</td></tr>
+                            <tr><td>Lower-Middle</td><td>52.8%</td><td>India, Vietnam, Kenya</td><td>Mixed agriculture</td></tr>
+                            <tr><td>Upper-Middle</td><td>36.4%</td><td>Brazil, Mexico, China</td><td>Commercial farming</td></tr>
+                            <tr><td>High Income</td><td>18.7%</td><td>USA, Germany, Japan</td><td>Agribusiness</td></tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Smart Cities -->
+        <div class="accordion-section">
+            <details>
+                <summary>🤖 Smart Cities & Urban Innovation</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Smart Cities</div>
+                            <div class="value">158</div>
+                            <div class="sub">Globally recognized</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">IoT Devices</div>
+                            <div class="value">25B</div>
+                            <div class="sub">In urban areas</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Market Value</div>
+                            <div class="value">$873B</div>
+                            <div class="sub">Smart city market</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">#1 Smart City</div>
+                            <div class="value">Singapore</div>
+                            <div class="sub">IMD Ranking 2026</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🔧 Smart City Components</h3>
+                    <div class="smart-features-grid">
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">🚦</div>
+                            <h4>Smart Traffic</h4>
+                            <p>AI-controlled signals, real-time routing</p>
+                        </div>
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">⚡</div>
+                            <h4>Smart Grid</h4>
+                            <p>Efficient energy distribution, renewables</p>
+                        </div>
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">🏥</div>
+                            <h4>E-Healthcare</h4>
+                            <p>Telemedicine, health monitoring</p>
+                        </div>
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">🗑️</div>
+                            <h4>Smart Waste</h4>
+                            <p>Sensor bins, optimized collection</p>
+                        </div>
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">💧</div>
+                            <h4>Water Mgmt</h4>
+                            <p>Leak detection, quality monitoring</p>
+                        </div>
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">🏛️</div>
+                            <h4>E-Governance</h4>
+                            <p>Digital services, citizen apps</p>
+                        </div>
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">🚌</div>
+                            <h4>Smart Transit</h4>
+                            <p>Real-time tracking, integrated tickets</p>
+                        </div>
+                        <div class="smart-feature">
+                            <div class="smart-feature-icon">🔒</div>
+                            <h4>Safety Tech</h4>
+                            <p>Surveillance, emergency response</p>
+                        </div>
+                    </div>
+                    
+                    <h3>🏆 Top 10 Smart Cities (2026)</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>City</th>
+                                <th>Country</th>
+                                <th>Key Innovation</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>🇸🇬 Singapore</td><td>Singapore</td><td>Integrated digital services</td><td>95.4</td></tr>
+                            <tr><td>2</td><td>🇨🇭 Zurich</td><td>Switzerland</td><td>Sustainable mobility</td><td>93.2</td></tr>
+                            <tr><td>3</td><td>🇳🇴 Oslo</td><td>Norway</td><td>Carbon neutral 2030</td><td>92.8</td></tr>
+                            <tr><td>4</td><td>🇩🇰 Copenhagen</td><td>Denmark</td><td>Cycling infrastructure</td><td>91.5</td></tr>
+                            <tr><td>5</td><td>🇫🇮 Helsinki</td><td>Finland</td><td>MaaS pioneer</td><td>90.9</td></tr>
+                            <tr><td>6</td><td>🇦🇪 Dubai</td><td>UAE</td><td>Blockchain government</td><td>90.3</td></tr>
+                            <tr><td>7</td><td>🇰🇷 Seoul</td><td>South Korea</td><td>5G coverage</td><td>89.7</td></tr>
+                            <tr><td>8</td><td>🇳🇱 Amsterdam</td><td>Netherlands</td><td>Digital twin</td><td>89.2</td></tr>
+                            <tr><td>9</td><td>🇯🇵 Tokyo</td><td>Japan</td><td>Disaster resilience</td><td>88.6</td></tr>
+                            <tr><td>10</td><td>🇬🇧 London</td><td>UK</td><td>Open data platform</td><td>88.1</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Smart City Investment by Region ($B)</h3>
+                        <div class="chart-container">
+                            <canvas id="smartCityInvestChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <h3>📌 Case Study: Singapore Smart Nation</h3>
+                    <ul class="info-list">
+                        <li><strong>Digital Identity:</strong> SingPass used by 97% of citizens • Unified login for 2,000+ services</li>
+                        <li><strong>Autonomous Vehicles:</strong> Self-driving buses operational • Robotaxi pilots underway</li>
+                        <li><strong>Smart Sensors:</strong> 110,000+ sensors monitoring air, water, traffic, crowds</li>
+                        <li><strong>Cashless Society:</strong> 96% digital payment adoption • QR code universal</li>
+                        <li><strong>Virtual Singapore:</strong> 3D city model for urban planning & disaster simulation</li>
+                    </ul>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Slums & Informal Settlements -->
+        <div class="accordion-section">
+            <details>
+                <summary>🏚️ Slums & Informal Settlements</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Slum Population</div>
+                            <div class="value">1.1B</div>
+                            <div class="sub">23.7% of urban</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Africa Urban</div>
+                            <div class="value">55.9%</div>
+                            <div class="sub">Live in slums</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Largest Slum</div>
+                            <div class="value">Orangi</div>
+                            <div class="sub">Karachi, 2.4M</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Annual Growth</div>
+                            <div class="value">+25M</div>
+                            <div class="sub">New slum dwellers</div>
+                        </div>
+                    </div>
+                    
+                    <h3>⚖️ Formal vs Informal Settlements</h3>
+                    <div class="comparison-grid">
+                        <div class="comparison-card formal-settlements">
+                            <h4>🏢 FORMAL Settlements</h4>
+                            <ul class="info-list">
+                                <li>Legal land ownership</li>
+                                <li>Building permits obtained</li>
+                                <li>Access to utilities (water, electricity)</li>
+                                <li>Paved roads & drainage</li>
+                                <li>Government services available</li>
+                            </ul>
+                        </div>
+                        <div class="comparison-card informal-settlements">
+                            <h4>🏚️ INFORMAL Settlements</h4>
+                            <ul class="info-list">
+                                <li>No legal land tenure</li>
+                                <li>Self-built structures</li>
+                                <li>Limited/no utilities</li>
+                                <li>Overcrowded conditions</li>
+                                <li>Vulnerable to eviction</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h3>🏘️ World's Largest Slums</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Name</th>
+                                <th>City</th>
+                                <th>Population</th>
+                                <th>Area (km²)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Orangi Town</td><td>🇵🇰 Karachi</td><td>2.4 million</td><td>60</td></tr>
+                            <tr><td>2</td><td>Dharavi</td><td>🇮🇳 Mumbai</td><td>1.0 million</td><td>2.2</td></tr>
+                            <tr><td>3</td><td>Khayelitsha</td><td>🇿🇦 Cape Town</td><td>1.2 million</td><td>38.7</td></tr>
+                            <tr><td>4</td><td>Kibera</td><td>🇰🇪 Nairobi</td><td>0.5 million</td><td>2.5</td></tr>
+                            <tr><td>5</td><td>Neza-Chalco-Itza</td><td>🇲🇽 Mexico City</td><td>4.0 million</td><td>65</td></tr>
+                            <tr><td>6</td><td>Rocinha</td><td>🇧🇷 Rio de Janeiro</td><td>0.2 million</td><td>0.9</td></tr>
+                            <tr><td>7</td><td>Manshiyat Naser</td><td>🇪🇬 Cairo</td><td>0.6 million</td><td>2.8</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>📊 Slum Population by Region</h3>
+                    <div class="chart-wrapper">
+                        <div class="chart-container">
+                            <canvas id="slumRegionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <h3>🛠️ UN-Habitat Slum Indicators</h3>
+                    <div class="mindmap-container">
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                            <strong>Overcrowding</strong>
+                            <small>3+ per room</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <strong>Poor Housing</strong>
+                            <small>Non-durable</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                            <strong>No Water</strong>
+                            <small>Access issues</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <strong>No Sanitation</strong>
+                            <small>Toilet access</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                            <strong>No Tenure</strong>
+                            <small>Eviction risk</small>
+                        </div>
+                    </div>
+                    
+                    <h3>📈 Progress & Challenges</h3>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Slum Population Reduction (SDG 11)</span>
+                            <span>32%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 32%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Water Access in Slums</span>
+                            <span>65%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%; background: linear-gradient(90deg, #3b82f6, #2563eb);"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Sanitation Access in Slums</span>
+                            <span>48%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 48%; background: linear-gradient(90deg, #8b5cf6, #7c3aed);"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Urban Models -->
+        <div class="accordion-section">
+            <details>
+                <summary>📐 Urban Structure Models</summary>
+                <div class="accordion-content">
+                    
+                    <h3>🏛️ Classic Urban Models</h3>
+                    <div class="charts-row">
+                        <div class="chart-wrapper">
+                            <h3>Land Use by Zone Type</h3>
+                            <div class="chart-container">
+                                <canvas id="landUseChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-wrapper">
+                            <h3>Distance from CBD Impact</h3>
+                            <div class="chart-container">
+                                <canvas id="cbdDistanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>📋 Major Urban Models Comparison</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Year</th>
+                                <th>Structure</th>
+                                <th>Key Feature</th>
+                                <th>Applicability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Concentric Zone</strong></td>
+                                <td>1925</td>
+                                <td>5 rings from CBD</td>
+                                <td>Distance decay</td>
+                                <td>Chicago, older cities</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sector Model</strong></td>
+                                <td>1939</td>
+                                <td>Wedge-shaped zones</td>
+                                <td>Transport corridors</td>
+                                <td>Industrial cities</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multiple Nuclei</strong></td>
+                                <td>1945</td>
+                                <td>Several centers</td>
+                                <td>Specialized areas</td>
+                                <td>Large metro areas</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Latin American</strong></td>
+                                <td>1980</td>
+                                <td>Spine + sectors</td>
+                                <td>Elite spine</td>
+                                <td>SA cities</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Edge City</strong></td>
+                                <td>1991</td>
+                                <td>Suburban centers</td>
+                                <td>Decentralization</td>
+                                <td>US suburbs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>🏙️ Urban Zones</h3>
+                    <div class="flowchart-horizontal">
+                        <div class="flow-box" style="background: linear-gradient(135deg, #dc2626, #b91c1c);">CBD<br><small>Central Business</small></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #ea580c, #c2410c);">Transition<br><small>Mixed Use</small></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #d97706, #b45309);">Inner Suburbs<br><small>Workers</small></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #65a30d, #4d7c0f);">Outer Suburbs<br><small>Middle Class</small></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #059669, #047857);">Commuter Zone<br><small>Rural-Urban</small></div>
+                    </div>
+                    
+                    <h3>📌 Case Study: Singapore Urban Planning</h3>
+                    <ul class="info-list">
+                        <li><strong>Concept Plan:</strong> 50-year strategic land use vision • Revised every 10 years</li>
+                        <li><strong>New Towns:</strong> 23 self-contained satellite towns • 850,000 avg population each</li>
+                        <li><strong>HDB Housing:</strong> 80% live in public housing • World's most successful program</li>
+                        <li><strong>Green Coverage:</strong> 47% green cover maintained • "City in a Garden" concept</li>
+                        <li><strong>Decentralization:</strong> Regional centers reduce CBD congestion • Jurong, Tampines, Woodlands</li>
+                    </ul>
+                    
+                </div>
+            </details>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>📊 Data Sources</h4>
+                <p>UN-Habitat • World Bank Urban • Demographia • IMD Smart City Index • OECD</p>
+            </div>
+            <div class="footer-section">
+                <h4>🕐 Last Updated</h4>
+                <p id="lastUpdated">Loading...</p>
+            </div>
+            <div class="footer-section">
+                <h4>📋 Methodology</h4>
+                <p>Official statistics • Satellite analysis • Survey data • Expert reports</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 Geotopia Encyclopedia. Made with 💚 for learners everywhere.
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <script>
+        // ============================================
+        // SETTLEMENTS PAGE JAVASCRIPT
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // ============================================
+            // NAVIGATION
+            // ============================================
+            const nav = document.getElementById('mainNav');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            });
+            
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle?.querySelector('.theme-icon');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const newTheme = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    if (themeIcon) themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+                });
+            }
+            
+            // Back to Top
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 500) {
+                    backToTop?.classList.add('visible');
+                } else {
+                    backToTop?.classList.remove('visible');
+                }
+            });
+            if (backToTop) {
+                backToTop.addEventListener('click', function() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+            
+            // ============================================
+            // UPDATE TIMESTAMP
+            // ============================================
+            const lastUpdated = document.getElementById('lastUpdated');
+            if (lastUpdated) {
+                lastUpdated.textContent = new Date().toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            // ============================================
+            // LEAFLET MAP - MEGACITIES
+            // ============================================
+            const mapContainer = document.getElementById('settlements-map');
+            if (mapContainer) {
+                const map = L.map('settlements-map').setView([20, 0], 2);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap, © CARTO',
+                    maxZoom: 18
+                }).addTo(map);
+                
+                // Megacities with population
+                const megacities = [
+                    { name: 'Tokyo', pop: 37.4, coords: [35.6762, 139.6503], color: '#dc2626' },
+                    { name: 'Delhi', pop: 32.9, coords: [28.6139, 77.2090], color: '#dc2626' },
+                    { name: 'Shanghai', pop: 28.5, coords: [31.2304, 121.4737], color: '#ea580c' },
+                    { name: 'São Paulo', pop: 22.4, coords: [-23.5505, -46.6333], color: '#ea580c' },
+                    { name: 'Mexico City', pop: 21.8, coords: [19.4326, -99.1332], color: '#ea580c' },
+                    { name: 'Cairo', pop: 21.3, coords: [30.0444, 31.2357], color: '#ea580c' },
+                    { name: 'Mumbai', pop: 21.0, coords: [19.0760, 72.8777], color: '#ea580c' },
+                    { name: 'Beijing', pop: 20.9, coords: [39.9042, 116.4074], color: '#ea580c' },
+                    { name: 'Dhaka', pop: 22.5, coords: [23.8103, 90.4125], color: '#ea580c' },
+                    { name: 'Osaka', pop: 19.0, coords: [34.6937, 135.5023], color: '#f59e0b' },
+                    { name: 'New York', pop: 18.8, coords: [40.7128, -74.0060], color: '#f59e0b' },
+                    { name: 'Karachi', pop: 16.8, coords: [24.8607, 67.0011], color: '#f59e0b' },
+                    { name: 'Buenos Aires', pop: 15.4, coords: [-34.6037, -58.3816], color: '#f59e0b' },
+                    { name: 'Chongqing', pop: 16.3, coords: [29.4316, 106.9123], color: '#f59e0b' },
+                    { name: 'Istanbul', pop: 15.6, coords: [41.0082, 28.9784], color: '#f59e0b' },
+                    { name: 'Kolkata', pop: 15.1, coords: [22.5726, 88.3639], color: '#f59e0b' },
+                    { name: 'Lagos', pop: 15.4, coords: [6.5244, 3.3792], color: '#f59e0b' },
+                    { name: 'Manila', pop: 14.4, coords: [14.5995, 120.9842], color: '#22c55e' },
+                    { name: 'Guangzhou', pop: 13.9, coords: [23.1291, 113.2644], color: '#22c55e' },
+                    { name: 'Rio de Janeiro', pop: 13.6, coords: [-22.9068, -43.1729], color: '#22c55e' },
+                    { name: 'Kinshasa', pop: 15.6, coords: [-4.4419, 15.2663], color: '#f59e0b' },
+                    { name: 'Tianjin', pop: 13.7, coords: [39.3434, 117.3616], color: '#22c55e' },
+                    { name: 'Paris', pop: 11.1, coords: [48.8566, 2.3522], color: '#22c55e' },
+                    { name: 'Shenzhen', pop: 13.0, coords: [22.5431, 114.0579], color: '#22c55e' },
+                    { name: 'Jakarta', pop: 10.9, coords: [-6.2088, 106.8456], color: '#22c55e' },
+                    { name: 'London', pop: 9.5, coords: [51.5074, -0.1278], color: '#3b82f6' },
+                    { name: 'Moscow', pop: 12.5, coords: [55.7558, 37.6173], color: '#22c55e' },
+                    { name: 'Bangkok', pop: 11.0, coords: [13.7563, 100.5018], color: '#22c55e' },
+                    { name: 'Seoul', pop: 9.9, coords: [37.5665, 126.9780], color: '#3b82f6' },
+                    { name: 'Los Angeles', pop: 12.5, coords: [34.0522, -118.2437], color: '#22c55e' }
+                ];
+                
+                megacities.forEach(city => {
+                    const radius = Math.min(city.pop * 0.7, 25);
+                    L.circleMarker(city.coords, {
+                        radius: radius,
+                        fillColor: city.color,
+                        color: '#ffffff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    })
+                    .bindPopup(`<strong>${city.name}</strong><br>Population: ${city.pop}M<br>Type: ${city.pop >= 30 ? 'Mega+' : city.pop >= 20 ? 'Megacity' : city.pop >= 10 ? 'Large Metro' : 'Metro'}`)
+                    .addTo(map);
+                });
+            }
+            
+            // ============================================
+            // CHART.JS CONFIGURATION
+            // ============================================
+            Chart.defaults.font.family = "'Poppins', sans-serif";
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = false;
+            
+            // ============================================
+            // RANK SIZE CHART
+            // ============================================
+            const rankSizeCtx = document.getElementById('rankSizeChart');
+            if (rankSizeCtx) {
+                new Chart(rankSizeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '15', '20', '30', '50', '100'],
+                        datasets: [
+                            {
+                                label: 'Actual Distribution',
+                                data: [37.4, 32.9, 28.5, 22.5, 22.4, 21.8, 21.3, 21.0, 20.9, 19.0, 15.5, 13.0, 10.5, 7.5, 4.2],
+                                borderColor: '#059669',
+                                backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5
+                            },
+                            {
+                                label: 'Rank-Size Rule (Ideal)',
+                                data: [37.4, 18.7, 12.5, 9.4, 7.5, 6.2, 5.3, 4.7, 4.2, 3.7, 2.5, 1.9, 1.2, 0.7, 0.4],
+                                borderColor: '#6b7280',
+                                borderDash: [5, 5],
+                                fill: false,
+                                tension: 0.4,
+                                pointRadius: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'City Rank' } },
+                            y: { title: { display: true, text: 'Population (Millions)' } }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // CITY SIZE CHART
+            // ============================================
+            const citySizeCtx = document.getElementById('citySizeChart');
+            if (citySizeCtx) {
+                new Chart(citySizeCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['10M+ (Megacities)', '5-10M (Large)', '1-5M (Medium)', '500K-1M (Small)', '100-500K (Towns)'],
+                        datasets: [{
+                            data: [43, 67, 532, 709, 1863],
+                            backgroundColor: ['#dc2626', '#f59e0b', '#22c55e', '#3b82f6', '#8b5cf6'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'right' }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // MEGACITY GROWTH CHART
+            // ============================================
+            const megacityGrowthCtx = document.getElementById('megacityGrowthChart');
+            if (megacityGrowthCtx) {
+                new Chart(megacityGrowthCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['1950', '1970', '1990', '2000', '2010', '2020', '2026', '2030'],
+                        datasets: [{
+                            label: 'Number of Megacities',
+                            data: [2, 3, 10, 16, 27, 34, 43, 53],
+                            backgroundColor: '#059669',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                title: { display: true, text: 'Number of Cities' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // RURAL URBAN CHART
+            // ============================================
+            const ruralUrbanCtx = document.getElementById('ruralUrbanChart');
+            if (ruralUrbanCtx) {
+                new Chart(ruralUrbanCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Africa', 'Asia', 'Europe', 'N. America', 'S. America', 'Oceania'],
+                        datasets: [
+                            {
+                                label: 'Urban %',
+                                data: [44.3, 51.8, 74.9, 82.4, 81.2, 68.3],
+                                backgroundColor: '#059669',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Rural %',
+                                data: [55.7, 48.2, 25.1, 17.6, 18.8, 31.7],
+                                backgroundColor: '#22c55e',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true, max: 100 }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // RURAL TRENDS CHART
+            // ============================================
+            const ruralTrendsCtx = document.getElementById('ruralTrendsChart');
+            if (ruralTrendsCtx) {
+                new Chart(ruralTrendsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1960', '1980', '2000', '2010', '2020', '2026', '2030', '2050'],
+                        datasets: [{
+                            label: 'Rural Population (Billions)',
+                            data: [2.0, 2.5, 3.2, 3.4, 3.4, 3.47, 3.4, 3.1],
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { 
+                                title: { display: true, text: 'Billions' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // SMART CITY INVESTMENT CHART
+            // ============================================
+            const smartCityInvestCtx = document.getElementById('smartCityInvestChart');
+            if (smartCityInvestCtx) {
+                new Chart(smartCityInvestCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Asia Pacific', 'North America', 'Europe', 'Middle East', 'Latin America', 'Africa'],
+                        datasets: [{
+                            label: 'Investment ($B)',
+                            data: [412, 189, 147, 72, 35, 18],
+                            backgroundColor: ['#0891b2', '#3b82f6', '#8b5cf6', '#f59e0b', '#22c55e', '#ef4444'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Billions USD' } }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // SLUM REGION CHART
+            // ============================================
+            const slumRegionCtx = document.getElementById('slumRegionChart');
+            if (slumRegionCtx) {
+                new Chart(slumRegionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sub-Saharan Africa', 'South Asia', 'East Asia', 'Southeast Asia', 'Latin America', 'North Africa'],
+                        datasets: [
+                            {
+                                label: 'Slum Population (M)',
+                                data: [250, 345, 220, 115, 110, 35],
+                                backgroundColor: '#ef4444',
+                                borderRadius: 4
+                            },
+                            {
+                                label: '% Urban in Slums',
+                                data: [55.9, 31.2, 25.4, 27.8, 20.1, 11.5],
+                                backgroundColor: '#f59e0b',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // LAND USE CHART
+            // ============================================
+            const landUseCtx = document.getElementById('landUseChart');
+            if (landUseCtx) {
+                new Chart(landUseCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Residential', 'Commercial', 'Industrial', 'Transportation', 'Public/Inst.', 'Open Space'],
+                        datasets: [{
+                            data: [45, 12, 15, 18, 5, 5],
+                            backgroundColor: ['#22c55e', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'right' }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // CBD DISTANCE CHART
+            // ============================================
+            const cbdDistanceCtx = document.getElementById('cbdDistanceChart');
+            if (cbdDistanceCtx) {
+                new Chart(cbdDistanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['0km', '2km', '5km', '10km', '15km', '20km', '30km'],
+                        datasets: [
+                            {
+                                label: 'Land Value',
+                                data: [100, 75, 50, 35, 25, 20, 15],
+                                borderColor: '#ef4444',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Population Density',
+                                data: [30, 80, 95, 70, 50, 35, 20],
+                                borderColor: '#22c55e',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Building Height',
+                                data: [100, 60, 35, 20, 15, 12, 10],
+                                borderColor: '#3b82f6',
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Distance from CBD' } },
+                            y: { title: { display: true, text: 'Relative Value (%)' } }
+                        }
+                    }
+                });
+            }
+            
+            console.log('✅ Settlements page loaded successfully!');
+        });
+    </script>
+</body>
+</html>
