@@ -3,283 +3,979 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Population | Geotopia Encyclopedia</title>
-    <link rel="stylesheet" href="../styles.css">
+    <meta name="description" content="World Population Geography - Live counter, demographic data, migration patterns, population pyramids, and urbanization trends.">
+    <title>Population Geography 👥 | Geotopia Encyclopedia</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <!-- Main Styles -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Page Specific Styles -->
+    <style>
+        /* ============================================
+           POPULATION PAGE SPECIFIC STYLES
+           ============================================ */
+        
+        /* Live Stats Banner */
+        .live-stats-banner {
+            background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+            padding: 2rem;
+            margin: -2rem 0 2rem 0;
+        }
+        
+        .live-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .live-stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .live-stat-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .live-stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .live-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+        
+        .live-stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            color: #4ade80;
+            margin-top: 0.5rem;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 1.5s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        /* Content Container */
+        .page-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Map Section */
+        .map-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .map-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        #population-map {
+            height: 450px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 24px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        /* Accordion Sections */
+        .accordion-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .accordion-section details {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .accordion-section summary {
+            padding: 1.5rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            user-select: none;
+            transition: all 0.3s ease;
+            list-style: none;
+        }
+        
+        .accordion-section summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .accordion-section summary::after {
+            content: '+';
+            margin-left: auto;
+            font-size: 1.5rem;
+            font-weight: 400;
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-section details[open] summary::after {
+            content: '−';
+        }
+        
+        .accordion-section summary:hover {
+            filter: brightness(1.05);
+        }
+        
+        .accordion-content {
+            padding: 2rem;
+        }
+        
+        /* Chart Container */
+        .chart-wrapper {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-wrapper h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #374151;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+        
+        .chart-container canvas {
+            max-height: 350px !important;
+        }
+        
+        /* Two Column Charts */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Stats Cards Grid */
+        .stats-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mini-stat-card {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .mini-stat-card .label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mini-stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e40af;
+        }
+        
+        .mini-stat-card .sub {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        /* Flowchart */
+        .flowchart-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .flow-box {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 250px;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        
+        .flow-arrow {
+            font-size: 2rem;
+            color: #3b82f6;
+        }
+        
+        /* Info List */
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            border-bottom: 1px solid #e5e7eb;
+            line-height: 1.6;
+        }
+        
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .info-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .info-list li strong {
+            color: #1f2937;
+        }
+        
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .data-table thead {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        
+        .data-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.95rem;
+        }
+        
+        .data-table tbody tr:hover {
+            background: #f9fafb;
+        }
+        
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Mind Map */
+        .mindmap-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mindmap-node {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .mindmap-node:hover {
+            transform: scale(1.1);
+        }
+        
+        .mindmap-node small {
+            font-size: 0.7rem;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        
+        /* Pyramid Selector */
+        .pyramid-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        
+        .pyramid-controls label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .pyramid-controls select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            min-width: 200px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pyramid-controls select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .year-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+        
+        .year-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .year-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .year-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        /* Push Pull Grid */
+        .push-pull-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .push-factors, .pull-factors {
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+        
+        .push-factors {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-left: 4px solid #ef4444;
+        }
+        
+        .pull-factors {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-left: 4px solid #22c55e;
+        }
+        
+        .push-factors h4, .pull-factors h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* DTM Stages */
+        .dtm-stages {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+        
+        .dtm-stage {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            min-width: 150px;
+        }
+        
+        .dtm-stage .stage-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            margin: 0 auto 0.75rem;
+        }
+        
+        .dtm-stage h5 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .dtm-stage p {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        .stage-1 .stage-number { background: #ef4444; }
+        .stage-2 .stage-number { background: #f59e0b; }
+        .stage-3 .stage-number { background: #eab308; }
+        .stage-4 .stage-number { background: #22c55e; }
+        .stage-5 .stage-number { background: #3b82f6; }
+        
+        /* Footer */
+        .page-footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h4 {
+            color: #fbbf24;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        
+        .footer-section p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .live-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+            
+            .dtm-stages {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .year-buttons {
+                margin-left: 0;
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .pyramid-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            #population-map {
+                height: 350px;
+            }
+            
+            .accordion-section summary {
+                padding: 1.25rem 1.5rem;
+                font-size: 1.1rem;
+            }
+            
+            .accordion-content {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .live-stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .live-stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .dtm-stages {
+                grid-template-columns: 1fr;
+            }
+            
+            .mindmap-container {
+                flex-direction: column;
+            }
+            
+            .push-pull-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👥</text></svg>">
 </head>
 <body>
-    <!-- HEADER -->
-    <header>
-        <nav>
-            <a href="../../index.html">🌍 Geotopia</a>
-            <a href="../index.html">Encyclopedia</a>
-            <a href="index.html">Human Geography</a>
-            <span class="nav-divider">›</span>
-            <a href="population.html" class="active">Population</a>
-        </nav>
+    
+    <!-- Navigation -->
+    <nav class="main-nav" id="mainNav">
+        <div class="nav-container">
+            <a href="../../index.html" class="nav-logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">Geotopia</span>
+            </a>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="../index.html" class="nav-link">
+                    <span class="nav-icon">📚</span>
+                    <span>Encyclopedia</span>
+                </a>
+                <a href="index.html" class="nav-link">
+                    <span class="nav-icon">👥</span>
+                    <span>Human Geography</span>
+                </a>
+                <a href="population.html" class="nav-link active">
+                    <span class="nav-icon">📊</span>
+                    <span>Population</span>
+                </a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span class="hamburger"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section" id="hero">
+        <div class="hero-background">
+            <img src="https://images.unsplash.com/photo-1517732306149-e8f829eb588a?w=1920&q=80" 
+                 alt="World Population" 
+                 class="hero-image"
+                 loading="eager">
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">📊</span>
+                <span class="badge-text">Live Data • 2026</span>
+            </div>
+            
+            <h1 class="hero-title">
+                <span class="title-line">Population</span>
+                <span class="title-line title-highlight">Geography</span>
+                <span class="title-emoji">👥</span>
+            </h1>
+            
+            <p class="hero-subtitle">
+                Real-time world population • Demographics • Migration • Urbanization
+            </p>
+        </div>
     </header>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <h1>👥 Population Geography</h1>
-        <p class="subtitle">Live global demographic data as of 2026</p>
-    </section>
-
-    <!-- LIVE STATS BANNER -->
-    <section class="live-stats">
-        <div class="stat-card">
-            <span class="stat-icon">🌍</span>
-            <span class="stat-value" id="world-pop">8,100,000,000</span>
-            <span class="stat-label">World Population (Live)</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-icon">📈</span>
-            <span class="stat-value" id="growth-rate">+0.88%</span>
-            <span class="stat-label">Annual Growth Rate</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-icon">🏙️</span>
-            <span class="stat-value">57.2%</span>
-            <span class="stat-label">Urban Population</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-icon">👴</span>
-            <span class="stat-value">30.5</span>
-            <span class="stat-label">Median Age (years)</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-icon">🇮🇳</span>
-            <span class="stat-value">1.45B</span>
-            <span class="stat-label">India (Largest)</span>
-        </div>
-    </section>
-
-    <!-- INTERACTIVE MAP -->
-    <section class="map-section">
-        <h2>🗺️ Global Population Density</h2>
-        <div id="population-map" style="height: 500px;"></div>
-        <div class="map-legend">
-            <span><span class="legend-color" style="background: #fee5d9;"></span> 0-50/km²</span>
-            <span><span class="legend-color" style="background: #fcae91;"></span> 50-150/km²</span>
-            <span><span class="legend-color" style="background: #fb6a4a;"></span> 150-300/km²</span>
-            <span><span class="legend-color" style="background: #de2d26;"></span> 300-500/km²</span>
-            <span><span class="legend-color" style="background: #a50f15;"></span> 500+/km²</span>
+    <!-- Live Stats Banner -->
+    <section class="live-stats-banner">
+        <div class="live-stats-grid">
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🌍</div>
+                <div class="live-stat-value" id="world-population">8,100,000,000</div>
+                <div class="live-stat-label">World Population</div>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>Live Counter</span>
+                </div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">📈</div>
+                <div class="live-stat-value">+0.88%</div>
+                <div class="live-stat-label">Annual Growth Rate</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🏙️</div>
+                <div class="live-stat-value">57.2%</div>
+                <div class="live-stat-label">Urban Population</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">👴</div>
+                <div class="live-stat-value">30.5</div>
+                <div class="live-stat-label">Median Age (Years)</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🇮🇳</div>
+                <div class="live-stat-value">1.45B</div>
+                <div class="live-stat-label">India (Largest)</div>
+            </div>
         </div>
     </section>
 
-    <!-- DROPDOWN SECTIONS -->
-    <section class="topics-accordion">
+    <!-- Main Content -->
+    <main class="page-content">
         
-        <!-- DEMOGRAPHICS DASHBOARD -->
-        <details open>
-            <summary>📊 Demographics Dashboard</summary>
-            <div class="content">
-                <div class="chart-grid">
-                    <div class="chart-container">
-                        <h3>Age Distribution (Top 10 Countries)</h3>
-                        <canvas id="age-distribution-chart"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h3>Birth vs Death Rate (2026)</h3>
-                        <canvas id="birth-death-chart"></canvas>
-                    </div>
+        <!-- World Map -->
+        <div class="map-container">
+            <h2>🗺️ Global Population Density Map</h2>
+            <div id="population-map"></div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #fee5d9;"></span>
+                    <span>0-50/km²</span>
                 </div>
-                
-                <div class="flowchart">
-                    <div class="flow-box">Birth Rate: 17.2 per 1,000</div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-box">Death Rate: 8.9 per 1,000</div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-box">Natural Increase: +0.83%</div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #fcae91;"></span>
+                    <span>50-150/km²</span>
                 </div>
-
-                <div class="stats-grid">
-                    <div class="mini-stat">
-                        <strong>Life Expectancy</strong>
-                        <span>73.2 years</span>
-                        <small>Global Average</small>
-                    </div>
-                    <div class="mini-stat">
-                        <strong>Dependency Ratio</strong>
-                        <span>53.2</span>
-                        <small>per 100 working-age</small>
-                    </div>
-                    <div class="mini-stat">
-                        <strong>Sex Ratio</strong>
-                        <span>101:100</span>
-                        <small>Male:Female</small>
-                    </div>
-                    <div class="mini-stat">
-                        <strong>Fertility Rate</strong>
-                        <span>2.3</span>
-                        <small>births per woman</small>
-                    </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #fb6a4a;"></span>
+                    <span>150-300/km²</span>
                 </div>
-
-                <h3>Key Indicators by Region</h3>
-                <ul>
-                    <li><strong>Africa:</strong> Youngest population (median age 19.7) • Highest fertility (4.1)</li>
-                    <li><strong>Europe:</strong> Oldest population (median age 43.9) • Lowest fertility (1.5)</li>
-                    <li><strong>Asia:</strong> 59% of world population • Declining growth rates</li>
-                    <li><strong>Latin America:</strong> Urbanization 81% • Demographic transition underway</li>
-                    <li><strong>North America:</strong> Migration-driven growth • Aging population</li>
-                    <li><strong>Oceania:</strong> Highest immigration rate • Young workforce</li>
-                </ul>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #de2d26;"></span>
+                    <span>300-500/km²</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #a50f15;"></span>
+                    <span>500+/km²</span>
+                </div>
             </div>
-        </details>
+        </div>
 
-        <!-- POPULATION PYRAMIDS -->
-        <details>
-            <summary>📉 Population Pyramids Interactive</summary>
-            <div class="content">
-                <div class="pyramid-selector">
-                    <label>Select Country:</label>
-                    <select id="pyramid-country" onchange="updatePyramid()">
-                        <option value="IN">India</option>
-                        <option value="CN">China</option>
-                        <option value="US">United States</option>
-                        <option value="ID">Indonesia</option>
-                        <option value="BR">Brazil</option>
-                        <option value="NG">Nigeria</option>
-                        <option value="BD">Bangladesh</option>
-                        <option value="MX">Mexico</option>
-                        <option value="JP">Japan</option>
-                        <option value="DE">Germany</option>
-                        <option value="EG">Egypt</option>
-                        <option value="CD">DR Congo</option>
-                        <option value="FR">France</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="KE">Kenya</option>
-                    </select>
-                    <div class="year-toggle">
-                        <button onclick="setPyramidYear(1950)">1950</button>
-                        <button onclick="setPyramidYear(2000)">2000</button>
-                        <button onclick="setPyramidYear(2026)" class="active">2026</button>
-                        <button onclick="setPyramidYear(2050)">2050</button>
+        <!-- Accordion Sections -->
+        
+        <!-- Demographics Dashboard -->
+        <div class="accordion-section">
+            <details open>
+                <summary>📊 Demographics Dashboard</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Life Expectancy</div>
+                            <div class="value">73.2</div>
+                            <div class="sub">years (global avg)</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Dependency Ratio</div>
+                            <div class="value">53.2</div>
+                            <div class="sub">per 100 working-age</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Sex Ratio</div>
+                            <div class="value">101:100</div>
+                            <div class="sub">Male:Female</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Fertility Rate</div>
+                            <div class="value">2.3</div>
+                            <div class="sub">births per woman</div>
+                        </div>
                     </div>
+                    
+                    <div class="charts-row">
+                        <div class="chart-wrapper">
+                            <h3>Age Distribution (Top 10 Countries)</h3>
+                            <div class="chart-container">
+                                <canvas id="ageDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-wrapper">
+                            <h3>Birth vs Death Rate Comparison</h3>
+                            <div class="chart-container">
+                                <canvas id="birthDeathChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flowchart-vertical">
+                        <div class="flow-box">Birth Rate: 17.2 per 1,000</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-box">Death Rate: 8.9 per 1,000</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-box">Natural Increase: +0.83%</div>
+                    </div>
+                    
+                    <h3>📋 Key Indicators by Region</h3>
+                    <ul class="info-list">
+                        <li><strong>Africa:</strong> Youngest population (median age 19.7) • Highest fertility (4.1) • Fastest growth</li>
+                        <li><strong>Europe:</strong> Oldest population (median age 43.9) • Lowest fertility (1.5) • Declining in some countries</li>
+                        <li><strong>Asia:</strong> 59% of world population • Declining growth rates • China & India dominate</li>
+                        <li><strong>Latin America:</strong> Urbanization 81% • Demographic transition underway • Aging starting</li>
+                        <li><strong>North America:</strong> Migration-driven growth • Aging population • Diverse demographics</li>
+                        <li><strong>Oceania:</strong> Highest immigration rate • Young workforce • Australia dominant</li>
+                    </ul>
+                    
                 </div>
+            </details>
+        </div>
 
-                <div class="chart-container">
-                    <canvas id="pyramid-chart"></canvas>
-                </div>
-
-                <div class="mindmap">
-                    <div class="mindmap-node" style="background: linear-gradient(135deg, #4ade80, #22c55e);">
-                        <div>
+        <!-- Population Pyramids -->
+        <div class="accordion-section">
+            <details>
+                <summary>📉 Population Pyramids Interactive</summary>
+                <div class="accordion-content">
+                    
+                    <div class="pyramid-controls">
+                        <label for="countrySelect">Select Country:</label>
+                        <select id="countrySelect">
+                            <option value="india">🇮🇳 India</option>
+                            <option value="china">🇨🇳 China</option>
+                            <option value="usa">🇺🇸 United States</option>
+                            <option value="japan">🇯🇵 Japan</option>
+                            <option value="nigeria">🇳🇬 Nigeria</option>
+                            <option value="germany">🇩🇪 Germany</option>
+                            <option value="brazil">🇧🇷 Brazil</option>
+                            <option value="indonesia">🇮🇩 Indonesia</option>
+                        </select>
+                        <div class="year-buttons">
+                            <button class="year-btn" data-year="1950">1950</button>
+                            <button class="year-btn" data-year="2000">2000</button>
+                            <button class="year-btn active" data-year="2026">2026</button>
+                            <button class="year-btn" data-year="2050">2050</button>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Population Pyramid - <span id="pyramidTitle">India 2026</span></h3>
+                        <div class="chart-container">
+                            <canvas id="pyramidChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <h3>📊 Pyramid Types</h3>
+                    <div class="mindmap-container">
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
                             <strong>Expansive</strong>
-                            <small>Nigeria, Kenya</small>
+                            <small>Nigeria, Kenya, DR Congo</small>
                         </div>
-                    </div>
-                    <div class="mindmap-node" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">
-                        <div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                             <strong>Stationary</strong>
-                            <small>USA, France</small>
+                            <small>USA, France, UK</small>
                         </div>
-                    </div>
-                    <div class="mindmap-node" style="background: linear-gradient(135deg, #f87171, #ef4444);">
-                        <div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
                             <strong>Constrictive</strong>
-                            <small>Japan, Germany</small>
+                            <small>Japan, Germany, Italy</small>
                         </div>
                     </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Shape</th>
+                                <th>Characteristics</th>
+                                <th>Examples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Expansive</strong></td>
+                                <td>Wide base, narrow top</td>
+                                <td>High birth rate, young population, rapid growth</td>
+                                <td>Nigeria, DR Congo, Somalia</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stationary</strong></td>
+                                <td>Column-like</td>
+                                <td>Low birth/death rates, stable growth</td>
+                                <td>USA, Canada, Australia</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Constrictive</strong></td>
+                                <td>Narrow base, wide middle</td>
+                                <td>Very low birth rate, aging population, decline</td>
+                                <td>Japan, Italy, South Korea</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
                 </div>
+            </details>
+        </div>
 
-                <h3>Pyramid Types Explained</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Shape</th>
-                            <th>Characteristics</th>
-                            <th>Examples</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Expansive</td>
-                            <td>Wide base, narrow top</td>
-                            <td>High birth rate, young population, rapid growth</td>
-                            <td>Nigeria, DR Congo, Somalia</td>
-                        </tr>
-                        <tr>
-                            <td>Stationary</td>
-                            <td>Column-like</td>
-                            <td>Low birth/death rates, stable growth</td>
-                            <td>USA, Canada, Australia</td>
-                        </tr>
-                        <tr>
-                            <td>Constrictive</td>
-                            <td>Narrow base, wide middle</td>
-                            <td>Very low birth rate, aging population</td>
-                            <td>Japan, Italy, South Korea</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Regional Patterns</h3>
-                <ul>
-                    <li><strong>Sub-Saharan Africa:</strong> Predominantly expansive • Youth bulge present • Fertility still above 4.0</li>
-                    <li><strong>East Asia:</strong> Shifting to constrictive • One-child policy effects (China) • Rapid aging</li>
-                    <li><strong>South Asia:</strong> Transitioning • India's youth dividend • Bangladesh fertility drop</li>
-                    <li><strong>Middle East:</strong> Mixed patterns • Gulf states influenced by migration • Youth unemployment concerns</li>
-                    <li><strong>Eastern Europe:</strong> Declining populations • Outmigration • Low fertility trap</li>
-                </ul>
-            </div>
-        </details>
-
-        <!-- MIGRATION PATTERNS -->
-        <details>
-            <summary>✈️ Global Migration Flows</summary>
-            <div class="content">
-                <div class="stats-grid">
-                    <div class="mini-stat">
-                        <strong>International Migrants</strong>
-                        <span>281 Million</span>
-                        <small>3.6% of world population</small>
+        <!-- Migration Patterns -->
+        <div class="accordion-section" id="migration">
+            <details>
+                <summary>✈️ Global Migration Flows</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">International Migrants</div>
+                            <div class="value">281M</div>
+                            <div class="sub">3.6% of world population</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Refugees</div>
+                            <div class="value">35.3M</div>
+                            <div class="sub">UNHCR registered</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Remittances</div>
+                            <div class="value">$702B</div>
+                            <div class="sub">Annual global flow</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">IDPs</div>
+                            <div class="value">62.5M</div>
+                            <div class="sub">Internally displaced</div>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <strong>Refugees</strong>
-                        <span>35.3 Million</span>
-                        <small>UNHCR registered</small>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Top 10 Migration Corridors (2026)</h3>
+                        <div class="chart-container">
+                            <canvas id="migrationChart"></canvas>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <strong>Remittances</strong>
-                        <span>$702 Billion</span>
-                        <small>Annual global flow</small>
-                    </div>
-                    <div class="mini-stat">
-                        <strong>IDPs</strong>
-                        <span>62.5 Million</span>
-                        <small>Internally displaced</small>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <h3>Top 10 Migration Corridors (2026)</h3>
-                    <canvas id="migration-chart"></canvas>
-                </div>
-
-                <h3>Major Migration Routes</h3>
-                <ul>
-                    <li><strong>Mexico → USA:</strong> 11.2M migrants • Largest corridor globally • Labor migration dominant</li>
-                    <li><strong>Syria → Turkey:</strong> 3.7M • Refugee crisis • Temporary protection status</li>
-                    <li><strong>India → UAE:</strong> 3.5M • Gulf labor migration • Remittance-driven</li>
-                    <li><strong>Ukraine → Russia:</strong> 2.9M • Post-conflict displacement • Ethnic ties</li>
-                    <li><strong>Venezuela → Colombia:</strong> 2.5M • Economic refugees • Regional crisis</li>
-                    <li><strong>Afghanistan → Pakistan:</strong> 2.2M • Protracted refugee situation • Decades-long</li>
-                    <li><strong>Philippines → USA:</strong> 2.0M • Diaspora networks • Family reunification</li>
-                    <li><strong>Bangladesh → India:</strong> 1.8M • Historical migration • Border permeability</li>
-                </ul>
-
-                <div class="flowchart">
-                    <h3>Push-Pull Migration Model</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                        <div>
-                            <div class="flow-box" style="background: #ef4444;">PUSH Factors</div>
-                            <div class="flow-arrow">↓</div>
-                            <ul style="background: #fee; padding: 1rem; border-radius: 8px;">
+                    
+                    <h3>🔄 Push-Pull Migration Model</h3>
+                    <div class="push-pull-grid">
+                        <div class="push-factors">
+                            <h4>🔴 PUSH Factors</h4>
+                            <ul class="info-list">
                                 <li>War & Conflict</li>
                                 <li>Economic Hardship</li>
                                 <li>Natural Disasters</li>
@@ -287,10 +983,9 @@
                                 <li>Lack of Services</li>
                             </ul>
                         </div>
-                        <div>
-                            <div class="flow-box" style="background: #22c55e;">PULL Factors</div>
-                            <div class="flow-arrow">↓</div>
-                            <ul style="background: #efe; padding: 1rem; border-radius: 8px;">
+                        <div class="pull-factors">
+                            <h4>🟢 PULL Factors</h4>
+                            <ul class="info-list">
                                 <li>Job Opportunities</li>
                                 <li>Higher Wages</li>
                                 <li>Political Stability</li>
@@ -299,344 +994,794 @@
                             </ul>
                         </div>
                     </div>
+                    
+                    <h3>💰 Top Remittance Recipients</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Country</th>
+                                <th>Amount (USD)</th>
+                                <th>% of GDP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>🇮🇳 India</td><td>$111 billion</td><td>3.1%</td></tr>
+                            <tr><td>🇲🇽 Mexico</td><td>$67 billion</td><td>4.2%</td></tr>
+                            <tr><td>🇨🇳 China</td><td>$51 billion</td><td>0.2%</td></tr>
+                            <tr><td>🇵🇭 Philippines</td><td>$38 billion</td><td>8.9%</td></tr>
+                            <tr><td>🇪🇬 Egypt</td><td>$32 billion</td><td>7.4%</td></tr>
+                            <tr><td>🇵🇰 Pakistan</td><td>$31 billion</td><td>7.8%</td></tr>
+                        </tbody>
+                    </table>
+                    
                 </div>
+            </details>
+        </div>
 
-                <h3>Remittance Recipients (Top 10)</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Country</th>
-                            <th>Amount (USD)</th>
-                            <th>% of GDP</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>India</td><td>$111 billion</td><td>3.1%</td></tr>
-                        <tr><td>Mexico</td><td>$67 billion</td><td>4.2%</td></tr>
-                        <tr><td>China</td><td>$51 billion</td><td>0.2%</td></tr>
-                        <tr><td>Philippines</td><td>$38 billion</td><td>8.9%</td></tr>
-                        <tr><td>Egypt</td><td>$32 billion</td><td>7.4%</td></tr>
-                        <tr><td>Pakistan</td><td>$31 billion</td><td>7.8%</td></tr>
-                        <tr><td>Bangladesh</td><td>$22 billion</td><td>5.4%</td></tr>
-                        <tr><td>Nigeria</td><td>$20 billion</td><td>4.1%</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </details>
-
-        <!-- URBANIZATION -->
-        <details>
-            <summary>🏙️ Global Urbanization Trends</summary>
-            <div class="content">
-                <div class="chart-container">
-                    <h3>Urban vs Rural Population (1800-2026)</h3>
-                    <canvas id="urbanization-timeline"></canvas>
+        <!-- Urbanization -->
+        <div class="accordion-section">
+            <details>
+                <summary>🏙️ Global Urbanization Trends</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Urban Population</div>
+                            <div class="value">4.63B</div>
+                            <div class="sub">57.2% of total</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Rural Population</div>
+                            <div class="value">3.47B</div>
+                            <div class="sub">42.8% of total</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Urban Growth</div>
+                            <div class="value">+1.9%</div>
+                            <div class="sub">per year</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Megacities</div>
+                            <div class="value">43</div>
+                            <div class="sub">10M+ population</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Urban vs Rural Population (1800-2026)</h3>
+                        <div class="chart-container">
+                            <canvas id="urbanizationChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <h3>🌍 Urbanization by Continent</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Region</th>
+                                <th>Urban %</th>
+                                <th>Growth Rate</th>
+                                <th>Largest City</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>North America</td><td>82.4%</td><td>+1.1%</td><td>New York</td></tr>
+                            <tr><td>Latin America</td><td>81.2%</td><td>+1.3%</td><td>São Paulo</td></tr>
+                            <tr><td>Europe</td><td>74.9%</td><td>+0.3%</td><td>Istanbul</td></tr>
+                            <tr><td>Oceania</td><td>68.3%</td><td>+1.4%</td><td>Sydney</td></tr>
+                            <tr><td>Asia</td><td>51.8%</td><td>+2.3%</td><td>Tokyo</td></tr>
+                            <tr><td>Africa</td><td>44.3%</td><td>+3.1%</td><td>Cairo</td></tr>
+                        </tbody>
+                    </table>
+                    
                 </div>
+            </details>
+        </div>
 
-                <div class="stats-grid">
-                    <div class="mini-stat">
-                        <strong>Urban Population</strong>
-                        <span>4.63 Billion</span>
-                        <small>57.2% of total</small>
+        <!-- Demographic Transition Model -->
+        <div class="accordion-section">
+            <details>
+                <summary>🔄 Demographic Transition Model (DTM)</summary>
+                <div class="accordion-content">
+                    
+                    <h3>📊 Five-Stage DTM Model</h3>
+                    <div class="dtm-stages">
+                        <div class="dtm-stage stage-1">
+                            <div class="stage-number">1</div>
+                            <h5>High Stationary</h5>
+                            <p>High BR & DR<br>Zero growth</p>
+                        </div>
+                        <div class="dtm-stage stage-2">
+                            <div class="stage-number">2</div>
+                            <h5>Early Expanding</h5>
+                            <p>High BR, Falling DR<br>Rapid growth</p>
+                        </div>
+                        <div class="dtm-stage stage-3">
+                            <div class="stage-number">3</div>
+                            <h5>Late Expanding</h5>
+                            <p>Falling BR, Low DR<br>Slowing growth</p>
+                        </div>
+                        <div class="dtm-stage stage-4">
+                            <div class="stage-number">4</div>
+                            <h5>Low Stationary</h5>
+                            <p>Low BR & DR<br>Zero growth</p>
+                        </div>
+                        <div class="dtm-stage stage-5">
+                            <div class="stage-number">5</div>
+                            <h5>Declining</h5>
+                            <p>Very Low BR<br>Negative growth</p>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <strong>Rural Population</strong>
-                        <span>3.47 Billion</span>
-                        <small>42.8% of total</small>
+                    
+                    <div class="chart-wrapper">
+                        <h3>DTM Country Comparison</h3>
+                        <div class="chart-container">
+                            <canvas id="dtmChart"></canvas>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <strong>Urbanization Rate</strong>
-                        <span>+1.9%/year</span>
-                        <small>Urban growth rate</small>
-                    </div>
-                    <div class="mini-stat">
-                        <strong>Megacities</strong>
-                        <span>43</span>
-                        <small>10M+ population</small>
-                    </div>
+                    
+                    <h3>🌍 Countries by DTM Stage (2026)</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Stage</th>
+                                <th>Characteristics</th>
+                                <th>Examples</th>
+                                <th>Population Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Stage 1</strong></td>
+                                <td>High birth & death rates</td>
+                                <td>Remote tribes (very rare)</td>
+                                <td>Stable/Low</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stage 2</strong></td>
+                                <td>Death rate drops, birth rate high</td>
+                                <td>Niger, Chad, Mali, Somalia</td>
+                                <td>Rapid Growth (+3%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stage 3</strong></td>
+                                <td>Birth rate declining</td>
+                                <td>India, Indonesia, Mexico, Brazil</td>
+                                <td>Moderate Growth (+1-2%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stage 4</strong></td>
+                                <td>Both rates low</td>
+                                <td>USA, China, UK, France</td>
+                                <td>Slow Growth (<1%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stage 5</strong></td>
+                                <td>Death rate exceeds birth rate</td>
+                                <td>Japan, Italy, Germany, S. Korea</td>
+                                <td>Decline (-0.1 to -1%)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>📌 Case Study: Japan (Stage 5)</h3>
+                    <ul class="info-list">
+                        <li><strong>Total Fertility Rate:</strong> 1.26 (well below replacement 2.1)</li>
+                        <li><strong>Population Decline:</strong> -0.53% annually • Projected 88M by 2065</li>
+                        <li><strong>Aging Crisis:</strong> 29.8% over 65 • Highest in world</li>
+                        <li><strong>Policy Response:</strong> Immigration relaxation • Childcare incentives • Automation investment</li>
+                    </ul>
+                    
+                    <h3>📌 Case Study: Nigeria (Stage 2)</h3>
+                    <ul class="info-list">
+                        <li><strong>Total Fertility Rate:</strong> 5.3 (very high)</li>
+                        <li><strong>Population Growth:</strong> +2.5% annually • Doubling time 28 years</li>
+                        <li><strong>Youth Bulge:</strong> 43% under 15 • Median age 18.6</li>
+                        <li><strong>Challenges:</strong> Job creation • Education • Infrastructure strain</li>
+                    </ul>
+                    
                 </div>
+            </details>
+        </div>
 
-                <h3>Urbanization by Continent</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Region</th>
-                            <th>Urban %</th>
-                            <th>Growth Rate</th>
-                            <th>Largest City</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>North America</td><td>82.4%</td><td>+1.1%</td><td>New York-Newark</td></tr>
-                        <tr><td>Latin America</td><td>81.2%</td><td>+1.3%</td><td>São Paulo</td></tr>
-                        <tr><td>Europe</td><td>74.9%</td><td>+0.3%</td><td>Istanbul</td></tr>
-                        <tr><td>Oceania</td><td>68.3%</td><td>+1.4%</td><td>Sydney</td></tr>
-                        <tr><td>Asia</td><td>51.8%</td><td>+2.3%</td><td>Tokyo</td></tr>
-                        <tr><td>Africa</td><td>44.3%</td><td>+3.1%</td><td>Cairo</td></tr>
-                    </tbody>
-                </table>
-
-                <div class="chart-container">
-                    <h3>Top 20 Most Urbanized Countries</h3>
-                    <canvas id="urbanization-chart"></canvas>
-                </div>
-
-                <h3>Fastest Urbanizing Regions</h3>
-                <ul>
-                    <li><strong>Sub-Saharan Africa:</strong> +3.2% annual urban growth • Cities doubling every 20 years • Infrastructure gap widening</li>
-                    <li><strong>South Asia:</strong> +2.8% growth • Delhi, Mumbai, Dhaka expansion • Informal settlement challenges</li>
-                    <li><strong>Southeast Asia:</strong> +2.5% growth • Jakarta, Manila mega-urban regions • Coastal concentration</li>
-                    <li><strong>West Africa:</strong> +3.5% growth • Lagos, Abuja, Accra booming • Youth migration driving trend</li>
-                </ul>
-
-                <div class="flowchart">
-                    <h3>Urban Transition Stages</h3>
-                    <div class="flow-box">Stage 1: Low Urbanization (&lt;20%)</div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-box">Stage 2: Accelerating (20-50%)</div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-box">Stage 3: Mature (50-75%)</div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-box">Stage 4: Saturated (&gt;75%)</div>
-                </div>
-            </div>
-        </details>
-
-        <!-- DENSITY DISTRIBUTION -->
-        <details>
-            <summary>🗺️ Population Density Patterns</summary>
-            <div class="content">
-                <div class="stats-grid">
-                    <div class="mini-stat">
-                        <strong>Global Average</strong>
-                        <span>60/km²</span>
-                        <small>Population density</small>
+        <!-- Density Distribution -->
+        <div class="accordion-section">
+            <details>
+                <summary>🗺️ Population Density Patterns</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Global Average</div>
+                            <div class="value">60</div>
+                            <div class="sub">people per km²</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Ecumene</div>
+                            <div class="value">75%</div>
+                            <div class="sub">Inhabited land</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Densest</div>
+                            <div class="value">Monaco</div>
+                            <div class="sub">26,337/km²</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Least Dense</div>
+                            <div class="value">Mongolia</div>
+                            <div class="sub">2.1/km²</div>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <strong>Ecumene</strong>
-                        <span>75%</span>
-                        <small>Inhabited land</small>
-                    </div>
-                    <div class="mini-stat">
-                        <strong>Densest Country</strong>
-                        <span>Monaco</span>
-                        <small>26,337/km²</small>
-                    </div>
-                    <div class="mini-stat">
-                        <strong>Least Dense</strong>
-                        <span>Mongolia</span>
-                        <small>2.1/km²</small>
-                    </div>
-                </div>
-
-                <h3>Top 20 Densest Countries/Territories</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Country</th>
-                            <th>Density (per km²)</th>
-                            <th>Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>1</td><td>Monaco</td><td>26,337</td><td>City-state</td></tr>
-                        <tr><td>2</td><td>Singapore</td><td>8,592</td><td>Island city-state</td></tr>
-                        <tr><td>3</td><td>Bahrain</td><td>2,115</td><td>Island nation</td></tr>
-                        <tr><td>4</td><td>Maldives</td><td>1,802</td><td>Island chain</td></tr>
-                        <tr><td>5</td><td>Malta</td><td>1,633</td><td>Island nation</td></tr>
-                        <tr><td>6</td><td>Bangladesh</td><td>1,265</td><td>River delta</td></tr>
-                        <tr><td>7</td><td>Palestine</td><td>847</td><td>Disputed territory</td></tr>
-                        <tr><td>8</td><td>Lebanon</td><td>669</td><td>Coastal state</td></tr>
-                        <tr><td>9</td><td>Barbados</td><td>668</td><td>Island nation</td></tr>
-                        <tr><td>10</td><td>Taiwan</td><td>673</td><td>Island</td></tr>
-                    </tbody>
-                </table>
-
-                <div class="mindmap">
-                    <div class="mindmap-node central" style="background: var(--primary); width: 200px; height: 200px;">
-                        <strong>Ecumene<br>vs<br>Non-Ecumene</strong>
-                    </div>
-                    <div class="mindmap-node" style="background: #22c55e;">
-                        <div>
+                    
+                    <h3>🏆 Top 10 Densest Countries</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Country</th>
+                                <th>Density (per km²)</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>🇲🇨 Monaco</td><td>26,337</td><td>City-state</td></tr>
+                            <tr><td>2</td><td>🇸🇬 Singapore</td><td>8,592</td><td>Island city-state</td></tr>
+                            <tr><td>3</td><td>🇧🇭 Bahrain</td><td>2,115</td><td>Island nation</td></tr>
+                            <tr><td>4</td><td>🇲🇻 Maldives</td><td>1,802</td><td>Island chain</td></tr>
+                            <tr><td>5</td><td>🇲🇹 Malta</td><td>1,633</td><td>Island nation</td></tr>
+                            <tr><td>6</td><td>🇧🇩 Bangladesh</td><td>1,265</td><td>River delta</td></tr>
+                            <tr><td>7</td><td>🇵🇸 Palestine</td><td>847</td><td>Disputed territory</td></tr>
+                            <tr><td>8</td><td>🇱🇧 Lebanon</td><td>669</td><td>Coastal state</td></tr>
+                            <tr><td>9</td><td>🇧🇧 Barbados</td><td>668</td><td>Island nation</td></tr>
+                            <tr><td>10</td><td>🇹🇼 Taiwan</td><td>673</td><td>Island</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>🌍 Ecumene vs Non-Ecumene</h3>
+                    <div class="mindmap-container">
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
                             <strong>River Valleys</strong>
                             <small>Nile, Ganges, Yangtze</small>
                         </div>
-                    </div>
-                    <div class="mindmap-node" style="background: #3b82f6;">
-                        <div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
                             <strong>Coastal Plains</strong>
                             <small>East Asia, Europe</small>
                         </div>
-                    </div>
-                    <div class="mindmap-node" style="background: #f59e0b;">
-                        <div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                             <strong>Deserts</strong>
-                            <small>Sahara, Gobi</small>
+                            <small>Sahara, Gobi (sparse)</small>
                         </div>
-                    </div>
-                    <div class="mindmap-node" style="background: #8b5cf6;">
-                        <div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
                             <strong>Polar Regions</strong>
-                            <small>Antarctica, Arctic</small>
+                            <small>Antarctica (uninhabited)</small>
                         </div>
-                    </div>
-                    <div class="mindmap-node" style="background: #06b6d4;">
-                        <div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
                             <strong>High Mountains</strong>
                             <small>Himalayas, Andes</small>
                         </div>
                     </div>
+                    
                 </div>
+            </details>
+        </div>
 
-                <h3>Major Population Concentrations</h3>
-                <ul>
-                    <li><strong>East Asia:</strong> 1.7B people • Coastal plains + river valleys • 60% of region in 15% of land</li>
-                    <li><strong>South Asia:</strong> 1.9B people • Indo-Gangetic Plain • Monsoon agriculture support</li>
-                    <li><strong>Europe:</strong> 750M people • Temperate climate • Industrial urbanization legacy</li>
-                    <li><strong>Eastern North America:</strong> 150M • Megalopolis corridor • Economic opportunity concentration</li>
-                </ul>
+    </main>
 
-                <h3>Carrying Capacity Indicators</h3>
-                <div class="chart-container">
-                    <canvas id="carrying-capacity-chart"></canvas>
-                </div>
-            </div>
-        </details>
-
-        <!-- DEMOGRAPHIC TRANSITION MODEL -->
-        <details>
-            <summary>🔄 Demographic Transition Model</summary>
-            <div class="content">
-                <div class="flowchart">
-                    <h3>Five-Stage DTM Model</h3>
-                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;">
-                        <div style="text-align: center;">
-                            <div class="flow-box" style="background: #ef4444;">Stage 1<br>High Stationary</div>
-                            <small>High BR, High DR<br>Zero growth</small>
-                        </div>
-                        <div style="text-align: center;">
-                            <div class="flow-box" style="background: #f59e0b;">Stage 2<br>Early Expanding</div>
-                            <small>High BR, Falling DR<br>Rapid growth</small>
-                        </div>
-                        <div style="text-align: center;">
-                            <div class="flow-box" style="background: #fbbf24;">Stage 3<br>Late Expanding</div>
-                            <small>Falling BR, Low DR<br>Slowing growth</small>
-                        </div>
-                        <div style="text-align: center;">
-                            <div class="flow-box" style="background: #22c55e;">Stage 4<br>Low Stationary</div>
-                            <small>Low BR, Low DR<br>Zero growth</small>
-                        </div>
-                        <div style="text-align: center;">
-                            <div class="flow-box" style="background: #3b82f6;">Stage 5<br>Declining</div>
-                            <small>Very Low BR, Low DR<br>Negative growth</small>
-                        </div>
-                    </div>
-                </div>
-
-                <h3>Countries by DTM Stage (2026)</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Stage</th>
-                            <th>Characteristics</th>
-                            <th>Examples</th>
-                            <th>Population Trend</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Stage 1</td>
-                            <td>High birth & death rates</td>
-                            <td>Remote tribes (very rare)</td>
-                            <td>Stable/Low</td>
-                        </tr>
-                        <tr>
-                            <td>Stage 2</td>
-                            <td>Death rate drops, birth rate high</td>
-                            <td>Niger, Chad, Mali, Somalia</td>
-                            <td>Rapid Growth (+3%)</td>
-                        </tr>
-                        <tr>
-                            <td>Stage 3</td>
-                            <td>Birth rate declining</td>
-                            <td>India, Indonesia, Mexico, Brazil</td>
-                            <td>Moderate Growth (+1-2%)</td>
-                        </tr>
-                        <tr>
-                            <td>Stage 4</td>
-                            <td>Both rates low</td>
-                            <td>USA, China, UK, France</td>
-                            <td>Slow Growth (&lt;1%)</td>
-                        </tr>
-                        <tr>
-                            <td>Stage 5</td>
-                            <td>Death rate exceeds birth rate</td>
-                            <td>Japan, Italy, Germany, South Korea</td>
-                            <td>Decline (-0.1 to -1%)</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="chart-container">
-                    <h3>DTM Country Case Studies</h3>
-                    <canvas id="dtm-comparison-chart"></canvas>
-                </div>
-
-                <h3>Case Study: Japan (Stage 5)</h3>
-                <ul>
-                    <li><strong>Total Fertility Rate:</strong> 1.26 (well below replacement 2.1)</li>
-                    <li><strong>Population Decline:</strong> -0.53% annually • Projected 88M by 2065</li>
-                    <li><strong>Aging Crisis:</strong> 29.8% over 65 • Highest in world</li>
-                    <li><strong>Policy Response:</strong> Immigration relaxation • Childcare incentives • Automation investment</li>
-                </ul>
-
-                <h3>Case Study: Nigeria (Stage 2)</h3>
-                <ul>
-                    <li><strong>Total Fertility Rate:</strong> 5.3 (very high)</li>
-                    <li><strong>Population Growth:</strong> +2.5% annually • Doubling time 28 years</li>
-                    <li><strong>Youth Bulge:</strong> 43% under 15 • Median age 18.6</li>
-                    <li><strong>Challenges:</strong> Job creation • Education • Infrastructure strain</li>
-                </ul>
-
-                <h3>Case Study: India (Stage 3)</h3>
-                <ul>
-                    <li><strong>Total Fertility Rate:</strong> 2.0 (near replacement)</li>
-                    <li><strong>Population Growth:</strong> +0.7% annually • Peaked, now declining</li>
-                    <li><strong>Demographic Dividend:</strong> 68% working age (15-64) • Window until 2040</li>
-                    <li><strong>Regional Variation:</strong> Kerala (1.6 TFR) vs Bihar (3.0 TFR)</li>
-                </ul>
-
-                <h3>Fertility Rate Trends (1970-2026)</h3>
-                <div class="chart-container">
-                    <canvas id="fertility-trends-chart"></canvas>
-                </div>
-            </div>
-        </details>
-
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
+    <!-- Footer -->
+    <footer class="page-footer">
         <div class="footer-content">
             <div class="footer-section">
-                <h3>Data Sources</h3>
+                <h4>📊 Data Sources</h4>
                 <p>World Bank Population API • UN Population Division • UNHCR • IOM • Worldometer</p>
             </div>
             <div class="footer-section">
-                <h3>Last Updated</h3>
-                <p id="update-time"></p>
+                <h4>🕐 Last Updated</h4>
+                <p id="lastUpdated">Loading...</p>
             </div>
             <div class="footer-section">
-                <h3>Methodology</h3>
-                <p>Live data streams • 15-minute refresh • Multiple source validation</p>
+                <h4>📋 Methodology</h4>
+                <p>Live data streams • Real-time calculations • Multiple source validation</p>
             </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 Geotopia Encyclopedia. Made with 💚 for learners everywhere.
         </div>
     </footer>
 
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="script.js"></script>
-    <script src="population.js"></script>
+    
+    <script>
+        // ============================================
+        // POPULATION PAGE JAVASCRIPT
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // ============================================
+            // NAVIGATION
+            // ============================================
+            const nav = document.getElementById('mainNav');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            });
+            
+            // Mobile Menu
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    mobileToggle.classList.toggle('active');
+                    if (mobileMenu) mobileMenu.classList.toggle('active');
+                });
+            }
+            
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle?.querySelector('.theme-icon');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const newTheme = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    if (themeIcon) themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+                });
+            }
+            
+            // Back to Top
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 500) {
+                    backToTop?.classList.add('visible');
+                } else {
+                    backToTop?.classList.remove('visible');
+                }
+            });
+            if (backToTop) {
+                backToTop.addEventListener('click', function() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+            
+            // ============================================
+            // LIVE POPULATION COUNTER
+            // ============================================
+            const populationBase = 8100000000;
+            const populationDate = new Date('2026-01-01T00:00:00Z');
+            const birthsPerSecond = 4.3;
+            const deathsPerSecond = 1.8;
+            const netGrowthPerSecond = birthsPerSecond - deathsPerSecond;
+            
+            function updatePopulation() {
+                const now = new Date();
+                const secondsElapsed = (now - populationDate) / 1000;
+                const currentPopulation = Math.floor(populationBase + (secondsElapsed * netGrowthPerSecond));
+                
+                const el = document.getElementById('world-population');
+                if (el) {
+                    el.textContent = currentPopulation.toLocaleString();
+                }
+            }
+            
+            updatePopulation();
+            setInterval(updatePopulation, 1000);
+            
+            // ============================================
+            // UPDATE TIMESTAMP
+            // ============================================
+            const lastUpdated = document.getElementById('lastUpdated');
+            if (lastUpdated) {
+                lastUpdated.textContent = new Date().toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            // ============================================
+            // LEAFLET MAP
+            // ============================================
+            const mapContainer = document.getElementById('population-map');
+            if (mapContainer) {
+                const map = L.map('population-map').setView([20, 0], 2);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap, © CARTO',
+                    maxZoom: 18
+                }).addTo(map);
+                
+                // Major cities with population
+                const cities = [
+                    { name: 'Tokyo', pop: 37.4, coords: [35.6762, 139.6503] },
+                    { name: 'Delhi', pop: 32.9, coords: [28.6139, 77.2090] },
+                    { name: 'Shanghai', pop: 28.5, coords: [31.2304, 121.4737] },
+                    { name: 'São Paulo', pop: 22.4, coords: [-23.5505, -46.6333] },
+                    { name: 'Mexico City', pop: 21.8, coords: [19.4326, -99.1332] },
+                    { name: 'Cairo', pop: 21.3, coords: [30.0444, 31.2357] },
+                    { name: 'Mumbai', pop: 21.0, coords: [19.0760, 72.8777] },
+                    { name: 'Beijing', pop: 20.9, coords: [39.9042, 116.4074] },
+                    { name: 'Dhaka', pop: 22.5, coords: [23.8103, 90.4125] },
+                    { name: 'Lagos', pop: 15.4, coords: [6.5244, 3.3792] },
+                    { name: 'New York', pop: 18.8, coords: [40.7128, -74.0060] },
+                    { name: 'London', pop: 9.5, coords: [51.5074, -0.1278] },
+                    { name: 'Paris', pop: 11.1, coords: [48.8566, 2.3522] },
+                    { name: 'Jakarta', pop: 10.6, coords: [-6.2088, 106.8456] },
+                    { name: 'Moscow', pop: 12.5, coords: [55.7558, 37.6173] }
+                ];
+                
+                cities.forEach(city => {
+                    const radius = Math.min(city.pop * 0.8, 25);
+                    L.circleMarker(city.coords, {
+                        radius: radius,
+                        fillColor: '#3b82f6',
+                        color: '#1e40af',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.6
+                    })
+                    .bindPopup(`<strong>${city.name}</strong><br>Population: ${city.pop}M`)
+                    .addTo(map);
+                });
+            }
+            
+            // ============================================
+            // CHART.JS CONFIGURATION
+            // ============================================
+            Chart.defaults.font.family = "'Poppins', sans-serif";
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = false;
+            
+            // ============================================
+            // AGE DISTRIBUTION CHART
+            // ============================================
+            const ageCtx = document.getElementById('ageDistributionChart');
+            if (ageCtx) {
+                new Chart(ageCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['India', 'China', 'USA', 'Indonesia', 'Brazil', 'Nigeria', 'Bangladesh', 'Russia', 'Japan', 'Germany'],
+                        datasets: [
+                            {
+                                label: '0-14 years',
+                                data: [26.3, 17.3, 18.1, 23.5, 19.7, 42.3, 26.1, 17.8, 12.1, 14.2],
+                                backgroundColor: '#3b82f6',
+                                borderRadius: 4
+                            },
+                            {
+                                label: '15-64 years',
+                                data: [67.8, 70.4, 64.6, 68.7, 69.5, 54.6, 68.5, 66.1, 59.1, 64.3],
+                                backgroundColor: '#22c55e',
+                                borderRadius: 4
+                            },
+                            {
+                                label: '65+ years',
+                                data: [6.9, 12.3, 17.3, 7.8, 10.8, 3.1, 5.4, 16.1, 28.8, 21.5],
+                                backgroundColor: '#f59e0b',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            x: { stacked: true, grid: { display: false } },
+                            y: { 
+                                stacked: true, 
+                                max: 100,
+                                title: { display: true, text: 'Percentage (%)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // BIRTH VS DEATH CHART
+            // ============================================
+            const birthDeathCtx = document.getElementById('birthDeathChart');
+            if (birthDeathCtx) {
+                new Chart(birthDeathCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Africa', 'Asia', 'Europe', 'N. America', 'S. America', 'Oceania'],
+                        datasets: [
+                            {
+                                label: 'Birth Rate',
+                                data: [34.2, 16.8, 9.8, 11.2, 15.6, 17.4],
+                                backgroundColor: '#22c55e',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Death Rate',
+                                data: [7.8, 7.2, 11.2, 8.4, 6.8, 7.0],
+                                backgroundColor: '#ef4444',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { 
+                                title: { display: true, text: 'Per 1,000 population' },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // MIGRATION CHART
+            // ============================================
+            const migrationCtx = document.getElementById('migrationChart');
+            if (migrationCtx) {
+                new Chart(migrationCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['MEX→USA', 'SYR→TUR', 'IND→UAE', 'UKR→RUS', 'VEN→COL', 'AFG→PAK', 'PHL→USA', 'BGD→IND'],
+                        datasets: [{
+                            label: 'Migrants (Millions)',
+                            data: [11.2, 3.7, 3.5, 2.9, 2.5, 2.2, 2.0, 1.8],
+                            backgroundColor: [
+                                '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6',
+                                '#ec4899', '#22c55e', '#06b6d4', '#84cc16'
+                            ],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { 
+                                title: { display: true, text: 'Millions of Migrants' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // URBANIZATION CHART
+            // ============================================
+            const urbanCtx = document.getElementById('urbanizationChart');
+            if (urbanCtx) {
+                new Chart(urbanCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1800', '1850', '1900', '1950', '1980', '2000', '2010', '2020', '2026'],
+                        datasets: [
+                            {
+                                label: 'Urban %',
+                                data: [3, 6, 14, 30, 40, 47, 52, 56, 57.2],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#3b82f6'
+                            },
+                            {
+                                label: 'Rural %',
+                                data: [97, 94, 86, 70, 60, 53, 48, 44, 42.8],
+                                borderColor: '#22c55e',
+                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#22c55e'
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { 
+                                min: 0, 
+                                max: 100,
+                                title: { display: true, text: 'Percentage (%)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // DTM CHART
+            // ============================================
+            const dtmCtx = document.getElementById('dtmChart');
+            if (dtmCtx) {
+                new Chart(dtmCtx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [
+                            {
+                                label: 'Stage 5 (Declining)',
+                                data: [
+                                    { x: 8.2, y: 10.1 },
+                                    { x: 8.3, y: 9.7 },
+                                    { x: 7.8, y: 10.5 }
+                                ],
+                                backgroundColor: '#3b82f6',
+                                pointRadius: 12
+                            },
+                            {
+                                label: 'Stage 4 (Low)',
+                                data: [
+                                    { x: 10.9, y: 9.5 },
+                                    { x: 10.8, y: 9.1 },
+                                    { x: 10.7, y: 9.3 }
+                                ],
+                                backgroundColor: '#22c55e',
+                                pointRadius: 12
+                            },
+                            {
+                                label: 'Stage 3 (Transitioning)',
+                                data: [
+                                    { x: 17.6, y: 7.1 },
+                                    { x: 10.9, y: 7.4 },
+                                    { x: 14.8, y: 6.3 }
+                                ],
+                                backgroundColor: '#f59e0b',
+                                pointRadius: 12
+                            },
+                            {
+                                label: 'Stage 2 (Expanding)',
+                                data: [
+                                    { x: 36.9, y: 8.4 },
+                                    { x: 32.1, y: 6.2 },
+                                    { x: 38.5, y: 9.1 }
+                                ],
+                                backgroundColor: '#ef4444',
+                                pointRadius: 12
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            x: { 
+                                min: 0, 
+                                max: 45,
+                                title: { display: true, text: 'Birth Rate (per 1000)' }
+                            },
+                            y: { 
+                                min: 0, 
+                                max: 15,
+                                title: { display: true, text: 'Death Rate (per 1000)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // PYRAMID CHART
+            // ============================================
+            const pyramidCtx = document.getElementById('pyramidChart');
+            if (pyramidCtx) {
+                const pyramidData = {
+                    india: {
+                        labels: ['0-4', '5-9', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39', '40-44', '45-49', '50-54', '55-59', '60-64', '65-69', '70-74', '75+'],
+                        male: [-4.2, -4.5, -4.8, -5.0, -5.2, -5.0, -4.5, -4.0, -3.5, -3.2, -2.8, -2.3, -1.8, -1.4, -1.0, -0.8],
+                        female: [3.9, 4.2, 4.5, 4.7, 4.9, 4.8, 4.3, 3.8, 3.4, 3.1, 2.7, 2.2, 1.8, 1.5, 1.1, 1.0]
+                    }
+                };
+                
+                new Chart(pyramidCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: pyramidData.india.labels,
+                        datasets: [
+                            {
+                                label: 'Male',
+                                data: pyramidData.india.male,
+                                backgroundColor: '#3b82f6',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Female',
+                                data: pyramidData.india.female,
+                                backgroundColor: '#ec4899',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        return ctx.dataset.label + ': ' + Math.abs(ctx.raw) + '%';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                min: -6,
+                                max: 6,
+                                ticks: {
+                                    callback: function(value) {
+                                        return Math.abs(value) + '%';
+                                    }
+                                },
+                                title: { display: true, text: 'Percentage of Population' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // ============================================
+            // YEAR BUTTONS
+            // ============================================
+            const yearBtns = document.querySelectorAll('.year-btn');
+            yearBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    yearBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const year = this.getAttribute('data-year');
+                    const titleEl = document.getElementById('pyramidTitle');
+                    const countrySelect = document.getElementById('countrySelect');
+                    const country = countrySelect ? countrySelect.options[countrySelect.selectedIndex].text : 'India';
+                    
+                    if (titleEl) {
+                        titleEl.textContent = country + ' ' + year;
+                    }
+                });
+            });
+            
+            // Country Select Change
+            const countrySelect = document.getElementById('countrySelect');
+            if (countrySelect) {
+                countrySelect.addEventListener('change', function() {
+                    const titleEl = document.getElementById('pyramidTitle');
+                    const activeYear = document.querySelector('.year-btn.active');
+                    const year = activeYear ? activeYear.getAttribute('data-year') : '2026';
+                    const country = this.options[this.selectedIndex].text;
+                    
+                    if (titleEl) {
+                        titleEl.textContent = country + ' ' + year;
+                    }
+                });
+            }
+            
+            console.log('✅ Population page loaded successfully!');
+        });
+    </script>
 </body>
 </html>
