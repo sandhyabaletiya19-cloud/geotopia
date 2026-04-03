@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="World Natural Resources - Energy, water, minerals, food security, and resource management.">
+    <title>Natural Resources ⛏️ | Geotopia Encyclopedia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .live-stats-banner {
+            background: linear-gradient(135deg, #854d0e 0%, #065f46 100%);
+            padding: 2rem;
+            margin: -2rem 0 2rem 0;
+        }
+        
+        .live-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .live-stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .live-stat-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .live-stat-value { font-size: 1.8rem; font-weight: 700; color: white; }
+        .live-stat-label { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); }
+        
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            color: #4ade80;
+            margin-top: 0.5rem;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 1.5s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .page-content { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .map-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .map-container h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+        
+        #resources-map {
+            height: 450px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .accordion-section { margin-bottom: 1.5rem; }
+        
+        .accordion-section details {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .accordion-section summary {
+            padding: 1.5rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #854d0e, #065f46);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            list-style: none;
+        }
+        
+        .accordion-section summary::-webkit-details-marker { display: none; }
+        .accordion-section summary::after { content: '+'; margin-left: auto; font-size: 1.5rem; }
+        .accordion-section details[open] summary::after { content: '−'; }
+        .accordion-content { padding: 2rem; }
+        
+        .chart-wrapper {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-wrapper h3 { font-size: 1.1rem; margin-bottom: 1rem; color: #374151; text-align: center; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mini-stat-card {
+            background: linear-gradient(135deg, #fef3c7, #d9f99d);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid #854d0e;
+        }
+        
+        .mini-stat-card .label { font-size: 0.85rem; color: #6b7280; }
+        .mini-stat-card .value { font-size: 1.8rem; font-weight: 700; color: #713f12; }
+        .mini-stat-card .sub { font-size: 0.8rem; color: #6b7280; }
+        
+        /* Energy Mix Cards */
+        .energy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .energy-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid;
+        }
+        
+        .energy-card.oil { border-color: #1f2937; }
+        .energy-card.gas { border-color: #3b82f6; }
+        .energy-card.coal { border-color: #6b7280; }
+        .energy-card.nuclear { border-color: #f59e0b; }
+        .energy-card.hydro { border-color: #06b6d4; }
+        .energy-card.solar { border-color: #eab308; }
+        .energy-card.wind { border-color: #22c55e; }
+        
+        .energy-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .energy-card h4 { font-size: 1rem; margin-bottom: 0.25rem; }
+        .energy-percent { font-size: 1.8rem; font-weight: 700; }
+        
+        /* Water Stress Indicator */
+        .water-stress-meter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stress-level {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .stress-low { background: #22c55e; }
+        .stress-medium { background: #f59e0b; }
+        .stress-high { background: #ef4444; }
+        .stress-extreme { background: #7f1d1d; }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .data-table thead { background: linear-gradient(135deg, #854d0e, #713f12); color: white; }
+        .data-table th, .data-table td { padding: 1rem; text-align: left; }
+        .data-table td { border-bottom: 1px solid #e5e7eb; }
+        .data-table tbody tr:hover { background: #f9fafb; }
+        
+        .info-list { list-style: none; padding: 0; }
+        .info-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .info-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #854d0e;
+            font-weight: bold;
+        }
+        
+        .mindmap-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+        
+        .mindmap-node {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mindmap-node small { font-size: 0.7rem; font-weight: 400; opacity: 0.9; }
+        
+        .page-footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h4 { color: #fbbf24; margin-bottom: 0.75rem; }
+        .footer-bottom { text-align: center; padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); opacity: 0.7; }
+        
+        @media (max-width: 768px) {
+            .live-stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-row { grid-template-columns: 1fr; }
+            #resources-map { height: 350px; }
+        }
+        
+        @media (max-width: 480px) {
+            .live-stats-grid { grid-template-columns: 1fr; }
+            .energy-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛏️</text></svg>">
+</head>
+<body>
+    
+    <nav class="main-nav" id="mainNav">
+        <div class="nav-container">
+            <a href="../../index.html" class="nav-logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">Geotopia</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html" class="nav-link">📚 Encyclopedia</a>
+                <a href="index.html" class="nav-link">👥 Human Geography</a>
+                <a href="resources.html" class="nav-link active">⛏️ Resources</a>
+            </div>
+            <button class="theme-toggle" id="themeToggle"><span class="theme-icon">🌙</span></button>
+        </div>
+    </nav>
+
+    <header class="hero-section" id="hero">
+        <div class="hero-background">
+            <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1920&q=80" alt="Natural Resources" class="hero-image" loading="eager">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">⛏️</span>
+                <span class="badge-text">Live Data • April 2026</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="title-line">Natural</span>
+                <span class="title-line title-highlight">Resources</span>
+                <span class="title-emoji">🌿</span>
+            </h1>
+            <p class="hero-subtitle">Energy • Water • Minerals • Food security • Sustainability</p>
+        </div>
+    </header>
+
+    <section class="live-stats-banner">
+        <div class="live-stats-grid">
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🛢️</div>
+                <div class="live-stat-value" id="oil-production">101.5M</div>
+                <div class="live-stat-label">Barrels/Day Oil</div>
+                <div class="live-indicator"><span class="live-dot"></span> Live</div>
+            </div>
+            <div class="live-stat-card">
+                <div class="live-stat-icon">⚡</div>
+                <div class="live-stat-value">31.4%</div>
+                <div class="live-stat-label">Renewable Energy</div>
+            </div>
+            <div class="live-stat-card">
+                <div class="live-stat-icon">💧</div>
+                <div class="live-stat-value">2.2B</div>
+                <div class="live-stat-label">Lack Safe Water</div>
+            </div>
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🌾</div>
+                <div class="live-stat-value">108</div>
+                <div class="live-stat-label">Food Security Index</div>
+            </div>
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🔋</div>
+                <div class="live-stat-value">Lithium</div>
+                <div class="live-stat-label">Critical Mineral 2026</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="page-content">
+        
+        <div class="map-container">
+            <h2>🗺️ Global Resource Distribution</h2>
+            <div id="resources-map"></div>
+        </div>
+
+        <!-- Energy Resources -->
+        <div class="accordion-section">
+            <details open>
+                <summary>⚡ Energy Resources</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Primary Energy</div>
+                            <div class="value">595 EJ</div>
+                            <div class="sub">Annual consumption</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Oil Reserves</div>
+                            <div class="value">1,732B</div>
+                            <div class="sub">Barrels remaining</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Renewables Growth</div>
+                            <div class="value">+9.7%</div>
+                            <div class="sub">Year over year</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Peak Oil</div>
+                            <div class="value">2030</div>
+                            <div class="sub">IEA projection</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🔋 Global Energy Mix (2026)</h3>
+                    <div class="energy-grid">
+                        <div class="energy-card oil">
+                            <div class="energy-icon">🛢️</div>
+                            <h4>Oil</h4>
+                            <div class="energy-percent">30.2%</div>
+                        </div>
+                        <div class="energy-card coal">
+                            <div class="energy-icon">⚫</div>
+                            <h4>Coal</h4>
+                            <div class="energy-percent">26.1%</div>
+                        </div>
+                        <div class="energy-card gas">
+                            <div class="energy-icon">🔵</div>
+                            <h4>Natural Gas</h4>
+                            <div class="energy-percent">23.8%</div>
+                        </div>
+                        <div class="energy-card hydro">
+                            <div class="energy-icon">💧</div>
+                            <h4>Hydroelectric</h4>
+                            <div class="energy-percent">6.8%</div>
+                        </div>
+                        <div class="energy-card nuclear">
+                            <div class="energy-icon">☢️</div>
+                            <h4>Nuclear</h4>
+                            <div class="energy-percent">4.3%</div>
+                        </div>
+                        <div class="energy-card wind">
+                            <div class="energy-icon">🌬️</div>
+                            <h4>Wind</h4>
+                            <div class="energy-percent">4.2%</div>
+                        </div>
+                        <div class="energy-card solar">
+                            <div class="energy-icon">☀️</div>
+                            <h4>Solar</h4>
+                            <div class="energy-percent">4.6%</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🛢️ Top Oil Producers (2026)</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Country</th>
+                                <th>Production (M b/d)</th>
+                                <th>% of Global</th>
+                                <th>Reserves (B barrels)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>🇺🇸 USA</td><td>13.2</td><td>13.0%</td><td>68.8</td></tr>
+                            <tr><td>2</td><td>🇸🇦 Saudi Arabia</td><td>11.5</td><td>11.3%</td><td>297.5</td></tr>
+                            <tr><td>3</td><td>🇷🇺 Russia</td><td>10.8</td><td>10.6%</td><td>107.8</td></tr>
+                            <tr><td>4</td><td>🇨🇦 Canada</td><td>5.7</td><td>5.6%</td><td>168.1</td></tr>
+                            <tr><td>5</td><td>🇮🇶 Iraq</td><td>4.6</td><td>4.5%</td><td>145.0</td></tr>
+                            <tr><td>6</td><td>🇨🇳 China</td><td>4.2</td><td>4.1%</td><td>26.0</td></tr>
+                            <tr><td>7</td><td>🇦🇪 UAE</td><td>4.1</td><td>4.0%</td><td>111.0</td></tr>
+                            <tr><td>8</td><td>🇮🇷 Iran</td><td>3.9</td><td>3.8%</td><td>208.6</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Energy Transition Timeline</h3>
+                        <div class="chart-container">
+                            <canvas id="energyTransitionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Water Resources -->
+        <div class="accordion-section">
+            <details>
+                <summary>💧 Water Resources</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Fresh Water</div>
+                            <div class="value">2.5%</div>
+                            <div class="sub">Of total water</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Water Stressed</div>
+                            <div class="value">2.3B</div>
+                            <div class="sub">People affected</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Agriculture Use</div>
+                            <div class="value">70%</div>
+                            <div class="sub">Of freshwater</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Groundwater</div>
+                            <div class="value">99%</div>
+                            <div class="sub">Of liquid freshwater</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🌊 Water Stress Levels (2026)</h3>
+                    <div class="water-stress-meter">
+                        <div class="stress-level stress-low">
+                            <strong>Low Stress</strong><br>
+                            <span>87 countries</span>
+                        </div>
+                        <div class="stress-level stress-medium">
+                            <strong>Medium</strong><br>
+                            <span>31 countries</span>
+                        </div>
+                        <div class="stress-level stress-high">
+                            <strong>High Stress</strong><br>
+                            <span>44 countries</span>
+                        </div>
+                        <div class="stress-level stress-extreme">
+                            <strong>Extreme</strong><br>
+                            <span>17 countries</span>
+                        </div>
+                    </div>
+                    
+                    <h3>🏜️ Most Water-Stressed Countries</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Country</th>
+                                <th>Stress Level</th>
+                                <th>Water/Capita (m³)</th>
+                                <th>Main Issue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>🇶🇦 Qatar</td><td>Extremely High</td><td>21</td><td>Desert climate</td></tr>
+                            <tr><td>🇮🇱 Israel</td><td>Extremely High</td><td>91</td><td>Arid region</td></tr>
+                            <tr><td>🇱🇧 Lebanon</td><td>Extremely High</td><td>656</td><td>Infrastructure</td></tr>
+                            <tr><td>🇮🇷 Iran</td><td>Extremely High</td><td>1,544</td><td>Over-extraction</td></tr>
+                            <tr><td>🇯🇴 Jordan</td><td>Extremely High</td><td>78</td><td>Refugees + climate</td></tr>
+                            <tr><td>🇱🇾 Libya</td><td>Extremely High</td><td>96</td><td>Sahara desert</td></tr>
+                            <tr><td>🇰🇼 Kuwait</td><td>Extremely High</td><td>5</td><td>Zero rivers</td></tr>
+                            <tr><td>🇸🇦 Saudi Arabia</td><td>Extremely High</td><td>84</td><td>Desalination dependent</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>💡 Water Solutions</h3>
+                    <div class="mindmap-container">
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                            <strong>Desalination</strong>
+                            <small>22,000 plants</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                            <strong>Recycling</strong>
+                            <small>Gray water use</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                            <strong>Rainwater</strong>
+                            <small>Harvesting</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <strong>Drip Irrigation</strong>
+                            <small>90% efficiency</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <strong>Aquifer Mgmt</strong>
+                            <small>Recharge zones</small>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Minerals -->
+        <div class="accordion-section">
+            <details>
+                <summary>⛏️ Minerals & Mining</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Mining Industry</div>
+                            <div class="value">$2.1T</div>
+                            <div class="sub">Annual value</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Mining Jobs</div>
+                            <div class="value">40M</div>
+                            <div class="sub">Direct employment</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Critical Minerals</div>
+                            <div class="value">50+</div>
+                            <div class="sub">EU/US lists</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Top Producer</div>
+                            <div class="value">China</div>
+                            <div class="sub">Rare earths 60%</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🔋 Critical Minerals for Energy Transition</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Mineral</th>
+                                <th>Top Producer</th>
+                                <th>Main Use</th>
+                                <th>Demand Growth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Lithium</td><td>🇦🇺 Australia (52%)</td><td>EV batteries</td><td>+300% by 2030</td></tr>
+                            <tr><td>Cobalt</td><td>🇨🇩 DR Congo (73%)</td><td>Battery cathodes</td><td>+180% by 2030</td></tr>
+                            <tr><td>Nickel</td><td>🇮🇩 Indonesia (49%)</td><td>Stainless, batteries</td><td>+140% by 2030</td></tr>
+                            <tr><td>Rare Earths</td><td>🇨🇳 China (60%)</td><td>Magnets, EVs</td><td>+250% by 2030</td></tr>
+                            <tr><td>Graphite</td><td>🇨🇳 China (65%)</td><td>Battery anodes</td><td>+200% by 2030</td></tr>
+                            <tr><td>Copper</td><td>🇨🇱 Chile (27%)</td><td>Wiring, EVs</td><td>+80% by 2030</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="charts-row">
+                        <div class="chart-wrapper">
+                            <h3>Mineral Production by Country</h3>
+                            <div class="chart-container">
+                                <canvas id="mineralProductionChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-wrapper">
+                            <h3>Critical Mineral Demand Forecast</h3>
+                            <div class="chart-container">
+                                <canvas id="mineralDemandChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Food Security -->
+        <div class="accordion-section">
+            <details>
+                <summary>🌾 Food Security</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Undernourished</div>
+                            <div class="value">735M</div>
+                            <div class="sub">9% of world</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Food Waste</div>
+                            <div class="value">1.3B</div>
+                            <div class="sub">Tonnes/year</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Arable Land</div>
+                            <div class="value">1.4B ha</div>
+                            <div class="sub">10.6% of land</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Food Price Index</div>
+                            <div class="value">118.2</div>
+                            <div class="sub">FAO 2026</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🍽️ Global Hunger Index (2026)</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Countries</th>
+                                <th>Population</th>
+                                <th>Examples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="color: #22c55e;"><strong>Low</strong></td><td>46</td><td>2.1B</td><td>Europe, N. America, Australia</td></tr>
+                            <tr><td style="color: #84cc16;"><strong>Moderate</strong></td><td>32</td><td>1.8B</td><td>China, Brazil, Mexico</td></tr>
+                            <tr><td style="color: #f59e0b;"><strong>Serious</strong></td><td>41</td><td>2.4B</td><td>India, Indonesia, Nigeria</td></tr>
+                            <tr><td style="color: #ef4444;"><strong>Alarming</strong></td><td>34</td><td>1.2B</td><td>Pakistan, Bangladesh, Kenya</td></tr>
+                            <tr><td style="color: #7f1d1d;"><strong>Extremely Alarming</strong></td><td>9</td><td>180M</td><td>Yemen, CAR, Madagascar</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>📊 Food Production Leaders</h3>
+                    <ul class="info-list">
+                        <li><strong>China:</strong> #1 rice, wheat, vegetables • 1.4B people fed • 20% global food</li>
+                        <li><strong>India:</strong> #1 milk, pulses, spices • 1.4B people • Largest vegetarian population</li>
+                        <li><strong>USA:</strong> #1 corn, soybeans • Feeds 800M globally through exports</li>
+                        <li><strong>Brazil:</strong> #1 sugar, coffee, oranges • Major soy/beef exporter</li>
+                        <li><strong>Indonesia:</strong> #1 palm oil • 4th most populous • Rice self-sufficient</li>
+                    </ul>
+                    
+                </div>
+            </details>
+        </div>
+
+    </main>
+
+    <footer class="page-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>📊 Data Sources</h4>
+                <p>EIA • IEA • WRI Aqueduct • USGS • FAO • World Bank</p>
+            </div>
+            <div class="footer-section">
+                <h4>🕐 Last Updated</h4>
+                <p>April 3, 2026</p>
+            </div>
+            <div class="footer-section">
+                <h4>📋 Methodology</h4>
+                <p>Government reports • International agency data • Satellite monitoring</p>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2026 Geotopia Encyclopedia</div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop">↑</button>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Navigation
+            const nav = document.getElementById('mainNav');
+            window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+            
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            themeToggle?.addEventListener('click', function() {
+                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            // Back to Top
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => backToTop?.classList.toggle('visible', window.scrollY > 500));
+            backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            
+            // Map
+            const mapContainer = document.getElementById('resources-map');
+            if (mapContainer) {
+                const map = L.map('resources-map').setView([20, 0], 2);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+                
+                const resources = [
+                    { name: 'Saudi Arabia Oil', coords: [23.8859, 45.0792], type: 'oil' },
+                    { name: 'Australia Lithium', coords: [-25.2744, 133.7751], type: 'mineral' },
+                    { name: 'Congo Cobalt', coords: [-4.0383, 21.7587], type: 'mineral' },
+                    { name: 'Chile Copper', coords: [-33.4489, -70.6693], type: 'mineral' },
+                    { name: 'Qatar Gas', coords: [25.3548, 51.1839], type: 'gas' },
+                    { name: 'China Rare Earths', coords: [35.8617, 104.1954], type: 'mineral' },
+                    { name: 'Brazil Iron', coords: [-14.2350, -51.9253], type: 'mineral' },
+                    { name: 'Russia Gas', coords: [61.5240, 105.3188], type: 'gas' }
+                ];
+                
+                const colors = { oil: '#1f2937', mineral: '#f59e0b', gas: '#3b82f6' };
+                
+                resources.forEach(r => {
+                    L.circleMarker(r.coords, {
+                        radius: 12,
+                        fillColor: colors[r.type],
+                        color: '#fff',
+                        weight: 2,
+                        fillOpacity: 0.8
+                    }).bindPopup(`<strong>${r.name}</strong>`).addTo(map);
+                });
+            }
+            
+            // Charts
+            Chart.defaults.font.family = "'Poppins', sans-serif";
+            
+            // Energy Transition Chart
+            const energyCtx = document.getElementById('energyTransitionChart');
+            if (energyCtx) {
+                new Chart(energyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['2000', '2010', '2020', '2026', '2030', '2040', '2050'],
+                        datasets: [
+                            { label: 'Fossil Fuels', data: [86, 82, 80, 75, 68, 50, 30], borderColor: '#1f2937', tension: 0.4 },
+                            { label: 'Renewables', data: [7, 10, 14, 21, 30, 45, 60], borderColor: '#22c55e', tension: 0.4 },
+                            { label: 'Nuclear', data: [7, 8, 6, 4, 5, 8, 10], borderColor: '#f59e0b', tension: 0.4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+            
+            // Mineral Production Chart
+            const mineralCtx = document.getElementById('mineralProductionChart');
+            if (mineralCtx) {
+                new Chart(mineralCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['China', 'Australia', 'USA', 'Russia', 'Brazil', 'Chile', 'DRC', 'Indonesia'],
+                        datasets: [{
+                            label: 'Mining Output ($B)',
+                            data: [420, 185, 120, 115, 95, 85, 45, 42],
+                            backgroundColor: '#854d0e',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+            
+            // Mineral Demand Chart
+            const demandCtx = document.getElementById('mineralDemandChart');
+            if (demandCtx) {
+                new Chart(demandCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Lithium', 'Cobalt', 'Nickel', 'Graphite', 'Copper', 'Rare Earths'],
+                        datasets: [
+                            { label: '2020', data: [100, 100, 100, 100, 100, 100], backgroundColor: '#6b7280' },
+                            { label: '2030', data: [400, 280, 240, 300, 180, 350], backgroundColor: '#22c55e' }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+            
+            console.log('✅ Resources page loaded!');
+        });
+    </script>
+</body>
+</html>
