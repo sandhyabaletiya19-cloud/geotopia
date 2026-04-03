@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="World Political Geography - Nations, borders, governments, geopolitics, and international organizations.">
+    <title>Political Geography 🗳️ | Geotopia Encyclopedia</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Page Specific Styles -->
+    <style>
+        .live-stats-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            padding: 2rem;
+            margin: -2rem 0 2rem 0;
+        }
+        
+        .live-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .live-stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .live-stat-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .live-stat-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .live-stat-value { font-size: 1.8rem; font-weight: 700; color: white; margin-bottom: 0.25rem; }
+        .live-stat-label { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); }
+        
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            color: #4ade80;
+            margin-top: 0.5rem;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 1.5s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .page-content { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .map-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .map-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        #political-map {
+            height: 450px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+        .legend-color { width: 24px; height: 16px; border-radius: 4px; border: 1px solid #e5e7eb; }
+        
+        .accordion-section { margin-bottom: 1.5rem; }
+        
+        .accordion-section details {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .accordion-section summary {
+            padding: 1.5rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #1e3a8a, #7c3aed);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            user-select: none;
+            list-style: none;
+        }
+        
+        .accordion-section summary::-webkit-details-marker { display: none; }
+        .accordion-section summary::after { content: '+'; margin-left: auto; font-size: 1.5rem; }
+        .accordion-section details[open] summary::after { content: '−'; }
+        .accordion-section summary:hover { filter: brightness(1.05); }
+        .accordion-content { padding: 2rem; }
+        
+        .chart-wrapper {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-wrapper h3 { font-size: 1.1rem; margin-bottom: 1rem; color: #374151; text-align: center; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mini-stat-card {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid #1e40af;
+        }
+        
+        .mini-stat-card .label { font-size: 0.85rem; color: #6b7280; margin-bottom: 0.25rem; }
+        .mini-stat-card .value { font-size: 1.8rem; font-weight: 700; color: #1e3a8a; }
+        .mini-stat-card .sub { font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem; }
+        
+        /* Government Type Cards */
+        .gov-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .gov-type-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .gov-type-card:hover { transform: translateY(-3px); }
+        .gov-type-card.democracy { border-color: #22c55e; }
+        .gov-type-card.authoritarian { border-color: #ef4444; }
+        .gov-type-card.hybrid { border-color: #f59e0b; }
+        .gov-type-card.monarchy { border-color: #8b5cf6; }
+        
+        .gov-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .gov-type-card h4 { font-size: 1rem; margin-bottom: 0.25rem; }
+        .gov-count { font-size: 1.8rem; font-weight: 700; }
+        .gov-type-card.democracy .gov-count { color: #22c55e; }
+        .gov-type-card.authoritarian .gov-count { color: #ef4444; }
+        .gov-type-card.hybrid .gov-count { color: #f59e0b; }
+        .gov-type-card.monarchy .gov-count { color: #8b5cf6; }
+        
+        /* Conflict Zones */
+        .conflict-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .conflict-item {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-left: 4px solid #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .conflict-item h5 { color: #b91c1c; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .conflict-item p { font-size: 0.9rem; color: #6b7280; }
+        
+        /* Organization Cards */
+        .org-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .org-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .org-header {
+            padding: 1.25rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .org-header.un { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .org-header.eu { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+        .org-header.nato { background: linear-gradient(135deg, #1e3a8a, #1e40af); }
+        .org-header.au { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .org-header.asean { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        
+        .org-header .icon { font-size: 2rem; }
+        .org-header h4 { font-size: 1.1rem; }
+        .org-content { padding: 1.25rem; }
+        .org-content ul { list-style: none; padding: 0; }
+        .org-content li { padding: 0.4rem 0; font-size: 0.9rem; padding-left: 1.5rem; position: relative; }
+        .org-content li::before { content: '•'; position: absolute; left: 0; color: #3b82f6; }
+        
+        .info-list { list-style: none; padding: 0; }
+        .info-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            border-bottom: 1px solid #e5e7eb;
+            line-height: 1.6;
+        }
+        .info-list li:last-child { border-bottom: none; }
+        .info-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #1e40af;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .info-list li strong { color: #1f2937; }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .data-table thead { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; }
+        .data-table th { padding: 1rem; text-align: left; font-weight: 600; font-size: 0.9rem; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid #e5e7eb; font-size: 0.95rem; }
+        .data-table tbody tr:hover { background: #f9fafb; }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+        
+        .mindmap-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mindmap-node {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .mindmap-node:hover { transform: scale(1.1); }
+        .mindmap-node small { font-size: 0.7rem; font-weight: 400; opacity: 0.9; margin-top: 0.25rem; }
+        
+        .page-footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h4 { color: #60a5fa; margin-bottom: 0.75rem; font-size: 1rem; }
+        .footer-section p { font-size: 0.9rem; opacity: 0.9; line-height: 1.6; }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 768px) {
+            .live-stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-row { grid-template-columns: 1fr; }
+            .chart-container { height: 300px; }
+            #political-map { height: 350px; }
+            .accordion-section summary { padding: 1.25rem 1.5rem; font-size: 1.1rem; }
+            .accordion-content { padding: 1.5rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .live-stats-grid { grid-template-columns: 1fr; }
+            .live-stat-value { font-size: 1.5rem; }
+            .mindmap-container { flex-direction: column; }
+            .gov-types-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗳️</text></svg>">
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <nav class="main-nav" id="mainNav">
+        <div class="nav-container">
+            <a href="../../index.html" class="nav-logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">Geotopia</span>
+            </a>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="../index.html" class="nav-link">📚 Encyclopedia</a>
+                <a href="index.html" class="nav-link">👥 Human Geography</a>
+                <a href="political.html" class="nav-link active">🗳️ Political</a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section" id="hero">
+        <div class="hero-background">
+            <img src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1920&q=80" 
+                 alt="World Politics" 
+                 class="hero-image"
+                 loading="eager">
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">🗳️</span>
+                <span class="badge-text">Geopolitics • April 2026</span>
+            </div>
+            
+            <h1 class="hero-title">
+                <span class="title-line">Political</span>
+                <span class="title-line title-highlight">Geography</span>
+                <span class="title-emoji">🏛️</span>
+            </h1>
+            
+            <p class="hero-subtitle">
+                Nations • Borders • Governments • Conflicts • International organizations
+            </p>
+        </div>
+    </header>
+
+    <!-- Live Stats Banner -->
+    <section class="live-stats-banner">
+        <div class="live-stats-grid">
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🌍</div>
+                <div class="live-stat-value">195</div>
+                <div class="live-stat-label">Sovereign Nations</div>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>UN Recognized</span>
+                </div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🏛️</div>
+                <div class="live-stat-value">5.46</div>
+                <div class="live-stat-label">Democracy Index</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">⚔️</div>
+                <div class="live-stat-value">32</div>
+                <div class="live-stat-label">Active Conflicts</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🤝</div>
+                <div class="live-stat-value">193</div>
+                <div class="live-stat-label">UN Members</div>
+            </div>
+            
+            <div class="live-stat-card">
+                <div class="live-stat-icon">🚧</div>
+                <div class="live-stat-value">60+</div>
+                <div class="live-stat-label">Border Disputes</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        
+        <!-- World Map -->
+        <div class="map-container">
+            <h2>🗺️ World Political Map - Government Types</h2>
+            <div id="political-map"></div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #22c55e;"></span>
+                    <span>Full Democracy</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #84cc16;"></span>
+                    <span>Flawed Democracy</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #f59e0b;"></span>
+                    <span>Hybrid Regime</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #ef4444;"></span>
+                    <span>Authoritarian</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Sections -->
+        
+        <!-- Sovereignty & Nations -->
+        <div class="accordion-section">
+            <details open>
+                <summary>🏛️ Sovereignty & Nations</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">UN Members</div>
+                            <div class="value">193</div>
+                            <div class="sub">Full membership</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Observer States</div>
+                            <div class="value">2</div>
+                            <div class="sub">Vatican, Palestine</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Disputed Territories</div>
+                            <div class="value">16</div>
+                            <div class="sub">Partial recognition</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Newest Country</div>
+                            <div class="value">South Sudan</div>
+                            <div class="sub">2011</div>
+                        </div>
+                    </div>
+                    
+                    <h3>📊 Government Types (2026)</h3>
+                    <div class="gov-types-grid">
+                        <div class="gov-type-card democracy">
+                            <div class="gov-icon">🗳️</div>
+                            <h4>Full Democracies</h4>
+                            <div class="gov-count">24</div>
+                        </div>
+                        <div class="gov-type-card democracy" style="border-color: #84cc16;">
+                            <div class="gov-icon">📋</div>
+                            <h4>Flawed Democracies</h4>
+                            <div class="gov-count" style="color: #84cc16;">50</div>
+                        </div>
+                        <div class="gov-type-card hybrid">
+                            <div class="gov-icon">⚖️</div>
+                            <h4>Hybrid Regimes</h4>
+                            <div class="gov-count">34</div>
+                        </div>
+                        <div class="gov-type-card authoritarian">
+                            <div class="gov-icon">👊</div>
+                            <h4>Authoritarian</h4>
+                            <div class="gov-count">59</div>
+                        </div>
+                        <div class="gov-type-card monarchy">
+                            <div class="gov-icon">👑</div>
+                            <h4>Monarchies</h4>
+                            <div class="gov-count">43</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🏆 Democracy Index 2026 Rankings</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Country</th>
+                                <th>Score</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>🇳🇴 Norway</td><td>9.81</td><td>Full Democracy</td></tr>
+                            <tr><td>2</td><td>🇮🇸 Iceland</td><td>9.52</td><td>Full Democracy</td></tr>
+                            <tr><td>3</td><td>🇸🇪 Sweden</td><td>9.39</td><td>Full Democracy</td></tr>
+                            <tr><td>4</td><td>🇳🇿 New Zealand</td><td>9.37</td><td>Full Democracy</td></tr>
+                            <tr><td>5</td><td>🇫🇮 Finland</td><td>9.27</td><td>Full Democracy</td></tr>
+                            <tr><td>6</td><td>🇩🇰 Denmark</td><td>9.22</td><td>Full Democracy</td></tr>
+                            <tr><td>7</td><td>🇮🇪 Ireland</td><td>9.19</td><td>Full Democracy</td></tr>
+                            <tr><td>8</td><td>🇨🇭 Switzerland</td><td>9.14</td><td>Full Democracy</td></tr>
+                            <tr><td>9</td><td>🇳🇱 Netherlands</td><td>9.00</td><td>Full Democracy</td></tr>
+                            <tr><td>10</td><td>🇱🇺 Luxembourg</td><td>8.93</td><td>Full Democracy</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>🏝️ Microstates & Special Territories</h3>
+                    <ul class="info-list">
+                        <li><strong>Vatican City:</strong> 0.44 km² • 825 people • Smallest independent state</li>
+                        <li><strong>Monaco:</strong> 2.02 km² • 39,000 • Densest country</li>
+                        <li><strong>San Marino:</strong> 61 km² • Oldest republic (301 AD)</li>
+                        <li><strong>Liechtenstein:</strong> 160 km² • Double landlocked</li>
+                        <li><strong>Hong Kong:</strong> SAR of China • One Country, Two Systems until 2047</li>
+                        <li><strong>Puerto Rico:</strong> US unincorporated territory • 3.2M population</li>
+                    </ul>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Borders & Disputes -->
+        <div class="accordion-section">
+            <details>
+                <summary>🚧 Borders & Territorial Disputes</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">International Borders</div>
+                            <div class="value">315</div>
+                            <div class="sub">Land boundaries</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Border Length</div>
+                            <div class="value">251,060 km</div>
+                            <div class="sub">Total global</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Active Disputes</div>
+                            <div class="value">60+</div>
+                            <div class="sub">Territorial claims</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Most Borders</div>
+                            <div class="value">China/Russia</div>
+                            <div class="sub">14 neighbors each</div>
+                        </div>
+                    </div>
+                    
+                    <h3>⚠️ Major Territorial Disputes (2026)</h3>
+                    <div class="conflict-list">
+                        <div class="conflict-item">
+                            <h5>🌊 South China Sea</h5>
+                            <p>China vs Philippines, Vietnam, Malaysia, Taiwan • Strategic trade routes • Oil/gas reserves</p>
+                        </div>
+                        <div class="conflict-item">
+                            <h5>🏔️ Kashmir</h5>
+                            <p>India vs Pakistan vs China • Since 1947 • Nuclear-armed rivals</p>
+                        </div>
+                        <div class="conflict-item">
+                            <h5>🇺🇦 Crimea & Eastern Ukraine</h5>
+                            <p>Russia vs Ukraine • Annexed 2014 • Ongoing conflict</p>
+                        </div>
+                        <div class="conflict-item">
+                            <h5>🇵🇸 Palestine-Israel</h5>
+                            <p>West Bank, Gaza, Jerusalem • Since 1948 • Two-state solution stalled</p>
+                        </div>
+                        <div class="conflict-item">
+                            <h5>🇹🇼 Taiwan</h5>
+                            <p>China claims sovereignty • Self-governing since 1949 • US strategic ambiguity</p>
+                        </div>
+                        <div class="conflict-item">
+                            <h5>🇰🇷 Korean Peninsula</h5>
+                            <p>North vs South Korea • Armistice since 1953 • DMZ remains</p>
+                        </div>
+                    </div>
+                    
+                    <h3>🌊 Maritime Boundaries</h3>
+                    <div class="mindmap-container">
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                            <strong>Territorial Sea</strong>
+                            <small>12 nautical miles</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                            <strong>Contiguous Zone</strong>
+                            <small>24 nautical miles</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <strong>EEZ</strong>
+                            <small>200 nautical miles</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <strong>Continental Shelf</strong>
+                            <small>Up to 350 nm</small>
+                        </div>
+                        <div class="mindmap-node" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                            <strong>High Seas</strong>
+                            <small>International waters</small>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Geopolitics -->
+        <div class="accordion-section">
+            <details>
+                <summary>🌐 Geopolitics 2026</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Nuclear Powers</div>
+                            <div class="value">9</div>
+                            <div class="sub">Confirmed states</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">UN Security Council</div>
+                            <div class="value">5+10</div>
+                            <div class="sub">Permanent + rotating</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">NATO Members</div>
+                            <div class="value">32</div>
+                            <div class="sub">Military alliance</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">G20 Share of GDP</div>
+                            <div class="value">85%</div>
+                            <div class="sub">Global economy</div>
+                        </div>
+                    </div>
+                    
+                    <h3>⚔️ Strategic Chokepoints</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Chokepoint</th>
+                                <th>Location</th>
+                                <th>Trade Volume</th>
+                                <th>Strategic Importance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Strait of Malacca</td><td>Singapore-Indonesia</td><td>25% world trade</td><td>China's oil lifeline</td></tr>
+                            <tr><td>Strait of Hormuz</td><td>Iran-UAE-Oman</td><td>21% oil trade</td><td>Persian Gulf exit</td></tr>
+                            <tr><td>Suez Canal</td><td>Egypt</td><td>12% world trade</td><td>Europe-Asia shortcut</td></tr>
+                            <tr><td>Bab el-Mandeb</td><td>Yemen-Djibouti</td><td>9% world trade</td><td>Red Sea access</td></tr>
+                            <tr><td>Panama Canal</td><td>Panama</td><td>5% world trade</td><td>Atlantic-Pacific link</td></tr>
+                            <tr><td>Turkish Straits</td><td>Turkey</td><td>3% oil trade</td><td>Black Sea access</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="charts-row">
+                        <div class="chart-wrapper">
+                            <h3>Military Spending by Country ($B)</h3>
+                            <div class="chart-container">
+                                <canvas id="militarySpendingChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-wrapper">
+                            <h3>Nuclear Arsenal Size</h3>
+                            <div class="chart-container">
+                                <canvas id="nuclearArsenalChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- International Organizations -->
+        <div class="accordion-section">
+            <details>
+                <summary>🤝 International Organizations</summary>
+                <div class="accordion-content">
+                    
+                    <h3>🌍 Major International Bodies</h3>
+                    <div class="org-grid">
+                        <div class="org-card">
+                            <div class="org-header un">
+                                <span class="icon">🇺🇳</span>
+                                <h4>United Nations</h4>
+                            </div>
+                            <div class="org-content">
+                                <ul>
+                                    <li>Founded: 1945</li>
+                                    <li>Members: 193 states</li>
+                                    <li>HQ: New York City</li>
+                                    <li>Budget: $3.4B annually</li>
+                                    <li>Peacekeepers: 87,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="org-card">
+                            <div class="org-header eu">
+                                <span class="icon">🇪🇺</span>
+                                <h4>European Union</h4>
+                            </div>
+                            <div class="org-content">
+                                <ul>
+                                    <li>Founded: 1993 (Maastricht)</li>
+                                    <li>Members: 27 states</li>
+                                    <li>HQ: Brussels</li>
+                                    <li>GDP: $18.4 trillion</li>
+                                    <li>Population: 447 million</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="org-card">
+                            <div class="org-header nato">
+                                <span class="icon">🛡️</span>
+                                <h4>NATO</h4>
+                            </div>
+                            <div class="org-content">
+                                <ul>
+                                    <li>Founded: 1949</li>
+                                    <li>Members: 32 states</li>
+                                    <li>HQ: Brussels</li>
+                                    <li>Combined military: 3.5M</li>
+                                    <li>Defense spending: $1.2T</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="org-card">
+                            <div class="org-header au">
+                                <span class="icon">🌍</span>
+                                <h4>African Union</h4>
+                            </div>
+                            <div class="org-content">
+                                <ul>
+                                    <li>Founded: 2002</li>
+                                    <li>Members: 55 states</li>
+                                    <li>HQ: Addis Ababa</li>
+                                    <li>Population: 1.4 billion</li>
+                                    <li>AfCFTA launched 2021</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="org-card">
+                            <div class="org-header asean">
+                                <span class="icon">🌏</span>
+                                <h4>ASEAN</h4>
+                            </div>
+                            <div class="org-content">
+                                <ul>
+                                    <li>Founded: 1967</li>
+                                    <li>Members: 10 states</li>
+                                    <li>HQ: Jakarta</li>
+                                    <li>GDP: $3.6 trillion</li>
+                                    <li>Population: 680 million</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Regional Organization Memberships</h3>
+                        <div class="chart-container">
+                            <canvas id="orgMembershipChart"></canvas>
+                        </div>
+                    </div>
+                    
+                </div>
+            </details>
+        </div>
+
+        <!-- Electoral Systems -->
+        <div class="accordion-section">
+            <details>
+                <summary>🗳️ Electoral Systems</summary>
+                <div class="accordion-content">
+                    
+                    <div class="stats-cards-grid">
+                        <div class="mini-stat-card">
+                            <div class="label">Democracies</div>
+                            <div class="value">74</div>
+                            <div class="sub">Full + Flawed</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Global Voter Turnout</div>
+                            <div class="value">65.7%</div>
+                            <div class="sub">Average (2020-2026)</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Women in Parliament</div>
+                            <div class="value">26.7%</div>
+                            <div class="sub">Global average</div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="label">Compulsory Voting</div>
+                            <div class="value">21</div>
+                            <div class="sub">Countries enforce</div>
+                        </div>
+                    </div>
+                    
+                    <h3>📊 Electoral System Types</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>System</th>
+                                <th>Description</th>
+                                <th>Countries Using</th>
+                                <th>Examples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>First Past the Post</strong></td><td>Winner takes all in each district</td><td>47</td><td>USA, UK, India, Canada</td></tr>
+                            <tr><td><strong>Proportional Representation</strong></td><td>Seats match vote share</td><td>89</td><td>Germany, Netherlands, Israel</td></tr>
+                            <tr><td><strong>Two-Round System</strong></td><td>Runoff if no majority</td><td>22</td><td>France, Brazil, Iran</td></tr>
+                            <tr><td><strong>Mixed Member</strong></td><td>Combines FPTP + PR</td><td>13</td><td>Germany, Japan, New Zealand</td></tr>
+                            <tr><td><strong>Ranked Choice</strong></td><td>Voters rank preferences</td><td>4</td><td>Australia, Ireland, Maine</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>👩‍💼 Women in Politics - Top Countries</h3>
+                    <ul class="info-list">
+                        <li><strong>Rwanda:</strong> 61.3% women in parliament • World's highest</li>
+                        <li><strong>Cuba:</strong> 53.4% women in parliament</li>
+                        <li><strong>Nicaragua:</strong> 51.7% women in parliament</li>
+                        <li><strong>New Zealand:</strong> 50% women in parliament</li>
+                        <li><strong>Mexico:</strong> 50% women in parliament</li>
+                        <li><strong>Sweden:</strong> 46.4% women in parliament</li>
+                    </ul>
+                    
+                </div>
+            </details>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>📊 Data Sources</h4>
+                <p>CIA World Factbook • Freedom House • Economist Democracy Index • ACLED • SIPRI</p>
+            </div>
+            <div class="footer-section">
+                <h4>🕐 Last Updated</h4>
+                <p id="lastUpdated">April 3, 2026</p>
+            </div>
+            <div class="footer-section">
+                <h4>📋 Methodology</h4>
+                <p>Government reports • International organization data • Academic research</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 Geotopia Encyclopedia. Made with 💚 for learners everywhere.
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Navigation & UI
+            const nav = document.getElementById('mainNav');
+            window.addEventListener('scroll', function() {
+                nav.classList.toggle('scrolled', window.scrollY > 50);
+            });
+            
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle?.querySelector('.theme-icon');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            
+            themeToggle?.addEventListener('click', function() {
+                const current = document.documentElement.getAttribute('data-theme');
+                const newTheme = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                if (themeIcon) themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            });
+            
+            // Back to Top
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                backToTop?.classList.toggle('visible', window.scrollY > 500);
+            });
+            backToTop?.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // ============================================
+            // LEAFLET MAP
+            // ============================================
+            const mapContainer = document.getElementById('political-map');
+            if (mapContainer) {
+                const map = L.map('political-map').setView([20, 0], 2);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap, © CARTO',
+                    maxZoom: 18
+                }).addTo(map);
+                
+                // Capital cities
+                const capitals = [
+                    { name: 'Washington DC', country: 'USA', coords: [38.9072, -77.0369], type: 'democracy' },
+                    { name: 'Beijing', country: 'China', coords: [39.9042, 116.4074], type: 'authoritarian' },
+                    { name: 'Moscow', country: 'Russia', coords: [55.7558, 37.6173], type: 'authoritarian' },
+                    { name: 'New Delhi', country: 'India', coords: [28.6139, 77.2090], type: 'democracy' },
+                    { name: 'London', country: 'UK', coords: [51.5074, -0.1278], type: 'democracy' },
+                    { name: 'Tokyo', country: 'Japan', coords: [35.6762, 139.6503], type: 'democracy' },
+                    { name: 'Berlin', country: 'Germany', coords: [52.5200, 13.4050], type: 'democracy' },
+                    { name: 'Paris', country: 'France', coords: [48.8566, 2.3522], type: 'democracy' },
+                    { name: 'Brasilia', country: 'Brazil', coords: [-15.7975, -47.8919], type: 'democracy' },
+                    { name: 'Canberra', country: 'Australia', coords: [-35.2809, 149.1300], type: 'democracy' },
+                    { name: 'Cairo', country: 'Egypt', coords: [30.0444, 31.2357], type: 'hybrid' },
+                    { name: 'Riyadh', country: 'Saudi Arabia', coords: [24.7136, 46.6753], type: 'authoritarian' },
+                    { name: 'Ankara', country: 'Turkey', coords: [39.9334, 32.8597], type: 'hybrid' },
+                    { name: 'Pyongyang', country: 'North Korea', coords: [39.0392, 125.7625], type: 'authoritarian' }
+                ];
+                
+                const colors = {
+                    'democracy': '#22c55e',
+                    'hybrid': '#f59e0b',
+                    'authoritarian': '#ef4444'
+                };
+                
+                capitals.forEach(capital => {
+                    L.circleMarker(capital.coords, {
+                        radius: 8,
+                        fillColor: colors[capital.type],
+                        color: '#ffffff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    })
+                    .bindPopup(`<strong>${capital.name}</strong><br>${capital.country}<br>Type: ${capital.type}`)
+                    .addTo(map);
+                });
+            }
+            
+            // ============================================
+            // CHARTS
+            // ============================================
+            Chart.defaults.font.family = "'Poppins', sans-serif";
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = false;
+            
+            // Military Spending Chart
+            const militaryCtx = document.getElementById('militarySpendingChart');
+            if (militaryCtx) {
+                new Chart(militaryCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['USA', 'China', 'Russia', 'India', 'Saudi Arabia', 'UK', 'Germany', 'France', 'Japan', 'South Korea'],
+                        datasets: [{
+                            label: 'Military Spending ($B)',
+                            data: [886, 292, 86, 83, 75, 68, 56, 54, 46, 46],
+                            backgroundColor: '#1e40af',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { y: { title: { display: true, text: 'Billion USD' } } }
+                    }
+                });
+            }
+            
+            // Nuclear Arsenal Chart
+            const nuclearCtx = document.getElementById('nuclearArsenalChart');
+            if (nuclearCtx) {
+                new Chart(nuclearCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Russia', 'USA', 'China', 'France', 'UK', 'Pakistan', 'India', 'Israel', 'N. Korea'],
+                        datasets: [{
+                            label: 'Nuclear Warheads',
+                            data: [5977, 5428, 410, 290, 225, 170, 164, 90, 50],
+                            backgroundColor: ['#ef4444', '#3b82f6', '#dc2626', '#8b5cf6', '#1e40af', '#22c55e', '#f59e0b', '#6b7280', '#ef4444'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+            
+            // Organization Membership Chart
+            const orgCtx = document.getElementById('orgMembershipChart');
+            if (orgCtx) {
+                new Chart(orgCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['UN', 'WTO', 'IMF', 'WHO', 'NATO', 'EU', 'AU', 'ASEAN', 'BRICS'],
+                        datasets: [{
+                            data: [193, 164, 190, 194, 32, 27, 55, 10, 10],
+                            backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#1e3a8a', '#1e40af', '#8b5cf6', '#ec4899', '#06b6d4'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { position: 'right' } }
+                    }
+                });
+            }
+            
+            console.log('✅ Political page loaded successfully!');
+        });
+    </script>
+</body>
+</html>
