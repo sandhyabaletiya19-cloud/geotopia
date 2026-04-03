@@ -1,575 +1,929 @@
-// ==================== UNITY ATLAS APPLICATION ====================
+// ============================================
+// UNITY ATLAS - Main Application Engine (Continued)
+// ============================================
 
 class UnityAtlas {
     constructor() {
-        this.countries = {};
-        this.relationships = {};
-        this.currentCenter = null;
-        this.currentBilateral = null;
-        this.svg = null;
-        this.width = 1200;
-        this.height = 700;
-        this.centerX = this.width / 2;
-        this.centerY = this.height / 2;
+        this.selectedCountry = null;
+        this.focusedRelation = null;
+        this.currentYear = 2024;
+        this.zoomLevel = 1;
+        this.panOffset = { x: 0, y: 0 };
+        this.showLabels = true;
+        this.hoveredNode = null;
+        this.isDragging = false;
+        this.dragStart = { x: 0, y: 0 };
+        this.nodes = [];
         
-        this.rings = [
-            { name: 'Allied', min: 80, max: 100, radius: 120, color: '#10b981' },
-            { name: 'Strategic', min: 60, max: 79, radius: 200, color: '#3b82f6' },
-            { name: 'Friendly', min: 40, max: 59, radius: 280, color: '#06b6d4' },
-            { name: 'Neutral', min: 20, max: 39, radius: 360, color: '#f59e0b' },
-            { name: 'Hostile', min: 0, max: 19, radius: 440, color: '#ef4444' }
-        ];
-        
-        this.parameters = [
-            { id: '00_overview', icon: '📋', name: 'Overview' },
-            { id: '01_historical', icon: '📜', name: 'Historical Background' },
-            { id: '02_bilateral', icon: '🤝', name: 'Bilateral Ties' },
-            { id: '03_agreements', icon: '📝', name: 'Agreements & Treaties' },
-            { id: '04_political', icon: '🏛️', name: 'Political Relations' },
-            { id: '05_economic', icon: '💰', name: 'Economic & Trade' },
-            { id: '06_defense', icon: '🛡️', name: 'Defense & Security' },
-            { id: '07_people', icon: '👥', name: 'People to People' },
-            { id: '08_connectivity', icon: '✈️', name: 'Connectivity' },
-            { id: '09_multilateral', icon: '🌐', name: 'Multilateral Forums' },
-            { id: '10_sectoral', icon: '🔧', name: 'Sectoral Cooperation' },
-            { id: '11_thirdparty', icon: '🔺', name: 'Third Party Influence' },
-            { id: '12_concerns', icon: '⚠️', name: 'Areas of Concern' },
-            { id: '13_future', icon: '🔮', name: 'Future Outlook' },
-            { id: '14_peace', icon: '✨', name: 'Imagine Peace' },
-            { id: '15_external', icon: '🌍', name: 'External Interventions' }
-        ];
+        this.canvas = null;
+        this.ctx = null;
+        this.animationFrame = null;
         
         this.init();
     }
     
     async init() {
-        await this.loadData();
-        this.setupSVG();
-        this.populateDropdown();
-        this.bindEvents();
+        await this.simulateLoading();
+        this.setupCanvas();
+        this.populateCountryList();
+        this.setupEventListeners();
+        this.setupTimeSlider();
+        this.updateStats();
+        this.hideLoading();
         
-        // Default: Show India
-        this.setCenter('IND');
+        // Select a default country
+        setTimeout(() => {
+            this.selectCountry('IN');
+        }, 500);
     }
     
-    // ==================== DATA LOADING ====================
-    async loadData() {
-        try {
-            const [countriesRes, relationshipsRes] = await Promise.all([
-                fetch('data/countries.json'),
-                fetch('data/relationships.json')
-            ]);
-            
-            this.countries = await countriesRes.json();
-            this.relationships = await relationshipsRes.json();
-            
-            console.log(`Loaded ${Object.keys(this.countries).length} countries`);
-            console.log(`Loaded ${Object.keys(this.relationships).length} relationships`);
-        } catch (error) {
-            console.error('Error loading data:', error);
-            this.showError('Failed to load data. Please refresh the page.');
+    async simulateLoading() {
+        return new Promise(resolve => {
+            setTimeout(resolve, 2500);
+        });
+    }
+    
+    hideLoading() {
+        const loadingScreen = document.getElementById('loading-screen');
+        loadingScreen.classList.add('hidden');
+    }
+    
+    setupCanvas() {
+        this.canvas = document.getElementById('radial-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.resizeCanvas();
+        
+        window.addEventListener('resize', () => this.resizeCanvas());
+    }
+    
+    resizeCanvas() {
+        const container = document.getElementById('radial-map-container');
+        const rect = container.getBoundingClientRect();
+        
+        this.canvas.width = rect.width * window.devicePixelRatio;
+        this.canvas.height = rect.height * window.devicePixelRatio;
+        this.canvas.style.width = rect.width + 'px';
+        this.canvas.style.height = rect.height + 'px';
+        
+        this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        
+        this.centerX = rect.width / 2;
+        this.centerY = rect.height / 2;
+        this.maxRadius = Math.min(rect.width, rect.height) / 2 - 80;
+        
+        if (this.selectedCountry) {
+            this.render();
         }
     }
     
-    // ==================== SVG SETUP ====================
-    setupSVG() {
-        const container = document.getElementById('radialMap');
-        this.width = container.clientWidth || 1200;
-        this.height = 700;
-        this.centerX = this.width / 2;
-        this.centerY = this.height / 2;
+    populateCountryList() {
+        const countryList = document.getElementById('country-list');
+        const sortedCountries = [...COUNTRIES_DATABASE.countries].sort((a, b) => 
+            a.name.localeCompare(b.name)
+        );
         
-        this.svg = d3.select('#radialMap')
-            .attr('viewBox', `0 0 ${this.width} ${this.height}`)
-            .attr('preserveAspectRatio', 'xMidYMid meet');
+        sortedCountries.forEach(country => {
+            const item = document.createElement('div');
+            item.className = 'country-list-item';
+            item.dataset.code = country.code;
+            item.innerHTML = `
+                <span class="flag">${country.flag}</span>
+                <span class="name">${country.name}</span>
+                <span class="region">${COUNTRIES_DATABASE.regions[country.region]}</span>
+            `;
+            item.addEventListener('click', () => {
+                this.selectCountry(country.code);
+                document.getElementById('country-dropdown').classList.remove('show');
+            });
+            countryList.appendChild(item);
+        });
+    }
+    
+    setupEventListeners() {
+        // Explore button
+        document.getElementById('explore-btn').addEventListener('click', () => {
+            document.getElementById('main-navigation').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Country dropdown
+        document.getElementById('country-dropdown-btn').addEventListener('click', () => {
+            document.getElementById('country-dropdown').classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('country-dropdown');
+            const btn = document.getElementById('country-dropdown-btn');
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Country search
+        document.getElementById('country-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.country-list-item');
+            items.forEach(item => {
+                const name = item.querySelector('.name').textContent.toLowerCase();
+                item.style.display = name.includes(searchTerm) ? 'flex' : 'none';
+            });
+        });
+        
+        // Region tabs
+        document.querySelectorAll('.region-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.region-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.filterByRegion(tab.dataset.region);
+            });
+        });
+        
+        // Canvas interactions
+        this.canvas.addEventListener('mousemove', (e) => this.handleCanvasMouseMove(e));
+        this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+        this.canvas.addEventListener('mousedown', (e) => this.handleCanvasMouseDown(e));
+        this.canvas.addEventListener('mouseup', () => this.handleCanvasMouseUp());
+        this.canvas.addEventListener('mouseleave', () => this.handleCanvasMouseLeave());
+        this.canvas.addEventListener('wheel', (e) => this.handleCanvasWheel(e));
+        
+        // Radial controls
+        document.getElementById('radial-zoom-in').addEventListener('click', () => {
+            this.zoomLevel = Math.min(this.zoomLevel + 0.2, 3);
+            this.render();
+        });
+        
+        document.getElementById('radial-zoom-out').addEventListener('click', () => {
+            this.zoomLevel = Math.max(this.zoomLevel - 0.2, 0.5);
+            this.render();
+        });
+        
+        document.getElementById('radial-reset').addEventListener('click', () => {
+            this.zoomLevel = 1;
+            this.panOffset = { x: 0, y: 0 };
+            this.render();
+        });
+        
+        document.getElementById('toggle-labels').addEventListener('click', (e) => {
+            this.showLabels = !this.showLabels;
+            e.currentTarget.classList.toggle('active', this.showLabels);
+            this.render();
+        });
+        
+        // Close relationship panel
+        document.getElementById('close-panel').addEventListener('click', () => {
+            this.closeRelationshipPanel();
+        });
+        
+        // Era buttons
+        document.querySelectorAll('.era-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const year = parseInt(btn.dataset.year);
+                document.getElementById('time-slider').value = year;
+                this.updateYear(year);
+            });
+        });
+    }
+    
+    setupTimeSlider() {
+        const slider = document.getElementById('time-slider');
+        slider.addEventListener('input', (e) => {
+            this.updateYear(parseInt(e.target.value));
+        });
+    }
+    
+    updateYear(year) {
+        this.currentYear = year;
+        const yearDisplay = document.getElementById('current-year');
+        if (year < 0) {
+            yearDisplay.textContent = `${Math.abs(year)} BCE`;
+        } else {
+            yearDisplay.textContent = `${year} CE`;
+        }
+        
+        // Update era buttons
+        document.querySelectorAll('.era-btn').forEach(btn => {
+            btn.classList.remove('active');
+            const btnYear = parseInt(btn.dataset.year);
+            if ((year >= btnYear && year < btnYear + 500) || 
+                (btnYear === 2024 && year >= 2000)) {
+                btn.classList.add('active');
+            }
+        });
+    }
+    
+    filterByRegion(region) {
+        const items = document.querySelectorAll('.country-list-item');
+        items.forEach(item => {
+            const country = COUNTRY_BY_CODE[item.dataset.code];
+            if (region === 'all' || country.region === region) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    selectCountry(code) {
+        const country = COUNTRY_BY_CODE[code];
+        if (!country) return;
+        
+        this.selectedCountry = country;
+        this.focusedRelation = null;
+        
+        // Update display
+        document.getElementById('center-flag').textContent = country.flag;
+        document.getElementById('center-country-name').textContent = country.name;
+        document.getElementById('mini-map-country').textContent = country.name;
+        
+        // Update dropdown button
+        document.querySelector('#country-dropdown-btn span').textContent = country.name;
+        
+        // Build nodes for radial map
+        this.buildNodes();
+        
+        // Animate transition
+        this.animateTransition();
+        
+        // Update world map highlighting
+        this.updateWorldMapHighlight();
+        
+        // Update stats
+        this.updateCountryStats(code);
+        
+        // Close panel if open
+        this.closeRelationshipPanel();
+    }
+    
+    buildNodes() {
+        if (!this.selectedCountry) return;
+        
+        this.nodes = [];
+        const relations = RELATIONSHIPS_DATABASE[this.selectedCountry.code];
+        if (!relations) return;
+        
+        // Group relations by ring
+        const rings = {
+            1: [], // Closest allies
+            2: [], // Strong relations
+            3: [], // Neutral
+            4: [], // Tense
+            5: []  // Conflict
+        };
+        
+        relations.relations.forEach(rel => {
+            const ring = rel.ring || 3;
+            rings[ring].push(rel);
+        });
+        
+        // Calculate positions for each ring
+        const ringRadii = [
+            this.maxRadius * 0.2,  // Ring 1
+            this.maxRadius * 0.4,  // Ring 2
+            this.maxRadius * 0.6,  // Ring 3
+            this.maxRadius * 0.8,  // Ring 4
+            this.maxRadius * 0.95  // Ring 5
+        ];
+        
+        Object.keys(rings).forEach(ringNum => {
+            const ringCountries = rings[ringNum];
+            const radius = ringRadii[ringNum - 1];
+            const count = ringCountries.length;
+            
+            ringCountries.forEach((rel, index) => {
+                const angle = (index / count) * Math.PI * 2 - Math.PI / 2;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                
+                this.nodes.push({
+                    ...rel,
+                    x: x,
+                    y: y,
+                    radius: radius,
+                    angle: angle,
+                    ring: parseInt(ringNum),
+                    nodeRadius: this.getNodeRadius(parseInt(ringNum))
+                });
+            });
+        });
+    }
+    
+    getNodeRadius(ring) {
+        const sizes = {
+            1: 18,
+            2: 16,
+            3: 14,
+            4: 12,
+            5: 10
+        };
+        return sizes[ring] || 12;
+    }
+    
+    animateTransition() {
+        let progress = 0;
+        const duration = 500;
+        const startTime = performance.now();
+        
+        const animate = (currentTime) => {
+            progress = (currentTime - startTime) / duration;
+            
+            if (progress < 1) {
+                this.render(progress);
+                requestAnimationFrame(animate);
+            } else {
+                this.render(1);
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+    
+    render(animProgress = 1) {
+        if (!this.ctx) return;
+        
+        const width = this.canvas.width / window.devicePixelRatio;
+        const height = this.canvas.height / window.devicePixelRatio;
+        
+        // Clear canvas
+        this.ctx.clearRect(0, 0, width, height);
+        
+        // Apply zoom and pan
+        this.ctx.save();
+        this.ctx.translate(this.centerX + this.panOffset.x, this.centerY + this.panOffset.y);
+        this.ctx.scale(this.zoomLevel, this.zoomLevel);
         
         // Draw rings
         this.drawRings();
+        
+        // Draw connections
+        this.drawConnections(animProgress);
+        
+        // Draw center node
+        this.drawCenterNode();
+        
+        // Draw country nodes
+        this.drawNodes(animProgress);
+        
+        this.ctx.restore();
     }
     
     drawRings() {
-        const ringsGroup = this.svg.append('g').attr('class', 'rings');
+        const ringRadii = [
+            this.maxRadius * 0.2,
+            this.maxRadius * 0.4,
+            this.maxRadius * 0.6,
+            this.maxRadius * 0.8,
+            this.maxRadius * 0.95
+        ];
         
-        this.rings.forEach(ring => {
-            // Ring circle
-            ringsGroup.append('circle')
-                .attr('cx', this.centerX)
-                .attr('cy', this.centerY)
-                .attr('r', ring.radius)
-                .attr('fill', 'none')
-                .attr('stroke', ring.color)
-                .attr('stroke-width', 1)
-                .attr('stroke-dasharray', '5,5')
-                .attr('opacity', 0.3);
+        const ringColors = [
+            'rgba(46, 204, 113, 0.2)',   // Allies
+            'rgba(52, 152, 219, 0.15)',  // Strategic
+            'rgba(241, 196, 15, 0.1)',   // Neutral
+            'rgba(230, 126, 34, 0.1)',   // Complex
+            'rgba(231, 76, 60, 0.1)'     // Conflict
+        ];
+        
+        ringRadii.forEach((radius, index) => {
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            this.ctx.strokeStyle = ringColors[index].replace('0.1', '0.3').replace('0.15', '0.35').replace('0.2', '0.4');
+            this.ctx.lineWidth = 2;
+            this.ctx.setLineDash([5, 5]);
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
             
-            // Ring label
-            ringsGroup.append('text')
-                .attr('class', 'ring-label')
-                .attr('x', this.centerX)
-                .attr('y', this.centerY - ring.radius - 10)
-                .text(ring.name)
-                .attr('fill', ring.color)
-                .attr('opacity', 0.7);
+            // Fill ring area
+            this.ctx.fillStyle = ringColors[index];
+            this.ctx.fill();
         });
     }
     
-    // ==================== DROPDOWN ====================
-    populateDropdown() {
-        const dropdown = document.getElementById('countryDropdown');
-        const sortedCountries = Object.values(this.countries)
-            .sort((a, b) => a.name.localeCompare(b.name));
-        
-        dropdown.innerHTML = sortedCountries.map(country => `
-            <div class="dropdown-item" data-code="${country.code}">
-                <span class="flag">${country.flag}</span>
-                <span class="name">${country.name}</span>
-            </div>
-        `).join('');
-    }
-    
-    // ==================== EVENT BINDING ====================
-    bindEvents() {
-        // Dropdown toggle
-        document.getElementById('countryDropdownBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.getElementById('countryDropdown').classList.toggle('show');
-        });
-        
-        // Dropdown item click
-        document.getElementById('countryDropdown').addEventListener('click', (e) => {
-            const item = e.target.closest('.dropdown-item');
-            if (item) {
-                const code = item.dataset.code;
-                this.setCenter(code);
-                document.getElementById('countryDropdown').classList.remove('show');
+    drawConnections(animProgress) {
+        this.nodes.forEach(node => {
+            const isFocused = this.focusedRelation && this.focusedRelation.code === node.code;
+            const isHovered = this.hoveredNode && this.hoveredNode.code === node.code;
+            
+            // Skip if in focus mode and not focused
+            if (this.focusedRelation && !isFocused) {
+                this.ctx.globalAlpha = 0.1;
+            } else {
+                this.ctx.globalAlpha = 1;
             }
-        });
-        
-        // Close dropdown on outside click
-        document.addEventListener('click', () => {
-            document.getElementById('countryDropdown').classList.remove('show');
-        });
-        
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.filterByContinent(btn.dataset.filter);
-            });
-        });
-        
-        // Close bilateral panel
-        document.getElementById('closePanel').addEventListener('click', () => {
-            this.closeBilateralPanel();
-        });
-        
-        // Window resize
-        window.addEventListener('resize', () => {
-            this.handleResize();
-        });
-    }
-    
-    // ==================== SET CENTER COUNTRY ====================
-    setCenter(code) {
-        this.currentCenter = code;
-        const country = this.countries[code];
-        
-        // Update center display
-        document.getElementById('centerFlag').textContent = country.flag;
-        document.getElementById('centerName').textContent = country.name;
-        document.getElementById('centerSubtitle').textContent = 
-            `${country.relations.length} international relationships`;
-        
-        // Clear existing nodes and lines
-        this.svg.selectAll('.country-node').remove();
-        this.svg.selectAll('.connection-line').remove();
-        
-        // Draw new relationships
-        this.drawRelationships(code);
-        
-        // Close any open bilateral panel
-        this.closeBilateralPanel();
-    }
-    
-    // ==================== DRAW RELATIONSHIPS ====================
-    drawRelationships(centerCode) {
-        const country = this.countries[centerCode];
-        const relations = country.relations || [];
-        
-        // Group by ring
-        const grouped = this.rings.map(ring => ({
-            ...ring,
-            countries: []
-        }));
-        
-        relations.forEach(otherCode => {
-            const relKey = this.getRelationshipKey(centerCode, otherCode);
-            const rel = this.relationships[relKey];
-            const otherCountry = this.countries[otherCode];
             
-            if (!otherCountry) return;
+            const endX = node.x * animProgress;
+            const endY = node.y * animProgress;
             
-            const strength = rel ? rel.strength : 50; // Default to neutral if no data
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(endX, endY);
             
-            // Find appropriate ring
-            for (const ring of grouped) {
-                if (strength >= ring.min && strength <= ring.max) {
-                    ring.countries.push({
-                        code: otherCode,
-                        country: otherCountry,
-                        strength: strength,
-                        relationship: rel
-                    });
+            // Line style based on relationship type
+            const color = RELATIONSHIP_COLORS[node.type] || '#999';
+            this.ctx.strokeStyle = color;
+            
+            // Line width and style based on type
+            switch (node.type) {
+                case 'allies':
+                    this.ctx.lineWidth = isHovered ? 4 : 3;
+                    this.ctx.setLineDash([]);
                     break;
-                }
+                case 'strategic':
+                    this.ctx.lineWidth = isHovered ? 3 : 2;
+                    this.ctx.setLineDash([]);
+                    break;
+                case 'neutral':
+                    this.ctx.lineWidth = isHovered ? 2 : 1.5;
+                    this.ctx.setLineDash([8, 4]);
+                    break;
+                case 'complex':
+                    this.ctx.lineWidth = isHovered ? 3 : 2;
+                    this.ctx.setLineDash([4, 4]);
+                    break;
+                case 'conflict':
+                    this.ctx.lineWidth = isHovered ? 3 : 2;
+                    this.ctx.setLineDash([2, 2]);
+                    break;
+                default:
+                    this.ctx.lineWidth = 1;
+                    this.ctx.setLineDash([5, 5]);
             }
-        });
-        
-        // Draw connections and nodes
-        const linesGroup = this.svg.append('g').attr('class', 'connections');
-        const nodesGroup = this.svg.append('g').attr('class', 'nodes');
-        
-        grouped.forEach(ring => {
-            const count = ring.countries.length;
-            if (count === 0) return;
             
-            ring.countries.forEach((item, index) => {
-                // Calculate position on ring
-                const angle = (2 * Math.PI * index / count) - Math.PI / 2;
-                const x = this.centerX + ring.radius * Math.cos(angle);
-                const y = this.centerY + ring.radius * Math.sin(angle);
-                
-                // Draw connection line
-                linesGroup.append('line')
-                    .attr('class', 'connection-line')
-                    .attr('x1', this.centerX)
-                    .attr('y1', this.centerY)
-                    .attr('x2', x)
-                    .attr('y2', y)
-                    .attr('stroke', ring.color)
-                    .attr('data-country', item.code);
-                
-                // Draw country node
-                const nodeGroup = nodesGroup.append('g')
-                    .attr('class', 'country-node')
-                    .attr('transform', `translate(${x}, ${y})`)
-                    .attr('data-code', item.code)
-                    .on('click', () => this.handleNodeClick(item.code));
-                
-                // Background circle
-                nodeGroup.append('circle')
-                    .attr('r', 35)
-                    .attr('fill', ring.color)
-                    .attr('opacity', 0.2);
-                
-                // Flag emoji
-                nodeGroup.append('text')
-                    .attr('text-anchor', 'middle')
-                    .attr('dominant-baseline', 'central')
-                    .attr('font-size', '28px')
-                    .text(item.country.flag);
-                
-                // Country name (shown on hover)
-                nodeGroup.append('text')
-                    .attr('text-anchor', 'middle')
-                    .attr('y', 50)
-                    .attr('font-size', '11px')
-                    .attr('fill', 'white')
-                    .text(item.country.name.substring(0, 12));
-            });
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+            
+            // Glow effect for hovered/focused
+            if (isHovered || isFocused) {
+                this.ctx.shadowColor = color;
+                this.ctx.shadowBlur = 10;
+                this.ctx.stroke();
+                this.ctx.shadowBlur = 0;
+            }
+            
+            this.ctx.globalAlpha = 1;
         });
     }
     
-    // ==================== HANDLE NODE CLICK ====================
-    handleNodeClick(code) {
-        const centerCode = this.currentCenter;
+    drawCenterNode() {
+        if (!this.selectedCountry) return;
         
-        // Highlight this relationship
-        this.highlightRelationship(centerCode, code);
+        // Glow effect
+        this.ctx.shadowColor = '#FF69B4';
+        this.ctx.shadowBlur = 20;
         
-        // Show bilateral panel
-        this.showBilateralPanel(centerCode, code);
-    }
-    
-    // ==================== HIGHLIGHT RELATIONSHIP ====================
-    highlightRelationship(code1, code2) {
-        // Fade all nodes and lines
-        this.svg.selectAll('.country-node').classed('faded', true);
-        this.svg.selectAll('.connection-line').classed('faded', true);
+        // Main circle
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, 35, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#FF69B4';
+        this.ctx.fill();
         
-        // Highlight the selected country
-        this.svg.selectAll('.country-node')
-            .filter(function() {
-                return d3.select(this).attr('data-code') === code2;
-            })
-            .classed('faded', false)
-            .classed('highlighted', true);
+        this.ctx.shadowBlur = 0;
         
-        // Highlight the connection line
-        this.svg.selectAll('.connection-line')
-            .filter(function() {
-                return d3.select(this).attr('data-country') === code2;
-            })
-            .classed('faded', false)
-            .classed('highlighted', true);
-    }
-    
-    // ==================== SHOW BILATERAL PANEL ====================
-    showBilateralPanel(code1, code2) {
-        const country1 = this.countries[code1];
-        const country2 = this.countries[code2];
-        const relKey = this.getRelationshipKey(code1, code2);
-        const rel = this.relationships[relKey] || this.generateBasicRelationship(code1, code2);
+        // Border
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
         
-        this.currentBilateral = { code1, code2, rel };
+        // Flag emoji
+        this.ctx.font = '24px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(this.selectedCountry.flag, 0, 0);
         
-        // Update header
-        document.getElementById('country1Flag').textContent = country1.flag;
-        document.getElementById('country1Name').textContent = country1.name;
-        document.getElementById('country2Flag').textContent = country2.flag;
-        document.getElementById('country2Name').textContent = country2.name;
-        document.getElementById('relationEmoji').textContent = rel.emoji || '🤝';
-        document.getElementById('strengthValue').textContent = `${rel.strength}/100`;
-        document.getElementById('relationStatus').textContent = rel.status || 'Diplomatic Relations';
-        
-        // Strength bar
-        const strengthFill = document.getElementById('strengthFill');
-        strengthFill.style.width = `${rel.strength}%`;
-        strengthFill.style.background = this.getStrengthColor(rel.strength);
-        
-        // Generate parameter cards
-        this.generateParameterCards(rel);
-        
-        // Show panel
-        document.getElementById('bilateralPanel').classList.add('show');
-    }
-    
-    // ==================== GENERATE PARAMETER CARDS ====================
-    generateParameterCards(rel) {
-        const grid = document.getElementById('parametersGrid');
-        
-        grid.innerHTML = this.parameters.map(param => {
-            const data = rel[param.id] || {};
-            const hasData = Object.keys(data).length > 0;
-            
-            return `
-                <div class="parameter-card" data-param="${param.id}">
-                    <div class="parameter-header">
-                        <h4>
-                            <span class="icon">${param.icon}</span>
-                            ${param.name}
-                        </h4>
-                        <span class="expand-icon">${hasData ? '▼' : '—'}</span>
-                    </div>
-                    <div class="parameter-content">
-                        ${this.renderParameterContent(param.id, data, rel)}
-                    </div>
-                </div>
-            `;
-        }).join('');
-        
-        // Bind click events
-        grid.querySelectorAll('.parameter-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const wasExpanded = card.classList.contains('expanded');
-                // Close all others
-                grid.querySelectorAll('.parameter-card').forEach(c => c.classList.remove('expanded'));
-                // Toggle this one
-                if (!wasExpanded) {
-                    card.classList.add('expanded');
-                }
-            });
-        });
-    }
-    
-    // ==================== RENDER PARAMETER CONTENT ====================
-    renderParameterContent(paramId, data, rel) {
-        switch(paramId) {
-            case '00_overview':
-                return `
-                    <p>${rel.overview || 'Diplomatic relations exist between these nations.'}</p>
-                    ${rel.keyFacts ? `
-                        <ul>
-                            ${rel.keyFacts.map(fact => `<li>✓ ${fact}</li>`).join('')}
-                        </ul>
-                    ` : ''}
-                `;
-            
-            case '01_historical':
-                if (rel.timeline && rel.timeline.length > 0) {
-                    return `
-                        <div class="timeline-mini">
-                            ${rel.timeline.map(event => `
-                                <div class="event">
-                                    <span class="year">${event.year}</span>
-                                    <p>${event.event}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }
-                return '<p>Historical data not yet available.</p>';
-            
-            case '05_economic':
-                if (rel.trade) {
-                    return `
-                        <div class="stat-grid">
-                            <div class="stat-item">
-                                <div class="value">$${rel.trade.total}B</div>
-                                <div class="label">Total Trade</div>
-                            </div>
-                            ${rel.trade.exports ? Object.entries(rel.trade.exports).map(([code, value]) => `
-                                <div class="stat-item">
-                                    <div class="value">$${value}B</div>
-                                    <div class="label">${this.countries[code]?.name || code} Exports</div>
-                                </div>
-                            `).join('') : ''}
-                            ${rel.trade.balance !== undefined ? `
-                                <div class="stat-item">
-                                    <div class="value" style="color: ${rel.trade.balance >= 0 ? '#10b981' : '#ef4444'}">
-                                        ${rel.trade.balance >= 0 ? '+' : ''}$${rel.trade.balance}B
-                                    </div>
-                                    <div class="label">Trade Balance</div>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                }
-                return '<p>Trade data not yet available.</p>';
-            
-            case '06_defense':
-                if (rel.defense && rel.defense.deals) {
-                    return `
-                        <ul>
-                            ${rel.defense.deals.map(deal => `
-                                <li>
-                                    <strong>${deal.item}</strong> - 
-                                    ${deal.qty} units 
-                                    ($${deal.value}B)
-                                </li>
-                            `).join('')}
-                        </ul>
-                    `;
-                }
-                return '<p>Defense cooperation data not yet available.</p>';
-            
-            case '13_future':
-                return `<p>${rel.future || 'Future outlook analysis coming soon.'}</p>`;
-            
-            case '14_peace':
-                if (rel.peace) {
-                    return `
-                        <p><strong>Vision:</strong> ${rel.peace.vision}</p>
-                        ${rel.peace.benefits ? `
-                            <ul>
-                                ${rel.peace.benefits.map(b => `<li>✨ ${b}</li>`).join('')}
-                            </ul>
-                        ` : ''}
-                    `;
-                }
-                return '<p>Peace scenario analysis coming soon.</p>';
-            
-            default:
-                return '<p>Detailed data coming soon.</p>';
+        // Country name below
+        if (this.showLabels) {
+            this.ctx.font = 'bold 12px Inter, sans-serif';
+            this.ctx.fillStyle = '#2C3E50';
+            this.ctx.fillText(this.selectedCountry.name, 0, 50);
         }
     }
     
-    // ==================== CLOSE BILATERAL PANEL ====================
-    closeBilateralPanel() {
-        document.getElementById('bilateralPanel').classList.remove('show');
-        
-        // Remove highlights
-        this.svg.selectAll('.country-node')
-            .classed('faded', false)
-            .classed('highlighted', false);
-        this.svg.selectAll('.connection-line')
-            .classed('faded', false)
-            .classed('highlighted', false);
-        
-        this.currentBilateral = null;
+    drawNodes(animProgress) {
+        this.nodes.forEach(node => {
+            const isFocused = this.focusedRelation && this.focusedRelation.code === node.code;
+            const isHovered = this.hoveredNode && this.hoveredNode.code === node.code;
+            
+            // Apply animation
+            const x = node.x * animProgress;
+            const y = node.y * animProgress;
+            
+            // Skip if in focus mode and not focused
+            if (this.focusedRelation && !isFocused) {
+                this.ctx.globalAlpha = 0.15;
+            } else {
+                this.ctx.globalAlpha = 1;
+            }
+            
+            const color = RELATIONSHIP_COLORS[node.type] || '#999';
+            const radius = node.nodeRadius * (isHovered ? 1.3 : 1);
+            
+            // Glow for hovered/focused
+            if (isHovered || isFocused) {
+                this.ctx.shadowColor = color;
+                this.ctx.shadowBlur = 15;
+            }
+            
+            // Main circle
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+            
+            this.ctx.shadowBlur = 0;
+            
+            // Border
+            this.ctx.strokeStyle = '#fff';
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+            
+            // Flag emoji
+            this.ctx.font = `${radius}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillStyle = '#fff';
+            this.ctx.fillText(node.flag, x, y);
+            
+            // Country name label
+            if (this.showLabels && (this.zoomLevel > 0.7 || isHovered || node.ring <= 2)) {
+                this.ctx.font = `${isHovered ? 'bold' : 'normal'} 10px Inter, sans-serif`;
+                this.ctx.fillStyle = '#2C3E50';
+                
+                // Background for label
+                const labelWidth = this.ctx.measureText(node.country).width + 8;
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                this.ctx.fillRect(x - labelWidth / 2, y + radius + 5, labelWidth, 16);
+                
+                this.ctx.fillStyle = '#2C3E50';
+                this.ctx.fillText(node.country, x, y + radius + 13);
+            }
+            
+            this.ctx.globalAlpha = 1;
+        });
     }
     
-    // ==================== FILTER BY CONTINENT ====================
-    filterByContinent(continent) {
-        if (continent === 'all') {
-            this.svg.selectAll('.country-node').classed('faded', false);
-            this.svg.selectAll('.connection-line').classed('faded', false);
+    handleCanvasMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left - this.centerX - this.panOffset.x) / this.zoomLevel;
+        const mouseY = (e.clientY - rect.top - this.centerY - this.panOffset.y) / this.zoomLevel;
+        
+        if (this.isDragging) {
+            this.panOffset.x += e.clientX - this.dragStart.x;
+            this.panOffset.y += e.clientY - this.dragStart.y;
+            this.dragStart.x = e.clientX;
+            this.dragStart.y = e.clientY;
+            this.render();
             return;
         }
         
-        // Continent mapping
-        const continentMap = {
-            'africa': ['ZAF', 'NGA', 'EGY', 'KEN', 'ETH', 'GHA', 'TZA', 'UGA', 'DZA', 'MAR', 'TUN', 'LBY', 'SDN', 'AGO', 'MOZ', 'ZWE', 'ZMB', 'BWA', 'NAM', 'SEN', 'MLI', 'NER', 'TCD', 'CMR', 'COD', 'COG', 'GAB', 'GNQ', 'CAF', 'SSD', 'ERI', 'DJI', 'SOM', 'RWA', 'BDI', 'MWI', 'MDG', 'MUS', 'SYC', 'COM', 'CPV', 'GNB', 'GMB', 'SLE', 'LBR', 'CIV', 'BFA', 'TGO', 'BEN', 'MRT', 'LSO', 'SWZ'],
-            'asia': ['CHN', 'IND', 'JPN', 'KOR', 'PRK', 'MNG', 'VNM', 'THA', 'MYS', 'SGP', 'IDN', 'PHL', 'MMR', 'LAO', 'KHM', 'BGD', 'PAK', 'AFG', 'NPL', 'BTN', 'LKA', 'MDV', 'IRN', 'IRQ', 'SAU', 'ARE', 'QAT', 'KWT', 'BHR', 'OMN', 'YEM', 'JOR', 'SYR', 'LBN', 'ISR', 'PSE', 'TUR', 'GEO', 'ARM', 'AZE', 'KAZ', 'UZB', 'TKM', 'KGZ', 'TJK', 'RUS'],
-            'europe': ['GBR', 'FRA', 'DEU', 'ITA', 'ESP', 'PRT', 'NLD', 'BEL', 'CHE', 'AUT', 'POL', 'CZE', 'SVK', 'HUN', 'ROU', 'BGR', 'GRC', 'SRB', 'HRV', 'SVN', 'BIH', 'MNE', 'MKD', 'ALB', 'UKR', 'BLR', 'MDA', 'LTU', 'LVA', 'EST', 'FIN', 'SWE', 'NOR', 'DNK', 'ISL', 'IRL', 'LUX', 'MLT', 'CYP', 'AND', 'MCO', 'SMR', 'VAT', 'LIE'],
-            'north-america': ['USA', 'CAN', 'MEX', 'GTM', 'BLZ', 'SLV', 'HND', 'NIC', 'CRI', 'PAN', 'CUB', 'JAM', 'HTI', 'DOM', 'BHS', 'TTO', 'BRB', 'GRD', 'LCA', 'VCT', 'ATG', 'DMA', 'KNA'],
-            'south-america': ['BRA', 'ARG', 'CHL', 'COL', 'PER', 'VEN', 'ECU', 'BOL', 'PRY', 'URY', 'GUY', 'SUR'],
-            'oceania': ['AUS', 'NZL', 'FJI', 'PNG', 'SLB', 'VUT', 'WSM', 'TON', 'KIR', 'FSM', 'MHL', 'PLW', 'NRU', 'TUV'],
-            'antarctica': []
-        };
+        // Check if hovering over a node
+        let foundNode = null;
+        for (const node of this.nodes) {
+            const dx = mouseX - node.x;
+            const dy = mouseY - node.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < node.nodeRadius + 5) {
+                foundNode = node;
+                break;
+            }
+        }
         
-        const countriesInContinent = continentMap[continent] || [];
-        
-        this.svg.selectAll('.country-node').each(function() {
-            const code = d3.select(this).attr('data-code');
-            const inContinent = countriesInContinent.includes(code);
-            d3.select(this).classed('faded', !inContinent);
-        });
-        
-        this.svg.selectAll('.connection-line').each(function() {
-            const code = d3.select(this).attr('data-country');
-            const inContinent = countriesInContinent.includes(code);
-            d3.select(this).classed('faded', !inContinent);
-        });
-    }
-    
-    // ==================== UTILITY FUNCTIONS ====================
-    getRelationshipKey(code1, code2) {
-        return [code1, code2].sort().join('-');
-    }
-    
-    getStrengthColor(strength) {
-        if (strength >= 80) return '#10b981';
-        if (strength >= 60) return '#3b82f6';
-        if (strength >= 40) return '#06b6d4';
-        if (strength >= 20) return '#f59e0b';
-        return '#ef4444';
-    }
-    
-    generateBasicRelationship(code1, code2) {
-        return {
-            countries: [code1, code2],
-            status: 'Diplomatic Relations',
-            strength: 50,
-            emoji: '🤝',
-            overview: `${this.countries[code1].name} and ${this.countries[code2].name} maintain diplomatic relations.`
-        };
-    }
-    
-    handleResize() {
-        const container = document.getElementById('radialMap');
-        this.width = container.clientWidth || 1200;
-        this.centerX = this.width / 2;
-        
-        this.svg.attr('viewBox', `0 0 ${this.width} ${this.height}`);
-        
-        if (this.currentCenter) {
-            this.setCenter(this.currentCenter);
+        if (foundNode !== this.hoveredNode) {
+            this.hoveredNode = foundNode;
+            this.canvas.style.cursor = foundNode ? 'pointer' : 'grab';
+            this.render();
+            
+            // Show/hide tooltip
+            this.updateTooltip(foundNode, e.clientX, e.clientY);
         }
     }
     
-    showError(message) {
-        document.querySelector('.map-container').innerHTML = `
-            <div style="text-align: center; padding: 50px; color: #ef4444;">
-                <h2>⚠️ Error</h2>
-                <p>${message}</p>
-            </div>
-        `;
+    updateTooltip(node, x, y) {
+        const tooltip = document.getElementById('radial-tooltip');
+        
+        if (node) {
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    <span class="tooltip-flag">${node.flag}</span>
+                    <span class="tooltip-name">${node.country}</span>
+                </div>
+                <div>Strength: ${node.strength}/10</div>
+                <span class="tooltip-type ${node.type}">${node.type.charAt(0).toUpperCase() + node.type.slice(1)}</span>
+            `;
+            tooltip.style.left = (x + 15) + 'px';
+            tooltip.style.top = (y + 15) + 'px';
+            tooltip.classList.add('show');
+        } else {
+            tooltip.classList.remove('show');
+        }
+    }
+    
+    handleCanvasClick(e) {
+        if (this.hoveredNode) {
+            // If clicking on a node, either show relationship or select as center
+            if (e.shiftKey) {
+                // Shift+click to show relationship details
+                this.showRelationshipDetails(this.hoveredNode);
+            } else {
+                // Regular click to select as new center
+                this.selectCountry(this.hoveredNode.code);
+            }
+        } else if (this.focusedRelation) {
+            // Click on empty space to exit focus mode
+            this.focusedRelation = null;
+            this.render();
+        }
+    }
+    
+    handleCanvasMouseDown(e) {
+        if (!this.hoveredNode) {
+            this.isDragging = true;
+            this.dragStart.x = e.clientX;
+            this.dragStart.y = e.clientY;
+            this.canvas.style.cursor = 'grabbing';
+        }
+    }
+    
+    handleCanvasMouseUp() {
+        this.isDragging = false;
+        this.canvas.style.cursor = this.hoveredNode ? 'pointer' : 'grab';
+    }
+    
+    handleCanvasMouseLeave() {
+        this.isDragging = false;
+        this.hoveredNode = null;
+        this.canvas.style.cursor = 'grab';
+        document.getElementById('radial-tooltip').classList.remove('show');
+    }
+    
+    handleCanvasWheel(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        this.zoomLevel = Math.max(0.3, Math.min(3, this.zoomLevel + delta));
+        this.render();
+    }
+    
+    showRelationshipDetails(relation) {
+        this.focusedRelation = relation;
+        this.render();
+        
+        const panel = document.getElementById('relationship-panel');
+        
+        // Update panel header
+        document.querySelector('#panel-country1 .flag').textContent = this.selectedCountry.flag;
+        document.querySelector('#panel-country1 .name').textContent = this.selectedCountry.name;
+        document.querySelector('#panel-country2 .flag').textContent = relation.flag;
+        document.querySelector('#panel-country2 .name').textContent = relation.country;
+        
+        // Update relationship indicator color
+        const indicator = document.getElementById('panel-rel-type');
+        indicator.style.background = RELATIONSHIP_COLORS[relation.type];
+        
+        // Update score
+        const scoreValue = document.querySelector('.score-value');
+        const scoreFill = document.querySelector('.score-fill');
+        scoreValue.textContent = relation.strength;
+        
+        const circumference = 283;
+        const offset = circumference - (relation.strength / 10) * circumference;
+        scoreFill.style.strokeDashoffset = offset;
+        scoreFill.style.stroke = RELATIONSHIP_COLORS[relation.type];
+        
+        // Populate parameters
+        this.populateParameters(relation);
+        
+        // Update external links
+        document.getElementById('wiki-link').href = `https://en.wikipedia.org/wiki/${relation.country.replace(/ /g, '_')}`;
+        document.getElementById('cia-link').href = `https://www.cia.gov/the-world-factbook/countries/${relation.country.toLowerCase().replace(/ /g, '-')}/`;
+        document.getElementById('un-link').href = `https://www.un.org/en/about-us/member-states`;
+        
+        // Show panel
+        panel.classList.remove('panel-hidden');
+    }
+    
+    populateParameters(relation) {
+        const grid = document.getElementById('parameters-grid');
+        grid.innerHTML = '';
+        
+        PARAMETERS.forEach(param => {
+            const paramData = relation.parameters[param.id];
+            if (!paramData) return;
+            
+            const item = document.createElement('div');
+            item.className = 'parameter-item';
+            item.innerHTML = `
+                <div class="parameter-header">
+                    <div class="parameter-icon">
+                        <i class="fas ${param.icon}"></i>
+                    </div>
+                    <div class="parameter-info">
+                        <div class="parameter-name">${param.name}</div>
+                        <div class="parameter-value">${paramData.summary}</div>
+                    </div>
+                    <div class="parameter-score">
+                        <span class="param-score-value">${paramData.score}/10</span>
+                        <div class="param-score-bar">
+                            <div class="param-score-fill" style="width: ${paramData.score * 10}%; background: ${this.getScoreColor(paramData.score)}"></div>
+                        </div>
+                    </div>
+                    <button class="parameter-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="parameter-details">
+                    <p>${paramData.details}</p>
+                </div>
+            `;
+            
+            // Toggle details on click
+            const header = item.querySelector('.parameter-header');
+            const details = item.querySelector('.parameter-details');
+            const toggle = item.querySelector('.parameter-toggle');
+            
+            header.addEventListener('click', () => {
+                details.classList.toggle('expanded');
+                toggle.classList.toggle('expanded');
+            });
+            
+            grid.appendChild(item);
+        });
+    }
+    
+    getScoreColor(score) {
+        if (score >= 8) return RELATIONSHIP_COLORS.allies;
+        if (score >= 6) return RELATIONSHIP_COLORS.strategic;
+        if (score >= 4) return RELATIONSHIP_COLORS.neutral;
+        if (score >= 2) return RELATIONSHIP_COLORS.complex;
+        return RELATIONSHIP_COLORS.conflict;
+    }
+    
+    closeRelationshipPanel() {
+        document.getElementById('relationship-panel').classList.add('panel-hidden');
+        this.focusedRelation = null;
+        this.render();
+    }
+    
+    updateWorldMapHighlight() {
+        // This would update the world map SVG to highlight countries
+        // For now, we'll update the mini-map
+        this.updateMiniMap();
+    }
+    
+    updateMiniMap() {
+        const svg = document.getElementById('mini-map-svg');
+        // Mini map visualization would go here
+        // Using a simplified world representation
+    }
+    
+    updateStats() {
+        // Count relationship types across all countries
+        let allianceCount = 0;
+        let conflictCount = 0;
+        
+        Object.values(RELATIONSHIPS_DATABASE).forEach(country => {
+            country.relations.forEach(rel => {
+                if (rel.type === 'allies') allianceCount++;
+                if (rel.type === 'conflict') conflictCount++;
+            });
+        });
+        
+        // Each relationship is counted twice (once for each direction)
+        document.getElementById('alliance-count').textContent = Math.floor(allianceCount / 2);
+        document.getElementById('conflict-count').textContent = Math.floor(conflictCount / 2);
+    }
+    
+    updateCountryStats(code) {
+        const relations = RELATIONSHIPS_DATABASE[code];
+        if (!relations) return;
+        
+        let allies = 0;
+        let conflicts = 0;
+        
+        relations.relations.forEach(rel => {
+            if (rel.type === 'allies') allies++;
+            if (rel.type === 'conflict') conflicts++;
+        });
+        
+        // Update UI if needed
     }
 }
 
-// ==================== INITIALIZE APP ====================
+// World Map Initialization
+function initWorldMap() {
+    const mapContainer = document.getElementById('world-map-container');
+    const tooltip = document.getElementById('map-tooltip');
+    
+    // Simplified world map - in production, use a proper GeoJSON
+    // This is a placeholder for the concept
+    fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
+        .then(response => response.json())
+        .then(data => {
+            renderWorldMap(data);
+        })
+        .catch(() => {
+            // Fallback: create placeholder map
+            createPlaceholderMap();
+        });
+}
+
+function createPlaceholderMap() {
+    const svg = document.getElementById('world-map');
+    
+    // Add a simple placeholder
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', '500');
+    text.setAttribute('y', '250');
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#3498DB');
+    text.setAttribute('font-size', '20');
+    text.textContent = 'Interactive World Map - Click countries on radial map';
+    svg.appendChild(text);
+    
+    // Add instruction
+    const subtext = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    subtext.setAttribute('x', '500');
+    subtext.setAttribute('y', '280');
+    subtext.setAttribute('text-anchor', 'middle');
+    subtext.setAttribute('fill', '#7F8C8D');
+    subtext.setAttribute('font-size', '14');
+    subtext.textContent = 'Use the dropdown or radial map to explore relationships';
+    svg.appendChild(subtext);
+}
+
+function renderWorldMap(geoData) {
+    const svg = document.getElementById('world-map');
+    const width = 1000;
+    const height = 500;
+    
+    // Simple projection
+    const projection = (lon, lat) => {
+        const x = (lon + 180) * (width / 360);
+        const y = (90 - lat) * (height / 180);
+        return [x, y];
+    };
+    
+    // Render each country
+    geoData.features.forEach(feature => {
+        const countryName = feature.properties.name;
+        const countryData = COUNTRY_BY_NAME[countryName.toLowerCase()];
+        
+        if (feature.geometry.type === 'Polygon') {
+            renderPolygon(svg, feature.geometry.coordinates[0], projection, countryData);
+        } else if (feature.geometry.type === 'MultiPolygon') {
+            feature.geometry.coordinates.forEach(polygon => {
+                renderPolygon(svg, polygon[0], projection, countryData);
+            });
+        }
+    });
+}
+
+function renderPolygon(svg, coordinates, projection, countryData) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    
+    let d = '';
+    coordinates.forEach((coord, i) => {
+        const [x, y] = projection(coord[0], coord[1]);
+        d += (i === 0 ? 'M' : 'L') + x + ',' + y;
+    });
+    d += 'Z';
+    
+    path.setAttribute('d', d);
+    path.setAttribute('class', 'country-path');
+    
+    if (countryData) {
+        path.dataset.code = countryData.code;
+        path.dataset.name = countryData.name;
+        
+        path.addEventListener('click', () => {
+            if (window.unityAtlas) {
+                window.unityAtlas.selectCountry(countryData.code);
+            }
+        });
+        
+        path.addEventListener('mouseenter', (e) => {
+            const tooltip = document.getElementById('map-tooltip');
+            tooltip.innerHTML = `${countryData.flag} ${countryData.name}`;
+            tooltip.style.left = (e.clientX + 10) + 'px';
+            tooltip.style.top = (e.clientY + 10) + 'px';
+            tooltip.classList.add('show');
+        });
+        
+        path.addEventListener('mouseleave', () => {
+            document.getElementById('map-tooltip').classList.remove('show');
+        });
+    }
+    
+    svg.appendChild(path);
+}
+
+// Initialize application
 document.addEventListener('DOMContentLoaded', () => {
     window.unityAtlas = new UnityAtlas();
+    initWorldMap();
 });
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { UnityAtlas };
+}
