@@ -3,383 +3,1962 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNITY ATLAS - Global Geopolitics Visualization</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>UNITY ATLAS - Global Geopolitics</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           UNITY ATLAS - Complete Styles
+           ============================================ */
+        :root {
+            --sky-100: #E3F2FD;
+            --sky-200: #BBDEFB;
+            --sky-300: #90CAF9;
+            --sky-400: #64B5F6;
+            --sky-500: #42A5F5;
+            --sky-600: #2196F3;
+            --sky-700: #1E88E5;
+            --sky-800: #1565C0;
+            
+            --allies: #10B981;
+            --strategic: #3B82F6;
+            --neutral: #F59E0B;
+            --complex: #F97316;
+            --conflict: #EF4444;
+            --selected: #EC4899;
+            
+            --bg-primary: #F8FAFC;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F1F5F9;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --border: #E2E8F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--sky-100) 0%, var(--sky-200) 100%);
+        }
+
+        /* Loading Screen */
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        #loading.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            text-align: center;
+            color: white;
+        }
+
+        .loader-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--sky-400);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--sky-300), var(--allies));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .loader p {
+            color: var(--text-secondary);
+        }
+
+        /* App Container */
+        #app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #app.hidden {
+            display: none;
+        }
+
+        /* Header */
+        header {
+            height: 60px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--sky-700);
+        }
+
+        .brand i {
+            font-size: 1.5rem;
+            color: var(--sky-500);
+            animation: spin 20s linear infinite;
+        }
+
+        /* Search */
+        .search-box {
+            position: relative;
+            width: 350px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--sky-400);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-item:hover {
+            background: var(--sky-100);
+        }
+
+        .search-item .flag {
+            font-size: 1.5rem;
+        }
+
+        .search-item .name {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .search-item .region {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Legend Button */
+        .legend-btn {
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .legend-btn:hover {
+            background: var(--sky-100);
+            color: var(--sky-600);
+        }
+
+        /* Selected Country Bar */
+        #country-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .country-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .country-flag {
+            font-size: 3rem;
+        }
+
+        .country-details h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .country-details p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .relation-stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 12px;
+            min-width: 80px;
+        }
+
+        .stat-box.allies { background: rgba(16, 185, 129, 0.15); }
+        .stat-box.strategic { background: rgba(59, 130, 246, 0.15); }
+        .stat-box.neutral { background: rgba(245, 158, 11, 0.15); }
+        .stat-box.complex { background: rgba(249, 115, 22, 0.15); }
+        .stat-box.conflict { background: rgba(239, 68, 68, 0.15); }
+
+        .stat-box .num {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-box.allies .num { color: var(--allies); }
+        .stat-box.strategic .num { color: var(--strategic); }
+        .stat-box.neutral .num { color: var(--neutral); }
+        .stat-box.complex .num { color: var(--complex); }
+        .stat-box.conflict .num { color: var(--conflict); }
+
+        .stat-box .label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* Main Canvas Area */
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #radial-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        #radial-canvas:active {
+            cursor: grabbing;
+        }
+
+        /* Tooltip */
+        #tooltip {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            pointer-events: none;
+            z-index: 100;
+            min-width: 200px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        #tooltip.show {
+            opacity: 1;
+        }
+
+        .tooltip-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+        }
+
+        .tooltip-flag {
+            font-size: 2rem;
+        }
+
+        .tooltip-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .tooltip-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .tooltip-type.allies { background: var(--allies); }
+        .tooltip-type.strategic { background: var(--strategic); }
+        .tooltip-type.neutral { background: var(--neutral); }
+        .tooltip-type.complex { background: var(--complex); }
+        .tooltip-type.conflict { background: var(--conflict); }
+
+        .tooltip-strength {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tooltip-strength .bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .tooltip-strength .fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .tooltip-hint {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+        }
+
+        /* Zoom Controls */
+        #zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover {
+            background: var(--sky-500);
+            color: white;
+        }
+
+        .zoom-level {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 5px 0;
+        }
+
+        /* Ring Legend */
+        #ring-legend {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            font-size: 0.85rem;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .ring-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            color: var(--text-secondary);
+        }
+
+        .ring-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+        }
+
+        .ring-dot.allies { background: var(--allies); }
+        .ring-dot.strategic { background: var(--strategic); }
+        .ring-dot.neutral { background: var(--neutral); }
+        .ring-dot.complex { background: var(--complex); }
+        .ring-dot.conflict { background: var(--conflict); }
+
+        /* More Indicator */
+        #more-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            padding: 12px 25px;
+            border-radius: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #more-indicator.hidden {
+            display: none;
+        }
+
+        .more-count {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--sky-600);
+        }
+
+        .more-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        #show-all-btn {
+            padding: 8px 16px;
+            background: var(--sky-500);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        #show-all-btn:hover {
+            background: var(--sky-600);
+        }
+
+        /* Detail Panel */
+        #detail-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 420px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            box-shadow: -5px 0 30px rgba(0,0,0,0.15);
+            z-index: 200;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        #detail-panel.show {
+            transform: translateX(0);
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, var(--sky-600), var(--sky-800));
+            padding: 25px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .panel-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .panel-close:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .panel-countries {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .panel-country {
+            text-align: center;
+        }
+
+        .panel-country .flag {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .panel-country .name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .panel-relation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .panel-relation-type {
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .panel-score {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+
+        .score-circle svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .score-bg {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 8;
+        }
+
+        .score-fill {
+            fill: none;
+            stroke: var(--allies);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 251.2;
+            stroke-dashoffset: 251.2;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .score-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .panel-params {
+            padding: 20px;
+        }
+
+        .param-item {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .param-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            cursor: pointer;
+        }
+
+        .param-header:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .param-icon {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--sky-500);
+        }
+
+        .param-info {
+            flex: 1;
+        }
+
+        .param-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .param-summary {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .param-score-val {
+            font-weight: 700;
+            color: var(--sky-600);
+        }
+
+        .param-bar {
+            width: 50px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .param-bar-fill {
+            height: 100%;
+            background: var(--sky-500);
+        }
+
+        .panel-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .ext-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .ext-link:hover {
+            background: var(--sky-100);
+            color: var(--sky-600);
+        }
+
+        /* Footer */
+        footer {
+            height: 50px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .footer-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-stat i {
+            color: var(--sky-500);
+        }
+
+        .footer-stat .val {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .footer-stat .lbl {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .search-box {
+                width: 200px;
+            }
+            
+            .relation-stats {
+                display: none;
+            }
+            
+            #ring-legend {
+                display: none;
+            }
+            
+            #detail-panel {
+                width: 100%;
+            }
+            
+            .footer-stat .lbl {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loader-content">
-            <div class="globe-loader">
-                <div class="globe-ring"></div>
-                <div class="globe-ring"></div>
-                <div class="globe-ring"></div>
-                <i class="fas fa-globe-americas"></i>
-            </div>
+    <div id="loading">
+        <div class="loader">
+            <div class="loader-spinner"></div>
             <h2>UNITY ATLAS</h2>
-            <p>Initializing 197 Nations...</p>
-            <div class="loading-bar">
-                <div class="loading-progress"></div>
-            </div>
-            <span class="loading-percent">0%</span>
+            <p>Loading 197 Nations...</p>
         </div>
     </div>
 
-    <!-- Main Application -->
+    <!-- Main App -->
     <div id="app" class="hidden">
         <!-- Header -->
-        <header id="main-header">
-            <div class="header-left">
-                <div class="brand">
-                    <i class="fas fa-globe"></i>
-                    <span>UNITY ATLAS</span>
-                </div>
+        <header>
+            <div class="brand">
+                <i class="fas fa-globe"></i>
+                <span>UNITY ATLAS</span>
             </div>
-            <div class="header-center">
-                <div class="search-container">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="country-search" placeholder="Search 197 countries...">
-                    <div id="search-results" class="search-results hidden"></div>
-                </div>
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search 197 countries...">
+                <div class="search-results" id="search-results"></div>
             </div>
-            <div class="header-right">
-                <div class="view-controls">
-                    <button class="view-btn active" data-view="radial">
-                        <i class="fas fa-project-diagram"></i>
-                    </button>
-                    <button class="view-btn" data-view="map">
-                        <i class="fas fa-map"></i>
-                    </button>
-                </div>
-                <div class="legend-toggle">
-                    <button id="legend-btn">
-                        <i class="fas fa-palette"></i>
-                    </button>
-                </div>
-            </div>
+            
+            <button class="legend-btn" id="legend-toggle">
+                <i class="fas fa-palette"></i>
+                <span>Legend</span>
+            </button>
         </header>
 
-        <!-- Region Filter Bar -->
-        <nav id="region-bar">
-            <div class="region-tabs">
-                <button class="region-tab active" data-region="all">
-                    <span class="tab-icon">🌍</span>
-                    <span class="tab-label">All</span>
-                    <span class="tab-count">197</span>
-                </button>
-                <button class="region-tab" data-region="asia">
-                    <span class="tab-icon">🌏</span>
-                    <span class="tab-label">Asia</span>
-                    <span class="tab-count">48</span>
-                </button>
-                <button class="region-tab" data-region="africa">
-                    <span class="tab-icon">🌍</span>
-                    <span class="tab-label">Africa</span>
-                    <span class="tab-count">54</span>
-                </button>
-                <button class="region-tab" data-region="europe">
-                    <span class="tab-icon">🌍</span>
-                    <span class="tab-label">Europe</span>
-                    <span class="tab-count">44</span>
-                </button>
-                <button class="region-tab" data-region="north-america">
-                    <span class="tab-icon">🌎</span>
-                    <span class="tab-label">N. America</span>
-                    <span class="tab-count">23</span>
-                </button>
-                <button class="region-tab" data-region="south-america">
-                    <span class="tab-icon">🌎</span>
-                    <span class="tab-label">S. America</span>
-                    <span class="tab-count">12</span>
-                </button>
-                <button class="region-tab" data-region="oceania">
-                    <span class="tab-icon">🌏</span>
-                    <span class="tab-label">Oceania</span>
-                    <span class="tab-count">14</span>
-                </button>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main id="main-content">
-            <!-- Selected Country Info Bar -->
-            <div id="selected-country-bar">
-                <div class="country-info">
-                    <span class="country-flag" id="selected-flag">🌍</span>
-                    <div class="country-details">
-                        <h2 id="selected-name">Select a Country</h2>
-                        <p id="selected-region">Click any country to explore</p>
-                    </div>
-                </div>
-                <div class="relation-summary">
-                    <div class="summary-item allies">
-                        <span class="count" id="allies-count">0</span>
-                        <span class="label">Allies</span>
-                    </div>
-                    <div class="summary-item strategic">
-                        <span class="count" id="strategic-count">0</span>
-                        <span class="label">Strategic</span>
-                    </div>
-                    <div class="summary-item neutral">
-                        <span class="count" id="neutral-count">0</span>
-                        <span class="label">Neutral</span>
-                    </div>
-                    <div class="summary-item complex">
-                        <span class="count" id="complex-count">0</span>
-                        <span class="label">Complex</span>
-                    </div>
-                    <div class="summary-item conflict">
-                        <span class="count" id="conflict-count">0</span>
-                        <span class="label">Conflict</span>
-                    </div>
-                </div>
-                <div class="view-options">
-                    <button id="show-all-btn" class="option-btn">
-                        <i class="fas fa-expand"></i>
-                        Show All
-                    </button>
-                    <button id="top-relations-btn" class="option-btn active">
-                        <i class="fas fa-star"></i>
-                        Top 50
-                    </button>
+        <!-- Country Info Bar -->
+        <div id="country-bar">
+            <div class="country-info">
+                <span class="country-flag" id="sel-flag">🌍</span>
+                <div class="country-details">
+                    <h2 id="sel-name">Select a Country</h2>
+                    <p id="sel-region">Click on search or any node</p>
                 </div>
             </div>
-
-            <!-- Radial Map Container -->
-            <div id="radial-container">
-                <canvas id="radial-canvas"></canvas>
-                
-                <!-- Floating Tooltip -->
-                <div id="node-tooltip" class="tooltip hidden">
-                    <div class="tooltip-header">
-                        <span class="tooltip-flag"></span>
-                        <span class="tooltip-name"></span>
-                    </div>
-                    <div class="tooltip-body">
-                        <div class="tooltip-type"></div>
-                        <div class="tooltip-strength">
-                            <span class="label">Strength:</span>
-                            <div class="strength-bar">
-                                <div class="strength-fill"></div>
-                            </div>
-                            <span class="value"></span>
-                        </div>
-                    </div>
-                    <div class="tooltip-footer">
-                        Click to view details • Shift+Click to center
-                    </div>
+            
+            <div class="relation-stats">
+                <div class="stat-box allies">
+                    <span class="num" id="stat-allies">0</span>
+                    <span class="label">Allies</span>
                 </div>
-
-                <!-- Zoom Controls -->
-                <div id="zoom-controls">
-                    <button id="zoom-in" class="zoom-btn">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <div class="zoom-level">
-                        <span id="zoom-percent">100%</span>
-                    </div>
-                    <button id="zoom-out" class="zoom-btn">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button id="zoom-reset" class="zoom-btn">
-                        <i class="fas fa-compress-arrows-alt"></i>
-                    </button>
-                    <button id="zoom-fit" class="zoom-btn">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </button>
+                <div class="stat-box strategic">
+                    <span class="num" id="stat-strategic">0</span>
+                    <span class="label">Strategic</span>
                 </div>
-
-                <!-- Ring Legend -->
-                <div id="ring-legend">
-                    <div class="legend-title">Relationship Rings</div>
-                    <div class="ring-item ring-1">
-                        <span class="ring-indicator"></span>
-                        <span>Closest Allies</span>
-                    </div>
-                    <div class="ring-item ring-2">
-                        <span class="ring-indicator"></span>
-                        <span>Strong Relations</span>
-                    </div>
-                    <div class="ring-item ring-3">
-                        <span class="ring-indicator"></span>
-                        <span>Neutral</span>
-                    </div>
-                    <div class="ring-item ring-4">
-                        <span class="ring-indicator"></span>
-                        <span>Tense</span>
-                    </div>
-                    <div class="ring-item ring-5">
-                        <span class="ring-indicator"></span>
-                        <span>Conflict</span>
-                    </div>
+                <div class="stat-box neutral">
+                    <span class="num" id="stat-neutral">0</span>
+                    <span class="label">Neutral</span>
                 </div>
-
-                <!-- More Countries Indicator -->
-                <div id="more-indicator" class="hidden">
-                    <span class="more-count">+0</span>
-                    <span class="more-label">more countries</span>
-                    <button id="show-more-btn">View All</button>
+                <div class="stat-box complex">
+                    <span class="num" id="stat-complex">0</span>
+                    <span class="label">Complex</span>
+                </div>
+                <div class="stat-box conflict">
+                    <span class="num" id="stat-conflict">0</span>
+                    <span class="label">Conflict</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Time Slider -->
-            <div id="timeline-container">
-                <div class="timeline-header">
-                    <i class="fas fa-history"></i>
-                    <span>Timeline</span>
-                    <span id="current-year-display">2024 CE</span>
+        <!-- Canvas Container -->
+        <div id="canvas-container">
+            <canvas id="radial-canvas"></canvas>
+            
+            <!-- Tooltip -->
+            <div id="tooltip">
+                <div class="tooltip-header">
+                    <span class="tooltip-flag"></span>
+                    <span class="tooltip-name"></span>
                 </div>
-                <div class="timeline-slider">
-                    <input type="range" id="year-slider" min="-3000" max="2026" value="2024">
-                    <div class="timeline-markers">
-                        <span data-year="-3000">3000 BCE</span>
-                        <span data-year="0">0</span>
-                        <span data-year="1000">1000</span>
-                        <span data-year="1500">1500</span>
-                        <span data-year="1900">1900</span>
-                        <span data-year="2024">Now</span>
-                    </div>
+                <div class="tooltip-type"></div>
+                <div class="tooltip-strength">
+                    <span>Strength:</span>
+                    <div class="bar"><div class="fill"></div></div>
+                    <span class="val"></span>
                 </div>
-                <div class="era-buttons">
-                    <button class="era-btn" data-year="-3000">Ancient</button>
-                    <button class="era-btn" data-year="500">Medieval</button>
-                    <button class="era-btn" data-year="1500">Colonial</button>
-                    <button class="era-btn" data-year="1900">Modern</button>
-                    <button class="era-btn" data-year="1945">Cold War</button>
-                    <button class="era-btn active" data-year="2024">Present</button>
+                <div class="tooltip-hint">Click for details • Double-click to center</div>
+            </div>
+            
+            <!-- Zoom Controls -->
+            <div id="zoom-controls">
+                <button class="zoom-btn" id="zoom-in"><i class="fas fa-plus"></i></button>
+                <div class="zoom-level" id="zoom-level">100%</div>
+                <button class="zoom-btn" id="zoom-out"><i class="fas fa-minus"></i></button>
+                <button class="zoom-btn" id="zoom-reset"><i class="fas fa-compress-arrows-alt"></i></button>
+            </div>
+            
+            <!-- Ring Legend -->
+            <div id="ring-legend">
+                <div class="legend-title">Relationship Types</div>
+                <div class="ring-item">
+                    <span class="ring-dot allies"></span>
+                    <span>Allies</span>
+                </div>
+                <div class="ring-item">
+                    <span class="ring-dot strategic"></span>
+                    <span>Strategic</span>
+                </div>
+                <div class="ring-item">
+                    <span class="ring-dot neutral"></span>
+                    <span>Neutral</span>
+                </div>
+                <div class="ring-item">
+                    <span class="ring-dot complex"></span>
+                    <span>Complex</span>
+                </div>
+                <div class="ring-item">
+                    <span class="ring-dot conflict"></span>
+                    <span>Conflict</span>
                 </div>
             </div>
-        </main>
+            
+            <!-- More Indicator -->
+            <div id="more-indicator" class="hidden">
+                <span class="more-count" id="more-count">+0</span>
+                <span class="more-label">more countries</span>
+                <button id="show-all-btn">Show All</button>
+            </div>
+        </div>
 
-        <!-- Relationship Detail Panel (Slide-in) -->
-        <aside id="detail-panel" class="hidden">
+        <!-- Detail Panel -->
+        <div id="detail-panel">
             <div class="panel-header">
-                <button id="panel-close" class="close-btn">
+                <button class="panel-close" id="panel-close">
                     <i class="fas fa-times"></i>
                 </button>
                 <div class="panel-countries">
-                    <div class="panel-country from">
-                        <span class="flag" id="panel-flag-1"></span>
-                        <span class="name" id="panel-name-1"></span>
+                    <div class="panel-country">
+                        <span class="flag" id="panel-flag1"></span>
+                        <span class="name" id="panel-name1"></span>
                     </div>
                     <div class="panel-relation">
-                        <div class="relation-line"></div>
-                        <span class="relation-type" id="panel-relation-type">ALLIES</span>
-                        <div class="relation-line"></div>
+                        <span class="panel-relation-type" id="panel-type">ALLIES</span>
                     </div>
-                    <div class="panel-country to">
-                        <span class="flag" id="panel-flag-2"></span>
-                        <span class="name" id="panel-name-2"></span>
+                    <div class="panel-country">
+                        <span class="flag" id="panel-flag2"></span>
+                        <span class="name" id="panel-name2"></span>
                     </div>
                 </div>
             </div>
             
             <div class="panel-score">
-                <div class="score-ring">
-                    <svg viewBox="0 0 120 120">
-                        <circle class="score-bg" cx="60" cy="60" r="54"/>
-                        <circle class="score-fill" cx="60" cy="60" r="54" id="score-circle"/>
+                <div class="score-circle">
+                    <svg viewBox="0 0 100 100">
+                        <circle class="score-bg" cx="50" cy="50" r="40"/>
+                        <circle class="score-fill" id="score-circle" cx="50" cy="50" r="40"/>
                     </svg>
-                    <div class="score-value">
-                        <span class="number" id="score-number">0</span>
-                        <span class="label">/10</span>
-                    </div>
+                    <div class="score-value" id="score-value">0</div>
                 </div>
                 <div class="score-label">Relationship Strength</div>
             </div>
-
-            <div class="panel-parameters" id="parameters-list">
-                <!-- Parameters will be injected here -->
+            
+            <div class="panel-params" id="panel-params">
+                <!-- Parameters will be injected -->
             </div>
-
+            
             <div class="panel-links">
-                <a href="#" id="link-wiki" target="_blank" class="external-link">
-                    <i class="fab fa-wikipedia-w"></i>
-                    Wikipedia
+                <a href="#" class="ext-link" id="link-wiki" target="_blank">
+                    <i class="fab fa-wikipedia-w"></i> Wikipedia
                 </a>
-                <a href="#" id="link-cia" target="_blank" class="external-link">
-                    <i class="fas fa-user-secret"></i>
-                    CIA Factbook
+                <a href="#" class="ext-link" id="link-cia" target="_blank">
+                    <i class="fas fa-user-secret"></i> CIA Factbook
                 </a>
-                <a href="#" id="link-un" target="_blank" class="external-link">
-                    <i class="fas fa-landmark"></i>
-                    UN Profile
-                </a>
-            </div>
-        </aside>
-
-        <!-- Legend Panel (Floating) -->
-        <div id="legend-panel" class="hidden">
-            <div class="legend-header">
-                <h3>Relationship Types</h3>
-                <button id="legend-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="legend-items">
-                <div class="legend-item">
-                    <span class="color-dot allies"></span>
-                    <span class="type-name">Allies</span>
-                    <span class="type-desc">Strong alliance, mutual defense</span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-dot strategic"></span>
-                    <span class="type-name">Strategic</span>
-                    <span class="type-desc">Important partnership</span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-dot neutral"></span>
-                    <span class="type-name">Neutral</span>
-                    <span class="type-desc">Standard relations</span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-dot complex"></span>
-                    <span class="type-name">Complex</span>
-                    <span class="type-desc">Mixed relationship</span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-dot conflict"></span>
-                    <span class="type-name">Conflict</span>
-                    <span class="type-desc">Hostile relations</span>
-                </div>
             </div>
         </div>
 
-        <!-- Mini Map -->
-        <div id="mini-map">
-            <canvas id="mini-canvas"></canvas>
-            <div class="mini-label" id="mini-label">World View</div>
-        </div>
-
-        <!-- Stats Footer -->
-        <footer id="stats-footer">
-            <div class="stat">
+        <!-- Footer -->
+        <footer>
+            <div class="footer-stat">
                 <i class="fas fa-globe"></i>
-                <span class="value">197</span>
-                <span class="label">Nations</span>
+                <span class="val">197</span>
+                <span class="lbl">Nations</span>
             </div>
-            <div class="stat">
+            <div class="footer-stat">
                 <i class="fas fa-link"></i>
-                <span class="value" id="stat-relations">19,306</span>
-                <span class="label">Relations</span>
+                <span class="val" id="footer-relations">0</span>
+                <span class="lbl">Relations</span>
             </div>
-            <div class="stat">
+            <div class="footer-stat">
                 <i class="fas fa-eye"></i>
-                <span class="value" id="stat-visible">50</span>
-                <span class="label">Visible</span>
-            </div>
-            <div class="stat">
-                <i class="fas fa-mouse-pointer"></i>
-                <span class="value" id="stat-focused">-</span>
-                <span class="label">Focused</span>
+                <span class="val" id="footer-visible">0</span>
+                <span class="lbl">Visible</span>
             </div>
         </footer>
     </div>
 
-    <!-- Scripts -->
-    <script src="countries-data.js"></script>
-    <script src="relationships-data.js"></script>
-    <script src="radial-engine.js"></script>
-    <script src="app.js"></script>
+    <script>
+    // ============================================
+    // COUNTRIES DATA - All 197 Countries
+    // ============================================
+    const COUNTRIES = [
+        // ASIA (48)
+        { code: "AF", name: "Afghanistan", flag: "🇦🇫", region: "asia" },
+        { code: "AM", name: "Armenia", flag: "🇦🇲", region: "asia" },
+        { code: "AZ", name: "Azerbaijan", flag: "🇦🇿", region: "asia" },
+        { code: "BH", name: "Bahrain", flag: "🇧🇭", region: "asia" },
+        { code: "BD", name: "Bangladesh", flag: "🇧🇩", region: "asia" },
+        { code: "BT", name: "Bhutan", flag: "🇧🇹", region: "asia" },
+        { code: "BN", name: "Brunei", flag: "🇧🇳", region: "asia" },
+        { code: "KH", name: "Cambodia", flag: "🇰🇭", region: "asia" },
+        { code: "CN", name: "China", flag: "🇨🇳", region: "asia" },
+        { code: "CY", name: "Cyprus", flag: "🇨🇾", region: "asia" },
+        { code: "GE", name: "Georgia", flag: "🇬🇪", region: "asia" },
+        { code: "IN", name: "India", flag: "🇮🇳", region: "asia" },
+        { code: "ID", name: "Indonesia", flag: "🇮🇩", region: "asia" },
+        { code: "IR", name: "Iran", flag: "🇮🇷", region: "asia" },
+        { code: "IQ", name: "Iraq", flag: "🇮🇶", region: "asia" },
+        { code: "IL", name: "Israel", flag: "🇮🇱", region: "asia" },
+        { code: "JP", name: "Japan", flag: "🇯🇵", region: "asia" },
+        { code: "JO", name: "Jordan", flag: "🇯🇴", region: "asia" },
+        { code: "KZ", name: "Kazakhstan", flag: "🇰🇿", region: "asia" },
+        { code: "KW", name: "Kuwait", flag: "🇰🇼", region: "asia" },
+        { code: "KG", name: "Kyrgyzstan", flag: "🇰🇬", region: "asia" },
+        { code: "LA", name: "Laos", flag: "🇱🇦", region: "asia" },
+        { code: "LB", name: "Lebanon", flag: "🇱🇧", region: "asia" },
+        { code: "MY", name: "Malaysia", flag: "🇲🇾", region: "asia" },
+        { code: "MV", name: "Maldives", flag: "🇲🇻", region: "asia" },
+        { code: "MN", name: "Mongolia", flag: "🇲🇳", region: "asia" },
+        { code: "MM", name: "Myanmar", flag: "🇲🇲", region: "asia" },
+        { code: "NP", name: "Nepal", flag: "🇳🇵", region: "asia" },
+        { code: "KP", name: "North Korea", flag: "🇰🇵", region: "asia" },
+        { code: "OM", name: "Oman", flag: "🇴🇲", region: "asia" },
+        { code: "PK", name: "Pakistan", flag: "🇵🇰", region: "asia" },
+        { code: "PS", name: "Palestine", flag: "🇵🇸", region: "asia" },
+        { code: "PH", name: "Philippines", flag: "🇵🇭", region: "asia" },
+        { code: "QA", name: "Qatar", flag: "🇶🇦", region: "asia" },
+        { code: "SA", name: "Saudi Arabia", flag: "🇸🇦", region: "asia" },
+        { code: "SG", name: "Singapore", flag: "🇸🇬", region: "asia" },
+        { code: "KR", name: "South Korea", flag: "🇰🇷", region: "asia" },
+        { code: "LK", name: "Sri Lanka", flag: "🇱🇰", region: "asia" },
+        { code: "SY", name: "Syria", flag: "🇸🇾", region: "asia" },
+        { code: "TW", name: "Taiwan", flag: "🇹🇼", region: "asia" },
+        { code: "TJ", name: "Tajikistan", flag: "🇹🇯", region: "asia" },
+        { code: "TH", name: "Thailand", flag: "🇹🇭", region: "asia" },
+        { code: "TL", name: "Timor-Leste", flag: "🇹🇱", region: "asia" },
+        { code: "TR", name: "Turkey", flag: "🇹🇷", region: "asia" },
+        { code: "TM", name: "Turkmenistan", flag: "🇹🇲", region: "asia" },
+        { code: "AE", name: "United Arab Emirates", flag: "🇦🇪", region: "asia" },
+        { code: "UZ", name: "Uzbekistan", flag: "🇺🇿", region: "asia" },
+        { code: "VN", name: "Vietnam", flag: "🇻🇳", region: "asia" },
+        { code: "YE", name: "Yemen", flag: "🇾🇪", region: "asia" },
+
+        // AFRICA (54)
+        { code: "DZ", name: "Algeria", flag: "🇩🇿", region: "africa" },
+        { code: "AO", name: "Angola", flag: "🇦🇴", region: "africa" },
+        { code: "BJ", name: "Benin", flag: "🇧🇯", region: "africa" },
+        { code: "BW", name: "Botswana", flag: "🇧🇼", region: "africa" },
+        { code: "BF", name: "Burkina Faso", flag: "🇧🇫", region: "africa" },
+        { code: "BI", name: "Burundi", flag: "🇧🇮", region: "africa" },
+        { code: "CV", name: "Cabo Verde", flag: "🇨🇻", region: "africa" },
+        { code: "CM", name: "Cameroon", flag: "🇨🇲", region: "africa" },
+        { code: "CF", name: "Central African Republic", flag: "🇨🇫", region: "africa" },
+        { code: "TD", name: "Chad", flag: "🇹🇩", region: "africa" },
+        { code: "KM", name: "Comoros", flag: "🇰🇲", region: "africa" },
+        { code: "CG", name: "Congo", flag: "🇨🇬", region: "africa" },
+        { code: "CD", name: "DR Congo", flag: "🇨🇩", region: "africa" },
+        { code: "CI", name: "Côte d'Ivoire", flag: "🇨🇮", region: "africa" },
+        { code: "DJ", name: "Djibouti", flag: "🇩🇯", region: "africa" },
+        { code: "EG", name: "Egypt", flag: "🇪🇬", region: "africa" },
+        { code: "GQ", name: "Equatorial Guinea", flag: "🇬🇶", region: "africa" },
+        { code: "ER", name: "Eritrea", flag: "🇪🇷", region: "africa" },
+        { code: "SZ", name: "Eswatini", flag: "🇸🇿", region: "africa" },
+        { code: "ET", name: "Ethiopia", flag: "🇪🇹", region: "africa" },
+        { code: "GA", name: "Gabon", flag: "🇬🇦", region: "africa" },
+        { code: "GM", name: "Gambia", flag: "🇬🇲", region: "africa" },
+        { code: "GH", name: "Ghana", flag: "🇬🇭", region: "africa" },
+        { code: "GN", name: "Guinea", flag: "🇬🇳", region: "africa" },
+        { code: "GW", name: "Guinea-Bissau", flag: "🇬🇼", region: "africa" },
+        { code: "KE", name: "Kenya", flag: "🇰🇪", region: "africa" },
+        { code: "LS", name: "Lesotho", flag: "🇱🇸", region: "africa" },
+        { code: "LR", name: "Liberia", flag: "🇱🇷", region: "africa" },
+        { code: "LY", name: "Libya", flag: "🇱🇾", region: "africa" },
+        { code: "MG", name: "Madagascar", flag: "🇲🇬", region: "africa" },
+        { code: "MW", name: "Malawi", flag: "🇲🇼", region: "africa" },
+        { code: "ML", name: "Mali", flag: "🇲🇱", region: "africa" },
+        { code: "MR", name: "Mauritania", flag: "🇲🇷", region: "africa" },
+        { code: "MU", name: "Mauritius", flag: "🇲🇺", region: "africa" },
+        { code: "MA", name: "Morocco", flag: "🇲🇦", region: "africa" },
+        { code: "MZ", name: "Mozambique", flag: "🇲🇿", region: "africa" },
+        { code: "NA", name: "Namibia", flag: "🇳🇦", region: "africa" },
+        { code: "NE", name: "Niger", flag: "🇳🇪", region: "africa" },
+        { code: "NG", name: "Nigeria", flag: "🇳🇬", region: "africa" },
+        { code: "RW", name: "Rwanda", flag: "🇷🇼", region: "africa" },
+        { code: "ST", name: "São Tomé and Príncipe", flag: "🇸🇹", region: "africa" },
+        { code: "SN", name: "Senegal", flag: "🇸🇳", region: "africa" },
+        { code: "SC", name: "Seychelles", flag: "🇸🇨", region: "africa" },
+        { code: "SL", name: "Sierra Leone", flag: "🇸🇱", region: "africa" },
+        { code: "SO", name: "Somalia", flag: "🇸🇴", region: "africa" },
+        { code: "ZA", name: "South Africa", flag: "🇿🇦", region: "africa" },
+        { code: "SS", name: "South Sudan", flag: "🇸🇸", region: "africa" },
+        { code: "SD", name: "Sudan", flag: "🇸🇩", region: "africa" },
+        { code: "TZ", name: "Tanzania", flag: "🇹🇿", region: "africa" },
+        { code: "TG", name: "Togo", flag: "🇹🇬", region: "africa" },
+        { code: "TN", name: "Tunisia", flag: "🇹🇳", region: "africa" },
+        { code: "UG", name: "Uganda", flag: "🇺🇬", region: "africa" },
+        { code: "ZM", name: "Zambia", flag: "🇿🇲", region: "africa" },
+        { code: "ZW", name: "Zimbabwe", flag: "🇿🇼", region: "africa" },
+
+        // EUROPE (44)
+        { code: "AL", name: "Albania", flag: "🇦🇱", region: "europe" },
+        { code: "AD", name: "Andorra", flag: "🇦🇩", region: "europe" },
+        { code: "AT", name: "Austria", flag: "🇦🇹", region: "europe" },
+        { code: "BY", name: "Belarus", flag: "🇧🇾", region: "europe" },
+        { code: "BE", name: "Belgium", flag: "🇧🇪", region: "europe" },
+        { code: "BA", name: "Bosnia and Herzegovina", flag: "🇧🇦", region: "europe" },
+        { code: "BG", name: "Bulgaria", flag: "🇧🇬", region: "europe" },
+        { code: "HR", name: "Croatia", flag: "🇭🇷", region: "europe" },
+        { code: "CZ", name: "Czech Republic", flag: "🇨🇿", region: "europe" },
+        { code: "DK", name: "Denmark", flag: "🇩🇰", region: "europe" },
+        { code: "EE", name: "Estonia", flag: "🇪🇪", region: "europe" },
+        { code: "FI", name: "Finland", flag: "🇫🇮", region: "europe" },
+        { code: "FR", name: "France", flag: "🇫🇷", region: "europe" },
+        { code: "DE", name: "Germany", flag: "🇩🇪", region: "europe" },
+        { code: "GR", name: "Greece", flag: "🇬🇷", region: "europe" },
+        { code: "HU", name: "Hungary", flag: "🇭🇺", region: "europe" },
+        { code: "IS", name: "Iceland", flag: "🇮🇸", region: "europe" },
+        { code: "IE", name: "Ireland", flag: "🇮🇪", region: "europe" },
+        { code: "IT", name: "Italy", flag: "🇮🇹", region: "europe" },
+        { code: "XK", name: "Kosovo", flag: "🇽🇰", region: "europe" },
+        { code: "LV", name: "Latvia", flag: "🇱🇻", region: "europe" },
+        { code: "LI", name: "Liechtenstein", flag: "🇱🇮", region: "europe" },
+        { code: "LT", name: "Lithuania", flag: "🇱🇹", region: "europe" },
+        { code: "LU", name: "Luxembourg", flag: "🇱🇺", region: "europe" },
+        { code: "MT", name: "Malta", flag: "🇲🇹", region: "europe" },
+        { code: "MD", name: "Moldova", flag: "🇲🇩", region: "europe" },
+        { code: "MC", name: "Monaco", flag: "🇲🇨", region: "europe" },
+        { code: "ME", name: "Montenegro", flag: "🇲🇪", region: "europe" },
+        { code: "NL", name: "Netherlands", flag: "🇳🇱", region: "europe" },
+        { code: "MK", name: "North Macedonia", flag: "🇲🇰", region: "europe" },
+        { code: "NO", name: "Norway", flag: "🇳🇴", region: "europe" },
+        { code: "PL", name: "Poland", flag: "🇵🇱", region: "europe" },
+        { code: "PT", name: "Portugal", flag: "🇵🇹", region: "europe" },
+        { code: "RO", name: "Romania", flag: "🇷🇴", region: "europe" },
+        { code: "RU", name: "Russia", flag: "🇷🇺", region: "europe" },
+        { code: "SM", name: "San Marino", flag: "🇸🇲", region: "europe" },
+        { code: "RS", name: "Serbia", flag: "🇷🇸", region: "europe" },
+        { code: "SK", name: "Slovakia", flag: "🇸🇰", region: "europe" },
+        { code: "SI", name: "Slovenia", flag: "🇸🇮", region: "europe" },
+        { code: "ES", name: "Spain", flag: "🇪🇸", region: "europe" },
+        { code: "SE", name: "Sweden", flag: "🇸🇪", region: "europe" },
+        { code: "CH", name: "Switzerland", flag: "🇨🇭", region: "europe" },
+        { code: "UA", name: "Ukraine", flag: "🇺🇦", region: "europe" },
+        { code: "GB", name: "United Kingdom", flag: "🇬🇧", region: "europe" },
+        { code: "VA", name: "Vatican City", flag: "🇻🇦", region: "europe" },
+
+        // NORTH AMERICA (23)
+        { code: "AG", name: "Antigua and Barbuda", flag: "🇦🇬", region: "north-america" },
+        { code: "BS", name: "Bahamas", flag: "🇧🇸", region: "north-america" },
+        { code: "BB", name: "Barbados", flag: "🇧🇧", region: "north-america" },
+        { code: "BZ", name: "Belize", flag: "🇧🇿", region: "north-america" },
+        { code: "CA", name: "Canada", flag: "🇨🇦", region: "north-america" },
+        { code: "CR", name: "Costa Rica", flag: "🇨🇷", region: "north-america" },
+        { code: "CU", name: "Cuba", flag: "🇨🇺", region: "north-america" },
+        { code: "DM", name: "Dominica", flag: "🇩🇲", region: "north-america" },
+        { code: "DO", name: "Dominican Republic", flag: "🇩🇴", region: "north-america" },
+        { code: "SV", name: "El Salvador", flag: "🇸🇻", region: "north-america" },
+        { code: "GD", name: "Grenada", flag: "🇬🇩", region: "north-america" },
+        { code: "GT", name: "Guatemala", flag: "🇬🇹", region: "north-america" },
+        { code: "HT", name: "Haiti", flag: "🇭🇹", region: "north-america" },
+        { code: "HN", name: "Honduras", flag: "🇭🇳", region: "north-america" },
+        { code: "JM", name: "Jamaica", flag: "🇯🇲", region: "north-america" },
+        { code: "MX", name: "Mexico", flag: "🇲🇽", region: "north-america" },
+        { code: "NI", name: "Nicaragua", flag: "🇳🇮", region: "north-america" },
+        { code: "PA", name: "Panama", flag: "🇵🇦", region: "north-america" },
+        { code: "KN", name: "Saint Kitts and Nevis", flag: "🇰🇳", region: "north-america" },
+        { code: "LC", name: "Saint Lucia", flag: "🇱🇨", region: "north-america" },
+        { code: "VC", name: "Saint Vincent", flag: "🇻🇨", region: "north-america" },
+        { code: "TT", name: "Trinidad and Tobago", flag: "🇹🇹", region: "north-america" },
+        { code: "US", name: "United States", flag: "🇺🇸", region: "north-america" },
+
+        // SOUTH AMERICA (12)
+        { code: "AR", name: "Argentina", flag: "🇦🇷", region: "south-america" },
+        { code: "BO", name: "Bolivia", flag: "🇧🇴", region: "south-america" },
+        { code: "BR", name: "Brazil", flag: "🇧🇷", region: "south-america" },
+        { code: "CL", name: "Chile", flag: "🇨🇱", region: "south-america" },
+        { code: "CO", name: "Colombia", flag: "🇨🇴", region: "south-america" },
+        { code: "EC", name: "Ecuador", flag: "🇪🇨", region: "south-america" },
+        { code: "GY", name: "Guyana", flag: "🇬🇾", region: "south-america" },
+        { code: "PY", name: "Paraguay", flag: "🇵🇾", region: "south-america" },
+        { code: "PE", name: "Peru", flag: "🇵🇪", region: "south-america" },
+        { code: "SR", name: "Suriname", flag: "🇸🇷", region: "south-america" },
+        { code: "UY", name: "Uruguay", flag: "🇺🇾", region: "south-america" },
+        { code: "VE", name: "Venezuela", flag: "🇻🇪", region: "south-america" },
+
+        // OCEANIA (14)
+        { code: "AU", name: "Australia", flag: "🇦🇺", region: "oceania" },
+        { code: "FJ", name: "Fiji", flag: "🇫🇯", region: "oceania" },
+        { code: "KI", name: "Kiribati", flag: "🇰🇮", region: "oceania" },
+        { code: "MH", name: "Marshall Islands", flag: "🇲🇭", region: "oceania" },
+        { code: "FM", name: "Micronesia", flag: "🇫🇲", region: "oceania" },
+        { code: "NR", name: "Nauru", flag: "🇳🇷", region: "oceania" },
+        { code: "NZ", name: "New Zealand", flag: "🇳🇿", region: "oceania" },
+        { code: "PW", name: "Palau", flag: "🇵🇼", region: "oceania" },
+        { code: "PG", name: "Papua New Guinea", flag: "🇵🇬", region: "oceania" },
+        { code: "WS", name: "Samoa", flag: "🇼🇸", region: "oceania" },
+        { code: "SB", name: "Solomon Islands", flag: "🇸🇧", region: "oceania" },
+        { code: "TO", name: "Tonga", flag: "🇹🇴", region: "oceania" },
+        { code: "TV", name: "Tuvalu", flag: "🇹🇻", region: "oceania" },
+        { code: "VU", name: "Vanuatu", flag: "🇻🇺", region: "oceania" }
+    ];
+
+    // Create lookup maps
+    const COUNTRY_MAP = {};
+    COUNTRIES.forEach(c => COUNTRY_MAP[c.code] = c);
+
+    // ============================================
+    // RELATIONSHIP GENERATOR
+    // ============================================
+    const ALLIANCES = {
+        NATO: ['US', 'GB', 'FR', 'DE', 'IT', 'CA', 'ES', 'PL', 'NL', 'BE', 'PT', 'GR', 'TR', 'DK', 'NO', 'CZ', 'HU', 'RO', 'BG'],
+        EU: ['DE', 'FR', 'IT', 'ES', 'PL', 'RO', 'NL', 'BE', 'GR', 'CZ', 'PT', 'HU', 'SE', 'AT', 'BG', 'DK', 'FI', 'SK', 'IE', 'HR'],
+        BRICS: ['BR', 'RU', 'IN', 'CN', 'ZA', 'EG', 'ET', 'IR', 'AE', 'SA'],
+        ASEAN: ['ID', 'MY', 'PH', 'SG', 'TH', 'BN', 'VN', 'LA', 'MM', 'KH'],
+        FIVEEYES: ['US', 'GB', 'CA', 'AU', 'NZ'],
+        GCC: ['SA', 'AE', 'KW', 'QA', 'BH', 'OM']
+    };
+
+    const CONFLICTS = {
+        'IN': ['PK', 'CN'],
+        'PK': ['IN'],
+        'IL': ['IR', 'SY', 'LB', 'PS'],
+        'IR': ['IL', 'US', 'SA'],
+        'US': ['IR', 'KP', 'RU', 'CN', 'CU'],
+        'RU': ['UA', 'US', 'GB', 'PL'],
+        'UA': ['RU'],
+        'CN': ['TW', 'IN', 'US', 'JP'],
+        'TW': ['CN'],
+        'KP': ['US', 'KR', 'JP'],
+        'KR': ['KP']
+    };
+
+    const COLORS = {
+        allies: '#10B981',
+        strategic: '#3B82F6',
+        neutral: '#F59E0B',
+        complex: '#F97316',
+        conflict: '#EF4444',
+        selected: '#EC4899'
+    };
+
+    function generateRelations(centerCode) {
+        const relations = [];
+        
+        COUNTRIES.forEach(country => {
+            if (country.code === centerCode) return;
+            
+            let type = 'neutral';
+            let strength = 5;
+            let ring = 3;
+            
+            // Check alliances
+            const isNATOally = ALLIANCES.NATO.includes(centerCode) && ALLIANCES.NATO.includes(country.code);
+            const isEUally = ALLIANCES.EU.includes(centerCode) && ALLIANCES.EU.includes(country.code);
+            const isFiveEyes = ALLIANCES.FIVEEYES.includes(centerCode) && ALLIANCES.FIVEEYES.includes(country.code);
+            const isASEAN = ALLIANCES.ASEAN.includes(centerCode) && ALLIANCES.ASEAN.includes(country.code);
+            const isGCC = ALLIANCES.GCC.includes(centerCode) && ALLIANCES.GCC.includes(country.code);
+            const isBRICS = ALLIANCES.BRICS.includes(centerCode) && ALLIANCES.BRICS.includes(country.code);
+            
+            // Check conflicts
+            const isConflict = CONFLICTS[centerCode] && CONFLICTS[centerCode].includes(country.code);
+            
+            if (isFiveEyes) {
+                type = 'allies'; strength = 10; ring = 1;
+            } else if (isNATOally || isEUally) {
+                type = 'allies'; strength = 9; ring = 1;
+            } else if (isGCC || isASEAN) {
+                type = 'allies'; strength = 8; ring = 1;
+            } else if (isBRICS) {
+                type = 'strategic'; strength = 7; ring = 2;
+            } else if (isConflict) {
+                type = 'conflict'; strength = 2; ring = 5;
+            } else if (COUNTRY_MAP[centerCode].region === country.region) {
+                type = 'strategic'; strength = 6; ring = 2;
+            }
+            
+            relations.push({
+                code: country.code,
+                name: country.name,
+                flag: country.flag,
+                type: type,
+                strength: strength,
+                ring: ring
+            });
+        });
+        
+        // Sort by ring, then strength
+        relations.sort((a, b) => {
+            if (a.ring !== b.ring) return a.ring - b.ring;
+            return b.strength - a.strength;
+        });
+        
+        return relations;
+    }
+
+    // ============================================
+    // RADIAL ENGINE
+    // ============================================
+    class RadialEngine {
+        constructor(canvas) {
+            this.canvas = canvas;
+            this.ctx = canvas.getContext('2d');
+            
+            this.centerCountry = null;
+            this.relations = [];
+            this.nodes = [];
+            this.hoveredNode = null;
+            this.selectedNode = null;
+            
+            this.zoom = 1;
+            this.panX = 0;
+            this.panY = 0;
+            this.isDragging = false;
+            this.dragStartX = 0;
+            this.dragStartY = 0;
+            
+            this.showAll = false;
+            this.maxNodes = 50;
+            this.animProgress = 1;
+            
+            this.resize();
+            this.setupEvents();
+            this.render();
+        }
+        
+        resize() {
+            const rect = this.canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            
+            this.canvas.width = rect.width * dpr;
+            this.canvas.height = rect.height * dpr;
+            this.canvas.style.width = rect.width + 'px';
+            this.canvas.style.height = rect.height + 'px';
+            
+            this.ctx.scale(dpr, dpr);
+            
+            this.width = rect.width;
+            this.height = rect.height;
+            this.centerX = this.width / 2;
+            this.centerY = this.height / 2;
+            this.maxRadius = Math.min(this.width, this.height) / 2 - 60;
+        }
+        
+        setupEvents() {
+            window.addEventListener('resize', () => {
+                this.resize();
+                this.buildNodes();
+            });
+            
+            this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+            this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+            this.canvas.addEventListener('mouseup', () => this.onMouseUp());
+            this.canvas.addEventListener('mouseleave', () => this.onMouseLeave());
+            this.canvas.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
+            this.canvas.addEventListener('click', (e) => this.onClick(e));
+            this.canvas.addEventListener('dblclick', (e) => this.onDblClick(e));
+        }
+        
+        setCenter(code) {
+            const country = COUNTRY_MAP[code];
+            if (!country) return;
+            
+            this.centerCountry = country;
+            this.relations = generateRelations(code);
+            this.buildNodes();
+            this.animate();
+            
+            return this.getStats();
+        }
+        
+        buildNodes() {
+            if (!this.centerCountry) return;
+            
+            this.nodes = [];
+            
+            // Ring configuration
+            const rings = {
+                1: { max: 8, radius: 0.18 },
+                2: { max: 12, radius: 0.36 },
+                3: { max: 15, radius: 0.54 },
+                4: { max: 10, radius: 0.72 },
+                5: { max: 5, radius: 0.90 }
+            };
+            
+            // Group by ring
+            const groups = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+            this.relations.forEach(rel => {
+                groups[rel.ring].push(rel);
+            });
+            
+            let totalVisible = 0;
+            const maxTotal = this.showAll ? 197 : this.maxNodes;
+            
+            // Build nodes per ring
+            [1, 2, 3, 4, 5].forEach(ringNum => {
+                const config = rings[ringNum];
+                const ringRels = groups[ringNum];
+                const maxForRing = this.showAll ? ringRels.length : Math.min(config.max, maxTotal - totalVisible);
+                const visible = ringRels.slice(0, maxForRing);
+                
+                const count = visible.length;
+                if (count === 0) return;
+                
+                // Dynamic spacing
+                const minSpacing = 45;
+                const circumference = count * minSpacing;
+                const minRadius = circumference / (2 * Math.PI);
+                const baseRadius = config.radius * this.maxRadius;
+                const actualRadius = Math.max(baseRadius, minRadius);
+                
+                visible.forEach((rel, i) => {
+                    const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+                    
+                    this.nodes.push({
+                        ...rel,
+                        angle: angle,
+                        targetRadius: actualRadius,
+                        currentRadius: 0,
+                        x: 0,
+                        y: 0,
+                        size: 20 - ringNum * 2
+                    });
+                    
+                    totalVisible++;
+                });
+            });
+            
+            this.hiddenCount = this.relations.length - totalVisible;
+            this.updateMoreIndicator();
+        }
+        
+        animate() {
+            this.animProgress = 0;
+            const start = performance.now();
+            const duration = 500;
+            
+            const step = (now) => {
+                const elapsed = now - start;
+                this.animProgress = Math.min(elapsed / duration, 1);
+                
+                // Ease out
+                const ease = 1 - Math.pow(1 - this.animProgress, 3);
+                
+                this.nodes.forEach(node => {
+                    node.currentRadius = node.targetRadius * ease;
+                    node.x = Math.cos(node.angle) * node.currentRadius;
+                    node.y = Math.sin(node.angle) * node.currentRadius;
+                });
+                
+                this.render();
+                
+                if (elapsed < duration) {
+                    requestAnimationFrame(step);
+                }
+            };
+            
+            requestAnimationFrame(step);
+        }
+        
+        render() {
+            const ctx = this.ctx;
+            ctx.clearRect(0, 0, this.width, this.height);
+            
+            ctx.save();
+            ctx.translate(this.centerX + this.panX, this.centerY + this.panY);
+            ctx.scale(this.zoom, this.zoom);
+            
+            // Draw rings
+            this.drawRings();
+            
+            // Draw connections (faint by default, bright on hover)
+            this.drawConnections();
+            
+            // Draw center
+            this.drawCenter();
+            
+            // Draw nodes
+            this.drawNodes();
+            
+            ctx.restore();
+        }
+        
+        drawRings() {
+            const ctx = this.ctx;
+            const radii = [0.18, 0.36, 0.54, 0.72, 0.90];
+            
+            radii.forEach(r => {
+                const radius = r * this.maxRadius;
+                
+                ctx.beginPath();
+                ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+        }
+        
+        drawConnections() {
+            const ctx = this.ctx;
+            
+            this.nodes.forEach(node => {
+                const isHovered = this.hoveredNode && this.hoveredNode.code === node.code;
+                const isSelected = this.selectedNode && this.selectedNode.code === node.code;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(node.x, node.y);
+                
+                if (isHovered || isSelected) {
+                    ctx.strokeStyle = COLORS[node.type];
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = COLORS[node.type];
+                    ctx.shadowBlur = 10;
+                } else {
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.1)';
+                    ctx.lineWidth = 1;
+                }
+                
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            });
+        }
+        
+        drawCenter() {
+            if (!this.centerCountry) return;
+            
+            const ctx = this.ctx;
+            
+            // Glow
+            ctx.shadowColor = COLORS.selected;
+            ctx.shadowBlur = 20;
+            
+            ctx.beginPath();
+            ctx.arc(0, 0, 35, 0, Math.PI * 2);
+            ctx.fillStyle = COLORS.selected;
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+            
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Flag
+            ctx.font = '26px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(this.centerCountry.flag, 0, 0);
+        }
+        
+        drawNodes() {
+            const ctx = this.ctx;
+            
+            this.nodes.forEach(node => {
+                const isHovered = this.hoveredNode && this.hoveredNode.code === node.code;
+                const color = COLORS[node.type];
+                const size = node.size * (isHovered ? 1.3 : 1);
+                
+                // Glow on hover
+                if (isHovered) {
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = 15;
+                }
+                
+                // Circle
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+                
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Flag
+                ctx.font = `${size * 0.9}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.flag, node.x, node.y);
+                
+                // Code label on zoom/hover
+                if (this.zoom > 1.3 || isHovered) {
+                    ctx.font = `bold 10px Inter, sans-serif`;
+                    const labelW = ctx.measureText(node.code).width + 6;
+                    
+                    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+                    ctx.fillRect(node.x - labelW/2, node.y + size + 3, labelW, 14);
+                    
+                    ctx.fillStyle = '#1E293B';
+                    ctx.fillText(node.code, node.x, node.y + size + 10);
+                }
+            });
+        }
+        
+        onMouseMove(e) {
+            const rect = this.canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            
+            if (this.isDragging) {
+                this.panX = this.lastPanX + (mx - this.dragStartX);
+                this.panY = this.lastPanY + (my - this.dragStartY);
+                this.render();
+                return;
+            }
+            
+            // Convert to canvas coords
+            const cx = (mx - this.centerX - this.panX) / this.zoom;
+            const cy = (my - this.centerY - this.panY) / this.zoom;
+            
+            // Find hovered node
+            let found = null;
+            for (const node of this.nodes) {
+                const dx = cx - node.x;
+                const dy = cy - node.y;
+                if (Math.sqrt(dx*dx + dy*dy) < node.size + 5) {
+                    found = node;
+                    break;
+                }
+            }
+            
+            if (found !== this.hoveredNode) {
+                this.hoveredNode = found;
+                this.canvas.style.cursor = found ? 'pointer' : 'grab';
+                this.render();
+                this.updateTooltip(found, e.clientX, e.clientY);
+            } else if (found) {
+                this.moveTooltip(e.clientX, e.clientY);
+            }
+        }
+        
+        onMouseDown(e) {
+            if (!this.hoveredNode) {
+                this.isDragging = true;
+                const rect = this.canvas.getBoundingClientRect();
+                this.dragStartX = e.clientX - rect.left;
+                this.dragStartY = e.clientY - rect.top;
+                this.lastPanX = this.panX;
+                this.lastPanY = this.panY;
+                this.canvas.style.cursor = 'grabbing';
+            }
+        }
+        
+        onMouseUp() {
+            this.isDragging = false;
+            this.canvas.style.cursor = this.hoveredNode ? 'pointer' : 'grab';
+        }
+        
+        onMouseLeave() {
+            this.isDragging = false;
+            this.hoveredNode = null;
+            this.hideTooltip();
+            this.render();
+        }
+        
+        onWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            this.zoom = Math.max(0.3, Math.min(3, this.zoom + delta));
+            document.getElementById('zoom-level').textContent = Math.round(this.zoom * 100) + '%';
+            this.render();
+        }
+        
+        onClick(e) {
+            if (this.hoveredNode) {
+                this.showDetails(this.hoveredNode);
+            }
+        }
+        
+        onDblClick(e) {
+            if (this.hoveredNode) {
+                selectCountry(this.hoveredNode.code);
+            }
+        }
+        
+        updateTooltip(node, x, y) {
+            const tip = document.getElementById('tooltip');
+            
+            if (node) {
+                tip.querySelector('.tooltip-flag').textContent = node.flag;
+                tip.querySelector('.tooltip-name').textContent = node.name;
+                
+                const typeEl = tip.querySelector('.tooltip-type');
+                typeEl.textContent = node.type.toUpperCase();
+                typeEl.className = 'tooltip-type ' + node.type;
+                
+                tip.querySelector('.fill').style.width = (node.strength * 10) + '%';
+                tip.querySelector('.fill').style.background = COLORS[node.type];
+                tip.querySelector('.tooltip-strength .val').textContent = node.strength + '/10';
+                
+                tip.style.left = (x + 15) + 'px';
+                tip.style.top = (y + 15) + 'px';
+                tip.classList.add('show');
+            } else {
+                tip.classList.remove('show');
+            }
+        }
+        
+        moveTooltip(x, y) {
+            const tip = document.getElementById('tooltip');
+            tip.style.left = (x + 15) + 'px';
+            tip.style.top = (y + 15) + 'px';
+        }
+        
+        hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+        
+        showDetails(node) {
+            this.selectedNode = node;
+            
+            document.getElementById('panel-flag1').textContent = this.centerCountry.flag;
+            document.getElementById('panel-name1').textContent = this.centerCountry.name;
+            document.getElementById('panel-flag2').textContent = node.flag;
+            document.getElementById('panel-name2').textContent = node.name;
+            
+            const typeEl = document.getElementById('panel-type');
+            typeEl.textContent = node.type.toUpperCase();
+            typeEl.style.background = COLORS[node.type];
+            
+            // Score circle
+            const circumference = 251.2;
+            const offset = circumference - (node.strength / 10) * circumference;
+            const circle = document.getElementById('score-circle');
+            circle.style.strokeDashoffset = offset;
+            circle.style.stroke = COLORS[node.type];
+            document.getElementById('score-value').textContent = node.strength;
+            
+            // Parameters (simplified)
+            const params = document.getElementById('panel-params');
+            params.innerHTML = `
+                <div class="param-item">
+                    <div class="param-header">
+                        <div class="param-icon"><i class="fas fa-handshake"></i></div>
+                        <div class="param-info">
+                            <div class="param-name">Trade Relations</div>
+                            <div class="param-summary">${node.type === 'allies' ? 'Strong bilateral trade' : 'Standard trade framework'}</div>
+                        </div>
+                        <div class="param-score-val">${Math.min(10, node.strength + 1)}/10</div>
+                    </div>
+                </div>
+                <div class="param-item">
+                    <div class="param-header">
+                        <div class="param-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div class="param-info">
+                            <div class="param-name">Military Cooperation</div>
+                            <div class="param-summary">${node.type === 'allies' ? 'Joint defense agreements' : node.type === 'conflict' ? 'No cooperation' : 'Limited engagement'}</div>
+                        </div>
+                        <div class="param-score-val">${node.type === 'conflict' ? 1 : node.strength}/10</div>
+                    </div>
+                </div>
+                <div class="param-item">
+                    <div class="param-header">
+                        <div class="param-icon"><i class="fas fa-landmark"></i></div>
+                        <div class="param-info">
+                            <div class="param-name">Diplomatic Ties</div>
+                            <div class="param-summary">${node.type === 'conflict' ? 'Strained relations' : 'Embassy exchange active'}</div>
+                        </div>
+                        <div class="param-score-val">${node.strength}/10</div>
+                    </div>
+                </div>
+                <div class="param-item">
+                    <div class="param-header">
+                        <div class="param-icon"><i class="fas fa-passport"></i></div>
+                        <div class="param-info">
+                            <div class="param-name">Visa Policies</div>
+                            <div class="param-summary">${node.type === 'allies' ? 'Visa-free travel' : 'Standard visa required'}</div>
+                        </div>
+                        <div class="param-score-val">${node.type === 'allies' ? 9 : 5}/10</div>
+                    </div>
+                </div>
+            `;
+            
+            // Links
+            document.getElementById('link-wiki').href = `https://en.wikipedia.org/wiki/${node.name.replace(/ /g, '_')}`;
+            document.getElementById('link-cia').href = `https://www.cia.gov/the-world-factbook/countries/${node.name.toLowerCase().replace(/ /g, '-')}/`;
+            
+            document.getElementById('detail-panel').classList.add('show');
+            this.render();
+        }
+        
+        updateMoreIndicator() {
+            const indicator = document.getElementById('more-indicator');
+            const count = document.getElementById('more-count');
+            
+            if (this.hiddenCount > 0 && !this.showAll) {
+                count.textContent = '+' + this.hiddenCount;
+                indicator.classList.remove('hidden');
+            } else {
+                indicator.classList.add('hidden');
+            }
+        }
+        
+        getStats() {
+            const stats = { allies: 0, strategic: 0, neutral: 0, complex: 0, conflict: 0 };
+            this.relations.forEach(r => {
+                if (stats.hasOwnProperty(r.type)) stats[r.type]++;
+            });
+            return stats;
+        }
+        
+        toggleShowAll(show) {
+            this.showAll = show;
+            this.buildNodes();
+            this.animate();
+        }
+        
+        zoomIn() {
+            this.zoom = Math.min(3, this.zoom + 0.2);
+            document.getElementById('zoom-level').textContent = Math.round(this.zoom * 100) + '%';
+            this.render();
+        }
+        
+        zoomOut() {
+            this.zoom = Math.max(0.3, this.zoom - 0.2);
+            document.getElementById('zoom-level').textContent = Math.round(this.zoom * 100) + '%';
+            this.render();
+        }
+        
+        resetView() {
+            this.zoom = 1;
+            this.panX = 0;
+            this.panY = 0;
+            document.getElementById('zoom-level').textContent = '100%';
+            this.render();
+        }
+    }
+
+    // ============================================
+    // APP INITIALIZATION
+    // ============================================
+    let engine;
+
+    function init() {
+        // Show loading
+        setTimeout(() => {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            
+            // Initialize engine
+            const canvas = document.getElementById('radial-canvas');
+            engine = new RadialEngine(canvas);
+            
+            // Select default country
+            selectCountry('US');
+            
+            // Setup search
+            setupSearch();
+            
+            // Setup controls
+            setupControls();
+            
+        }, 1500);
+    }
+
+    function selectCountry(code) {
+        const stats = engine.setCenter(code);
+        const country = COUNTRY_MAP[code];
+        
+        // Update UI
+        document.getElementById('sel-flag').textContent = country.flag;
+        document.getElementById('sel-name').textContent = country.name;
+        document.getElementById('sel-region').textContent = country.region.replace('-', ' ').toUpperCase();
+        
+        document.getElementById('stat-allies').textContent = stats.allies;
+        document.getElementById('stat-strategic').textContent = stats.strategic;
+        document.getElementById('stat-neutral').textContent = stats.neutral;
+        document.getElementById('stat-complex').textContent = stats.complex;
+        document.getElementById('stat-conflict').textContent = stats.conflict;
+        
+        document.getElementById('footer-relations').textContent = engine.relations.length;
+        document.getElementById('footer-visible').textContent = engine.nodes.length;
+        
+        // Close panel if open
+        document.getElementById('detail-panel').classList.remove('show');
+    }
+
+    function setupSearch() {
+        const input = document.getElementById('search-input');
+        const results = document.getElementById('search-results');
+        
+        input.addEventListener('input', () => {
+            const query = input.value.toLowerCase().trim();
+            
+            if (query.length < 1) {
+                results.classList.remove('show');
+                return;
+            }
+            
+            const matches = COUNTRIES.filter(c => 
+                c.name.toLowerCase().includes(query) || 
+                c.code.toLowerCase().includes(query)
+            ).slice(0, 8);
+            
+            if (matches.length > 0) {
+                results.innerHTML = matches.map(c => `
+                    <div class="search-item" data-code="${c.code}">
+                        <span class="flag">${c.flag}</span>
+                        <span class="name">${c.name}</span>
+                        <span class="region">${c.region}</span>
+                    </div>
+                `).join('');
+                
+                results.classList.add('show');
+                
+                results.querySelectorAll('.search-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        selectCountry(item.dataset.code);
+                        input.value = '';
+                        results.classList.remove('show');
+                    });
+                });
+            } else {
+                results.classList.remove('show');
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !results.contains(e.target)) {
+                results.classList.remove('show');
+            }
+        });
+    }
+
+    function setupControls() {
+        // Zoom
+        document.getElementById('zoom-in').addEventListener('click', () => engine.zoomIn());
+        document.getElementById('zoom-out').addEventListener('click', () => engine.zoomOut());
+        document.getElementById('zoom-reset').addEventListener('click', () => engine.resetView());
+        
+        // Show all
+        document.getElementById('show-all-btn').addEventListener('click', () => {
+            engine.toggleShowAll(true);
+        });
+        
+        // Panel close
+        document.getElementById('panel-close').addEventListener('click', () => {
+            document.getElementById('detail-panel').classList.remove('show');
+            engine.selectedNode = null;
+            engine.render();
+        });
+        
+        // Legend toggle
+        const legend = document.getElementById('ring-legend');
+        document.getElementById('legend-toggle').addEventListener('click', () => {
+            legend.style.display = legend.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+
+    // Start app
+    init();
+    </script>
 </body>
 </html>
