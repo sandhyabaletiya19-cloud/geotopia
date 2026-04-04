@@ -2,16 +2,10 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  * UNITY ATLAS - Application Engine
  * Geotopia Encyclopedia - International Relations Visualization
- * 
- * This file contains all application logic, rendering, and interactions.
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
 'use strict';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN APPLICATION
-// ═══════════════════════════════════════════════════════════════════════════════
 
 const UnityAtlas = (function() {
 
@@ -37,7 +31,8 @@ const UnityAtlas = (function() {
             animationsEnabled: true,
             maxNodes: 50
         },
-        isLoading: true
+        isLoading: true,
+        dropdownRegion: 'all'  // ← ADD THIS NEW STATE
     };
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -66,23 +61,43 @@ const UnityAtlas = (function() {
         DOM.typeFilter = document.getElementById('typeFilter');
         DOM.settingsBtn = document.getElementById('settingsBtn');
         
-        // Sidebar
-        DOM.sidebar = document.getElementById('sidebar');
-        DOM.sidebarSearch = document.getElementById('sidebarSearch');
-        DOM.clearSidebarSearch = document.getElementById('clearSidebarSearch');
+        // ═══════════════════════════════════════════════════════════════════════
+        // ▼▼▼ ADD THESE NEW DOM REFERENCES FOR DROPDOWN ▼▼▼
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        // Sidebar - Center Country
         DOM.currentCenter = document.getElementById('currentCenter');
         DOM.centerFlag = document.getElementById('centerFlag');
         DOM.centerName = document.getElementById('centerName');
         DOM.centerCapital = document.getElementById('centerCapital');
+        DOM.centerRegion = document.getElementById('centerRegion');
+        DOM.changeCenterBtn = document.getElementById('changeCenterBtn');
+        
+        // Sidebar - Country Dropdown
+        DOM.countrySelector = document.getElementById('countrySelector');
+        DOM.countrySelectorBtn = document.getElementById('countrySelectorBtn');
+        DOM.countryDropdown = document.getElementById('countryDropdown');
+        DOM.countrySearchInput = document.getElementById('countrySearchInput');
+        DOM.clearCountrySearch = document.getElementById('clearCountrySearch');
+        DOM.dropdownCountryList = document.getElementById('dropdownCountryList');
+        DOM.resultsCount = document.getElementById('resultsCount');
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // ▲▲▲ END OF NEW DOM REFERENCES ▲▲▲
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        // Sidebar - Stats
         DOM.relationStats = document.getElementById('relationStats');
         DOM.alliesCount = document.getElementById('alliesCount');
         DOM.strategicCount = document.getElementById('strategicCount');
         DOM.neutralCount = document.getElementById('neutralCount');
         DOM.complexCount = document.getElementById('complexCount');
         DOM.conflictCount = document.getElementById('conflictCount');
-        DOM.countryList = document.getElementById('countryList');
+        
+        // Sidebar - Actions
         DOM.randomCountry = document.getElementById('randomCountry');
         DOM.resetView = document.getElementById('resetView');
+        DOM.compareMode = document.getElementById('compareMode');
         
         // Canvas
         DOM.canvasContainer = document.getElementById('canvasContainer');
@@ -158,17 +173,21 @@ const UnityAtlas = (function() {
                     completeLoading();
                 }, 300);
             }
-            DOM.loaderProgress.style.width = `${progress}%`;
+            if (DOM.loaderProgress) {
+                DOM.loaderProgress.style.width = `${progress}%`;
+            }
         }, 100);
     }
 
     function completeLoading() {
         state.isLoading = false;
-        DOM.loadingOverlay.classList.add('hidden');
+        if (DOM.loadingOverlay) {
+            DOM.loadingOverlay.classList.add('hidden');
+        }
         
         // Initialize the visualization
         updateCenterCountry(state.centerCountry);
-        renderCountryList();
+        initCountryDropdown();  // ← ADD THIS LINE
         renderRadialGraph();
     }
 
@@ -192,7 +211,9 @@ const UnityAtlas = (function() {
     }
 
     function scrollToApp() {
-        DOM.app.scrollIntoView({ behavior: 'smooth' });
+        if (DOM.app) {
+            DOM.app.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -208,136 +229,188 @@ const UnityAtlas = (function() {
         state.focusMode = false;
         
         // Update sidebar display
-        DOM.centerFlag.textContent = country.flag;
-        DOM.centerName.textContent = country.name;
-        DOM.centerCapital.textContent = country.capital;
+        if (DOM.centerFlag) DOM.centerFlag.textContent = country.flag;
+        if (DOM.centerName) DOM.centerName.textContent = country.name;
+        if (DOM.centerCapital) {
+            DOM.centerCapital.innerHTML = `<i class="fas fa-landmark"></i> ${country.capital}`;
+        }
+        if (DOM.centerRegion) {
+            const regionInfo = UnityAtlasData.REGIONS[country.region];
+            DOM.centerRegion.innerHTML = `<i class="fas fa-globe"></i> ${regionInfo ? regionInfo.name : country.region}`;
+        }
+        
+        // Reset dropdown button text
+        if (DOM.countrySelectorBtn) {
+            DOM.countrySelectorBtn.querySelector('span').textContent = 'Select a Country';
+        }
         
         // Update stats
         const stats = UnityAtlasData.getRelationshipStats(code);
-        DOM.alliesCount.textContent = stats.allies;
-        DOM.strategicCount.textContent = stats.strategic;
-        DOM.neutralCount.textContent = stats.neutral;
-        DOM.complexCount.textContent = stats.complex;
-        DOM.conflictCount.textContent = stats.conflict;
+        if (DOM.alliesCount) DOM.alliesCount.textContent = stats.allies;
+        if (DOM.strategicCount) DOM.strategicCount.textContent = stats.strategic;
+        if (DOM.neutralCount) DOM.neutralCount.textContent = stats.neutral;
+        if (DOM.complexCount) DOM.complexCount.textContent = stats.complex;
+        if (DOM.conflictCount) DOM.conflictCount.textContent = stats.conflict;
         
         // Update focus indicator
-        DOM.focusIndicator.classList.remove('visible');
-        DOM.parameterPanel.classList.remove('open');
+        if (DOM.focusIndicator) DOM.focusIndicator.classList.remove('visible');
+        if (DOM.parameterPanel) DOM.parameterPanel.classList.remove('open');
         
-        // Re-render
-        renderCountryList();
+        // Re-render dropdown and graph
+        renderDropdownCountries(state.dropdownRegion);
         renderRadialGraph();
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // COUNTRY LIST RENDERING
+    // ▼▼▼ ADD THIS ENTIRE NEW SECTION - COUNTRY SELECTOR DROPDOWN ▼▼▼
     // ═══════════════════════════════════════════════════════════════════════════
 
-    function renderCountryList() {
-        const container = DOM.countryList;
-        container.innerHTML = '';
-        
-        const relationships = UnityAtlasData.getAllRelationships(state.centerCountry);
-        const countries = [];
-        
-        Object.keys(UnityAtlasData.COUNTRIES).forEach(code => {
-            if (code === state.centerCountry) return;
-            
-            const country = UnityAtlasData.getCountry(code);
-            const rel = relationships[code];
-            
-            // Apply filters
-            if (state.filters.region !== 'all' && country.region !== state.filters.region) return;
-            if (state.filters.type !== 'all' && rel && rel.type !== state.filters.type) return;
-            
-            countries.push({
-                ...country,
-                relationship: rel
-            });
-        });
-        
-        // Sort by relationship type, then name
-        countries.sort((a, b) => {
-            const typeOrder = { allies: 0, strategic: 1, neutral: 2, complex: 3, conflict: 4 };
-            const aOrder = typeOrder[a.relationship?.type] || 2;
-            const bOrder = typeOrder[b.relationship?.type] || 2;
-            if (aOrder !== bOrder) return aOrder - bOrder;
-            return a.name.localeCompare(b.name);
-        });
-        
-        // Group by region if no region filter
-        if (state.filters.region === 'all') {
-            const byRegion = {};
-            countries.forEach(country => {
-                if (!byRegion[country.region]) byRegion[country.region] = [];
-                byRegion[country.region].push(country);
-            });
-            
-            Object.entries(byRegion).forEach(([region, regionCountries]) => {
-                const regionInfo = UnityAtlasData.REGIONS[region];
-                const header = document.createElement('div');
-                header.className = 'region-header';
-                header.textContent = `${regionInfo.emoji} ${regionInfo.name} (${regionCountries.length})`;
-                container.appendChild(header);
-                
-                regionCountries.forEach(country => {
-                    container.appendChild(createCountryItem(country));
-                });
-            });
-        } else {
-            countries.forEach(country => {
-                container.appendChild(createCountryItem(country));
-            });
-        }
+    function initCountryDropdown() {
+        renderDropdownCountries('all');
     }
 
-    function createCountryItem(country) {
-        const item = document.createElement('div');
-        item.className = 'country-item';
-        item.dataset.code = country.code;
+    function toggleCountryDropdown() {
+        const btn = DOM.countrySelectorBtn;
+        const dropdown = DOM.countryDropdown;
         
-        if (state.selectedCountry === country.code) {
-            item.classList.add('active');
-        }
+        if (!btn || !dropdown) return;
         
-        const relType = country.relationship?.type || 'neutral';
+        btn.classList.toggle('active');
+        dropdown.classList.toggle('open');
         
-        item.innerHTML = `
-            <span class="country-item-flag">${country.flag}</span>
-            <span class="country-item-name">${country.name}</span>
-            <span class="country-item-type ${relType}"></span>
-        `;
-        
-        item.addEventListener('click', () => selectCountry(country.code));
-        item.addEventListener('dblclick', () => updateCenterCountry(country.code));
-        
-        return item;
-    }
-
-    function filterCountryList(query) {
-        const items = DOM.countryList.querySelectorAll('.country-item');
-        const lowerQuery = query.toLowerCase();
-        
-        items.forEach(item => {
-            const name = item.querySelector('.country-item-name').textContent.toLowerCase();
-            item.style.display = name.includes(lowerQuery) ? 'flex' : 'none';
-        });
-        
-        // Hide empty region headers
-        const headers = DOM.countryList.querySelectorAll('.region-header');
-        headers.forEach(header => {
-            let nextSibling = header.nextElementSibling;
-            let hasVisible = false;
-            while (nextSibling && !nextSibling.classList.contains('region-header')) {
-                if (nextSibling.style.display !== 'none') {
-                    hasVisible = true;
-                    break;
-                }
-                nextSibling = nextSibling.nextElementSibling;
+        if (dropdown.classList.contains('open')) {
+            // Focus search input when dropdown opens
+            if (DOM.countrySearchInput) {
+                setTimeout(() => DOM.countrySearchInput.focus(), 100);
             }
-            header.style.display = hasVisible ? 'block' : 'none';
+        }
+    }
+
+    function closeCountryDropdown() {
+        if (DOM.countrySelectorBtn) {
+            DOM.countrySelectorBtn.classList.remove('active');
+        }
+        if (DOM.countryDropdown) {
+            DOM.countryDropdown.classList.remove('open');
+        }
+    }
+
+    function renderDropdownCountries(region = 'all', searchQuery = '') {
+        const container = DOM.dropdownCountryList;
+        if (!container) return;
+        
+        container.innerHTML = '';
+        state.dropdownRegion = region;
+        
+        let countries = [];
+        
+        // Get countries based on region filter
+        if (region === 'all') {
+            countries = Object.values(UnityAtlasData.COUNTRIES);
+        } else {
+            countries = UnityAtlasData.getCountriesByRegion(region);
+        }
+        
+        // Apply search filter
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            countries = countries.filter(c => 
+                c.name.toLowerCase().includes(query) ||
+                c.code.toLowerCase().includes(query) ||
+                c.capital.toLowerCase().includes(query)
+            );
+        }
+        
+        // Remove center country from list
+        countries = countries.filter(c => c.code !== state.centerCountry);
+        
+        // Sort alphabetically
+        countries.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Update results count
+        if (DOM.resultsCount) {
+            DOM.resultsCount.textContent = `${countries.length} ${countries.length === 1 ? 'country' : 'countries'}`;
+        }
+        
+        // Show no results message
+        if (countries.length === 0) {
+            container.innerHTML = `
+                <div class="dropdown-no-results">
+                    <i class="fas fa-search"></i>
+                    <p>No countries found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Get relationships for coloring
+        const relationships = UnityAtlasData.getAllRelationships(state.centerCountry);
+        
+        // Render countries
+        countries.forEach(country => {
+            const rel = relationships[country.code];
+            const relType = rel?.type || 'neutral';
+            
+            const item = document.createElement('div');
+            item.className = 'dropdown-country-item';
+            item.dataset.code = country.code;
+            
+            if (state.selectedCountry === country.code) {
+                item.classList.add('active');
+            }
+            
+            item.innerHTML = `
+                <span class="dropdown-country-flag">${country.flag}</span>
+                <span class="dropdown-country-name">${country.name}</span>
+                <span class="dropdown-country-region">${country.region}</span>
+                <span class="dropdown-country-type ${relType}"></span>
+            `;
+            
+            // Single click - select country
+            item.addEventListener('click', () => {
+                selectCountryFromDropdown(country.code);
+            });
+            
+            // Double click - make it center
+            item.addEventListener('dblclick', () => {
+                updateCenterCountry(country.code);
+                closeCountryDropdown();
+            });
+            
+            container.appendChild(item);
         });
     }
+
+    function selectCountryFromDropdown(code) {
+        selectCountry(code);
+        closeCountryDropdown();
+        
+        // Update button text to show selected country
+        const country = UnityAtlasData.getCountry(code);
+        if (country && DOM.countrySelectorBtn) {
+            DOM.countrySelectorBtn.querySelector('span').textContent = 
+                `${country.flag} ${country.name}`;
+        }
+    }
+
+    function handleDropdownRegionTab(region) {
+        // Update active tab
+        document.querySelectorAll('.region-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.region === region);
+        });
+        
+        // Re-render countries
+        const searchQuery = DOM.countrySearchInput?.value || '';
+        renderDropdownCountries(region, searchQuery);
+    }
+
+    function handleDropdownSearch(query) {
+        renderDropdownCountries(state.dropdownRegion, query);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ▲▲▲ END OF COUNTRY SELECTOR DROPDOWN SECTION ▲▲▲
+    // ═══════════════════════════════════════════════════════════════════════════
 
     // ═══════════════════════════════════════════════════════════════════════════
     // RADIAL GRAPH RENDERING
@@ -345,6 +418,8 @@ const UnityAtlas = (function() {
 
     function renderRadialGraph() {
         const container = DOM.radialCanvas;
+        if (!container) return;
+        
         const width = container.clientWidth;
         const height = container.clientHeight;
         const centerX = width / 2;
@@ -397,7 +472,10 @@ const UnityAtlas = (function() {
             ring.setAttribute('r', radius);
             ring.setAttribute('class', 'ring-circle');
             ring.setAttribute('stroke', ringColors[index]);
-            ring.setAttribute('stroke-opacity', '0.2');
+            ring.setAttribute('stroke-opacity', '0.3');
+            ring.setAttribute('fill', 'none');
+            ring.setAttribute('stroke-width', '1');
+            ring.setAttribute('stroke-dasharray', '4 4');
             ringGroup.appendChild(ring);
         });
         
@@ -456,8 +534,10 @@ const UnityAtlas = (function() {
         
         // Draw center node
         const centerCountry = UnityAtlasData.getCountry(state.centerCountry);
-        const centerNode = createCenterNode(centerCountry, centerX, centerY);
-        centerGroup.appendChild(centerNode);
+        if (centerCountry) {
+            const centerNode = createCenterNode(centerCountry, centerX, centerY);
+            centerGroup.appendChild(centerNode);
+        }
         
         // Apply transform for zoom/pan
         const transformGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -474,7 +554,9 @@ const UnityAtlas = (function() {
         container.appendChild(svg);
         
         // Update zoom level display
-        DOM.zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
+        if (DOM.zoomLevel) {
+            DOM.zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
+        }
     }
 
     function createCenterNode(country, x, y) {
@@ -484,28 +566,31 @@ const UnityAtlas = (function() {
         
         // Glow effect
         const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        glow.setAttribute('r', '50');
+        glow.setAttribute('r', '55');
         glow.setAttribute('fill', 'none');
-        glow.setAttribute('stroke', 'var(--accent-primary)');
+        glow.setAttribute('stroke', 'var(--primary-400)');
         glow.setAttribute('stroke-width', '2');
-        glow.setAttribute('opacity', '0.3');
+        glow.setAttribute('opacity', '0.4');
         glow.setAttribute('class', 'pulse-glow');
         
         // Background circle
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('r', '45');
+        circle.setAttribute('r', '48');
         circle.setAttribute('class', 'center-node-bg');
         
         // Flag
         const flag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         flag.setAttribute('class', 'center-node-flag');
         flag.setAttribute('y', '-5');
+        flag.setAttribute('text-anchor', 'middle');
+        flag.setAttribute('dominant-baseline', 'central');
         flag.textContent = country.flag;
         
         // Label
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         label.setAttribute('class', 'center-node-label');
-        label.setAttribute('y', '35');
+        label.setAttribute('y', '38');
+        label.setAttribute('text-anchor', 'middle');
         label.textContent = country.name;
         
         g.appendChild(glow);
@@ -534,18 +619,21 @@ const UnityAtlas = (function() {
         
         // Background circle
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('r', '22');
+        circle.setAttribute('r', '24');
         circle.setAttribute('class', `node-circle ${type}`);
         
         // Flag
         const flag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         flag.setAttribute('class', 'node-flag');
+        flag.setAttribute('text-anchor', 'middle');
+        flag.setAttribute('dominant-baseline', 'central');
         flag.textContent = item.country.flag;
         
         // Label
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         label.setAttribute('class', 'node-label');
-        label.setAttribute('y', '35');
+        label.setAttribute('y', '38');
+        label.setAttribute('text-anchor', 'middle');
         label.textContent = item.country.name;
         
         g.appendChild(circle);
@@ -591,15 +679,25 @@ const UnityAtlas = (function() {
         const centerCountry = UnityAtlasData.getCountry(state.centerCountry);
         const selectedCountry = UnityAtlasData.getCountry(code);
         
-        // Update focus indicator
-        DOM.focusIndicator.querySelector('.focus-country1').textContent = `${centerCountry.flag} ${centerCountry.name}`;
-        DOM.focusIndicator.querySelector('.focus-country2').textContent = `${selectedCountry.flag} ${selectedCountry.name}`;
-        DOM.focusIndicator.classList.add('visible');
+        if (!centerCountry || !selectedCountry) return;
         
-        // Update country list
-        DOM.countryList.querySelectorAll('.country-item').forEach(item => {
+        // Update focus indicator
+        if (DOM.focusIndicator) {
+            DOM.focusIndicator.querySelector('.focus-country1').textContent = `${centerCountry.flag} ${centerCountry.name}`;
+            DOM.focusIndicator.querySelector('.focus-country2').textContent = `${selectedCountry.flag} ${selectedCountry.name}`;
+            DOM.focusIndicator.classList.add('visible');
+        }
+        
+        // Update dropdown selection
+        document.querySelectorAll('.dropdown-country-item').forEach(item => {
             item.classList.toggle('active', item.dataset.code === code);
         });
+        
+        // Update dropdown button text
+        if (DOM.countrySelectorBtn) {
+            DOM.countrySelectorBtn.querySelector('span').textContent = 
+                `${selectedCountry.flag} ${selectedCountry.name}`;
+        }
         
         // Show connection line
         showConnectionLine(code);
@@ -609,7 +707,9 @@ const UnityAtlas = (function() {
         
         // Update parameter panel
         updateParameterPanel(code);
-        DOM.parameterPanel.classList.add('open');
+        if (DOM.parameterPanel) {
+            DOM.parameterPanel.classList.add('open');
+        }
     }
 
     function exitFocusMode() {
@@ -617,7 +717,9 @@ const UnityAtlas = (function() {
         state.focusMode = false;
         
         // Hide focus indicator
-        DOM.focusIndicator.classList.remove('visible');
+        if (DOM.focusIndicator) {
+            DOM.focusIndicator.classList.remove('visible');
+        }
         
         // Hide connection lines
         document.querySelectorAll('.connection-line').forEach(line => {
@@ -629,13 +731,20 @@ const UnityAtlas = (function() {
             node.classList.remove('faded', 'highlighted');
         });
         
-        // Update country list
-        DOM.countryList.querySelectorAll('.country-item').forEach(item => {
+        // Update dropdown
+        document.querySelectorAll('.dropdown-country-item').forEach(item => {
             item.classList.remove('active');
         });
         
+        // Reset dropdown button text
+        if (DOM.countrySelectorBtn) {
+            DOM.countrySelectorBtn.querySelector('span').textContent = 'Select a Country';
+        }
+        
         // Close parameter panel
-        DOM.parameterPanel.classList.remove('open');
+        if (DOM.parameterPanel) {
+            DOM.parameterPanel.classList.remove('open');
+        }
     }
 
     function showConnectionLine(code) {
@@ -666,14 +775,19 @@ const UnityAtlas = (function() {
 
     function handleNodeHover(event, item) {
         const tooltip = DOM.nodeTooltip;
+        if (!tooltip) return;
+        
         const relationship = item.relationship;
         const typeInfo = UnityAtlasData.getRelationshipTypeInfo(relationship.type);
         
         tooltip.querySelector('.tooltip-flag').textContent = item.country.flag;
         tooltip.querySelector('.tooltip-name').textContent = item.country.name;
         tooltip.querySelector('.tooltip-capital').textContent = item.country.capital;
-        tooltip.querySelector('.tooltip-type').textContent = typeInfo.name;
-        tooltip.querySelector('.tooltip-type').className = `tooltip-type ${relationship.type}`;
+        
+        const tooltipType = tooltip.querySelector('.tooltip-type');
+        tooltipType.textContent = typeInfo.name;
+        tooltipType.className = `tooltip-type ${relationship.type}`;
+        
         tooltip.querySelector('.tooltip-score').textContent = `${relationship.score}/10`;
         
         // Position tooltip
@@ -691,7 +805,9 @@ const UnityAtlas = (function() {
     }
 
     function hideTooltip() {
-        DOM.nodeTooltip.classList.remove('visible');
+        if (DOM.nodeTooltip) {
+            DOM.nodeTooltip.classList.remove('visible');
+        }
         
         // Hide connection if not in focus mode
         if (!state.focusMode) {
@@ -707,6 +823,8 @@ const UnityAtlas = (function() {
 
     function updateParameterPanel(selectedCode) {
         const container = DOM.parameterContent;
+        if (!container) return;
+        
         container.innerHTML = '';
         
         const relationship = UnityAtlasData.getRelationship(state.centerCountry, selectedCode);
@@ -762,7 +880,7 @@ const UnityAtlas = (function() {
         
         card.querySelector('.param-header').addEventListener('click', () => {
             // Close others
-            DOM.parameterContent.querySelectorAll('.param-card.expanded').forEach(c => {
+            container.querySelectorAll('.param-card.expanded').forEach(c => {
                 if (c !== card) c.classList.remove('expanded');
             });
             card.classList.toggle('expanded');
@@ -793,35 +911,46 @@ const UnityAtlas = (function() {
         const typeInfo = UnityAtlasData.getRelationshipTypeInfo(relationship.type);
         
         // Update header
-        DOM.modalFlag1.textContent = centerCountry.flag;
-        DOM.modalName1.textContent = centerCountry.name;
-        DOM.modalFlag2.textContent = targetCountry.flag;
-        DOM.modalName2.textContent = targetCountry.name;
+        if (DOM.modalFlag1) DOM.modalFlag1.textContent = centerCountry.flag;
+        if (DOM.modalName1) DOM.modalName1.textContent = centerCountry.name;
+        if (DOM.modalFlag2) DOM.modalFlag2.textContent = targetCountry.flag;
+        if (DOM.modalName2) DOM.modalName2.textContent = targetCountry.name;
         
         // Update badge
-        DOM.modalBadge.querySelector('.badge-type').textContent = typeInfo.name;
-        DOM.modalBadge.querySelector('.badge-type').className = `badge-type ${relationship.type}`;
+        if (DOM.modalBadge) {
+            const badgeType = DOM.modalBadge.querySelector('.badge-type');
+            if (badgeType) {
+                badgeType.textContent = typeInfo.name;
+                badgeType.className = `badge-type ${relationship.type}`;
+            }
+        }
         
         // Update score circle
-        const scorePercent = (relationship.score / 10) * 283;
-        DOM.scoreProgress.style.strokeDashoffset = 283 - scorePercent;
-        DOM.scoreProgress.style.stroke = typeInfo.color;
-        DOM.scoreValue.textContent = relationship.score.toFixed(1);
-        DOM.scoreDescription.textContent = typeInfo.description;
+        if (DOM.scoreProgress) {
+            const scorePercent = (relationship.score / 10) * 283;
+            DOM.scoreProgress.style.strokeDashoffset = 283 - scorePercent;
+            DOM.scoreProgress.style.stroke = typeInfo.color;
+        }
+        if (DOM.scoreValue) DOM.scoreValue.textContent = relationship.score.toFixed(1);
+        if (DOM.scoreDescription) DOM.scoreDescription.textContent = typeInfo.description;
         
         // Update parameters
         renderModalParameters(relationship);
         
         // Store target for actions
-        DOM.modalSetCenter.dataset.code = targetCode;
+        if (DOM.modalSetCenter) DOM.modalSetCenter.dataset.code = targetCode;
         
         // Show modal
-        DOM.modalOverlay.classList.add('visible');
-        document.body.classList.add('no-scroll');
+        if (DOM.modalOverlay) {
+            DOM.modalOverlay.classList.add('visible');
+            document.body.classList.add('no-scroll');
+        }
     }
 
     function renderModalParameters(relationship) {
         const container = DOM.modalParameters;
+        if (!container) return;
+        
         container.innerHTML = '';
         
         UnityAtlasData.PARAMETERS.forEach(param => {
@@ -891,8 +1020,10 @@ const UnityAtlas = (function() {
     }
 
     function closeModal() {
-        DOM.modalOverlay.classList.remove('visible');
-        document.body.classList.remove('no-scroll');
+        if (DOM.modalOverlay) {
+            DOM.modalOverlay.classList.remove('visible');
+            document.body.classList.remove('no-scroll');
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -901,6 +1032,7 @@ const UnityAtlas = (function() {
 
     function handleGlobalSearch(query) {
         const dropdown = DOM.searchDropdown;
+        if (!dropdown) return;
         
         if (query.length < 2) {
             dropdown.classList.remove('active');
@@ -928,7 +1060,7 @@ const UnityAtlas = (function() {
         dropdown.querySelectorAll('.search-result').forEach(result => {
             result.addEventListener('click', () => {
                 updateCenterCountry(result.dataset.code);
-                DOM.globalSearch.value = '';
+                if (DOM.globalSearch) DOM.globalSearch.value = '';
                 dropdown.classList.remove('active');
             });
         });
@@ -942,7 +1074,7 @@ const UnityAtlas = (function() {
         const newZoom = Math.max(0.5, Math.min(3, state.zoom + delta));
         state.zoom = newZoom;
         
-        const transformGroup = DOM.radialCanvas.querySelector('.transform-group');
+        const transformGroup = DOM.radialCanvas?.querySelector('.transform-group');
         if (transformGroup) {
             const width = DOM.radialCanvas.clientWidth;
             const height = DOM.radialCanvas.clientHeight;
@@ -951,14 +1083,16 @@ const UnityAtlas = (function() {
             );
         }
         
-        DOM.zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
+        if (DOM.zoomLevel) {
+            DOM.zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
+        }
     }
 
     function handlePanStart(e) {
         if (e.button !== 0) return; // Only left click
         state.isPanning = true;
         state.lastPan = { x: e.clientX, y: e.clientY };
-        DOM.radialCanvas.style.cursor = 'grabbing';
+        if (DOM.radialCanvas) DOM.radialCanvas.style.cursor = 'grabbing';
     }
 
     function handlePanMove(e) {
@@ -971,7 +1105,7 @@ const UnityAtlas = (function() {
         state.pan.y += dy / state.zoom;
         state.lastPan = { x: e.clientX, y: e.clientY };
         
-        const transformGroup = DOM.radialCanvas.querySelector('.transform-group');
+        const transformGroup = DOM.radialCanvas?.querySelector('.transform-group');
         if (transformGroup) {
             const width = DOM.radialCanvas.clientWidth;
             const height = DOM.radialCanvas.clientHeight;
@@ -983,12 +1117,13 @@ const UnityAtlas = (function() {
 
     function handlePanEnd() {
         state.isPanning = false;
-        DOM.radialCanvas.style.cursor = 'grab';
+        if (DOM.radialCanvas) DOM.radialCanvas.style.cursor = 'grab';
     }
 
     function resetView() {
         state.zoom = 1;
         state.pan = { x: 0, y: 0 };
+        exitFocusMode();
         renderRadialGraph();
     }
 
@@ -997,18 +1132,22 @@ const UnityAtlas = (function() {
     // ═══════════════════════════════════════════════════════════════════════════
 
     function openSettings() {
-        DOM.settingsOverlay.classList.add('visible');
+        if (DOM.settingsOverlay) {
+            DOM.settingsOverlay.classList.add('visible');
+        }
     }
 
     function closeSettings() {
-        DOM.settingsOverlay.classList.remove('visible');
+        if (DOM.settingsOverlay) {
+            DOM.settingsOverlay.classList.remove('visible');
+        }
     }
 
     function updateSettings() {
-        state.settings.showLabels = DOM.showLabels.checked;
-        state.settings.showConnections = DOM.showConnections.checked;
-        state.settings.animationsEnabled = DOM.animationsEnabled.checked;
-        state.settings.maxNodes = parseInt(DOM.maxNodes.value);
+        if (DOM.showLabels) state.settings.showLabels = DOM.showLabels.checked;
+        if (DOM.showConnections) state.settings.showConnections = DOM.showConnections.checked;
+        if (DOM.animationsEnabled) state.settings.animationsEnabled = DOM.animationsEnabled.checked;
+        if (DOM.maxNodes) state.settings.maxNodes = parseInt(DOM.maxNodes.value);
         
         renderRadialGraph();
     }
@@ -1028,29 +1167,74 @@ const UnityAtlas = (function() {
         }, 200));
         
         DOM.globalSearch?.addEventListener('blur', () => {
-            setTimeout(() => DOM.searchDropdown.classList.remove('active'), 200);
+            setTimeout(() => {
+                if (DOM.searchDropdown) DOM.searchDropdown.classList.remove('active');
+            }, 200);
         });
         
-        // Sidebar Search
-        DOM.sidebarSearch?.addEventListener('input', debounce((e) => {
-            filterCountryList(e.target.value);
-        }, 150));
+        // ═══════════════════════════════════════════════════════════════════════
+        // ▼▼▼ ADD THESE NEW EVENT BINDINGS FOR DROPDOWN ▼▼▼
+        // ═══════════════════════════════════════════════════════════════════════
         
-        DOM.clearSidebarSearch?.addEventListener('click', () => {
-            DOM.sidebarSearch.value = '';
-            filterCountryList('');
+        // Country Dropdown - Toggle
+        DOM.countrySelectorBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleCountryDropdown();
         });
+        
+        DOM.changeCenterBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleCountryDropdown();
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.country-selector')) {
+                closeCountryDropdown();
+            }
+        });
+        
+        // Region tabs in dropdown
+        document.querySelectorAll('.region-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleDropdownRegionTab(tab.dataset.region);
+            });
+        });
+        
+        // Dropdown search
+        DOM.countrySearchInput?.addEventListener('input', debounce((e) => {
+            handleDropdownSearch(e.target.value);
+        }, 200));
+        
+        // Prevent dropdown from closing when clicking inside search
+        DOM.countrySearchInput?.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Clear dropdown search
+        DOM.clearCountrySearch?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (DOM.countrySearchInput) {
+                DOM.countrySearchInput.value = '';
+                handleDropdownSearch('');
+            }
+        });
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // ▲▲▲ END OF NEW EVENT BINDINGS ▲▲▲
+        // ═══════════════════════════════════════════════════════════════════════
         
         // Filters
         DOM.regionFilter?.addEventListener('change', (e) => {
             state.filters.region = e.target.value;
-            renderCountryList();
+            renderDropdownCountries(state.dropdownRegion);
             renderRadialGraph();
         });
         
         DOM.typeFilter?.addEventListener('change', (e) => {
             state.filters.type = e.target.value;
-            renderCountryList();
+            renderDropdownCountries(state.dropdownRegion);
             renderRadialGraph();
         });
         
@@ -1076,7 +1260,9 @@ const UnityAtlas = (function() {
         
         // Panel toggle
         DOM.togglePanel?.addEventListener('click', () => {
-            DOM.parameterPanel.classList.toggle('open');
+            if (DOM.parameterPanel) {
+                DOM.parameterPanel.classList.toggle('open');
+            }
         });
         
         // Zoom controls
@@ -1111,7 +1297,7 @@ const UnityAtlas = (function() {
         
         // Compare Modal
         DOM.compareClose?.addEventListener('click', () => {
-            DOM.compareOverlay.classList.remove('visible');
+            if (DOM.compareOverlay) DOM.compareOverlay.classList.remove('visible');
         });
         
         // Settings
@@ -1126,12 +1312,26 @@ const UnityAtlas = (function() {
         DOM.animationsEnabled?.addEventListener('change', updateSettings);
         DOM.maxNodes?.addEventListener('change', updateSettings);
         
+        // Stat boxes click to filter
+        DOM.relationStats?.querySelectorAll('.stat-box').forEach(box => {
+            box.addEventListener('click', () => {
+                const type = box.dataset.type;
+                if (DOM.typeFilter) {
+                    DOM.typeFilter.value = type;
+                }
+                state.filters.type = type;
+                renderDropdownCountries(state.dropdownRegion);
+                renderRadialGraph();
+            });
+        });
+        
         // Keyboard
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
                 closeSettings();
-                DOM.compareOverlay.classList.remove('visible');
+                closeCountryDropdown();
+                if (DOM.compareOverlay) DOM.compareOverlay.classList.remove('visible');
                 if (state.focusMode) exitFocusMode();
             }
         });
@@ -1140,17 +1340,6 @@ const UnityAtlas = (function() {
         window.addEventListener('resize', debounce(() => {
             renderRadialGraph();
         }, 250));
-        
-        // Stat boxes click to filter
-        DOM.relationStats?.querySelectorAll('.stat-box').forEach(box => {
-            box.addEventListener('click', () => {
-                const type = box.dataset.type;
-                DOM.typeFilter.value = type;
-                state.filters.type = type;
-                renderCountryList();
-                renderRadialGraph();
-            });
-        });
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
