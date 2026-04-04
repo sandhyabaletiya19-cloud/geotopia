@@ -3,7 +3,7 @@
  * UNITY ATLAS - Application Engine
  * Geotopia Encyclopedia - International Relations Visualization
  * 
- * Version: 2.0 (Fixed)
+ * Version: 3.0 (Complete with Parameters Display)
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
@@ -34,7 +34,8 @@ const UnityAtlas = (function() {
             maxNodes: 50
         },
         isLoading: true,
-        dropdownRegion: 'all'
+        dropdownRegion: 'all',
+        paramsView: 'radial'
     };
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -106,7 +107,29 @@ const UnityAtlas = (function() {
         DOM.focusIndicator = document.getElementById('focusIndicator');
         DOM.closeFocus = document.getElementById('closeFocus');
         
-        // Parameter Panel
+        // Parameters Section
+        DOM.mainContent = document.getElementById('mainContent');
+        DOM.parametersSection = document.getElementById('parametersSection');
+        DOM.paramsCountry1 = document.getElementById('paramsCountry1');
+        DOM.paramsCountry2 = document.getElementById('paramsCountry2');
+        DOM.paramsScoreBadge = document.getElementById('paramsScoreBadge');
+        DOM.paramsRadialView = document.getElementById('paramsRadialView');
+        DOM.paramsRadialContainer = document.getElementById('paramsRadialContainer');
+        DOM.paramsGridView = document.getElementById('paramsGridView');
+        DOM.paramsGrid = document.getElementById('paramsGrid');
+        DOM.paramsListView = document.getElementById('paramsListView');
+        DOM.paramsList = document.getElementById('paramsList');
+        DOM.paramDetailPanel = document.getElementById('paramDetailPanel');
+        DOM.paramDetailIcon = document.getElementById('paramDetailIcon');
+        DOM.paramDetailName = document.getElementById('paramDetailName');
+        DOM.paramDetailCategory = document.getElementById('paramDetailCategory');
+        DOM.paramDetailScore = document.getElementById('paramDetailScore');
+        DOM.paramDetailClose = document.getElementById('paramDetailClose');
+        DOM.paramDetailSummary = document.getElementById('paramDetailSummary');
+        DOM.paramDetailBullets = document.getElementById('paramDetailBullets');
+        DOM.paramDetailAnalysis = document.getElementById('paramDetailAnalysis');
+        
+        // Parameter Panel (legacy - may not exist in new HTML)
         DOM.parameterPanel = document.getElementById('parameterPanel');
         DOM.togglePanel = document.getElementById('togglePanel');
         DOM.parameterContent = document.getElementById('parameterContent');
@@ -261,7 +284,9 @@ const UnityAtlas = (function() {
         
         // Update focus indicator
         if (DOM.focusIndicator) DOM.focusIndicator.classList.remove('visible');
-        if (DOM.parameterPanel) DOM.parameterPanel.classList.remove('open');
+        
+        // Hide parameters section
+        hideParametersSection();
         
         // Re-render dropdown and graph
         renderDropdownCountries(state.dropdownRegion);
@@ -418,7 +443,7 @@ const UnityAtlas = (function() {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // RADIAL GRAPH RENDERING (FIXED)
+    // RADIAL GRAPH RENDERING
     // ═══════════════════════════════════════════════════════════════════════════
 
     function renderRadialGraph() {
@@ -484,8 +509,6 @@ const UnityAtlas = (function() {
             const radius = minRadius + (radiusStep * i);
             ringRadii.push(Math.max(radius, 50)); // Minimum 50px
         }
-        
-        console.log('Ring radii:', ringRadii);
         
         // Draw rings
         const ringColors = [
@@ -791,11 +814,8 @@ const UnityAtlas = (function() {
         // Fade other nodes
         fadeOtherNodes(code);
         
-        // Update parameter panel
-        updateParameterPanel(code);
-        if (DOM.parameterPanel) {
-            DOM.parameterPanel.classList.add('open');
-        }
+        // Show parameters section
+        showParametersSection(code);
     }
 
     function exitFocusMode() {
@@ -831,10 +851,8 @@ const UnityAtlas = (function() {
             if (spanEl) spanEl.textContent = 'Select a Country';
         }
         
-        // Close parameter panel
-        if (DOM.parameterPanel) {
-            DOM.parameterPanel.classList.remove('open');
-        }
+        // Hide parameters section
+        hideParametersSection();
     }
 
     function showConnectionLine(code) {
@@ -887,7 +905,6 @@ const UnityAtlas = (function() {
         
         // Position tooltip
         const rect = event.target.getBoundingClientRect();
-        const tooltipRect = tooltip.getBoundingClientRect();
         
         let left = rect.right + 15;
         let top = rect.top + (rect.height / 2);
@@ -923,89 +940,479 @@ const UnityAtlas = (function() {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // PARAMETER PANEL
+    // PARAMETERS SECTION - Radial, Grid, List Views
     // ═══════════════════════════════════════════════════════════════════════════
 
-    function updateParameterPanel(selectedCode) {
-        const container = DOM.parameterContent;
+    function showParametersSection(targetCode) {
+        const centerCountry = UnityAtlasData.getCountry(state.centerCountry);
+        const targetCountry = UnityAtlasData.getCountry(targetCode);
+        const relationship = UnityAtlasData.getRelationship(state.centerCountry, targetCode);
+        
+        if (!centerCountry || !targetCountry || !relationship) return;
+        
+        // Update header
+        if (DOM.paramsCountry1) {
+            DOM.paramsCountry1.textContent = `${centerCountry.flag} ${centerCountry.name}`;
+        }
+        if (DOM.paramsCountry2) {
+            DOM.paramsCountry2.textContent = `${targetCountry.flag} ${targetCountry.name}`;
+        }
+        if (DOM.paramsScoreBadge) {
+            const scoreValue = DOM.paramsScoreBadge.querySelector('.score-value');
+            if (scoreValue) scoreValue.textContent = relationship.score.toFixed(1);
+        }
+        
+        // Show the section
+        if (DOM.parametersSection) {
+            DOM.parametersSection.classList.add('visible');
+        }
+        
+        // Render based on current view
+        renderParametersView(relationship);
+        
+        // Scroll to parameters section smoothly
+        setTimeout(() => {
+            if (DOM.parametersSection) {
+                DOM.parametersSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+
+    function hideParametersSection() {
+        if (DOM.parametersSection) {
+            DOM.parametersSection.classList.remove('visible');
+        }
+        closeParamDetail();
+    }
+
+    function renderParametersView(relationship) {
+        switch (state.paramsView) {
+            case 'radial':
+                renderParamsRadial(relationship);
+                break;
+            case 'grid':
+                renderParamsGrid(relationship);
+                break;
+            case 'list':
+                renderParamsList(relationship);
+                break;
+        }
+    }
+
+    function switchParamsView(view) {
+        state.paramsView = view;
+        
+        // Update toggle buttons
+        document.querySelectorAll('.params-view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        
+        // Show/hide views
+        if (DOM.paramsRadialView) {
+            DOM.paramsRadialView.classList.toggle('hidden', view !== 'radial');
+        }
+        if (DOM.paramsGridView) {
+            DOM.paramsGridView.classList.toggle('hidden', view !== 'grid');
+        }
+        if (DOM.paramsListView) {
+            DOM.paramsListView.classList.toggle('hidden', view !== 'list');
+        }
+        
+        // Re-render if we have a selected country
+        if (state.selectedCountry) {
+            const relationship = UnityAtlasData.getRelationship(state.centerCountry, state.selectedCountry);
+            if (relationship) {
+                renderParametersView(relationship);
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // RADIAL PARAMETERS VIEW
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function renderParamsRadial(relationship) {
+        const container = DOM.paramsRadialContainer;
+        if (!container) return;
+        
+        const width = container.clientWidth || 800;
+        const height = 320;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        
+        container.innerHTML = '';
+        
+        // Create SVG
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        
+        const parameters = UnityAtlasData.PARAMETERS;
+        const radius = Math.min(width, height) / 2 - 70;
+        
+        // Create gradient definition
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+        gradient.setAttribute('id', 'centerGradient');
+        
+        const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop1.setAttribute('offset', '0%');
+        stop1.setAttribute('stop-color', '#e6f7ff');
+        
+        const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop2.setAttribute('offset', '100%');
+        stop2.setAttribute('stop-color', '#b3e7ff');
+        
+        gradient.appendChild(stop1);
+        gradient.appendChild(stop2);
+        defs.appendChild(gradient);
+        svg.appendChild(defs);
+        
+        // Draw center circle
+        const centerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        centerCircle.setAttribute('cx', centerX);
+        centerCircle.setAttribute('cy', centerY);
+        centerCircle.setAttribute('r', '35');
+        centerCircle.setAttribute('fill', 'url(#centerGradient)');
+        centerCircle.setAttribute('stroke', '#00a0dc');
+        centerCircle.setAttribute('stroke-width', '3');
+        svg.appendChild(centerCircle);
+        
+        // Center score text
+        const centerText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        centerText.setAttribute('x', centerX);
+        centerText.setAttribute('y', centerY + 6);
+        centerText.setAttribute('text-anchor', 'middle');
+        centerText.setAttribute('font-family', 'Space Grotesk, sans-serif');
+        centerText.setAttribute('font-size', '20');
+        centerText.setAttribute('font-weight', '700');
+        centerText.setAttribute('fill', '#00a0dc');
+        centerText.textContent = relationship.score.toFixed(1);
+        svg.appendChild(centerText);
+        
+        // Parameter icon map
+        const iconMap = {
+            'trade': '📊',
+            'military': '🛡️',
+            'diplomatic': '🏛️',
+            'border': '🗺️',
+            'historical': '📜',
+            'economic': '💰',
+            'cultural': '🎭',
+            'visa': '🛂',
+            'strategic': '♟️',
+            'intelligence': '🕵️',
+            'energy': '⚡',
+            'technology': '💻',
+            'defense': '🤝',
+            'political': '⚖️',
+            'organizations': '🌐',
+            'conflict': '⚠️'
+        };
+        
+        // Draw parameter nodes around the center
+        parameters.forEach((param, index) => {
+            const angle = (2 * Math.PI * index / parameters.length) - Math.PI / 2;
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+            
+            const paramData = relationship.parameters?.[param.id] || { score: 5 };
+            const score = paramData.score;
+            const scoreColor = getScoreColor(score);
+            
+            // Connection line
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', centerX);
+            line.setAttribute('y1', centerY);
+            line.setAttribute('x2', x);
+            line.setAttribute('y2', y);
+            line.setAttribute('stroke', scoreColor);
+            line.setAttribute('stroke-width', '2');
+            line.setAttribute('stroke-opacity', '0.25');
+            line.setAttribute('stroke-dasharray', '4 3');
+            svg.appendChild(line);
+            
+            // Parameter node group
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('class', 'param-node');
+            g.setAttribute('data-param', param.id);
+            g.style.cursor = 'pointer';
+            
+            // Node background
+            const nodeCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            nodeCircle.setAttribute('cx', x);
+            nodeCircle.setAttribute('cy', y);
+            nodeCircle.setAttribute('r', '30');
+            nodeCircle.setAttribute('fill', '#ffffff');
+            nodeCircle.setAttribute('stroke', scoreColor);
+            nodeCircle.setAttribute('stroke-width', '3');
+            nodeCircle.setAttribute('class', 'param-node-bg');
+            nodeCircle.style.transition = 'all 0.2s ease';
+            
+            // Score arc
+            const arcRadius = 26;
+            const scorePercent = score / 10;
+            const arcPath = describeArc(x, y, arcRadius, 0, scorePercent * 360);
+            
+            const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arc.setAttribute('d', arcPath);
+            arc.setAttribute('fill', 'none');
+            arc.setAttribute('stroke', scoreColor);
+            arc.setAttribute('stroke-width', '4');
+            arc.setAttribute('stroke-linecap', 'round');
+            arc.setAttribute('opacity', '0.5');
+            
+            // Icon
+            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            icon.setAttribute('x', x);
+            icon.setAttribute('y', y - 4);
+            icon.setAttribute('text-anchor', 'middle');
+            icon.setAttribute('dominant-baseline', 'middle');
+            icon.setAttribute('font-size', '16');
+            icon.textContent = iconMap[param.id] || '📌';
+            
+            // Score text
+            const scoreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            scoreText.setAttribute('x', x);
+            scoreText.setAttribute('y', y + 14);
+            scoreText.setAttribute('text-anchor', 'middle');
+            scoreText.setAttribute('font-family', 'Space Grotesk, sans-serif');
+            scoreText.setAttribute('font-size', '10');
+            scoreText.setAttribute('font-weight', '700');
+            scoreText.setAttribute('fill', scoreColor);
+            scoreText.textContent = score.toFixed(1);
+            
+            // Label below node
+            const labelY = y + 48;
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', x);
+            label.setAttribute('y', labelY);
+            label.setAttribute('text-anchor', 'middle');
+            label.setAttribute('font-family', 'Inter, sans-serif');
+            label.setAttribute('font-size', '9');
+            label.setAttribute('fill', '#718096');
+            
+            // Truncate long names
+            let displayName = param.name;
+            if (displayName.length > 14) {
+                displayName = displayName.substring(0, 12) + '...';
+            }
+            label.textContent = displayName;
+            
+            g.appendChild(nodeCircle);
+            g.appendChild(arc);
+            g.appendChild(icon);
+            g.appendChild(scoreText);
+            g.appendChild(label);
+            
+            // Click event
+            g.addEventListener('click', () => {
+                openParamDetail(param, paramData);
+            });
+            
+            // Hover effects
+            g.addEventListener('mouseenter', () => {
+                nodeCircle.setAttribute('r', '34');
+                nodeCircle.style.filter = 'drop-shadow(0 4px 12px rgba(0, 160, 220, 0.4))';
+            });
+            
+            g.addEventListener('mouseleave', () => {
+                nodeCircle.setAttribute('r', '30');
+                nodeCircle.style.filter = '';
+            });
+            
+            svg.appendChild(g);
+        });
+        
+        container.appendChild(svg);
+    }
+
+    // Helper function to draw arc
+    function describeArc(x, y, radius, startAngle, endAngle) {
+        if (endAngle <= 0) return '';
+        
+        const start = polarToCartesian(x, y, radius, endAngle);
+        const end = polarToCartesian(x, y, radius, startAngle);
+        const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+        
+        return [
+            "M", start.x, start.y,
+            "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+        ].join(" ");
+    }
+
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+        return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians))
+        };
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // GRID PARAMETERS VIEW
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function renderParamsGrid(relationship) {
+        const container = DOM.paramsGrid;
         if (!container) return;
         
         container.innerHTML = '';
         
-        const relationship = UnityAtlasData.getRelationship(state.centerCountry, selectedCode);
-        if (!relationship) return;
+        const parameters = UnityAtlasData.PARAMETERS;
         
-        UnityAtlasData.PARAMETERS.forEach(param => {
-            const paramData = relationship.parameters?.[param.id] || {
-                score: 5,
-                summary: 'Data not available',
-                bullets: []
-            };
+        parameters.forEach(param => {
+            const paramData = relationship.parameters?.[param.id] || { score: 5, summary: 'Data not available' };
+            const score = paramData.score;
+            const scoreColor = getScoreColor(score);
+            const scorePercent = (score / 10) * 100;
             
-            const card = createParameterCard(param, paramData);
+            const card = document.createElement('div');
+            card.className = 'param-grid-card';
+            card.dataset.param = param.id;
+            
+            card.innerHTML = `
+                <div class="param-grid-icon">
+                    <i class="fas ${param.icon}"></i>
+                </div>
+                <div class="param-grid-name">${param.name}</div>
+                <div class="param-grid-category">${param.category}</div>
+                <div class="param-grid-score">
+                    <div class="param-grid-score-value" style="color: ${scoreColor}">${score.toFixed(1)}</div>
+                    <div class="param-grid-score-bar">
+                        <div class="param-grid-score-fill" style="width: ${scorePercent}%; background: ${scoreColor}"></div>
+                    </div>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                openParamDetail(param, paramData);
+            });
+            
             container.appendChild(card);
         });
     }
 
-    function createParameterCard(param, data) {
-        const card = document.createElement('div');
-        card.className = 'param-card';
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LIST PARAMETERS VIEW
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function renderParamsList(relationship) {
+        const container = DOM.paramsList;
+        if (!container) return;
         
-        const scorePercent = (data.score / 10) * 100;
-        const scoreColor = getScoreColor(data.score);
+        container.innerHTML = '';
         
-        card.innerHTML = `
-            <div class="param-header">
-                <div class="param-icon">
+        const parameters = UnityAtlasData.PARAMETERS;
+        
+        // Sort by score (highest first)
+        const sortedParams = [...parameters].sort((a, b) => {
+            const scoreA = relationship.parameters?.[a.id]?.score || 5;
+            const scoreB = relationship.parameters?.[b.id]?.score || 5;
+            return scoreB - scoreA;
+        });
+        
+        sortedParams.forEach(param => {
+            const paramData = relationship.parameters?.[param.id] || { score: 5, summary: 'Data not available' };
+            const score = paramData.score;
+            const scoreColor = getScoreColor(score);
+            const scorePercent = (score / 10) * 100;
+            
+            const item = document.createElement('div');
+            item.className = 'param-list-item';
+            item.dataset.param = param.id;
+            
+            item.innerHTML = `
+                <div class="param-list-icon">
                     <i class="fas ${param.icon}"></i>
                 </div>
-                <div class="param-info">
-                    <div class="param-name">${param.name}</div>
-                    <div class="param-category">${param.category}</div>
+                <div class="param-list-info">
+                    <div class="param-list-name">${param.name}</div>
+                    <div class="param-list-category">${param.category}</div>
                 </div>
-                <div class="param-score">
-                    <div class="param-score-value" style="color: ${scoreColor}">${data.score}</div>
-                    <div class="param-score-bar">
-                        <div class="param-score-fill" style="width: ${scorePercent}%; background: ${scoreColor}"></div>
+                <div class="param-list-score">
+                    <div class="param-list-score-value" style="color: ${scoreColor}">${score.toFixed(1)}</div>
+                    <div class="param-list-score-bar">
+                        <div class="param-list-score-fill" style="width: ${scorePercent}%; background: ${scoreColor}"></div>
                     </div>
                 </div>
-                <i class="fas fa-chevron-down param-arrow"></i>
-            </div>
-            <div class="param-body">
-                <div class="param-content">
-                    <p class="param-summary">${data.summary}</p>
-                    ${data.bullets?.length ? `
-                        <ul class="param-bullets">
-                            ${data.bullets.map(b => `<li>${b}</li>`).join('')}
-                        </ul>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-        
-        const header = card.querySelector('.param-header');
-        if (header) {
-            header.addEventListener('click', () => {
-                // Close others
-                const parent = card.parentElement;
-                if (parent) {
-                    parent.querySelectorAll('.param-card.expanded').forEach(c => {
-                        if (c !== card) c.classList.remove('expanded');
-                    });
-                }
-                card.classList.toggle('expanded');
+                <i class="fas fa-chevron-right param-list-arrow"></i>
+            `;
+            
+            item.addEventListener('click', () => {
+                openParamDetail(param, paramData);
             });
-        }
-        
-        return card;
+            
+            container.appendChild(item);
+        });
     }
 
-    function getScoreColor(score) {
-        if (score >= 8) return '#10b981'; // green
-        if (score >= 6) return '#3b82f6'; // blue
-        if (score >= 4) return '#f59e0b'; // amber
-        if (score >= 3) return '#f97316'; // orange
-        return '#ef4444'; // red
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PARAMETER DETAIL PANEL
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function openParamDetail(param, paramData) {
+        if (!DOM.paramDetailPanel) return;
+        
+        const scoreColor = getScoreColor(paramData.score);
+        
+        // Update header
+        if (DOM.paramDetailIcon) {
+            DOM.paramDetailIcon.innerHTML = `<i class="fas ${param.icon}"></i>`;
+            DOM.paramDetailIcon.style.background = `linear-gradient(135deg, ${scoreColor}, ${scoreColor}dd)`;
+        }
+        if (DOM.paramDetailName) {
+            DOM.paramDetailName.textContent = param.name;
+        }
+        if (DOM.paramDetailCategory) {
+            DOM.paramDetailCategory.textContent = param.category;
+        }
+        if (DOM.paramDetailScore) {
+            const scoreValue = DOM.paramDetailScore.querySelector('.detail-score-value');
+            if (scoreValue) {
+                scoreValue.textContent = paramData.score.toFixed(1);
+                scoreValue.style.color = scoreColor;
+            }
+        }
+        
+        // Update body
+        if (DOM.paramDetailSummary) {
+            DOM.paramDetailSummary.textContent = paramData.summary || 'No summary available.';
+        }
+        
+        if (DOM.paramDetailBullets) {
+            if (paramData.bullets && paramData.bullets.length > 0) {
+                DOM.paramDetailBullets.innerHTML = `
+                    <h5>Key Points</h5>
+                    <ul>
+                        ${paramData.bullets.map(b => `<li>${b}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                DOM.paramDetailBullets.innerHTML = '';
+            }
+        }
+        
+        if (DOM.paramDetailAnalysis) {
+            if (paramData.details) {
+                DOM.paramDetailAnalysis.innerHTML = `
+                    <h5>Analysis</h5>
+                    <p>${paramData.details}</p>
+                `;
+            } else {
+                DOM.paramDetailAnalysis.innerHTML = '';
+            }
+        }
+        
+        // Show panel
+        DOM.paramDetailPanel.classList.add('visible');
+    }
+
+    function closeParamDetail() {
+        if (DOM.paramDetailPanel) {
+            DOM.paramDetailPanel.classList.remove('visible');
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -1072,11 +1479,11 @@ const UnityAtlas = (function() {
                 details: ''
             };
             
-            const card = document.createElement('div');
-            card.className = 'modal-param';
-            
             const scorePercent = (paramData.score / 10) * 100;
             const scoreColor = getScoreColor(paramData.score);
+            
+            const card = document.createElement('div');
+            card.className = 'modal-param';
             
             card.innerHTML = `
                 <div class="modal-param-header">
@@ -1188,7 +1595,6 @@ const UnityAtlas = (function() {
         const newZoom = Math.max(0.5, Math.min(3, state.zoom + delta));
         state.zoom = newZoom;
         
-        // Re-render with new zoom (simplified approach)
         if (DOM.zoomLevel) {
             DOM.zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
         }
@@ -1227,11 +1633,37 @@ const UnityAtlas = (function() {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // UTILITY FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function getScoreColor(score) {
+        if (score >= 8) return '#10b981'; // green
+        if (score >= 6) return '#3b82f6'; // blue
+        if (score >= 4) return '#f59e0b'; // amber
+        if (score >= 3) return '#f97316'; // orange
+        return '#ef4444'; // red
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // EVENT BINDINGS
     // ═══════════════════════════════════════════════════════════════════════════
 
     function bindEvents() {
-        // Hero
+        // ─────────────────────────────────────────────────────────────────────
+        // HERO
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.ctaExplore) {
             DOM.ctaExplore.addEventListener('click', scrollToApp);
         }
@@ -1239,7 +1671,9 @@ const UnityAtlas = (function() {
             DOM.scrollIndicator.addEventListener('click', scrollToApp);
         }
         
-        // Global Search
+        // ─────────────────────────────────────────────────────────────────────
+        // GLOBAL SEARCH
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.globalSearch) {
             DOM.globalSearch.addEventListener('input', debounce((e) => {
                 handleGlobalSearch(e.target.value);
@@ -1252,7 +1686,9 @@ const UnityAtlas = (function() {
             });
         }
         
-        // Country Dropdown - Toggle
+        // ─────────────────────────────────────────────────────────────────────
+        // COUNTRY DROPDOWN
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.countrySelectorBtn) {
             DOM.countrySelectorBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1304,7 +1740,9 @@ const UnityAtlas = (function() {
             });
         }
         
-        // Filters
+        // ─────────────────────────────────────────────────────────────────────
+        // FILTERS
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.regionFilter) {
             DOM.regionFilter.addEventListener('change', (e) => {
                 state.filters.region = e.target.value;
@@ -1321,7 +1759,9 @@ const UnityAtlas = (function() {
             });
         }
         
-        // View toggles
+        // ─────────────────────────────────────────────────────────────────────
+        // VIEW TOGGLES
+        // ─────────────────────────────────────────────────────────────────────
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -1329,7 +1769,23 @@ const UnityAtlas = (function() {
             });
         });
         
-        // Sidebar buttons
+        // ─────────────────────────────────────────────────────────────────────
+        // PARAMETERS VIEW TOGGLE
+        // ─────────────────────────────────────────────────────────────────────
+        document.querySelectorAll('.params-view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchParamsView(btn.dataset.view);
+            });
+        });
+        
+        // Parameter Detail Close
+        if (DOM.paramDetailClose) {
+            DOM.paramDetailClose.addEventListener('click', closeParamDetail);
+        }
+        
+        // ─────────────────────────────────────────────────────────────────────
+        // SIDEBAR BUTTONS
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.randomCountry) {
             DOM.randomCountry.addEventListener('click', () => {
                 const random = UnityAtlasData.getRandomCountry();
@@ -1341,21 +1797,16 @@ const UnityAtlas = (function() {
             DOM.resetView.addEventListener('click', resetView);
         }
         
-        // Focus mode
+        // ─────────────────────────────────────────────────────────────────────
+        // FOCUS MODE
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.closeFocus) {
             DOM.closeFocus.addEventListener('click', exitFocusMode);
         }
         
-        // Panel toggle
-        if (DOM.togglePanel) {
-            DOM.togglePanel.addEventListener('click', () => {
-                if (DOM.parameterPanel) {
-                    DOM.parameterPanel.classList.toggle('open');
-                }
-            });
-        }
-        
-        // Zoom controls
+        // ─────────────────────────────────────────────────────────────────────
+        // ZOOM CONTROLS
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.zoomIn) {
             DOM.zoomIn.addEventListener('click', () => handleZoom(0.2));
         }
@@ -1366,7 +1817,9 @@ const UnityAtlas = (function() {
             DOM.zoomReset.addEventListener('click', resetView);
         }
         
-        // Modal
+        // ─────────────────────────────────────────────────────────────────────
+        // MODAL
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.modalClose) {
             DOM.modalClose.addEventListener('click', closeModal);
         }
@@ -1388,14 +1841,18 @@ const UnityAtlas = (function() {
             });
         }
         
-        // Compare Modal
+        // ─────────────────────────────────────────────────────────────────────
+        // COMPARE MODAL
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.compareClose) {
             DOM.compareClose.addEventListener('click', () => {
                 if (DOM.compareOverlay) DOM.compareOverlay.classList.remove('visible');
             });
         }
         
-        // Settings
+        // ─────────────────────────────────────────────────────────────────────
+        // SETTINGS
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.settingsBtn) {
             DOM.settingsBtn.addEventListener('click', openSettings);
         }
@@ -1421,7 +1878,9 @@ const UnityAtlas = (function() {
             DOM.maxNodes.addEventListener('change', updateSettings);
         }
         
-        // Stat boxes click to filter
+        // ─────────────────────────────────────────────────────────────────────
+        // STAT BOXES - Click to filter
+        // ─────────────────────────────────────────────────────────────────────
         if (DOM.relationStats) {
             DOM.relationStats.querySelectorAll('.stat-box').forEach(box => {
                 box.addEventListener('click', () => {
@@ -1436,37 +1895,32 @@ const UnityAtlas = (function() {
             });
         }
         
-        // Keyboard
+        // ─────────────────────────────────────────────────────────────────────
+        // KEYBOARD
+        // ─────────────────────────────────────────────────────────────────────
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
                 closeSettings();
                 closeCountryDropdown();
+                closeParamDetail();
                 if (DOM.compareOverlay) DOM.compareOverlay.classList.remove('visible');
                 if (state.focusMode) exitFocusMode();
             }
         });
         
-        // Resize
+        // ─────────────────────────────────────────────────────────────────────
+        // WINDOW RESIZE
+        // ─────────────────────────────────────────────────────────────────────
         window.addEventListener('resize', debounce(() => {
             renderRadialGraph();
+            if (state.selectedCountry) {
+                const relationship = UnityAtlasData.getRelationship(state.centerCountry, state.selectedCountry);
+                if (relationship) {
+                    renderParametersView(relationship);
+                }
+            }
         }, 300));
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // UTILITIES
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -1478,6 +1932,7 @@ const UnityAtlas = (function() {
         updateCenterCountry,
         selectCountry,
         exitFocusMode,
+        switchParamsView,
         getState: () => ({ ...state })
     };
 
