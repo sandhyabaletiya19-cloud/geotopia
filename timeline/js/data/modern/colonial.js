@@ -457,7 +457,7 @@ const COLONIAL_ERA = {
           importance: 8,
           coordinates: { lat: -33.8688, lng: 151.2093 },
           mapState: {
-            penal: Colony: true
+            penalColony: true
           },
           details: 'Britain establishes penal colony in Sydney.',
           figures: ['Arthur Phillip']
