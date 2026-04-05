@@ -1072,7 +1072,7 @@ const EUROPE_CIVILIZATIONS = {
 if (typeof GEOTOPIA_DATA !== 'undefined') {
   GEOTOPIA_DATA.register(EUROPE_CIVILIZATIONS);
 }
-📁 js/data/civilizations/americas.js
+js/data/civilizations/americas.js
 JavaScript
 
 /**
