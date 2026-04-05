@@ -1937,7 +1937,7 @@ const AMERICAS_CIVILIZATIONS = {
         influenced: ['peru', 'andean-culture'],
         influencedBy: ['chavin', 'moche', 'tiwanaku'],
         tradeRoutes: ['inca-road-system']
-      }
+       }
     },
     
     {
