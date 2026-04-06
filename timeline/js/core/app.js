@@ -1,781 +1,1446 @@
-// ============================================
-// GEOTOPIA - MAIN APPLICATION
-// Initializes and coordinates all systems
-// ============================================
-
-class GeotopiaApp {
-  constructor() {
-    this.initialized = false;
-    this.loadingPhase = 0;
-    this.dependencies = {
-      d3: false,
-      three: false,
-      gsap: false,
-      topojson: false
-    };
-    
-    // References to engine instances (will be created)
-    this.dataEngine = null;
-    this.timelineEngine = null;
-    this.mapEngine = null;
-    this.animationEngine = null;
-    this.uiControls = null;
-    this.infoPanel = null;
-    this.legend = null;
-  }
-  
-  // ============================================
-  // INITIALIZATION SEQUENCE
-  // ============================================
-  
-  /**
-   * Start the application
-   */
-  async init() {
-    console.log('🌍 GEOTOPIA Starting...');
-    
-    try {
-      // Phase 1: Check dependencies
-      await this.checkDependencies();
-      
-      // Phase 2: Show loading screen
-      await this.startLoadingSequence();
-      
-      // Phase 3: Initialize data engine
-      await this.initializeDataEngine();
-      
-      // Phase 4: Initialize map engine
-      await this.initializeMapEngine();
-      
-      // Phase 5: Initialize timeline engine
-      await this.initializeTimelineEngine();
-      
-      // Phase 6: Initialize UI
-      await this.initializeUI();
-      
-      // Phase 7: Connect event listeners
-      this.connectEventListeners();
-      
-      // Phase 8: Load user preferences
-      this.loadUserPreferences();
-      
-      // Phase 9: Complete loading
-      await this.completeLoading();
-      
-      // Phase 10: Start autoplay if enabled
-      if (typeof state !== 'undefined' && state.settings && state.settings.autoplay) {
-        this.startAutoplay();
-      }
-      
-      this.initialized = true;
-      console.log('✅ GEOTOPIA Ready!');
-      
-    } catch (error) {
-      console.error('❌ GEOTOPIA Initialization Failed:', error);
-      this.showError(error);
-    }
-  }
-  
-  // ============================================
-  // DEPENDENCY CHECKING
-  // ============================================
-  
-  /**
-   * Verify all required libraries are loaded
-   */
-  async checkDependencies() {
-    console.log('Checking dependencies...');
-    
-    // Check D3.js
-    if (typeof d3 !== 'undefined') {
-      this.dependencies.d3 = true;
-      console.log('✓ D3.js loaded');
-    } else {
-      throw new Error('D3.js not loaded');
-    }
-    
-    // Check Three.js
-    if (typeof THREE !== 'undefined') {
-      this.dependencies.three = true;
-      console.log('✓ Three.js loaded');
-    } else {
-      throw new Error('Three.js not loaded');
-    }
-    
-    // Check GSAP
-    if (typeof gsap !== 'undefined') {
-      this.dependencies.gsap = true;
-      console.log('✓ GSAP loaded');
-    } else {
-      throw new Error('GSAP not loaded');
-    }
-    
-    // Check TopoJSON
-    if (typeof topojson !== 'undefined') {
-      this.dependencies.topojson = true;
-      console.log('✓ TopoJSON loaded');
-    } else {
-      throw new Error('TopoJSON not loaded');
-    }
-    
-    // Check WebGL support
-    if (typeof GeoUtils !== 'undefined' && typeof GeoUtils.supportsWebGL === 'function') {
-      if (!GeoUtils.supportsWebGL()) {
-        console.warn('⚠ WebGL not supported - 3D features disabled');
-        if (typeof state !== 'undefined') {
-          state.mapMode = '2d';
-        }
-      }
-    }
-    
-    return true;
-  }
-  
-  // ============================================
-  // LOADING SEQUENCE
-  // ============================================
-  
-  /**
-   * Play cinematic loading animation
-   */
-  async startLoadingSequence() {
-    console.log('Starting loading sequence...');
-    
-    const loadingScreen = document.getElementById('loading-screen');
-    if (!loadingScreen) {
-      console.warn('Loading screen element not found');
-      return;
-    }
-    
-    loadingScreen.style.display = 'flex';
-    loadingScreen.style.opacity = '1';
-    
-    // Create animation engine instance
-    if (typeof LoadingSequence === 'function') {
-      try {
-        const loader = new LoadingSequence();
-        await loader.play();
-      } catch (error) {
-        console.warn('Loading sequence error:', error);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    } else {
-      // Fallback: simple delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-  }
-  
-  /**
-   * Hide loading screen and reveal app
-   */
-  async completeLoading() {
-    console.log('Completing loading...');
-    
-    const loadingScreen = document.getElementById('loading-screen');
-    const mainContent = document.getElementById('geotopia-app');
-    
-    console.log('Loading screen element:', loadingScreen);
-    console.log('Main content element:', mainContent);
-    
-    // Hide loading screen
-    if (loadingScreen) {
-      try {
-        await gsap.to(loadingScreen, {
-          opacity: 0,
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-      } catch (error) {
-        console.warn('Loading screen animation error:', error);
-      }
-      loadingScreen.style.display = 'none';
-      loadingScreen.style.visibility = 'hidden';
-      loadingScreen.style.pointerEvents = 'none';
-      loadingScreen.style.zIndex = '-1';
-    }
-    
-    // Show main app
-    if (mainContent) {
-      mainContent.style.display = 'block';
-      mainContent.style.visibility = 'visible';
-      mainContent.style.opacity = '1';
-      mainContent.style.zIndex = '1';
-      console.log('✓ Main content shown');
-    } else {
-      console.error('ERROR: #geotopia-app element not found!');
-      // Create fallback container
-      this.createFallbackUI();
-    }
-    
-    // Force map redraw after a short delay
-    setTimeout(() => {
-      if (this.mapEngine) {
-        if (typeof this.mapEngine.resize === 'function') {
-          this.mapEngine.resize();
-        }
-        if (typeof this.mapEngine.render === 'function') {
-          this.mapEngine.render();
-        }
-        if (typeof this.mapEngine.drawMap === 'function') {
-          this.mapEngine.drawMap();
-        }
-        console.log('✓ Map refreshed');
-      }
-      
-      if (this.timelineEngine) {
-        if (typeof this.timelineEngine.render === 'function') {
-          this.timelineEngine.render();
-        }
-        if (typeof this.timelineEngine.update === 'function') {
-          this.timelineEngine.update();
-        }
-        console.log('✓ Timeline refreshed');
-      }
-    }, 200);
-    
-    // Complete loading state
-    if (typeof state !== 'undefined' && typeof state.completeLoading === 'function') {
-      state.completeLoading();
-    }
-  }
-  
-  /**
-   * Create fallback UI if main content doesn't exist
-   */
-  createFallbackUI() {
-    console.log('Creating fallback UI...');
-    
-    const app = document.createElement('div');
-    app.id = 'geotopia-app';
-    app.style.cssText = 'width:100%;height:100vh;position:relative;background:#0a1628;';
-    
-    const mapContainer = document.createElement('div');
-    mapContainer.id = 'map-container';
-    mapContainer.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;';
-    
-    const mapSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    mapSvg.id = 'map-svg';
-    mapSvg.style.cssText = 'width:100%;height:100%;background:#0a1628;';
-    
-    const timeline = document.createElement('div');
-    timeline.id = 'timeline-container';
-    timeline.style.cssText = 'position:absolute;bottom:0;left:0;width:100%;height:120px;background:rgba(0,0,0,0.8);';
-    
-    mapContainer.appendChild(mapSvg);
-    app.appendChild(mapContainer);
-    app.appendChild(timeline);
-    document.body.appendChild(app);
-    
-    console.log('✓ Fallback UI created');
-  }
-  
-  // ============================================
-  // ENGINE INITIALIZATION
-  // ============================================
-  
-  /**
-   * Initialize data engine
-   */
-  async initializeDataEngine() {
-    console.log('Initializing data engine...');
-    
-    if (typeof DataEngine === 'function') {
-      this.dataEngine = new DataEngine();
-      await this.dataEngine.loadAll();
-      console.log('✓ Data engine ready');
-    } else {
-      console.warn('DataEngine not loaded yet');
-    }
-  }
-  
-  /**
-   * Initialize map rendering engine
-   */
-  async initializeMapEngine() {
-    console.log('Initializing map engine...');
-    
-    if (typeof MapEngine === 'function') {
-      this.mapEngine = new MapEngine();
-      await this.mapEngine.initialize();
-      
-      // Force initial render
-      setTimeout(() => {
-        if (this.mapEngine) {
-          if (typeof this.mapEngine.render === 'function') {
-            this.mapEngine.render();
-          }
-          if (typeof this.mapEngine.drawMap === 'function') {
-            this.mapEngine.drawMap();
-          }
-        }
-      }, 100);
-      
-      console.log('✓ Map engine ready');
-    } else {
-      console.warn('MapEngine not loaded yet');
-    }
-  }
-  
-  /**
-   * Initialize timeline engine
-   */
-  async initializeTimelineEngine() {
-    console.log('Initializing timeline engine...');
-    
-    if (typeof TimelineEngine === 'function') {
-      this.timelineEngine = new TimelineEngine();
-      this.timelineEngine.initialize();
-      console.log('✓ Timeline engine ready');
-    } else {
-      console.warn('TimelineEngine not loaded yet');
-    }
-  }
-  
-  /**
-   * Initialize UI components
-   */
-  async initializeUI() {
-    console.log('Initializing UI...');
-    
-    // Controls (play/pause, speed, etc.)
-    if (typeof UIControls === 'function') {
-      this.uiControls = new UIControls();
-      this.uiControls.initialize();
-    }
-    
-    // Info panel
-    if (typeof InfoPanel === 'function') {
-      this.infoPanel = new InfoPanel();
-      this.infoPanel.initialize();
-    }
-    
-    // Legend
-    if (typeof LegendUI === 'function') {
-      this.legend = new LegendUI();
-      this.legend.initialize();
-    }
-    
-    console.log('✓ UI ready');
-  }
-  
-  // ============================================
-  // EVENT LISTENERS
-  // ============================================
-  
-  /**
-   * Connect all event listeners
-   */
-  connectEventListeners() {
-    console.log('Connecting event listeners...');
-    
-    // Check if state exists and has event system
-    if (typeof state !== 'undefined' && typeof state.on === 'function') {
-      
-      // Timeline changes → Update map
-      state.on('yearChange', (data) => {
-        if (this.mapEngine && typeof this.mapEngine.updateYear === 'function') {
-          this.mapEngine.updateYear(data.year);
-        }
-        if (this.infoPanel && typeof this.infoPanel.updateYear === 'function') {
-          this.infoPanel.updateYear(data.year);
-        }
-      });
-      
-      // Map updates → Redraw
-      state.on('mapUpdate', (data) => {
-        if (this.mapEngine && typeof this.mapEngine.update === 'function') {
-          this.mapEngine.update(data);
-        }
-      });
-      
-      // Selection changes → Show info
-      state.on('selectionChange', (data) => {
-        if (this.infoPanel && typeof this.infoPanel.show === 'function') {
-          this.infoPanel.show(data);
-        }
-      });
-      
-      // Filter changes → Redraw map
-      state.on('filterChange', (data) => {
-        if (this.mapEngine && typeof this.mapEngine.applyFilters === 'function') {
-          this.mapEngine.applyFilters(data);
-        }
-      });
-      
-      // Settings changes → Apply
-      state.on('settingsChange', (data) => {
-        this.applySettings(data);
-      });
-    }
-    
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => this.handleKeyboard(e));
-    
-    // Window resize with debounce
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        if (this.mapEngine && typeof this.mapEngine.resize === 'function') {
-          this.mapEngine.resize();
-        }
-      }, 250);
-    });
-    
-    // Visibility change (pause when tab hidden)
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden && typeof state !== 'undefined' && state.isPlaying) {
-        if (typeof state.pause === 'function') {
-          state.pause();
-        }
-      }
-    });
-  }
-  
-  /**
-   * Handle keyboard shortcuts
-   * @param {KeyboardEvent} e 
-   */
-  handleKeyboard(e) {
-    // Ignore if typing in input
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      return;
-    }
-    
-    // Check if state exists
-    if (typeof state === 'undefined') {
-      return;
-    }
-    
-    switch(e.key) {
-      case ' ':
-        e.preventDefault();
-        if (typeof state.togglePlay === 'function') {
-          state.togglePlay();
-        }
-        break;
-        
-      case 'ArrowLeft':
-        e.preventDefault();
-        this.stepBackward();
-        break;
-        
-      case 'ArrowRight':
-        e.preventDefault();
-        this.stepForward();
-        break;
-        
-      case 'Escape':
-        if (typeof state.closeModals === 'function') {
-          state.closeModals();
-        }
-        if (typeof state.clearSelection === 'function') {
-          state.clearSelection();
-        }
-        break;
-        
-      case 'f':
-        this.toggleFullscreen();
-        break;
-        
-      case 's':
-        if (typeof state.openModal === 'function') {
-          state.openModal('search');
-        }
-        break;
-        
-      case '?':
-        if (typeof state.openModal === 'function') {
-          state.openModal('about');
-        }
-        break;
-        
-      case 'z':
-        if (e.ctrlKey || e.metaKey) {
-          e.preventDefault();
-          if (typeof state.undo === 'function') {
-            state.undo();
-          }
-        }
-        break;
-        
-      case 'y':
-        if (e.ctrlKey || e.metaKey) {
-          e.preventDefault();
-          if (typeof state.redo === 'function') {
-            state.redo();
-          }
-        }
-        break;
-    }
-  }
-  
-  // ============================================
-  // PLAYBACK CONTROLS
-  // ============================================
-  
-  /**
-   * Step backward in time
-   */
-  stepBackward() {
-    if (typeof state === 'undefined') return;
-    
-    const currentEra = typeof state.getCurrentEra === 'function' ? state.getCurrentEra() : null;
-    const step = this.calculateStep(currentEra);
-    const currentYear = state.currentYear || 2000;
-    const newYear = currentYear - step;
-    
-    if (newYear >= -4500000000) {
-      if (typeof state.setYear === 'function') {
-        state.setYear(newYear, true);
-      }
-    }
-  }
-  
-  /**
-   * Step forward in time
-   */
-  stepForward() {
-    if (typeof state === 'undefined') return;
-    
-    const currentEra = typeof state.getCurrentEra === 'function' ? state.getCurrentEra() : null;
-    const step = this.calculateStep(currentEra);
-    const currentYear = state.currentYear || 2000;
-    const newYear = currentYear + step;
-    
-    if (newYear <= 2026) {
-      if (typeof state.setYear === 'function') {
-        state.setYear(newYear, true);
-      }
-    }
-  }
-  
-  /**
-   * Calculate appropriate step size based on era
-   * @param {object} era 
-   * @returns {number}
-   */
-  calculateStep(era) {
-    const currentYear = (typeof state !== 'undefined' && state.currentYear) ? state.currentYear : 2000;
-    const absYear = Math.abs(currentYear);
-    
-    if (absYear > 1000000000) return 10000000; // 10 million years
-    if (absYear > 100000000) return 1000000;   // 1 million years
-    if (absYear > 10000000) return 100000;     // 100k years
-    if (absYear > 1000000) return 10000;       // 10k years
-    if (absYear > 10000) return 1000;          // 1k years
-    if (absYear > 1000) return 100;            // 100 years
-    return 10; // 10 years
-  }
-  
-  /**
-   * Start autoplay
-   */
-  startAutoplay() {
-    if (typeof state === 'undefined') return;
-    if (typeof state.play !== 'function') return;
-    
-    state.play(1);
-    
-    // Animate through history
-    const animate = () => {
-      if (!state.isPlaying) return;
-      
-      const currentEra = typeof state.getCurrentEra === 'function' ? state.getCurrentEra() : null;
-      const playbackSpeed = state.playbackSpeed || 1;
-      const playbackDirection = state.playbackDirection || 1;
-      const step = this.calculateStep(currentEra) * playbackSpeed;
-      const currentYear = state.currentYear || 2000;
-      const newYear = currentYear + (step * playbackDirection);
-      
-      // Check bounds
-      if (newYear > 2026) {
-        if (typeof state.pause === 'function') {
-          state.pause();
-        }
-        return;
-      }
-      if (newYear < -4500000000) {
-        if (typeof state.pause === 'function') {
-          state.pause();
-        }
-        return;
-      }
-      
-      if (typeof state.setYear === 'function') {
-        state.setYear(newYear);
-      }
-      
-      requestAnimationFrame(animate);
-    };
-    
-    animate();
-  }
-  
-  // ============================================
-  // SETTINGS
-  // ============================================
-  
-  /**
-   * Load user preferences from storage
-   */
-  loadUserPreferences() {
-    if (typeof state === 'undefined' || !state.settings) return;
-    
-    if (state.settings.theme === 'light') {
-      document.body.classList.add('light-theme');
-    }
-    
-    if (state.settings.reducedMotion) {
-      document.body.classList.add('reduced-motion');
-    }
-  }
-  
-  /**
-   * Apply settings changes
-   * @param {object} data 
-   */
-  applySettings(data) {
-    if (!data) return;
-    
-    Object.keys(data).forEach(key => {
-      switch(key) {
-        case 'theme':
-          if (data[key] === 'light') {
-            document.body.classList.add('light-theme');
-          } else {
-            document.body.classList.remove('light-theme');
-          }
-          break;
-          
-        case 'reducedMotion':
-          if (data[key]) {
-            document.body.classList.add('reduced-motion');
-          } else {
-            document.body.classList.remove('reduced-motion');
-          }
-          break;
-          
-        case 'animationsEnabled':
-          if (this.mapEngine && typeof this.mapEngine.setAnimations === 'function') {
-            this.mapEngine.setAnimations(data[key]);
-          }
-          break;
-          
-        case 'particlesEnabled':
-          if (this.mapEngine && typeof this.mapEngine.setParticles === 'function') {
-            this.mapEngine.setParticles(data[key]);
-          }
-          break;
-      }
-    });
-  }
-  
-  // ============================================
-  // UTILITIES
-  // ============================================
-  
-  /**
-   * Toggle fullscreen mode
-   */
-  toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.warn('Fullscreen error:', err);
-      });
-    } else {
-      document.exitFullscreen().catch(err => {
-        console.warn('Exit fullscreen error:', err);
-      });
-    }
-  }
-  
-  /**
-   * Show error message
-   * @param {Error} error 
-   */
-  showError(error) {
-    // Hide loading screen first
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-      loadingScreen.style.display = 'none';
-    }
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;color:white;padding:30px;border-radius:10px;z-index:99999;text-align:center;border:2px solid #ff4444;max-width:400px;';
-    errorDiv.innerHTML = `
-      <h2 style="color:#ff4444;margin-bottom:15px;">Error Loading GEOTOPIA</h2>
-      <p style="margin-bottom:20px;">${error.message}</p>
-      <button onclick="location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">Reload</button>
-    `;
-    document.body.appendChild(errorDiv);
-  }
-  
-  /**
-   * Take screenshot
-   */
-  takeScreenshot() {
-    if (this.mapEngine && this.mapEngine.canvas) {
-      const currentYear = (typeof state !== 'undefined' && state.currentYear) ? state.currentYear : 'unknown';
-      const link = document.createElement('a');
-      link.download = `geotopia_${currentYear}.png`;
-      link.href = this.mapEngine.canvas.toDataURL();
-      link.click();
-    }
-  }
-  
-  /**
-   * Export current state as JSON
-   */
-  exportState() {
-    if (typeof state === 'undefined' || typeof state.getState !== 'function') {
-      console.warn('State not available for export');
-      return;
-    }
-    
-    const stateData = state.getState();
-    const json = JSON.stringify(stateData, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.download = `geotopia_state_${Date.now()}.json`;
-    link.href = url;
-    link.click();
-    
-    URL.revokeObjectURL(url);
-  }
-}
-
-// ============================================
-// AUTO-START
-// ============================================
-
-// Wait for DOM to be ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', startGeotopia);
-} else {
-  startGeotopia();
-}
-
 /**
- * Start GEOTOPIA application
+ * GEOTOPIA - MAIN APPLICATION
+ * The Brain that connects everything
+ * Bharat Ratna + Nobel Prize worthy orchestration
  */
-function startGeotopia() {
-  window.geotopiaApp = new GeotopiaApp();
-  window.geotopiaApp.init();
+
+class GEOTOPIAApp {
+    constructor() {
+        this.version = '1.0.0';
+        this.isInitialized = false;
+        this.isLoading = true;
+
+        // Engine references
+        this.dataEngine = null;
+        this.mapEngine = null;
+        this.timelineEngine = null;
+
+        // UI state
+        this.currentView = 'global'; // global, regional, detail
+        this.searchResults = [];
+        this.selectedEvent = null;
+        this.infoPanelOpen = false;
+
+        // Settings
+        this.settings = {
+            theme: 'dark',
+            quality: 'high',
+            animations: true,
+            sound: false,
+            language: 'en',
+            autoPlay: false,
+            showLabels: true,
+            showGrid: true
+        };
+
+        // Loading phases
+        this.loadingPhases = [
+            { name: 'bigbang', duration: 1000, progress: 0 },
+            { name: 'accretion', duration: 1000, progress: 16.67 },
+            { name: 'cooling', duration: 1000, progress: 33.33 },
+            { name: 'life', duration: 1000, progress: 50 },
+            { name: 'modern', duration: 1000, progress: 66.67 },
+            { name: 'ready', duration: 1000, progress: 83.33 }
+        ];
+
+        this.currentPhase = 0;
+
+        // Performance monitoring
+        this.performanceMetrics = {
+            fps: 60,
+            renderTime: 0,
+            dataLoadTime: 0,
+            initTime: 0
+        };
+
+        // Event listeners storage
+        this.eventListeners = [];
+
+        // Start initialization
+        this.init();
+    }
+
+    // ============================================================
+    // INITIALIZATION SEQUENCE
+    // ============================================================
+
+    /**
+     * Main initialization
+     */
+    async init() {
+        console.log('🌍 GEOTOPIA v' + this.version + ' - Initializing...');
+        const startTime = performance.now();
+
+        try {
+            // Show loading screen
+            await this.showLoadingSequence();
+
+            // Load user settings
+            this.loadSettings();
+
+            // Initialize engines in sequence
+            await this.initializeEngines();
+
+            // Setup UI
+            await this.setupUI();
+
+            // Load initial data
+            await this.loadInitialData();
+
+            // Setup event bindings
+            this.bindEvents();
+
+            // Hide loading screen
+            await this.hideLoadingScreen();
+
+            // Mark as initialized
+            this.isInitialized = true;
+            this.isLoading = false;
+
+            // Performance metrics
+            this.performanceMetrics.initTime = performance.now() - startTime;
+
+            console.log(`✅ GEOTOPIA initialized in ${this.performanceMetrics.initTime.toFixed(0)}ms`);
+
+            // Auto-start if enabled
+            if (this.settings.autoPlay) {
+                setTimeout(() => {
+                    if (this.timelineEngine) {
+                        this.timelineEngine.play();
+                    }
+                }, 2000);
+            }
+
+            // Show welcome message
+            this.showWelcomeMessage();
+
+        } catch (error) {
+            console.error('❌ GEOTOPIA initialization failed:', error);
+            this.showErrorScreen(error);
+        }
+    }
+
+    /**
+     * Initialize all engines
+     */
+    async initializeEngines() {
+        console.log('⚙️ Initializing engines...');
+
+        // Data Engine
+        if (typeof DataEngine !== 'undefined') {
+            this.dataEngine = dataEngine || new DataEngine();
+            await this.dataEngine.initDatabase();
+            this.updateLoadingProgress('Indexing geological data...', 25);
+        }
+
+        // Map Engine
+        if (typeof MapEngine !== 'undefined') {
+            this.mapEngine = mapEngine || new MapEngine();
+            await this.mapEngine.init();
+            this.updateLoadingProgress('Rendering 3D globe...', 50);
+        }
+
+        // Timeline Engine
+        if (typeof TimelineEngine !== 'undefined') {
+            this.timelineEngine = timelineEngine || new TimelineEngine();
+            await this.timelineEngine.init();
+            this.updateLoadingProgress('Building timeline...', 75);
+        }
+
+        // Connect engines
+        this.connectEngines();
+
+        this.updateLoadingProgress('Finalizing...', 90);
+    }
+
+    /**
+     * Connect engines together
+     */
+    connectEngines() {
+        if (!this.timelineEngine || !this.mapEngine || !this.dataEngine) {
+            console.warn('⚠️ Not all engines available for connection');
+            return;
+        }
+
+        // Timeline controls map
+        this.timelineEngine.onYearChange = (year) => {
+            this.onYearChanged(year);
+        };
+
+        this.timelineEngine.onEraChange = (era) => {
+            this.onEraChanged(era);
+        };
+
+        // Map click events
+        if (this.mapEngine.renderer) {
+            this.mapEngine.renderer.domElement.addEventListener('click', (e) => {
+                this.onMapClick(e);
+            });
+        }
+
+        console.log('🔗 Engines connected');
+    }
+
+    // ============================================================
+    // LOADING SCREEN MAGIC
+    // ============================================================
+
+    /**
+     * Epic 6-phase loading sequence
+     */
+    async showLoadingSequence() {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (!loadingScreen) {
+            console.warn('Loading screen element not found');
+            return;
+        }
+
+        loadingScreen.style.display = 'flex';
+
+        // Phase 1: Big Bang
+        await this.runLoadingPhase('bigbang', () => {
+            this.createBigBangEffect();
+        });
+
+        // Phase 2: Accretion
+        await this.runLoadingPhase('accretion', () => {
+            this.createAccretionEffect();
+        });
+
+        // Phase 3: Cooling
+        await this.runLoadingPhase('cooling', () => {
+            this.createCoolingEffect();
+        });
+
+        // Phase 4: Life Emerges
+        await this.runLoadingPhase('life', () => {
+            this.createLifeEffect();
+        });
+
+        // Phase 5: Modern Earth
+        await this.runLoadingPhase('modern', () => {
+            this.createModernEffect();
+        });
+
+        // Phase 6: Ready
+        await this.runLoadingPhase('ready', () => {
+            this.createReadyEffect();
+        });
+    }
+
+    /**
+     * Run a single loading phase
+     */
+    async runLoadingPhase(phaseName, effectFunction) {
+        return new Promise((resolve) => {
+            const phase = this.loadingPhases.find(p => p.name === phaseName);
+            if (!phase) {
+                resolve();
+                return;
+            }
+
+            // Update UI
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.setAttribute('data-phase', phaseName);
+            }
+
+            // Update title
+            const title = document.querySelector('.loading-title');
+            if (title) {
+                const titles = {
+                    bigbang: 'THE BIG BANG',
+                    accretion: 'EARTH FORMS',
+                    cooling: 'COOLING & SOLIDIFYING',
+                    life: 'LIFE EMERGES',
+                    modern: 'CIVILIZATION RISES',
+                    ready: 'READY TO EXPLORE'
+                };
+                title.textContent = titles[phaseName] || phaseName.toUpperCase();
+            }
+
+            // Update progress
+            this.updateLoadingProgress(phase.name, phase.progress);
+
+            // Run visual effect
+            if (effectFunction) {
+                effectFunction();
+            }
+
+            // Wait for duration
+            setTimeout(resolve, phase.duration);
+        });
+    }
+
+    /**
+     * Big Bang visual effect
+     */
+    createBigBangEffect() {
+        const canvas = document.getElementById('loading-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 200;
+
+        // Create particles at center
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                size: Math.random() * 3,
+                color: `hsl(${Math.random() * 60 + 10}, 100%, ${Math.random() * 50 + 50}%)`
+            });
+        }
+
+        // Animate explosion
+        const animate = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.99;
+                p.vy *= 0.99;
+
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            if (particles[0].vx > 0.1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        animate();
+    }
+
+    /**
+     * Accretion effect (particles forming sphere)
+     */
+    createAccretionEffect() {
+        const canvas = document.getElementById('loading-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        const particles = [];
+        for (let i = 0; i < 300; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 300 + 100;
+            particles.push({
+                x: centerX + Math.cos(angle) * distance,
+                y: centerY + Math.sin(angle) * distance,
+                targetX: centerX,
+                targetY: centerY,
+                size: Math.random() * 2 + 1,
+                color: `hsl(${Math.random() * 30 + 15}, 80%, 50%)`
+            });
+        }
+
+        const animate = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let allSettled = true;
+
+            particles.forEach(p => {
+                const dx = p.targetX - p.x;
+                const dy = p.targetY - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist > 1) {
+                    allSettled = false;
+                    p.x += dx * 0.05;
+                    p.y += dy * 0.05;
+                }
+
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            if (!allSettled) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        animate();
+    }
+
+    /**
+     * Cooling effect (red to brown)
+     */
+    createCoolingEffect() {
+        const canvas = document.getElementById('loading-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 100;
+
+        let hue = 10; // Red
+
+        const animate = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw cooling sphere
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            gradient.addColorStop(0, `hsl(${hue}, 80%, 50%)`);
+            gradient.addColorStop(1, `hsl(${hue}, 60%, 20%)`);
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            hue += 0.5;
+            if (hue < 30) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        animate();
+    }
+
+    /**
+     * Life emerges effect (green tint)
+     */
+    createLifeEffect() {
+        const canvas = document.getElementById('loading-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        let greenIntensity = 0;
+
+        const animate = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Earth with life
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 100);
+            gradient.addColorStop(0, `rgba(0, ${100 + greenIntensity}, ${50 + greenIntensity / 2}, 1)`);
+            gradient.addColorStop(0.7, `rgba(0, ${50 + greenIntensity / 2}, ${100 + greenIntensity}, 1)`);
+            gradient.addColorStop(1, `rgba(0, 0, ${50 + greenIntensity / 4}, 1)`);
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 100, 0, Math.PI * 2);
+            ctx.fill();
+
+            greenIntensity += 2;
+            if (greenIntensity < 100) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        animate();
+    }
+
+    /**
+     * Modern Earth effect (blue marble)
+     */
+    createModernEffect() {
+        const canvas = document.getElementById('loading-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 100);
+        gradient.addColorStop(0, '#4a9eff');
+        gradient.addColorStop(0.5, '#2a7edf');
+        gradient.addColorStop(1, '#1a4d7a');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 100, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Add white clouds
+        for (let i = 0; i < 20; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.random() * 80;
+            const x = centerX + Math.cos(angle) * dist;
+            const y = centerY + Math.sin(angle) * dist;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(x, y, Math.random() * 10 + 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    /**
+     * Ready effect (pulse)
+     */
+    createReadyEffect() {
+        const canvas = document.getElementById('loading-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        let pulseRadius = 100;
+        let growing = true;
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Earth
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 100);
+            gradient.addColorStop(0, '#4a9eff');
+            gradient.addColorStop(1, '#1a4d7a');
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 100, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Pulse ring
+            ctx.strokeStyle = `rgba(74, 158, 255, ${1 - (pulseRadius - 100) / 50})`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            pulseRadius += growing ? 2 : -2;
+            if (pulseRadius > 150) growing = false;
+            if (pulseRadius < 100) growing = true;
+
+            requestAnimationFrame(animate);
+        };
+
+        animate();
+    }
+
+    /**
+     * Update loading progress bar
+     */
+    updateLoadingProgress(text, percent) {
+        const progressBar = document.querySelector('.loading-progress-fill');
+        const progressText = document.querySelector('.loading-subtitle');
+
+        if (progressBar) {
+            progressBar.style.width = `${percent}%`;
+        }
+
+        if (progressText) {
+            progressText.textContent = text;
+        }
+    }
+
+    /**
+     * Hide loading screen with fade out
+     */
+    async hideLoadingScreen() {
+        return new Promise((resolve) => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (!loadingScreen) {
+                resolve();
+                return;
+            }
+
+            loadingScreen.classList.add('fade-out');
+
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                resolve();
+            }, 1000);
+        });
+    }
+
+    // ============================================================
+    // UI SETUP
+    // ============================================================
+
+    /**
+     * Setup all UI components
+     */
+    async setupUI() {
+        this.setupHeader();
+        this.setupInfoPanel();
+        this.setupSearch();
+        this.setupModals();
+        this.setupTooltips();
+        this.setupKeyboardShortcuts();
+        this.setupResponsive();
+    }
+
+    /**
+     * Setup header controls
+     */
+    setupHeader() {
+        // View mode toggle
+        const btn2D3D = document.getElementById('btn-2d-3d');
+        if (btn2D3D) {
+            btn2D3D.addEventListener('click', () => this.toggle2D3D());
+        }
+
+        // Search button
+        const btnSearch = document.getElementById('btn-search');
+        if (btnSearch) {
+            btnSearch.addEventListener('click', () => this.openSearchModal());
+        }
+
+        // Settings button
+        const btnSettings = document.getElementById('btn-settings');
+        if (btnSettings) {
+            btnSettings.addEventListener('click', () => this.openSettingsModal());
+        }
+
+        // About button
+        const btnAbout = document.getElementById('btn-about');
+        if (btnAbout) {
+            btnAbout.addEventListener('click', () => this.openAboutModal());
+        }
+
+        // Fullscreen button
+        const btnFullscreen = document.getElementById('btn-fullscreen');
+        if (btnFullscreen) {
+            btnFullscreen.addEventListener('click', () => this.toggleFullscreen());
+        }
+    }
+
+    /**
+     * Setup info panel
+     */
+    setupInfoPanel() {
+        const infoPanelToggle = document.getElementById('info-panel-toggle');
+        const infoPanel = document.querySelector('.info-panel');
+
+        if (infoPanelToggle && infoPanel) {
+            infoPanelToggle.addEventListener('click', () => {
+                this.infoPanelOpen = !this.infoPanelOpen;
+                infoPanel.classList.toggle('open', this.infoPanelOpen);
+                infoPanelToggle.textContent = this.infoPanelOpen ? '→' : '←';
+            });
+        }
+
+        // Close button in panel
+        const closeBtn = document.querySelector('.info-panel .close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.infoPanelOpen = false;
+                infoPanel.classList.remove('open');
+                if (infoPanelToggle) infoPanelToggle.textContent = '←';
+            });
+        }
+    }
+
+    /**
+     * Setup search functionality
+     */
+    setupSearch() {
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.performSearch(e.target.value);
+            });
+        }
+
+        // Close search on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeSearchModal();
+            }
+        });
+    }
+
+    /**
+     * Perform search across all events
+     */
+    performSearch(query) {
+        if (!query || query.length < 2) {
+            this.searchResults = [];
+            this.renderSearchResults();
+            return;
+        }
+
+        const lowerQuery = query.toLowerCase();
+
+        this.searchResults = this.dataEngine.timelineData.filter(event => {
+            return event.name.toLowerCase().includes(lowerQuery) ||
+                   (event.description && event.description.toLowerCase().includes(lowerQuery)) ||
+                   (event.type && event.type.toLowerCase().includes(lowerQuery));
+        }).slice(0, 20); // Limit to 20 results
+
+        this.renderSearchResults();
+    }
+
+    /**
+     * Render search results
+     */
+    renderSearchResults() {
+        const resultsContainer = document.getElementById('search-results');
+        if (!resultsContainer) return;
+
+        if (this.searchResults.length === 0) {
+            resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+            return;
+        }
+
+        resultsContainer.innerHTML = this.searchResults.map(event => `
+            <div class="search-result-item" data-year="${event.year}">
+                <span class="result-type ${event.type}">${event.type}</span>
+                <div class="result-content">
+                    <strong>${event.name}</strong>
+                    <small>${this.timelineEngine.formatYear(event.year)}</small>
+                </div>
+            </div>
+        `).join('');
+
+        // Add click handlers
+        resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const year = parseInt(item.getAttribute('data-year'));
+                this.timelineEngine.goToYear(year);
+                this.closeSearchModal();
+            });
+        });
+    }
+
+    /**
+     * Setup modals
+     */
+    setupModals() {
+        // Close modal on backdrop click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeAllModals();
+                }
+            });
+        });
+
+        // Close buttons
+        document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.closeAllModals();
+            });
+        });
+
+        // Settings form
+        const settingsForm = document.getElementById('settings-form');
+        if (settingsForm) {
+            // Load current settings
+            Object.keys(this.settings).forEach(key => {
+                const input = settingsForm.querySelector(`[name="${key}"]`);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        input.checked = this.settings[key];
+                    } else {
+                        input.value = this.settings[key];
+                    }
+                }
+            });
+
+            // Save on change
+            settingsForm.addEventListener('change', () => {
+                this.saveSettings(new FormData(settingsForm));
+            });
+        }
+    }
+
+    /**
+     * Setup tooltips
+     */
+    setupTooltips() {
+        document.querySelectorAll('[data-tooltip]').forEach(el => {
+            el.addEventListener('mouseenter', (e) => {
+                this.showTooltip(e.target.getAttribute('data-tooltip'), e);
+            });
+
+            el.addEventListener('mouseleave', () => {
+                this.hideTooltip();
+            });
+        });
+    }
+
+    /**
+     * Setup keyboard shortcuts
+     */
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if typing in input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            switch (e.key.toLowerCase()) {
+                case 's':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        this.openSearchModal();
+                    }
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    this.toggleFullscreen();
+                    break;
+                case 'i':
+                    e.preventDefault();
+                    this.toggleInfoPanel();
+                    break;
+                case '?':
+                    e.preventDefault();
+                    this.showKeyboardShortcuts();
+                    break;
+            }
+        });
+    }
+
+    /**
+     * Setup responsive behavior
+     */
+    setupResponsive() {
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                this.onWindowResize();
+            }, 250);
+        });
+    }
+
+    // ============================================================
+    // DATA LOADING
+    // ============================================================
+
+    /**
+     * Load initial data
+     */
+    async loadInitialData() {
+        console.log('📊 Loading timeline data...');
+        const startTime = performance.now();
+
+        try {
+            // Load timeline events
+            await this.dataEngine.loadTimelineData();
+
+            // Load initial year data
+            const initialYear = -4500000000;
+            await this.dataEngine.getContinentalPositions(initialYear);
+
+            this.performanceMetrics.dataLoadTime = performance.now() - startTime;
+            console.log(`✅ Data loaded in ${this.performanceMetrics.dataLoadTime.toFixed(0)}ms`);
+
+        } catch (error) {
+            console.error('Failed to load data:', error);
+            throw error;
+        }
+    }
+
+    // ============================================================
+    // EVENT HANDLERS
+    // ============================================================
+
+    /**
+     * Bind all events
+     */
+    bindEvents() {
+        // Already bound in setupUI, but add any global ones here
+        window.addEventListener('beforeunload', () => {
+            this.saveState();
+        });
+
+        // Performance monitoring
+        this.startPerformanceMonitoring();
+    }
+
+    /**
+     * Handle year change
+     */
+    onYearChanged(year) {
+        // Update info panel
+        this.updateInfoPanelForYear(year);
+
+        // Update URL (without reload)
+        this.updateURL(year);
+
+        // Check for events at this year
+        const events = this.dataEngine.getEventsNear(year, 100);
+        if (events.length > 0) {
+            this.highlightEvents(events);
+        }
+    }
+
+    /**
+     * Handle era change
+     */
+    onEraChanged(era) {
+        // Update UI theme
+        document.body.setAttribute('data-era', era.id);
+
+        // Update info panel
+        const eraInfo = document.getElementById('current-era-info');
+        if (eraInfo) {
+            eraInfo.innerHTML = `
+                <h3>${era.icon || ''} ${era.name}</h3>
+                <p>${era.description}</p>
+            `;
+        }
+
+        // Emit custom event for other components
+        document.dispatchEvent(new CustomEvent('erachange', { detail: era }));
+    }
+
+    /**
+     * Handle map click
+     */
+    onMapClick(event) {
+        // Raycasting to detect click on globe/events
+        if (!this.mapEngine || !this.mapEngine.scene) return;
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        const rect = this.mapEngine.renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, this.mapEngine.camera);
+
+        const intersects = raycaster.intersectObjects(this.mapEngine.civilizationMarkers, true);
+
+        if (intersects.length > 0) {
+            const marker = intersects[0].object;
+            // Show event detail
+            this.showEventDetail(marker.userData);
+        }
+    }
+
+    /**
+     * Handle window resize
+     */
+    onWindowResize() {
+        if (this.mapEngine) {
+            this.mapEngine.onWindowResize();
+        }
+
+        if (this.timelineEngine) {
+            this.timelineEngine.trackWidth = this.timelineEngine.trackElement.offsetWidth;
+            this.timelineEngine.updateHandlePosition();
+        }
+    }
+
+    // ============================================================
+    // UI ACTIONS
+    // ============================================================
+
+    /**
+     * Toggle 2D/3D view
+     */
+    toggle2D3D() {
+        if (!this.mapEngine) return;
+
+        const btn = document.getElementById('btn-2d-3d');
+
+        if (this.mapEngine.mode === '3d') {
+            this.mapEngine.mode = '2d';
+            if (btn) btn.textContent = '3D';
+            // Reinitialize in 2D mode
+            this.mapEngine.init2D(document.getElementById('map-container'));
+        } else {
+            this.mapEngine.mode = '3d';
+            if (btn) btn.textContent = '2D';
+            // Reinitialize in 3D mode
+            this.mapEngine.init3D(document.getElementById('map-container'));
+        }
+
+        // Re-render current year
+        this.mapEngine.renderYear(this.timelineEngine.currentYear);
+    }
+
+    /**
+     * Toggle info panel
+     */
+    toggleInfoPanel() {
+        const panel = document.querySelector('.info-panel');
+        const toggle = document.getElementById('info-panel-toggle');
+
+        if (panel) {
+            this.infoPanelOpen = !this.infoPanelOpen;
+            panel.classList.toggle('open', this.infoPanelOpen);
+            if (toggle) {
+                toggle.textContent = this.infoPanelOpen ? '→' : '←';
+            }
+        }
+    }
+
+    /**
+     * Open search modal
+     */
+    openSearchModal() {
+        const modal = document.getElementById('search-modal');
+        if (modal) {
+            modal.classList.add('active');
+            const input = document.getElementById('search-input');
+            if (input) {
+                setTimeout(() => input.focus(), 100);
+            }
+        }
+    }
+
+    /**
+     * Close search modal
+     */
+    closeSearchModal() {
+        const modal = document.getElementById('search-modal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    /**
+     * Open settings modal
+     */
+    openSettingsModal() {
+        const modal = document.getElementById('settings-modal');
+        if (modal) {
+            modal.classList.add('active');
+        }
+    }
+
+    /**
+     * Open about modal
+     */
+    openAboutModal() {
+        const modal = document.getElementById('about-modal');
+        if (modal) {
+            modal.classList.add('active');
+        }
+    }
+
+    /**
+     * Close all modals
+     */
+    closeAllModals() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.remove('active');
+        });
+    }
+
+    /**
+     * Toggle fullscreen
+     */
+    toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    /**
+     * Show tooltip
+     */
+    showTooltip(text, event) {
+        let tooltip = document.getElementById('app-tooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'app-tooltip';
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
+        }
+
+        tooltip.textContent = text;
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${event.clientX + 10}px`;
+        tooltip.style.top = `${event.clientY + 10}px`;
+    }
+
+    /**
+     * Hide tooltip
+     */
+    hideTooltip() {
+        const tooltip = document.getElementById('app-tooltip');
+        if (tooltip) {
+            tooltip.style.display = 'none';
+        }
+    }
+
+    /**
+     * Show keyboard shortcuts
+     */
+    showKeyboardShortcuts() {
+        const shortcuts = `
+            <h3>Keyboard Shortcuts</h3>
+            <ul style="text-align: left;">
+                <li><kbd>Space</kbd> - Play/Pause</li>
+                <li><kbd>←</kbd> / <kbd>→</kbd> - Step backward/forward</li>
+                <li><kbd>Shift</kbd> + <kbd>←</kbd> / <kbd>→</kbd> - Big step</li>
+                <li><kbd>Home</kbd> / <kbd>End</kbd> - Go to beginning/present</li>
+                <li><kbd>+</kbd> / <kbd>-</kbd> - Increase/decrease speed</li>
+                <li><kbd>Ctrl/Cmd</kbd> + <kbd>S</kbd> - Search</li>
+                <li><kbd>F</kbd> - Fullscreen</li>
+                <li><kbd>I</kbd> - Toggle info panel</li>
+                <li><kbd>?</kbd> - Show this help</li>
+            </ul>
+        `;
+
+        this.showNotification('Keyboard Shortcuts', shortcuts, 10000);
+    }
+
+    /**
+     * Update info panel for year
+     */
+    updateInfoPanelForYear(year) {
+        const panel = document.querySelector('.info-panel-content');
+        if (!panel) return;
+
+        const events = this.dataEngine.getEventsNear(year, 1000000);
+        const era = this.timelineEngine.getEraForYear(year);
+
+        let html = `
+            <div class="info-section">
+                <h3>Current Time</h3>
+                <p class="year-display-large">${this.timelineEngine.formatYear(year)}</p>
+                <p class="era-display">${era ? era.icon + ' ' + era.name : ''}</p>
+            </div>
+        `;
+
+        if (events.length > 0) {
+            html += `
+                <div class="info-section">
+                    <h3>Nearby Events</h3>
+                    <ul class="event-list">
+                        ${events.slice(0, 5).map(event => `
+                            <li class="event-item ${event.type}">
+                                <strong>${event.name}</strong>
+                                <small>${this.timelineEngine.formatYear(event.year)}</small>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        panel.innerHTML = html;
+    }
+
+    /**
+     * Show event detail
+     */
+    showEventDetail(eventData) {
+        const modal = document.createElement('div');
+        modal.className = 'modal active event-detail-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>${eventData.name || 'Event'}</h2>
+                <p class="event-year">${this.timelineEngine.formatYear(eventData.year || 0)}</p>
+                <p>${eventData.description || 'No description available.'}</p>
+                ${eventData.coordinates ? `
+                    <p><strong>Location:</strong> ${eventData.coordinates.lat}°, ${eventData.coordinates.lng}°</p>
+                ` : ''}
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.querySelector('.modal-close').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    /**
+     * Highlight events on timeline
+     */
+    highlightEvents(events) {
+        // Could pulse the event dots or show notifications
+        console.log('Highlighting events:', events);
+    }
+
+    /**
+     * Show notification
+     */
+    showNotification(title, message, duration = 5000) {
+        const notification = document.createElement('div');
+        notification.className = 'app-notification';
+        notification.innerHTML = `
+            <h4>${title}</h4>
+            <div>${message}</div>
+        `;
+
+        document.body.appendChild(notification);
+
+        requestAnimationFrame(() => {
+            notification.classList.add('visible');
+        });
+
+        setTimeout(() => {
+            notification.classList.remove('visible');
+            setTimeout(() => notification.remove(), 500);
+        }, duration);
+    }
+
+    /**
+     * Show welcome message
+     */
+    showWelcomeMessage() {
+        if (localStorage.getItem('geotopia_welcome_shown')) {
+            return;
+        }
+
+        this.showNotification(
+            'Welcome to GEOTOPIA! 🌍',
+            `
+                <p>Explore 4.5 billion years of Earth's history.</p>
+                <p>Press <kbd>?</kbd> for keyboard shortcuts.</p>
+                <p>Click anywhere on the timeline to jump in time!</p>
+            `,
+            8000
+        );
+
+        localStorage.setItem('geotopia_welcome_shown', 'true');
+    }
+
+    // ============================================================
+    // SETTINGS & STATE
+    // ============================================================
+
+    /**
+     * Load settings from localStorage
+     */
+    loadSettings() {
+        const saved = localStorage.getItem('geotopia_settings');
+        if (saved) {
+            try {
+                this.settings = { ...this.settings, ...JSON.parse(saved) };
+            } catch (e) {
+                console.warn('Failed to load settings');
+            }
+        }
+    }
+
+    /**
+     * Save settings
+     */
+    saveSettings(formData) {
+        if (formData instanceof FormData) {
+            for (let [key, value] of formData.entries()) {
+                if (value === 'on') {
+                    this.settings[key] = true;
+                } else if (value === 'off') {
+                    this.settings[key] = false;
+                } else {
+                    this.settings[key] = value;
+                }
+            }
+        }
+
+        localStorage.setItem('geotopia_settings', JSON.stringify(this.settings));
+
+        // Apply settings
+        this.applySettings();
+    }
+
+    /**
+     * Apply settings
+     */
+    applySettings() {
+        // Theme
+        document.body.setAttribute('data-theme', this.settings.theme);
+
+        // Quality
+        if (this.mapEngine) {
+            this.mapEngine.renderQuality = this.settings.quality;
+        }
+
+        // Animations
+        if (!this.settings.animations) {
+            document.body.classList.add('no-animations');
+        } else {
+            document.body.classList.remove('no-animations');
+        }
+    }
+
+    /**
+     * Save current state
+     */
+    saveState() {
+        const state = {
+            currentYear: this.timelineEngine?.currentYear,
+            infoPanelOpen: this.infoPanelOpen,
+            mapMode: this.mapEngine?.mode
+        };
+
+        sessionStorage.setItem('geotopia_state', JSON.stringify(state));
+    }
+
+    /**
+     * Restore state
+     */
+    restoreState() {
+        const saved = sessionStorage.getItem('geotopia_state');
+        if (saved) {
+            try {
+                const state = JSON.parse(saved);
+                if (state.currentYear && this.timelineEngine) {
+                    this.timelineEngine.goToYear(state.currentYear, false);
+                }
+            } catch (e) {
+                console.warn('Failed to restore state');
+            }
+        }
+    }
+
+    /**
+     * Update URL with current year (for sharing)
+     */
+    updateURL(year) {
+        const url = new URL(window.location);
+        url.searchParams.set('year', year);
+        window.history.replaceState({}, '', url);
+    }
+
+    // ============================================================
+    // PERFORMANCE MONITORING
+    // ============================================================
+
+    /**
+     * Start performance monitoring
+     */
+    startPerformanceMonitoring() {
+        let lastTime = performance.now();
+        let frames = 0;
+
+        const monitor = () => {
+            frames++;
+            const now = performance.now();
+
+            if (now >= lastTime + 1000) {
+                this.performanceMetrics.fps = Math.round((frames * 1000) / (now - lastTime));
+                frames = 0;
+                lastTime = now;
+
+                // Log if FPS drops below 30
+                if (this.performanceMetrics.fps < 30) {
+                    console.warn(`⚠️ Low FPS: ${this.performanceMetrics.fps}`);
+                }
+            }
+
+            requestAnimationFrame(monitor);
+        };
+
+        monitor();
+    }
+
+    /**
+     * Show error screen
+     */
+    showErrorScreen(error) {
+        const errorScreen = document.createElement('div');
+        errorScreen.className = 'error-screen';
+        errorScreen.innerHTML = `
+            <div class="error-content">
+                <h1>🌋 Oops! Something went wrong</h1>
+                <p>${error.message || 'Unknown error occurred'}</p>
+                <button onclick="location.reload()">Reload Page</button>
+            </div>
+        `;
+
+        document.body.appendChild(errorScreen);
+    }
+
+    // ============================================================
+    // PUBLIC API
+    // ============================================================
+
+    /**
+     * Go to specific year
+     */
+    goToYear(year) {
+        if (this.timelineEngine) {
+            this.timelineEngine.goToYear(year);
+        }
+    }
+
+    /**
+     * Play timeline
+     */
+    play() {
+        if (this.timelineEngine) {
+            this.timelineEngine.play();
+        }
+    }
+
+    /**
+     * Pause timeline
+     */
+    pause() {
+        if (this.timelineEngine) {
+            this.timelineEngine.pause();
+        }
+    }
+
+    /**
+     * Get current year
+     */
+    getCurrentYear() {
+        return this.timelineEngine?.currentYear || -4500000000;
+    }
+
+    /**
+     * Export data (for sharing/research)
+     */
+    exportData() {
+        const data = {
+            version: this.version,
+            currentYear: this.getCurrentYear(),
+            events: this.dataEngine?.timelineData || [],
+            settings: this.settings
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `geotopia_export_${Date.now()}.json`;
+        a.click();
+    }
 }
 
-// Global access for debugging
-window.GEOTOPIA = {
-  version: '1.0.0',
-  state: () => (typeof state !== 'undefined' && typeof state.getState === 'function' ? state.getState() : null),
-  jumpTo: (year) => (typeof state !== 'undefined' && typeof state.jumpToYear === 'function' ? state.jumpToYear(year) : null),
-  play: () => (typeof state !== 'undefined' && typeof state.play === 'function' ? state.play() : null),
-  pause: () => (typeof state !== 'undefined' && typeof state.pause === 'function' ? state.pause() : null),
-  screenshot: () => (window.geotopiaApp ? window.geotopiaApp.takeScreenshot() : null),
-  export: () => (window.geotopiaApp ? window.geotopiaApp.exportState() : null)
-};
+// ============================================================
+// INITIALIZE APP ON DOM READY
+// ============================================================
 
-console.log('GEOTOPIA v1.0.0 loaded. Type GEOTOPIA in console for debug commands.');
+let app;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        app = new GEOTOPIAApp();
+    });
+} else {
+    app = new GEOTOPIAApp();
+}
+
+// Export for console access
+window.GEOTOPIA = app;
