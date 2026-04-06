@@ -119,6 +119,13 @@ class MapEngine {
         });
         this.renderer.setSize(container.clientWidth, container.clientHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // ⚠️ CRITICAL: Clear container and add canvas
+    console.log('  🧹 Clearing container...');
+    container.innerHTML = '';  // <-- THIS LINE IS CRITICAL
+    container.appendChild(this.renderer.domElement);
+    console.log('  ✓ Renderer created and added to DOM');
+    console.log('  ✓ Canvas dimensions:', this.renderer.domElement.width, 'x', this.renderer.domElement.height);
         
         // Clear container and add canvas
         container.innerHTML = '';
@@ -1029,3 +1036,43 @@ window.testGlobe = function() {
 };
 
 console.log('💡 MAP ENGINE: Run testGlobe() in console to verify THREE.js works');
+
+// Add at the very end of the file, after the mapEngine creation
+
+window.debugMap = function() {
+    console.log('\n🔍 MAP ENGINE DEBUG:');
+    console.log('=====================================');
+    console.log('Mode:', mapEngine.mode);
+    console.log('Scene exists:', !!mapEngine.scene);
+    console.log('Camera exists:', !!mapEngine.camera);
+    console.log('Renderer exists:', !!mapEngine.renderer);
+    console.log('Globe exists:', !!mapEngine.globe);
+    
+    if (mapEngine.scene) {
+        console.log('Scene children count:', mapEngine.scene.children.length);
+        console.log('Scene children:', mapEngine.scene.children.map(c => c.type));
+    }
+    
+    if (mapEngine.globe) {
+        console.log('Globe position:', mapEngine.globe.position);
+        console.log('Globe visible:', mapEngine.globe.visible);
+        console.log('Globe material:', mapEngine.globe.material.type);
+        console.log('Globe material color:', mapEngine.globe.material.color);
+    }
+    
+    if (mapEngine.camera) {
+        console.log('Camera position:', mapEngine.camera.position);
+        console.log('Camera looking at:', mapEngine.camera.rotation);
+    }
+    
+    if (mapEngine.renderer) {
+        console.log('Renderer size:', mapEngine.renderer.getSize(new THREE.Vector2()));
+        console.log('Renderer pixel ratio:', mapEngine.renderer.getPixelRatio());
+        console.log('Renderer DOM element:', mapEngine.renderer.domElement);
+    }
+    
+    console.log('Continent meshes:', mapEngine.currentContinentMeshes.length);
+    console.log('=====================================\n');
+};
+
+console.log('💡 Run debugMap() in console to see map state');
