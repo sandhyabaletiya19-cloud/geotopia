@@ -191,7 +191,7 @@ class GeotopiaApp {
   async initializeDataEngine() {
     console.log('Initializing data engine...');
     
-    if (typeof DataEngine !== 'undefined') {
+    if (typeof DataEngine === 'function') {
       this.dataEngine = new DataEngine();
       await this.dataEngine.loadAll();
       console.log('✓ Data engine ready');
@@ -206,7 +206,7 @@ class GeotopiaApp {
   async initializeMapEngine() {
     console.log('Initializing map engine...');
     
-    if (typeof MapEngine !== 'undefined') {
+    if (typeof MapEngine === 'function') {
       this.mapEngine = new MapEngine();
       await this.mapEngine.initialize();
       console.log('✓ Map engine ready');
@@ -221,7 +221,7 @@ class GeotopiaApp {
   async initializeTimelineEngine() {
     console.log('Initializing timeline engine...');
     
-    if (typeof TimelineEngine !== 'undefined') {
+    if (typeof TimelineEngine === 'function') {
       this.timelineEngine = new TimelineEngine();
       this.timelineEngine.initialize();
       console.log('✓ Timeline engine ready');
@@ -237,19 +237,19 @@ class GeotopiaApp {
     console.log('Initializing UI...');
     
     // Controls (play/pause, speed, etc.)
-    if (typeof UIControls !== 'undefined') {
+    if (typeof UIControls === 'function') {
       this.uiControls = new UIControls();
       this.uiControls.initialize();
     }
     
     // Info panel
-    if (typeof InfoPanel !== 'undefined') {
+    if (typeof InfoPanel === 'function') {
       this.infoPanel = new InfoPanel();
       this.infoPanel.initialize();
     }
     
     // Legend
-    if (typeof LegendUI !== 'undefined') {
+    if (typeof LegendUI === 'function') {
       this.legend = new LegendUI();
       this.legend.initialize();
     }
