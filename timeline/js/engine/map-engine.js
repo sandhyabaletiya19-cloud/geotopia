@@ -1,7 +1,7 @@
 /**
- * GEOTOPIA MAP ENGINE
+ * GEOTOPIA MAP ENGINE - FIXED VERSION
  * 3D Globe with morphing continents + 2D fallback
- * Bharat Ratna worthy rendering
+ * Debugging enabled, CORS-free, guaranteed to show SOMETHING
  */
 
 class MapEngine {
@@ -30,40 +30,52 @@ class MapEngine {
         // Animation
         this.isAnimating = false;
         this.rotationSpeed = 0.001;
+        this.isDragging = false;
         
         // Performance
         this.renderQuality = 'high'; // high, medium, low
         
-        this.init();
+        // Debug
+        this.debugMode = true;
     }
 
     /**
      * Initialize the map engine
      */
     async init() {
+        console.log('🗺️ MAP ENGINE: Starting initialization...');
+        
         const container = document.getElementById('map-container');
         
         if (!container) {
-            console.error('Map container not found');
+            console.error('❌ MAP ENGINE: Container not found!');
             return;
         }
 
+        console.log('✅ MAP ENGINE: Container found:', container);
+
         // Try 3D first, fallback to 2D if WebGL not supported
         if (this.isWebGLAvailable()) {
+            console.log('✅ MAP ENGINE: WebGL available, initializing 3D...');
             await this.init3D(container);
         } else {
+            console.warn('⚠️ MAP ENGINE: WebGL not available, using 2D fallback');
             this.mode = '2d';
             await this.init2D(container);
         }
 
         // Start render loop
+        console.log('🎬 MAP ENGINE: Starting animation loop...');
         this.animate();
         
         // Handle window resize
         window.addEventListener('resize', () => this.onWindowResize());
         
         // Load initial year
+        console.log('📅 MAP ENGINE: Loading initial year...');
         await this.renderYear(this.currentYear);
+        
+        console.log('✅ MAP ENGINE: Initialization complete!');
     }
 
     /**
@@ -72,9 +84,12 @@ class MapEngine {
     isWebGLAvailable() {
         try {
             const canvas = document.createElement('canvas');
-            return !!(window.WebGLRenderingContext && 
-                (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            const available = !!gl;
+            console.log(`🔍 MAP ENGINE: WebGL available: ${available}`);
+            return available;
         } catch (e) {
+            console.error('❌ MAP ENGINE: WebGL check failed:', e);
             return false;
         }
     }
@@ -83,14 +98,18 @@ class MapEngine {
      * Initialize 3D mode (THREE.js)
      */
     async init3D(container) {
+        console.log('🌐 MAP ENGINE: Initializing 3D mode...');
+
         // Scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x000000);
+        this.scene.background = new THREE.Color(0x000011);
+        console.log('  ✓ Scene created');
 
         // Camera
         const aspect = container.clientWidth / container.clientHeight;
         this.camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
         this.camera.position.z = 5;
+        console.log('  ✓ Camera created at position:', this.camera.position);
 
         // Renderer
         this.renderer = new THREE.WebGLRenderer({ 
@@ -99,16 +118,22 @@ class MapEngine {
             powerPreference: 'high-performance'
         });
         this.renderer.setSize(container.clientWidth, container.clientHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Clear container and add canvas
+        container.innerHTML = '';
         container.appendChild(this.renderer.domElement);
+        console.log('  ✓ Renderer created and added to DOM');
 
         // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         this.scene.add(ambientLight);
+        console.log('  ✓ Ambient light added');
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         directionalLight.position.set(5, 3, 5);
         this.scene.add(directionalLight);
+        console.log('  ✓ Directional light added');
 
         // Add stars background
         this.addStarfield();
@@ -119,15 +144,17 @@ class MapEngine {
         // Mouse controls (orbit)
         this.addOrbitControls();
 
-        console.log('3D Map Engine initialized');
+        console.log('✅ MAP ENGINE: 3D initialization complete');
     }
 
     /**
      * Add starfield background
      */
     addStarfield() {
+        console.log('⭐ MAP ENGINE: Adding starfield...');
+        
         const starGeometry = new THREE.BufferGeometry();
-        const starCount = 10000;
+        const starCount = 5000;
         const positions = new Float32Array(starCount * 3);
 
         for (let i = 0; i < starCount * 3; i++) {
@@ -138,42 +165,55 @@ class MapEngine {
         
         const starMaterial = new THREE.PointsMaterial({
             color: 0xffffff,
-            size: 0.1,
+            size: 0.15,
             transparent: true,
             opacity: 0.8
         });
 
         const stars = new THREE.Points(starGeometry, starMaterial);
         this.scene.add(stars);
+        
+        console.log('  ✓ Starfield added with', starCount, 'stars');
     }
 
     /**
      * Create the base globe
      */
     async createGlobe() {
+        console.log('🌍 MAP ENGINE: Creating globe...');
+        
         // Sphere geometry
         const geometry = new THREE.SphereGeometry(2, 64, 64);
         
-        // Ocean material
+        // BRIGHT ocean material so we can see it!
         const oceanMaterial = new THREE.MeshPhongMaterial({
-            color: 0x1a4d7a,
-            transparent: true,
-            opacity: 0.9,
-            shininess: 100
+            color: 0x2a5f8f,      // Deep blue
+            emissive: 0x1a3f5f,   // Self-glow
+            emissiveIntensity: 0.2,
+            shininess: 100,
+            transparent: false
         });
 
         this.globe = new THREE.Mesh(geometry, oceanMaterial);
         this.scene.add(this.globe);
+        
+        console.log('  ✓ Globe mesh created and added to scene');
+        console.log('  ✓ Globe position:', this.globe.position);
+        console.log('  ✓ Globe visible:', this.globe.visible);
 
         // Add atmosphere glow
         this.addAtmosphere();
+        
+        console.log('✅ MAP ENGINE: Globe creation complete');
     }
 
     /**
      * Add atmospheric glow effect
      */
     addAtmosphere() {
-        const atmosphereGeometry = new THREE.SphereGeometry(2.1, 64, 64);
+        console.log('💨 MAP ENGINE: Adding atmosphere...');
+        
+        const atmosphereGeometry = new THREE.SphereGeometry(2.15, 64, 64);
         const atmosphereMaterial = new THREE.ShaderMaterial({
             vertexShader: `
                 varying vec3 vNormal;
@@ -185,7 +225,7 @@ class MapEngine {
             fragmentShader: `
                 varying vec3 vNormal;
                 void main() {
-                    float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
                     gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity;
                 }
             `,
@@ -196,20 +236,25 @@ class MapEngine {
 
         const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
         this.scene.add(atmosphere);
+        
+        console.log('  ✓ Atmosphere glow added');
     }
 
     /**
      * Add orbit controls
      */
     addOrbitControls() {
-        // Simple mouse drag to rotate
+        console.log('🖱️ MAP ENGINE: Setting up orbit controls...');
+        
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
         let rotation = { x: 0, y: 0 };
 
         this.renderer.domElement.addEventListener('mousedown', (e) => {
             isDragging = true;
+            this.isDragging = true;
             previousMousePosition = { x: e.clientX, y: e.clientY };
+            this.renderer.domElement.style.cursor = 'grabbing';
         });
 
         this.renderer.domElement.addEventListener('mousemove', (e) => {
@@ -219,6 +264,9 @@ class MapEngine {
 
                 rotation.y += deltaX * 0.005;
                 rotation.x += deltaY * 0.005;
+
+                // Clamp X rotation
+                rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.x));
 
                 this.globe.rotation.y = rotation.y;
                 this.globe.rotation.x = rotation.x;
@@ -235,6 +283,14 @@ class MapEngine {
 
         this.renderer.domElement.addEventListener('mouseup', () => {
             isDragging = false;
+            this.isDragging = false;
+            this.renderer.domElement.style.cursor = 'grab';
+        });
+
+        this.renderer.domElement.addEventListener('mouseleave', () => {
+            isDragging = false;
+            this.isDragging = false;
+            this.renderer.domElement.style.cursor = 'grab';
         });
 
         // Zoom with mouse wheel
@@ -243,12 +299,18 @@ class MapEngine {
             const delta = e.deltaY * 0.001;
             this.camera.position.z = Math.max(3, Math.min(10, this.camera.position.z + delta));
         });
+
+        this.renderer.domElement.style.cursor = 'grab';
+        
+        console.log('  ✓ Orbit controls ready');
     }
 
     /**
      * Initialize 2D mode (D3.js fallback)
      */
     async init2D(container) {
+        console.log('🗾 MAP ENGINE: Initializing 2D mode...');
+        
         const width = container.clientWidth;
         const height = container.clientHeight;
 
@@ -295,46 +357,57 @@ class MapEngine {
 
         this.svg.call(drag);
 
-        console.log('2D Map Engine initialized');
+        console.log('✅ MAP ENGINE: 2D initialization complete');
     }
 
     /**
      * Render specific year
      */
     async renderYear(year) {
+        console.log(`\n🗓️ MAP ENGINE: Rendering year ${year}...`);
         this.currentYear = year;
 
         // Get continental positions for this year
         const continentalData = await dataEngine.getContinentalPositions(year);
         
+        console.log('📊 MAP ENGINE: Continental data received:', continentalData);
+        
         if (!continentalData) {
-            console.warn('No continental data for year', year);
+            console.error('❌ MAP ENGINE: No continental data for year', year);
             return;
         }
 
         // Determine rendering mode based on year
         const renderMode = this.getRenderMode(year);
+        console.log(`🎨 MAP ENGINE: Render mode: ${renderMode}`);
 
-        switch (renderMode) {
-            case 'molten':
-                await this.renderMoltenEarth();
-                break;
-            case 'early':
-                await this.renderEarlyEarth(continentalData);
-                break;
-            case 'geological':
-                await this.renderGeologicalEarth(continentalData);
-                break;
-            case 'modern':
-                await this.renderModernEarth(continentalData);
-                break;
+        try {
+            switch (renderMode) {
+                case 'molten':
+                    await this.renderMoltenEarth();
+                    break;
+                case 'early':
+                    await this.renderEarlyEarth(continentalData);
+                    break;
+                case 'geological':
+                    await this.renderGeologicalEarth(continentalData);
+                    break;
+                case 'modern':
+                    await this.renderModernEarth(continentalData);
+                    break;
+            }
+
+            // Add events/markers for this year
+            await this.renderEvents(year);
+
+            // Update UI
+            this.updateMapLegend(year, renderMode);
+            
+            console.log('✅ MAP ENGINE: Year rendered successfully\n');
+            
+        } catch (error) {
+            console.error('❌ MAP ENGINE: Error rendering year:', error);
         }
-
-        // Add events/markers for this year
-        await this.renderEvents(year);
-
-        // Update UI
-        this.updateMapLegend(year, renderMode);
     }
 
     /**
@@ -351,90 +424,49 @@ class MapEngine {
      * Render molten Earth (Hadean Eon)
      */
     async renderMoltenEarth() {
+        console.log('🌋 MAP ENGINE: Rendering molten Earth...');
+        
         if (this.mode === '3d') {
             // Clear existing continents
             this.clearContinents();
 
-            // Molten material with animated lava
-            const moltenMaterial = new THREE.ShaderMaterial({
-                uniforms: {
-                    time: { value: 0 },
-                    color1: { value: new THREE.Color(0xff4500) },
-                    color2: { value: new THREE.Color(0x8b0000) }
-                },
-                vertexShader: `
-                    varying vec2 vUv;
-                    varying vec3 vPosition;
-                    void main() {
-                        vUv = uv;
-                        vPosition = position;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                    }
-                `,
-                fragmentShader: `
-                    uniform float time;
-                    uniform vec3 color1;
-                    uniform vec3 color2;
-                    varying vec2 vUv;
-                    varying vec3 vPosition;
-                    
-                    void main() {
-                        float noise = sin(vPosition.x * 5.0 + time) * 
-                                     sin(vPosition.y * 5.0 + time * 0.7) * 
-                                     sin(vPosition.z * 5.0 + time * 0.5);
-                        vec3 color = mix(color1, color2, noise * 0.5 + 0.5);
-                        gl_FragColor = vec4(color, 1.0);
-                    }
-                `
+            // BRIGHT molten material
+            const moltenMaterial = new THREE.MeshPhongMaterial({
+                color: 0xff4500,        // Bright orange-red
+                emissive: 0x8b0000,     // Dark red glow
+                emissiveIntensity: 0.6,
+                shininess: 30
             });
 
             this.globe.material = moltenMaterial;
-
-            // Animate lava
-            const animateLava = () => {
-                if (this.getRenderMode(this.currentYear) === 'molten') {
-                    moltenMaterial.uniforms.time.value += 0.01;
-                    requestAnimationFrame(animateLava);
-                }
-            };
-            animateLava();
+            
+            console.log('  ✓ Molten material applied');
 
         } else {
-            // 2D: Red/orange gradient
-            this.svg.select('circle')
-                .attr('fill', 'url(#molten-gradient)');
-
-            if (!this.svg.select('#molten-gradient').node()) {
-                const gradient = this.svg.append('defs')
-                    .append('radialGradient')
-                    .attr('id', 'molten-gradient');
-                
-                gradient.append('stop')
-                    .attr('offset', '0%')
-                    .attr('stop-color', '#ff6600');
-                
-                gradient.append('stop')
-                    .attr('offset', '100%')
-                    .attr('stop-color', '#8b0000');
-            }
+            // 2D: Red/orange
+            this.svg.select('circle').attr('fill', '#ff4500');
         }
+        
+        console.log('✅ MAP ENGINE: Molten Earth rendered');
     }
 
     /**
      * Render early Earth (Archean - early continents forming)
      */
     async renderEarlyEarth(continentalData) {
+        console.log('🏔️ MAP ENGINE: Rendering early Earth...');
+        
         if (this.mode === '3d') {
             // Darker ocean, proto-continents in brown/grey
             this.globe.material = new THREE.MeshPhongMaterial({
-                color: 0x2a1a5e, // Dark purple ocean
-                transparent: true,
-                opacity: 0.9,
+                color: 0x2a1a5e,      // Dark purple ocean
+                emissive: 0x1a0a3e,
+                emissiveIntensity: 0.2,
                 shininess: 50
             });
 
             await this.renderContinents3D(continentalData, {
-                color: 0x4a3728,
+                color: 0x4a3728,      // Brown
                 height: 0.05,
                 roughness: 0.9
             });
@@ -443,20 +475,24 @@ class MapEngine {
             this.svg.select('circle').attr('fill', '#2a1a5e');
             await this.renderContinents2D(continentalData, '#4a3728');
         }
+        
+        console.log('✅ MAP ENGINE: Early Earth rendered');
     }
 
     /**
      * Render geological Earth (Proterozoic - Cenozoic)
      */
     async renderGeologicalEarth(continentalData) {
+        console.log('🌿 MAP ENGINE: Rendering geological Earth...');
+        
         const era = this.getGeologicalEra(this.currentYear);
         const colors = this.getEraColors(era);
 
         if (this.mode === '3d') {
             this.globe.material = new THREE.MeshPhongMaterial({
                 color: colors.ocean,
-                transparent: true,
-                opacity: 0.9,
+                emissive: colors.ocean,
+                emissiveIntensity: 0.1,
                 shininess: 100
             });
 
@@ -467,26 +503,30 @@ class MapEngine {
             });
 
         } else {
-            this.svg.select('circle').attr('fill', colors.ocean);
-            await this.renderContinents2D(continentalData, colors.land);
+            this.svg.select('circle').attr('fill', `#${colors.ocean.toString(16).padStart(6, '0')}`);
+            await this.renderContinents2D(continentalData, `#${colors.land.toString(16).padStart(6, '0')}`);
         }
+        
+        console.log('✅ MAP ENGINE: Geological Earth rendered');
     }
 
     /**
      * Render modern Earth (last 10,000 years)
      */
     async renderModernEarth(continentalData) {
+        console.log('🌏 MAP ENGINE: Rendering modern Earth...');
+        
         if (this.mode === '3d') {
             // Modern blue ocean
             this.globe.material = new THREE.MeshPhongMaterial({
-                color: 0x1a4d7a,
-                transparent: true,
-                opacity: 0.9,
+                color: 0x1a4d7a,      // Ocean blue
+                emissive: 0x0a2d5a,
+                emissiveIntensity: 0.15,
                 shininess: 100
             });
 
             await this.renderContinents3D(continentalData, {
-                color: 0x3d8b3d,
+                color: 0x3d8b3d,      // Green land
                 height: 0.1,
                 roughness: 0.6
             });
@@ -499,6 +539,8 @@ class MapEngine {
             await this.renderContinents2D(continentalData, '#3d8b3d');
             await this.renderCivilizations2D(this.currentYear);
         }
+        
+        console.log('✅ MAP ENGINE: Modern Earth rendered');
     }
 
     /**
@@ -532,34 +574,61 @@ class MapEngine {
      * Render continents in 3D
      */
     async renderContinents3D(continentalData, style) {
+        console.log('🗺️ MAP ENGINE: Rendering continents in 3D...');
+        console.log('  📦 Data structure:', continentalData);
+        
         // Clear existing continents
         this.clearContinents();
 
-        if (!continentalData.continents && !continentalData.supercontinent && !continentalData.pangaea && !continentalData.laurasia) {
-            // Handle case where continentalData has continent arrays directly
-            for (const [name, points] of Object.entries(continentalData)) {
-                if (name === 'year' || !Array.isArray(points) || points.length === 0) continue;
-                await this.createContinentMesh(points, style);
-            }
-        } else {
-            // Handle structured data
-            const continents = continentalData.continents || 
-                             { supercontinent: continentalData.supercontinent } ||
-                             { pangaea: continentalData.pangaea } ||
-                             { laurasia: continentalData.laurasia, gondwana: continentalData.gondwana };
-
-            for (const [name, points] of Object.entries(continents)) {
-                if (!Array.isArray(points) || points.length === 0) continue;
-                await this.createContinentMesh(points, style);
-            }
+        if (!continentalData) {
+            console.warn('⚠️ MAP ENGINE: No continental data to render');
+            return;
         }
+
+        // Handle different data structures
+        let continentsToRender = {};
+        
+        if (continentalData.continents) {
+            continentsToRender = continentalData.continents;
+        } else if (continentalData.supercontinent) {
+            continentsToRender = { supercontinent: continentalData.supercontinent };
+        } else if (continentalData.pangaea) {
+            continentsToRender = { pangaea: continentalData.pangaea };
+        } else if (continentalData.laurasia || continentalData.gondwana) {
+            continentsToRender = {
+                laurasia: continentalData.laurasia,
+                gondwana: continentalData.gondwana
+            };
+        } else {
+            // Data is directly the continents object
+            continentsToRender = continentalData;
+        }
+
+        console.log('  🌍 Continents to render:', Object.keys(continentsToRender));
+
+        let renderedCount = 0;
+        
+        for (const [name, points] of Object.entries(continentsToRender)) {
+            if (name === 'year' || !Array.isArray(points) || points.length === 0) {
+                continue;
+            }
+            
+            console.log(`  ↳ Rendering ${name} with ${points.length} points`);
+            await this.createContinentMesh(points, style);
+            renderedCount++;
+        }
+        
+        console.log(`✅ MAP ENGINE: Rendered ${renderedCount} continents`);
     }
 
     /**
      * Create a 3D mesh for a continent
      */
     async createContinentMesh(points, style) {
-        if (points.length < 3) return;
+        if (points.length < 3) {
+            console.warn('  ⚠️ Not enough points to create mesh');
+            return;
+        }
 
         // Convert lat/lng points to 3D positions on sphere
         const vertices = [];
@@ -589,14 +658,16 @@ class MapEngine {
 
         const material = new THREE.MeshPhongMaterial({
             color: style.color,
-            roughness: style.roughness,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            shininess: 20
         });
 
         const mesh = new THREE.Mesh(geometry, material);
         mesh.rotation.copy(this.globe.rotation);
         this.scene.add(mesh);
         this.currentContinentMeshes.push(mesh);
+        
+        console.log(`    ✓ Mesh created with ${vertices.length / 3} vertices`);
     }
 
     /**
@@ -634,6 +705,8 @@ class MapEngine {
      * Clear continent meshes
      */
     clearContinents() {
+        console.log(`  🧹 Clearing ${this.currentContinentMeshes.length} continent meshes...`);
+        
         this.currentContinentMeshes.forEach(mesh => {
             this.scene.remove(mesh);
             mesh.geometry.dispose();
@@ -659,6 +732,30 @@ class MapEngine {
                 size: 0.05,
                 type: 'civilization'
             });
+        });
+    }
+
+    /**
+     * Render civilizations in 2D
+     */
+    async renderCivilizations2D(year) {
+        if (year < -10000) return;
+
+        const events = dataEngine.getEventsNear(year, 500);
+        const civilizationEvents = events.filter(e => 
+            e.type === 'civilization' && e.coordinates
+        );
+
+        civilizationEvents.forEach(event => {
+            const coords = this.projection([event.coordinates.lng, event.coordinates.lat]);
+            if (coords) {
+                this.svg.append('circle')
+                    .attr('class', 'civilization-marker')
+                    .attr('cx', coords[0])
+                    .attr('cy', coords[1])
+                    .attr('r', 5)
+                    .attr('fill', '#ffd700');
+            }
         });
     }
 
@@ -729,7 +826,7 @@ class MapEngine {
         requestAnimationFrame(() => this.animate());
 
         if (this.mode === '3d' && this.renderer && this.scene && this.camera) {
-            // Auto-rotate slowly
+            // Auto-rotate slowly (only when not dragging)
             if (!this.isDragging) {
                 this.globe.rotation.y += this.rotationSpeed;
                 this.currentContinentMeshes.forEach(mesh => {
@@ -748,12 +845,12 @@ class MapEngine {
         const container = document.getElementById('map-container');
         if (!container) return;
 
-        if (this.mode === '3d') {
+        if (this.mode === '3d' && this.camera && this.renderer) {
             const aspect = container.clientWidth / container.clientHeight;
             this.camera.aspect = aspect;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(container.clientWidth, container.clientHeight);
-        } else {
+        } else if (this.mode === '2d' && this.svg) {
             const width = container.clientWidth;
             const height = container.clientHeight;
             this.svg.attr('width', width).attr('height', height);
@@ -823,11 +920,20 @@ class MapEngine {
      * Format year for display
      */
     formatYear(year) {
+        if (year === null || year === undefined) return '???';
+
+        const absYear = Math.abs(year);
+
+        if (absYear >= 1000000000) {
+            return `${(absYear / 1000000000).toFixed(1)} Ga`;
+        }
+        if (absYear >= 1000000) {
+            return `${(absYear / 1000000).toFixed(1)} Ma`;
+        }
+        if (absYear >= 10000) {
+            return `${(absYear / 1000).toFixed(0)}K ${year < 0 ? 'BCE' : 'CE'}`;
+        }
         if (year < 0) {
-            const absYear = Math.abs(year);
-            if (absYear > 1000000) {
-                return `${(absYear / 1000000).toFixed(1)} Ma`;
-            }
             return `${absYear.toLocaleString()} BCE`;
         }
         return `${year} CE`;
@@ -844,9 +950,17 @@ class MapEngine {
      * Toggle between 2D and 3D
      */
     toggle2D3D() {
-        // This would reinitialize in the other mode
-        // For now, just a placeholder
-        console.log('Toggle 2D/3D mode');
+        console.log('🔄 MAP ENGINE: Toggling view mode...');
+        // Reinitialize in opposite mode
+        const container = document.getElementById('map-container');
+        if (this.mode === '3d') {
+            this.mode = '2d';
+            this.init2D(container);
+        } else {
+            this.mode = '3d';
+            this.init3D(container);
+        }
+        this.renderYear(this.currentYear);
     }
 
     /**
@@ -854,9 +968,64 @@ class MapEngine {
      */
     setQuality(quality) {
         this.renderQuality = quality;
-        // Would adjust renderer settings
+        console.log(`🎨 MAP ENGINE: Quality set to ${quality}`);
     }
 }
 
 // Create singleton
 const mapEngine = new MapEngine();
+
+// ============================================================
+// EMERGENCY TEST FUNCTION (for debugging)
+// ============================================================
+window.testGlobe = function() {
+    console.log('🧪 Running emergency test globe...');
+    
+    const container = document.getElementById('map-container');
+    if (!container) {
+        console.error('❌ No map container found!');
+        return;
+    }
+    
+    // Scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000033);
+    
+    // Camera
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        container.clientWidth / container.clientHeight,
+        0.1,
+        1000
+    );
+    camera.position.z = 5;
+    
+    // Renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.innerHTML = '';
+    container.appendChild(renderer.domElement);
+    
+    // BRIGHT ORANGE SPHERE
+    const geometry = new THREE.SphereGeometry(2, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff6600 });
+    const sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+    
+    // Light
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 3, 5);
+    scene.add(light);
+    
+    // Animate
+    function animate() {
+        requestAnimationFrame(animate);
+        sphere.rotation.y += 0.01;
+        renderer.render(scene, camera);
+    }
+    animate();
+    
+    console.log('✅ Test globe running! You should see a spinning orange sphere.');
+};
+
+console.log('💡 MAP ENGINE: Run testGlobe() in console to verify THREE.js works');
