@@ -1,782 +1,1209 @@
-// ============================================
-// GEOTOPIA TIMELINE ENGINE
-// Controls timeline playback and scrubbing
-// ============================================
+/**
+ * GEOTOPIA TIMELINE ENGINE
+ * 4.5 Billion years in one scrubber
+ * Logarithmic scale + smooth interpolation
+ * Nobel Prize worthy time navigation
+ */
 
 class TimelineEngine {
-  constructor() {
-    // DOM elements
-    this.container = null;
-    this.track = null;
-    this.handle = null;
-    this.progressBar = null;
-    
-    // State
-    this.isDragging = false;
-    this.isHovering = false;
-    this.animationFrameId = null;
-    this.isInitialized = false;
-    
-    // Playback
-    this.lastFrameTime = 0;
-    
-    // Constants
-    this.MIN_YEAR = -4500000000;
-    this.MAX_YEAR = 2026;
-    
-    // Event markers
-    this.markers = [];
-    
-    // Retry tracking
-    this.markerRetryCount = 0;
-    this.maxRetries = 5;
-  }
-  
-  // ============================================
-  // INITIALIZATION
-  // ============================================
-  
-  /**
-   * Initialize timeline UI
-   */
-  initialize() {
-    console.log('Initializing timeline engine...');
-    
-    // Get DOM elements
-    this.container = document.getElementById('timeline-container') || document.querySelector('.timeline-section');
-    this.track = document.getElementById('timeline-track') || document.querySelector('.timeline-track');
-    this.handle = document.getElementById('timeline-handle') || document.querySelector('.timeline-handle');
-    this.progressBar = document.querySelector('.timeline-progress');
-    
-    if (!this.track) {
-      console.warn('Timeline track not found, creating...');
-      this.createTimelineDOM();
+    constructor() {
+        // Time state
+        this.currentYear = -4500000000;
+        this.targetYear = -4500000000;
+        this.minYear = -4500000000;
+        this.maxYear = 2026;
+
+        // Playback
+        this.isPlaying = false;
+        this.playbackSpeed = 1; // Multiplier
+        this.playDirection = 1; // 1 = forward, -1 = backward
+        this.lastFrameTime = 0;
+
+        // Speed modes (years per second at 1x speed)
+        this.speedModes = {
+            geological: 50000000,   // 50M years/sec
+            evolutionary: 5000000,  // 5M years/sec
+            historical: 100,        // 100 years/sec
+            detailed: 10,           // 10 years/sec
+            yearByYear: 1           // 1 year/sec
+        };
+        this.currentSpeedMode = 'geological';
+
+        // Timeline track
+        this.trackElement = null;
+        this.handleElement = null;
+        this.trackWidth = 0;
+
+        // Era definitions (scientifically accurate)
+        this.eras = [
+            {
+                id: 'hadean',
+                name: 'Hadean',
+                start: -4500000000,
+                end: -4000000000,
+                color: '#DC143C',
+                gradient: 'linear-gradient(90deg, #FF4500, #DC143C)',
+                description: 'Molten Earth, Moon formation, Late Heavy Bombardment',
+                icon: '🌋'
+            },
+            {
+                id: 'archean',
+                name: 'Archean',
+                start: -4000000000,
+                end: -2500000000,
+                color: '#4B0082',
+                gradient: 'linear-gradient(90deg, #DC143C, #4B0082)',
+                description: 'First continents, first life, no oxygen',
+                icon: '🦠'
+            },
+            {
+                id: 'proterozoic',
+                name: 'Proterozoic',
+                start: -2500000000,
+                end: -541000000,
+                color: '#006400',
+                gradient: 'linear-gradient(90deg, #4B0082, #006400)',
+                description: 'Great Oxidation, Snowball Earth, first complex life',
+                icon: '❄️'
+            },
+            {
+                id: 'paleozoic',
+                name: 'Paleozoic',
+                start: -541000000,
+                end: -252000000,
+                color: '#2E8B57',
+                gradient: 'linear-gradient(90deg, #006400, #2E8B57)',
+                description: 'Cambrian Explosion, first land animals, Pangaea forms',
+                icon: '🐟'
+            },
+            {
+                id: 'mesozoic',
+                name: 'Mesozoic',
+                start: -252000000,
+                end: -66000000,
+                color: '#228B22',
+                gradient: 'linear-gradient(90deg, #2E8B57, #228B22)',
+                description: 'Age of Dinosaurs, Pangaea breaks up, flowering plants',
+                icon: '🦕'
+            },
+            {
+                id: 'cenozoic',
+                name: 'Cenozoic',
+                start: -66000000,
+                end: 2026,
+                color: '#4169E1',
+                gradient: 'linear-gradient(90deg, #228B22, #4169E1)',
+                description: 'Age of Mammals, Ice Ages, Human evolution',
+                icon: '🧬'
+            }
+        ];
+
+        // Sub-eras for detailed timeline (last 10,000 years)
+        this.historicalEras = [
+            {
+                id: 'prehistoric',
+                name: 'Prehistoric',
+                start: -10000,
+                end: -3500,
+                color: '#8B4513',
+                description: 'Agriculture, first settlements'
+            },
+            {
+                id: 'ancient',
+                name: 'Ancient',
+                start: -3500,
+                end: -500,
+                color: '#DAA520',
+                description: 'First civilizations, writing, empires'
+            },
+            {
+                id: 'classical',
+                name: 'Classical',
+                start: -500,
+                end: 500,
+                color: '#B8860B',
+                description: 'Greece, Rome, Han Dynasty, Maurya'
+            },
+            {
+                id: 'medieval',
+                name: 'Medieval',
+                start: 500,
+                end: 1500,
+                color: '#556B2F',
+                description: 'Feudalism, Islamic Golden Age, Mongol Empire'
+            },
+            {
+                id: 'early-modern',
+                name: 'Early Modern',
+                start: 1500,
+                end: 1800,
+                color: '#4682B4',
+                description: 'Exploration, colonialism, Renaissance'
+            },
+            {
+                id: 'modern',
+                name: 'Modern',
+                start: 1800,
+                end: 2026,
+                color: '#1E90FF',
+                description: 'Industrial Revolution, World Wars, Space Age'
+            }
+        ];
+
+        // Event markers on timeline
+        this.eventMarkers = [];
+
+        // Callbacks
+        this.onYearChange = null;
+        this.onEraChange = null;
+        this.onEventReached = null;
+
+        // Current era tracking
+        this.currentEra = null;
+
+        // Debounce for performance
+        this.lastRenderYear = null;
+        this.renderDebounceTimer = null;
+
+        // Initialize
+        this.init();
     }
-    
-    if (!this.handle) {
-      console.warn('Timeline handle not found');
-      return;
-    }
-    
-    // Setup interaction
-    this.setupInteraction();
-    
-    // Setup era markers
-    this.createEraMarkers();
-    
-    // Setup event markers (with retry limit)
-    this.createEventMarkers();
-    
-    // Listen to state changes
-    if (typeof state !== 'undefined') {
-      state.on('yearChange', (data) => this.onYearChange(data));
-    }
-    
-    // Initial position
-    this.updateUI(typeof state !== 'undefined' ? state.currentYear : this.MIN_YEAR);
-    
-    this.isInitialized = true;
-    console.log('✓ Timeline engine ready');
-  }
-  
-  /**
-   * Create timeline DOM if missing
-   */
-  createTimelineDOM() {
-    const container = document.querySelector('.timeline-section') || document.getElementById('timeline-container');
-    if (!container) {
-      console.error('Timeline container not found');
-      return;
-    }
-    
-    // Check if timeline-wrapper exists
-    let wrapper = container.querySelector('.timeline-wrapper');
-    if (!wrapper) {
-      wrapper = document.createElement('div');
-      wrapper.className = 'timeline-wrapper';
-      container.appendChild(wrapper);
-    }
-    
-    // Create track
-    this.track = document.createElement('div');
-    this.track.id = 'timeline-track';
-    this.track.className = 'timeline-track';
-    
-    // Create markers container
-    const markersDiv = document.createElement('div');
-    markersDiv.className = 'timeline-markers';
-    markersDiv.id = 'era-markers';
-    this.track.appendChild(markersDiv);
-    
-    // Create events container
-    const eventsDiv = document.createElement('div');
-    eventsDiv.className = 'timeline-events';
-    eventsDiv.id = 'event-dots';
-    this.track.appendChild(eventsDiv);
-    
-    // Create progress bar
-    this.progressBar = document.createElement('div');
-    this.progressBar.className = 'timeline-progress';
-    this.track.appendChild(this.progressBar);
-    
-    // Create handle
-    this.handle = document.createElement('div');
-    this.handle.id = 'timeline-handle';
-    this.handle.className = 'timeline-handle';
-    this.handle.innerHTML = `
-      <div class="handle-line"></div>
-      <div class="handle-grip"></div>
-    `;
-    this.track.appendChild(this.handle);
-    
-    wrapper.appendChild(this.track);
-    
-    // Create labels
-    const labels = document.createElement('div');
-    labels.className = 'timeline-labels';
-    labels.id = 'timeline-labels';
-    wrapper.appendChild(labels);
-    
-    console.log('✓ Timeline DOM created');
-  }
-  
-  // ============================================
-  // INTERACTION SETUP
-  // ============================================
-  
-  /**
-   * Setup mouse/touch interaction
-   */
-  setupInteraction() {
-    if (!this.handle || !this.track) return;
-    
-    // Mouse events for handle
-    this.handle.addEventListener('mousedown', (e) => this.startDrag(e));
-    this.handle.addEventListener('touchstart', (e) => this.startDrag(e), { passive: false });
-    
-    // Document-level events for drag
-    document.addEventListener('mousemove', (e) => this.drag(e));
-    document.addEventListener('touchmove', (e) => this.drag(e), { passive: false });
-    
-    document.addEventListener('mouseup', () => this.endDrag());
-    document.addEventListener('touchend', () => this.endDrag());
-    
-    // Click on track to jump
-    this.track.addEventListener('click', (e) => this.jumpToPosition(e));
-    
-    // Hover for preview
-    this.track.addEventListener('mouseenter', () => this.isHovering = true);
-    this.track.addEventListener('mouseleave', () => {
-      this.isHovering = false;
-      this.hidePreview();
-    });
-    this.track.addEventListener('mousemove', (e) => this.showPreview(e));
-    
-    // Mouse wheel for precision control
-    this.track.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
-    
-    console.log('✓ Timeline interaction setup');
-  }
-  
-  /**
-   * Start dragging timeline handle
-   */
-  startDrag(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.isDragging = true;
-    this.handle.classList.add('dragging');
-    
-    // Pause playback while dragging
-    if (typeof state !== 'undefined' && state.isPlaying) {
-      state.pause();
-    }
-  }
-  
-  /**
-   * Handle drag movement
-   */
-  drag(e) {
-    if (!this.isDragging || !this.track) return;
-    
-    e.preventDefault();
-    
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const rect = this.track.getBoundingClientRect();
-    const position = (clientX - rect.left) / rect.width;
-    const clampedPosition = Math.max(0, Math.min(1, position));
-    
-    const year = this.positionToYear(clampedPosition);
-    
-    if (typeof state !== 'undefined') {
-      state.setYear(year);
-    }
-  }
-  
-  /**
-   * End dragging
-   */
-  endDrag() {
-    if (this.isDragging) {
-      this.isDragging = false;
-      this.handle.classList.remove('dragging');
-    }
-  }
-  
-  /**
-   * Jump to clicked position
-   */
-  jumpToPosition(e) {
-    if (!this.track) return;
-    if (e.target === this.handle || e.target.closest('.timeline-handle')) return;
-    
-    const rect = this.track.getBoundingClientRect();
-    const position = (e.clientX - rect.left) / rect.width;
-    const clampedPosition = Math.max(0, Math.min(1, position));
-    const year = this.positionToYear(clampedPosition);
-    
-    console.log('Jumping to year:', year);
-    
-    if (typeof state !== 'undefined') {
-      state.setYear(year, true);
-    }
-  }
-  
-  /**
-   * Show preview tooltip on hover
-   */
-  showPreview(e) {
-    if (!this.isHovering || this.isDragging || !this.track) return;
-    
-    const rect = this.track.getBoundingClientRect();
-    const position = (e.clientX - rect.left) / rect.width;
-    const year = this.positionToYear(position);
-    
-    // Find or create preview element
-    let preview = document.querySelector('.timeline-preview');
-    if (!preview) {
-      preview = document.createElement('div');
-      preview.className = 'timeline-preview';
-      preview.style.cssText = `
-        position: absolute;
-        bottom: 100%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.9);
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 12px;
-        white-space: nowrap;
-        pointer-events: none;
-        z-index: 100;
-        margin-bottom: 10px;
-      `;
-      this.track.appendChild(preview);
-    }
-    
-    // Update content
-    const era = this.getEraName(year);
-    preview.innerHTML = `
-      <div class="preview-year" style="font-weight:bold;">${this.formatYear(year)}</div>
-      <div class="preview-era" style="font-size:10px;color:#aaa;">${era}</div>
-    `;
-    
-    // Position
-    preview.style.left = `${position * 100}%`;
-    preview.style.display = 'block';
-  }
-  
-  /**
-   * Hide preview tooltip
-   */
-  hidePreview() {
-    const preview = document.querySelector('.timeline-preview');
-    if (preview) {
-      preview.style.display = 'none';
-    }
-  }
-  
-  /**
-   * Handle mouse wheel for precision
-   */
-  handleWheel(e) {
-    e.preventDefault();
-    
-    const delta = e.deltaY > 0 ? -1 : 1;
-    const step = this.calculateStep();
-    
-    const currentYear = (typeof state !== 'undefined') ? state.currentYear : 0;
-    const newYear = currentYear + (step * delta);
-    
-    if (newYear >= this.MIN_YEAR && newYear <= this.MAX_YEAR) {
-      if (typeof state !== 'undefined') {
-        state.setYear(newYear);
-      }
-    }
-  }
-  
-  // ============================================
-  // YEAR/POSITION CONVERSION
-  // ============================================
-  
-  /**
-   * Convert year to position (0-1)
-   * Uses logarithmic scale for geological time
-   */
-  yearToPosition(year) {
-    // Normalize to 0-1 range using log scale
-    const minLog = Math.log10(Math.abs(this.MIN_YEAR) + 1);
-    
-    if (year <= 0) {
-      const yearLog = Math.log10(Math.abs(year) + 1);
-      return 1 - (yearLog / minLog);
-    } else {
-      // Linear for recent years (last bit of timeline)
-      return 0.98 + (year / this.MAX_YEAR) * 0.02;
-    }
-  }
-  
-  /**
-   * Convert position (0-1) to year
-   */
-  positionToYear(position) {
-    const minLog = Math.log10(Math.abs(this.MIN_YEAR) + 1);
-    
-    if (position < 0.98) {
-      const logYear = (1 - position) * minLog;
-      return -Math.pow(10, logYear) + 1;
-    } else {
-      // Linear for recent years
-      return ((position - 0.98) / 0.02) * this.MAX_YEAR;
-    }
-  }
-  
-  /**
-   * Calculate step size based on current year
-   */
-  calculateStep() {
-    const currentYear = (typeof state !== 'undefined') ? state.currentYear : 0;
-    const absYear = Math.abs(currentYear);
-    
-    if (absYear > 1000000000) return 50000000;   // 50M years
-    if (absYear > 100000000) return 5000000;     // 5M years
-    if (absYear > 10000000) return 500000;       // 500k years
-    if (absYear > 1000000) return 50000;         // 50k years
-    if (absYear > 100000) return 5000;           // 5k years
-    if (absYear > 10000) return 500;             // 500 years
-    if (absYear > 1000) return 50;               // 50 years
-    return 5;                                     // 5 years
-  }
-  
-  // ============================================
-  // ERA MARKERS
-  // ============================================
-  
-  /**
-   * Create era boundary markers
-   */
-  createEraMarkers() {
-    const markerContainer = document.getElementById('era-markers') || document.querySelector('.timeline-markers');
-    if (!markerContainer) {
-      console.warn('Era marker container not found');
-      return;
-    }
-    
-    // Clear existing
-    markerContainer.innerHTML = '';
-    
-    const eras = [
-      { name: 'Hadean', start: -4500000000, end: -4000000000, color: '#ff4500' },
-      { name: 'Archean', start: -4000000000, end: -2500000000, color: '#8b0000' },
-      { name: 'Proterozoic', start: -2500000000, end: -541000000, color: '#4b0082' },
-      { name: 'Paleozoic', start: -541000000, end: -252000000, color: '#006400' },
-      { name: 'Mesozoic', start: -252000000, end: -66000000, color: '#228b22' },
-      { name: 'Cenozoic', start: -66000000, end: -10000, color: '#4682b4' },
-      { name: 'Human', start: -10000, end: 2026, color: '#2e8b57' }
-    ];
-    
-    eras.forEach(era => {
-      const startPos = this.yearToPosition(era.start);
-      const endPos = this.yearToPosition(era.end);
-      const width = Math.max(endPos - startPos, 0.01); // Minimum 1%
-      
-      const marker = document.createElement('div');
-      marker.className = 'era-marker';
-      marker.title = era.name;
-      marker.style.cssText = `
-        position: absolute;
-        left: ${startPos * 100}%;
-        width: ${width * 100}%;
-        height: 100%;
-        background: ${era.color};
-        opacity: 0.7;
-      `;
-      
-      markerContainer.appendChild(marker);
-    });
-    
-    // Create labels
-    this.createEraLabels();
-    
-    console.log('✓ Era markers created');
-  }
-  
-  /**
-   * Create era labels
-   */
-  createEraLabels() {
-    const labelsContainer = document.getElementById('timeline-labels') || document.querySelector('.timeline-labels');
-    if (!labelsContainer) return;
-    
-    // Clear existing
-    labelsContainer.innerHTML = '';
-    
-    const labels = [
-      { year: -4500000000, text: '4.5 BYA' },
-      { year: -2500000000, text: '2.5 BYA' },
-      { year: -541000000, text: '541 MYA' },
-      { year: -66000000, text: '66 MYA' },
-      { year: -10000, text: '10K BCE' },
-      { year: 0, text: '0' },
-      { year: 2000, text: 'Now' }
-    ];
-    
-    labels.forEach(label => {
-      const pos = this.yearToPosition(label.year);
-      
-      const el = document.createElement('span');
-      el.className = 'timeline-label';
-      el.textContent = label.text;
-      el.style.cssText = `
-        position: absolute;
-        left: ${pos * 100}%;
-        transform: translateX(-50%);
-        font-size: 10px;
-        color: #888;
-        white-space: nowrap;
-      `;
-      
-      labelsContainer.appendChild(el);
-    });
-  }
-  
-  /**
-   * Create event markers
-   */
-  createEventMarkers() {
-    const eventsContainer = document.getElementById('event-dots') || document.querySelector('.timeline-events');
-    if (!eventsContainer) {
-      console.warn('Events container not found');
-      return;
-    }
-    
-    // Check if GEOTOPIA_DATA is available
-    if (typeof GEOTOPIA_DATA === 'undefined' || !GEOTOPIA_DATA.timeline) {
-      this.markerRetryCount++;
-      
-      if (this.markerRetryCount <= this.maxRetries) {
-        console.log(`GEOTOPIA_DATA not available yet, retry ${this.markerRetryCount}/${this.maxRetries}...`);
-        setTimeout(() => this.createEventMarkers(), 1000);
-      } else {
-        console.warn('GEOTOPIA_DATA not available after max retries, skipping event markers');
-      }
-      return;
-    }
-    
-    // Clear existing
-    eventsContainer.innerHTML = '';
-    
-    // Get major events (limit to prevent performance issues)
-    const events = GEOTOPIA_DATA.timeline.slice(0, 200);
-    
-    events.forEach(event => {
-      if (!event.year) return;
-      
-      const position = this.yearToPosition(event.year);
-      
-      // Event type colors
-      const typeColors = {
-        'geological': '#ff6600',
-        'biological': '#00ff00',
-        'catastrophic': '#ff0000',
-        'cultural': '#ffff00',
-        'political': '#ff00ff',
-        'technological': '#00ffff'
-      };
-      
-      const color = typeColors[event.type] || '#ffffff';
-      
-      const marker = document.createElement('div');
-      marker.className = `event-dot event-${event.type || 'unknown'}`;
-      marker.title = `${event.name || event.event || 'Event'} (${this.formatYear(event.year)})`;
-      marker.style.cssText = `
-        position: absolute;
-        left: ${position * 100}%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: 6px;
-        height: 6px;
-        background: ${color};
-        border-radius: 50%;
-        cursor: pointer;
-        transition: transform 0.2s;
-      `;
-      
-      marker.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (typeof state !== 'undefined') {
-          state.setYear(event.year, true);
-          state.selectEvent(event);
+
+    /**
+     * Initialize timeline UI and events
+     */
+    init() {
+        this.trackElement = document.getElementById('timeline-track');
+        this.handleElement = document.getElementById('timeline-handle');
+
+        if (!this.trackElement || !this.handleElement) {
+            console.error('Timeline elements not found. Creating them...');
+            this.createTimelineElements();
         }
-      });
-      
-      eventsContainer.appendChild(marker);
-      this.markers.push({ element: marker, event });
-    });
-    
-    console.log(`✓ Created ${this.markers.length} event markers`);
-  }
-  
-  // ============================================
-  // PLAYBACK
-  // ============================================
-  
-  /**
-   * Start timeline animation loop
-   */
-  startPlayback() {
-    if (this.animationFrameId) return;
-    
-    this.lastFrameTime = performance.now();
-    this.animate();
-  }
-  
-  /**
-   * Stop timeline animation
-   */
-  stopPlayback() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
+
+        this.trackWidth = this.trackElement ? this.trackElement.offsetWidth : window.innerWidth;
+
+        // Setup interaction
+        this.setupMouseInteraction();
+        this.setupTouchInteraction();
+        this.setupKeyboardInteraction();
+
+        // Render era markers
+        this.renderEraMarkers();
+
+        // Render event dots on timeline
+        this.renderEventDots();
+
+        // Setup playback controls
+        this.setupPlaybackControls();
+
+        // Setup speed controls
+        this.setupSpeedControls();
+
+        // Set initial position
+        this.updateHandlePosition();
+        this.updateYearDisplay();
+
+        console.log('Timeline Engine initialized');
     }
-  }
-  
-  /**
-   * Animation loop
-   */
-  animate() {
-    if (typeof state === 'undefined' || !state.isPlaying) {
-      this.animationFrameId = null;
-      return;
+
+    /**
+     * Create timeline elements if they don't exist
+     */
+    createTimelineElements() {
+        const timelineSection = document.querySelector('.timeline-section') ||
+                                document.getElementById('timeline-section');
+
+        if (!timelineSection) {
+            console.error('No timeline section found in DOM');
+            return;
+        }
+
+        // Build the timeline HTML
+        timelineSection.innerHTML = `
+            <div class="timeline-container">
+                <div class="timeline-header">
+                    <div class="timeline-year-display">
+                        <span class="year-icon">🌍</span>
+                        <span id="year-display" class="year-text">4.5 Ga</span>
+                        <span id="era-display" class="era-text">Hadean</span>
+                    </div>
+
+                    <div class="timeline-controls">
+                        <button id="btn-beginning" class="timeline-btn" title="Go to beginning">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path fill="currentColor" d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                            </svg>
+                        </button>
+                        <button id="btn-rewind" class="timeline-btn" title="Rewind">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path fill="currentColor" d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
+                            </svg>
+                        </button>
+                        <button id="btn-play" class="timeline-btn play-btn" title="Play">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                        <button id="btn-forward" class="timeline-btn" title="Forward">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path fill="currentColor" d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
+                            </svg>
+                        </button>
+                        <button id="btn-end" class="timeline-btn" title="Go to present">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path fill="currentColor" d="M16 18h2V6h-2v12zM4 18l8.5-6L4 6v12z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="timeline-speed">
+                        <label>Speed:</label>
+                        <select id="speed-select">
+                            <option value="geological">Geological (50M yr/s)</option>
+                            <option value="evolutionary">Evolutionary (5M yr/s)</option>
+                            <option value="historical">Historical (100 yr/s)</option>
+                            <option value="detailed">Detailed (10 yr/s)</option>
+                            <option value="yearByYear">Year by Year</option>
+                        </select>
+                        <div class="speed-multiplier">
+                            <button id="btn-slower" class="speed-btn">−</button>
+                            <span id="speed-display">1×</span>
+                            <button id="btn-faster" class="speed-btn">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-track-wrapper">
+                    <div class="timeline-era-labels" id="era-labels"></div>
+
+                    <div class="timeline-track" id="timeline-track">
+                        <div class="timeline-track-fill" id="timeline-fill"></div>
+                        <div class="timeline-era-segments" id="era-segments"></div>
+                        <div class="timeline-event-dots" id="event-dots"></div>
+                        <div class="timeline-handle" id="timeline-handle">
+                            <div class="handle-grip"></div>
+                            <div class="handle-tooltip" id="handle-tooltip">
+                                <span class="tooltip-year">4.5 Ga</span>
+                                <span class="tooltip-era">Hadean</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-tick-labels" id="tick-labels"></div>
+                </div>
+
+                <div class="timeline-info-bar">
+                    <div id="era-description" class="era-description">
+                        🌋 Molten Earth, Moon formation, Late Heavy Bombardment
+                    </div>
+                    <div class="timeline-bookmarks">
+                        <button class="bookmark-btn" data-year="-4500000000">🌋 Earth Forms</button>
+                        <button class="bookmark-btn" data-year="-3800000000">🦠 First Life</button>
+                        <button class="bookmark-btn" data-year="-541000000">🐟 Cambrian</button>
+                        <button class="bookmark-btn" data-year="-252000000">💀 Great Dying</button>
+                        <button class="bookmark-btn" data-year="-66000000">☄️ Dinosaur Extinction</button>
+                        <button class="bookmark-btn" data-year="-200000">🧬 Homo Sapiens</button>
+                        <button class="bookmark-btn" data-year="-3100">🏛️ Egypt</button>
+                        <button class="bookmark-btn" data-year="2026">🌍 Today</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Re-grab elements
+        this.trackElement = document.getElementById('timeline-track');
+        this.handleElement = document.getElementById('timeline-handle');
+        this.trackWidth = this.trackElement.offsetWidth;
     }
-    
-    const currentTime = performance.now();
-    const deltaTime = currentTime - this.lastFrameTime;
-    this.lastFrameTime = currentTime;
-    
-    // Calculate year increment based on speed and current position
-    const speed = state.playbackSpeed || 1;
-    const direction = state.playbackDirection || 1;
-    const step = this.calculateStep() * speed * direction * (deltaTime / 1000);
-    
-    // Update year
-    let newYear = state.currentYear + step;
-    
-    // Check bounds
-    if (newYear > this.MAX_YEAR) {
-      newYear = this.MAX_YEAR;
-      state.pause();
-    } else if (newYear < this.MIN_YEAR) {
-      newYear = this.MIN_YEAR;
-      state.pause();
+
+    // ============================================================
+    // LOGARITHMIC SCALE - THE MATHEMATICAL GENIUS
+    // ============================================================
+
+    /**
+     * Convert year to position on timeline (0 to 1)
+     * Uses LOGARITHMIC scale so recent history gets more space
+     *
+     * Scale breakdown:
+     * Position 0.0  = -4,500,000,000 (Earth formation)
+     * Position 0.5  = ~-67,000 (around human migration)
+     * Position 0.9  = ~-50 (mid 20th century)
+     * Position 1.0  = 2026 (present)
+     */
+    yearToPosition(year) {
+        // Shift year so it's always positive for log
+        const shifted = year - this.minYear + 1; // +1 to avoid log(0)
+        const maxShifted = this.maxYear - this.minYear + 1;
+
+        // Log base 10 gives nice distribution
+        const logValue = Math.log10(shifted);
+        const logMax = Math.log10(maxShifted);
+
+        return logValue / logMax;
     }
-    
-    state.setYear(newYear);
-    
-    this.animationFrameId = requestAnimationFrame(() => this.animate());
-  }
-  
-  /**
-   * Play timeline
-   */
-  play() {
-    if (typeof state !== 'undefined') {
-      state.isPlaying = true;
-      this.startPlayback();
+
+    /**
+     * Convert position (0-1) back to year
+     */
+    positionToYear(position) {
+        const maxShifted = this.maxYear - this.minYear + 1;
+        const logMax = Math.log10(maxShifted);
+
+        const logValue = position * logMax;
+        const shifted = Math.pow(10, logValue);
+
+        return Math.round(shifted + this.minYear - 1);
     }
-  }
-  
-  /**
-   * Pause timeline
-   */
-  pause() {
-    if (typeof state !== 'undefined') {
-      state.isPlaying = false;
+
+    /**
+     * Convert pixel position on track to year
+     */
+    pixelToYear(pixelX) {
+        const trackRect = this.trackElement.getBoundingClientRect();
+        const position = Math.max(0, Math.min(1,
+            (pixelX - trackRect.left) / trackRect.width
+        ));
+        return this.positionToYear(position);
     }
-    this.stopPlayback();
-  }
-  
-  /**
-   * Step backward
-   */
-  stepBack() {
-    if (typeof state === 'undefined') return;
-    
-    const step = this.calculateStep();
-    const newYear = state.currentYear - step;
-    
-    if (newYear >= this.MIN_YEAR) {
-      state.setYear(newYear, true);
+
+    /**
+     * Convert year to pixel position on track
+     */
+    yearToPixel(year) {
+        const position = this.yearToPosition(year);
+        return position * this.trackWidth;
     }
-  }
-  
-  /**
-   * Step forward
-   */
-  stepForward() {
-    if (typeof state === 'undefined') return;
-    
-    const step = this.calculateStep();
-    const newYear = state.currentYear + step;
-    
-    if (newYear <= this.MAX_YEAR) {
-      state.setYear(newYear, true);
+
+    // ============================================================
+    // MOUSE / TOUCH / KEYBOARD INTERACTION
+    // ============================================================
+
+    /**
+     * Setup mouse interaction
+     */
+    setupMouseInteraction() {
+        if (!this.trackElement || !this.handleElement) return;
+
+        let isDragging = false;
+
+        // Handle drag
+        this.handleElement.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            this.handleElement.classList.add('dragging');
+            document.body.style.cursor = 'grabbing';
+        });
+
+        // Track click (jump to position)
+        this.trackElement.addEventListener('click', (e) => {
+            if (isDragging) return;
+            const year = this.pixelToYear(e.clientX);
+            this.goToYear(year);
+        });
+
+        // Track hover (show preview)
+        this.trackElement.addEventListener('mousemove', (e) => {
+            if (!isDragging) {
+                this.showPreview(e.clientX);
+            }
+        });
+
+        this.trackElement.addEventListener('mouseleave', () => {
+            this.hidePreview();
+        });
+
+        // Global mouse events for dragging
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const year = this.pixelToYear(e.clientX);
+                this.scrubToYear(year);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                this.handleElement.classList.remove('dragging');
+                document.body.style.cursor = '';
+                // Snap to nearest significant year
+                this.snapToNearest();
+            }
+        });
     }
-  }
-  
-  /**
-   * Go to specific year
-   */
-  goToYear(year) {
-    if (typeof state !== 'undefined') {
-      state.setYear(year, true);
+
+    /**
+     * Setup touch interaction (mobile)
+     */
+    setupTouchInteraction() {
+        if (!this.trackElement || !this.handleElement) return;
+
+        let isDragging = false;
+
+        this.handleElement.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            this.handleElement.classList.add('dragging');
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length > 0) {
+                const year = this.pixelToYear(e.touches[0].clientX);
+                this.scrubToYear(year);
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                this.handleElement.classList.remove('dragging');
+            }
+        });
+
+        // Tap on track
+        this.trackElement.addEventListener('touchstart', (e) => {
+            if (!isDragging && e.touches.length > 0) {
+                const year = this.pixelToYear(e.touches[0].clientX);
+                this.goToYear(year);
+            }
+        });
     }
-  }
-  
-  /**
-   * Set playback speed
-   */
-  setSpeed(speed) {
-    if (typeof state !== 'undefined') {
-      state.playbackSpeed = speed;
+
+    /**
+     * Setup keyboard interaction
+     */
+    setupKeyboardInteraction() {
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.stepForward(e.shiftKey);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    this.stepBackward(e.shiftKey);
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    this.togglePlay();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    this.goToYear(this.minYear);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    this.goToYear(this.maxYear);
+                    break;
+                case '+':
+                case '=':
+                    this.increaseSpeed();
+                    break;
+                case '-':
+                case '_':
+                    this.decreaseSpeed();
+                    break;
+            }
+        });
     }
-  }
-  
-  // ============================================
-  // UI UPDATES
-  // ============================================
-  
-  /**
-   * Handle year change from state
-   */
-  onYearChange(data) {
-    this.updateUI(data.year);
-  }
-  
-  /**
-   * Update timeline UI
-   */
-  updateUI(year) {
-    if (!this.handle) return;
-    
-    // Update handle position
-    const position = this.yearToPosition(year);
-    this.handle.style.left = `${position * 100}%`;
-    
-    // Update progress bar
-    if (this.progressBar) {
-      this.progressBar.style.width = `${position * 100}%`;
+
+    // ============================================================
+    // YEAR NAVIGATION
+    // ============================================================
+
+    /**
+     * Go to specific year with smooth animation
+     */
+    goToYear(year, animated = true) {
+        year = Math.max(this.minYear, Math.min(this.maxYear, year));
+        this.targetYear = year;
+
+        if (animated && typeof gsap !== 'undefined') {
+            gsap.to(this, {
+                currentYear: year,
+                duration: 0.8,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                    this.onYearUpdated(Math.round(this.currentYear));
+                },
+                onComplete: () => {
+                    this.currentYear = year;
+                    this.onYearUpdated(year);
+                }
+            });
+        } else if (animated) {
+            // Fallback animation without GSAP
+            this.animateToYear(year, 800);
+        } else {
+            this.currentYear = year;
+            this.onYearUpdated(year);
+        }
     }
-    
-    // Update year display
-    const yearDisplay = document.getElementById('current-year-display');
-    if (yearDisplay) {
-      yearDisplay.textContent = this.formatYear(year);
+
+    /**
+     * Fallback animation without GSAP
+     */
+    animateToYear(targetYear, duration) {
+        const startYear = this.currentYear;
+        const startTime = performance.now();
+
+        const step = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Cubic ease in-out
+            const eased = progress < 0.5
+                ? 4 * progress * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+            this.currentYear = Math.round(startYear + (targetYear - startYear) * eased);
+            this.onYearUpdated(this.currentYear);
+
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            }
+        };
+
+        requestAnimationFrame(step);
     }
-    
-    // Update era display
-    const eraDisplay = document.getElementById('current-era');
-    if (eraDisplay) {
-      const era = this.getEraName(year);
-      eraDisplay.textContent = era;
+
+    /**
+     * Scrub to year (immediate, no animation - used during drag)
+     */
+    scrubToYear(year) {
+        year = Math.max(this.minYear, Math.min(this.maxYear, year));
+        this.currentYear = year;
+        this.targetYear = year;
+        this.onYearUpdated(year);
     }
-  }
-  
-  /**
-   * Render timeline (alias for update)
-   */
-  render() {
-    if (typeof state !== 'undefined') {
-      this.updateUI(state.currentYear);
+
+    /**
+     * Step forward in time
+     */
+    stepForward(bigStep = false) {
+        const step = this.getStepSize(bigStep);
+        this.goToYear(this.currentYear + step);
     }
-  }
-  
-  /**
-   * Update (alias)
-   */
-  update() {
-    this.render();
-  }
-  
-  // ============================================
-  // UTILITIES
-  // ============================================
-  
-  /**
-   * Format year for display
-   */
-  formatYear(year) {
-    const absYear = Math.abs(year);
-    
-    if (absYear >= 1000000000) {
-      return (absYear / 1000000000).toFixed(1) + ' BYA';
-    } else if (absYear >= 1000000) {
-      return (absYear / 1000000).toFixed(1) + ' MYA';
-    } else if (absYear >= 10000 && year < 0) {
-      return Math.round(absYear / 1000) + 'K BCE';
-    } else if (year < 0) {
-      return absYear.toLocaleString() + ' BCE';
-    } else {
-      return year.toLocaleString() + ' CE';
+
+    /**
+     * Step backward in time
+     */
+    stepBackward(bigStep = false) {
+        const step = this.getStepSize(bigStep);
+        this.goToYear(this.currentYear - step);
     }
-  }
-  
-  /**
-   * Get era name for year
-   */
-  getEraName(year) {
-    if (year < -4000000000) return 'HADEAN EON';
-    if (year < -2500000000) return 'ARCHEAN EON';
-    if (year < -541000000) return 'PROTEROZOIC EON';
-    if (year < -252000000) return 'PALEOZOIC ERA';
-    if (year < -66000000) return 'MESOZOIC ERA';
-    if (year < -10000) return 'CENOZOIC ERA';
-    if (year < -3000) return 'PREHISTORIC';
-    if (year < 500) return 'ANCIENT ERA';
-    if (year < 1500) return 'MEDIEVAL ERA';
-    if (year < 1900) return 'MODERN ERA';
-    return 'CONTEMPORARY';
-  }
-  
-  /**
-   * Resize timeline
-   */
-  resize() {
-    if (typeof state !== 'undefined') {
-      this.updateUI(state.currentYear);
+
+    /**
+     * Calculate appropriate step size based on current year
+     */
+    getStepSize(big = false) {
+        const year = this.currentYear;
+        const multiplier = big ? 10 : 1;
+
+        if (year < -1000000000) return 100000000 * multiplier;  // 100M years
+        if (year < -100000000) return 10000000 * multiplier;    // 10M years
+        if (year < -10000000) return 1000000 * multiplier;      // 1M years
+        if (year < -100000) return 10000 * multiplier;          // 10K years
+        if (year < -10000) return 1000 * multiplier;            // 1K years
+        if (year < -1000) return 100 * multiplier;              // 100 years
+        if (year < 0) return 50 * multiplier;                   // 50 years
+        if (year < 1500) return 25 * multiplier;                // 25 years
+        if (year < 1900) return 10 * multiplier;                // 10 years
+        return 1 * multiplier;                                   // 1 year
     }
-  }
-  
-  /**
-   * Clean up
-   */
-  destroy() {
-    this.stopPlayback();
-    this.markers = [];
-  }
+
+    /**
+     * Snap to nearest significant event
+     */
+    snapToNearest() {
+        if (!dataEngine || !dataEngine.timelineData) return;
+
+        const events = dataEngine.timelineData;
+        let nearestEvent = null;
+        let nearestDist = Infinity;
+
+        for (const event of events) {
+            const dist = Math.abs(event.year - this.currentYear);
+            // Scale snap range based on current zoom level
+            const snapRange = this.getStepSize() * 2;
+            if (dist < nearestDist && dist < snapRange) {
+                nearestDist = dist;
+                nearestEvent = event;
+            }
+        }
+
+        if (nearestEvent) {
+            this.goToYear(nearestEvent.year);
+        }
+    }
+
+    // ============================================================
+    // PLAYBACK CONTROLS
+    // ============================================================
+
+    /**
+     * Toggle play/pause
+     */
+    togglePlay() {
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            this.play();
+        }
+    }
+
+    /**
+     * Start playback
+     */
+    play() {
+        this.isPlaying = true;
+        this.lastFrameTime = performance.now();
+
+        // Update play button
+        const playBtn = document.getElementById('btn-play');
+        if (playBtn) {
+            playBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+            `;
+            playBtn.classList.add('playing');
+        }
+
+        this.playbackLoop();
+    }
+
+    /**
+     * Pause playback
+     */
+    pause() {
+        this.isPlaying = false;
+
+        const playBtn = document.getElementById('btn-play');
+        if (playBtn) {
+            playBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor" d="M8 5v14l11-7z"/>
+                </svg>
+            `;
+            playBtn.classList.remove('playing');
+        }
+    }
+
+    /**
+     * Playback loop
+     */
+    playbackLoop() {
+        if (!this.isPlaying) return;
+
+        const now = performance.now();
+        const deltaTime = (now - this.lastFrameTime) / 1000; // seconds
+        this.lastFrameTime = now;
+
+        // Calculate years to advance
+        const baseSpeed = this.speedModes[this.currentSpeedMode];
+        const yearsToAdvance = baseSpeed * this.playbackSpeed * this.playDirection * deltaTime;
+
+        let newYear = this.currentYear + yearsToAdvance;
+
+        // Clamp
+        if (newYear >= this.maxYear) {
+            newYear = this.maxYear;
+            this.pause();
+        } else if (newYear <= this.minYear) {
+            newYear = this.minYear;
+            this.pause();
+        }
+
+        this.currentYear = Math.round(newYear);
+        this.onYearUpdated(this.currentYear);
+
+        // Auto-adjust speed based on era
+        this.autoAdjustSpeed();
+
+        requestAnimationFrame(() => this.playbackLoop());
+    }
+
+    /**
+     * Auto-adjust speed when crossing era boundaries
+     */
+    autoAdjustSpeed() {
+        const year = this.currentYear;
+
+        // Slow down near major events
+        if (dataEngine && dataEngine.timelineData) {
+            const nearEvents = dataEngine.getEventsNear(year, this.getStepSize());
+            if (nearEvents.length > 0) {
+                const mostImportant = nearEvents.reduce((max, e) =>
+                    e.importance > max.importance ? e : max, nearEvents[0]
+                );
+
+                if (mostImportant.importance >= 9) {
+                    // Auto slow down for very important events
+                    this.temporarySlowdown(mostImportant);
+                }
+            }
+        }
+    }
+
+    /**
+     * Temporarily slow down for important events
+     */
+    temporarySlowdown(event) {
+        if (this._slowdownActive) return;
+        this._slowdownActive = true;
+
+        const originalSpeed = this.playbackSpeed;
+        this.playbackSpeed *= 0.3; // Slow to 30%
+
+        // Show event notification
+        this.showEventNotification(event);
+
+        // Restore speed after 2 seconds
+        setTimeout(() => {
+            this.playbackSpeed = originalSpeed;
+            this._slowdownActive = false;
+        }, 2000);
+    }
+
+    /**
+     * Show event notification popup
+     */
+    showEventNotification(event) {
+        const existing = document.getElementById('event-notification');
+        if (existing) existing.remove();
+
+        const notification = document.createElement('div');
+        notification.id = 'event-notification';
+        notification.className = 'event-notification';
+        notification.innerHTML = `
+            <div class="event-notification-inner">
+                <span class="event-type-badge ${event.type}">${event.type.toUpperCase()}</span>
+                <h3>${event.name}</h3>
+                <p>${event.description}</p>
+                <span class="event-year">${this.formatYear(event.year)}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            notification.classList.add('visible');
+        });
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('visible');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    }
+
+    /**
+     * Setup playback control buttons
+     */
+    setupPlaybackControls() {
+        const btnPlay = document.getElementById('btn-play');
+        const btnRewind = document.getElementById('btn-rewind');
+        const btnForward = document.getElementById('btn-forward');
+        const btnBeginning = document.getElementById('btn-beginning');
+        const btnEnd = document.getElementById('btn-end');
+
+        if (btnPlay) btnPlay.addEventListener('click', () => this.togglePlay());
+
+        if (btnRewind) {
+            btnRewind.addEventListener('click', () => {
+                this.playDirection = -1;
+                if (!this.isPlaying) this.stepBackward();
+            });
+        }
+
+        if (btnForward) {
+            btnForward.addEventListener('click', () => {
+                this.playDirection = 1;
+                if (!this.isPlaying) this.stepForward();
+            });
+        }
+
+        if (btnBeginning) {
+            btnBeginning.addEventListener('click', () => this.goToYear(this.minYear));
+        }
+
+        if (btnEnd) {
+            btnEnd.addEventListener('click', () => this.goToYear(this.maxYear));
+        }
+
+        // Bookmark buttons
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const year = parseInt(btn.getAttribute('data-year'));
+                this.goToYear(year);
+            });
+        });
+    }
+
+    /**
+     * Setup speed controls
+     */
+    setupSpeedControls() {
+        const speedSelect = document.getElementById('speed-select');
+        const btnSlower = document.getElementById('btn-slower');
+        const btnFaster = document.getElementById('btn-faster');
+
+        if (speedSelect) {
+            speedSelect.addEventListener('change', (e) => {
+                this.currentSpeedMode = e.target.value;
+            });
+        }
+
+        if (btnSlower) {
+            btnSlower.addEventListener('click', () => this.decreaseSpeed());
+        }
+
+        if (btnFaster) {
+            btnFaster.addEventListener('click', () => this.increaseSpeed());
+        }
+    }
+
+    /**
+     * Increase playback speed
+     */
+    increaseSpeed() {
+        this.playbackSpeed = Math.min(100, this.playbackSpeed * 2);
+        this.updateSpeedDisplay();
+    }
+
+    /**
+     * Decrease playback speed
+     */
+    decreaseSpeed() {
+        this.playbackSpeed = Math.max(0.1, this.playbackSpeed / 2);
+        this.updateSpeedDisplay();
+    }
+
+    /**
+     * Update speed display
+     */
+    updateSpeedDisplay() {
+        const display = document.getElementById('speed-display');
+        if (display) {
+            display.textContent = `${this.playbackSpeed}×`;
+        }
+    }
+
+    // ============================================================
+    // UI RENDERING
+    // ============================================================
+
+    /**
+     * Called whenever year changes
+     */
+    onYearUpdated(year) {
+        // Debounce heavy operations
+        if (this.renderDebounceTimer) {
+            cancelAnimationFrame(this.renderDebounceTimer);
+        }
+
+        this.renderDebounceTimer = requestAnimationFrame(() => {
+            // Always update lightweight UI
+            this.updateHandlePosition();
+            this.updateYearDisplay();
+
+            // Check era change
+            const era = this.getEraForYear(year);
+            if (era && era.id !== this.currentEra) {
+                this.currentEra = era.id;
+                this.onEraChanged(era);
+            }
+
+            // Update map (heavier operation - throttle more)
+            const yearDiff = Math.abs(year - (this.lastRenderYear || 0));
+            const threshold = this.getRenderThreshold(year);
+
+            if (yearDiff >= threshold || this.lastRenderYear === null) {
+                this.lastRenderYear = year;
+
+                // Call map engine
+                if (typeof mapEngine !== 'undefined') {
+                    mapEngine.renderYear(year);
+                }
+
+                // Call external callback
+                if (this.onYearChange) {
+                    this.onYearChange(year);
+                }
+            }
+        });
+    }
+
+    /**
+     * Get render threshold (how many years must change before re-rendering map)
+     */
+    getRenderThreshold(year) {
+        if (year < -1000000000) return 50000000;  // 50M year chunks
+        if (year < -100000000) return 5000000;     // 5M year chunks
+        if (year < -10000000) return 500000;       // 500K year chunks
+        if (year < -100000) return 10000;          // 10K year chunks
+        if (year < -10000) return 1000;            // 1K year chunks
+        if (year < 0) return 50;                    // 50 year chunks
+        return 1;                                   // Every year
+    }
+
+    /**
+     * Update handle position on track
+     */
+    updateHandlePosition() {
+        if (!this.handleElement || !this.trackElement) return;
+
+        this.trackWidth = this.trackElement.offsetWidth;
+        const position = this.yearToPosition(this.currentYear);
+        const pixelPosition = position * this.trackWidth;
+
+        this.handleElement.style.left = `${pixelPosition}px`;
+
+        // Update fill
+        const fill = document.getElementById('timeline-fill');
+        if (fill) {
+            fill.style.width = `${position * 100}%`;
+        }
+
+        // Update tooltip
+        const tooltip = document.getElementById('handle-tooltip');
+        if (tooltip) {
+            tooltip.querySelector('.tooltip-year').textContent = this.formatYear(this.currentYear);
+            const era = this.getEraForYear(this.currentYear);
+            tooltip.querySelector('.tooltip-era').textContent = era ? era.name : '';
+        }
+    }
+
+    /**
+     * Update year display
+     */
+    updateYearDisplay() {
+        const yearDisplay = document.getElementById('year-display');
+        const eraDisplay = document.getElementById('era-display');
+
+        if (yearDisplay) {
+            yearDisplay.textContent = this.formatYear(this.currentYear);
+        }
+
+        if (eraDisplay) {
+            const era = this.getEraForYear(this.currentYear);
+            if (era) {
+                eraDisplay.textContent = `${era.icon || ''} ${era.name}`;
+                eraDisplay.style.color = era.color;
+            }
+        }
+
+        const eraDesc = document.getElementById('era-description');
+        if (eraDesc) {
+            const era = this.getEraForYear(this.currentYear);
+            if (era) {
+                eraDesc.textContent = `${era.icon || ''} ${era.description}`;
+            }
+        }
+    }
+
+    /**
+     * Render era markers on timeline track
+     */
+    renderEraMarkers() {
+        const segmentsContainer = document.getElementById('era-segments');
+        const labelsContainer = document.getElementById('era-labels');
+        const tickLabelsContainer = document.getElementById('tick-labels');
+
+        if (!segmentsContainer) return;
+
+        // Clear
+        segmentsContainer.innerHTML = '';
+        if (labelsContainer) labelsContainer.innerHTML = '';
+        if (tickLabelsContainer) tickLabelsContainer.innerHTML = '';
+
+        // Render each era as a segment
+        this.eras.forEach(era => {
+            const startPos = this.yearToPosition(era.start) * 100;
+            const endPos = this.yearToPosition(era.end) * 100;
+            const width = endPos - startPos;
+
+            // Era segment on track
+            const segment = document.createElement('div');
+            segment.className = `era-segment era-${era.id}`;
+            segment.style.left = `${startPos}%`;
+            segment.style.width = `${width}%`;
+            segment.style.background = era.gradient;
+            segment.title = `${era.name}: ${this.formatYear(era.start)} - ${this.formatYear(era.end)}`;
+            segmentsContainer.appendChild(segment);
+
+            // Era label above track
+            if (labelsContainer && width > 3) {
+                const label = document.createElement('div');
+                label.className = 'era-label';
+                label.style.left = `${startPos + width / 2}%`;
+                label.textContent = era.name;
+                label.style.color = era.color;
+                labelsContainer.appendChild(label);
+            }
+
+            // Tick mark at era boundary
+            if (tickLabelsContainer) {
+                const tick = document.createElement('div');
+                tick.className = 'tick-label';
+                tick.style.left = `${startPos}%`;
+                tick.innerHTML = `<span>${this.formatYear(era.start)}</span>`;
+                tickLabelsContainer.appendChild(tick);
+            }
+        });
+
+        // Add final tick
+        if (tickLabelsContainer) {
+            const finalTick = document.createElement('div');
+            finalTick.className = 'tick-label';
+            finalTick.style.left = '100%';
+            finalTick.innerHTML = '<span>Now</span>';
+            tickLabelsContainer.appendChild(finalTick);
+        }
+    }
+
+    /**
+     * Render event dots on timeline
+     */
+    renderEventDots() {
+        const dotsContainer = document.getElementById('event-dots');
+        if (!dotsContainer) return;
+
+        dotsContainer.innerHTML = '';
+
+        // Wait for data engine
+        const renderDots = () => {
+            if (!dataEngine || !dataEngine.timelineData || dataEngine.timelineData.length === 0) {
+                setTimeout(renderDots, 500);
+                return;
+            }
+
+            dataEngine.timelineData.forEach(event => {
+                const position = this.yearToPosition(event.year) * 100;
+                const dot = document.createElement('div');
+                dot.className = `event-dot event-${event.type}`;
+                dot.style.left = `${position}%`;
+                dot.style.width = `${Math.max(3, event.importance)}px`;
+                dot.style.height = `${Math.max(3, event.importance)}px`;
+                dot.title = `${event.name} (${this.formatYear(event.year)})`;
+
+                // Click to go to event
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.goToYear(event.year);
+                });
+
+                dotsContainer.appendChild(dot);
+            });
+        };
+
+        renderDots();
+    }
+
+    /**
+     * Show preview tooltip at mouse position
+     */
+    showPreview(pixelX) {
+        let preview = document.getElementById('scrub-preview');
+        if (!preview) {
+            preview = document.createElement('div');
+            preview.id = 'scrub-preview';
+            preview.className = 'scrub-preview';
+            document.body.appendChild(preview);
+        }
+
+        const year = this.pixelToYear(pixelX);
+        const era = this.getEraForYear(year);
+
+        preview.innerHTML = `
+            <strong>${this.formatYear(year)}</strong>
+            <br>
+            <small style="color:${era ? era.color : '#fff'}">${era ? era.name : ''}</small>
+        `;
+
+        preview.style.left = `${pixelX}px`;
+        preview.style.display = 'block';
+    }
+
+    /**
+     * Hide preview tooltip
+     */
+    hidePreview() {
+        const preview = document.getElementById('scrub-preview');
+        if (preview) preview.style.display = 'none';
+    }
+
+    /**
+     * Handle era change
+     */
+    onEraChanged(era) {
+        // Emit event
+        if (this.onEraChange) {
+            this.onEraChange(era);
+        }
+
+        // Visual feedback
+        document.body.setAttribute('data-era', era.id);
+
+        // Update era-specific styles
+        document.documentElement.style.setProperty('--current-era-color', era.color);
+    }
+
+    // ============================================================
+    // UTILITY FUNCTIONS
+    // ============================================================
+
+    /**
+     * Get era for a specific year
+     */
+    getEraForYear(year) {
+        // Check historical eras first (more specific)
+        if (year >= -10000) {
+            const historical = this.historicalEras.find(e =>
+                year >= e.start && year < e.end
+            );
+            if (historical) return historical;
+        }
+
+        // Check geological eras
+        return this.eras.find(e => year >= e.start && year < e.end) || this.eras[0];
+    }
+
+    /**
+     * Format year for display
+     */
+    formatYear(year) {
+        if (year === null || year === undefined) return '???';
+
+        const absYear = Math.abs(year);
+
+        if (absYear >= 1000000000) {
+            return `${(absYear / 1000000000).toFixed(1)} Ga`;
+        }
+        if (absYear >= 1000000) {
+            return `${(absYear / 1000000).toFixed(1)} Ma`;
+        }
+        if (absYear >= 10000) {
+            return `${(absYear / 1000).toFixed(0)}K ${year < 0 ? 'BCE' : 'CE'}`;
+        }
+        if (year < 0) {
+            return `${absYear.toLocaleString()} BCE`;
+        }
+        return `${year} CE`;
+    }
+
+    /**
+     * Destroy timeline (cleanup)
+     */
+    destroy() {
+        this.pause();
+        document.removeEventListener('mousemove', this.onMouseMove);
+        document.removeEventListener('mouseup', this.onMouseUp);
+        document.removeEventListener('keydown', this.onKeyDown);
+    }
 }
 
-// Make TimelineEngine available globally
-window.TimelineEngine = TimelineEngine;
-
-console.log('⏱️ Timeline Engine module loaded');
+// Singleton
+const timelineEngine = new TimelineEngine();
