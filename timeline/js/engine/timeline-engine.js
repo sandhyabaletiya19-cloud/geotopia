@@ -246,39 +246,148 @@ class TimelineEngine {
       markerContainer.appendChild(label);
     });
   }
+
+  /**
+ * Convert position (0-1) to year
+ */
+percentToYear(percent) {
+  const minYear = -4500000000;
+  const maxYear = 2026;
+  const logMin = Math.log10(Math.abs(minYear) + 1);
+  
+  if (percent < 0.95) {
+    const logYear = (1 - percent) * logMin / 0.95;
+    return -Math.pow(10, logYear) + 1;
+  } else {
+    return ((percent - 0.95) / 0.05) * maxYear;
+  }
+}
   
   /**
    * Create event markers
    */
-  createEventMarkers() {
-    if (typeof GEOTOPIA_DATA === 'undefined') {
-      // Retry when data is loaded
-      setTimeout(() => this.createEventMarkers(), 1000);
-      return;
-    }
-    
-    const markers = GEOTOPIA_DATA.getEventsInRange(this.MIN_YEAR, this.MAX_YEAR);
-    const markerContainer = document.querySelector('.timeline-events');
-    if (!markerContainer) return;
-    
-    markers.forEach(event => {
-      const position = GeoUtils.yearToPosition(event.year);
-      
-      const marker = document.createElement('div');
-      marker.className = `event-dot event-${event.type}`;
-      marker.style.left = `${position * 100}%`;
-      marker.title = `${event.name} (${GeoUtils.formatYear(event.year)})`;
-      
-      marker.addEventListener('click', () => {
-        state.jumpToYear(event.year);
-        state.selectEvent(event);
-      });
-      
-      markerContainer.appendChild(marker);
-      this.markers.push({ element: marker, event });
-    });
+createEventMarkers() {
+  const markerContainer = document.querySelector('.timeline-events') || document.getElementById('event-dots');
+  if (!markerContainer) {
+    console.warn('Event markers container not found');
+    return;
   }
   
+  // Clear existing markers
+  markerContainer.innerHTML = '';
+  
+  // Check if GEOTOPIA_DATA exists and has timeline data
+  if (typeof GEOTOPIA_DATA === 'undefined' || !GEOTOPIA_DATA.timeline) {
+    console.warn('GEOTOPIA_DATA not available yet, retrying...');
+    setTimeout(() => this.createEventMarkers(), 1000);
+    return;
+  }
+  
+  // Get events from timeline (limit to important ones for performance)
+  const allEvents = GEOTOPIA_DATA.timeline || [];
+  
+  // Sample events for markers (too many will slow things down)
+  const sampleRate = Math.max(1, Math.floor(allEvents.length / 100));
+  const events = allEvents.filter((_, index) => index % sampleRate === 0);
+  
+  console.log(`Creating ${events.length} event markers from ${allEvents.length} total events`);
+  
+  events.forEach(event => {
+    if (!event.year) return;
+    
+    const position = this.yearToPercent(event.year);
+    
+    const marker = document.createElement('div');
+    marker.className = `event-dot event-${event.type || 'default'}`;
+    marker.style.cssText = `
+      position: absolute;
+      left: ${position * 100}%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: ${this.getEventColor(event.type)};
+      cursor: pointer;
+      transition: transform 0.2s;
+    `;
+    marker.title = `${event.name || event.event || 'Event'} (${this.formatYear(event.year)})`;
+    
+    marker.addEventListener('click', () => {
+      if (typeof state !== 'undefined' && typeof state.setYear === 'function') {
+        state.setYear(event.year, true);
+      }
+    });
+    
+    marker.addEventListener('mouseenter', () => {
+      marker.style.transform = 'translate(-50%, -50%) scale(2)';
+    });
+    
+    marker.addEventListener('mouseleave', () => {
+      marker.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+    
+    markerContainer.appendChild(marker);
+    this.markers.push({ element: marker, event });
+  });
+  
+  console.log('✓ Event markers created');
+}
+
+/**
+ * Get color for event type
+ */
+getEventColor(type) {
+  const colors = {
+    'geological': '#ff6600',
+    'biological': '#00ff00',
+    'catastrophic': '#ff0000',
+    'political': '#ffcc00',
+    'cultural': '#cc66ff',
+    'technological': '#00ccff',
+    'military': '#ff3333',
+    'default': '#ffffff'
+  };
+  return colors[type] || colors['default'];
+}
+
+/**
+ * Format year for display
+ */
+formatYear(year) {
+  if (year < -1000000000) {
+    return (Math.abs(year) / 1000000000).toFixed(1) + ' BYA';
+  }
+  if (year < -1000000) {
+    return (Math.abs(year) / 1000000).toFixed(1) + ' MYA';
+  }
+  if (year < -10000) {
+    return Math.round(Math.abs(year) / 1000) + 'K BCE';
+  }
+  if (year < 0) {
+    return Math.abs(year) + ' BCE';
+  }
+  return year + ' CE';
+}
+
+/**
+ * Convert year to position (0-1)
+ */
+yearToPercent(year) {
+  // Logarithmic scale for geological time
+  const minYear = -4500000000;
+  const maxYear = 2026;
+  
+  if (year <= 0) {
+    // For negative years (BCE), use log scale
+    const logMin = Math.log10(Math.abs(minYear) + 1);
+    const logYear = Math.log10(Math.abs(year) + 1);
+    return 1 - (logYear / logMin) * 0.95;
+  } else {
+    // For positive years (CE), linear in last 5%
+    return 0.95 + (year / maxYear) * 0.05;
+  }
+}
   // ============================================
   // PLAYBACK
   // ============================================
