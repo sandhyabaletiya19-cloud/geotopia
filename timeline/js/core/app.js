@@ -156,30 +156,33 @@ class GeotopiaApp {
   /**
    * Hide loading screen and reveal app
    */
-  async completeLoading() {
-    console.log('Completing loading...');
-    
-    const loadingScreen = document.getElementById('loading-screen');
-    
-    // Fade out loading screen
+ async completeLoading() {
+  console.log('Completing loading...');
+  
+  const loadingScreen = document.getElementById('loading-screen');
+  const mainContent = document.getElementById('geotopia-app');
+  
+  if (loadingScreen) {
     await gsap.to(loadingScreen, {
       opacity: 0,
       duration: 1,
       ease: 'power2.out'
     });
-    
     loadingScreen.style.display = 'none';
-    
-    // Fade in main app
-    const mainContent = document.getElementById('geotopia-app');
+  }
+  
+  if (mainContent) {
     await gsap.from(mainContent, {
       opacity: 0,
       duration: 1.5,
       ease: 'power2.out'
     });
-    
+  }
+  
+  if (typeof state !== 'undefined' && state.completeLoading) {
     state.completeLoading();
   }
+}
   
   // ============================================
   // ENGINE INITIALIZATION
