@@ -1921,7 +1921,7 @@ const AMERICAS_CIVILIZATIONS = {
         'Brain surgery (trepanning)',
         'Llama domestication',
         'Central planned economy',
-        'MIT'A labor tax system'
+        'MIT''a labor tax system'
       ],
       
       keyFigures: [
