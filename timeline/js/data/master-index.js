@@ -1,4 +1,4 @@
-// js/data/_master-index.js
+// js/data/master-index.js
 /**
  * ═══════════════════════════════════════════════════════════════
  *  GEOTOPIA DATA ENGINE - MASTER INDEX
@@ -169,15 +169,79 @@ class GEOTOPIADataEngine {
    * Register modern era data module
    */
   registerModernEra(modernData) {
-    console.log(`🌍 Registering modern era: ${modernData.period}`);
+    const eraName = modernData.period || modernData.era;
+    console.log(`🌍 Registering modern era: ${eraName}`);
     
-    modernData.events.forEach(event => {
+    // Handle different event array names
+    const events = modernData.events || 
+                   modernData.globalEvents || 
+                   modernData.conflicts || 
+                   modernData.phases || 
+                   [];
+    
+    events.forEach(event => {
       this.addEventToTimeline({
         ...event,
         category: 'modern',
-        period: modernData.period
+        period: eraName
       });
     });
+    
+    // Handle empires if present (Colonial Period)
+    if (modernData.empires) {
+      modernData.empires.forEach(empire => {
+        if (empire.events) {
+          empire.events.forEach(event => {
+            this.addEventToTimeline({
+              ...event,
+              category: 'modern',
+              period: eraName,
+              empire: empire.name
+            });
+          });
+        }
+        if (empire.timeline) {
+          empire.timeline.forEach(event => {
+            this.addEventToTimeline({
+              ...event,
+              category: 'modern',
+              period: eraName,
+              empire: empire.name
+            });
+          });
+        }
+      });
+    }
+    
+    // Handle superpowers if present (Cold War)
+    if (modernData.superpowers) {
+      modernData.superpowers.forEach(superpower => {
+        if (superpower.events) {
+          superpower.events.forEach(event => {
+            this.addEventToTimeline({
+              ...event,
+              category: 'modern',
+              period: eraName,
+              superpower: superpower.name
+            });
+          });
+        }
+      });
+    }
+    
+    // Handle proxyWars if present (Cold War)
+    if (modernData.proxyWars) {
+      modernData.proxyWars.forEach(war => {
+        this.addEventToTimeline({
+          year: war.year || war.timeRange?.start,
+          event: war.name || war.conflict,
+          type: 'military',
+          category: 'modern',
+          period: eraName,
+          ...war
+        });
+      });
+    }
     
     return this;
   }
@@ -191,6 +255,16 @@ class GEOTOPIADataEngine {
     } else if (data.civilizations) {
       return this.registerCivilization(data);
     } else if (data.period) {
+      return this.registerModernEra(data);
+    } else if (data.era) {
+      return this.registerModernEra(data);
+    } else if (data.empires) {
+      return this.registerModernEra(data);
+    } else if (data.conflicts) {
+      return this.registerModernEra(data);
+    } else if (data.superpowers) {
+      return this.registerModernEra(data);
+    } else if (data.phases) {
       return this.registerModernEra(data);
     } else {
       console.warn('⚠️ Unknown data format:', data);
@@ -206,6 +280,11 @@ class GEOTOPIADataEngine {
    * Add event to master timeline with indexing
    */
   addEventToTimeline(event) {
+    // Skip if no year
+    if (event.year === undefined || event.year === null) {
+      return;
+    }
+    
     // Assign unique ID if not present
     if (!event.id) {
       event.id = this.generateEventId(event);
@@ -236,7 +315,7 @@ class GEOTOPIADataEngine {
    */
   generateEventId(event) {
     const prefix = event.category || 'event';
-    const year = event.year;
+    const year = event.year || 0;
     const random = Math.random().toString(36).substr(2, 9);
     return `${prefix}-${year}-${random}`;
   }
@@ -274,12 +353,14 @@ class GEOTOPIADataEngine {
    */
   buildReverseInfluences() {
     for (const [civId, influences] of Object.entries(this.influenceGraph)) {
-      influences.influenced.forEach(targetCivId => {
-        if (!this.influenceGraph[targetCivId]) {
-          this.influenceGraph[targetCivId] = { influenced: [], influencedBy: [] };
-        }
-        this.influenceGraph[targetCivId].influencedBy.push(civId);
-      });
+      if (influences && influences.influenced) {
+        influences.influenced.forEach(targetCivId => {
+          if (!this.influenceGraph[targetCivId]) {
+            this.influenceGraph[targetCivId] = { influenced: [], influencedBy: [] };
+          }
+          this.influenceGraph[targetCivId].influencedBy.push(civId);
+        });
+      }
     }
   }
 
@@ -339,7 +420,7 @@ class GEOTOPIADataEngine {
    * Infer theme from cluster events
    */
   inferClusterTheme(events) {
-    const types = events.map(e => e.type);
+    const types = events.map(e => e.type).filter(Boolean);
     const mostCommon = this.mostCommon(types);
     
     const themeMap = {
@@ -406,6 +487,8 @@ class GEOTOPIADataEngine {
   addToSpatialIndex(event) {
     const GRID_SIZE = 10;
     const { lat, lng } = event.coordinates;
+    
+    if (lat === undefined || lng === undefined) return;
     
     const gridLat = Math.floor(lat / GRID_SIZE) * GRID_SIZE;
     const gridLng = Math.floor(lng / GRID_SIZE) * GRID_SIZE;
@@ -590,7 +673,7 @@ class GEOTOPIADataEngine {
     const active = [];
     
     for (const [civId, civ] of this.civilizations.entries()) {
-      if (civ.timespan.start <= year && civ.timespan.end >= year) {
+      if (civ.timespan && civ.timespan.start <= year && civ.timespan.end >= year) {
         active.push({
           id: civId,
           ...civ,
@@ -667,10 +750,10 @@ class GEOTOPIADataEngine {
       const influences = this.influenceGraph[civId];
       
       if (depth > 0) {
-        chain.influenced = influences.influenced.map(targetId => 
+        chain.influenced = (influences.influenced || []).map(targetId => 
           this.getInfluenceChain(targetId, depth - 1)
         );
-        chain.influencedBy = influences.influencedBy.map(sourceId => 
+        chain.influencedBy = (influences.influencedBy || []).map(sourceId => 
           this.getInfluenceChain(sourceId, depth - 1)
         );
       }
@@ -720,9 +803,13 @@ class GEOTOPIADataEngine {
    * Find most common element in array
    */
   mostCommon(arr) {
+    if (!arr || arr.length === 0) return null;
+    
     const counts = {};
     arr.forEach(item => {
-      counts[item] = (counts[item] || 0) + 1;
+      if (item) {
+        counts[item] = (counts[item] || 0) + 1;
+      }
     });
     
     let max = 0;
