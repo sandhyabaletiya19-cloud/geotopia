@@ -63,7 +63,7 @@ class GeotopiaApp {
       await this.completeLoading();
       
       // Phase 10: Start autoplay if enabled
-      if (state.settings.autoplay) {
+      if (typeof state !== 'undefined' && state.settings && state.settings.autoplay) {
         this.startAutoplay();
       }
       
@@ -119,9 +119,13 @@ class GeotopiaApp {
     }
     
     // Check WebGL support
-    if (!GeoUtils.supportsWebGL()) {
-      console.warn('⚠ WebGL not supported - 3D features disabled');
-      state.mapMode = '2d'; // Force 2D mode
+    if (typeof GeoUtils !== 'undefined' && typeof GeoUtils.supportsWebGL === 'function') {
+      if (!GeoUtils.supportsWebGL()) {
+        console.warn('⚠ WebGL not supported - 3D features disabled');
+        if (typeof state !== 'undefined') {
+          state.mapMode = '2d';
+        }
+      }
     }
     
     return true;
@@ -138,51 +142,132 @@ class GeotopiaApp {
     console.log('Starting loading sequence...');
     
     const loadingScreen = document.getElementById('loading-screen');
-    if (!loadingScreen) return;
+    if (!loadingScreen) {
+      console.warn('Loading screen element not found');
+      return;
+    }
     
     loadingScreen.style.display = 'flex';
+    loadingScreen.style.opacity = '1';
     
     // Create animation engine instance
-    // (Will be implemented in animation-engine.js)
-    if (typeof LoadingSequence !== 'undefined') {
-      const loader = new LoadingSequence();
-      await loader.play();
+    if (typeof LoadingSequence === 'function') {
+      try {
+        const loader = new LoadingSequence();
+        await loader.play();
+      } catch (error) {
+        console.warn('Loading sequence error:', error);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     } else {
       // Fallback: simple delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
   
   /**
    * Hide loading screen and reveal app
    */
- async completeLoading() {
-  console.log('Completing loading...');
-  
-  const loadingScreen = document.getElementById('loading-screen');
-  const mainContent = document.getElementById('geotopia-app');
-  
-  if (loadingScreen) {
-    await gsap.to(loadingScreen, {
-      opacity: 0,
-      duration: 1,
-      ease: 'power2.out'
-    });
-    loadingScreen.style.display = 'none';
+  async completeLoading() {
+    console.log('Completing loading...');
+    
+    const loadingScreen = document.getElementById('loading-screen');
+    const mainContent = document.getElementById('geotopia-app');
+    
+    console.log('Loading screen element:', loadingScreen);
+    console.log('Main content element:', mainContent);
+    
+    // Hide loading screen
+    if (loadingScreen) {
+      try {
+        await gsap.to(loadingScreen, {
+          opacity: 0,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      } catch (error) {
+        console.warn('Loading screen animation error:', error);
+      }
+      loadingScreen.style.display = 'none';
+      loadingScreen.style.visibility = 'hidden';
+      loadingScreen.style.pointerEvents = 'none';
+      loadingScreen.style.zIndex = '-1';
+    }
+    
+    // Show main app
+    if (mainContent) {
+      mainContent.style.display = 'block';
+      mainContent.style.visibility = 'visible';
+      mainContent.style.opacity = '1';
+      mainContent.style.zIndex = '1';
+      console.log('✓ Main content shown');
+    } else {
+      console.error('ERROR: #geotopia-app element not found!');
+      // Create fallback container
+      this.createFallbackUI();
+    }
+    
+    // Force map redraw after a short delay
+    setTimeout(() => {
+      if (this.mapEngine) {
+        if (typeof this.mapEngine.resize === 'function') {
+          this.mapEngine.resize();
+        }
+        if (typeof this.mapEngine.render === 'function') {
+          this.mapEngine.render();
+        }
+        if (typeof this.mapEngine.drawMap === 'function') {
+          this.mapEngine.drawMap();
+        }
+        console.log('✓ Map refreshed');
+      }
+      
+      if (this.timelineEngine) {
+        if (typeof this.timelineEngine.render === 'function') {
+          this.timelineEngine.render();
+        }
+        if (typeof this.timelineEngine.update === 'function') {
+          this.timelineEngine.update();
+        }
+        console.log('✓ Timeline refreshed');
+      }
+    }, 200);
+    
+    // Complete loading state
+    if (typeof state !== 'undefined' && typeof state.completeLoading === 'function') {
+      state.completeLoading();
+    }
   }
   
-  if (mainContent) {
-    await gsap.from(mainContent, {
-      opacity: 0,
-      duration: 1.5,
-      ease: 'power2.out'
-    });
+  /**
+   * Create fallback UI if main content doesn't exist
+   */
+  createFallbackUI() {
+    console.log('Creating fallback UI...');
+    
+    const app = document.createElement('div');
+    app.id = 'geotopia-app';
+    app.style.cssText = 'width:100%;height:100vh;position:relative;background:#0a1628;';
+    
+    const mapContainer = document.createElement('div');
+    mapContainer.id = 'map-container';
+    mapContainer.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;';
+    
+    const mapSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    mapSvg.id = 'map-svg';
+    mapSvg.style.cssText = 'width:100%;height:100%;background:#0a1628;';
+    
+    const timeline = document.createElement('div');
+    timeline.id = 'timeline-container';
+    timeline.style.cssText = 'position:absolute;bottom:0;left:0;width:100%;height:120px;background:rgba(0,0,0,0.8);';
+    
+    mapContainer.appendChild(mapSvg);
+    app.appendChild(mapContainer);
+    app.appendChild(timeline);
+    document.body.appendChild(app);
+    
+    console.log('✓ Fallback UI created');
   }
-  
-  if (typeof state !== 'undefined' && state.completeLoading) {
-    state.completeLoading();
-  }
-}
   
   // ============================================
   // ENGINE INITIALIZATION
@@ -212,6 +297,19 @@ class GeotopiaApp {
     if (typeof MapEngine === 'function') {
       this.mapEngine = new MapEngine();
       await this.mapEngine.initialize();
+      
+      // Force initial render
+      setTimeout(() => {
+        if (this.mapEngine) {
+          if (typeof this.mapEngine.render === 'function') {
+            this.mapEngine.render();
+          }
+          if (typeof this.mapEngine.drawMap === 'function') {
+            this.mapEngine.drawMap();
+          }
+        }
+      }, 100);
+      
       console.log('✓ Map engine ready');
     } else {
       console.warn('MapEngine not loaded yet');
@@ -270,56 +368,66 @@ class GeotopiaApp {
   connectEventListeners() {
     console.log('Connecting event listeners...');
     
-    // Timeline changes → Update map
-    state.on('yearChange', (data) => {
-      if (this.mapEngine) {
-        this.mapEngine.updateYear(data.year);
-      }
-      if (this.infoPanel) {
-        this.infoPanel.updateYear(data.year);
-      }
-    });
-    
-    // Map updates → Redraw
-    state.on('mapUpdate', (data) => {
-      if (this.mapEngine) {
-        this.mapEngine.update(data);
-      }
-    });
-    
-    // Selection changes → Show info
-    state.on('selectionChange', (data) => {
-      if (this.infoPanel) {
-        this.infoPanel.show(data);
-      }
-    });
-    
-    // Filter changes → Redraw map
-    state.on('filterChange', (data) => {
-      if (this.mapEngine) {
-        this.mapEngine.applyFilters(data);
-      }
-    });
-    
-    // Settings changes → Apply
-    state.on('settingsChange', (data) => {
-      this.applySettings(data);
-    });
+    // Check if state exists and has event system
+    if (typeof state !== 'undefined' && typeof state.on === 'function') {
+      
+      // Timeline changes → Update map
+      state.on('yearChange', (data) => {
+        if (this.mapEngine && typeof this.mapEngine.updateYear === 'function') {
+          this.mapEngine.updateYear(data.year);
+        }
+        if (this.infoPanel && typeof this.infoPanel.updateYear === 'function') {
+          this.infoPanel.updateYear(data.year);
+        }
+      });
+      
+      // Map updates → Redraw
+      state.on('mapUpdate', (data) => {
+        if (this.mapEngine && typeof this.mapEngine.update === 'function') {
+          this.mapEngine.update(data);
+        }
+      });
+      
+      // Selection changes → Show info
+      state.on('selectionChange', (data) => {
+        if (this.infoPanel && typeof this.infoPanel.show === 'function') {
+          this.infoPanel.show(data);
+        }
+      });
+      
+      // Filter changes → Redraw map
+      state.on('filterChange', (data) => {
+        if (this.mapEngine && typeof this.mapEngine.applyFilters === 'function') {
+          this.mapEngine.applyFilters(data);
+        }
+      });
+      
+      // Settings changes → Apply
+      state.on('settingsChange', (data) => {
+        this.applySettings(data);
+      });
+    }
     
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
     
-    // Window resize
-    window.addEventListener('resize', GeoUtils.debounce(() => {
-      if (this.mapEngine) {
-        this.mapEngine.resize();
-      }
-    }, 250));
+    // Window resize with debounce
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (this.mapEngine && typeof this.mapEngine.resize === 'function') {
+          this.mapEngine.resize();
+        }
+      }, 250);
+    });
     
     // Visibility change (pause when tab hidden)
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden && state.isPlaying) {
-        state.pause();
+      if (document.hidden && typeof state !== 'undefined' && state.isPlaying) {
+        if (typeof state.pause === 'function') {
+          state.pause();
+        }
       }
     });
   }
@@ -334,10 +442,17 @@ class GeotopiaApp {
       return;
     }
     
+    // Check if state exists
+    if (typeof state === 'undefined') {
+      return;
+    }
+    
     switch(e.key) {
       case ' ':
         e.preventDefault();
-        state.togglePlay();
+        if (typeof state.togglePlay === 'function') {
+          state.togglePlay();
+        }
         break;
         
       case 'ArrowLeft':
@@ -351,8 +466,12 @@ class GeotopiaApp {
         break;
         
       case 'Escape':
-        state.closeModals();
-        state.clearSelection();
+        if (typeof state.closeModals === 'function') {
+          state.closeModals();
+        }
+        if (typeof state.clearSelection === 'function') {
+          state.clearSelection();
+        }
         break;
         
       case 'f':
@@ -360,24 +479,32 @@ class GeotopiaApp {
         break;
         
       case 's':
-        state.openModal('search');
+        if (typeof state.openModal === 'function') {
+          state.openModal('search');
+        }
         break;
         
       case '?':
-        state.openModal('about');
+        if (typeof state.openModal === 'function') {
+          state.openModal('about');
+        }
         break;
         
       case 'z':
         if (e.ctrlKey || e.metaKey) {
           e.preventDefault();
-          state.undo();
+          if (typeof state.undo === 'function') {
+            state.undo();
+          }
         }
         break;
         
       case 'y':
         if (e.ctrlKey || e.metaKey) {
           e.preventDefault();
-          state.redo();
+          if (typeof state.redo === 'function') {
+            state.redo();
+          }
         }
         break;
     }
@@ -391,12 +518,17 @@ class GeotopiaApp {
    * Step backward in time
    */
   stepBackward() {
-    const currentEra = state.getCurrentEra();
+    if (typeof state === 'undefined') return;
+    
+    const currentEra = typeof state.getCurrentEra === 'function' ? state.getCurrentEra() : null;
     const step = this.calculateStep(currentEra);
-    const newYear = state.currentYear - step;
+    const currentYear = state.currentYear || 2000;
+    const newYear = currentYear - step;
     
     if (newYear >= -4500000000) {
-      state.setYear(newYear, true);
+      if (typeof state.setYear === 'function') {
+        state.setYear(newYear, true);
+      }
     }
   }
   
@@ -404,12 +536,17 @@ class GeotopiaApp {
    * Step forward in time
    */
   stepForward() {
-    const currentEra = state.getCurrentEra();
+    if (typeof state === 'undefined') return;
+    
+    const currentEra = typeof state.getCurrentEra === 'function' ? state.getCurrentEra() : null;
     const step = this.calculateStep(currentEra);
-    const newYear = state.currentYear + step;
+    const currentYear = state.currentYear || 2000;
+    const newYear = currentYear + step;
     
     if (newYear <= 2026) {
-      state.setYear(newYear, true);
+      if (typeof state.setYear === 'function') {
+        state.setYear(newYear, true);
+      }
     }
   }
   
@@ -419,7 +556,8 @@ class GeotopiaApp {
    * @returns {number}
    */
   calculateStep(era) {
-    const absYear = Math.abs(state.currentYear);
+    const currentYear = (typeof state !== 'undefined' && state.currentYear) ? state.currentYear : 2000;
+    const absYear = Math.abs(currentYear);
     
     if (absYear > 1000000000) return 10000000; // 10 million years
     if (absYear > 100000000) return 1000000;   // 1 million years
@@ -434,27 +572,39 @@ class GeotopiaApp {
    * Start autoplay
    */
   startAutoplay() {
+    if (typeof state === 'undefined') return;
+    if (typeof state.play !== 'function') return;
+    
     state.play(1);
     
     // Animate through history
     const animate = () => {
       if (!state.isPlaying) return;
       
-      const currentEra = state.getCurrentEra();
-      const step = this.calculateStep(currentEra) * state.playbackSpeed;
-      const newYear = state.currentYear + (step * state.playbackDirection);
+      const currentEra = typeof state.getCurrentEra === 'function' ? state.getCurrentEra() : null;
+      const playbackSpeed = state.playbackSpeed || 1;
+      const playbackDirection = state.playbackDirection || 1;
+      const step = this.calculateStep(currentEra) * playbackSpeed;
+      const currentYear = state.currentYear || 2000;
+      const newYear = currentYear + (step * playbackDirection);
       
       // Check bounds
       if (newYear > 2026) {
-        state.pause();
+        if (typeof state.pause === 'function') {
+          state.pause();
+        }
         return;
       }
       if (newYear < -4500000000) {
-        state.pause();
+        if (typeof state.pause === 'function') {
+          state.pause();
+        }
         return;
       }
       
-      state.setYear(newYear);
+      if (typeof state.setYear === 'function') {
+        state.setYear(newYear);
+      }
       
       requestAnimationFrame(animate);
     };
@@ -470,8 +620,7 @@ class GeotopiaApp {
    * Load user preferences from storage
    */
   loadUserPreferences() {
-    // Preferences already loaded by state.js
-    // Apply any app-specific preferences here
+    if (typeof state === 'undefined' || !state.settings) return;
     
     if (state.settings.theme === 'light') {
       document.body.classList.add('light-theme');
@@ -487,6 +636,8 @@ class GeotopiaApp {
    * @param {object} data 
    */
   applySettings(data) {
+    if (!data) return;
+    
     Object.keys(data).forEach(key => {
       switch(key) {
         case 'theme':
@@ -506,13 +657,13 @@ class GeotopiaApp {
           break;
           
         case 'animationsEnabled':
-          if (this.mapEngine) {
+          if (this.mapEngine && typeof this.mapEngine.setAnimations === 'function') {
             this.mapEngine.setAnimations(data[key]);
           }
           break;
           
         case 'particlesEnabled':
-          if (this.mapEngine) {
+          if (this.mapEngine && typeof this.mapEngine.setParticles === 'function') {
             this.mapEngine.setParticles(data[key]);
           }
           break;
@@ -529,9 +680,13 @@ class GeotopiaApp {
    */
   toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
+      document.documentElement.requestFullscreen().catch(err => {
+        console.warn('Fullscreen error:', err);
+      });
     } else {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(err => {
+        console.warn('Exit fullscreen error:', err);
+      });
     }
   }
   
@@ -540,12 +695,19 @@ class GeotopiaApp {
    * @param {Error} error 
    */
   showError(error) {
+    // Hide loading screen first
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      loadingScreen.style.display = 'none';
+    }
+    
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
+    errorDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;color:white;padding:30px;border-radius:10px;z-index:99999;text-align:center;border:2px solid #ff4444;max-width:400px;';
     errorDiv.innerHTML = `
-      <h2>Error Loading GEOTOPIA</h2>
-      <p>${error.message}</p>
-      <button onclick="location.reload()">Reload</button>
+      <h2 style="color:#ff4444;margin-bottom:15px;">Error Loading GEOTOPIA</h2>
+      <p style="margin-bottom:20px;">${error.message}</p>
+      <button onclick="location.reload()" style="padding:12px 24px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">Reload</button>
     `;
     document.body.appendChild(errorDiv);
   }
@@ -555,8 +717,9 @@ class GeotopiaApp {
    */
   takeScreenshot() {
     if (this.mapEngine && this.mapEngine.canvas) {
+      const currentYear = (typeof state !== 'undefined' && state.currentYear) ? state.currentYear : 'unknown';
       const link = document.createElement('a');
-      link.download = `geotopia_${state.currentYear}.png`;
+      link.download = `geotopia_${currentYear}.png`;
       link.href = this.mapEngine.canvas.toDataURL();
       link.click();
     }
@@ -566,6 +729,11 @@ class GeotopiaApp {
    * Export current state as JSON
    */
   exportState() {
+    if (typeof state === 'undefined' || typeof state.getState !== 'function') {
+      console.warn('State not available for export');
+      return;
+    }
+    
     const stateData = state.getState();
     const json = JSON.stringify(stateData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -602,12 +770,12 @@ function startGeotopia() {
 // Global access for debugging
 window.GEOTOPIA = {
   version: '1.0.0',
-  state: () => state.getState(),
-  jumpTo: (year) => state.jumpToYear(year),
-  play: () => state.play(),
-  pause: () => state.pause(),
-  screenshot: () => window.geotopiaApp.takeScreenshot(),
-  export: () => window.geotopiaApp.exportState()
+  state: () => (typeof state !== 'undefined' && typeof state.getState === 'function' ? state.getState() : null),
+  jumpTo: (year) => (typeof state !== 'undefined' && typeof state.jumpToYear === 'function' ? state.jumpToYear(year) : null),
+  play: () => (typeof state !== 'undefined' && typeof state.play === 'function' ? state.play() : null),
+  pause: () => (typeof state !== 'undefined' && typeof state.pause === 'function' ? state.pause() : null),
+  screenshot: () => (window.geotopiaApp ? window.geotopiaApp.takeScreenshot() : null),
+  export: () => (window.geotopiaApp ? window.geotopiaApp.exportState() : null)
 };
 
 console.log('GEOTOPIA v1.0.0 loaded. Type GEOTOPIA in console for debug commands.');
