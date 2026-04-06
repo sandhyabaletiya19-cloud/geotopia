@@ -762,6 +762,31 @@ const UIControls = (function() {
             }
         });
     }
+    /**
+ * Step backward in time
+ */
+function stepBack() {
+  if (window.geotopiaApp && window.geotopiaApp.timelineEngine) {
+    const step = state.calculateStep();
+    const newYear = state.currentYear - step;
+    if (newYear >= -4500000000) {
+      state.setYear(newYear, true);
+    }
+  }
+}
+
+/**
+ * Step forward in time
+ */
+function stepForward() {
+  if (window.geotopiaApp && window.geotopiaApp.timelineEngine) {
+    const step = state.calculateStep();
+    const newYear = state.currentYear + step;
+    if (newYear <= 2026) {
+      state.setYear(newYear, true);
+    }
+  }
+}
 
     // Public API
     return {
