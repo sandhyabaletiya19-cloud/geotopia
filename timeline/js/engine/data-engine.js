@@ -58,39 +58,22 @@ class DataEngine {
      * Fetch continental positions for a specific year using GPlates
      */
     async getContinentalPositions(year) {
-        // Check cache first
-        const cached = await this.getFromCache('continents', year);
-        if (cached) return cached;
+    // Check cache first
+    const cached = await this.getFromCache('continents', year);
+    if (cached) return cached;
 
-        // Convert year to Ma (millions of years ago)
-        const ma = year < 0 ? Math.abs(year) / 1000000 : 0;
-        
-        // Sample points around the world (continents)
-        const points = this.getContinentSamplePoints();
-        
-        try {
-            const response = await fetch(this.gplatesAPI, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    points: points,
-                    time: ma,
-                    model: 'MULLER2016' // Latest plate tectonic model
-                })
-            });
-            
-            const data = await response.json();
-            const positions = this.processGPlatesData(data, year);
-            
-            // Cache it
-            await this.saveToCache('continents', year, positions);
-            
-            return positions;
-        } catch (error) {
-            console.warn('GPlates API failed, using fallback data', error);
-            return this.getFallbackContinentalData(year);
-        }
+    // SKIP GPlates API (CORS blocked) - Use fallback directly
+    console.log(`📍 Loading continental positions for year ${year}`);
+    
+    const positions = this.getFallbackContinentalData(year);
+    
+    // Cache it
+    if (positions) {
+        await this.saveToCache('continents', year, positions);
     }
+    
+    return positions;
+}
 
     /**
      * Get sample points for major continental regions
