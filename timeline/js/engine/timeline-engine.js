@@ -9,18 +9,16 @@ class TimelineEngine {
     this.container = null;
     this.track = null;
     this.handle = null;
-    this.yearLabel = null;
-    this.eraLabel = null;
     this.progressBar = null;
     
     // State
     this.isDragging = false;
     this.isHovering = false;
     this.animationFrameId = null;
+    this.isInitialized = false;
     
     // Playback
     this.lastFrameTime = 0;
-    this.accumulatedTime = 0;
     
     // Constants
     this.MIN_YEAR = -4500000000;
@@ -28,7 +26,10 @@ class TimelineEngine {
     
     // Event markers
     this.markers = [];
-    this.visibleMarkers = [];
+    
+    // Retry tracking
+    this.markerRetryCount = 0;
+    this.maxRetries = 5;
   }
   
   // ============================================
@@ -42,15 +43,18 @@ class TimelineEngine {
     console.log('Initializing timeline engine...');
     
     // Get DOM elements
-    this.container = document.getElementById('timeline');
-    this.track = document.querySelector('.timeline-track');
-    this.handle = document.querySelector('.timeline-handle');
-    this.yearLabel = document.querySelector('.timeline-year');
-    this.eraLabel = document.querySelector('.timeline-era');
+    this.container = document.getElementById('timeline-container') || document.querySelector('.timeline-section');
+    this.track = document.getElementById('timeline-track') || document.querySelector('.timeline-track');
+    this.handle = document.getElementById('timeline-handle') || document.querySelector('.timeline-handle');
     this.progressBar = document.querySelector('.timeline-progress');
     
-    if (!this.track || !this.handle) {
-      console.error('Timeline elements not found');
+    if (!this.track) {
+      console.warn('Timeline track not found, creating...');
+      this.createTimelineDOM();
+    }
+    
+    if (!this.handle) {
+      console.warn('Timeline handle not found');
       return;
     }
     
@@ -60,16 +64,80 @@ class TimelineEngine {
     // Setup era markers
     this.createEraMarkers();
     
-    // Setup event markers
+    // Setup event markers (with retry limit)
     this.createEventMarkers();
     
     // Listen to state changes
-    state.on('yearChange', (data) => this.onYearChange(data));
+    if (typeof state !== 'undefined') {
+      state.on('yearChange', (data) => this.onYearChange(data));
+    }
     
     // Initial position
-    this.updateUI(state.currentYear);
+    this.updateUI(typeof state !== 'undefined' ? state.currentYear : this.MIN_YEAR);
     
+    this.isInitialized = true;
     console.log('✓ Timeline engine ready');
+  }
+  
+  /**
+   * Create timeline DOM if missing
+   */
+  createTimelineDOM() {
+    const container = document.querySelector('.timeline-section') || document.getElementById('timeline-container');
+    if (!container) {
+      console.error('Timeline container not found');
+      return;
+    }
+    
+    // Check if timeline-wrapper exists
+    let wrapper = container.querySelector('.timeline-wrapper');
+    if (!wrapper) {
+      wrapper = document.createElement('div');
+      wrapper.className = 'timeline-wrapper';
+      container.appendChild(wrapper);
+    }
+    
+    // Create track
+    this.track = document.createElement('div');
+    this.track.id = 'timeline-track';
+    this.track.className = 'timeline-track';
+    
+    // Create markers container
+    const markersDiv = document.createElement('div');
+    markersDiv.className = 'timeline-markers';
+    markersDiv.id = 'era-markers';
+    this.track.appendChild(markersDiv);
+    
+    // Create events container
+    const eventsDiv = document.createElement('div');
+    eventsDiv.className = 'timeline-events';
+    eventsDiv.id = 'event-dots';
+    this.track.appendChild(eventsDiv);
+    
+    // Create progress bar
+    this.progressBar = document.createElement('div');
+    this.progressBar.className = 'timeline-progress';
+    this.track.appendChild(this.progressBar);
+    
+    // Create handle
+    this.handle = document.createElement('div');
+    this.handle.id = 'timeline-handle';
+    this.handle.className = 'timeline-handle';
+    this.handle.innerHTML = `
+      <div class="handle-line"></div>
+      <div class="handle-grip"></div>
+    `;
+    this.track.appendChild(this.handle);
+    
+    wrapper.appendChild(this.track);
+    
+    // Create labels
+    const labels = document.createElement('div');
+    labels.className = 'timeline-labels';
+    labels.id = 'timeline-labels';
+    wrapper.appendChild(labels);
+    
+    console.log('✓ Timeline DOM created');
   }
   
   // ============================================
@@ -80,10 +148,13 @@ class TimelineEngine {
    * Setup mouse/touch interaction
    */
   setupInteraction() {
-    // Mouse/Touch events
+    if (!this.handle || !this.track) return;
+    
+    // Mouse events for handle
     this.handle.addEventListener('mousedown', (e) => this.startDrag(e));
     this.handle.addEventListener('touchstart', (e) => this.startDrag(e), { passive: false });
     
+    // Document-level events for drag
     document.addEventListener('mousemove', (e) => this.drag(e));
     document.addEventListener('touchmove', (e) => this.drag(e), { passive: false });
     
@@ -95,11 +166,16 @@ class TimelineEngine {
     
     // Hover for preview
     this.track.addEventListener('mouseenter', () => this.isHovering = true);
-    this.track.addEventListener('mouseleave', () => this.isHovering = false);
+    this.track.addEventListener('mouseleave', () => {
+      this.isHovering = false;
+      this.hidePreview();
+    });
     this.track.addEventListener('mousemove', (e) => this.showPreview(e));
     
     // Mouse wheel for precision control
     this.track.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
+    
+    console.log('✓ Timeline interaction setup');
   }
   
   /**
@@ -107,26 +183,34 @@ class TimelineEngine {
    */
   startDrag(e) {
     e.preventDefault();
+    e.stopPropagation();
     this.isDragging = true;
     this.handle.classList.add('dragging');
-    state.pause(); // Pause playback while dragging
+    
+    // Pause playback while dragging
+    if (typeof state !== 'undefined' && state.isPlaying) {
+      state.pause();
+    }
   }
   
   /**
    * Handle drag movement
    */
   drag(e) {
-    if (!this.isDragging) return;
+    if (!this.isDragging || !this.track) return;
     
     e.preventDefault();
     
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const rect = this.track.getBoundingClientRect();
     const position = (clientX - rect.left) / rect.width;
-    const clampedPosition = GeoUtils.clamp(position, 0, 1);
+    const clampedPosition = Math.max(0, Math.min(1, position));
     
-    const year = GeoUtils.positionToYear(clampedPosition);
-    state.setYear(year);
+    const year = this.positionToYear(clampedPosition);
+    
+    if (typeof state !== 'undefined') {
+      state.setYear(year);
+    }
   }
   
   /**
@@ -136,7 +220,6 @@ class TimelineEngine {
     if (this.isDragging) {
       this.isDragging = false;
       this.handle.classList.remove('dragging');
-      state.addToHistory({ currentYear: state.currentYear });
     }
   }
   
@@ -144,44 +227,73 @@ class TimelineEngine {
    * Jump to clicked position
    */
   jumpToPosition(e) {
-    if (e.target === this.handle) return; // Don't jump if clicking handle
+    if (!this.track) return;
+    if (e.target === this.handle || e.target.closest('.timeline-handle')) return;
     
     const rect = this.track.getBoundingClientRect();
     const position = (e.clientX - rect.left) / rect.width;
-    const clampedPosition = GeoUtils.clamp(position, 0, 1);
-    const year = GeoUtils.positionToYear(clampedPosition);
+    const clampedPosition = Math.max(0, Math.min(1, position));
+    const year = this.positionToYear(clampedPosition);
     
-    state.jumpToYear(year);
+    console.log('Jumping to year:', year);
+    
+    if (typeof state !== 'undefined') {
+      state.setYear(year, true);
+    }
   }
   
   /**
    * Show preview tooltip on hover
    */
   showPreview(e) {
-    if (!this.isHovering || this.isDragging) return;
+    if (!this.isHovering || this.isDragging || !this.track) return;
     
     const rect = this.track.getBoundingClientRect();
     const position = (e.clientX - rect.left) / rect.width;
-    const year = GeoUtils.positionToYear(position);
+    const year = this.positionToYear(position);
     
     // Find or create preview element
     let preview = document.querySelector('.timeline-preview');
     if (!preview) {
       preview = document.createElement('div');
       preview.className = 'timeline-preview';
+      preview.style.cssText = `
+        position: absolute;
+        bottom: 100%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.9);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 100;
+        margin-bottom: 10px;
+      `;
       this.track.appendChild(preview);
     }
     
     // Update content
-    const era = GeoUtils.getEra(year);
+    const era = this.getEraName(year);
     preview.innerHTML = `
-      <div class="preview-year">${GeoUtils.formatYear(year)}</div>
-      <div class="preview-era">${era.name}</div>
+      <div class="preview-year" style="font-weight:bold;">${this.formatYear(year)}</div>
+      <div class="preview-era" style="font-size:10px;color:#aaa;">${era}</div>
     `;
     
     // Position
     preview.style.left = `${position * 100}%`;
     preview.style.display = 'block';
+  }
+  
+  /**
+   * Hide preview tooltip
+   */
+  hidePreview() {
+    const preview = document.querySelector('.timeline-preview');
+    if (preview) {
+      preview.style.display = 'none';
+    }
   }
   
   /**
@@ -191,25 +303,69 @@ class TimelineEngine {
     e.preventDefault();
     
     const delta = e.deltaY > 0 ? -1 : 1;
-    const currentEra = state.getCurrentEra();
+    const step = this.calculateStep();
     
-    // Calculate step based on current era
-    let step;
-    const absYear = Math.abs(state.currentYear);
-    
-    if (absYear > 1000000000) step = 10000000;      // 10M years
-    else if (absYear > 100000000) step = 1000000;   // 1M years
-    else if (absYear > 10000000) step = 100000;     // 100k years
-    else if (absYear > 1000000) step = 10000;       // 10k years
-    else if (absYear > 10000) step = 1000;          // 1k years
-    else if (absYear > 1000) step = 100;            // 100 years
-    else step = 10;                                 // 10 years
-    
-    const newYear = state.currentYear + (step * delta);
+    const currentYear = (typeof state !== 'undefined') ? state.currentYear : 0;
+    const newYear = currentYear + (step * delta);
     
     if (newYear >= this.MIN_YEAR && newYear <= this.MAX_YEAR) {
-      state.setYear(newYear);
+      if (typeof state !== 'undefined') {
+        state.setYear(newYear);
+      }
     }
+  }
+  
+  // ============================================
+  // YEAR/POSITION CONVERSION
+  // ============================================
+  
+  /**
+   * Convert year to position (0-1)
+   * Uses logarithmic scale for geological time
+   */
+  yearToPosition(year) {
+    // Normalize to 0-1 range using log scale
+    const minLog = Math.log10(Math.abs(this.MIN_YEAR) + 1);
+    
+    if (year <= 0) {
+      const yearLog = Math.log10(Math.abs(year) + 1);
+      return 1 - (yearLog / minLog);
+    } else {
+      // Linear for recent years (last bit of timeline)
+      return 0.98 + (year / this.MAX_YEAR) * 0.02;
+    }
+  }
+  
+  /**
+   * Convert position (0-1) to year
+   */
+  positionToYear(position) {
+    const minLog = Math.log10(Math.abs(this.MIN_YEAR) + 1);
+    
+    if (position < 0.98) {
+      const logYear = (1 - position) * minLog;
+      return -Math.pow(10, logYear) + 1;
+    } else {
+      // Linear for recent years
+      return ((position - 0.98) / 0.02) * this.MAX_YEAR;
+    }
+  }
+  
+  /**
+   * Calculate step size based on current year
+   */
+  calculateStep() {
+    const currentYear = (typeof state !== 'undefined') ? state.currentYear : 0;
+    const absYear = Math.abs(currentYear);
+    
+    if (absYear > 1000000000) return 50000000;   // 50M years
+    if (absYear > 100000000) return 5000000;     // 5M years
+    if (absYear > 10000000) return 500000;       // 500k years
+    if (absYear > 1000000) return 50000;         // 50k years
+    if (absYear > 100000) return 5000;           // 5k years
+    if (absYear > 10000) return 500;             // 500 years
+    if (absYear > 1000) return 50;               // 50 years
+    return 5;                                     // 5 years
   }
   
   // ============================================
@@ -220,174 +376,167 @@ class TimelineEngine {
    * Create era boundary markers
    */
   createEraMarkers() {
+    const markerContainer = document.getElementById('era-markers') || document.querySelector('.timeline-markers');
+    if (!markerContainer) {
+      console.warn('Era marker container not found');
+      return;
+    }
+    
+    // Clear existing
+    markerContainer.innerHTML = '';
+    
     const eras = [
-      { name: 'Hadean', start: -4500000000, end: -4000000000 },
-      { name: 'Archean', start: -4000000000, end: -2500000000 },
-      { name: 'Proterozoic', start: -2500000000, end: -541000000 },
-      { name: 'Paleozoic', start: -541000000, end: -252000000 },
-      { name: 'Mesozoic', start: -252000000, end: -66000000 },
-      { name: 'Cenozoic', start: -66000000, end: 2026 }
+      { name: 'Hadean', start: -4500000000, end: -4000000000, color: '#ff4500' },
+      { name: 'Archean', start: -4000000000, end: -2500000000, color: '#8b0000' },
+      { name: 'Proterozoic', start: -2500000000, end: -541000000, color: '#4b0082' },
+      { name: 'Paleozoic', start: -541000000, end: -252000000, color: '#006400' },
+      { name: 'Mesozoic', start: -252000000, end: -66000000, color: '#228b22' },
+      { name: 'Cenozoic', start: -66000000, end: -10000, color: '#4682b4' },
+      { name: 'Human', start: -10000, end: 2026, color: '#2e8b57' }
     ];
     
-    const markerContainer = document.querySelector('.timeline-markers');
-    if (!markerContainer) return;
-    
     eras.forEach(era => {
-      const startPos = GeoUtils.yearToPosition(era.start);
-      const endPos = GeoUtils.yearToPosition(era.end);
+      const startPos = this.yearToPosition(era.start);
+      const endPos = this.yearToPosition(era.end);
+      const width = Math.max(endPos - startPos, 0.01); // Minimum 1%
       
-      // Create era label
-      const label = document.createElement('div');
-      label.className = 'era-marker';
-      label.textContent = era.name;
-      label.style.left = `${startPos * 100}%`;
-      label.style.width = `${(endPos - startPos) * 100}%`;
+      const marker = document.createElement('div');
+      marker.className = 'era-marker';
+      marker.title = era.name;
+      marker.style.cssText = `
+        position: absolute;
+        left: ${startPos * 100}%;
+        width: ${width * 100}%;
+        height: 100%;
+        background: ${era.color};
+        opacity: 0.7;
+      `;
       
-      markerContainer.appendChild(label);
+      markerContainer.appendChild(marker);
+    });
+    
+    // Create labels
+    this.createEraLabels();
+    
+    console.log('✓ Era markers created');
+  }
+  
+  /**
+   * Create era labels
+   */
+  createEraLabels() {
+    const labelsContainer = document.getElementById('timeline-labels') || document.querySelector('.timeline-labels');
+    if (!labelsContainer) return;
+    
+    // Clear existing
+    labelsContainer.innerHTML = '';
+    
+    const labels = [
+      { year: -4500000000, text: '4.5 BYA' },
+      { year: -2500000000, text: '2.5 BYA' },
+      { year: -541000000, text: '541 MYA' },
+      { year: -66000000, text: '66 MYA' },
+      { year: -10000, text: '10K BCE' },
+      { year: 0, text: '0' },
+      { year: 2000, text: 'Now' }
+    ];
+    
+    labels.forEach(label => {
+      const pos = this.yearToPosition(label.year);
+      
+      const el = document.createElement('span');
+      el.className = 'timeline-label';
+      el.textContent = label.text;
+      el.style.cssText = `
+        position: absolute;
+        left: ${pos * 100}%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        color: #888;
+        white-space: nowrap;
+      `;
+      
+      labelsContainer.appendChild(el);
     });
   }
-
-  /**
- * Convert position (0-1) to year
- */
-percentToYear(percent) {
-  const minYear = -4500000000;
-  const maxYear = 2026;
-  const logMin = Math.log10(Math.abs(minYear) + 1);
-  
-  if (percent < 0.95) {
-    const logYear = (1 - percent) * logMin / 0.95;
-    return -Math.pow(10, logYear) + 1;
-  } else {
-    return ((percent - 0.95) / 0.05) * maxYear;
-  }
-}
   
   /**
    * Create event markers
    */
-createEventMarkers() {
-  const markerContainer = document.querySelector('.timeline-events') || document.getElementById('event-dots');
-  if (!markerContainer) {
-    console.warn('Event markers container not found');
-    return;
-  }
-  
-  // Clear existing markers
-  markerContainer.innerHTML = '';
-  
-  // Check if GEOTOPIA_DATA exists and has timeline data
-  if (typeof GEOTOPIA_DATA === 'undefined' || !GEOTOPIA_DATA.timeline) {
-    console.warn('GEOTOPIA_DATA not available yet, retrying...');
-    setTimeout(() => this.createEventMarkers(), 1000);
-    return;
-  }
-  
-  // Get events from timeline (limit to important ones for performance)
-  const allEvents = GEOTOPIA_DATA.timeline || [];
-  
-  // Sample events for markers (too many will slow things down)
-  const sampleRate = Math.max(1, Math.floor(allEvents.length / 100));
-  const events = allEvents.filter((_, index) => index % sampleRate === 0);
-  
-  console.log(`Creating ${events.length} event markers from ${allEvents.length} total events`);
-  
-  events.forEach(event => {
-    if (!event.year) return;
+  createEventMarkers() {
+    const eventsContainer = document.getElementById('event-dots') || document.querySelector('.timeline-events');
+    if (!eventsContainer) {
+      console.warn('Events container not found');
+      return;
+    }
     
-    const position = this.yearToPercent(event.year);
-    
-    const marker = document.createElement('div');
-    marker.className = `event-dot event-${event.type || 'default'}`;
-    marker.style.cssText = `
-      position: absolute;
-      left: ${position * 100}%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: ${this.getEventColor(event.type)};
-      cursor: pointer;
-      transition: transform 0.2s;
-    `;
-    marker.title = `${event.name || event.event || 'Event'} (${this.formatYear(event.year)})`;
-    
-    marker.addEventListener('click', () => {
-      if (typeof state !== 'undefined' && typeof state.setYear === 'function') {
-        state.setYear(event.year, true);
+    // Check if GEOTOPIA_DATA is available
+    if (typeof GEOTOPIA_DATA === 'undefined' || !GEOTOPIA_DATA.timeline) {
+      this.markerRetryCount++;
+      
+      if (this.markerRetryCount <= this.maxRetries) {
+        console.log(`GEOTOPIA_DATA not available yet, retry ${this.markerRetryCount}/${this.maxRetries}...`);
+        setTimeout(() => this.createEventMarkers(), 1000);
+      } else {
+        console.warn('GEOTOPIA_DATA not available after max retries, skipping event markers');
       }
+      return;
+    }
+    
+    // Clear existing
+    eventsContainer.innerHTML = '';
+    
+    // Get major events (limit to prevent performance issues)
+    const events = GEOTOPIA_DATA.timeline.slice(0, 200);
+    
+    events.forEach(event => {
+      if (!event.year) return;
+      
+      const position = this.yearToPosition(event.year);
+      
+      // Event type colors
+      const typeColors = {
+        'geological': '#ff6600',
+        'biological': '#00ff00',
+        'catastrophic': '#ff0000',
+        'cultural': '#ffff00',
+        'political': '#ff00ff',
+        'technological': '#00ffff'
+      };
+      
+      const color = typeColors[event.type] || '#ffffff';
+      
+      const marker = document.createElement('div');
+      marker.className = `event-dot event-${event.type || 'unknown'}`;
+      marker.title = `${event.name || event.event || 'Event'} (${this.formatYear(event.year)})`;
+      marker.style.cssText = `
+        position: absolute;
+        left: ${position * 100}%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 6px;
+        height: 6px;
+        background: ${color};
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.2s;
+      `;
+      
+      marker.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof state !== 'undefined') {
+          state.setYear(event.year, true);
+          state.selectEvent(event);
+        }
+      });
+      
+      eventsContainer.appendChild(marker);
+      this.markers.push({ element: marker, event });
     });
     
-    marker.addEventListener('mouseenter', () => {
-      marker.style.transform = 'translate(-50%, -50%) scale(2)';
-    });
-    
-    marker.addEventListener('mouseleave', () => {
-      marker.style.transform = 'translate(-50%, -50%) scale(1)';
-    });
-    
-    markerContainer.appendChild(marker);
-    this.markers.push({ element: marker, event });
-  });
+    console.log(`✓ Created ${this.markers.length} event markers`);
+  }
   
-  console.log('✓ Event markers created');
-}
-
-/**
- * Get color for event type
- */
-getEventColor(type) {
-  const colors = {
-    'geological': '#ff6600',
-    'biological': '#00ff00',
-    'catastrophic': '#ff0000',
-    'political': '#ffcc00',
-    'cultural': '#cc66ff',
-    'technological': '#00ccff',
-    'military': '#ff3333',
-    'default': '#ffffff'
-  };
-  return colors[type] || colors['default'];
-}
-
-/**
- * Format year for display
- */
-formatYear(year) {
-  if (year < -1000000000) {
-    return (Math.abs(year) / 1000000000).toFixed(1) + ' BYA';
-  }
-  if (year < -1000000) {
-    return (Math.abs(year) / 1000000).toFixed(1) + ' MYA';
-  }
-  if (year < -10000) {
-    return Math.round(Math.abs(year) / 1000) + 'K BCE';
-  }
-  if (year < 0) {
-    return Math.abs(year) + ' BCE';
-  }
-  return year + ' CE';
-}
-
-/**
- * Convert year to position (0-1)
- */
-yearToPercent(year) {
-  // Logarithmic scale for geological time
-  const minYear = -4500000000;
-  const maxYear = 2026;
-  
-  if (year <= 0) {
-    // For negative years (BCE), use log scale
-    const logMin = Math.log10(Math.abs(minYear) + 1);
-    const logYear = Math.log10(Math.abs(year) + 1);
-    return 1 - (logYear / logMin) * 0.95;
-  } else {
-    // For positive years (CE), linear in last 5%
-    return 0.95 + (year / maxYear) * 0.05;
-  }
-}
   // ============================================
   // PLAYBACK
   // ============================================
@@ -415,100 +564,102 @@ yearToPercent(year) {
   /**
    * Animation loop
    */
-  /**
- * Step back one increment
- */
-stepBack() {
-  const step = this.calculateStep();
-  const newYear = state.currentYear - step;
-  if (newYear >= this.MIN_YEAR) {
-    state.setYear(newYear, true);
-  }
-}
-
-/**
- * Step forward one increment
- */
-stepForward() {
-  const step = this.calculateStep();
-  const newYear = state.currentYear + step;
-  if (newYear <= this.MAX_YEAR) {
-    state.setYear(newYear, true);
-  }
-}
-
-/**
- * Calculate step size based on current year
- */
-calculateStep() {
-  const absYear = Math.abs(state.currentYear);
-  
-  if (absYear > 1000000000) return 50000000;   // 50M years
-  if (absYear > 100000000) return 5000000;     // 5M years
-  if (absYear > 10000000) return 500000;       // 500k years
-  if (absYear > 1000000) return 50000;         // 50k years
-  if (absYear > 100000) return 5000;           // 5k years
-  if (absYear > 10000) return 500;             // 500 years
-  if (absYear > 1000) return 50;               // 50 years
-  return 5;                                     // 5 years
-}
-
-/**
- * Start timeline playback
- */
-play() {
-  state.play();
-  this.startPlayback();
-}
-
-/**
- * Pause timeline playback
- */
-pause() {
-  state.pause();
-  this.stopPlayback();
-}
-
-/**
- * Set playback speed
- */
-setSpeed(speed) {
-  state.setSpeed(speed);
-}
-
-/**
- * Go to specific year
- */
-goToYear(year) {
-  state.jumpToYear(year);
-}
   animate() {
+    if (typeof state === 'undefined' || !state.isPlaying) {
+      this.animationFrameId = null;
+      return;
+    }
+    
     const currentTime = performance.now();
     const deltaTime = currentTime - this.lastFrameTime;
     this.lastFrameTime = currentTime;
     
-    if (state.isPlaying) {
-      // Calculate year increment based on speed and era
-      const baseSpeed = 1000000; // 1M years per second at speed 1x
-      const speed = baseSpeed * state.playbackSpeed;
-      const yearDelta = (speed * deltaTime / 1000) * state.playbackDirection;
-      
-      // Update year
-      let newYear = state.currentYear + yearDelta;
-      
-      // Check bounds
-      if (newYear > this.MAX_YEAR) {
-        newYear = this.MAX_YEAR;
-        state.pause();
-      } else if (newYear < this.MIN_YEAR) {
-        newYear = this.MIN_YEAR;
-        state.pause();
-      }
-      
-      state.setYear(newYear);
+    // Calculate year increment based on speed and current position
+    const speed = state.playbackSpeed || 1;
+    const direction = state.playbackDirection || 1;
+    const step = this.calculateStep() * speed * direction * (deltaTime / 1000);
+    
+    // Update year
+    let newYear = state.currentYear + step;
+    
+    // Check bounds
+    if (newYear > this.MAX_YEAR) {
+      newYear = this.MAX_YEAR;
+      state.pause();
+    } else if (newYear < this.MIN_YEAR) {
+      newYear = this.MIN_YEAR;
+      state.pause();
     }
     
+    state.setYear(newYear);
+    
     this.animationFrameId = requestAnimationFrame(() => this.animate());
+  }
+  
+  /**
+   * Play timeline
+   */
+  play() {
+    if (typeof state !== 'undefined') {
+      state.isPlaying = true;
+      this.startPlayback();
+    }
+  }
+  
+  /**
+   * Pause timeline
+   */
+  pause() {
+    if (typeof state !== 'undefined') {
+      state.isPlaying = false;
+    }
+    this.stopPlayback();
+  }
+  
+  /**
+   * Step backward
+   */
+  stepBack() {
+    if (typeof state === 'undefined') return;
+    
+    const step = this.calculateStep();
+    const newYear = state.currentYear - step;
+    
+    if (newYear >= this.MIN_YEAR) {
+      state.setYear(newYear, true);
+    }
+  }
+  
+  /**
+   * Step forward
+   */
+  stepForward() {
+    if (typeof state === 'undefined') return;
+    
+    const step = this.calculateStep();
+    const newYear = state.currentYear + step;
+    
+    if (newYear <= this.MAX_YEAR) {
+      state.setYear(newYear, true);
+    }
+  }
+  
+  /**
+   * Go to specific year
+   */
+  goToYear(year) {
+    if (typeof state !== 'undefined') {
+      state.setYear(year, true);
+    }
+  }
+  
+  /**
+   * Set playback speed
+   */
+  setSpeed(speed) {
+    if (typeof state !== 'undefined') {
+      state.playbackSpeed = speed;
+    }
   }
   
   // ============================================
@@ -520,106 +671,51 @@ goToYear(year) {
    */
   onYearChange(data) {
     this.updateUI(data.year);
-    
-    // Start/stop animation loop
-    if (data.playing !== undefined) {
-      if (data.playing) {
-        this.startPlayback();
-      } else {
-        this.stopPlayback();
-      }
-    }
   }
   
   /**
    * Update timeline UI
    */
   updateUI(year) {
+    if (!this.handle) return;
+    
     // Update handle position
-    const position = GeoUtils.yearToPosition(year);
+    const position = this.yearToPosition(year);
+    this.handle.style.left = `${position * 100}%`;
     
-    if (this.handle) {
-      this.handle.style.left = `${position * 100}%`;
-    }
-    
+    // Update progress bar
     if (this.progressBar) {
       this.progressBar.style.width = `${position * 100}%`;
     }
     
-    // Update labels
-    if (this.yearLabel) {
-      this.yearLabel.textContent = GeoUtils.formatYear(year);
+    // Update year display
+    const yearDisplay = document.getElementById('current-year-display');
+    if (yearDisplay) {
+      yearDisplay.textContent = this.formatYear(year);
     }
     
-    const era = GeoUtils.getEra(year);
-    if (this.eraLabel) {
-      this.eraLabel.textContent = era.name;
-      this.eraLabel.style.color = era.color;
+    // Update era display
+    const eraDisplay = document.getElementById('current-era');
+    if (eraDisplay) {
+      const era = this.getEraName(year);
+      eraDisplay.textContent = era;
     }
-    
-    // Update visible markers
-    this.updateVisibleMarkers(year);
   }
   
   /**
-   * Update which event markers are visible
+   * Render timeline (alias for update)
    */
-  updateVisibleMarkers(year) {
-    const tolerance = this.calculateMarkerTolerance(year);
-    
-    this.markers.forEach(({ element, event }) => {
-      const distance = Math.abs(event.year - year);
-      const visible = distance <= tolerance;
-      
-      element.style.opacity = visible ? '1' : '0.3';
-      element.style.transform = visible ? 'scale(1)' : 'scale(0.5)';
-    });
+  render() {
+    if (typeof state !== 'undefined') {
+      this.updateUI(state.currentYear);
+    }
   }
   
   /**
-   * Calculate marker visibility tolerance based on zoom level
+   * Update (alias)
    */
-  calculateMarkerTolerance(year) {
-    const absYear = Math.abs(year);
-    
-    if (absYear > 1000000000) return 500000000;  // 500M years
-    if (absYear > 100000000) return 50000000;    // 50M years
-    if (absYear > 10000000) return 5000000;      // 5M years
-    if (absYear > 1000000) return 500000;        // 500k years
-    if (absYear > 100000) return 50000;          // 50k years
-    if (absYear > 10000) return 5000;            // 5k years
-    return 1000;                                 // 1k years
-  }
-  
-  // ============================================
-  // SPECIAL EFFECTS
-  // ============================================
-  
-  /**
-   * Pulse animation on handle
-   */
-  pulseHandle() {
-    if (!this.handle) return;
-    
-    gsap.to(this.handle, {
-      scale: 1.2,
-      duration: 0.3,
-      yoyo: true,
-      repeat: 1,
-      ease: 'power2.out'
-    });
-  }
-  
-  /**
-   * Flash era label on era change
-   */
-  flashEraLabel() {
-    if (!this.eraLabel) return;
-    
-    gsap.fromTo(this.eraLabel,
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.7)' }
-    );
+  update() {
+    this.render();
   }
   
   // ============================================
@@ -627,11 +723,48 @@ goToYear(year) {
   // ============================================
   
   /**
-   * Resize timeline (called on window resize)
+   * Format year for display
+   */
+  formatYear(year) {
+    const absYear = Math.abs(year);
+    
+    if (absYear >= 1000000000) {
+      return (absYear / 1000000000).toFixed(1) + ' BYA';
+    } else if (absYear >= 1000000) {
+      return (absYear / 1000000).toFixed(1) + ' MYA';
+    } else if (absYear >= 10000 && year < 0) {
+      return Math.round(absYear / 1000) + 'K BCE';
+    } else if (year < 0) {
+      return absYear.toLocaleString() + ' BCE';
+    } else {
+      return year.toLocaleString() + ' CE';
+    }
+  }
+  
+  /**
+   * Get era name for year
+   */
+  getEraName(year) {
+    if (year < -4000000000) return 'HADEAN EON';
+    if (year < -2500000000) return 'ARCHEAN EON';
+    if (year < -541000000) return 'PROTEROZOIC EON';
+    if (year < -252000000) return 'PALEOZOIC ERA';
+    if (year < -66000000) return 'MESOZOIC ERA';
+    if (year < -10000) return 'CENOZOIC ERA';
+    if (year < -3000) return 'PREHISTORIC';
+    if (year < 500) return 'ANCIENT ERA';
+    if (year < 1500) return 'MEDIEVAL ERA';
+    if (year < 1900) return 'MODERN ERA';
+    return 'CONTEMPORARY';
+  }
+  
+  /**
+   * Resize timeline
    */
   resize() {
-    // Update UI
-    this.updateUI(state.currentYear);
+    if (typeof state !== 'undefined') {
+      this.updateUI(state.currentYear);
+    }
   }
   
   /**
@@ -639,9 +772,11 @@ goToYear(year) {
    */
   destroy() {
     this.stopPlayback();
-    // Remove event listeners if needed
+    this.markers = [];
   }
 }
 
-// Create global instance
-window.timelineEngine = null; // Will be created by app.js
+// Make TimelineEngine available globally
+window.TimelineEngine = TimelineEngine;
+
+console.log('⏱️ Timeline Engine module loaded');
