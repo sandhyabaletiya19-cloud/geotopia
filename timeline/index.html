@@ -3,325 +3,2219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Complete Geographical Timeline of Earth - 4.5 Billion Years of History">
-    <title>GEOTOPIA - Complete Geographical Timeline of Earth (4.5 BYA - 2026 CE)</title>
+    <title>GEOTOPIA - 4.5 Billion Years of Earth History</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/timeline.css">
-    <link rel="stylesheet" href="css/map.css">
-    <link rel="stylesheet" href="css/animations.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
-        /* Critical inline styles to prevent black screen */
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: #0a1628;
-            overflow: hidden;
+            box-sizing: border-box;
         }
         
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+        }
+        
+        /* ============================================
+           LOADING SCREEN
+           ============================================ */
         #loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000510;
-            z-index: 9999;
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
+            z-index: 10000;
+            transition: opacity 1s ease, visibility 1s ease;
         }
         
         #loading-screen.hidden {
-            display: none !important;
+            opacity: 0;
+            visibility: hidden;
         }
         
-        #geotopia-app {
+        .loading-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 64px;
+            color: #4a9eff;
+            text-shadow: 0 0 50px rgba(74, 158, 255, 0.8);
+            margin-bottom: 10px;
+        }
+        
+        .loading-subtitle {
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 40px;
+            letter-spacing: 3px;
+        }
+        
+        .loading-earth {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6600, #8b0000);
+            box-shadow: 
+                0 0 60px rgba(255, 100, 0, 0.6),
+                inset -20px -20px 40px rgba(0,0,0,0.5);
+            animation: pulse-glow 2s ease-in-out infinite, rotate-earth 10s linear infinite;
+            margin-bottom: 40px;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 60px rgba(255, 100, 0, 0.6), inset -20px -20px 40px rgba(0,0,0,0.5); }
+            50% { box-shadow: 0 0 100px rgba(255, 100, 0, 0.9), inset -20px -20px 40px rgba(0,0,0,0.5); }
+        }
+        
+        @keyframes rotate-earth {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-progress {
+            width: 300px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff4500, #4a9eff, #00ff88);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .loading-status {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* ============================================
+           MAIN APP LAYOUT
+           ============================================ */
+        #app {
             width: 100%;
             height: 100vh;
+            display: grid;
+            grid-template-rows: 60px 1fr 140px;
+            grid-template-areas:
+                "header"
+                "main"
+                "timeline";
+        }
+        
+        /* ============================================
+           HEADER
+           ============================================ */
+        .header {
+            grid-area: header;
+            background: linear-gradient(180deg, rgba(20, 20, 40, 0.95) 0%, rgba(10, 10, 25, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+        }
+        
+        .logo-text {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4a9eff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .year-display {
+            background: rgba(74, 158, 255, 0.1);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #4a9eff;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .era-badge {
+            background: rgba(255, 100, 0, 0.2);
+            border: 1px solid rgba(255, 100, 0, 0.4);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #ff8844;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #aaa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .header-btn:hover {
+            background: rgba(74, 158, 255, 0.2);
+            border-color: rgba(74, 158, 255, 0.4);
+            color: #fff;
+        }
+        
+        /* ============================================
+           MAIN CONTENT AREA
+           ============================================ */
+        .main-content {
+            grid-area: main;
+            display: grid;
+            grid-template-columns: 1fr 380px;
             position: relative;
-            background: #0a1628;
-            display: none;
+            overflow: hidden;
         }
         
-        #geotopia-app.visible {
-            display: block !important;
-        }
-        
+        /* ============================================
+           MAP CONTAINER
+           ============================================ */
         #map-container {
-            width: 100%;
-            height: calc(100vh - 200px);
             position: relative;
-            background: #0a1628;
-        }
-        
-        #map-svg {
             width: 100%;
             height: 100%;
-            background: #0a1628;
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
+            overflow: hidden;
+        }
+        
+        #map-container canvas {
+            display: block;
+        }
+        
+        /* Map Overlay Info */
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
+        }
+        
+        .map-overlay h4 {
+            color: #4a9eff;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .map-overlay p {
+            color: #888;
+            font-size: 12px;
+        }
+        
+        /* Click Info Popup */
+        .click-popup {
+            position: absolute;
+            background: rgba(10, 10, 30, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            min-width: 280px;
+            max-width: 350px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        .click-popup.visible {
+            display: block;
+            animation: popup-appear 0.3s ease;
+        }
+        
+        @keyframes popup-appear {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .click-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .click-popup h3 {
+            color: #4a9eff;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .click-popup .coords {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .click-popup-close {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .click-popup-close:hover {
+            color: #fff;
+        }
+        
+        .click-popup-content {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .click-popup-events {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .click-popup-events h4 {
+            color: #ff8844;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        
+        .event-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .event-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .event-item .event-title {
+            color: #fff;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        
+        .event-item .event-year {
+            color: #4a9eff;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+        
+        /* ============================================
+           INFO PANEL (Right Side)
+           ============================================ */
+        .info-panel {
+            background: linear-gradient(180deg, rgba(15, 15, 30, 0.98) 0%, rgba(10, 10, 25, 0.98) 100%);
+            border-left: 1px solid rgba(74, 158, 255, 0.2);
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .info-panel-header {
+            padding: 20px;
+            background: rgba(74, 158, 255, 0.1);
+            border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .info-panel-header h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            color: #4a9eff;
+            margin-bottom: 5px;
+        }
+        
+        .info-panel-header p {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .info-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .info-section h3 {
+            color: #ff8844;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-section p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #4a9eff;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        /* Events List */
+        .events-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .event-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .event-card:hover {
+            background: rgba(74, 158, 255, 0.1);
+            border-color: rgba(74, 158, 255, 0.3);
+        }
+        
+        .event-card .event-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .event-card .event-type.geological { background: #8b4513; color: #fff; }
+        .event-card .event-type.biological { background: #228b22; color: #fff; }
+        .event-card .event-type.catastrophic { background: #dc143c; color: #fff; }
+        .event-card .event-type.civilization { background: #daa520; color: #000; }
+        
+        .event-card h4 {
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .event-card .event-date {
+            color: #4a9eff;
+            font-size: 12px;
+        }
+        
+        /* ============================================
+           TIMELINE
+           ============================================ */
+        .timeline-section {
+            grid-area: timeline;
+            background: linear-gradient(180deg, rgba(10, 10, 25, 0.98) 0%, rgba(5, 5, 15, 0.98) 100%);
+            border-top: 1px solid rgba(74, 158, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .timeline-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .timeline-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .timeline-btn {
+            background: rgba(74, 158, 255, 0.1);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            color: #4a9eff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .timeline-btn:hover {
+            background: rgba(74, 158, 255, 0.25);
+        }
+        
+        .timeline-btn.active {
+            background: #4a9eff;
+            color: #000;
+        }
+        
+        .timeline-speed {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .timeline-speed label {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .speed-slider {
+            width: 120px;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+        }
+        
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4a9eff;
+            cursor: pointer;
+        }
+        
+        .timeline-bookmarks {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .bookmark-btn {
+            background: rgba(255, 136, 68, 0.1);
+            border: 1px solid rgba(255, 136, 68, 0.3);
+            color: #ff8844;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        .bookmark-btn:hover {
+            background: rgba(255, 136, 68, 0.25);
+        }
+        
+        /* Timeline Track */
+        .timeline-track-container {
+            position: relative;
+            height: 50px;
+        }
+        
+        .timeline-track {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(90deg,
+                #ff4500 0%,        /* Hadean */
+                #8b0000 11%,       /* Archean */
+                #4b0082 33%,       /* Proterozoic */
+                #006400 55%,       /* Paleozoic */
+                #228b22 75%,       /* Mesozoic */
+                #4169e1 100%       /* Cenozoic */
+            );
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.2);
+        }
+        
+        .timeline-handle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 40px;
+            background: linear-gradient(180deg, #fff 0%, #ccc 100%);
+            border-radius: 12px;
+            cursor: grab;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            z-index: 10;
+            transition: transform 0.1s;
+        }
+        
+        .timeline-handle:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .timeline-handle:active {
+            cursor: grabbing;
+        }
+        
+        .timeline-handle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 15px;
+            background: #333;
+            border-radius: 2px;
+        }
+        
+        .era-labels {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        .era-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Event Markers on Timeline */
+        .timeline-markers {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            pointer-events: none;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            border: 2px solid #000;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .timeline-marker:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            box-shadow: 0 0 10px #fff;
+        }
+        
+        .timeline-marker.major {
+            width: 12px;
+            height: 12px;
+            background: #ffd700;
+        }
+        
+        /* ============================================
+           SEARCH MODAL
+           ============================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.visible {
+            display: flex;
+            animation: fade-in 0.2s ease;
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: modal-appear 0.3s ease;
+        }
+        
+        @keyframes modal-appear {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            color: #4a9eff;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: #fff;
+        }
+        
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        
+        .search-input:focus {
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+        
+        .search-input::placeholder {
+            color: #666;
+        }
+        
+        .search-results {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .search-result-item {
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .search-result-item:hover {
+            background: rgba(74, 158, 255, 0.1);
+            border-color: rgba(74, 158, 255, 0.3);
+        }
+        
+        .search-result-item h4 {
+            color: #fff;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+        
+        .search-result-item p {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .search-result-item .result-year {
+            color: #4a9eff;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-panel {
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 100%;
+                width: 350px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                z-index: 50;
+            }
+            
+            .info-panel.open {
+                transform: translateX(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 15px;
+            }
+            
+            .logo-text {
+                font-size: 20px;
+            }
+            
+            .year-display {
+                padding: 8px 15px;
+                font-size: 14px;
+                min-width: auto;
+            }
+            
+            .era-badge {
+                display: none;
+            }
+            
+            .timeline-bookmarks {
+                display: none;
+            }
+        }
+        
+        /* ============================================
+           SCROLLBAR
+           ============================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(74, 158, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(74, 158, 255, 0.5);
         }
     </style>
 </head>
 <body>
-    
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <canvas id="loading-canvas"></canvas>
-        <div class="loading-text">
-            <h1 class="loading-title">GEOTOPIA</h1>
-            <p class="loading-subtitle" id="loading-subtitle">Initializing Universe...</p>
-            <div class="loading-progress">
-                <div class="loading-progress-fill" id="loading-bar"></div>
-            </div>
-            <p class="loading-year" id="loading-year">4,500,000,000 BCE</p>
+    <!-- ============================================
+         LOADING SCREEN
+         ============================================ -->
+    <div id="loading-screen">
+        <div class="loading-logo">🌍 GEOTOPIA</div>
+        <div class="loading-subtitle">4.5 BILLION YEARS OF EARTH HISTORY</div>
+        <div class="loading-earth" id="loading-earth"></div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="loading-progress"></div>
         </div>
+        <div class="loading-status" id="loading-status">Initializing...</div>
     </div>
 
-    <!-- Main Application (ID changed to geotopia-app) -->
-    <div id="geotopia-app" class="app">
-        
-        <!-- Header -->
+    <!-- ============================================
+         MAIN APP
+         ============================================ -->
+    <div id="app">
+        <!-- HEADER -->
         <header class="header">
-            <div class="header-left">
-                <h1 class="logo">
-                    <span class="logo-icon">🌍</span>
-                    <span class="logo-text">GEOTOPIA</span>
-                </h1>
-                <p class="tagline">4.5 Billion Years • From Formation to Present</p>
+            <div class="logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">GEOTOPIA</span>
             </div>
             
-            <nav class="header-nav">
-                <button class="nav-btn" id="btn-search" title="Search">
-                    <span class="icon">🔍</span>
-                    <span class="label">Search</span>
-                </button>
-                <button class="nav-btn" id="btn-info" title="About">
-                    <span class="icon">ℹ️</span>
-                    <span class="label">About</span>
-                </button>
-                <button class="nav-btn" id="btn-settings" title="Settings">
-                    <span class="icon">⚙️</span>
-                    <span class="label">Settings</span>
-                </button>
-            </nav>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
+            <div class="header-center">
+                <div class="year-display" id="year-display">4.5 Ga</div>
+                <div class="era-badge" id="era-badge">🌋 Hadean Eon</div>
+            </div>
             
-            <!-- Map Section -->
-            <section class="map-section">
-                <div id="map-container" class="map-container">
-                    <canvas id="globe-canvas" class="globe-canvas"></canvas>
-                    <svg id="map-svg" class="map-svg"></svg>
-                    
-                    <!-- Map Overlay -->
-                    <div class="map-overlay-top">
-                        <div class="current-era" id="current-era">HADEAN EON</div>
-                        <div class="current-year-display" id="current-year-display">4,500,000,000 BCE</div>
+            <div class="header-controls">
+                <button class="header-btn" id="btn-search">🔍 Search</button>
+                <button class="header-btn" id="btn-layers">🗺️ Layers</button>
+                <button class="header-btn" id="btn-about">ℹ️ About</button>
+            </div>
+        </header>
+        
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- MAP CONTAINER -->
+            <div id="map-container">
+                <div class="map-overlay">
+                    <h4>🖱️ Controls</h4>
+                    <p>Drag to rotate • Scroll to zoom • Click for info</p>
+                </div>
+                
+                <!-- Click Popup (hidden by default) -->
+                <div class="click-popup" id="click-popup">
+                    <div class="click-popup-header">
+                        <div>
+                            <h3 id="popup-title">Location</h3>
+                            <div class="coords" id="popup-coords">0°N, 0°E</div>
+                        </div>
+                        <button class="click-popup-close" id="popup-close">&times;</button>
                     </div>
-                    
-                    <!-- Map Controls -->
-                    <div class="map-controls">
-                        <button class="map-control-btn" id="btn-zoom-in" title="Zoom In">+</button>
-                        <button class="map-control-btn" id="btn-zoom-out" title="Zoom Out">−</button>
-                        <button class="map-control-btn" id="btn-reset-view" title="Reset View">⟲</button>
-                        <button class="map-control-btn" id="btn-toggle-3d" title="Toggle 2D/3D">🌐</button>
+                    <div class="click-popup-content" id="popup-content">
+                        Information about this location...
+                    </div>
+                    <div class="click-popup-events" id="popup-events">
+                        <h4>Events at this location</h4>
+                        <div id="popup-events-list"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- INFO PANEL -->
+            <aside class="info-panel" id="info-panel">
+                <div class="info-panel-header">
+                    <h2 id="info-era-name">Hadean Eon</h2>
+                    <p id="info-era-dates">4.5 - 4.0 billion years ago</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Overview</h3>
+                    <p id="info-era-description">
+                        The Hadean Eon represents Earth's earliest history, a time of intense bombardment, 
+                        volcanic activity, and the formation of the Moon. The surface was mostly molten rock.
+                    </p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Key Facts</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-temp">1000°C</div>
+                            <div class="stat-label">Surface Temp</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-oxygen">0%</div>
+                            <div class="stat-label">Oxygen Level</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-continents">0</div>
+                            <div class="stat-label">Continents</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-life">None</div>
+                            <div class="stat-label">Life Forms</div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Legend -->
-                <aside class="legend" id="legend">
-                    <h3 class="legend-title">Legend</h3>
-                    <div class="legend-content" id="legend-content"></div>
-                </aside>
-            </section>
-
-            <!-- Info Panel -->
-            <aside class="info-panel" id="info-panel">
-                <div class="info-header">
-                    <h2 class="info-title" id="info-title">Welcome to Earth's Story</h2>
-                    <button class="info-close" id="info-close">×</button>
-                </div>
-                <div class="info-body" id="info-body">
-                    <p class="info-placeholder">Drag the timeline below to explore 4.5 billion years of Earth's history.</p>
+                <div class="info-section">
+                    <h3>Major Events</h3>
+                    <div class="events-list" id="events-list">
+                        <!-- Events will be populated dynamically -->
+                    </div>
                 </div>
             </aside>
-
-        </main>
-
-        <!-- Timeline Section -->
-        <section class="timeline-section" id="timeline-container">
-            
-            <!-- Timeline Controls -->
+        </div>
+        
+        <!-- TIMELINE -->
+        <div class="timeline-section">
             <div class="timeline-controls">
-                <button class="timeline-btn" id="btn-play-pause" title="Play/Pause">
-                    <span class="icon" id="play-icon">▶</span>
-                </button>
-                <button class="timeline-btn" id="btn-step-back" title="Step Back">⏮</button>
-                <button class="timeline-btn" id="btn-step-forward" title="Step Forward">⏭</button>
-                
-                <div class="speed-control">
-                    <label for="speed-slider">Speed:</label>
-                    <input type="range" id="speed-slider" min="1" max="100" value="10" class="speed-slider">
-                    <span id="speed-display">10x</span>
+                <div class="timeline-buttons">
+                    <button class="timeline-btn" id="btn-start">⏮️ Start</button>
+                    <button class="timeline-btn" id="btn-back">⏪ Back</button>
+                    <button class="timeline-btn" id="btn-play">▶️ Play</button>
+                    <button class="timeline-btn" id="btn-forward">⏩ Forward</button>
+                    <button class="timeline-btn" id="btn-end">⏭️ Now</button>
                 </div>
                 
-                <div class="era-selector">
-                    <label for="era-select">Jump to:</label>
-                    <select id="era-select" class="era-select">
-                        <option value="-4500000000">Hadean (4.5 BYA)</option>
-                        <option value="-4000000000">Archean (4.0 BYA)</option>
-                        <option value="-2500000000">Proterozoic (2.5 BYA)</option>
-                        <option value="-541000000">Paleozoic (541 MYA)</option>
-                        <option value="-252000000">Mesozoic (252 MYA)</option>
-                        <option value="-66000000">Cenozoic (66 MYA)</option>
-                        <option value="-10000">Human Civilization (10,000 BCE)</option>
-                        <option value="-3100">Ancient Egypt (3100 BCE)</option>
-                        <option value="-776">Ancient Greece (776 BCE)</option>
-                        <option value="-509">Roman Republic (509 BCE)</option>
-                        <option value="1">Common Era</option>
-                        <option value="1492">Age of Exploration</option>
-                        <option value="1945">Modern Era</option>
-                        <option value="2026">Today</option>
-                    </select>
+                <div class="timeline-bookmarks">
+                    <button class="bookmark-btn" data-year="-4500000000">🌋 Earth Forms</button>
+                    <button class="bookmark-btn" data-year="-3800000000">🦠 First Life</button>
+                    <button class="bookmark-btn" data-year="-2400000000">🌬️ Great Oxidation</button>
+                    <button class="bookmark-btn" data-year="-541000000">🐟 Cambrian Explosion</button>
+                    <button class="bookmark-btn" data-year="-252000000">💀 Great Dying</button>
+                    <button class="bookmark-btn" data-year="-66000000">☄️ Dinosaurs Extinct</button>
+                    <button class="bookmark-btn" data-year="-200000">🧠 Humans Appear</button>
+                    <button class="bookmark-btn" data-year="-3000">🏛️ Civilizations</button>
+                </div>
+                
+                <div class="timeline-speed">
+                    <label>Speed:</label>
+                    <input type="range" class="speed-slider" id="speed-slider" min="1" max="100" value="50">
+                    <span id="speed-value">50x</span>
                 </div>
             </div>
-
-            <!-- Timeline Track -->
-            <div class="timeline-wrapper">
+            
+            <div class="timeline-track-container">
                 <div class="timeline-track" id="timeline-track">
-                    <div class="era-markers" id="era-markers"></div>
-                    <div class="event-dots" id="event-dots"></div>
-                    <div class="timeline-handle" id="timeline-handle">
-                        <div class="handle-line"></div>
-                        <div class="handle-grip"></div>
+                    <div class="timeline-markers" id="timeline-markers">
+                        <!-- Event markers will be added dynamically -->
                     </div>
+                    <div class="timeline-handle" id="timeline-handle" style="left: 0%;"></div>
                 </div>
+                <div class="era-labels">
+                    <span class="era-label">Hadean</span>
+                    <span class="era-label">Archean</span>
+                    <span class="era-label">Proterozoic</span>
+                    <span class="era-label">Paleozoic</span>
+                    <span class="era-label">Mesozoic</span>
+                    <span class="era-label">Cenozoic</span>
+                    <span class="era-label">Now</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============================================
+         SEARCH MODAL
+         ============================================ -->
+    <div class="modal-overlay" id="search-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🔍 Search Events & Places</h2>
+                <button class="modal-close" id="search-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for events, places, civilizations...">
+                <div class="search-results" id="search-results">
+                    <!-- Results will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MAIN JAVASCRIPT
+         ============================================ -->
+    <script>
+    // ================================================================
+    // GEOTOPIA - COMPLETE 4.5 BILLION YEAR EARTH HISTORY EXPLORER
+    // ================================================================
+
+    // ================================================================
+    // GLOBAL STATE
+    // ================================================================
+    
+    let scene, camera, renderer, globe, atmosphere, continentMeshes = [];
+    let currentYear = -4500000000;
+    let isPlaying = false;
+    let playSpeed = 50;
+    let isDragging = false;
+    let isTimelineDragging = false;
+    
+    const MIN_YEAR = -4500000000;
+    const MAX_YEAR = 2024;
+    
+    // ================================================================
+    // ERA DATA - Complete geological history
+    // ================================================================
+    
+    const ERAS = [
+        {
+            id: 'hadean',
+            name: 'Hadean Eon',
+            start: -4500000000,
+            end: -4000000000,
+            color: 0xff4500,
+            atmosphere: 0xff6600,
+            icon: '🌋',
+            description: 'Earth forms from cosmic debris. The surface is molten rock with constant volcanic activity and asteroid bombardment. The Moon forms from a giant impact. No continents, no oceans, no life.',
+            stats: { temp: '1000°C', oxygen: '0%', continents: '0', life: 'None' }
+        },
+        {
+            id: 'archean',
+            name: 'Archean Eon',
+            start: -4000000000,
+            end: -2500000000,
+            color: 0x8b4513,
+            atmosphere: 0x553311,
+            icon: '🦠',
+            description: 'Earth cools enough for the first oceans to form. The first continents emerge as small islands. Simple single-celled life (bacteria and archaea) appears. The atmosphere is mostly nitrogen and CO2.',
+            stats: { temp: '70°C', oxygen: '0%', continents: '1-2', life: 'Bacteria' }
+        },
+        {
+            id: 'proterozoic',
+            name: 'Proterozoic Eon',
+            start: -2500000000,
+            end: -541000000,
+            color: 0x4b0082,
+            atmosphere: 0x4466aa,
+            icon: '❄️',
+            description: 'The Great Oxidation Event transforms the atmosphere. Multiple "Snowball Earth" glaciation events occur. Continents merge and split. The first eukaryotes (complex cells) and eventually multicellular life evolves.',
+            stats: { temp: '-50 to 20°C', oxygen: '0-2%', continents: '1 (Rodinia)', life: 'Eukaryotes' }
+        },
+        {
+            id: 'paleozoic',
+            name: 'Paleozoic Era',
+            start: -541000000,
+            end: -252000000,
+            color: 0x2e8b57,
+            atmosphere: 0x66aa88,
+            icon: '🐟',
+            description: 'The Cambrian Explosion brings rapid diversification of life. Fish evolve, plants colonize land, forests appear, and the first amphibians and reptiles emerge. Continents form Pangaea. Ends with the worst mass extinction ever.',
+            stats: { temp: '15-35°C', oxygen: '15-35%', continents: 'Pangaea', life: 'Fish, Forests, Reptiles' }
+        },
+        {
+            id: 'mesozoic',
+            name: 'Mesozoic Era',
+            start: -252000000,
+            end: -66000000,
+            color: 0x228b22,
+            atmosphere: 0x88cc99,
+            icon: '🦕',
+            description: 'The Age of Dinosaurs. Pangaea breaks apart into modern continents. Dinosaurs dominate for 180 million years. First mammals, birds, and flowering plants appear. Ends with asteroid impact extinction.',
+            stats: { temp: '20-25°C', oxygen: '15-30%', continents: 'Breaking up', life: 'Dinosaurs' }
+        },
+        {
+            id: 'cenozoic',
+            name: 'Cenozoic Era',
+            start: -66000000,
+            end: 2024,
+            color: 0x4169e1,
+            atmosphere: 0x88ccff,
+            icon: '🧬',
+            description: 'The Age of Mammals. After dinosaur extinction, mammals diversify rapidly. Ice ages shape the land. Primates evolve, leading to humans 200,000 years ago. Human civilization begins 10,000 years ago.',
+            stats: { temp: '10-15°C', oxygen: '21%', continents: '7', life: 'Mammals, Humans' }
+        }
+    ];
+    
+    // ================================================================
+    // MAJOR EVENTS DATABASE
+    // ================================================================
+    
+    const EVENTS = [
+        // Hadean
+        { year: -4500000000, name: 'Earth Forms', type: 'geological', era: 'hadean', lat: 0, lng: 0, description: 'Earth accretes from the solar nebula', importance: 10 },
+        { year: -4500000000, name: 'Theia Impact (Moon Formation)', type: 'catastrophic', era: 'hadean', lat: 0, lng: 0, description: 'Mars-sized body collides with Earth, creating the Moon', importance: 10 },
+        { year: -4100000000, name: 'Late Heavy Bombardment', type: 'catastrophic', era: 'hadean', lat: 0, lng: 0, description: 'Intense asteroid impacts shape early Earth', importance: 9 },
+        
+        // Archean
+        { year: -3800000000, name: 'First Life', type: 'biological', era: 'archean', lat: -26.5, lng: 118.5, description: 'Earliest evidence of life (stromatolites)', importance: 10 },
+        { year: -3500000000, name: 'First Continents', type: 'geological', era: 'archean', lat: -30, lng: 25, description: 'Stable continental crust forms', importance: 8 },
+        
+        // Proterozoic
+        { year: -2400000000, name: 'Great Oxidation Event', type: 'biological', era: 'proterozoic', lat: 0, lng: 0, description: 'Cyanobacteria release oxygen, transforming atmosphere', importance: 10 },
+        { year: -2300000000, name: 'Huronian Glaciation', type: 'geological', era: 'proterozoic', lat: 60, lng: -80, description: 'First Snowball Earth event', importance: 9 },
+        { year: -1100000000, name: 'Rodinia Forms', type: 'geological', era: 'proterozoic', lat: 0, lng: 0, description: 'First supercontinent assembles', importance: 8 },
+        { year: -720000000, name: 'Sturtian Glaciation', type: 'geological', era: 'proterozoic', lat: 0, lng: 0, description: 'Snowball Earth - ice covers entire planet', importance: 9 },
+        { year: -575000000, name: 'Ediacaran Biota', type: 'biological', era: 'proterozoic', lat: -32, lng: 138, description: 'First complex multicellular life', importance: 9 },
+        
+        // Paleozoic
+        { year: -541000000, name: 'Cambrian Explosion', type: 'biological', era: 'paleozoic', lat: 30, lng: 110, description: 'Rapid diversification of life forms', importance: 10 },
+        { year: -485000000, name: 'First Fish', type: 'biological', era: 'paleozoic', lat: -20, lng: 140, description: 'Vertebrates appear', importance: 8 },
+        { year: -445000000, name: 'Ordovician Extinction', type: 'catastrophic', era: 'paleozoic', lat: 0, lng: 0, description: '85% of species extinct', importance: 9 },
+        { year: -430000000, name: 'First Land Plants', type: 'biological', era: 'paleozoic', lat: 0, lng: 0, description: 'Plants colonize land', importance: 9 },
+        { year: -375000000, name: 'First Tetrapods', type: 'biological', era: 'paleozoic', lat: 0, lng: 30, description: 'Fish evolve legs, move onto land', importance: 9 },
+        { year: -300000000, name: 'Pangaea Forms', type: 'geological', era: 'paleozoic', lat: 0, lng: 0, description: 'All continents merge into supercontinent', importance: 9 },
+        { year: -252000000, name: 'Permian Extinction (The Great Dying)', type: 'catastrophic', era: 'paleozoic', lat: 60, lng: 100, description: '96% of species extinct - worst extinction ever', importance: 10 },
+        
+        // Mesozoic
+        { year: -230000000, name: 'First Dinosaurs', type: 'biological', era: 'mesozoic', lat: -30, lng: -60, description: 'Dinosaurs appear in South America', importance: 9 },
+        { year: -200000000, name: 'Pangaea Begins Breaking', type: 'geological', era: 'mesozoic', lat: 0, lng: 0, description: 'Supercontinent starts to split', importance: 8 },
+        { year: -150000000, name: 'First Birds', type: 'biological', era: 'mesozoic', lat: 50, lng: 11, description: 'Archaeopteryx - first known bird', importance: 8 },
+        { year: -130000000, name: 'First Flowering Plants', type: 'biological', era: 'mesozoic', lat: 0, lng: 0, description: 'Angiosperms appear', importance: 8 },
+        { year: -66000000, name: 'Chicxulub Impact', type: 'catastrophic', era: 'mesozoic', lat: 21.4, lng: -89.5, description: 'Asteroid impact kills dinosaurs - 75% species extinct', importance: 10 },
+        
+        // Cenozoic
+        { year: -55000000, name: 'First Primates', type: 'biological', era: 'cenozoic', lat: 5, lng: 100, description: 'Early primates appear', importance: 8 },
+        { year: -50000000, name: 'India Collides with Asia', type: 'geological', era: 'cenozoic', lat: 28, lng: 84, description: 'Himalayan Mountains begin forming', importance: 8 },
+        { year: -7000000, name: 'Human-Ape Split', type: 'biological', era: 'cenozoic', lat: -1, lng: 36, description: 'Human ancestors diverge from apes', importance: 9 },
+        { year: -2600000, name: 'Ice Ages Begin', type: 'geological', era: 'cenozoic', lat: 70, lng: -40, description: 'Pleistocene glaciation cycles start', importance: 8 },
+        { year: -200000, name: 'Homo Sapiens', type: 'biological', era: 'cenozoic', lat: -3, lng: 35, description: 'Modern humans appear in Africa', importance: 10 },
+        { year: -70000, name: 'Out of Africa', type: 'biological', era: 'cenozoic', lat: 12, lng: 45, description: 'Humans migrate out of Africa', importance: 9 },
+        { year: -12000, name: 'Last Ice Age Ends', type: 'geological', era: 'cenozoic', lat: 60, lng: -100, description: 'Glaciers retreat, sea levels rise', importance: 8 },
+        { year: -10000, name: 'Agricultural Revolution', type: 'civilization', era: 'cenozoic', lat: 36, lng: 38, description: 'Humans begin farming', importance: 10 },
+        { year: -3500, name: 'First Writing', type: 'civilization', era: 'cenozoic', lat: 31, lng: 45, description: 'Sumerians invent writing', importance: 9 },
+        { year: -3100, name: 'Ancient Egypt', type: 'civilization', era: 'cenozoic', lat: 26, lng: 32, description: 'Egypt unified under first pharaoh', importance: 9 },
+        { year: -2600, name: 'Indus Valley', type: 'civilization', era: 'cenozoic', lat: 27, lng: 68, description: 'Harappan civilization flourishes', importance: 8 },
+        { year: -1600, name: 'Shang Dynasty', type: 'civilization', era: 'cenozoic', lat: 35, lng: 114, description: 'Bronze Age China', importance: 8 },
+        { year: -500, name: 'Classical Era', type: 'civilization', era: 'cenozoic', lat: 38, lng: 23, description: 'Greek civilization at its peak', importance: 9 },
+        { year: -27, name: 'Roman Empire', type: 'civilization', era: 'cenozoic', lat: 42, lng: 12, description: 'Rome becomes an empire', importance: 9 },
+        { year: 1492, name: 'Columbus', type: 'civilization', era: 'cenozoic', lat: 19, lng: -69, description: 'European contact with Americas', importance: 9 },
+        { year: 1969, name: 'Moon Landing', type: 'civilization', era: 'cenozoic', lat: 28.5, lng: -80.6, description: 'Humans walk on the Moon', importance: 9 }
+    ];
+    
+    // ================================================================
+    // CONTINENTAL POSITIONS - Simplified but accurate
+    // ================================================================
+    
+    const CONTINENTAL_CONFIGS = {
+        // Hadean/Archean - No continents or tiny proto-continents
+        '-4500000000': { type: 'none' },
+        '-4000000000': { type: 'proto' },
+        
+        // Rodinia supercontinent
+        '-1100000000': {
+            type: 'supercontinent',
+            name: 'Rodinia',
+            center: { lat: 0, lng: 0 },
+            shape: [
+                [-40, -60], [-30, -40], [-10, -20], [10, -10],
+                [30, 0], [40, 20], [30, 50], [10, 60],
+                [-10, 50], [-30, 30], [-40, 10], [-50, -20]
+            ]
+        },
+        
+        // Pangaea
+        '-300000000': {
+            type: 'supercontinent',
+            name: 'Pangaea',
+            center: { lat: 0, lng: 0 },
+            shape: [
+                [60, -30], [50, 10], [40, 30], [20, 40],
+                [0, 35], [-20, 30], [-40, 10], [-50, -20],
+                [-40, -40], [-20, -45], [0, -40], [20, -30],
+                [40, -20], [60, -30]
+            ]
+        },
+        
+        // Breaking Pangaea (Jurassic)
+        '-150000000': {
+            type: 'split',
+            continents: {
+                laurasia: [
+                    [60, -80], [50, -40], [50, 20], [60, 80],
+                    [70, 100], [70, -100], [60, -80]
+                ],
+                gondwana: [
+                    [-10, -50], [10, 0], [0, 50], [-20, 60],
+                    [-40, 40], [-50, 0], [-40, -40], [-10, -50]
+                ]
+            }
+        },
+        
+        // Modern continents (approximate positions at different times)
+        '-66000000': {
+            type: 'modern-early',
+            continents: {
+                northAmerica: [[60, -100], [50, -80], [25, -80], [25, -120], [50, -140], [70, -140]],
+                southAmerica: [[10, -80], [-10, -70], [-40, -70], [-55, -70], [-50, -55], [-10, -50]],
+                europe: [[45, -10], [60, 10], [70, 40], [50, 50], [40, 30], [35, 0]],
+                africa: [[35, -5], [30, 35], [0, 45], [-35, 30], [-35, 15], [5, -15]],
+                asia: [[60, 40], [70, 100], [50, 140], [20, 120], [30, 80], [50, 60]],
+                india: [[10, 50], [20, 55], [25, 60], [15, 65], [5, 60]],
+                australia: [[-10, 150], [-15, 145], [-35, 140], [-40, 150], [-20, 155]],
+                antarctica: [[-65, -60], [-70, 0], [-70, 90], [-65, 180], [-80, 120], [-80, -120]]
+            }
+        },
+        
+        // Present day
+        '0': {
+            type: 'modern',
+            continents: {
+                northAmerica: [[70, -140], [50, -125], [25, -110], [25, -80], [45, -65], [55, -60], [70, -95]],
+                southAmerica: [[12, -72], [-5, -79], [-23, -70], [-52, -68], [-55, -65], [-40, -62], [-5, -50], [10, -62]],
+                europe: [[37, -9], [43, -8], [60, 10], [71, 28], [70, 40], [55, 60], [45, 40], [38, 25]],
+                africa: [[37, -5], [32, 32], [10, 51], [-11, 44], [-35, 28], [-35, 18], [-5, 10], [5, -15]],
+                asia: [[42, 30], [78, 100], [70, 170], [30, 130], [8, 105], [25, 68], [38, 50]],
+                india: [[8, 68], [23, 70], [35, 78], [28, 90], [22, 90], [8, 78]],
+                australia: [[-11, 130], [-24, 114], [-35, 117], [-39, 145], [-28, 154], [-11, 143]],
+                antarctica: [[-65, -60], [-90, 0], [-65, 170]]
+            }
+        }
+    };
+    
+    // ================================================================
+    // LOADING SEQUENCE
+    // ================================================================
+    
+    async function startLoading() {
+        const progressBar = document.getElementById('loading-progress');
+        const statusText = document.getElementById('loading-status');
+        const loadingEarth = document.getElementById('loading-earth');
+        
+        const steps = [
+            { text: '🌌 Creating universe...', progress: 10, color: 'radial-gradient(circle at 30% 30%, #333, #000)' },
+            { text: '☀️ Igniting the Sun...', progress: 20, color: 'radial-gradient(circle at 30% 30%, #ff6600, #ff4400)' },
+            { text: '🌍 Forming Earth...', progress: 35, color: 'radial-gradient(circle at 30% 30%, #ff6600, #8b0000)' },
+            { text: '🌋 Volcanic activity...', progress: 45, color: 'radial-gradient(circle at 30% 30%, #ff4500, #660000)' },
+            { text: '💧 Cooling surface...', progress: 55, color: 'radial-gradient(circle at 30% 30%, #8b4513, #4a2512)' },
+            { text: '🌊 Creating oceans...', progress: 65, color: 'radial-gradient(circle at 30% 30%, #4a6a8a, #2a4a6a)' },
+            { text: '🦠 Life emerges...', progress: 75, color: 'radial-gradient(circle at 30% 30%, #2a6a4a, #1a4a3a)' },
+            { text: '🌿 Continents shift...', progress: 85, color: 'radial-gradient(circle at 30% 30%, #3a8a4a, #2a6a3a)' },
+            { text: '🌍 Modern Earth...', progress: 95, color: 'radial-gradient(circle at 30% 30%, #4a9eff, #2a5faf)' },
+            { text: '✨ Ready to explore!', progress: 100, color: 'radial-gradient(circle at 30% 30%, #4a9eff, #2a5faf)' }
+        ];
+        
+        for (const step of steps) {
+            statusText.textContent = step.text;
+            progressBar.style.width = step.progress + '%';
+            loadingEarth.style.background = step.color;
+            await sleep(400);
+        }
+        
+        await sleep(500);
+        
+        // Initialize the 3D scene
+        try {
+            await initScene();
+            document.getElementById('loading-screen').classList.add('hidden');
+        } catch (error) {
+            console.error('Failed to initialize:', error);
+            statusText.textContent = '❌ Error: ' + error.message;
+        }
+    }
+    
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    // ================================================================
+    // 3D SCENE INITIALIZATION
+    // ================================================================
+    
+    async function initScene() {
+        const container = document.getElementById('map-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        
+        console.log('Initializing scene:', width, 'x', height);
+        
+        // Scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000008);
+        
+        // Camera
+        camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+        camera.position.z = 5;
+        
+        // Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+        
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        sunLight.position.set(5, 3, 5);
+        scene.add(sunLight);
+        
+        // Add stars
+        addStars();
+        
+        // Create Earth
+        await createEarth();
+        
+        // Setup interactions
+        setupMouseControls();
+        setupClickDetection();
+        setupTimeline();
+        setupUI();
+        
+        // Render first frame
+        updateEarthForYear(currentYear);
+        updateInfoPanel(currentYear);
+        addEventMarkers();
+        
+        // Start animation loop
+        animate();
+        
+        // Handle resize
+        window.addEventListener('resize', onResize);
+        
+        console.log('✅ Scene initialized!');
+    }
+    
+    function addStars() {
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 5000;
+        const positions = new Float32Array(starCount * 3);
+        const colors = new Float32Array(starCount * 3);
+        
+        for (let i = 0; i < starCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 200;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
+            
+            // Random star colors (white, blue, yellow)
+            const colorChoice = Math.random();
+            if (colorChoice > 0.8) {
+                colors[i * 3] = 0.8; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0;
+            } else if (colorChoice > 0.6) {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 0.7;
+            } else {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 1.0;
+            }
+        }
+        
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const starMaterial = new THREE.PointsMaterial({
+            size: 0.1,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.9
+        });
+        
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+    }
+    
+    async function createEarth() {
+        // Main globe
+        const geometry = new THREE.SphereGeometry(2, 128, 128);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xff4500,
+            emissive: 0x8b0000,
+            emissiveIntensity: 0.5,
+            shininess: 30
+        });
+        
+        globe = new THREE.Mesh(geometry, material);
+        scene.add(globe);
+        
+        // Atmosphere
+        const atmosphereGeometry = new THREE.SphereGeometry(2.08, 64, 64);
+        const atmosphereMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff6600,
+            transparent: true,
+            opacity: 0.15,
+            side: THREE.BackSide
+        });
+        
+        atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        scene.add(atmosphere);
+        
+        // Outer glow
+        const glowGeometry = new THREE.SphereGeometry(2.2, 64, 64);
+        const glowMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity * 0.5;
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            transparent: true
+        });
+        
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        scene.add(glow);
+    }
+    
+    // ================================================================
+    // UPDATE EARTH FOR TIME PERIOD
+    // ================================================================
+    
+    function updateEarthForYear(year) {
+        currentYear = year;
+        const era = getEraForYear(year);
+        
+        // Update globe color based on era
+        updateGlobeAppearance(era, year);
+        
+        // Update continents
+        updateContinents(year);
+        
+        // Update UI
+        document.getElementById('year-display').textContent = formatYear(year);
+        document.getElementById('era-badge').textContent = `${era.icon} ${era.name}`;
+        
+        // Update timeline handle
+        const position = yearToPosition(year) * 100;
+        document.getElementById('timeline-handle').style.left = position + '%';
+    }
+    
+    function updateGlobeAppearance(era, year) {
+        let color, emissive, emissiveIntensity, atmosphereColor, atmosphereOpacity;
+        
+        // Interpolate within era
+        const eraProgress = (year - era.start) / (era.end - era.start);
+        
+        switch (era.id) {
+            case 'hadean':
+                color = 0xff4500;
+                emissive = 0x8b0000;
+                emissiveIntensity = 0.6 - eraProgress * 0.2;
+                atmosphereColor = 0xff6600;
+                atmosphereOpacity = 0.3;
+                break;
+            case 'archean':
+                color = lerpColor(0xff4500, 0x8b4513, eraProgress);
+                emissive = lerpColor(0x8b0000, 0x4a2512, eraProgress);
+                emissiveIntensity = 0.4 - eraProgress * 0.2;
+                atmosphereColor = 0x553311;
+                atmosphereOpacity = 0.2;
+                break;
+            case 'proterozoic':
+                color = lerpColor(0x4a4a6a, 0x3a5a7a, eraProgress);
+                emissive = lerpColor(0x2a2a4a, 0x1a3a5a, eraProgress);
+                emissiveIntensity = 0.15;
+                atmosphereColor = 0x4466aa;
+                atmosphereOpacity = 0.12;
+                break;
+            case 'paleozoic':
+                color = lerpColor(0x3a6a5a, 0x2a8a4a, eraProgress);
+                emissive = lerpColor(0x2a4a3a, 0x1a6a3a, eraProgress);
+                emissiveIntensity = 0.1;
+                atmosphereColor = 0x66aa88;
+                atmosphereOpacity = 0.1;
+                break;
+            case 'mesozoic':
+                color = lerpColor(0x3a8a4a, 0x4a9a5a, eraProgress);
+                emissive = lerpColor(0x2a6a3a, 0x3a7a4a, eraProgress);
+                emissiveIntensity = 0.08;
+                atmosphereColor = 0x88cc99;
+                atmosphereOpacity = 0.08;
+                break;
+            case 'cenozoic':
+            default:
+                color = lerpColor(0x4a9a6a, 0x4a9eff, Math.min(eraProgress * 2, 1));
+                emissive = lerpColor(0x3a6a4a, 0x2a5faf, eraProgress);
+                emissiveIntensity = 0.05;
+                atmosphereColor = 0x88ccff;
+                atmosphereOpacity = 0.06;
+                break;
+        }
+        
+        globe.material.color.setHex(color);
+        globe.material.emissive.setHex(emissive);
+        globe.material.emissiveIntensity = emissiveIntensity;
+        
+        atmosphere.material.color.setHex(atmosphereColor);
+        atmosphere.material.opacity = atmosphereOpacity;
+    }
+    
+    function lerpColor(color1, color2, t) {
+        const r1 = (color1 >> 16) & 255;
+        const g1 = (color1 >> 8) & 255;
+        const b1 = color1 & 255;
+        
+        const r2 = (color2 >> 16) & 255;
+        const g2 = (color2 >> 8) & 255;
+        const b2 = color2 & 255;
+        
+        const r = Math.round(r1 + (r2 - r1) * t);
+        const g = Math.round(g1 + (g2 - g1) * t);
+        const b = Math.round(b1 + (b2 - b1) * t);
+        
+        return (r << 16) | (g << 8) | b;
+    }
+    
+    function updateContinents(year) {
+        // Remove existing continent meshes
+        continentMeshes.forEach(mesh => scene.remove(mesh));
+        continentMeshes = [];
+        
+        // Find the nearest continental configuration
+        const config = getNearestContinentalConfig(year);
+        if (!config || config.type === 'none') return;
+        
+        const era = getEraForYear(year);
+        const continentColor = era.id === 'hadean' || era.id === 'archean' 
+            ? 0x4a3728 
+            : era.id === 'proterozoic' 
+                ? 0x5a4a3a 
+                : 0x3d8b3d;
+        
+        if (config.type === 'supercontinent' && config.shape) {
+            createContinentMesh(config.shape, continentColor, 0.08);
+        } else if (config.type === 'split' && config.continents) {
+            for (const [name, shape] of Object.entries(config.continents)) {
+                createContinentMesh(shape, continentColor, 0.08);
+            }
+        } else if ((config.type === 'modern' || config.type === 'modern-early') && config.continents) {
+            for (const [name, shape] of Object.entries(config.continents)) {
+                createContinentMesh(shape, continentColor, 0.1);
+            }
+        }
+    }
+    
+    function createContinentMesh(points, color, height) {
+        if (points.length < 3) return;
+        
+        const vertices = [];
+        const indices = [];
+        
+        points.forEach(([lat, lng]) => {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lng + 180) * (Math.PI / 180);
+            const radius = 2 + height;
+            
+            const x = -radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.cos(phi);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+            
+            vertices.push(x, y, z);
+        });
+        
+        // Triangulate
+        for (let i = 1; i < points.length - 1; i++) {
+            indices.push(0, i, i + 1);
+        }
+        
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setIndex(indices);
+        geometry.computeVertexNormals();
+        
+        const material = new THREE.MeshPhongMaterial({
+            color: color,
+            side: THREE.DoubleSide,
+            shininess: 20
+        });
+        
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.rotation.copy(globe.rotation);
+        scene.add(mesh);
+        continentMeshes.push(mesh);
+    }
+    
+    function getNearestContinentalConfig(year) {
+        const keys = Object.keys(CONTINENTAL_CONFIGS).map(Number).sort((a, b) => a - b);
+        
+        // Find nearest config
+        for (let i = keys.length - 1; i >= 0; i--) {
+            if (year >= keys[i]) {
+                return CONTINENTAL_CONFIGS[keys[i].toString()];
+            }
+        }
+        
+        return CONTINENTAL_CONFIGS[keys[0].toString()];
+    }
+    
+    // ================================================================
+    // INFO PANEL UPDATES
+    // ================================================================
+    
+    function updateInfoPanel(year) {
+        const era = getEraForYear(year);
+        
+        document.getElementById('info-era-name').textContent = era.name;
+        document.getElementById('info-era-dates').textContent = formatEraRange(era);
+        document.getElementById('info-era-description').textContent = era.description;
+        
+        // Stats
+        document.getElementById('stat-temp').textContent = era.stats.temp;
+        document.getElementById('stat-oxygen').textContent = era.stats.oxygen;
+        document.getElementById('stat-continents').textContent = era.stats.continents;
+        document.getElementById('stat-life').textContent = era.stats.life;
+        
+        // Events
+        updateEventsList(year, era);
+    }
+    
+    function updateEventsList(year, era) {
+        const eventsList = document.getElementById('events-list');
+        
+        // Get events for this era, sorted by proximity to current year
+        const eraEvents = EVENTS
+            .filter(e => e.era === era.id)
+            .sort((a, b) => Math.abs(a.year - year) - Math.abs(b.year - year))
+            .slice(0, 6);
+        
+        eventsList.innerHTML = eraEvents.map(event => `
+            <div class="event-card" onclick="goToEvent(${event.year}, ${event.lat}, ${event.lng})">
+                <span class="event-type ${event.type}">${event.type}</span>
+                <h4>${event.name}</h4>
+                <div class="event-date">${formatYear(event.year)}</div>
+            </div>
+        `).join('');
+    }
+    
+    // ================================================================
+    // MOUSE CONTROLS
+    // ================================================================
+    
+    function setupMouseControls() {
+        let prevMouse = { x: 0, y: 0 };
+        let rotation = { x: 0, y: 0 };
+        
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+                isDragging = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
+                renderer.domElement.style.cursor = 'grabbing';
+            }
+        });
+        
+        renderer.domElement.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - prevMouse.x;
+                const deltaY = e.clientY - prevMouse.y;
                 
-                <div class="timeline-labels" id="timeline-labels"></div>
-            </div>
-
-        </section>
-
-    </div>
-
-    <!-- Search Modal -->
-    <div id="search-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Search Events & Civilizations</h2>
-                <button class="modal-close" data-modal="search-modal">×</button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="search-input" class="search-input" placeholder="Search...">
-                <div id="search-results" class="search-results"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- About Modal -->
-    <div id="about-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>About GEOTOPIA</h2>
-                <button class="modal-close" data-modal="about-modal">×</button>
-            </div>
-            <div class="modal-body">
-                <h3>Complete Geographical Timeline of Earth</h3>
-                <p><strong>4.5 Billion Years • 50+ Civilizations • 500+ Events</strong></p>
-                <ul>
-                    <li>🌋 All Geological Eras</li>
-                    <li>🏛️ Every Major Civilization</li>
-                    <li>🗺️ Continental Drift Animation</li>
-                    <li>📍 Historical Events Mapped</li>
-                </ul>
-                <p><strong>Built to Award-Winning Standards 🏆</strong></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Settings</h2>
-                <button class="modal-close" data-modal="settings-modal">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="setting-group">
-                    <label for="quality-select">Graphics Quality:</label>
-                    <select id="quality-select">
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
+                rotation.y += deltaX * 0.005;
+                rotation.x += deltaY * 0.005;
+                rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.x));
+                
+                globe.rotation.y = rotation.y;
+                globe.rotation.x = rotation.x;
+                
+                continentMeshes.forEach(mesh => {
+                    mesh.rotation.y = rotation.y;
+                    mesh.rotation.x = rotation.x;
+                });
+                
+                prevMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+        
+        renderer.domElement.addEventListener('mouseup', () => {
+            isDragging = false;
+            renderer.domElement.style.cursor = 'grab';
+        });
+        
+        renderer.domElement.addEventListener('mouseleave', () => {
+            isDragging = false;
+            renderer.domElement.style.cursor = 'grab';
+        });
+        
+        renderer.domElement.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            camera.position.z = Math.max(3, Math.min(10, camera.position.z + e.deltaY * 0.005));
+        });
+        
+        renderer.domElement.style.cursor = 'grab';
+    }
+    
+    // ================================================================
+    // CLICK DETECTION ON GLOBE
+    // ================================================================
+    
+    function setupClickDetection() {
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        renderer.domElement.addEventListener('click', (e) => {
+            if (isDragging) return;
+            
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(globe);
+            
+            if (intersects.length > 0) {
+                const point = intersects[0].point;
+                
+                // Convert to lat/lng
+                const lat = 90 - Math.acos(point.y / 2) * (180 / Math.PI);
+                const lng = Math.atan2(point.z, -point.x) * (180 / Math.PI) - 180;
+                
+                showClickPopup(e.clientX, e.clientY, lat, lng);
+            }
+        });
+        
+        // Close popup
+        document.getElementById('popup-close').addEventListener('click', hideClickPopup);
+    }
+    
+    function showClickPopup(x, y, lat, lng) {
+        const popup = document.getElementById('click-popup');
+        const era = getEraForYear(currentYear);
+        
+        // Position popup
+        const container = document.getElementById('map-container');
+        const rect = container.getBoundingClientRect();
+        
+        let popupX = x - rect.left;
+        let popupY = y - rect.top;
+        
+        // Keep within bounds
+        if (popupX > rect.width - 300) popupX = rect.width - 310;
+        if (popupY > rect.height - 200) popupY = rect.height - 210;
+        
+        popup.style.left = popupX + 'px';
+        popup.style.top = popupY + 'px';
+        
+        // Update content
+        document.getElementById('popup-title').textContent = getLocationName(lat, lng);
+        document.getElementById('popup-coords').textContent = `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lng).toFixed(1)}°${lng >= 0 ? 'E' : 'W'}`;
+        document.getElementById('popup-content').textContent = getLocationDescription(lat, lng, era);
+        
+        // Find events near this location
+        const nearbyEvents = EVENTS.filter(e => {
+            const dist = Math.sqrt(Math.pow(e.lat - lat, 2) + Math.pow(e.lng - lng, 2));
+            return dist < 30 && Math.abs(e.year - currentYear) < Math.abs(era.end - era.start);
+        }).slice(0, 3);
+        
+        const eventsListEl = document.getElementById('popup-events-list');
+        if (nearbyEvents.length > 0) {
+            document.getElementById('popup-events').style.display = 'block';
+            eventsListEl.innerHTML = nearbyEvents.map(e => `
+                <div class="event-item" onclick="goToEvent(${e.year}, ${e.lat}, ${e.lng})">
+                    <div class="event-title">${e.name}</div>
+                    <div class="event-year">${formatYear(e.year)}</div>
                 </div>
+            `).join('');
+        } else {
+            document.getElementById('popup-events').style.display = 'none';
+        }
+        
+        popup.classList.add('visible');
+    }
+    
+    function hideClickPopup() {
+        document.getElementById('click-popup').classList.remove('visible');
+    }
+    
+    function getLocationName(lat, lng) {
+        // Simplified location naming
+        if (lat > 60) return 'Arctic Region';
+        if (lat < -60) return 'Antarctic Region';
+        if (lat > 30 && lng > -30 && lng < 60) return 'Europe/Middle East';
+        if (lat > 30 && lng >= 60) return 'Asia';
+        if (lat > 10 && lat < 30 && lng > 60 && lng < 100) return 'Indian Subcontinent';
+        if (lat > 0 && lng < -30) return 'Americas';
+        if (lat < 0 && lat > -40 && lng > 10 && lng < 55) return 'Africa';
+        if (lat < -10 && lng > 110) return 'Australia/Oceania';
+        return 'Location';
+    }
+    
+    function getLocationDescription(lat, lng, era) {
+        switch (era.id) {
+            case 'hadean':
+                return 'During the Hadean, this area was molten rock, constantly bombarded by asteroids. No solid surface existed yet.';
+            case 'archean':
+                return 'In the Archean, this region was part of the early cooling Earth. Small protocontinents were beginning to form.';
+            case 'proterozoic':
+                return 'During the Proterozoic, this area experienced dramatic climate changes including global glaciations.';
+            case 'paleozoic':
+                return 'In the Paleozoic, life was spreading across the planet. This region was part of the supercontinent Pangaea.';
+            case 'mesozoic':
+                return 'During the Mesozoic, dinosaurs roamed this area. The continents were beginning to take modern shapes.';
+            case 'cenozoic':
+                if (currentYear > -10000) {
+                    return 'In recent history, this region has been shaped by human civilization and activity.';
+                }
+                return 'During the Cenozoic, mammals diversified in this region. Ice ages shaped the landscape.';
+            default:
+                return 'Information about this location at this time period.';
+        }
+    }
+    
+    // ================================================================
+    // TIMELINE CONTROLS
+    // ================================================================
+    
+    function setupTimeline() {
+        const track = document.getElementById('timeline-track');
+        const handle = document.getElementById('timeline-handle');
+        
+        // Track click
+        track.addEventListener('click', (e) => {
+            if (e.target === handle) return;
+            const rect = track.getBoundingClientRect();
+            const position = (e.clientX - rect.left) / rect.width;
+            const year = positionToYear(position);
+            goToYear(year);
+        });
+        
+        // Handle drag
+        handle.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            isTimelineDragging = true;
+            handle.style.transform = 'translate(-50%, -50%) scale(1.2)';
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isTimelineDragging) {
+                const track = document.getElementById('timeline-track');
+                const rect = track.getBoundingClientRect();
+                let position = (e.clientX - rect.left) / rect.width;
+                position = Math.max(0, Math.min(1, position));
+                const year = positionToYear(position);
+                updateEarthForYear(year);
+                updateInfoPanel(year);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isTimelineDragging) {
+                isTimelineDragging = false;
+                document.getElementById('timeline-handle').style.transform = 'translate(-50%, -50%)';
+            }
+        });
+        
+        // Control buttons
+        document.getElementById('btn-start').addEventListener('click', () => goToYear(MIN_YEAR));
+        document.getElementById('btn-end').addEventListener('click', () => goToYear(MAX_YEAR));
+        document.getElementById('btn-play').addEventListener('click', togglePlay);
+        document.getElementById('btn-back').addEventListener('click', stepBack);
+        document.getElementById('btn-forward').addEventListener('click', stepForward);
+        
+        // Speed slider
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            playSpeed = parseInt(e.target.value);
+            document.getElementById('speed-value').textContent = playSpeed + 'x';
+        });
+        
+        // Bookmarks
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const year = parseInt(btn.dataset.year);
+                goToYear(year);
+            });
+        });
+    }
+    
+    function addEventMarkers() {
+        const markersContainer = document.getElementById('timeline-markers');
+        markersContainer.innerHTML = '';
+        
+        EVENTS.filter(e => e.importance >= 9).forEach(event => {
+            const position = yearToPosition(event.year) * 100;
+            const marker = document.createElement('div');
+            marker.className = `timeline-marker ${event.importance >= 10 ? 'major' : ''}`;
+            marker.style.left = position + '%';
+            marker.title = `${event.name} (${formatYear(event.year)})`;
+            marker.addEventListener('click', (e) => {
+                e.stopPropagation();
+                goToYear(event.year);
+            });
+            markersContainer.appendChild(marker);
+        });
+    }
+    
+    function goToYear(year, animated = true) {
+        year = Math.max(MIN_YEAR, Math.min(MAX_YEAR, year));
+        
+        if (animated && typeof gsap !== 'undefined') {
+            gsap.to({ year: currentYear }, {
+                year: year,
+                duration: 0.8,
+                ease: 'power2.inOut',
+                onUpdate: function() {
+                    updateEarthForYear(Math.round(this.targets()[0].year));
+                },
+                onComplete: () => {
+                    updateEarthForYear(year);
+                    updateInfoPanel(year);
+                }
+            });
+        } else {
+            updateEarthForYear(year);
+            updateInfoPanel(year);
+        }
+    }
+    
+    function goToEvent(year, lat, lng) {
+        goToYear(year);
+        // Could also rotate globe to show location
+    }
+    
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        const btn = document.getElementById('btn-play');
+        btn.textContent = isPlaying ? '⏸️ Pause' : '▶️ Play';
+        btn.classList.toggle('active', isPlaying);
+        
+        if (isPlaying) playLoop();
+    }
+    
+    function playLoop() {
+        if (!isPlaying) return;
+        
+        // Calculate step based on current position
+        const step = getPlaybackStep(currentYear) * playSpeed;
+        const newYear = Math.min(MAX_YEAR, currentYear + step);
+        
+        if (newYear >= MAX_YEAR) {
+            isPlaying = false;
+            document.getElementById('btn-play').textContent = '▶️ Play';
+            document.getElementById('btn-play').classList.remove('active');
+            return;
+        }
+        
+        updateEarthForYear(newYear);
+        
+        // Update info panel less frequently
+        if (Math.random() < 0.1) {
+            updateInfoPanel(newYear);
+        }
+        
+        requestAnimationFrame(playLoop);
+    }
+    
+    function getPlaybackStep(year) {
+        // Larger steps for ancient history, smaller for recent
+        if (year < -1000000000) return 50000000;
+        if (year < -100000000) return 5000000;
+        if (year < -10000000) return 500000;
+        if (year < -100000) return 10000;
+        if (year < -10000) return 500;
+        if (year < 0) return 50;
+        return 1;
+    }
+    
+    function stepBack() {
+        const step = getPlaybackStep(currentYear) * 10;
+        goToYear(currentYear - step);
+    }
+    
+    function stepForward() {
+        const step = getPlaybackStep(currentYear) * 10;
+        goToYear(currentYear + step);
+    }
+    
+    // ================================================================
+    // UI SETUP
+    // ================================================================
+    
+    function setupUI() {
+        // Search
+        document.getElementById('btn-search').addEventListener('click', () => {
+            document.getElementById('search-modal').classList.add('visible');
+            document.getElementById('search-input').focus();
+        });
+        
+        document.getElementById('search-close').addEventListener('click', () => {
+            document.getElementById('search-modal').classList.remove('visible');
+        });
+        
+        document.getElementById('search-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'search-modal') {
+                document.getElementById('search-modal').classList.remove('visible');
+            }
+        });
+        
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            performSearch(e.target.value);
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    togglePlay();
+                    break;
+                case 'ArrowLeft':
+                    stepBack();
+                    break;
+                case 'ArrowRight':
+                    stepForward();
+                    break;
+                case 'Escape':
+                    document.getElementById('search-modal').classList.remove('visible');
+                    hideClickPopup();
+                    break;
+                case '/':
+                    e.preventDefault();
+                    document.getElementById('search-modal').classList.add('visible');
+                    document.getElementById('search-input').focus();
+                    break;
+            }
+        });
+    }
+    
+    function performSearch(query) {
+        const resultsContainer = document.getElementById('search-results');
+        
+        if (!query || query.length < 2) {
+            resultsContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Start typing to search...</p>';
+            return;
+        }
+        
+        const lowerQuery = query.toLowerCase();
+        const results = EVENTS.filter(e => 
+            e.name.toLowerCase().includes(lowerQuery) ||
+            e.description.toLowerCase().includes(lowerQuery) ||
+            e.type.toLowerCase().includes(lowerQuery)
+        ).slice(0, 10);
+        
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No results found</p>';
+            return;
+        }
+        
+        resultsContainer.innerHTML = results.map(e => `
+            <div class="search-result-item" onclick="searchResultClick(${e.year})">
+                <h4>${e.name}</h4>
+                <p>${e.description}</p>
+                <div class="result-year">${formatYear(e.year)}</div>
             </div>
-        </div>
-    </div>
-
-    <!-- External Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- Core Scripts -->
-    <script src="js/core/utils.js"></script>
-    <script src="js/core/state.js"></script>
+        `).join('');
+    }
     
-    <!-- Data Master Index (MUST load before data files) -->
-    <script src="js/data/master-index.js"></script>
+    function searchResultClick(year) {
+        document.getElementById('search-modal').classList.remove('visible');
+        goToYear(year);
+    }
     
-    <!-- Geological Data -->
-    <script src="js/data/geological/hadean.js"></script>
-    <script src="js/data/geological/archean.js"></script>
-    <script src="js/data/geological/proterozoic.js"></script>
-    <script src="js/data/geological/paleozoic.js"></script>
-    <script src="js/data/geological/mesozoic.js"></script>
-    <script src="js/data/geological/cenozoic.js"></script>
+    // ================================================================
+    // UTILITIES
+    // ================================================================
     
-    <!-- Civilization Data -->
-    <script src="js/data/civilizations/africa.js"></script>
-    <script src="js/data/civilizations/mediterranean.js"></script>
-    <script src="js/data/civilizations/middle-east.js"></script>
-    <script src="js/data/civilizations/south-asia.js"></script>
-    <script src="js/data/civilizations/east-asia.js"></script>
-    <script src="js/data/civilizations/southeast-asia.js"></script>
-    <script src="js/data/civilizations/europe.js"></script>
-    <script src="js/data/civilizations/americas.js"></script>
-    <script src="js/data/civilizations/oceania.js"></script>
-    <script src="js/data/civilizations/central-asia.js"></script>
+    function getEraForYear(year) {
+        return ERAS.find(era => year >= era.start && year < era.end) || ERAS[ERAS.length - 1];
+    }
     
-    <!-- Modern Era Data -->
-    <script src="js/data/modern/colonial.js"></script>
-    <script src="js/data/modern/world-wars.js"></script>
-    <script src="js/data/modern/cold-war.js"></script>
-    <script src="js/data/modern/contemporary.js"></script>
+    function formatYear(year) {
+        const absYear = Math.abs(year);
+        
+        if (absYear >= 1000000000) return (absYear / 1000000000).toFixed(1) + ' Ga';
+        if (absYear >= 1000000) return (absYear / 1000000).toFixed(1) + ' Ma';
+        if (absYear >= 10000) return (absYear / 1000).toFixed(0) + 'K ' + (year < 0 ? 'BCE' : 'CE');
+        if (year < 0) return Math.round(absYear).toLocaleString() + ' BCE';
+        return Math.round(year).toLocaleString() + ' CE';
+    }
     
-    <!-- Engines -->
-    <script src="js/engine/data-engine.js"></script>
-    <script src="js/engine/animation-engine.js"></script>
-    <script src="js/engine/map-engine.js"></script>
-    <script src="js/engine/timeline-engine.js"></script>
+    function formatEraRange(era) {
+        return `${formatYear(era.start)} - ${formatYear(era.end)}`;
+    }
     
-    <!-- UI Components -->
-    <script src="js/ui/controls.js"></script>
-    <script src="js/ui/info-panel.js"></script>
-    <script src="js/ui/legend.js"></script>
+    function yearToPosition(year) {
+        // Logarithmic scale
+        const logMin = Math.log10(Math.abs(MIN_YEAR) + 1);
+        const logMax = Math.log10(Math.abs(MAX_YEAR) + 1);
+        const logYear = Math.log10(Math.abs(year) + 1);
+        
+        if (year < 0) {
+            return (logMin - logYear) / logMin * 0.95;
+        } else {
+            return 0.95 + (year / MAX_YEAR) * 0.05;
+        }
+    }
     
-    <!-- Main App (MUST load last) -->
-    <script src="js/core/app.js"></script>
-
-     <script src="js/fix.js"></script>
-
+    function positionToYear(position) {
+        if (position < 0.95) {
+            const logMin = Math.log10(Math.abs(MIN_YEAR) + 1);
+            const logYear = logMin - (position / 0.95) * logMin;
+            return -(Math.pow(10, logYear) - 1);
+        } else {
+            return ((position - 0.95) / 0.05) * MAX_YEAR;
+        }
+    }
+    
+    // ================================================================
+    // ANIMATION LOOP
+    // ================================================================
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        if (!isDragging) {
+            globe.rotation.y += 0.0005;
+            continentMeshes.forEach(mesh => {
+                mesh.rotation.y += 0.0005;
+            });
+        }
+        
+        renderer.render(scene, camera);
+    }
+    
+    function onResize() {
+        const container = document.getElementById('map-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    }
+    
+    // ================================================================
+    // START
+    // ================================================================
+    
+    window.addEventListener('DOMContentLoaded', startLoading);
+    
+    </script>
 </body>
 </html>
