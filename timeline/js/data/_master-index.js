@@ -772,9 +772,4 @@ class GEOTOPIADataEngine {
 // Create global instance
 window.GEOTOPIA_DATA = new GEOTOPIADataEngine();
 
-// Convenience methods
-window.GEOTOPIA_DATA.register = function(data) {
-  return this.register(data);
-};
-
 console.log('✅ GEOTOPIA Data Master Index loaded');
