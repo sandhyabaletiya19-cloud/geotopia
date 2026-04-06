@@ -1,7 +1,7 @@
 /**
- * GEOTOPIA MAP ENGINE - FIXED VERSION
+ * GEOTOPIA MAP ENGINE - COMPLETE FIXED VERSION
  * 3D Globe with morphing continents + 2D fallback
- * Debugging enabled, CORS-free, guaranteed to show SOMETHING
+ * GUARANTEED TO SHOW SOMETHING
  */
 
 class MapEngine {
@@ -33,7 +33,7 @@ class MapEngine {
         this.isDragging = false;
         
         // Performance
-        this.renderQuality = 'high'; // high, medium, low
+        this.renderQuality = 'high';
         
         // Debug
         this.debugMode = true;
@@ -52,7 +52,7 @@ class MapEngine {
             return;
         }
 
-        console.log('✅ MAP ENGINE: Container found:', container);
+        console.log('✅ MAP ENGINE: Container found');
 
         // Try 3D first, fallback to 2D if WebGL not supported
         if (this.isWebGLAvailable()) {
@@ -85,11 +85,8 @@ class MapEngine {
         try {
             const canvas = document.createElement('canvas');
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            const available = !!gl;
-            console.log(`🔍 MAP ENGINE: WebGL available: ${available}`);
-            return available;
+            return !!gl;
         } catch (e) {
-            console.error('❌ MAP ENGINE: WebGL check failed:', e);
             return false;
         }
     }
@@ -105,11 +102,17 @@ class MapEngine {
         this.scene.background = new THREE.Color(0x000011);
         console.log('  ✓ Scene created');
 
+        // Get container size (force minimum if container is 0)
+        let width = container.clientWidth || window.innerWidth || 800;
+        let height = container.clientHeight || window.innerHeight - 200 || 600;
+        
+        console.log(`  📏 Container size: ${width}x${height}`);
+
         // Camera
-        const aspect = container.clientWidth / container.clientHeight;
+        const aspect = width / height;
         this.camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
         this.camera.position.z = 5;
-        console.log('  ✓ Camera created at position:', this.camera.position);
+        console.log('  ✓ Camera created');
 
         // Renderer
         this.renderer = new THREE.WebGLRenderer({ 
@@ -117,30 +120,27 @@ class MapEngine {
             alpha: true,
             powerPreference: 'high-performance'
         });
-        this.renderer.setSize(container.clientWidth, container.clientHeight);
+        
+        // FORCE SIZE - critical fix
+        this.renderer.setSize(width, height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        // ⚠️ CRITICAL: Clear container and add canvas
-    console.log('  🧹 Clearing container...');
-    container.innerHTML = '';  // <-- THIS LINE IS CRITICAL
-    container.appendChild(this.renderer.domElement);
-    console.log('  ✓ Renderer created and added to DOM');
-    console.log('  ✓ Canvas dimensions:', this.renderer.domElement.width, 'x', this.renderer.domElement.height);
+        
+        console.log('  ✓ Renderer created');
         
         // Clear container and add canvas
         container.innerHTML = '';
         container.appendChild(this.renderer.domElement);
-        console.log('  ✓ Renderer created and added to DOM');
+        console.log('  ✓ Canvas added to DOM');
+        console.log(`  ✓ Canvas size: ${this.renderer.domElement.width}x${this.renderer.domElement.height}`);
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         this.scene.add(ambientLight);
-        console.log('  ✓ Ambient light added');
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         directionalLight.position.set(5, 3, 5);
         this.scene.add(directionalLight);
-        console.log('  ✓ Directional light added');
+        console.log('  ✓ Lights added');
 
         // Add stars background
         this.addStarfield();
@@ -148,18 +148,51 @@ class MapEngine {
         // Create globe base
         await this.createGlobe();
 
-        // Mouse controls (orbit)
+        // Mouse controls
         this.addOrbitControls();
 
         console.log('✅ MAP ENGINE: 3D initialization complete');
+        
+        // FORCE RESIZE AFTER 100ms (ensures container has proper size)
+        setTimeout(() => {
+            console.log('🔄 MAP ENGINE: Forcing post-init resize...');
+            this.forceResize();
+        }, 100);
+    }
+
+    /**
+     * Force renderer resize (emergency fix for 0x0 canvas)
+     */
+    forceResize() {
+        const container = document.getElementById('map-container');
+        if (!container) return;
+
+        let width = container.clientWidth;
+        let height = container.clientHeight;
+
+        // If still 0, use window size
+        if (width === 0 || height === 0) {
+            width = window.innerWidth;
+            height = window.innerHeight - 200; // Account for header/timeline
+            console.warn('  ⚠️ Container still has no size, using window dimensions');
+        }
+
+        console.log(`  📐 Resizing to ${width}x${height}`);
+
+        if (this.renderer && width > 0 && height > 0) {
+            this.renderer.setSize(width, height);
+            if (this.camera) {
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+            }
+            console.log('  ✅ Forced resize complete');
+        }
     }
 
     /**
      * Add starfield background
      */
     addStarfield() {
-        console.log('⭐ MAP ENGINE: Adding starfield...');
-        
         const starGeometry = new THREE.BufferGeometry();
         const starCount = 5000;
         const positions = new Float32Array(starCount * 3);
@@ -179,8 +212,6 @@ class MapEngine {
 
         const stars = new THREE.Points(starGeometry, starMaterial);
         this.scene.add(stars);
-        
-        console.log('  ✓ Starfield added with', starCount, 'stars');
     }
 
     /**
@@ -189,37 +220,27 @@ class MapEngine {
     async createGlobe() {
         console.log('🌍 MAP ENGINE: Creating globe...');
         
-        // Sphere geometry
         const geometry = new THREE.SphereGeometry(2, 64, 64);
         
-        // BRIGHT ocean material so we can see it!
         const oceanMaterial = new THREE.MeshPhongMaterial({
-            color: 0x2a5f8f,      // Deep blue
-            emissive: 0x1a3f5f,   // Self-glow
+            color: 0x2a5f8f,
+            emissive: 0x1a3f5f,
             emissiveIntensity: 0.2,
-            shininess: 100,
-            transparent: false
+            shininess: 100
         });
 
         this.globe = new THREE.Mesh(geometry, oceanMaterial);
         this.scene.add(this.globe);
         
-        console.log('  ✓ Globe mesh created and added to scene');
-        console.log('  ✓ Globe position:', this.globe.position);
-        console.log('  ✓ Globe visible:', this.globe.visible);
+        console.log('  ✓ Globe created');
 
-        // Add atmosphere glow
         this.addAtmosphere();
-        
-        console.log('✅ MAP ENGINE: Globe creation complete');
     }
 
     /**
-     * Add atmospheric glow effect
+     * Add atmospheric glow
      */
     addAtmosphere() {
-        console.log('💨 MAP ENGINE: Adding atmosphere...');
-        
         const atmosphereGeometry = new THREE.SphereGeometry(2.15, 64, 64);
         const atmosphereMaterial = new THREE.ShaderMaterial({
             vertexShader: `
@@ -243,16 +264,12 @@ class MapEngine {
 
         const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
         this.scene.add(atmosphere);
-        
-        console.log('  ✓ Atmosphere glow added');
     }
 
     /**
      * Add orbit controls
      */
     addOrbitControls() {
-        console.log('🖱️ MAP ENGINE: Setting up orbit controls...');
-        
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
         let rotation = { x: 0, y: 0 };
@@ -271,14 +288,11 @@ class MapEngine {
 
                 rotation.y += deltaX * 0.005;
                 rotation.x += deltaY * 0.005;
-
-                // Clamp X rotation
                 rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.x));
 
                 this.globe.rotation.y = rotation.y;
                 this.globe.rotation.x = rotation.x;
 
-                // Rotate continents too
                 this.currentContinentMeshes.forEach(mesh => {
                     mesh.rotation.y = rotation.y;
                     mesh.rotation.x = rotation.x;
@@ -300,7 +314,6 @@ class MapEngine {
             this.renderer.domElement.style.cursor = 'grab';
         });
 
-        // Zoom with mouse wheel
         this.renderer.domElement.addEventListener('wheel', (e) => {
             e.preventDefault();
             const delta = e.deltaY * 0.001;
@@ -308,8 +321,6 @@ class MapEngine {
         });
 
         this.renderer.domElement.style.cursor = 'grab';
-        
-        console.log('  ✓ Orbit controls ready');
     }
 
     /**
@@ -318,32 +329,27 @@ class MapEngine {
     async init2D(container) {
         console.log('🗾 MAP ENGINE: Initializing 2D mode...');
         
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+        const width = container.clientWidth || 800;
+        const height = container.clientHeight || 600;
 
-        // Create SVG
         this.svg = d3.select(container)
             .append('svg')
             .attr('width', width)
             .attr('height', height);
 
-        // Projection (orthographic for globe-like appearance)
         this.projection = d3.geoOrthographic()
             .scale(Math.min(width, height) / 2.5)
             .translate([width / 2, height / 2])
             .clipAngle(90);
 
-        // Path generator
         this.path = d3.geoPath().projection(this.projection);
 
-        // Add ocean
         this.svg.append('circle')
             .attr('cx', width / 2)
             .attr('cy', height / 2)
             .attr('r', this.projection.scale())
             .attr('fill', '#1a4d7a');
 
-        // Add graticule (grid lines)
         const graticule = d3.geoGraticule();
         this.svg.append('path')
             .datum(graticule)
@@ -354,7 +360,6 @@ class MapEngine {
             .attr('stroke-width', 0.5)
             .attr('opacity', 0.3);
 
-        // Add drag to rotate
         const drag = d3.drag()
             .on('drag', (event) => {
                 const rotate = this.projection.rotate();
@@ -374,17 +379,13 @@ class MapEngine {
         console.log(`\n🗓️ MAP ENGINE: Rendering year ${year}...`);
         this.currentYear = year;
 
-        // Get continental positions for this year
         const continentalData = await dataEngine.getContinentalPositions(year);
         
-        console.log('📊 MAP ENGINE: Continental data received:', continentalData);
-        
         if (!continentalData) {
-            console.error('❌ MAP ENGINE: No continental data for year', year);
+            console.error('❌ MAP ENGINE: No continental data');
             return;
         }
 
-        // Determine rendering mode based on year
         const renderMode = this.getRenderMode(year);
         console.log(`🎨 MAP ENGINE: Render mode: ${renderMode}`);
 
@@ -404,10 +405,7 @@ class MapEngine {
                     break;
             }
 
-            // Add events/markers for this year
             await this.renderEvents(year);
-
-            // Update UI
             this.updateMapLegend(year, renderMode);
             
             console.log('✅ MAP ENGINE: Year rendered successfully\n');
@@ -417,81 +415,47 @@ class MapEngine {
         }
     }
 
-    /**
-     * Determine render mode based on year
-     */
     getRenderMode(year) {
-        if (year < -4000000000) return 'molten'; // Hadean - molten Earth
-        if (year < -2500000000) return 'early';  // Archean - early continents
-        if (year < -10000) return 'geological';  // Geological time
-        return 'modern';                          // Historical time
+        if (year < -4000000000) return 'molten';
+        if (year < -2500000000) return 'early';
+        if (year < -10000) return 'geological';
+        return 'modern';
     }
 
-    /**
-     * Render molten Earth (Hadean Eon)
-     */
     async renderMoltenEarth() {
-        console.log('🌋 MAP ENGINE: Rendering molten Earth...');
-        
         if (this.mode === '3d') {
-            // Clear existing continents
             this.clearContinents();
-
-            // BRIGHT molten material
             const moltenMaterial = new THREE.MeshPhongMaterial({
-                color: 0xff4500,        // Bright orange-red
-                emissive: 0x8b0000,     // Dark red glow
+                color: 0xff4500,
+                emissive: 0x8b0000,
                 emissiveIntensity: 0.6,
                 shininess: 30
             });
-
             this.globe.material = moltenMaterial;
-            
-            console.log('  ✓ Molten material applied');
-
         } else {
-            // 2D: Red/orange
             this.svg.select('circle').attr('fill', '#ff4500');
         }
-        
-        console.log('✅ MAP ENGINE: Molten Earth rendered');
     }
 
-    /**
-     * Render early Earth (Archean - early continents forming)
-     */
     async renderEarlyEarth(continentalData) {
-        console.log('🏔️ MAP ENGINE: Rendering early Earth...');
-        
         if (this.mode === '3d') {
-            // Darker ocean, proto-continents in brown/grey
             this.globe.material = new THREE.MeshPhongMaterial({
-                color: 0x2a1a5e,      // Dark purple ocean
+                color: 0x2a1a5e,
                 emissive: 0x1a0a3e,
                 emissiveIntensity: 0.2,
                 shininess: 50
             });
-
             await this.renderContinents3D(continentalData, {
-                color: 0x4a3728,      // Brown
-                height: 0.05,
-                roughness: 0.9
+                color: 0x4a3728,
+                height: 0.05
             });
-
         } else {
             this.svg.select('circle').attr('fill', '#2a1a5e');
             await this.renderContinents2D(continentalData, '#4a3728');
         }
-        
-        console.log('✅ MAP ENGINE: Early Earth rendered');
     }
 
-    /**
-     * Render geological Earth (Proterozoic - Cenozoic)
-     */
     async renderGeologicalEarth(continentalData) {
-        console.log('🌿 MAP ENGINE: Rendering geological Earth...');
-        
         const era = this.getGeologicalEra(this.currentYear);
         const colors = this.getEraColors(era);
 
@@ -502,57 +466,36 @@ class MapEngine {
                 emissiveIntensity: 0.1,
                 shininess: 100
             });
-
             await this.renderContinents3D(continentalData, {
                 color: colors.land,
-                height: 0.08,
-                roughness: 0.7
+                height: 0.08
             });
-
         } else {
             this.svg.select('circle').attr('fill', `#${colors.ocean.toString(16).padStart(6, '0')}`);
             await this.renderContinents2D(continentalData, `#${colors.land.toString(16).padStart(6, '0')}`);
         }
-        
-        console.log('✅ MAP ENGINE: Geological Earth rendered');
     }
 
-    /**
-     * Render modern Earth (last 10,000 years)
-     */
     async renderModernEarth(continentalData) {
-        console.log('🌏 MAP ENGINE: Rendering modern Earth...');
-        
         if (this.mode === '3d') {
-            // Modern blue ocean
             this.globe.material = new THREE.MeshPhongMaterial({
-                color: 0x1a4d7a,      // Ocean blue
+                color: 0x1a4d7a,
                 emissive: 0x0a2d5a,
                 emissiveIntensity: 0.15,
                 shininess: 100
             });
-
             await this.renderContinents3D(continentalData, {
-                color: 0x3d8b3d,      // Green land
-                height: 0.1,
-                roughness: 0.6
+                color: 0x3d8b3d,
+                height: 0.1
             });
-
-            // Add civilization territories
             await this.renderCivilizations(this.currentYear);
-
         } else {
             this.svg.select('circle').attr('fill', '#1a4d7a');
             await this.renderContinents2D(continentalData, '#3d8b3d');
             await this.renderCivilizations2D(this.currentYear);
         }
-        
-        console.log('✅ MAP ENGINE: Modern Earth rendered');
     }
 
-    /**
-     * Get geological era for a year
-     */
     getGeologicalEra(year) {
         if (year >= -66000000) return 'cenozoic';
         if (year >= -252000000) return 'mesozoic';
@@ -562,9 +505,6 @@ class MapEngine {
         return 'hadean';
     }
 
-    /**
-     * Get color scheme for geological era
-     */
     getEraColors(era) {
         const schemes = {
             hadean: { ocean: 0x8b0000, land: 0x4a0000 },
@@ -577,22 +517,11 @@ class MapEngine {
         return schemes[era] || schemes.cenozoic;
     }
 
-    /**
-     * Render continents in 3D
-     */
     async renderContinents3D(continentalData, style) {
-        console.log('🗺️ MAP ENGINE: Rendering continents in 3D...');
-        console.log('  📦 Data structure:', continentalData);
-        
-        // Clear existing continents
         this.clearContinents();
 
-        if (!continentalData) {
-            console.warn('⚠️ MAP ENGINE: No continental data to render');
-            return;
-        }
+        if (!continentalData) return;
 
-        // Handle different data structures
         let continentsToRender = {};
         
         if (continentalData.continents) {
@@ -607,37 +536,18 @@ class MapEngine {
                 gondwana: continentalData.gondwana
             };
         } else {
-            // Data is directly the continents object
             continentsToRender = continentalData;
         }
 
-        console.log('  🌍 Continents to render:', Object.keys(continentsToRender));
-
-        let renderedCount = 0;
-        
         for (const [name, points] of Object.entries(continentsToRender)) {
-            if (name === 'year' || !Array.isArray(points) || points.length === 0) {
-                continue;
-            }
-            
-            console.log(`  ↳ Rendering ${name} with ${points.length} points`);
+            if (name === 'year' || !Array.isArray(points) || points.length === 0) continue;
             await this.createContinentMesh(points, style);
-            renderedCount++;
         }
-        
-        console.log(`✅ MAP ENGINE: Rendered ${renderedCount} continents`);
     }
 
-    /**
-     * Create a 3D mesh for a continent
-     */
     async createContinentMesh(points, style) {
-        if (points.length < 3) {
-            console.warn('  ⚠️ Not enough points to create mesh');
-            return;
-        }
+        if (points.length < 3) return;
 
-        // Convert lat/lng points to 3D positions on sphere
         const vertices = [];
         const indices = [];
 
@@ -653,7 +563,6 @@ class MapEngine {
             vertices.push(x, y, z);
         });
 
-        // Simple triangulation (fan triangulation from first vertex)
         for (let i = 1; i < points.length - 1; i++) {
             indices.push(0, i, i + 1);
         }
@@ -673,15 +582,9 @@ class MapEngine {
         mesh.rotation.copy(this.globe.rotation);
         this.scene.add(mesh);
         this.currentContinentMeshes.push(mesh);
-        
-        console.log(`    ✓ Mesh created with ${vertices.length / 3} vertices`);
     }
 
-    /**
-     * Render continents in 2D
-     */
     async renderContinents2D(continentalData, color) {
-        // Remove existing continents
         this.svg.selectAll('.continent').remove();
 
         const continents = continentalData.continents || continentalData;
@@ -689,7 +592,6 @@ class MapEngine {
         for (const [name, points] of Object.entries(continents)) {
             if (name === 'year' || !Array.isArray(points) || points.length === 0) continue;
 
-            // Convert to GeoJSON
             const geojson = {
                 type: 'Feature',
                 geometry: {
@@ -708,12 +610,7 @@ class MapEngine {
         }
     }
 
-    /**
-     * Clear continent meshes
-     */
     clearContinents() {
-        console.log(`  🧹 Clearing ${this.currentContinentMeshes.length} continent meshes...`);
-        
         this.currentContinentMeshes.forEach(mesh => {
             this.scene.remove(mesh);
             mesh.geometry.dispose();
@@ -722,37 +619,19 @@ class MapEngine {
         this.currentContinentMeshes = [];
     }
 
-    /**
-     * Render civilizations for modern times
-     */
     async renderCivilizations(year) {
-        if (year < -10000) return; // No civilizations before agriculture
-
+        if (year < -10000) return;
         const events = dataEngine.getEventsNear(year, 500);
-        const civilizationEvents = events.filter(e => 
-            e.type === 'civilization' && e.coordinates
-        );
-
+        const civilizationEvents = events.filter(e => e.type === 'civilization' && e.coordinates);
         civilizationEvents.forEach(event => {
-            this.addMarker3D(event.coordinates, {
-                color: 0xffd700,
-                size: 0.05,
-                type: 'civilization'
-            });
+            this.addMarker3D(event.coordinates, { color: 0xffd700, size: 0.05, type: 'civilization' });
         });
     }
 
-    /**
-     * Render civilizations in 2D
-     */
     async renderCivilizations2D(year) {
         if (year < -10000) return;
-
         const events = dataEngine.getEventsNear(year, 500);
-        const civilizationEvents = events.filter(e => 
-            e.type === 'civilization' && e.coordinates
-        );
-
+        const civilizationEvents = events.filter(e => e.type === 'civilization' && e.coordinates);
         civilizationEvents.forEach(event => {
             const coords = this.projection([event.coordinates.lng, event.coordinates.lat]);
             if (coords) {
@@ -766,9 +645,6 @@ class MapEngine {
         });
     }
 
-    /**
-     * Add 3D marker
-     */
     addMarker3D(coords, style) {
         const { lat, lng } = coords;
         const phi = (90 - lat) * (Math.PI / 180);
@@ -790,16 +666,11 @@ class MapEngine {
         this.civilizationMarkers.push(marker);
     }
 
-    /**
-     * Render events
-     */
     async renderEvents(year) {
-        // Clear old markers
         this.civilizationMarkers.forEach(marker => this.scene.remove(marker));
         this.civilizationMarkers = [];
 
         const events = dataEngine.getEventsNear(year, 1000000);
-
         events.forEach(event => {
             if (event.coordinates && this.mode === '3d') {
                 const color = this.getEventColor(event.type);
@@ -812,9 +683,6 @@ class MapEngine {
         });
     }
 
-    /**
-     * Get color for event type
-     */
     getEventColor(type) {
         const colors = {
             geological: 0x8b4513,
@@ -826,40 +694,36 @@ class MapEngine {
         return colors[type] || 0xffffff;
     }
 
-    /**
-     * Animation loop
-     */
     animate() {
         requestAnimationFrame(() => this.animate());
 
         if (this.mode === '3d' && this.renderer && this.scene && this.camera) {
-            // Auto-rotate slowly (only when not dragging)
             if (!this.isDragging) {
                 this.globe.rotation.y += this.rotationSpeed;
                 this.currentContinentMeshes.forEach(mesh => {
                     mesh.rotation.y += this.rotationSpeed;
                 });
             }
-
             this.renderer.render(this.scene, this.camera);
         }
     }
 
-    /**
-     * Handle window resize
-     */
     onWindowResize() {
         const container = document.getElementById('map-container');
         if (!container) return;
 
         if (this.mode === '3d' && this.camera && this.renderer) {
-            const aspect = container.clientWidth / container.clientHeight;
-            this.camera.aspect = aspect;
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(container.clientWidth, container.clientHeight);
+            const width = container.clientWidth || window.innerWidth;
+            const height = container.clientHeight || window.innerHeight - 200;
+            
+            if (width > 0 && height > 0) {
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(width, height);
+            }
         } else if (this.mode === '2d' && this.svg) {
-            const width = container.clientWidth;
-            const height = container.clientHeight;
+            const width = container.clientWidth || window.innerWidth;
+            const height = container.clientHeight || window.innerHeight - 200;
             this.svg.attr('width', width).attr('height', height);
             this.projection
                 .scale(Math.min(width, height) / 2.5)
@@ -868,9 +732,6 @@ class MapEngine {
         }
     }
 
-    /**
-     * Smooth transition to new year
-     */
     async transitionToYear(targetYear, duration = 1000) {
         const startYear = this.currentYear;
         const startTime = Date.now();
@@ -878,10 +739,7 @@ class MapEngine {
         const animate = async () => {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
-            // Easing function
             const eased = this.easeInOutCubic(progress);
-            
             const currentYear = startYear + (targetYear - startYear) * eased;
             await this.renderYear(Math.round(currentYear));
 
@@ -893,16 +751,10 @@ class MapEngine {
         animate();
     }
 
-    /**
-     * Easing function
-     */
     easeInOutCubic(t) {
         return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
 
-    /**
-     * Update map legend
-     */
     updateMapLegend(year, mode) {
         const legendEl = document.querySelector('.map-legend-content');
         if (!legendEl) return;
@@ -911,54 +763,27 @@ class MapEngine {
         const yearFormatted = this.formatYear(year);
 
         legendEl.innerHTML = `
-            <div class="legend-item">
-                <strong>Year:</strong> ${yearFormatted}
-            </div>
-            <div class="legend-item">
-                <strong>Era:</strong> ${this.capitalizeEra(era)}
-            </div>
-            <div class="legend-item">
-                <strong>Mode:</strong> ${mode}
-            </div>
+            <div class="legend-item"><strong>Year:</strong> ${yearFormatted}</div>
+            <div class="legend-item"><strong>Era:</strong> ${this.capitalizeEra(era)}</div>
+            <div class="legend-item"><strong>Mode:</strong> ${mode}</div>
         `;
     }
 
-    /**
-     * Format year for display
-     */
     formatYear(year) {
         if (year === null || year === undefined) return '???';
-
         const absYear = Math.abs(year);
-
-        if (absYear >= 1000000000) {
-            return `${(absYear / 1000000000).toFixed(1)} Ga`;
-        }
-        if (absYear >= 1000000) {
-            return `${(absYear / 1000000).toFixed(1)} Ma`;
-        }
-        if (absYear >= 10000) {
-            return `${(absYear / 1000).toFixed(0)}K ${year < 0 ? 'BCE' : 'CE'}`;
-        }
-        if (year < 0) {
-            return `${absYear.toLocaleString()} BCE`;
-        }
+        if (absYear >= 1000000000) return `${(absYear / 1000000000).toFixed(1)} Ga`;
+        if (absYear >= 1000000) return `${(absYear / 1000000).toFixed(1)} Ma`;
+        if (absYear >= 10000) return `${(absYear / 1000).toFixed(0)}K ${year < 0 ? 'BCE' : 'CE'}`;
+        if (year < 0) return `${absYear.toLocaleString()} BCE`;
         return `${year} CE`;
     }
 
-    /**
-     * Capitalize era name
-     */
     capitalizeEra(era) {
         return era.charAt(0).toUpperCase() + era.slice(1);
     }
 
-    /**
-     * Toggle between 2D and 3D
-     */
     toggle2D3D() {
-        console.log('🔄 MAP ENGINE: Toggling view mode...');
-        // Reinitialize in opposite mode
         const container = document.getElementById('map-container');
         if (this.mode === '3d') {
             this.mode = '2d';
@@ -970,61 +795,36 @@ class MapEngine {
         this.renderYear(this.currentYear);
     }
 
-    /**
-     * Set render quality
-     */
     setQuality(quality) {
         this.renderQuality = quality;
-        console.log(`🎨 MAP ENGINE: Quality set to ${quality}`);
     }
 }
 
-// Create singleton
 const mapEngine = new MapEngine();
 
-// ============================================================
-// EMERGENCY TEST FUNCTION (for debugging)
-// ============================================================
 window.testGlobe = function() {
-    console.log('🧪 Running emergency test globe...');
-    
     const container = document.getElementById('map-container');
-    if (!container) {
-        console.error('❌ No map container found!');
-        return;
-    }
+    if (!container) return console.error('No container!');
     
-    // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000033);
-    
-    // Camera
-    const camera = new THREE.PerspectiveCamera(
-        75,
-        container.clientWidth / container.clientHeight,
-        0.1,
-        1000
-    );
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.z = 5;
     
-    // Renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
     
-    // BRIGHT ORANGE SPHERE
     const geometry = new THREE.SphereGeometry(2, 32, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xff6600 });
     const sphere = new THREE.Mesh(geometry, material);
     scene.add(sphere);
     
-    // Light
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(5, 3, 5);
     scene.add(light);
     
-    // Animate
     function animate() {
         requestAnimationFrame(animate);
         sphere.rotation.y += 0.01;
@@ -1032,47 +832,20 @@ window.testGlobe = function() {
     }
     animate();
     
-    console.log('✅ Test globe running! You should see a spinning orange sphere.');
+    console.log('✅ Test globe running!');
 };
-
-console.log('💡 MAP ENGINE: Run testGlobe() in console to verify THREE.js works');
-
-// Add at the very end of the file, after the mapEngine creation
 
 window.debugMap = function() {
     console.log('\n🔍 MAP ENGINE DEBUG:');
-    console.log('=====================================');
     console.log('Mode:', mapEngine.mode);
-    console.log('Scene exists:', !!mapEngine.scene);
-    console.log('Camera exists:', !!mapEngine.camera);
-    console.log('Renderer exists:', !!mapEngine.renderer);
-    console.log('Globe exists:', !!mapEngine.globe);
-    
-    if (mapEngine.scene) {
-        console.log('Scene children count:', mapEngine.scene.children.length);
-        console.log('Scene children:', mapEngine.scene.children.map(c => c.type));
-    }
-    
-    if (mapEngine.globe) {
-        console.log('Globe position:', mapEngine.globe.position);
-        console.log('Globe visible:', mapEngine.globe.visible);
-        console.log('Globe material:', mapEngine.globe.material.type);
-        console.log('Globe material color:', mapEngine.globe.material.color);
-    }
-    
-    if (mapEngine.camera) {
-        console.log('Camera position:', mapEngine.camera.position);
-        console.log('Camera looking at:', mapEngine.camera.rotation);
-    }
-    
+    console.log('Scene:', !!mapEngine.scene);
+    console.log('Camera:', !!mapEngine.camera);
+    console.log('Renderer:', !!mapEngine.renderer);
+    console.log('Globe:', !!mapEngine.globe);
     if (mapEngine.renderer) {
         console.log('Renderer size:', mapEngine.renderer.getSize(new THREE.Vector2()));
-        console.log('Renderer pixel ratio:', mapEngine.renderer.getPixelRatio());
-        console.log('Renderer DOM element:', mapEngine.renderer.domElement);
     }
-    
-    console.log('Continent meshes:', mapEngine.currentContinentMeshes.length);
-    console.log('=====================================\n');
+    console.log('\n');
 };
 
-console.log('💡 Run debugMap() in console to see map state');
+console.log('💡 Run debugMap() or testGlobe() in console');
