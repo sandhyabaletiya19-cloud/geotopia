@@ -124,34 +124,63 @@ class GEOTOPIAApp {
      * Initialize all engines
      */
     async initializeEngines() {
-        console.log('⚙️ Initializing engines...');
+    console.log('⚙️ APP: Initializing engines...');
 
+    try {
         // Data Engine
+        console.log('📊 APP: Initializing Data Engine...');
         if (typeof DataEngine !== 'undefined') {
             this.dataEngine = dataEngine || new DataEngine();
             await this.dataEngine.initDatabase();
+            console.log('  ✅ Data Engine initialized');
             this.updateLoadingProgress('Indexing geological data...', 25);
+        } else {
+            console.error('  ❌ DataEngine class not found!');
         }
 
         // Map Engine
+        console.log('🗺️ APP: Initializing Map Engine...');
         if (typeof MapEngine !== 'undefined') {
             this.mapEngine = mapEngine || new MapEngine();
+            
+            // DON'T call init yet - we'll do it manually
+            console.log('  ⏳ Map Engine created, calling init()...');
             await this.mapEngine.init();
+            console.log('  ✅ Map Engine initialized');
+            
             this.updateLoadingProgress('Rendering 3D globe...', 50);
+        } else {
+            console.error('  ❌ MapEngine class not found!');
         }
 
         // Timeline Engine
+        console.log('📅 APP: Initializing Timeline Engine...');
         if (typeof TimelineEngine !== 'undefined') {
             this.timelineEngine = timelineEngine || new TimelineEngine();
-            await this.timelineEngine.init();
+            
+            // Timeline init is synchronous but returns nothing, so just call it
+            this.timelineEngine.init();
+            console.log('  ✅ Timeline Engine initialized');
+            
             this.updateLoadingProgress('Building timeline...', 75);
+        } else {
+            console.error('  ❌ TimelineEngine class not found!');
         }
 
         // Connect engines
+        console.log('🔗 APP: Connecting engines...');
         this.connectEngines();
 
         this.updateLoadingProgress('Finalizing...', 90);
+        
+        console.log('✅ APP: All engines initialized successfully');
+        
+    } catch (error) {
+        console.error('❌ APP: Engine initialization failed:', error);
+        console.error('Error stack:', error.stack);
+        throw error;
     }
+}
 
     /**
      * Connect engines together
