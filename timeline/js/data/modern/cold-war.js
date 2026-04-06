@@ -394,7 +394,7 @@ const COLD_WAR_ERA = {
   },
   
   spaceRace: {
-    soviet: Achievements: [
+    sovietAchievements: [
       { year: 1957, event: 'Sputnik 1', details: 'First artificial satellite' },
       { year: 1957, event: 'Sputnik 2', details: 'First animal in orbit (Laika)' },
       { year: 1961, event: 'Vostok 1', details: 'Yuri Gagarin, first human in space' },
