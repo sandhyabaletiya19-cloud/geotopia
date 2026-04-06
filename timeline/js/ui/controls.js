@@ -152,8 +152,8 @@ const UIControls = (function() {
             }
             
             // Update state
-            if (typeof GeoState !== 'undefined') {
-                GeoState.set('ui.modalOpen', modalId);
+            if (typeof state !== 'undefined') {
+                state.activeModal = modalId;
             }
         }
     }
@@ -168,8 +168,8 @@ const UIControls = (function() {
             document.body.style.overflow = '';
             
             // Update state
-            if (typeof GeoState !== 'undefined') {
-                GeoState.set('ui.modalOpen', null);
+            if (typeof state !== 'undefined') {
+                state.activeModal = null;
             }
         }
     }
@@ -183,8 +183,8 @@ const UIControls = (function() {
         });
         document.body.style.overflow = '';
         
-        if (typeof GeoState !== 'undefined') {
-            GeoState.set('ui.modalOpen', null);
+        if (typeof state !== 'undefined') {
+            state.activeModal = null;
         }
     }
 
@@ -222,18 +222,17 @@ const UIControls = (function() {
         const results = [];
         const queryLower = query.toLowerCase();
         
-        // Search geological events
-        if (typeof GEOTOPIA_DATA !== 'undefined' && GEOTOPIA_DATA.allEvents) {
-            GEOTOPIA_DATA.allEvents.forEach(event => {
-                if (event.name && event.name.toLowerCase().includes(queryLower)) {
-                    results.push({
-                        type: 'event',
-                        name: event.name,
-                        year: event.year,
-                        era: event.era || 'Unknown',
-                        data: event
-                    });
-                }
+        // Search in GEOTOPIA_DATA
+        if (typeof GEOTOPIA_DATA !== 'undefined' && typeof GEOTOPIA_DATA.searchEvents === 'function') {
+            const dataResults = GEOTOPIA_DATA.searchEvents(query);
+            dataResults.forEach(event => {
+                results.push({
+                    type: 'event',
+                    name: event.name || event.event || 'Unknown Event',
+                    year: event.year,
+                    era: event.eraName || event.era || 'Unknown',
+                    data: event
+                });
             });
         }
         
@@ -373,10 +372,6 @@ const UIControls = (function() {
      * Format year for display (short)
      */
     function formatYearShort(year) {
-        if (typeof GeoUtils !== 'undefined' && GeoUtils.formatYear) {
-            return GeoUtils.formatYear(year);
-        }
-        
         const absYear = Math.abs(year);
         if (absYear >= 1000000000) {
             return (absYear / 1000000000).toFixed(1) + ' BYA';
@@ -401,16 +396,58 @@ const UIControls = (function() {
      * Go to specific year
      */
     function goToYear(year) {
-        if (typeof TimelineEngine !== 'undefined') {
-            TimelineEngine.goToYear(year);
-        } else if (typeof GeoState !== 'undefined') {
-            GeoState.set('currentYear', year);
+        if (typeof state !== 'undefined' && typeof state.setYear === 'function') {
+            state.setYear(year, true);
+        }
+    }
+
+    /**
+     * Calculate step size based on current year
+     */
+    function calculateStep() {
+        const currentYear = (typeof state !== 'undefined') ? state.currentYear : 0;
+        const absYear = Math.abs(currentYear);
+        
+        if (absYear > 1000000000) return 50000000;   // 50M years
+        if (absYear > 100000000) return 5000000;     // 5M years
+        if (absYear > 10000000) return 500000;       // 500k years
+        if (absYear > 1000000) return 50000;         // 50k years
+        if (absYear > 100000) return 5000;           // 5k years
+        if (absYear > 10000) return 500;             // 500 years
+        if (absYear > 1000) return 50;               // 50 years
+        return 5;                                     // 5 years
+    }
+
+    /**
+     * Step backward in time
+     */
+    function stepBack() {
+        if (typeof state === 'undefined') return;
+        
+        const step = calculateStep();
+        const newYear = state.currentYear - step;
+        
+        if (newYear >= -4500000000) {
+            state.setYear(newYear, true);
         }
         
-        // Update info panel
-        if (typeof InfoPanel !== 'undefined') {
-            InfoPanel.showYearInfo(year);
+        console.log('Step back to:', newYear);
+    }
+
+    /**
+     * Step forward in time
+     */
+    function stepForward() {
+        if (typeof state === 'undefined') return;
+        
+        const step = calculateStep();
+        const newYear = state.currentYear + step;
+        
+        if (newYear <= 2026) {
+            state.setYear(newYear, true);
         }
+        
+        console.log('Step forward to:', newYear);
     }
 
     /**
@@ -420,8 +457,14 @@ const UIControls = (function() {
         // Zoom In
         if (elements.btnZoomIn) {
             elements.btnZoomIn.addEventListener('click', () => {
-                if (typeof MapEngine !== 'undefined') {
-                    MapEngine.zoomIn();
+                console.log('Zoom in clicked');
+                if (window.geotopiaApp && window.geotopiaApp.mapEngine) {
+                    const mapEngine = window.geotopiaApp.mapEngine;
+                    if (mapEngine.projection) {
+                        const currentScale = mapEngine.projection.scale();
+                        mapEngine.projection.scale(currentScale * 1.3);
+                        mapEngine.render();
+                    }
                 }
             });
         }
@@ -429,8 +472,14 @@ const UIControls = (function() {
         // Zoom Out
         if (elements.btnZoomOut) {
             elements.btnZoomOut.addEventListener('click', () => {
-                if (typeof MapEngine !== 'undefined') {
-                    MapEngine.zoomOut();
+                console.log('Zoom out clicked');
+                if (window.geotopiaApp && window.geotopiaApp.mapEngine) {
+                    const mapEngine = window.geotopiaApp.mapEngine;
+                    if (mapEngine.projection) {
+                        const currentScale = mapEngine.projection.scale();
+                        mapEngine.projection.scale(currentScale / 1.3);
+                        mapEngine.render();
+                    }
                 }
             });
         }
@@ -438,8 +487,16 @@ const UIControls = (function() {
         // Reset View
         if (elements.btnResetView) {
             elements.btnResetView.addEventListener('click', () => {
-                if (typeof MapEngine !== 'undefined') {
-                    MapEngine.resetView();
+                console.log('Reset view clicked');
+                if (window.geotopiaApp && window.geotopiaApp.mapEngine) {
+                    const mapEngine = window.geotopiaApp.mapEngine;
+                    if (mapEngine.projection && mapEngine.container) {
+                        mapEngine.projection.rotate([0, -20]);
+                        mapEngine.projection.scale(
+                            Math.min(mapEngine.container.clientWidth, mapEngine.container.clientHeight) / 2.5
+                        );
+                        mapEngine.render();
+                    }
                 }
             });
         }
@@ -447,13 +504,16 @@ const UIControls = (function() {
         // Toggle 2D/3D
         if (elements.btnToggle3D) {
             elements.btnToggle3D.addEventListener('click', () => {
-                if (typeof MapEngine !== 'undefined') {
-                    MapEngine.toggleMode();
+                console.log('Toggle 3D clicked');
+                if (window.geotopiaApp && window.geotopiaApp.mapEngine) {
+                    const mapEngine = window.geotopiaApp.mapEngine;
+                    const newMode = mapEngine.mode === '2d' ? '3d' : '2d';
+                    mapEngine.setMode(newMode);
+                    
+                    // Update button text
+                    elements.btnToggle3D.textContent = newMode === '3d' ? '🗺️' : '🌐';
+                    elements.btnToggle3D.title = newMode === '3d' ? 'Switch to 2D' : 'Switch to 3D';
                 }
-                // Update button text
-                const is3D = GeoState ? GeoState.get('map.is3D') : false;
-                elements.btnToggle3D.textContent = is3D ? '🗺️' : '🌐';
-                elements.btnToggle3D.title = is3D ? 'Switch to 2D' : 'Switch to 3D';
             });
         }
     }
@@ -464,24 +524,25 @@ const UIControls = (function() {
     function initTimelineControls() {
         // Play/Pause
         if (elements.btnPlayPause) {
-            elements.btnPlayPause.addEventListener('click', togglePlayPause);
+            elements.btnPlayPause.addEventListener('click', () => {
+                console.log('Play/Pause clicked');
+                togglePlayPause();
+            });
         }
         
         // Step Back
         if (elements.btnStepBack) {
             elements.btnStepBack.addEventListener('click', () => {
-                if (typeof TimelineEngine !== 'undefined') {
-                    TimelineEngine.stepBack();
-                }
+                console.log('Step back clicked');
+                stepBack();
             });
         }
         
         // Step Forward
         if (elements.btnStepForward) {
             elements.btnStepForward.addEventListener('click', () => {
-                if (typeof TimelineEngine !== 'undefined') {
-                    TimelineEngine.stepForward();
-                }
+                console.log('Step forward clicked');
+                stepForward();
             });
         }
         
@@ -489,14 +550,14 @@ const UIControls = (function() {
         if (elements.speedSlider) {
             elements.speedSlider.addEventListener('input', function() {
                 const speed = parseInt(this.value);
+                console.log('Speed changed to:', speed);
+                
                 if (elements.speedDisplay) {
                     elements.speedDisplay.textContent = speed + 'x';
                 }
-                if (typeof TimelineEngine !== 'undefined') {
-                    TimelineEngine.setSpeed(speed);
-                }
-                if (typeof GeoState !== 'undefined') {
-                    GeoState.set('timeline.speed', speed);
+                
+                if (typeof state !== 'undefined') {
+                    state.playbackSpeed = speed;
                 }
             });
         }
@@ -505,6 +566,7 @@ const UIControls = (function() {
         if (elements.eraSelect) {
             elements.eraSelect.addEventListener('change', function() {
                 const year = parseInt(this.value);
+                console.log('Era selected, jumping to:', year);
                 goToYear(year);
             });
         }
@@ -514,9 +576,9 @@ const UIControls = (function() {
      * Toggle play/pause
      */
     function togglePlayPause() {
-        const isPlaying = GeoState ? GeoState.get('timeline.isPlaying') : false;
+        if (typeof state === 'undefined') return;
         
-        if (isPlaying) {
+        if (state.isPlaying) {
             pause();
         } else {
             play();
@@ -527,16 +589,16 @@ const UIControls = (function() {
      * Start playback
      */
     function play() {
-        if (typeof TimelineEngine !== 'undefined') {
-            TimelineEngine.play();
+        console.log('Starting playback');
+        
+        if (typeof state !== 'undefined') {
+            state.isPlaying = true;
+            state.emit('playStateChange', { isPlaying: true });
+            startPlaybackLoop();
         }
         
         if (elements.playIcon) {
             elements.playIcon.textContent = '⏸';
-        }
-        
-        if (typeof GeoState !== 'undefined') {
-            GeoState.set('timeline.isPlaying', true);
         }
     }
 
@@ -544,17 +606,55 @@ const UIControls = (function() {
      * Pause playback
      */
     function pause() {
-        if (typeof TimelineEngine !== 'undefined') {
-            TimelineEngine.pause();
+        console.log('Pausing playback');
+        
+        if (typeof state !== 'undefined') {
+            state.isPlaying = false;
+            state.emit('playStateChange', { isPlaying: false });
         }
         
         if (elements.playIcon) {
             elements.playIcon.textContent = '▶';
         }
-        
-        if (typeof GeoState !== 'undefined') {
-            GeoState.set('timeline.isPlaying', false);
+    }
+
+    /**
+     * Playback animation loop
+     */
+    let playbackAnimationId = null;
+    
+    function startPlaybackLoop() {
+        if (playbackAnimationId) {
+            cancelAnimationFrame(playbackAnimationId);
         }
+        
+        function animate() {
+            if (typeof state === 'undefined' || !state.isPlaying) {
+                return;
+            }
+            
+            const step = calculateStep() * (state.playbackSpeed || 1) * (state.playbackDirection || 1);
+            const newYear = state.currentYear + step * 0.016; // ~60fps
+            
+            // Check bounds
+            if (newYear > 2026) {
+                state.setYear(2026);
+                pause();
+                return;
+            }
+            
+            if (newYear < -4500000000) {
+                state.setYear(-4500000000);
+                pause();
+                return;
+            }
+            
+            state.setYear(newYear);
+            
+            playbackAnimationId = requestAnimationFrame(animate);
+        }
+        
+        playbackAnimationId = requestAnimationFrame(animate);
     }
 
     /**
@@ -584,29 +684,25 @@ const UIControls = (function() {
                     
                 case 'ArrowLeft': // Step back
                     e.preventDefault();
-                    if (typeof TimelineEngine !== 'undefined') {
-                        TimelineEngine.stepBack();
-                    }
+                    stepBack();
                     break;
                     
                 case 'ArrowRight': // Step forward
                     e.preventDefault();
-                    if (typeof TimelineEngine !== 'undefined') {
-                        TimelineEngine.stepForward();
-                    }
+                    stepForward();
                     break;
                     
                 case 'ArrowUp': // Zoom in
                     e.preventDefault();
-                    if (typeof MapEngine !== 'undefined') {
-                        MapEngine.zoomIn();
+                    if (elements.btnZoomIn) {
+                        elements.btnZoomIn.click();
                     }
                     break;
                     
                 case 'ArrowDown': // Zoom out
                     e.preventDefault();
-                    if (typeof MapEngine !== 'undefined') {
-                        MapEngine.zoomOut();
+                    if (elements.btnZoomOut) {
+                        elements.btnZoomOut.click();
                     }
                     break;
                     
@@ -632,8 +728,8 @@ const UIControls = (function() {
                 case 'r': // Reset view
                 case 'R':
                     e.preventDefault();
-                    if (typeof MapEngine !== 'undefined') {
-                        MapEngine.resetView();
+                    if (elements.btnResetView) {
+                        elements.btnResetView.click();
                     }
                     break;
                     
@@ -686,17 +782,11 @@ const UIControls = (function() {
      */
     function handleQualityChange() {
         const quality = elements.qualitySelect.value;
-        
-        if (typeof GeoState !== 'undefined') {
-            GeoState.set('settings.quality', quality);
-        }
-        
-        // Apply quality settings
-        if (typeof MapEngine !== 'undefined') {
-            MapEngine.setQuality(quality);
-        }
-        
         console.log('Quality changed to:', quality);
+        
+        if (typeof state !== 'undefined') {
+            state.settings.quality = quality;
+        }
     }
 
     /**
@@ -762,31 +852,6 @@ const UIControls = (function() {
             }
         });
     }
-    /**
- * Step backward in time
- */
-function stepBack() {
-  if (window.geotopiaApp && window.geotopiaApp.timelineEngine) {
-    const step = state.calculateStep();
-    const newYear = state.currentYear - step;
-    if (newYear >= -4500000000) {
-      state.setYear(newYear, true);
-    }
-  }
-}
-
-/**
- * Step forward in time
- */
-function stepForward() {
-  if (window.geotopiaApp && window.geotopiaApp.timelineEngine) {
-    const step = state.calculateStep();
-    const newYear = state.currentYear + step;
-    if (newYear <= 2026) {
-      state.setYear(newYear, true);
-    }
-  }
-}
 
     // Public API
     return {
@@ -800,7 +865,10 @@ function stepForward() {
         updatePlayButton,
         goToYear,
         showNotification,
-        setControlsEnabled
+        setControlsEnabled,
+        stepBack,
+        stepForward,
+        calculateStep
     };
 })();
 
