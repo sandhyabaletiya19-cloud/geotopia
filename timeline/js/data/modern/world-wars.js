@@ -285,7 +285,7 @@ const WORLD_WARS_ERA = {
           importance: 8,
           coordinates: { lat: 40.4168, lng: -3.7038 },
           mapState: {
-            civil-war: 'spain'
+            civilWar: 'spain'
           },
           details: 'Dress rehearsal for WWII, fascists vs. republicans.',
           duration: 3,
