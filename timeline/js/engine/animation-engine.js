@@ -156,22 +156,27 @@ class LoadingSequence {
         this.ctx.globalAlpha = 1;
         
         // Center flash
-const flashSize = Math.max(1, progress * 200); // Ensure minimum size of 1
-const gradient = this.ctx.createRadialGradient(
-  this.canvas.width / 2, this.canvas.height / 2, 0,
-  this.canvas.width / 2, this.canvas.height / 2, flashSize
-);
-gradient.addColorStop(0, `rgba(255, 255, 255, ${1 - progress})`);
-gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        const flashSize = Math.max(1, progress * 200); // Ensure minimum size of 1
+        const gradient = this.ctx.createRadialGradient(
+          this.canvas.width / 2, this.canvas.height / 2, 0,
+          this.canvas.width / 2, this.canvas.height / 2, flashSize
+        );
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${1 - progress})`);
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
-this.ctx.fillStyle = gradient;
-this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-if (progress < 1) {
-  requestAnimationFrame(animate);
-} else {
-  resolve();
-}
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
+      };
+      
+      requestAnimationFrame(animate);
+    });
+  }
   
   // ============================================
   // PHASE 2: ACCRETION
