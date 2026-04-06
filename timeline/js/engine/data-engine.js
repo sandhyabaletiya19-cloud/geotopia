@@ -58,12 +58,17 @@ class DataEngine {
      * Fetch continental positions for a specific year using GPlates
      */
     async getContinentalPositions(year) {
+         console.log(`📍 DATA ENGINE: Getting continental positions for year ${year}`);
+        
     // Check cache first
     const cached = await this.getFromCache('continents', year);
-    if (cached) return cached;
+   if (cached) {
+        console.log('  ✓ Loaded from cache');
+        return cached;
+    }
 
     // SKIP GPlates API (CORS blocked) - Use fallback directly
-    console.log(`📍 Loading continental positions for year ${year}`);
+     console.log('  ✓ Using fallback data:', positions);
     
     const positions = this.getFallbackContinentalData(year);
     
