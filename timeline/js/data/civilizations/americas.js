@@ -3,7 +3,7 @@
  * Olmec, Maya, Teotihuacan, Toltec, Aztec, Inca, Norte Chico, Mississippian
  */
 
-const AMERICAS_CIVILIZATIONS = {
+var AMERICAS_CIVILIZATIONS = {
   region: 'Americas',
   color: '#228B22', // Forest Green
   timeRange: { start: -3000, end: 1572 },
