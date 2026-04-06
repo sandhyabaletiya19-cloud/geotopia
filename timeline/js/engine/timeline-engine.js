@@ -251,13 +251,13 @@ class TimelineEngine {
    * Create event markers
    */
   createEventMarkers() {
-    if (!window.dataEngine || !window.dataEngine.loaded) {
+    if (typeof GEOTOPIA_DATA === 'undefined') {
       // Retry when data is loaded
       setTimeout(() => this.createEventMarkers(), 1000);
       return;
     }
     
-    const markers = dataEngine.getTimelineMarkers();
+    const markers = GEOTOPIA_DATA.getEventsInRange(this.MIN_YEAR, this.MAX_YEAR);
     const markerContainer = document.querySelector('.timeline-events');
     if (!markerContainer) return;
     
@@ -306,6 +306,73 @@ class TimelineEngine {
   /**
    * Animation loop
    */
+  /**
+ * Step back one increment
+ */
+stepBack() {
+  const step = this.calculateStep();
+  const newYear = state.currentYear - step;
+  if (newYear >= this.MIN_YEAR) {
+    state.setYear(newYear, true);
+  }
+}
+
+/**
+ * Step forward one increment
+ */
+stepForward() {
+  const step = this.calculateStep();
+  const newYear = state.currentYear + step;
+  if (newYear <= this.MAX_YEAR) {
+    state.setYear(newYear, true);
+  }
+}
+
+/**
+ * Calculate step size based on current year
+ */
+calculateStep() {
+  const absYear = Math.abs(state.currentYear);
+  
+  if (absYear > 1000000000) return 50000000;   // 50M years
+  if (absYear > 100000000) return 5000000;     // 5M years
+  if (absYear > 10000000) return 500000;       // 500k years
+  if (absYear > 1000000) return 50000;         // 50k years
+  if (absYear > 100000) return 5000;           // 5k years
+  if (absYear > 10000) return 500;             // 500 years
+  if (absYear > 1000) return 50;               // 50 years
+  return 5;                                     // 5 years
+}
+
+/**
+ * Start timeline playback
+ */
+play() {
+  state.play();
+  this.startPlayback();
+}
+
+/**
+ * Pause timeline playback
+ */
+pause() {
+  state.pause();
+  this.stopPlayback();
+}
+
+/**
+ * Set playback speed
+ */
+setSpeed(speed) {
+  state.setSpeed(speed);
+}
+
+/**
+ * Go to specific year
+ */
+goToYear(year) {
+  state.jumpToYear(year);
+}
   animate() {
     const currentTime = performance.now();
     const deltaTime = currentTime - this.lastFrameTime;
