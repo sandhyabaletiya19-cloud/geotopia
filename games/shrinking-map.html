@@ -1,0 +1,2950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a0f">
+    
+    <title>VANISHING WORLD | Geotopia Games</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Google Fonts - Different from GeoSnipe -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Russo+One&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ============================================
+           VANISHING WORLD - CINEMATIC THRILLER STYLE
+           A completely different aesthetic
+           ============================================ */
+
+        :root {
+            /* CRIMSON THRILLER PALETTE */
+            --crimson: #dc2626;
+            --crimson-dark: #991b1b;
+            --crimson-light: #f87171;
+            --crimson-glow: rgba(220, 38, 38, 0.6);
+            
+            --gold: #f59e0b;
+            --gold-dark: #b45309;
+            --gold-light: #fbbf24;
+            --gold-glow: rgba(245, 158, 11, 0.5);
+            
+            --cyan: #06b6d4;
+            --cyan-glow: rgba(6, 182, 212, 0.5);
+            
+            --success: #22c55e;
+            --success-glow: rgba(34, 197, 94, 0.5);
+            
+            /* DEEP BLACKS */
+            --void: #0a0a0f;
+            --abyss: #0f0f18;
+            --shadow: #1a1a28;
+            --smoke: #2a2a3d;
+            --steel: #3d3d55;
+            
+            --white: #ffffff;
+            --ghost: rgba(255, 255, 255, 0.85);
+            --mist: rgba(255, 255, 255, 0.6);
+            --fog: rgba(255, 255, 255, 0.35);
+            
+            /* GLASS EFFECTS */
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-heavy: rgba(10, 10, 15, 0.85);
+            
+            /* GRADIENTS */
+            --gradient-crimson: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            --gradient-dark: linear-gradient(180deg, #0f0f18 0%, #0a0a0f 100%);
+            --gradient-spotlight: radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.15) 0%, transparent 60%);
+            
+            /* TYPOGRAPHY */
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-title: 'Russo One', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+            --font-body: 'Exo 2', sans-serif;
+            
+            /* SPACING */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* RADIUS */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 20px;
+            
+            /* SAFE AREAS */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--void);
+            color: var(--white);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overscroll-behavior: none;
+        }
+
+        /* ============================================
+           DRAMATIC BACKGROUND
+           ============================================ */
+        .cinematic-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: var(--void);
+            overflow: hidden;
+        }
+
+        .cinematic-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150%;
+            height: 100%;
+            background: radial-gradient(ellipse, rgba(220, 38, 38, 0.08) 0%, transparent 50%);
+            animation: spotlight-pulse 8s ease-in-out infinite;
+        }
+
+        .cinematic-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to top, var(--void) 0%, transparent 100%);
+        }
+
+        @keyframes spotlight-pulse {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
+
+        /* Scanlines effect */
+        .scanlines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 2px,
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0.1) 4px
+            );
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--crimson);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float-particle 20s linear infinite;
+        }
+
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ============================================
+           INTRO SCREEN - DRAMATIC REVEAL
+           ============================================ */
+        .intro-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: var(--void);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .intro-screen.hidden {
+            animation: intro-exit 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+
+        @keyframes intro-exit {
+            0% { clip-path: circle(150% at 50% 50%); }
+            100% { clip-path: circle(0% at 50% 50%); pointer-events: none; }
+        }
+
+        .intro-logo {
+            position: relative;
+            text-align: center;
+        }
+
+        .intro-icon {
+            font-size: clamp(4rem, 15vw, 8rem);
+            margin-bottom: var(--space-md);
+            animation: intro-icon-float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px var(--crimson-glow));
+        }
+
+        @keyframes intro-icon-float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        .intro-title {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 12vw, 6rem);
+            letter-spacing: 0.15em;
+            color: var(--white);
+            text-shadow: 
+                0 0 10px var(--crimson-glow),
+                0 0 40px var(--crimson-glow),
+                0 0 80px var(--crimson-glow);
+            animation: title-flicker 4s ease-in-out infinite;
+        }
+
+        @keyframes title-flicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.8; }
+            94% { opacity: 1; }
+            96% { opacity: 0.9; }
+            97% { opacity: 1; }
+        }
+
+        .intro-subtitle {
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            color: var(--crimson);
+            letter-spacing: 0.5em;
+            margin-top: var(--space-sm);
+            text-transform: uppercase;
+        }
+
+        .intro-prompt {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+            color: var(--mist);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            animation: prompt-blink 2s ease-in-out infinite;
+        }
+
+        @keyframes prompt-blink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Glitch line effect */
+        .glitch-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--crimson);
+            opacity: 0;
+            animation: glitch-scan 4s linear infinite;
+        }
+
+        @keyframes glitch-scan {
+            0% { top: -10%; opacity: 0; }
+            5% { opacity: 0.8; }
+            10% { top: 110%; opacity: 0; }
+            100% { top: 110%; opacity: 0; }
+        }
+
+        /* ============================================
+           MAIN CONTAINER
+           ============================================ */
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .app-container.visible {
+            opacity: 1;
+        }
+
+        /* ============================================
+           SCREENS
+           ============================================ */
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: screen-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes screen-enter {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================
+           MAIN MENU
+           ============================================ */
+        .menu-screen {
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            text-align: center;
+            position: relative;
+        }
+
+        .menu-header {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .menu-icon {
+            font-size: clamp(3rem, 12vw, 5rem);
+            margin-bottom: var(--space-md);
+            filter: drop-shadow(0 0 20px var(--crimson-glow));
+            animation: menu-icon-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes menu-icon-pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px var(--crimson-glow)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 40px var(--crimson-glow)); }
+        }
+
+        .menu-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 10vw, 4.5rem);
+            letter-spacing: 0.1em;
+            color: var(--white);
+            text-shadow: 0 0 30px var(--crimson-glow);
+            margin-bottom: var(--space-xs);
+        }
+
+        .menu-tagline {
+            font-family: var(--font-mono);
+            font-size: clamp(0.65rem, 2vw, 0.85rem);
+            color: var(--fog);
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+        }
+
+        .menu-description {
+            max-width: 400px;
+            margin: var(--space-lg) auto var(--space-2xl);
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            color: var(--mist);
+            line-height: 1.7;
+        }
+
+        /* Menu Buttons */
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .menu-btn {
+            position: relative;
+            font-family: var(--font-title);
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
+            letter-spacing: 0.1em;
+            padding: var(--space-lg) var(--space-xl);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            background: var(--glass);
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient-crimson);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-btn:hover,
+        .menu-btn:active {
+            border-color: var(--crimson);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px -10px var(--crimson-glow);
+        }
+
+        .menu-btn:hover::before {
+            opacity: 0.15;
+        }
+
+        .menu-btn span {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+
+        .menu-btn.primary {
+            background: var(--gradient-crimson);
+            border-color: var(--crimson);
+            box-shadow: 0 0 30px -5px var(--crimson-glow);
+        }
+
+        .menu-btn.primary::before {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+            opacity: 1;
+        }
+
+        .menu-btn.primary:hover {
+            box-shadow: 0 0 50px -5px var(--crimson-glow);
+        }
+
+        /* Stats Bar */
+        .menu-stats {
+            display: flex;
+            gap: var(--space-lg);
+            margin-top: var(--space-2xl);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .menu-stat {
+            text-align: center;
+        }
+
+        .menu-stat-value {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .menu-stat-label {
+            font-family: var(--font-mono);
+            font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+            color: var(--fog);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        /* ============================================
+           LEVELS SCREEN
+           ============================================ */
+        .levels-screen {
+            padding: var(--space-xl);
+            align-items: center;
+        }
+
+        .screen-header {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .screen-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 8vw, 3rem);
+            letter-spacing: 0.08em;
+            color: var(--white);
+            margin-bottom: var(--space-xs);
+        }
+
+        .screen-subtitle {
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: var(--fog);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        /* Level Cards */
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-md);
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .level-card {
+            position: relative;
+            background: var(--glass);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-crimson);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .level-card:hover,
+        .level-card.selected {
+            border-color: var(--crimson);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px -15px var(--crimson-glow);
+        }
+
+        .level-card:hover::before,
+        .level-card.selected::before {
+            transform: scaleX(1);
+        }
+
+        .level-card.selected {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-md);
+        }
+
+        .level-icon {
+            font-size: clamp(2rem, 6vw, 2.5rem);
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .level-badge {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--mist);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .level-badge.locked {
+            color: var(--crimson);
+            border-color: var(--crimson);
+        }
+
+        .level-name {
+            font-family: var(--font-title);
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            color: var(--white);
+            margin-bottom: var(--space-xs);
+            letter-spacing: 0.05em;
+        }
+
+        .level-desc {
+            font-size: clamp(0.75rem, 2.2vw, 0.85rem);
+            color: var(--mist);
+            line-height: 1.6;
+            margin-bottom: var(--space-md);
+        }
+
+        .level-stats {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .level-stat {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-family: var(--font-mono);
+            font-size: clamp(0.65rem, 2vw, 0.75rem);
+            color: var(--fog);
+        }
+
+        .level-stat-icon {
+            font-size: 0.9rem;
+        }
+
+        /* Difficulty Indicator */
+        .difficulty-bar {
+            display: flex;
+            gap: 3px;
+            margin-top: var(--space-md);
+        }
+
+        .difficulty-segment {
+            width: 100%;
+            height: 4px;
+            background: var(--smoke);
+            border-radius: 2px;
+            transition: background 0.3s ease;
+        }
+
+        .difficulty-segment.active {
+            background: var(--crimson);
+            box-shadow: 0 0 10px var(--crimson-glow);
+        }
+
+        .difficulty-segment.active.gold {
+            background: var(--gold);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        /* Start Button Container */
+        .start-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: var(--space-lg);
+            padding-bottom: calc(var(--space-lg) + var(--safe-bottom));
+            background: linear-gradient(to top, var(--void) 60%, transparent);
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+
+        .start-container.visible {
+            transform: translateY(0);
+        }
+
+        .start-btn {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: block;
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            letter-spacing: 0.2em;
+            padding: var(--space-lg) var(--space-xl);
+            border: none;
+            border-radius: var(--radius-lg);
+            background: var(--gradient-crimson);
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 40px -5px var(--crimson-glow);
+            animation: start-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes start-pulse {
+            0%, 100% { box-shadow: 0 0 40px -5px var(--crimson-glow); }
+            50% { box-shadow: 0 0 60px -5px var(--crimson-glow); }
+        }
+
+        .start-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: var(--space-lg);
+            left: var(--space-lg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--white);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .back-btn:hover {
+            background: var(--crimson);
+            border-color: var(--crimson);
+            transform: scale(1.1);
+        }
+
+        /* ============================================
+           SETTINGS SCREEN
+           ============================================ */
+        .settings-screen {
+            padding: var(--space-xl);
+            align-items: center;
+        }
+
+        .settings-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .settings-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .settings-section-title {
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            color: var(--crimson);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-md);
+            padding-left: var(--space-sm);
+            border-left: 2px solid var(--crimson);
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+            transition: all 0.3s ease;
+        }
+
+        .setting-row:hover {
+            border-color: var(--crimson);
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-name {
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            color: var(--white);
+            margin-bottom: 2px;
+        }
+
+        .setting-desc {
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            color: var(--fog);
+        }
+
+        /* Toggle Switch - Different Style */
+        .toggle {
+            position: relative;
+            width: 56px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--smoke);
+            border-radius: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .toggle.active .toggle-track {
+            background: var(--crimson);
+        }
+
+        .toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: var(--white);
+            border-radius: 50%;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .toggle.active .toggle-thumb {
+            transform: translateX(26px);
+        }
+
+        /* Slider - Different Style */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .slider {
+            width: 100px;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--smoke);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--crimson);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--crimson-glow);
+        }
+
+        .slider-value {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--mist);
+            min-width: 35px;
+        }
+
+        /* Reset Button */
+        .reset-btn {
+            font-family: var(--font-title);
+            font-size: 0.85rem;
+            padding: var(--space-sm) var(--space-md);
+            background: transparent;
+            border: 1px solid var(--crimson);
+            border-radius: var(--radius-sm);
+            color: var(--crimson);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.05em;
+        }
+
+        .reset-btn:hover {
+            background: var(--crimson);
+            color: var(--white);
+        }
+
+        /* ============================================
+           HOW TO PLAY SCREEN
+           ============================================ */
+        .howto-screen {
+            padding: var(--space-xl);
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .howto-container {
+            width: 100%;
+            max-width: 550px;
+        }
+
+        .howto-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .howto-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+            transition: all 0.3s ease;
+        }
+
+        .howto-card:hover {
+            border-color: var(--crimson);
+            transform: translateX(5px);
+        }
+
+        .howto-card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .howto-card-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px var(--crimson-glow));
+        }
+
+        .howto-card-title {
+            font-family: var(--font-title);
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: var(--white);
+            letter-spacing: 0.05em;
+        }
+
+        .howto-card-content {
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            color: var(--mist);
+            line-height: 1.7;
+        }
+
+        .howto-card-content ul {
+            list-style: none;
+            margin-top: var(--space-sm);
+        }
+
+        .howto-card-content li {
+            padding: var(--space-xs) 0;
+            padding-left: var(--space-lg);
+            position: relative;
+        }
+
+        .howto-card-content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--crimson);
+        }
+
+        /* ============================================
+           GAME SCREEN
+           ============================================ */
+        .game-screen {
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* Game HUD - Top */
+        .game-hud-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: var(--space-md);
+            padding-top: calc(var(--space-md) + var(--safe-top));
+            background: linear-gradient(to bottom, var(--void) 60%, transparent);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--space-md);
+        }
+
+        .hud-left {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .hud-score {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 7vw, 3rem);
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--gold-glow);
+            line-height: 1;
+        }
+
+        .hud-score-label {
+            font-family: var(--font-mono);
+            font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+            color: var(--fog);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .hud-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .hud-round {
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: var(--mist);
+            letter-spacing: 0.1em;
+        }
+
+        /* Countdown Timer - DRAMATIC */
+        .vanish-timer {
+            position: relative;
+            width: clamp(80px, 20vw, 120px);
+            height: clamp(80px, 20vw, 120px);
+        }
+
+        .timer-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--crimson) var(--timer-progress, 100%),
+                var(--smoke) var(--timer-progress, 100%)
+            );
+            animation: timer-glow 1s ease-in-out infinite;
+        }
+
+        @keyframes timer-glow {
+            0%, 100% { box-shadow: 0 0 20px var(--crimson-glow); }
+            50% { box-shadow: 0 0 35px var(--crimson-glow); }
+        }
+
+        .timer-ring-inner {
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background: var(--void);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .timer-value {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            color: var(--white);
+            line-height: 1;
+        }
+
+        .timer-label {
+            font-family: var(--font-mono);
+            font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+            color: var(--fog);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .timer-warning .timer-ring {
+            animation: timer-warning 0.5s ease-in-out infinite;
+        }
+
+        @keyframes timer-warning {
+            0%, 100% { box-shadow: 0 0 20px var(--crimson-glow); }
+            50% { box-shadow: 0 0 50px var(--crimson-glow); transform: scale(1.02); }
+        }
+
+        .hud-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: var(--space-xs);
+        }
+
+        .hud-lives {
+            display: flex;
+            gap: 4px;
+        }
+
+        .life-icon {
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 5px var(--crimson-glow));
+        }
+
+        .life-icon.lost {
+            filter: grayscale(100%) brightness(0.4);
+            transform: scale(0.8);
+        }
+
+        .hud-streak {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: var(--gold);
+        }
+
+        /* Game Controls */
+        .game-controls {
+            position: absolute;
+            top: calc(var(--space-md) + var(--safe-top));
+            right: var(--space-md);
+            display: flex;
+            gap: var(--space-xs);
+            z-index: 101;
+        }
+
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: var(--glass-heavy);
+            border: 1px solid var(--glass-border);
+            color: var(--white);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: var(--crimson);
+            border-color: var(--crimson);
+        }
+
+        /* Target Label Display */
+        .target-display {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: var(--space-lg);
+            padding-bottom: calc(var(--space-lg) + var(--safe-bottom));
+            background: linear-gradient(to top, var(--void) 80%, transparent);
+            z-index: 100;
+            text-align: center;
+        }
+
+        .target-label {
+            font-family: var(--font-mono);
+            font-size: clamp(0.65rem, 2vw, 0.8rem);
+            color: var(--fog);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xs);
+        }
+
+        .target-name {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            color: var(--white);
+            text-shadow: 0 0 30px var(--crimson-glow);
+            letter-spacing: 0.05em;
+            animation: target-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes target-pulse {
+            0%, 100% { text-shadow: 0 0 30px var(--crimson-glow); }
+            50% { text-shadow: 0 0 50px var(--crimson-glow), 0 0 80px var(--crimson-glow); }
+        }
+
+        .target-hint {
+            font-family: var(--font-body);
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            color: var(--mist);
+            margin-top: var(--space-sm);
+        }
+
+        /* Map Container */
+        .map-container {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        #gameMap {
+            width: 100% !important;
+            height: 100% !important;
+            background: var(--abyss) !important;
+            cursor: crosshair !important;
+        }
+
+        /* Leaflet Customization */
+        .leaflet-container {
+            background: var(--abyss) !important;
+            font-family: var(--font-body) !important;
+        }
+
+        .leaflet-control-zoom {
+            border: none !important;
+            margin: 80px 10px 10px !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: var(--glass-heavy) !important;
+            color: var(--white) !important;
+            border: 1px solid var(--glass-border) !important;
+            width: 40px !important;
+            height: 40px !important;
+            line-height: 40px !important;
+            font-size: 20px !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: var(--crimson) !important;
+            border-color: var(--crimson) !important;
+        }
+
+        .leaflet-control-attribution {
+            background: var(--glass-heavy) !important;
+            color: var(--fog) !important;
+            font-size: 9px !important;
+        }
+
+        /* Country Labels on Map */
+        .country-label {
+            background: var(--glass-heavy) !important;
+            border: 1px solid var(--crimson) !important;
+            border-radius: var(--radius-sm) !important;
+            color: var(--white) !important;
+            padding: 4px 10px !important;
+            font-family: var(--font-body) !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+            white-space: nowrap !important;
+            box-shadow: 0 0 15px var(--crimson-glow) !important;
+            transition: all 0.5s ease !important;
+        }
+
+        .country-label.vanishing {
+            animation: label-vanish 1s ease forwards;
+        }
+
+        @keyframes label-vanish {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); box-shadow: 0 0 30px var(--crimson-glow); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+
+        .country-label.target {
+            background: var(--crimson) !important;
+            color: var(--white) !important;
+            animation: label-target-pulse 0.5s ease;
+        }
+
+        @keyframes label-target-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Click Markers */
+        .click-marker {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid var(--white);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .click-marker.correct {
+            background: var(--success);
+            box-shadow: 0 0 20px var(--success-glow);
+        }
+
+        .click-marker.wrong {
+            background: var(--crimson);
+            box-shadow: 0 0 20px var(--crimson-glow);
+        }
+
+        /* Map Flash Effects */
+        .map-container.flash-correct::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--success);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+            animation: map-flash 0.5s ease;
+        }
+
+        .map-container.flash-wrong::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--crimson);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+            animation: map-flash 0.5s ease;
+        }
+
+        @keyframes map-flash {
+            0% { opacity: 0; }
+            30% { opacity: 0.3; }
+            100% { opacity: 0; }
+        }
+
+        /* ============================================
+           OVERLAYS
+           ============================================ */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--glass-heavy);
+            backdrop-filter: blur(20px);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: var(--space-xl);
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: overlay-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes overlay-enter {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Countdown Overlay */
+        .countdown-overlay .countdown-number {
+            font-family: var(--font-display);
+            font-size: clamp(10rem, 40vw, 20rem);
+            color: var(--crimson);
+            text-shadow: 0 0 50px var(--crimson-glow), 0 0 100px var(--crimson-glow);
+            line-height: 1;
+            animation: countdown-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes countdown-pop {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            60% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .countdown-overlay .countdown-text {
+            font-family: var(--font-mono);
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            color: var(--mist);
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            margin-top: var(--space-lg);
+        }
+
+        /* Pause Overlay */
+        .pause-overlay .pause-icon {
+            font-size: clamp(4rem, 15vw, 7rem);
+            margin-bottom: var(--space-lg);
+            animation: pause-breathe 2s ease-in-out infinite;
+        }
+
+        @keyframes pause-breathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .pause-overlay .pause-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 10vw, 4rem);
+            letter-spacing: 0.2em;
+            color: var(--white);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .pause-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .pause-btn {
+            font-family: var(--font-title);
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
+            letter-spacing: 0.1em;
+            padding: var(--space-lg);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            background: var(--glass);
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .pause-btn:hover {
+            border-color: var(--crimson);
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        .pause-btn.primary {
+            background: var(--gradient-crimson);
+            border-color: var(--crimson);
+        }
+
+        /* Game Over Overlay */
+        .gameover-overlay {
+            text-align: center;
+        }
+
+        .gameover-icon {
+            font-size: clamp(5rem, 18vw, 8rem);
+            margin-bottom: var(--space-lg);
+            animation: gameover-icon-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes gameover-icon-pop {
+            0% { transform: scale(0) rotate(-20deg); }
+            60% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .gameover-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 12vw, 5rem);
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-sm);
+        }
+
+        .gameover-title.victory {
+            color: var(--gold);
+            text-shadow: 0 0 40px var(--gold-glow);
+        }
+
+        .gameover-title.defeat {
+            color: var(--crimson);
+            text-shadow: 0 0 40px var(--crimson-glow);
+        }
+
+        .gameover-subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            color: var(--mist);
+            margin-bottom: var(--space-xl);
+        }
+
+        .new-highscore-badge {
+            display: inline-block;
+            background: var(--gradient-gold);
+            color: var(--void);
+            font-family: var(--font-title);
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-lg);
+            animation: highscore-shine 2s ease infinite;
+        }
+
+        @keyframes highscore-shine {
+            0%, 100% { box-shadow: 0 0 20px var(--gold-glow); }
+            50% { box-shadow: 0 0 40px var(--gold-glow); }
+        }
+
+        .final-score {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 18vw, 8rem);
+            color: var(--gold);
+            text-shadow: 0 0 30px var(--gold-glow);
+            line-height: 1;
+            margin-bottom: var(--space-xs);
+        }
+
+        .score-label {
+            font-family: var(--font-mono);
+            font-size: clamp(0.6rem, 2vw, 0.8rem);
+            color: var(--fog);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xl);
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: var(--space-md);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            min-width: 80px;
+        }
+
+        .stat-box-icon {
+            font-size: 1.5rem;
+            margin-bottom: var(--space-xs);
+        }
+
+        .stat-box-value {
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: var(--white);
+        }
+
+        .stat-box-label {
+            font-family: var(--font-mono);
+            font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+            color: var(--fog);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .gameover-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .gameover-btn {
+            font-family: var(--font-title);
+            font-size: clamp(0.95rem, 3vw, 1.1rem);
+            letter-spacing: 0.08em;
+            padding: var(--space-md) var(--space-lg);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            background: var(--glass);
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+
+        .gameover-btn:hover {
+            border-color: var(--crimson);
+            transform: translateY(-2px);
+        }
+
+        .gameover-btn.primary {
+            background: var(--gradient-crimson);
+            border-color: var(--crimson);
+            box-shadow: 0 0 20px var(--crimson-glow);
+        }
+
+        .gameover-btn.gold {
+            background: var(--gradient-gold);
+            border-color: var(--gold);
+            color: var(--void);
+        }
+
+        /* ============================================
+           FEEDBACK EFFECTS
+           ============================================ */
+        .feedback-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 12vw, 5rem);
+            pointer-events: none;
+            z-index: 6000;
+            animation: feedback-pop 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .feedback-popup.correct {
+            color: var(--success);
+            text-shadow: 0 0 30px var(--success-glow);
+        }
+
+        .feedback-popup.wrong {
+            color: var(--crimson);
+            text-shadow: 0 0 30px var(--crimson-glow);
+        }
+
+        @keyframes feedback-pop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            60% { transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -70%) scale(0.8); }
+        }
+
+        .points-float {
+            position: fixed;
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--gold-glow);
+            pointer-events: none;
+            z-index: 6001;
+            animation: points-rise 1.5s ease forwards;
+        }
+
+        @keyframes points-rise {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.7); }
+        }
+
+        /* ============================================
+           UTILITIES
+           ============================================ */
+        .hidden { display: none !important; }
+        
+        @media (max-width: 480px) {
+            :root {
+                --space-xl: 1.5rem;
+                --space-2xl: 2rem;
+            }
+            
+            .game-hud-top {
+                padding: var(--space-sm);
+            }
+            
+            .hud-score {
+                font-size: 1.8rem;
+            }
+            
+            .vanish-timer {
+                width: 70px;
+                height: 70px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .menu-description { display: none; }
+            .menu-stats { margin-top: var(--space-lg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cinematic Background -->
+    <div class="cinematic-bg">
+        <div class="scanlines"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- INTRO SCREEN - Dramatic Reveal -->
+    <div class="intro-screen" id="introScreen">
+        <div class="glitch-line"></div>
+        <div class="intro-logo">
+            <div class="intro-icon">🌍</div>
+            <h1 class="intro-title">VANISHING WORLD</h1>
+            <p class="intro-subtitle">A Geotopia Experience</p>
+        </div>
+        <div class="intro-prompt">TAP TO ENTER</div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="app-container" id="appContainer">
+        
+        <!-- MAIN MENU SCREEN -->
+        <section class="screen menu-screen active" id="menuScreen">
+            <div class="menu-header">
+                <div class="menu-icon">🌍</div>
+                <h1 class="menu-title">VANISHING WORLD</h1>
+                <p class="menu-tagline">Memory Under Pressure</p>
+            </div>
+            
+            <p class="menu-description">
+                Watch the map. Labels vanish one by one. 
+                Click where they disappeared before time runs out. 
+                How long can you survive?
+            </p>
+
+            <div class="menu-buttons">
+                <button class="menu-btn primary" id="playBtn">
+                    <span>🎮 PLAY</span>
+                </button>
+                <button class="menu-btn" id="levelsBtn">
+                    <span>📊 LEVELS</span>
+                </button>
+                <button class="menu-btn" id="howtoBtn">
+                    <span>❓ HOW TO PLAY</span>
+                </button>
+                <button class="menu-btn" id="settingsBtn">
+                    <span>⚙️ SETTINGS</span>
+                </button>
+            </div>
+
+            <div class="menu-stats">
+                <div class="menu-stat">
+                    <div class="menu-stat-value" id="menuHighScore">0</div>
+                    <div class="menu-stat-label">High Score</div>
+                </div>
+                <div class="menu-stat">
+                    <div class="menu-stat-value" id="menuBestRound">0</div>
+                    <div class="menu-stat-label">Best Round</div>
+                </div>
+                <div class="menu-stat">
+                    <div class="menu-stat-value" id="menuGamesPlayed">0</div>
+                    <div class="menu-stat-label">Games</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEVELS SCREEN -->
+        <section class="screen levels-screen" id="levelsScreen">
+            <button class="back-btn" id="levelsBackBtn">←</button>
+            
+            <div class="screen-header">
+                <h2 class="screen-title">SELECT LEVEL</h2>
+                <p class="screen-subtitle">Choose Your Challenge</p>
+            </div>
+
+            <div class="levels-grid" id="levelsGrid">
+                <div class="level-card selected" data-level="recruit">
+                    <div class="level-header">
+                        <div class="level-icon">🔰</div>
+                        <span class="level-badge">BEGINNER</span>
+                    </div>
+                    <h3 class="level-name">RECRUIT</h3>
+                    <p class="level-desc">Labels vanish slowly. Perfect for learning the ropes.</p>
+                    <div class="level-stats">
+                        <div class="level-stat">
+                            <span class="level-stat-icon">⏱️</span>
+                            <span>15s interval</span>
+                        </div>
+                        <div class="level-stat">
+                            <span class="level-stat-icon">❤️</span>
+                            <span>5 lives</span>
+                        </div>
+                    </div>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-segment active"></div>
+                        <div class="difficulty-segment"></div>
+                        <div class="difficulty-segment"></div>
+                        <div class="difficulty-segment"></div>
+                    </div>
+                </div>
+
+                <div class="level-card" data-level="agent">
+                    <div class="level-header">
+                        <div class="level-icon">🎯</div>
+                        <span class="level-badge">STANDARD</span>
+                    </div>
+                    <h3 class="level-name">AGENT</h3>
+                    <p class="level-desc">Standard pace. Test your geographic memory.</p>
+                    <div class="level-stats">
+                        <div class="level-stat">
+                            <span class="level-stat-icon">⏱️</span>
+                            <span>10s interval</span>
+                        </div>
+                        <div class="level-stat">
+                            <span class="level-stat-icon">❤️</span>
+                            <span>3 lives</span>
+                        </div>
+                    </div>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-segment active"></div>
+                        <div class="difficulty-segment active"></div>
+                        <div class="difficulty-segment"></div>
+                        <div class="difficulty-segment"></div>
+                    </div>
+                </div>
+
+                <div class="level-card" data-level="operative">
+                    <div class="level-header">
+                        <div class="level-icon">⚡</div>
+                        <span class="level-badge">ADVANCED</span>
+                    </div>
+                    <h3 class="level-name">OPERATIVE</h3>
+                    <p class="level-desc">Fast-paced pressure. Only the skilled survive.</p>
+                    <div class="level-stats">
+                        <div class="level-stat">
+                            <span class="level-stat-icon">⏱️</span>
+                            <span>7s interval</span>
+                        </div>
+                        <div class="level-stat">
+                            <span class="level-stat-icon">❤️</span>
+                            <span>2 lives</span>
+                        </div>
+                    </div>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-segment active"></div>
+                        <div class="difficulty-segment active"></div>
+                        <div class="difficulty-segment active"></div>
+                        <div class="difficulty-segment"></div>
+                    </div>
+                </div>
+
+                <div class="level-card" data-level="phantom">
+                    <div class="level-header">
+                        <div class="level-icon">💀</div>
+                        <span class="level-badge">EXTREME</span>
+                    </div>
+                    <h3 class="level-name">PHANTOM</h3>
+                    <p class="level-desc">Blink and you miss it. For geography masters only.</p>
+                    <div class="level-stats">
+                        <div class="level-stat">
+                            <span class="level-stat-icon">⏱️</span>
+                            <span>4s interval</span>
+                        </div>
+                        <div class="level-stat">
+                            <span class="level-stat-icon">❤️</span>
+                            <span>1 life</span>
+                        </div>
+                    </div>
+                    <div class="difficulty-bar">
+                        <div class="difficulty-segment active gold"></div>
+                        <div class="difficulty-segment active gold"></div>
+                        <div class="difficulty-segment active gold"></div>
+                        <div class="difficulty-segment active gold"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="start-container" id="startContainer">
+                <button class="start-btn" id="startGameBtn">▶ START MISSION</button>
+            </div>
+        </section>
+
+        <!-- SETTINGS SCREEN -->
+        <section class="screen settings-screen" id="settingsScreen">
+            <button class="back-btn" id="settingsBackBtn">←</button>
+            
+            <div class="screen-header">
+                <h2 class="screen-title">SETTINGS</h2>
+                <p class="screen-subtitle">Configure Your Experience</p>
+            </div>
+
+            <div class="settings-container">
+                <div class="settings-section">
+                    <div class="settings-section-title">Audio</div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Sound Effects</div>
+                            <div class="setting-desc">Enable game sounds</div>
+                        </div>
+                        <div class="toggle active" id="toggleSound">
+                            <div class="toggle-track"></div>
+                            <div class="toggle-thumb"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Volume</div>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="volumeSlider" min="0" max="100" value="70">
+                            <span class="slider-value" id="volumeValue">70%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">Gameplay</div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Show Hints</div>
+                            <div class="setting-desc">Display continent hints</div>
+                        </div>
+                        <div class="toggle active" id="toggleHints">
+                            <div class="toggle-track"></div>
+                            <div class="toggle-thumb"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Haptic Feedback</div>
+                            <div class="setting-desc">Vibration on actions</div>
+                        </div>
+                        <div class="toggle active" id="toggleHaptic">
+                            <div class="toggle-track"></div>
+                            <div class="toggle-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">Data</div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Reset Progress</div>
+                            <div class="setting-desc">Clear all saved data</div>
+                        </div>
+                        <button class="reset-btn" id="resetBtn">RESET</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW TO PLAY SCREEN -->
+        <section class="screen howto-screen" id="howtoScreen">
+            <button class="back-btn" id="howtoBackBtn">←</button>
+            
+            <div class="screen-header">
+                <h2 class="screen-title">HOW TO PLAY</h2>
+                <p class="screen-subtitle">Master the Vanishing World</p>
+            </div>
+
+            <div class="howto-container">
+                <div class="howto-card">
+                    <div class="howto-card-header">
+                        <span class="howto-card-icon">👁️</span>
+                        <h3 class="howto-card-title">WATCH THE MAP</h3>
+                    </div>
+                    <div class="howto-card-content">
+                        The map starts with all country labels visible. Study their positions carefully - you'll need to remember them!
+                    </div>
+                </div>
+
+                <div class="howto-card">
+                    <div class="howto-card-header">
+                        <span class="howto-card-icon">💨</span>
+                        <h3 class="howto-card-title">LABELS VANISH</h3>
+                    </div>
+                    <div class="howto-card-content">
+                        Every few seconds, one label disappears from the map. The vanished country's name appears at the bottom of the screen.
+                    </div>
+                </div>
+
+                <div class="howto-card">
+                    <div class="howto-card-header">
+                        <span class="howto-card-icon">🎯</span>
+                        <h3 class="howto-card-title">CLICK FAST</h3>
+                    </div>
+                    <div class="howto-card-content">
+                        Click where the label used to be before time runs out!
+                        <ul>
+                            <li>Faster clicks = more points</li>
+                            <li>Build streaks for multipliers</li>
+                            <li>Miss = lose a life</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="howto-card">
+                    <div class="howto-card-header">
+                        <span class="howto-card-icon">🏆</span>
+                        <h3 class="howto-card-title">SURVIVE & SCORE</h3>
+                    </div>
+                    <div class="howto-card-content">
+                        Keep playing until you run out of lives. Higher difficulties give more points but less time. Can you reach the top?
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAME SCREEN -->
+        <section class="screen game-screen" id="gameScreen">
+            <div class="map-container" id="mapContainer">
+                <div id="gameMap"></div>
+            </div>
+
+            <div class="game-hud-top">
+                <div class="hud-left">
+                    <div class="hud-score" id="hudScore">0</div>
+                    <div class="hud-score-label">SCORE</div>
+                </div>
+
+                <div class="hud-center">
+                    <div class="hud-round" id="hudRound">ROUND 1</div>
+                    <div class="vanish-timer" id="vanishTimer">
+                        <div class="timer-ring" id="timerRing"></div>
+                        <div class="timer-ring-inner">
+                            <div class="timer-value" id="timerValue">10</div>
+                            <div class="timer-label">SEC</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hud-right">
+                    <div class="hud-lives" id="hudLives">
+                        <span class="life-icon">❤️</span>
+                        <span class="life-icon">❤️</span>
+                        <span class="life-icon">❤️</span>
+                    </div>
+                    <div class="hud-streak">
+                        <span>🔥</span>
+                        <span id="hudStreak">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="control-btn" id="pauseBtn">⏸️</button>
+                <button class="control-btn" id="soundToggleBtn">🔊</button>
+            </div>
+
+            <div class="target-display" id="targetDisplay">
+                <div class="target-label">FIND THIS COUNTRY</div>
+                <div class="target-name" id="targetName">FRANCE</div>
+                <div class="target-hint" id="targetHint">Europe</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- COUNTDOWN OVERLAY -->
+    <div class="overlay countdown-overlay" id="countdownOverlay">
+        <div class="countdown-number" id="countdownNumber">3</div>
+        <div class="countdown-text">GET READY</div>
+    </div>
+
+    <!-- PAUSE OVERLAY -->
+    <div class="overlay pause-overlay" id="pauseOverlay">
+        <div class="pause-icon">⏸️</div>
+        <h2 class="pause-title">PAUSED</h2>
+        <div class="pause-buttons">
+            <button class="pause-btn primary" id="resumeBtn">▶ RESUME</button>
+            <button class="pause-btn" id="restartBtn">🔄 RESTART</button>
+            <button class="pause-btn" id="quitBtn">🏠 QUIT</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div class="overlay gameover-overlay" id="gameoverOverlay">
+        <div class="gameover-icon" id="gameoverIcon">💀</div>
+        <h2 class="gameover-title defeat" id="gameoverTitle">MISSION FAILED</h2>
+        <p class="gameover-subtitle" id="gameoverSubtitle">The world has vanished...</p>
+        
+        <div class="new-highscore-badge hidden" id="newHighscoreBadge">🏆 NEW HIGH SCORE!</div>
+        
+        <div class="final-score" id="finalScore">0</div>
+        <div class="score-label">TOTAL POINTS</div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-box-icon">📍</div>
+                <div class="stat-box-value" id="statRounds">0</div>
+                <div class="stat-box-label">Rounds</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-icon">✅</div>
+                <div class="stat-box-value" id="statCorrect">0</div>
+                <div class="stat-box-label">Correct</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-icon">🔥</div>
+                <div class="stat-box-value" id="statStreak">0</div>
+                <div class="stat-box-label">Best Streak</div>
+            </div>
+        </div>
+
+        <div class="gameover-buttons">
+            <button class="gameover-btn primary" id="playAgainBtn">🔄 PLAY AGAIN</button>
+            <button class="gameover-btn" id="menuBtn">🏠 MAIN MENU</button>
+            <button class="gameover-btn gold" id="shareBtn">📤 SHARE</button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ========================================
+            // COUNTRIES DATABASE
+            // ========================================
+            const COUNTRIES = [
+                { name: "France", code: "fr", continent: "Europe", lat: 46.60, lng: 2.35 },
+                { name: "Germany", code: "de", continent: "Europe", lat: 51.17, lng: 10.45 },
+                { name: "Italy", code: "it", continent: "Europe", lat: 42.50, lng: 12.57 },
+                { name: "Spain", code: "es", continent: "Europe", lat: 40.00, lng: -4.00 },
+                { name: "United Kingdom", code: "gb", continent: "Europe", lat: 54.00, lng: -2.00 },
+                { name: "Poland", code: "pl", continent: "Europe", lat: 52.00, lng: 20.00 },
+                { name: "Netherlands", code: "nl", continent: "Europe", lat: 52.30, lng: 5.75 },
+                { name: "Belgium", code: "be", continent: "Europe", lat: 50.85, lng: 4.35 },
+                { name: "Sweden", code: "se", continent: "Europe", lat: 62.00, lng: 15.00 },
+                { name: "Norway", code: "no", continent: "Europe", lat: 62.00, lng: 10.00 },
+                { name: "Finland", code: "fi", continent: "Europe", lat: 64.00, lng: 26.00 },
+                { name: "Denmark", code: "dk", continent: "Europe", lat: 56.00, lng: 10.00 },
+                { name: "Portugal", code: "pt", continent: "Europe", lat: 39.50, lng: -8.00 },
+                { name: "Greece", code: "gr", continent: "Europe", lat: 39.00, lng: 22.00 },
+                { name: "Austria", code: "at", continent: "Europe", lat: 47.33, lng: 13.33 },
+                { name: "Switzerland", code: "ch", continent: "Europe", lat: 47.00, lng: 8.00 },
+                { name: "Ireland", code: "ie", continent: "Europe", lat: 53.00, lng: -8.00 },
+                { name: "Czech Republic", code: "cz", continent: "Europe", lat: 49.75, lng: 15.50 },
+                { name: "Romania", code: "ro", continent: "Europe", lat: 46.00, lng: 25.00 },
+                { name: "Hungary", code: "hu", continent: "Europe", lat: 47.00, lng: 20.00 },
+                { name: "Ukraine", code: "ua", continent: "Europe", lat: 49.00, lng: 32.00 },
+                { name: "Russia", code: "ru", continent: "Europe", lat: 60.00, lng: 100.00 },
+                { name: "Turkey", code: "tr", continent: "Asia", lat: 39.00, lng: 35.00 },
+                { name: "Japan", code: "jp", continent: "Asia", lat: 36.00, lng: 138.00 },
+                { name: "China", code: "cn", continent: "Asia", lat: 35.00, lng: 105.00 },
+                { name: "India", code: "in", continent: "Asia", lat: 22.00, lng: 79.00 },
+                { name: "South Korea", code: "kr", continent: "Asia", lat: 36.00, lng: 128.00 },
+                { name: "Thailand", code: "th", continent: "Asia", lat: 15.00, lng: 101.00 },
+                { name: "Vietnam", code: "vn", continent: "Asia", lat: 16.00, lng: 108.00 },
+                { name: "Indonesia", code: "id", continent: "Asia", lat: -5.00, lng: 120.00 },
+                { name: "Philippines", code: "ph", continent: "Asia", lat: 13.00, lng: 122.00 },
+                { name: "Malaysia", code: "my", continent: "Asia", lat: 2.50, lng: 112.50 },
+                { name: "Pakistan", code: "pk", continent: "Asia", lat: 30.00, lng: 70.00 },
+                { name: "Saudi Arabia", code: "sa", continent: "Asia", lat: 25.00, lng: 45.00 },
+                { name: "Iran", code: "ir", continent: "Asia", lat: 32.00, lng: 53.00 },
+                { name: "United States", code: "us", continent: "North America", lat: 38.00, lng: -97.00 },
+                { name: "Canada", code: "ca", continent: "North America", lat: 60.00, lng: -95.00 },
+                { name: "Mexico", code: "mx", continent: "North America", lat: 23.00, lng: -102.00 },
+                { name: "Brazil", code: "br", continent: "South America", lat: -10.00, lng: -55.00 },
+                { name: "Argentina", code: "ar", continent: "South America", lat: -34.00, lng: -64.00 },
+                { name: "Chile", code: "cl", continent: "South America", lat: -30.00, lng: -71.00 },
+                { name: "Colombia", code: "co", continent: "South America", lat: 4.00, lng: -72.00 },
+                { name: "Peru", code: "pe", continent: "South America", lat: -10.00, lng: -76.00 },
+                { name: "Australia", code: "au", continent: "Oceania", lat: -27.00, lng: 133.00 },
+                { name: "New Zealand", code: "nz", continent: "Oceania", lat: -41.00, lng: 174.00 },
+                { name: "Egypt", code: "eg", continent: "Africa", lat: 27.00, lng: 30.00 },
+                { name: "South Africa", code: "za", continent: "Africa", lat: -29.00, lng: 24.00 },
+                { name: "Nigeria", code: "ng", continent: "Africa", lat: 10.00, lng: 8.00 },
+                { name: "Kenya", code: "ke", continent: "Africa", lat: 1.00, lng: 38.00 },
+                { name: "Morocco", code: "ma", continent: "Africa", lat: 32.00, lng: -5.00 }
+            ];
+
+            // ========================================
+            // LEVEL CONFIG
+            // ========================================
+            const LEVELS = {
+                recruit: { time: 15, lives: 5, tolerance: 800, multiplier: 1, countries: 15 },
+                agent: { time: 10, lives: 3, tolerance: 600, multiplier: 1.5, countries: 20 },
+                operative: { time: 7, lives: 2, tolerance: 400, multiplier: 2, countries: 25 },
+                phantom: { time: 4, lives: 1, tolerance: 300, multiplier: 3, countries: 30 }
+            };
+
+            // ========================================
+            // GAME STATE
+            // ========================================
+            const State = {
+                currentScreen: 'menu',
+                selectedLevel: 'recruit',
+                isPlaying: false,
+                isPaused: false,
+                
+                score: 0,
+                round: 0,
+                lives: 3,
+                streak: 0,
+                bestStreak: 0,
+                correctAnswers: 0,
+                
+                timeRemaining: 10,
+                maxTime: 10,
+                timerInterval: null,
+                
+                visibleCountries: [],
+                vanishedCountry: null,
+                countryLabels: {},
+                
+                settings: {
+                    sound: true,
+                    volume: 70,
+                    hints: true,
+                    haptic: true
+                },
+                
+                stats: {
+                    highScore: 0,
+                    bestRound: 0,
+                    gamesPlayed: 0
+                }
+            };
+
+            // ========================================
+            // MAP VARIABLES
+            // ========================================
+            let map = null;
+            let markers = [];
+
+            // ========================================
+            // DOM CACHE
+            // ========================================
+            const DOM = {};
+
+            function cacheDOM() {
+                DOM.introScreen = document.getElementById('introScreen');
+                DOM.appContainer = document.getElementById('appContainer');
+                DOM.menuScreen = document.getElementById('menuScreen');
+                DOM.levelsScreen = document.getElementById('levelsScreen');
+                DOM.settingsScreen = document.getElementById('settingsScreen');
+                DOM.howtoScreen = document.getElementById('howtoScreen');
+                DOM.gameScreen = document.getElementById('gameScreen');
+                
+                DOM.startContainer = document.getElementById('startContainer');
+                DOM.mapContainer = document.getElementById('mapContainer');
+                
+                DOM.countdownOverlay = document.getElementById('countdownOverlay');
+                DOM.countdownNumber = document.getElementById('countdownNumber');
+                DOM.pauseOverlay = document.getElementById('pauseOverlay');
+                DOM.gameoverOverlay = document.getElementById('gameoverOverlay');
+                
+                DOM.hudScore = document.getElementById('hudScore');
+                DOM.hudRound = document.getElementById('hudRound');
+                DOM.hudLives = document.getElementById('hudLives');
+                DOM.hudStreak = document.getElementById('hudStreak');
+                DOM.timerRing = document.getElementById('timerRing');
+                DOM.timerValue = document.getElementById('timerValue');
+                DOM.vanishTimer = document.getElementById('vanishTimer');
+                DOM.targetName = document.getElementById('targetName');
+                DOM.targetHint = document.getElementById('targetHint');
+                DOM.targetDisplay = document.getElementById('targetDisplay');
+                
+                DOM.menuHighScore = document.getElementById('menuHighScore');
+                DOM.menuBestRound = document.getElementById('menuBestRound');
+                DOM.menuGamesPlayed = document.getElementById('menuGamesPlayed');
+                
+                DOM.gameoverIcon = document.getElementById('gameoverIcon');
+                DOM.gameoverTitle = document.getElementById('gameoverTitle');
+                DOM.gameoverSubtitle = document.getElementById('gameoverSubtitle');
+                DOM.newHighscoreBadge = document.getElementById('newHighscoreBadge');
+                DOM.finalScore = document.getElementById('finalScore');
+                DOM.statRounds = document.getElementById('statRounds');
+                DOM.statCorrect = document.getElementById('statCorrect');
+                DOM.statStreak = document.getElementById('statStreak');
+                
+                DOM.particles = document.getElementById('particles');
+            }
+
+            // ========================================
+            // AUDIO SYSTEM
+            // ========================================
+            const Audio = {
+                ctx: null,
+                init() {
+                    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+                },
+                play(type) {
+                    if (!State.settings.sound || !this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    const vol = State.settings.volume / 100 * 0.2;
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+
+                    const sounds = {
+                        click: () => { osc.frequency.setValueAtTime(600, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1); osc.start(); osc.stop(this.ctx.currentTime + 0.1); },
+                        correct: () => { osc.frequency.setValueAtTime(523, this.ctx.currentTime); osc.frequency.setValueAtTime(659, this.ctx.currentTime + 0.08); osc.frequency.setValueAtTime(784, this.ctx.currentTime + 0.16); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3); osc.start(); osc.stop(this.ctx.currentTime + 0.3); },
+                        wrong: () => { osc.frequency.setValueAtTime(200, this.ctx.currentTime); osc.frequency.setValueAtTime(150, this.ctx.currentTime + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25); osc.start(); osc.stop(this.ctx.currentTime + 0.25); },
+                        vanish: () => { osc.type = 'sine'; osc.frequency.setValueAtTime(800, this.ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.4); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5); osc.start(); osc.stop(this.ctx.currentTime + 0.5); },
+                        countdown: () => { osc.frequency.setValueAtTime(440, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15); osc.start(); osc.stop(this.ctx.currentTime + 0.15); },
+                        start: () => { osc.frequency.setValueAtTime(440, this.ctx.currentTime); osc.frequency.setValueAtTime(660, this.ctx.currentTime + 0.1); osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.2); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35); osc.start(); osc.stop(this.ctx.currentTime + 0.35); },
+                        gameover: () => { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, this.ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.8); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1); osc.start(); osc.stop(this.ctx.currentTime + 1); },
+                        tick: () => { osc.frequency.setValueAtTime(900, this.ctx.currentTime); gain.gain.setValueAtTime(vol * 0.3, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.03); osc.start(); osc.stop(this.ctx.currentTime + 0.03); }
+                    };
+                    
+                    if (sounds[type]) sounds[type]();
+                }
+            };
+
+            // ========================================
+            // HAPTIC FEEDBACK
+            // ========================================
+            function haptic(type = 'light') {
+                if (!State.settings.haptic || !navigator.vibrate) return;
+                const patterns = { light: 10, medium: 25, heavy: 50, error: [50, 50, 50] };
+                navigator.vibrate(patterns[type] || 10);
+            }
+
+            // ========================================
+            // STORAGE
+            // ========================================
+            function saveData() {
+                localStorage.setItem('vanishing_stats', JSON.stringify(State.stats));
+                localStorage.setItem('vanishing_settings', JSON.stringify(State.settings));
+            }
+
+            function loadData() {
+                try {
+                    const stats = localStorage.getItem('vanishing_stats');
+                    const settings = localStorage.getItem('vanishing_settings');
+                    if (stats) State.stats = { ...State.stats, ...JSON.parse(stats) };
+                    if (settings) State.settings = { ...State.settings, ...JSON.parse(settings) };
+                } catch(e) {}
+            }
+
+            // ========================================
+            // PARTICLES
+            // ========================================
+            function createParticles() {
+                for (let i = 0; i < 30; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.animationDelay = Math.random() * 20 + 's';
+                    p.style.animationDuration = (15 + Math.random() * 15) + 's';
+                    DOM.particles.appendChild(p);
+                }
+            }
+
+            // ========================================
+            // SCREEN MANAGEMENT
+            // ========================================
+            function showScreen(name) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                const screens = {
+                    menu: DOM.menuScreen,
+                    levels: DOM.levelsScreen,
+                    settings: DOM.settingsScreen,
+                    howto: DOM.howtoScreen,
+                    game: DOM.gameScreen
+                };
+                if (screens[name]) {
+                    screens[name].classList.add('active');
+                    State.currentScreen = name;
+                }
+            }
+
+            // ========================================
+            // MAP FUNCTIONS
+            // ========================================
+            function initMap() {
+                if (map) { map.remove(); map = null; }
+                
+                map = L.map('gameMap', {
+                    center: [30, 0],
+                    zoom: 2,
+                    minZoom: 2,
+                    maxZoom: 8,
+                    worldCopyJump: true,
+                    zoomControl: true
+                });
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OSM © CARTO',
+                    maxZoom: 19
+                }).addTo(map);
+
+                map.on('click', handleMapClick);
+                
+                setTimeout(() => map.invalidateSize(), 200);
+            }
+
+            function addCountryLabels() {
+                clearLabels();
+                State.countryLabels = {};
+                
+                const level = LEVELS[State.selectedLevel];
+                const shuffled = [...COUNTRIES].sort(() => Math.random() - 0.5);
+                State.visibleCountries = shuffled.slice(0, level.countries);
+                
+                State.visibleCountries.forEach(country => {
+                    const icon = L.divIcon({
+                        className: 'country-label',
+                        html: country.name,
+                        iconSize: null
+                    });
+                    
+                    const marker = L.marker([country.lat, country.lng], { icon, interactive: false }).addTo(map);
+                    State.countryLabels[country.code] = { marker, country };
+                });
+            }
+
+            function clearLabels() {
+                Object.values(State.countryLabels).forEach(({ marker }) => {
+                    if (map) map.removeLayer(marker);
+                });
+                State.countryLabels = {};
+                
+                markers.forEach(m => { if (map) map.removeLayer(m); });
+                markers = [];
+            }
+
+            function vanishRandomLabel() {
+                const available = State.visibleCountries.filter(c => State.countryLabels[c.code]);
+                if (available.length === 0) return null;
+                
+                const country = available[Math.floor(Math.random() * available.length)];
+                const labelData = State.countryLabels[country.code];
+                
+                if (labelData) {
+                    // Add vanishing animation
+                    const el = labelData.marker.getElement();
+                    if (el) {
+                        el.classList.add('vanishing');
+                        setTimeout(() => {
+                            if (map) map.removeLayer(labelData.marker);
+                            delete State.countryLabels[country.code];
+                        }, 1000);
+                    }
+                }
+                
+                return country;
+            }
+
+            function addClickMarker(lat, lng, isCorrect) {
+                const icon = L.divIcon({
+                    className: `click-marker ${isCorrect ? 'correct' : 'wrong'}`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+                const marker = L.marker([lat, lng], { icon }).addTo(map);
+                markers.push(marker);
+                
+                setTimeout(() => {
+                    if (map) map.removeLayer(marker);
+                    markers = markers.filter(m => m !== marker);
+                }, 2000);
+            }
+
+            // ========================================
+            // GAME LOGIC
+            // ========================================
+            function startGame() {
+                const level = LEVELS[State.selectedLevel];
+                
+                State.isPlaying = true;
+                State.isPaused = false;
+                State.score = 0;
+                State.round = 0;
+                State.lives = level.lives;
+                State.streak = 0;
+                State.bestStreak = 0;
+                State.correctAnswers = 0;
+                State.maxTime = level.time;
+                State.vanishedCountry = null;
+                
+                DOM.gameoverOverlay.classList.remove('active');
+                DOM.targetDisplay.style.opacity = '0';
+                
+                updateHUD();
+                showScreen('game');
+                
+                setTimeout(() => {
+                    initMap();
+                    setTimeout(() => {
+                        showCountdown(() => {
+                            addCountryLabels();
+                            setTimeout(nextRound, 2000); // Give time to study
+                        });
+                    }, 500);
+                }, 300);
+            }
+
+            function showCountdown(callback) {
+                DOM.countdownOverlay.classList.add('active');
+                let count = 3;
+                
+                function tick() {
+                    if (count > 0) {
+                        DOM.countdownNumber.textContent = count;
+                        DOM.countdownNumber.style.animation = 'none';
+                        void DOM.countdownNumber.offsetWidth;
+                        DOM.countdownNumber.style.animation = 'countdown-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        Audio.play('countdown');
+                        haptic('light');
+                        count--;
+                        setTimeout(tick, 800);
+                    } else {
+                        DOM.countdownNumber.textContent = 'GO!';
+                        DOM.countdownNumber.style.animation = 'none';
+                        void DOM.countdownNumber.offsetWidth;
+                        DOM.countdownNumber.style.animation = 'countdown-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        Audio.play('start');
+                        haptic('medium');
+                        setTimeout(() => {
+                            DOM.countdownOverlay.classList.remove('active');
+                            if (callback) callback();
+                        }, 500);
+                    }
+                }
+                tick();
+            }
+
+            function nextRound() {
+                if (!State.isPlaying || State.lives <= 0) {
+                    endGame();
+                    return;
+                }
+                
+                State.round++;
+                State.vanishedCountry = vanishRandomLabel();
+                
+                if (!State.vanishedCountry) {
+                    endGame(true); // Victory - all countries cleared
+                    return;
+                }
+                
+                Audio.play('vanish');
+                haptic('medium');
+                
+                // Show target
+                DOM.targetName.textContent = State.vanishedCountry.name.toUpperCase();
+                DOM.targetHint.textContent = State.settings.hints ? State.vanishedCountry.continent : '';
+                DOM.targetDisplay.style.opacity = '1';
+                
+                updateHUD();
+                startTimer();
+            }
+
+            function startTimer() {
+                State.timeRemaining = State.maxTime;
+                updateTimerDisplay();
+                
+                if (State.timerInterval) clearInterval(State.timerInterval);
+                
+                State.timerInterval = setInterval(() => {
+                    if (State.isPaused) return;
+                    
+                    State.timeRemaining -= 0.1;
+                    updateTimerDisplay();
+                    
+                    if (State.timeRemaining <= 3 && State.timeRemaining > 2.9) {
+                        DOM.vanishTimer.classList.add('timer-warning');
+                    }
+                    
+                    if (State.timeRemaining <= 2 && Math.floor(State.timeRemaining * 10) % 10 === 0) {
+                        Audio.play('tick');
+                    }
+                    
+                    if (State.timeRemaining <= 0) {
+                        clearInterval(State.timerInterval);
+                        handleWrongAnswer();
+                    }
+                }, 100);
+            }
+
+            function updateTimerDisplay() {
+                const pct = Math.max(0, (State.timeRemaining / State.maxTime) * 100);
+                DOM.timerRing.style.setProperty('--timer-progress', pct + '%');
+                DOM.timerValue.textContent = Math.max(0, Math.ceil(State.timeRemaining));
+            }
+
+            function handleMapClick(e) {
+                if (!State.isPlaying || State.isPaused || !State.vanishedCountry) return;
+                
+                clearInterval(State.timerInterval);
+                
+                const target = State.vanishedCountry;
+                const dist = calculateDistance(e.latlng.lat, e.latlng.lng, target.lat, target.lng);
+                const level = LEVELS[State.selectedLevel];
+                
+                if (dist <= level.tolerance) {
+                    handleCorrectAnswer(e.latlng.lat, e.latlng.lng, dist);
+                } else {
+                    handleWrongAnswer(e.latlng.lat, e.latlng.lng, dist);
+                }
+            }
+
+            function handleCorrectAnswer(lat, lng, dist) {
+                const level = LEVELS[State.selectedLevel];
+                const timeBonus = Math.round((State.timeRemaining / State.maxTime) * 50);
+                const distBonus = Math.round(Math.max(0, 30 - dist / 20));
+                const points = Math.round((100 + timeBonus + distBonus) * level.multiplier * (1 + State.streak * 0.1));
+                
+                State.score += points;
+                State.streak++;
+                State.correctAnswers++;
+                if (State.streak > State.bestStreak) State.bestStreak = State.streak;
+                
+                addClickMarker(lat, lng, true);
+                Audio.play('correct');
+                haptic('light');
+                
+                showFeedback('correct', '+' + points);
+                flashMap('correct');
+                
+                DOM.vanishTimer.classList.remove('timer-warning');
+                DOM.targetDisplay.style.opacity = '0';
+                State.vanishedCountry = null;
+                
+                updateHUD();
+                
+                setTimeout(nextRound, 1200);
+            }
+
+            function handleWrongAnswer(lat, lng, dist) {
+                State.lives--;
+                State.streak = 0;
+                
+                if (lat && lng) addClickMarker(lat, lng, false);
+                
+                // Show correct location
+                if (State.vanishedCountry) {
+                    const correctIcon = L.divIcon({
+                        className: 'country-label target',
+                        html: State.vanishedCountry.name,
+                        iconSize: null
+                    });
+                    const marker = L.marker([State.vanishedCountry.lat, State.vanishedCountry.lng], { icon: correctIcon }).addTo(map);
+                    markers.push(marker);
+                    
+                    if (map) map.flyTo([State.vanishedCountry.lat, State.vanishedCountry.lng], 4, { duration: 0.5 });
+                }
+                
+                Audio.play('wrong');
+                haptic('error');
+                
+                showFeedback('wrong', '✕');
+                flashMap('wrong');
+                
+                DOM.vanishTimer.classList.remove('timer-warning');
+                DOM.targetDisplay.style.opacity = '0';
+                State.vanishedCountry = null;
+                
+                updateHUD();
+                
+                if (State.lives <= 0) {
+                    setTimeout(() => {
+                        Audio.play('gameover');
+                        endGame();
+                    }, 1500);
+                } else {
+                    setTimeout(nextRound, 2000);
+                }
+            }
+
+            function showFeedback(type, text) {
+                const popup = document.createElement('div');
+                popup.className = `feedback-popup ${type}`;
+                popup.textContent = text;
+                document.body.appendChild(popup);
+                setTimeout(() => popup.remove(), 1000);
+            }
+
+            function flashMap(type) {
+                DOM.mapContainer.classList.remove('flash-correct', 'flash-wrong');
+                void DOM.mapContainer.offsetWidth;
+                DOM.mapContainer.classList.add(`flash-${type}`);
+                setTimeout(() => DOM.mapContainer.classList.remove(`flash-${type}`), 500);
+            }
+
+            function updateHUD() {
+                DOM.hudScore.textContent = State.score.toLocaleString();
+                DOM.hudRound.textContent = `ROUND ${State.round}`;
+                DOM.hudStreak.textContent = State.streak;
+                
+                const hearts = DOM.hudLives.querySelectorAll('.life-icon');
+                hearts.forEach((h, i) => {
+                    h.classList.toggle('lost', i >= State.lives);
+                });
+            }
+
+            function endGame(victory = false) {
+                State.isPlaying = false;
+                clearInterval(State.timerInterval);
+                
+                State.stats.gamesPlayed++;
+                const isNewHighScore = State.score > State.stats.highScore;
+                if (isNewHighScore) State.stats.highScore = State.score;
+                if (State.round > State.stats.bestRound) State.stats.bestRound = State.round;
+                
+                saveData();
+                updateMenuStats();
+                
+                // Show game over
+                DOM.gameoverIcon.textContent = victory ? '🏆' : '💀';
+                DOM.gameoverTitle.textContent = victory ? 'MISSION COMPLETE' : 'MISSION FAILED';
+                DOM.gameoverTitle.className = victory ? 'gameover-title victory' : 'gameover-title defeat';
+                DOM.gameoverSubtitle.textContent = victory ? 'You cleared the world!' : 'The world has vanished...';
+                
+                DOM.newHighscoreBadge.classList.toggle('hidden', !isNewHighScore || State.score === 0);
+                
+                DOM.statRounds.textContent = State.round;
+                DOM.statCorrect.textContent = State.correctAnswers;
+                DOM.statStreak.textContent = State.bestStreak;
+                
+                // Animate score
+                let current = 0;
+                const step = Math.ceil(State.score / 40);
+                const interval = setInterval(() => {
+                    current = Math.min(current + step, State.score);
+                    DOM.finalScore.textContent = current.toLocaleString();
+                    if (current >= State.score) clearInterval(interval);
+                }, 30);
+                
+                DOM.gameoverOverlay.classList.add('active');
+            }
+
+            function updateMenuStats() {
+                DOM.menuHighScore.textContent = State.stats.highScore.toLocaleString();
+                DOM.menuBestRound.textContent = State.stats.bestRound;
+                DOM.menuGamesPlayed.textContent = State.stats.gamesPlayed;
+            }
+
+            function pauseGame() {
+                if (!State.isPlaying) return;
+                State.isPaused = true;
+                DOM.pauseOverlay.classList.add('active');
+            }
+
+            function resumeGame() {
+                State.isPaused = false;
+                DOM.pauseOverlay.classList.remove('active');
+            }
+
+            function restartGame() {
+                DOM.pauseOverlay.classList.remove('active');
+                DOM.gameoverOverlay.classList.remove('active');
+                clearLabels();
+                startGame();
+            }
+
+            function quitToMenu() {
+                State.isPlaying = false;
+                State.isPaused = false;
+                clearInterval(State.timerInterval);
+                DOM.pauseOverlay.classList.remove('active');
+                DOM.gameoverOverlay.classList.remove('active');
+                if (map) { map.remove(); map = null; }
+                showScreen('menu');
+            }
+
+            // ========================================
+            // UTILITY FUNCTIONS
+            // ========================================
+            function calculateDistance(lat1, lng1, lat2, lng2) {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLng = (lng2 - lng1) * Math.PI / 180;
+                const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            }
+
+            function shareResults() {
+                const text = `🌍 VANISHING WORLD\n\n🏆 Score: ${State.score.toLocaleString()}\n📍 Rounds: ${State.round}\n🔥 Best Streak: ${State.bestStreak}\n\nCan you survive the vanishing world?\n#VanishingWorld #Geotopia`;
+                
+                if (navigator.share) {
+                    navigator.share({ title: 'Vanishing World', text }).catch(() => {});
+                } else {
+                    navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+                }
+            }
+
+            // ========================================
+            // EVENT LISTENERS
+            // ========================================
+            function initEvents() {
+                // Intro screen
+                DOM.introScreen.addEventListener('click', () => {
+                    DOM.introScreen.classList.add('hidden');
+                    DOM.appContainer.classList.add('visible');
+                    Audio.init();
+                    Audio.play('click');
+                });
+
+                // Menu buttons
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    showScreen('levels');
+                    DOM.startContainer.classList.add('visible');
+                });
+
+                document.getElementById('levelsBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    showScreen('levels');
+                    DOM.startContainer.classList.add('visible');
+                });
+
+                document.getElementById('howtoBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    showScreen('howto');
+                });
+
+                document.getElementById('settingsBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    showScreen('settings');
+                    updateSettingsUI();
+                });
+
+                // Back buttons
+                document.getElementById('levelsBackBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    DOM.startContainer.classList.remove('visible');
+                    showScreen('menu');
+                });
+
+                document.getElementById('settingsBackBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    showScreen('menu');
+                });
+
+                document.getElementById('howtoBackBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    showScreen('menu');
+                });
+
+                // Level selection
+                document.querySelectorAll('.level-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        State.selectedLevel = card.dataset.level;
+                        Audio.play('click');
+                        haptic('light');
+                    });
+                });
+
+                // Start game
+                document.getElementById('startGameBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    DOM.startContainer.classList.remove('visible');
+                    startGame();
+                });
+
+                // Game controls
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    pauseGame();
+                });
+
+                document.getElementById('soundToggleBtn').addEventListener('click', () => {
+                    State.settings.sound = !State.settings.sound;
+                    document.getElementById('soundToggleBtn').textContent = State.settings.sound ? '🔊' : '🔇';
+                    saveData();
+                });
+
+                // Pause overlay
+                document.getElementById('resumeBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    resumeGame();
+                });
+
+                document.getElementById('restartBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    restartGame();
+                });
+
+                document.getElementById('quitBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    quitToMenu();
+                });
+
+                // Game over
+                document.getElementById('playAgainBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    restartGame();
+                });
+
+                document.getElementById('menuBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    quitToMenu();
+                });
+
+                document.getElementById('shareBtn').addEventListener('click', () => {
+                    Audio.play('click');
+                    shareResults();
+                });
+
+                // Settings toggles
+                document.getElementById('toggleSound').addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    State.settings.sound = this.classList.contains('active');
+                    saveData();
+                    Audio.play('click');
+                });
+
+                document.getElementById('toggleHints').addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    State.settings.hints = this.classList.contains('active');
+                    saveData();
+                    Audio.play('click');
+                });
+
+                document.getElementById('toggleHaptic').addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    State.settings.haptic = this.classList.contains('active');
+                    saveData();
+                    Audio.play('click');
+                });
+
+                document.getElementById('volumeSlider').addEventListener('input', function() {
+                    State.settings.volume = +this.value;
+                    document.getElementById('volumeValue').textContent = this.value + '%';
+                    saveData();
+                });
+
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    if (confirm('Reset all progress?')) {
+                        State.stats = { highScore: 0, bestRound: 0, gamesPlayed: 0 };
+                        saveData();
+                        updateMenuStats();
+                        Audio.play('click');
+                    }
+                });
+
+                // Keyboard
+                document.addEventListener('keydown', e => {
+                    if (State.currentScreen === 'game' && State.isPlaying) {
+                        if (e.code === 'Space' || e.code === 'Escape') {
+                            e.preventDefault();
+                            State.isPaused ? resumeGame() : pauseGame();
+                        }
+                    }
+                    if (DOM.gameoverOverlay.classList.contains('active')) {
+                        if (e.code === 'Space' || e.code === 'Enter') {
+                            e.preventDefault();
+                            restartGame();
+                        }
+                    }
+                });
+
+                // Visibility
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden && State.isPlaying && !State.isPaused) pauseGame();
+                });
+
+                // Resize
+                window.addEventListener('resize', () => {
+                    if (map) setTimeout(() => map.invalidateSize(), 100);
+                });
+
+                // Audio context resume
+                const resumeAudio = () => {
+                    if (Audio.ctx?.state === 'suspended') Audio.ctx.resume();
+                };
+                document.addEventListener('click', resumeAudio, { once: true });
+                document.addEventListener('touchstart', resumeAudio, { once: true });
+            }
+
+            function updateSettingsUI() {
+                document.getElementById('toggleSound').classList.toggle('active', State.settings.sound);
+                document.getElementById('toggleHints').classList.toggle('active', State.settings.hints);
+                document.getElementById('toggleHaptic').classList.toggle('active', State.settings.haptic);
+                document.getElementById('volumeSlider').value = State.settings.volume;
+                document.getElementById('volumeValue').textContent = State.settings.volume + '%';
+            }
+
+            // ========================================
+            // INIT
+            // ========================================
+            function init() {
+                cacheDOM();
+                loadData();
+                createParticles();
+                updateMenuStats();
+                initEvents();
+                
+                document.getElementById('soundToggleBtn').textContent = State.settings.sound ? '🔊' : '🔇';
+                
+                console.log('🌍 VANISHING WORLD v1.0 Loaded');
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+</html>
