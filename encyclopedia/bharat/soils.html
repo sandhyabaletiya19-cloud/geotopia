@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soils of Bharat - Geotopia Encyclopedia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * {
             margin: 0;
@@ -16,22 +18,70 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #0f0c29;
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            overflow-x: hidden;
         }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+        }
+
+        @keyframes animate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+                border-radius: 0;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+
+        .bg-animation span:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+        .bg-animation span:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+        .bg-animation span:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
+        .bg-animation span:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
+        .bg-animation span:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; }
+        .bg-animation span:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; }
+        .bg-animation span:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; }
+        .bg-animation span:nth-child(10) { left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; }
 
         /* Header Styles */
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1.5rem 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
@@ -51,30 +101,38 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
         }
 
         .back-button:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateX(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         h1 {
             font-size: 2.5rem;
             text-align: center;
             flex-grow: 1;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.3); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.6); }
         }
 
         /* Hero Section */
         .hero {
             background: url('https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?q=80&w=2070') center/cover;
-            height: 400px;
+            height: 500px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             margin-bottom: 3rem;
+            overflow: hidden;
         }
 
         .hero::before {
@@ -84,7 +142,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
         }
 
         .hero-content {
@@ -93,117 +151,101 @@
             text-align: center;
             color: white;
             padding: 2rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .hero h2 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            animation: slideInFromLeft 1s ease;
+        }
+
+        @keyframes slideInFromLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .hero p {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             max-width: 800px;
             margin: 0 auto;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: slideInFromRight 1s ease;
+        }
+
+        @keyframes slideInFromRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         /* Container */
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem 4rem 2rem;
         }
 
         /* Introduction Section */
         .intro-section {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
             margin-bottom: 3rem;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .intro-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.05), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .intro-section h2 {
             color: #667eea;
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin-bottom: 1.5rem;
-            border-left: 5px solid #764ba2;
-            padding-left: 1rem;
+            border-left: 6px solid #764ba2;
+            padding-left: 1.5rem;
+            position: relative;
         }
 
         .intro-section p {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: #555;
-            line-height: 1.8;
-            margin-bottom: 1rem;
-        }
-
-        /* Soil Type Card */
-        .soil-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2.5rem;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-left: 6px solid #667eea;
-        }
-
-        .soil-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-
-        .soil-card h3 {
-            color: #667eea;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .soil-card h3 i {
-            font-size: 2.2rem;
-        }
-
-        .soil-card h4 {
-            color: #764ba2;
-            font-size: 1.3rem;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 0.5rem;
-        }
-
-        .soil-card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .soil-card ul li {
-            padding: 0.7rem 0;
-            padding-left: 2rem;
+            line-height: 1.9;
+            margin-bottom: 1.2rem;
             position: relative;
-            font-size: 1.05rem;
-            color: #444;
-            line-height: 1.7;
-        }
-
-        .soil-card ul li::before {
-            content: '▸';
-            position: absolute;
-            left: 0;
-            color: #667eea;
-            font-weight: bold;
-            font-size: 1.2rem;
         }
 
         /* Statistics Section */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
             margin: 3rem 0;
         }
@@ -211,110 +253,424 @@
         .stat-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem;
-            border-radius: 15px;
+            padding: 2.5rem;
+            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .stat-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
         }
 
         .stat-card i {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
+            position: relative;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .stat-card h3 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 0.5rem;
+            position: relative;
         }
 
         .stat-card p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.2rem;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        /* Soil Type Card with Map */
+        .soil-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 25px;
+            padding: 0;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.4s ease;
+            border: 3px solid transparent;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .soil-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 70px rgba(102, 126, 234, 0.4);
+            border-color: #667eea;
+        }
+
+        .soil-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .soil-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .soil-header h3 {
+            font-size: 2.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .soil-header h3 i {
+            font-size: 3rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .soil-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .map-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 3px solid #667eea;
+            position: relative;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid white;
+            position: relative;
+        }
+
+        .map-legend {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .map-legend h4 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.7rem 0;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .info-section {
+            padding: 2.5rem;
+        }
+
+        .info-section h4 {
+            color: #764ba2;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 3px solid #f0f0f0;
+            padding-bottom: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            position: relative;
+        }
+
+        .info-section h4::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+        }
+
+        .info-section h4:first-of-type {
+            margin-top: 0;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-section ul li {
+            padding: 0.9rem 0;
+            padding-left: 2.5rem;
+            position: relative;
+            font-size: 1.08rem;
+            color: #444;
+            line-height: 1.8;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .info-section ul li:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .info-section ul li::before {
+            content: '▸';
+            position: absolute;
+            left: 0.8rem;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.3rem;
+            animation: slideRight 1.5s infinite;
+        }
+
+        @keyframes slideRight {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
         }
 
         /* Conservation Section */
         .conservation-section {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
-            padding: 3rem;
-            border-radius: 15px;
-            margin: 3rem 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 4rem 3rem;
+            border-radius: 25px;
+            margin: 4rem 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .conservation-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none"/><path d="M0 0L100 100M100 0L0 100" stroke="rgba(255,255,255,0.05)" stroke-width="2"/></svg>');
+            opacity: 0.3;
         }
 
         .conservation-section h2 {
-            font-size: 2.2rem;
-            margin-bottom: 2rem;
+            font-size: 2.8rem;
+            margin-bottom: 3rem;
             text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            position: relative;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .conservation-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            position: relative;
         }
 
         .conservation-card {
             background: rgba(255,255,255,0.15);
-            padding: 2rem;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.2);
+            padding: 2.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .conservation-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            transition: all 0.6s ease;
+        }
+
+        .conservation-card:hover::before {
+            top: -50%;
+            left: -50%;
+        }
+
+        .conservation-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.6);
         }
 
         .conservation-card h4 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+            font-size: 1.7rem;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            position: relative;
         }
 
         .conservation-card ul li {
-            padding: 0.5rem 0;
-            padding-left: 1.5rem;
+            padding: 0.7rem 0;
+            padding-left: 2rem;
+            position: relative;
         }
 
         .conservation-card ul li::before {
             content: '✓';
             color: #fff;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 1.2rem;
         }
 
         /* Problems Section */
         .problems-section {
-            background: #fff3cd;
-            padding: 2.5rem;
-            border-radius: 15px;
-            border-left: 6px solid #ffc107;
-            margin: 3rem 0;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe066 100%);
+            padding: 3rem;
+            border-radius: 25px;
+            border-left: 8px solid #ffc107;
+            margin: 4rem 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problems-section::before {
+            content: '⚠';
+            position: absolute;
+            font-size: 20rem;
+            right: -5rem;
+            bottom: -5rem;
+            opacity: 0.1;
+            animation: warning 3s infinite;
+        }
+
+        @keyframes warning {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(10deg); }
         }
 
         .problems-section h2 {
             color: #856404;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
+            position: relative;
         }
 
         .problems-section ul li {
             color: #856404;
-            padding: 0.7rem 0;
-            padding-left: 2rem;
-            font-size: 1.05rem;
+            padding: 1rem 0;
+            padding-left: 2.5rem;
+            font-size: 1.1rem;
+            position: relative;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .problems-section ul li:hover {
+            border-left-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+            transform: translateX(5px);
         }
 
         .problems-section ul li::before {
             content: '⚠';
             color: #ffc107;
+            position: absolute;
+            left: 0;
+            font-size: 1.3rem;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         /* Footer */
@@ -322,22 +678,56 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             text-align: center;
-            padding: 2rem;
-            margin-top: 4rem;
+            padding: 3rem 2rem;
+            margin-top: 5rem;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #f093fb, #f5576c, #667eea, #764ba2);
+            animation: gradientMove 3s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        footer p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
         }
 
         /* Responsive Design */
+        @media (max-width: 1024px) {
+            .soil-content {
+                grid-template-columns: 1fr;
+            }
+
+            .map-section {
+                border-right: none;
+                border-bottom: 3px solid #667eea;
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8rem;
             }
 
             .hero h2 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
 
             .hero p {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
 
             .header-content {
@@ -346,16 +736,79 @@
             }
 
             .soil-card {
-                padding: 1.5rem;
+                padding: 0;
             }
 
             .conservation-grid {
                 grid-template-columns: 1fr;
             }
+
+            .map-container {
+                height: 350px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .scroll-top.show {
+            display: flex;
         }
     </style>
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
     <header>
         <div class="header-content">
             <a href="https://sandhyabaletiya19-cloud.github.io/geotopia/encyclopedia/bharat/index.html" class="back-button">
@@ -363,7 +816,7 @@
                 <span>Back to Bharat</span>
             </a>
             <h1><i class="fas fa-mountain"></i> Soils of Bharat</h1>
-            <div style="width: 150px;"></div> <!-- Spacer for alignment -->
+            <div style="width: 150px;"></div>
         </div>
     </header>
 
@@ -415,522 +868,706 @@
 
         <!-- Alluvial Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-water"></i> Alluvial Soil (Riverine Soil)</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Genesis:</strong> Formed by the deposition of sediments brought by rivers from the Himalayas and peninsular India over thousands of years</li>
-                <li><strong>Age Classification:</strong> Divided into Khadar (new alluvium, lighter in color, more fertile) and Bhangar (old alluvium, contains calcareous deposits)</li>
-                <li><strong>Texture:</strong> Ranges from sandy loam to clay, with excellent water retention capacity</li>
-                <li><strong>Color:</strong> Light grey to ash grey in dry areas; darker in humid regions due to higher organic content</li>
-                <li><strong>Depth:</strong> Generally very deep, ranging from several meters to over 1000 meters in some areas</li>
-                <li><strong>pH Level:</strong> Neutral to slightly alkaline (7.0-8.5)</li>
-                <li><strong>Porosity:</strong> High porosity allowing good drainage and aeration</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-water"></i> Alluvial Soil (Riverine Soil)</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-alluvial"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #90EE90;"></div>
+                            <span>Primary Alluvial Regions</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #C8E6C9;"></div>
+                            <span>Secondary Alluvial Areas</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #FFD700;"></div>
+                            <span>Coastal Deltas</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Genesis:</strong> Formed by the deposition of sediments brought by rivers from the Himalayas and peninsular India over thousands of years</li>
+                        <li><strong>Age Classification:</strong> Divided into Khadar (new alluvium, lighter in color, more fertile) and Bhangar (old alluvium, contains calcareous deposits)</li>
+                        <li><strong>Texture:</strong> Ranges from sandy loam to clay, with excellent water retention capacity</li>
+                        <li><strong>Color:</strong> Light grey to ash grey in dry areas; darker in humid regions due to higher organic content</li>
+                        <li><strong>Depth:</strong> Generally very deep, ranging from several meters to over 1000 meters in some areas</li>
+                        <li><strong>pH Level:</strong> Neutral to slightly alkaline (7.0-8.5)</li>
+                        <li><strong>Porosity:</strong> High porosity allowing good drainage and aeration</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Northern Plains:</strong> Entire Indo-Gangetic-Brahmaputra plain covering Punjab, Haryana, Delhi, Uttar Pradesh, Bihar, West Bengal, and Assam</li>
-                <li><strong>Coastal Regions:</strong> Deltas of Mahanadi, Godavari, Krishna, and Kaveri rivers</li>
-                <li><strong>River Valleys:</strong> Narmada and Tapi river valleys in Gujarat and Maharashtra</li>
-                <li><strong>Total Coverage:</strong> Approximately 143 million hectares (about 43% of India's total land area)</li>
-                <li><strong>Altitude Range:</strong> Predominantly found in plains and gentle slopes below 500 meters elevation</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Northern Plains:</strong> Entire Indo-Gangetic-Brahmaputra plain covering Punjab, Haryana, Delhi, Uttar Pradesh, Bihar, West Bengal, and Assam</li>
+                        <li><strong>Coastal Regions:</strong> Deltas of Mahanadi, Godavari, Krishna, and Kaveri rivers</li>
+                        <li><strong>River Valleys:</strong> Narmada and Tapi river valleys in Gujarat and Maharashtra</li>
+                        <li><strong>Total Coverage:</strong> Approximately 143 million hectares (about 43% of India's total land area)</li>
+                        <li><strong>Altitude Range:</strong> Predominantly found in plains and gentle slopes below 500 meters elevation</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Rich in Potash and Lime:</strong> Abundant essential nutrients for plant growth</li>
-                <li><strong>Adequate Phosphoric Acid:</strong> Moderate to high levels supporting root development</li>
-                <li><strong>Nitrogen Content:</strong> Generally deficient; requires regular addition through fertilizers or organic manure</li>
-                <li><strong>Organic Matter:</strong> Low to moderate (0.5-1.5%) depending on location and agricultural practices</li>
-                <li><strong>Humus Content:</strong> Variable; higher in delta regions, lower in upper doabs</li>
-                <li><strong>Mineral Composition:</strong> Contains quartz, feldspar, mica, and clay minerals like montmorillonite</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Rich in Potash and Lime:</strong> Abundant essential nutrients for plant growth</li>
+                        <li><strong>Adequate Phosphoric Acid:</strong> Moderate to high levels supporting root development</li>
+                        <li><strong>Nitrogen Content:</strong> Generally deficient; requires regular addition through fertilizers or organic manure</li>
+                        <li><strong>Organic Matter:</strong> Low to moderate (0.5-1.5%) depending on location and agricultural practices</li>
+                        <li><strong>Humus Content:</strong> Variable; higher in delta regions, lower in upper doabs</li>
+                        <li><strong>Mineral Composition:</strong> Contains quartz, feldspar, mica, and clay minerals like montmorillonite</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Primary Crops:</strong> Rice, wheat, sugarcane, cotton, jute, oilseeds, and vegetables</li>
-                <li><strong>Productivity:</strong> Highly productive; supports intensive agriculture with irrigation</li>
-                <li><strong>Rice Cultivation:</strong> Ideal for paddy cultivation in deltaic regions with high water availability</li>
-                <li><strong>Wheat Belt:</strong> Perfect for wheat in northwestern plains with irrigation facilities</li>
-                <li><strong>Cash Crops:</strong> Excellent for sugarcane in Uttar Pradesh and cotton in Punjab</li>
-                <li><strong>Crop Rotation:</strong> Supports multiple cropping patterns throughout the year</li>
-                <li><strong>Irrigation Response:</strong> Highly responsive to irrigation, increasing productivity manifold</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Primary Crops:</strong> Rice, wheat, sugarcane, cotton, jute, oilseeds, and vegetables</li>
+                        <li><strong>Productivity:</strong> Highly productive; supports intensive agriculture with irrigation</li>
+                        <li><strong>Rice Cultivation:</strong> Ideal for paddy cultivation in deltaic regions with high water availability</li>
+                        <li><strong>Wheat Belt:</strong> Perfect for wheat in northwestern plains with irrigation facilities</li>
+                        <li><strong>Cash Crops:</strong> Excellent for sugarcane in Uttar Pradesh and cotton in Punjab</li>
+                        <li><strong>Crop Rotation:</strong> Supports multiple cropping patterns throughout the year</li>
+                        <li><strong>Irrigation Response:</strong> Highly responsive to irrigation, increasing productivity manifold</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
-            <ul>
-                <li><strong>Nitrogen Supplementation:</strong> Regular application of nitrogen fertilizers or green manure essential</li>
-                <li><strong>Organic Matter Addition:</strong> Incorporation of farmyard manure, compost, and crop residues needed</li>
-                <li><strong>Drainage Management:</strong> Proper drainage systems required to prevent waterlogging in heavy alluvial areas</li>
-                <li><strong>Salinity Control:</strong> Monitoring and management of soil salinity in poorly drained areas</li>
-                <li><strong>Erosion Prevention:</strong> Bank erosion control in river-adjacent areas</li>
-                <li><strong>Crop Residue Management:</strong> Proper handling to maintain soil structure and prevent burning</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
+                    <ul>
+                        <li><strong>Nitrogen Supplementation:</strong> Regular application of nitrogen fertilizers or green manure essential</li>
+                        <li><strong>Organic Matter Addition:</strong> Incorporation of farmyard manure, compost, and crop residues needed</li>
+                        <li><strong>Drainage Management:</strong> Proper drainage systems required to prevent waterlogging in heavy alluvial areas</li>
+                        <li><strong>Salinity Control:</strong> Monitoring and management of soil salinity in poorly drained areas</li>
+                        <li><strong>Erosion Prevention:</strong> Bank erosion control in river-adjacent areas</li>
+                        <li><strong>Crop Residue Management:</strong> Proper handling to maintain soil structure and prevent burning</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Black Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-circle"></i> Black Soil (Regur Soil / Black Cotton Soil)</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Parent Material:</strong> Formed from weathering of basaltic lava rocks of Deccan Trap region</li>
-                <li><strong>Color Origin:</strong> Black color due to presence of titaniferous magnetite and high clay content</li>
-                <li><strong>Texture:</strong> Clayey with high proportion of montmorillonite clay minerals</li>
-                <li><strong>Swelling Property:</strong> Develops deep cracks during dry season due to shrinkage; swells and becomes sticky when wet</li>
-                <li><strong>Self-Ploughing:</strong> Natural self-churning property due to expansion and contraction cycles</li>
-                <li><strong>Depth:</strong> Ranges from shallow (30 cm) to very deep (3+ meters)</li>
-                <li><strong>pH Level:</strong> Slightly alkaline to neutral (7.2-8.5)</li>
-                <li><strong>Water Retention:</strong> Excellent moisture retention capacity, resists drought conditions</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-circle"></i> Black Soil (Regur Soil / Black Cotton Soil)</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-black"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2C2C2C;"></div>
+                            <span>Deep Black Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #5C5C5C;"></div>
+                            <span>Medium Black Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8C8C8C;"></div>
+                            <span>Shallow Black Soil</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Parent Material:</strong> Formed from weathering of basaltic lava rocks of Deccan Trap region</li>
+                        <li><strong>Color Origin:</strong> Black color due to presence of titaniferous magnetite and high clay content</li>
+                        <li><strong>Texture:</strong> Clayey with high proportion of montmorillonite clay minerals</li>
+                        <li><strong>Swelling Property:</strong> Develops deep cracks during dry season due to shrinkage; swells and becomes sticky when wet</li>
+                        <li><strong>Self-Ploughing:</strong> Natural self-churning property due to expansion and contraction cycles</li>
+                        <li><strong>Depth:</strong> Ranges from shallow (30 cm) to very deep (3+ meters)</li>
+                        <li><strong>pH Level:</strong> Slightly alkaline to neutral (7.2-8.5)</li>
+                        <li><strong>Water Retention:</strong> Excellent moisture retention capacity, resists drought conditions</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Deccan Plateau:</strong> Extensive coverage in Maharashtra, Madhya Pradesh, Gujarat, Andhra Pradesh, and Karnataka</li>
-                <li><strong>Maharashtra:</strong> Maximum coverage in Vidarbha and Marathwada regions</li>
-                <li><strong>Madhya Pradesh:</strong> Malwa plateau and parts of Chhattisgarh</li>
-                <li><strong>Gujarat:</strong> Kathiawar peninsula and southern Gujarat</li>
-                <li><strong>Tamil Nadu:</strong> Coimbatore and Salem districts</li>
-                <li><strong>Total Coverage:</strong> Approximately 5.46 lakh square kilometers (about 16.6% of total geographical area)</li>
-                <li><strong>Altitude Range:</strong> Primarily found at elevations between 300-1000 meters</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Deccan Plateau:</strong> Extensive coverage in Maharashtra, Madhya Pradesh, Gujarat, Andhra Pradesh, and Karnataka</li>
+                        <li><strong>Maharashtra:</strong> Maximum coverage in Vidarbha and Marathwada regions</li>
+                        <li><strong>Madhya Pradesh:</strong> Malwa plateau and parts of Chhattisgarh</li>
+                        <li><strong>Gujarat:</strong> Kathiawar peninsula and southern Gujarat</li>
+                        <li><strong>Tamil Nadu:</strong> Coimbatore and Salem districts</li>
+                        <li><strong>Total Coverage:</strong> Approximately 5.46 lakh square kilometers (about 16.6% of total geographical area)</li>
+                        <li><strong>Altitude Range:</strong> Primarily found at elevations between 300-1000 meters</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Lime Content:</strong> Rich in calcium and magnesium carbonates</li>
-                <li><strong>Potash:</strong> Adequate potassium levels supporting plant nutrition</li>
-                <li><strong>Phosphorus:</strong> Generally deficient in phosphorus content</li>
-                <li><strong>Nitrogen:</strong> Low nitrogen content requiring supplementation</li>
-                <li><strong>Iron and Aluminum:</strong> High content of iron oxide and aluminum compounds</li>
-                <li><strong>Organic Matter:</strong> Moderate organic content (0.3-0.8%)</li>
-                <li><strong>Base Saturation:</strong> High base exchange capacity due to clay minerals</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Lime Content:</strong> Rich in calcium and magnesium carbonates</li>
+                        <li><strong>Potash:</strong> Adequate potassium levels supporting plant nutrition</li>
+                        <li><strong>Phosphorus:</strong> Generally deficient in phosphorus content</li>
+                        <li><strong>Nitrogen:</strong> Low nitrogen content requiring supplementation</li>
+                        <li><strong>Iron and Aluminum:</strong> High content of iron oxide and aluminum compounds</li>
+                        <li><strong>Organic Matter:</strong> Moderate organic content (0.3-0.8%)</li>
+                        <li><strong>Base Saturation:</strong> High base exchange capacity due to clay minerals</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Cotton Cultivation:</strong> Ideal for cotton farming; hence called "Black Cotton Soil"</li>
-                <li><strong>Primary Crops:</strong> Cotton, jowar (sorghum), wheat, linseed, tobacco, sunflower, and millets</li>
-                <li><strong>Rainfed Agriculture:</strong> Suitable for rainfed farming due to excellent moisture retention</li>
-                <li><strong>Kharif Crops:</strong> Particularly suited for monsoon season crops</li>
-                <li><strong>Pulses:</strong> Good for pigeon pea (tur/arhar), chickpea (gram), and other pulses</li>
-                <li><strong>Drought Resistance:</strong> Maintains moisture for extended periods, helping crops survive dry spells</li>
-                <li><strong>Productivity:</strong> Moderate to high productivity with proper management</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Cotton Cultivation:</strong> Ideal for cotton farming; hence called "Black Cotton Soil"</li>
+                        <li><strong>Primary Crops:</strong> Cotton, jowar (sorghum), wheat, linseed, tobacco, sunflower, and millets</li>
+                        <li><strong>Rainfed Agriculture:</strong> Suitable for rainfed farming due to excellent moisture retention</li>
+                        <li><strong>Kharif Crops:</strong> Particularly suited for monsoon season crops</li>
+                        <li><strong>Pulses:</strong> Good for pigeon pea (tur/arhar), chickpea (gram), and other pulses</li>
+                        <li><strong>Drought Resistance:</strong> Maintains moisture for extended periods, helping crops survive dry spells</li>
+                        <li><strong>Productivity:</strong> Moderate to high productivity with proper management</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
-            <ul>
-                <li><strong>Drainage:</strong> Requires good drainage systems as it becomes waterlogged and sticky when wet</li>
-                <li><strong>Tillage Timing:</strong> Should be ploughed when moisture content is optimal; difficult to work when too dry or too wet</li>
-                <li><strong>Nitrogen Fertilizers:</strong> Regular application of nitrogenous fertilizers needed</li>
-                <li><strong>Phosphorus Addition:</strong> Supplementation with phosphatic fertilizers essential</li>
-                <li><strong>Organic Matter:</strong> Addition of farmyard manure improves soil structure and fertility</li>
-                <li><strong>Erosion Control:</strong> Contour farming and terracing on slopes to prevent soil erosion</li>
-                <li><strong>Crack Management:</strong> Deep ploughing helps in moisture conservation and crack reduction</li>
-                <li><strong>Crop Rotation:</strong> Proper rotation with legumes helps maintain nitrogen levels</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
+                    <ul>
+                        <li><strong>Drainage:</strong> Requires good drainage systems as it becomes waterlogged and sticky when wet</li>
+                        <li><strong>Tillage Timing:</strong> Should be ploughed when moisture content is optimal; difficult to work when too dry or too wet</li>
+                        <li><strong>Nitrogen Fertilizers:</strong> Regular application of nitrogenous fertilizers needed</li>
+                        <li><strong>Phosphorus Addition:</strong> Supplementation with phosphatic fertilizers essential</li>
+                        <li><strong>Organic Matter:</strong> Addition of farmyard manure improves soil structure and fertility</li>
+                        <li><strong>Erosion Control:</strong> Contour farming and terracing on slopes to prevent soil erosion</li>
+                        <li><strong>Crack Management:</strong> Deep ploughing helps in moisture conservation and crack reduction</li>
+                        <li><strong>Crop Rotation:</strong> Proper rotation with legumes helps maintain nitrogen levels</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Red and Yellow Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-palette"></i> Red and Yellow Soil</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Parent Material:</strong> Developed from weathering of ancient crystalline and metamorphic rocks (granite, gneiss, schist)</li>
-                <li><strong>Color Genesis:</strong> Red color due to iron oxide (ferric oxide) in well-drained areas; yellow color from hydrated iron oxide (ferric hydroxide) in poorly drained zones</li>
-                <li><strong>Climate Influence:</strong> Formed under high temperature and heavy rainfall conditions promoting intense weathering</li>
-                <li><strong>Texture:</strong> Sandy to clay loam, generally friable and porous</li>
-                <li><strong>Depth:</strong> Varies from shallow to moderately deep; deeper in valleys and depressions</li>
-                <li><strong>pH Level:</strong> Acidic to slightly acidic (5.5-7.0)</li>
-                <li><strong>Structure:</strong> Granular to crumb structure with good drainage properties</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-palette"></i> Red and Yellow Soil</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-red"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #CD5C5C;"></div>
+                            <span>Red Soil (Well-drained)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #F4A460;"></div>
+                            <span>Yellow Soil (Hydrated)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #DAA520;"></div>
+                            <span>Mixed Red-Yellow</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Parent Material:</strong> Developed from weathering of ancient crystalline and metamorphic rocks (granite, gneiss, schist)</li>
+                        <li><strong>Color Genesis:</strong> Red color due to iron oxide (ferric oxide) in well-drained areas; yellow color from hydrated iron oxide (ferric hydroxide) in poorly drained zones</li>
+                        <li><strong>Climate Influence:</strong> Formed under high temperature and heavy rainfall conditions promoting intense weathering</li>
+                        <li><strong>Texture:</strong> Sandy to clay loam, generally friable and porous</li>
+                        <li><strong>Depth:</strong> Varies from shallow to moderately deep; deeper in valleys and depressions</li>
+                        <li><strong>pH Level:</strong> Acidic to slightly acidic (5.5-7.0)</li>
+                        <li><strong>Structure:</strong> Granular to crumb structure with good drainage properties</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Eastern Plateau:</strong> Large parts of Chhattisgarh, Jharkhand, and Odisha (Chota Nagpur Plateau)</li>
-                <li><strong>Southern States:</strong> Extensive in Tamil Nadu, Karnataka, Andhra Pradesh, and Kerala</li>
-                <li><strong>Northeastern Region:</strong> Parts of Meghalaya, Nagaland, and Assam hills</li>
-                <li><strong>Central India:</strong> Eastern parts of Madhya Pradesh and Maharashtra plateau</li>
-                <li><strong>Western Ghats:</strong> Piedmont zones of Western Ghats in Karnataka and Maharashtra</li>
-                <li><strong>Total Coverage:</strong> Approximately 5.18 lakh square kilometers (about 18.5% of total area)</li>
-                <li><strong>Topography:</strong> Predominantly found on undulating and hilly terrains</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Eastern Plateau:</strong> Large parts of Chhattisgarh, Jharkhand, and Odisha (Chota Nagpur Plateau)</li>
+                        <li><strong>Southern States:</strong> Extensive in Tamil Nadu, Karnataka, Andhra Pradesh, and Kerala</li>
+                        <li><strong>Northeastern Region:</strong> Parts of Meghalaya, Nagaland, and Assam hills</li>
+                        <li><strong>Central India:</strong> Eastern parts of Madhya Pradesh and Maharashtra plateau</li>
+                        <li><strong>Western Ghats:</strong> Piedmont zones of Western Ghats in Karnataka and Maharashtra</li>
+                        <li><strong>Total Coverage:</strong> Approximately 5.18 lakh square kilometers (about 18.5% of total area)</li>
+                        <li><strong>Topography:</strong> Predominantly found on undulating and hilly terrains</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Iron Compounds:</strong> High content of iron oxides and hydroxides giving characteristic color</li>
-                <li><strong>Nitrogen:</strong> Deficient in nitrogen content</li>
-                <li><strong>Phosphorus:</strong> Low phosphorus availability</li>
-                <li><strong>Potassium:</strong> Generally deficient in potash</li>
-                <li><strong>Organic Matter:</strong> Low organic content (0.3-0.5%)</li>
-                <li><strong>Lime:</strong> Poor in lime content</li>
-                <li><strong>Aluminum:</strong> Presence of aluminum compounds in acidic varieties</li>
-                <li><strong>Base Exchange:</strong> Low to moderate cation exchange capacity</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Iron Compounds:</strong> High content of iron oxides and hydroxides giving characteristic color</li>
+                        <li><strong>Nitrogen:</strong> Deficient in nitrogen content</li>
+                        <li><strong>Phosphorus:</strong> Low phosphorus availability</li>
+                        <li><strong>Potassium:</strong> Generally deficient in potash</li>
+                        <li><strong>Organic Matter:</strong> Low organic content (0.3-0.5%)</li>
+                        <li><strong>Lime:</strong> Poor in lime content</li>
+                        <li><strong>Aluminum:</strong> Presence of aluminum compounds in acidic varieties</li>
+                        <li><strong>Base Exchange:</strong> Low to moderate cation exchange capacity</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Suitable Crops:</strong> Millets (ragi, jowar, bajra), groundnut, potato, tobacco, rice, wheat (with irrigation)</li>
-                <li><strong>Cash Crops:</strong> Tobacco, cotton, and oilseeds in well-managed areas</li>
-                <li><strong>Plantation Crops:</strong> Tea, coffee, rubber, and cashew in suitable climatic zones</li>
-                <li><strong>Horticultural Crops:</strong> Fruits like mango, citrus, and vegetables with proper fertilization</li>
-                <li><strong>Pulses:</strong> Red gram, green gram, and horse gram cultivation</li>
-                <li><strong>Rainfed Agriculture:</strong> Predominantly rainfed; irrigation significantly improves productivity</li>
-                <li><strong>Productivity:</strong> Low to moderate productivity; improves with fertilizer application</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Suitable Crops:</strong> Millets (ragi, jowar, bajra), groundnut, potato, tobacco, rice, wheat (with irrigation)</li>
+                        <li><strong>Cash Crops:</strong> Tobacco, cotton, and oilseeds in well-managed areas</li>
+                        <li><strong>Plantation Crops:</strong> Tea, coffee, rubber, and cashew in suitable climatic zones</li>
+                        <li><strong>Horticultural Crops:</strong> Fruits like mango, citrus, and vegetables with proper fertilization</li>
+                        <li><strong>Pulses:</strong> Red gram, green gram, and horse gram cultivation</li>
+                        <li><strong>Rainfed Agriculture:</strong> Predominantly rainfed; irrigation significantly improves productivity</li>
+                        <li><strong>Productivity:</strong> Low to moderate productivity; improves with fertilizer application</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
-            <ul>
-                <li><strong>Fertilization:</strong> Heavy application of nitrogen, phosphorus, and potassium fertilizers essential</li>
-                <li><strong>Organic Manure:</strong> Liberal use of farmyard manure, green manure, and compost to improve fertility</li>
-                <li><strong>Lime Application:</strong> Liming required to neutralize acidity in acidic variants</li>
-                <li><strong>Erosion Control:</strong> Terracing, contour bunding, and afforestation critical due to undulating terrain</li>
-                <li><strong>Moisture Conservation:</strong> Mulching and moisture conservation techniques needed</li>
-                <li><strong>Irrigation:</strong> Supplementary irrigation necessary for better crop yields</li>
-                <li><strong>Crop Selection:</strong> Growing drought-resistant and low-nutrient-requirement crops advisable</li>
-                <li><strong>Soil Testing:</strong> Regular testing to determine specific nutrient deficiencies</li>
-                <li><strong>Gully Prevention:</strong> Check dams and vegetative barriers to prevent gully erosion</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
+                    <ul>
+                        <li><strong>Fertilization:</strong> Heavy application of nitrogen, phosphorus, and potassium fertilizers essential</li>
+                        <li><strong>Organic Manure:</strong> Liberal use of farmyard manure, green manure, and compost to improve fertility</li>
+                        <li><strong>Lime Application:</strong> Liming required to neutralize acidity in acidic variants</li>
+                        <li><strong>Erosion Control:</strong> Terracing, contour bunding, and afforestation critical due to undulating terrain</li>
+                        <li><strong>Moisture Conservation:</strong> Mulching and moisture conservation techniques needed</li>
+                        <li><strong>Irrigation:</strong> Supplementary irrigation necessary for better crop yields</li>
+                        <li><strong>Crop Selection:</strong> Growing drought-resistant and low-nutrient-requirement crops advisable</li>
+                        <li><strong>Soil Testing:</strong> Regular testing to determine specific nutrient deficiencies</li>
+                        <li><strong>Gully Prevention:</strong> Check dams and vegetative barriers to prevent gully erosion</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Laterite Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-bricks"></i> Laterite Soil</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Formation Process:</strong> Developed under tropical monsoon climate with seasonal rainfall and high temperature</li>
-                <li><strong>Leaching Effect:</strong> Intense leaching due to heavy rainfall removes silica, leaving iron and aluminum oxides</li>
-                <li><strong>Laterization:</strong> Process of desilication and accumulation of iron and aluminum hydroxides</li>
-                <li><strong>Hardening Property:</strong> Soft when wet but hardens irreversibly when exposed to air (used as building bricks)</li>
-                <li><strong>Color:</strong> Brick-red to reddish-brown due to iron oxide content</li>
-                <li><strong>Texture:</strong> Varies from gravelly to clayey; generally poor in texture</li>
-                <li><strong>pH Level:</strong> Acidic to strongly acidic (4.5-6.5)</li>
-                <li><strong>Depth:</strong> Deep soil profile, often several meters thick</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-bricks"></i> Laterite Soil</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-laterite"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8B4513;"></div>
+                            <span>Laterite Soil Regions</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #D2691E;"></div>
+                            <span>Lateritic Gravels</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #A0522D;"></div>
+                            <span>Coastal Laterites</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Formation Process:</strong> Developed under tropical monsoon climate with seasonal rainfall and high temperature</li>
+                        <li><strong>Leaching Effect:</strong> Intense leaching due to heavy rainfall removes silica, leaving iron and aluminum oxides</li>
+                        <li><strong>Laterization:</strong> Process of desilication and accumulation of iron and aluminum hydroxides</li>
+                        <li><strong>Hardening Property:</strong> Soft when wet but hardens irreversibly when exposed to air (used as building bricks)</li>
+                        <li><strong>Color:</strong> Brick-red to reddish-brown due to iron oxide content</li>
+                        <li><strong>Texture:</strong> Varies from gravelly to clayey; generally poor in texture</li>
+                        <li><strong>pH Level:</strong> Acidic to strongly acidic (4.5-6.5)</li>
+                        <li><strong>Depth:</strong> Deep soil profile, often several meters thick</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Western Ghats:</strong> Coastal areas of Kerala, Karnataka, Goa, and Maharashtra</li>
-                <li><strong>Eastern Ghats:</strong> Parts of Odisha and Andhra Pradesh hills</li>
-                <li><strong>Northeastern States:</strong> Meghalaya, Assam hills, Nagaland, and Manipur</li>
-                <li><strong>Eastern Plateau:</strong> Jharkhand, West Bengal (Purulia), and parts of Chhattisgarh</li>
-                <li><strong>Tamil Nadu:</strong> Nilgiri Hills and southern districts</li>
-                <li><strong>Total Coverage:</strong> Approximately 2.48 lakh square kilometers (about 7.5% of total area)</li>
-                <li><strong>Rainfall Zone:</strong> Areas receiving over 200 cm annual rainfall</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Western Ghats:</strong> Coastal areas of Kerala, Karnataka, Goa, and Maharashtra</li>
+                        <li><strong>Eastern Ghats:</strong> Parts of Odisha and Andhra Pradesh hills</li>
+                        <li><strong>Northeastern States:</strong> Meghalaya, Assam hills, Nagaland, and Manipur</li>
+                        <li><strong>Eastern Plateau:</strong> Jharkhand, West Bengal (Purulia), and parts of Chhattisgarh</li>
+                        <li><strong>Tamil Nadu:</strong> Nilgiri Hills and southern districts</li>
+                        <li><strong>Total Coverage:</strong> Approximately 2.48 lakh square kilometers (about 7.5% of total area)</li>
+                        <li><strong>Rainfall Zone:</strong> Areas receiving over 200 cm annual rainfall</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Iron and Aluminum:</strong> Very high content of iron oxide (40-80%) and aluminum hydroxide</li>
-                <li><strong>Silica Content:</strong> Depleted silica due to intense leaching</li>
-                <li><strong>Nitrogen:</strong> Severely deficient in nitrogen</li>
-                <li><strong>Phosphorus:</strong> Very low phosphorus availability</li>
-                <li><strong>Potash:</strong> Deficient in potassium</li>
-                <li><strong>Lime:</strong> Poor lime content</li>
-                <li><strong>Organic Matter:</strong> Very low organic content due to rapid decomposition</li>
-                <li><strong>Humus:</strong> Minimal humus formation due to high temperature and bacterial activity</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Iron and Aluminum:</strong> Very high content of iron oxide (40-80%) and aluminum hydroxide</li>
+                        <li><strong>Silica Content:</strong> Depleted silica due to intense leaching</li>
+                        <li><strong>Nitrogen:</strong> Severely deficient in nitrogen</li>
+                        <li><strong>Phosphorus:</strong> Very low phosphorus availability</li>
+                        <li><strong>Potash:</strong> Deficient in potassium</li>
+                        <li><strong>Lime:</strong> Poor lime content</li>
+                        <li><strong>Organic Matter:</strong> Very low organic content due to rapid decomposition</li>
+                        <li><strong>Humus:</strong> Minimal humus formation due to high temperature and bacterial activity</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Plantation Crops:</strong> Best suited for tea, coffee, rubber, cashew, and areca nut</li>
-                <li><strong>Spice Cultivation:</strong> Excellent for pepper, cardamom, cinnamon, and other spices</li>
-                <li><strong>Coconut:</strong> Widely used for coconut plantations in coastal areas</li>
-                <li><strong>Tapioca:</strong> Suitable for tapioca (cassava) cultivation</li>
-                <li><strong>Rice:</strong> Red rice varieties cultivated in valley areas with proper management</li>
-                <li><strong>Limited Food Crops:</strong> Generally unsuitable for major food crops without heavy fertilization</li>
-                <li><strong>Productivity:</strong> Naturally low fertility; requires intensive management for agriculture</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Plantation Crops:</strong> Best suited for tea, coffee, rubber, cashew, and areca nut</li>
+                        <li><strong>Spice Cultivation:</strong> Excellent for pepper, cardamom, cinnamon, and other spices</li>
+                        <li><strong>Coconut:</strong> Widely used for coconut plantations in coastal areas</li>
+                        <li><strong>Tapioca:</strong> Suitable for tapioca (cassava) cultivation</li>
+                        <li><strong>Rice:</strong> Red rice varieties cultivated in valley areas with proper management</li>
+                        <li><strong>Limited Food Crops:</strong> Generally unsuitable for major food crops without heavy fertilization</li>
+                        <li><strong>Productivity:</strong> Naturally low fertility; requires intensive management for agriculture</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
-            <ul>
-                <li><strong>Heavy Fertilization:</strong> Massive doses of NPK fertilizers required for crop production</li>
-                <li><strong>Organic Matter Addition:</strong> Continuous application of organic manure and compost essential</li>
-                <li><strong>Liming:</strong> Regular lime application needed to reduce acidity</li>
-                <li><strong>Erosion Control:</strong> Terracing and contour farming critical due to high rainfall and slopes</li>
-                <li><strong>Mulching:</strong> Heavy mulching to conserve moisture and add organic matter</li>
-                <li><strong>Cover Crops:</strong> Growing cover crops to prevent erosion and improve soil structure</li>
-                <li><strong>Green Manuring:</strong> Incorporation of green manure crops to enhance nitrogen content</li>
-                <li><strong>Drainage Management:</strong> Proper drainage in low-lying areas to prevent waterlogging</li>
-                <li><strong>Afforestation:</strong> Tree cover maintenance to prevent further laterization</li>
-                <li><strong>Non-Agricultural Use:</strong> Better suited for forestry and plantation crops than annual crops</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
+                    <ul>
+                        <li><strong>Heavy Fertilization:</strong> Massive doses of NPK fertilizers required for crop production</li>
+                        <li><strong>Organic Matter Addition:</strong> Continuous application of organic manure and compost essential</li>
+                        <li><strong>Liming:</strong> Regular lime application needed to reduce acidity</li>
+                        <li><strong>Erosion Control:</strong> Terracing and contour farming critical due to high rainfall and slopes</li>
+                        <li><strong>Mulching:</strong> Heavy mulching to conserve moisture and add organic matter</li>
+                        <li><strong>Cover Crops:</strong> Growing cover crops to prevent erosion and improve soil structure</li>
+                        <li><strong>Green Manuring:</strong> Incorporation of green manure crops to enhance nitrogen content</li>
+                        <li><strong>Drainage Management:</strong> Proper drainage in low-lying areas to prevent waterlogging</li>
+                        <li><strong>Afforestation:</strong> Tree cover maintenance to prevent further laterization</li>
+                        <li><strong>Non-Agricultural Use:</strong> Better suited for forestry and plantation crops than annual crops</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Arid and Desert Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-sun"></i> Arid and Desert Soil</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Climate Factor:</strong> Formed under arid and semi-arid climatic conditions with low rainfall (less than 50 cm annually)</li>
-                <li><strong>Physical Weathering:</strong> Predominantly mechanical weathering due to extreme temperature variations</li>
-                <li><strong>Limited Leaching:</strong> Minimal leaching due to low rainfall, resulting in salt accumulation</li>
-                <li><strong>Color:</strong> Red to brown color; sometimes with a sandy texture</li>
-                <li><strong>Texture:</strong> Sandy to loamy sand with low clay content</li>
-                <li><strong>Salinity:</strong> High salt content in many areas, especially in lower regions</li>
-                <li><strong>pH Level:</strong> Alkaline to highly alkaline (8.0-10.0)</li>
-                <li><strong>Moisture:</strong> Very low moisture content; poor water retention capacity</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-sun"></i> Arid and Desert Soil</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-arid"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #F4A460;"></div>
+                            <span>Desert Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #DEB887;"></div>
+                            <span>Semi-Arid Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #D2B48C;"></div>
+                            <span>Sandy Desert</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Climate Factor:</strong> Formed under arid and semi-arid climatic conditions with low rainfall (less than 50 cm annually)</li>
+                        <li><strong>Physical Weathering:</strong> Predominantly mechanical weathering due to extreme temperature variations</li>
+                        <li><strong>Limited Leaching:</strong> Minimal leaching due to low rainfall, resulting in salt accumulation</li>
+                        <li><strong>Color:</strong> Red to brown color; sometimes with a sandy texture</li>
+                        <li><strong>Texture:</strong> Sandy to loamy sand with low clay content</li>
+                        <li><strong>Salinity:</strong> High salt content in many areas, especially in lower regions</li>
+                        <li><strong>pH Level:</strong> Alkaline to highly alkaline (8.0-10.0)</li>
+                        <li><strong>Moisture:</strong> Very low moisture content; poor water retention capacity</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Rajasthan:</strong> Extensive coverage in western Rajasthan (Thar Desert region)</li>
-                <li><strong>Gujarat:</strong> Kutch and northern Gujarat regions</li>
-                <li><strong>Punjab:</strong> Southwestern parts of Punjab</li>
-                <li><strong>Haryana:</strong> Southern and southwestern districts</li>
-                <li><strong>Maharashtra:</strong> Parts of drought-prone regions in eastern Maharashtra</li>
-                <li><strong>Karnataka:</strong> Northern Karnataka districts</li>
-                <li><strong>Andhra Pradesh:</strong> Rayalaseema region</li>
-                <li><strong>Total Coverage:</strong> Approximately 1.42 lakh square kilometers (about 4.3% of total area)</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Rajasthan:</strong> Extensive coverage in western Rajasthan (Thar Desert region)</li>
+                        <li><strong>Gujarat:</strong> Kutch and northern Gujarat regions</li>
+                        <li><strong>Punjab:</strong> Southwestern parts of Punjab</li>
+                        <li><strong>Haryana:</strong> Southern and southwestern districts</li>
+                        <li><strong>Maharashtra:</strong> Parts of drought-prone regions in eastern Maharashtra</li>
+                        <li><strong>Karnataka:</strong> Northern Karnataka districts</li>
+                        <li><strong>Andhra Pradesh:</strong> Rayalaseema region</li>
+                        <li><strong>Total Coverage:</strong> Approximately 1.42 lakh square kilometers (about 4.3% of total area)</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Phosphorus:</strong> Adequate to high phosphate content</li>
-                <li><strong>Nitrogen:</strong> Deficient in nitrogen due to low organic matter</li>
-                <li><strong>Potash:</strong> Moderate to adequate potassium levels</li>
-                <li><strong>Calcium Carbonate:</strong> High content of lime and calcium salts</li>
-                <li><strong>Soluble Salts:</strong> Excessive sodium, calcium, and magnesium salts in many areas</li>
-                <li><strong>Organic Matter:</strong> Extremely low organic content (less than 0.2%)</li>
-                <li><strong>Gypsum:</strong> Presence of kankar (calcium carbonate concretions) in lower layers</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Phosphorus:</strong> Adequate to high phosphate content</li>
+                        <li><strong>Nitrogen:</strong> Deficient in nitrogen due to low organic matter</li>
+                        <li><strong>Potash:</strong> Moderate to adequate potassium levels</li>
+                        <li><strong>Calcium Carbonate:</strong> High content of lime and calcium salts</li>
+                        <li><strong>Soluble Salts:</strong> Excessive sodium, calcium, and magnesium salts in many areas</li>
+                        <li><strong>Organic Matter:</strong> Extremely low organic content (less than 0.2%)</li>
+                        <li><strong>Gypsum:</strong> Presence of kankar (calcium carbonate concretions) in lower layers</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Irrigation Dependency:</strong> Becomes productive only with assured irrigation</li>
-                <li><strong>Canal Irrigation:</strong> Indira Gandhi Canal has transformed thousands of hectares in Rajasthan</li>
-                <li><strong>Suitable Crops (with irrigation):</strong> Wheat, cotton, bajra (pearl millet), pulses, and fodder crops</li>
-                <li><strong>Rainfed Crops:</strong> Bajra, jowar, moth, guar (cluster bean) in rainfed conditions</li>
-                <li><strong>Drought-Resistant Varieties:</strong> Cultivation of hardy, drought-resistant crop varieties</li>
-                <li><strong>Productivity:</strong> Low productivity without irrigation; moderate to good with irrigation and proper management</li>
-                <li><strong>Grazing:</strong> Traditionally used for livestock grazing</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Irrigation Dependency:</strong> Becomes productive only with assured irrigation</li>
+                        <li><strong>Canal Irrigation:</strong> Indira Gandhi Canal has transformed thousands of hectares in Rajasthan</li>
+                        <li><strong>Suitable Crops (with irrigation):</strong> Wheat, cotton, bajra (pearl millet), pulses, and fodder crops</li>
+                        <li><strong>Rainfed Crops:</strong> Bajra, jowar, moth, guar (cluster bean) in rainfed conditions</li>
+                        <li><strong>Drought-Resistant Varieties:</strong> Cultivation of hardy, drought-resistant crop varieties</li>
+                        <li><strong>Productivity:</strong> Low productivity without irrigation; moderate to good with irrigation and proper management</li>
+                        <li><strong>Grazing:</strong> Traditionally used for livestock grazing</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
-            <ul>
-                <li><strong>Irrigation:</strong> Regular and assured irrigation absolutely essential for agriculture</li>
-                <li><strong>Salinity Management:</strong> Leaching of excess salts through proper irrigation and drainage</li>
-                <li><strong>Nitrogen Addition:</strong> Heavy application of nitrogenous fertilizers required</li>
-                <li><strong>Organic Matter:</strong> Massive incorporation of organic manure to improve structure and fertility</li>
-                <li><strong>Mulching:</strong> Use of mulches to conserve moisture and reduce evaporation</li>
-                <li><strong>Shelter Belts:</strong> Planting windbreaks to reduce wind erosion and sand movement</li>
-                <li><strong>Sand Dune Stabilization:</strong> Afforestation programs to fix moving sand dunes</li>
-                <li><strong>Drip Irrigation:</strong> Use of micro-irrigation systems for water conservation</li>
-                <li><strong>Crop Selection:</strong> Growing salt-tolerant and drought-resistant crop varieties</li>
-                <li><strong>Reclamation:</strong> Application of gypsum to reclaim sodium-affected soils</li>
-                <li><strong>Soil Amendment:</strong> Adding soil conditioners to improve water retention</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
+                    <ul>
+                        <li><strong>Irrigation:</strong> Regular and assured irrigation absolutely essential for agriculture</li>
+                        <li><strong>Salinity Management:</strong> Leaching of excess salts through proper irrigation and drainage</li>
+                        <li><strong>Nitrogen Addition:</strong> Heavy application of nitrogenous fertilizers required</li>
+                        <li><strong>Organic Matter:</strong> Massive incorporation of organic manure to improve structure and fertility</li>
+                        <li><strong>Mulching:</strong> Use of mulches to conserve moisture and reduce evaporation</li>
+                        <li><strong>Shelter Belts:</strong> Planting windbreaks to reduce wind erosion and sand movement</li>
+                        <li><strong>Sand Dune Stabilization:</strong> Afforestation programs to fix moving sand dunes</li>
+                        <li><strong>Drip Irrigation:</strong> Use of micro-irrigation systems for water conservation</li>
+                        <li><strong>Crop Selection:</strong> Growing salt-tolerant and drought-resistant crop varieties</li>
+                        <li><strong>Reclamation:</strong> Application of gypsum to reclaim sodium-affected soils</li>
+                        <li><strong>Soil Amendment:</strong> Adding soil conditioners to improve water retention</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Saline and Alkaline Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-flask"></i> Saline and Alkaline Soil (Usar / Reh / Kallar)</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Formation Causes:</strong> Develop in areas with poor drainage, high evaporation, and accumulation of salts</li>
-                <li><strong>Saline Soils:</strong> Contain excess soluble salts (mainly chlorides and sulfates of sodium, calcium, and magnesium)</li>
-                <li><strong>Alkaline Soils:</strong> Contain sodium carbonate and bicarbonate; also called sodic soils</li>
-                <li><strong>Capillary Action:</strong> Salts brought to surface through capillary rise from groundwater</li>
-                <li><strong>Surface Crust:</strong> White or grey salt crust visible on surface during dry season</li>
-                <li><strong>pH Levels:</strong> Saline soils (pH 7.5-8.5); Alkaline soils (pH above 8.5, can reach 10+)</li>
-                <li><strong>Texture:</strong> Variable; can be sandy to clayey</li>
-                <li><strong>Structure:</strong> Poor structure; alkaline soils often have dispersed clay</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-flask"></i> Saline and Alkaline Soil (Usar / Reh / Kallar)</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-saline"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #E0E0E0;"></div>
+                            <span>Saline Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #C0C0C0;"></div>
+                            <span>Alkaline Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #A9A9A9;"></div>
+                            <span>Saline-Alkaline Mix</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Formation Causes:</strong> Develop in areas with poor drainage, high evaporation, and accumulation of salts</li>
+                        <li><strong>Saline Soils:</strong> Contain excess soluble salts (mainly chlorides and sulfates of sodium, calcium, and magnesium)</li>
+                        <li><strong>Alkaline Soils:</strong> Contain sodium carbonate and bicarbonate; also called sodic soils</li>
+                        <li><strong>Capillary Action:</strong> Salts brought to surface through capillary rise from groundwater</li>
+                        <li><strong>Surface Crust:</strong> White or grey salt crust visible on surface during dry season</li>
+                        <li><strong>pH Levels:</strong> Saline soils (pH 7.5-8.5); Alkaline soils (pH above 8.5, can reach 10+)</li>
+                        <li><strong>Texture:</strong> Variable; can be sandy to clayey</li>
+                        <li><strong>Structure:</strong> Poor structure; alkaline soils often have dispersed clay</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Punjab:</strong> Extensive patches in southwestern Punjab</li>
-                <li><strong>Haryana:</strong> Districts of Karnal, Ambala, and parts of Rohtak</li>
-                <li><strong>Uttar Pradesh:</strong> Western and central UP, particularly in doabs (interfluve regions)</li>
-                <li><strong>Rajasthan:</strong> Parts of eastern Rajasthan</li>
-                <li><strong>Bihar:</strong> Northern Bihar plains</li>
-                <li><strong>Maharashtra:</strong> Parts of Vidarbha and western Maharashtra</li>
-                <li><strong>Gujarat:</strong> Coastal regions and parts of northern Gujarat</li>
-                <li><strong>Andhra Pradesh:</strong> Coastal districts</li>
-                <li><strong>Total Coverage:</strong> Approximately 6.73 million hectares affected by salinity/alkalinity</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Punjab:</strong> Extensive patches in southwestern Punjab</li>
+                        <li><strong>Haryana:</strong> Districts of Karnal, Ambala, and parts of Rohtak</li>
+                        <li><strong>Uttar Pradesh:</strong> Western and central UP, particularly in doabs (interfluve regions)</li>
+                        <li><strong>Rajasthan:</strong> Parts of eastern Rajasthan</li>
+                        <li><strong>Bihar:</strong> Northern Bihar plains</li>
+                        <li><strong>Maharashtra:</strong> Parts of Vidarbha and western Maharashtra</li>
+                        <li><strong>Gujarat:</strong> Coastal regions and parts of northern Gujarat</li>
+                        <li><strong>Andhra Pradesh:</strong> Coastal districts</li>
+                        <li><strong>Total Coverage:</strong> Approximately 6.73 million hectares affected by salinity/alkalinity</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Soluble Salts:</strong> Excess sodium chloride, sodium sulfate, calcium chloride, and magnesium chloride</li>
-                <li><strong>Sodium Carbonate:</strong> High in alkaline soils, causing dispersal of clay particles</li>
-                <li><strong>Sodium Saturation:</strong> Exchangeable sodium percentage (ESP) greater than 15% in alkaline soils</li>
-                <li><strong>Electrical Conductivity:</strong> High EC values (>4 dS/m) in saline soils</li>
-                <li><strong>Nitrogen:</strong> Generally deficient in nitrogen</li>
-                <li><strong>Phosphorus:</strong> Poor phosphorus availability due to high pH</li>
-                <li><strong>Micronutrients:</strong> Deficient in iron, zinc, and manganese</li>
-                <li><strong>Organic Matter:</strong> Low organic content</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Soluble Salts:</strong> Excess sodium chloride, sodium sulfate, calcium chloride, and magnesium chloride</li>
+                        <li><strong>Sodium Carbonate:</strong> High in alkaline soils, causing dispersal of clay particles</li>
+                        <li><strong>Sodium Saturation:</strong> Exchangeable sodium percentage (ESP) greater than 15% in alkaline soils</li>
+                        <li><strong>Electrical Conductivity:</strong> High EC values (>4 dS/m) in saline soils</li>
+                        <li><strong>Nitrogen:</strong> Generally deficient in nitrogen</li>
+                        <li><strong>Phosphorus:</strong> Poor phosphorus availability due to high pH</li>
+                        <li><strong>Micronutrients:</strong> Deficient in iron, zinc, and manganese</li>
+                        <li><strong>Organic Matter:</strong> Low organic content</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Crop Limitations:</strong> Most crops cannot tolerate high salt concentration; severely limits agriculture</li>
-                <li><strong>Salt-Tolerant Crops:</strong> Barley, rapeseed, mustard, and certain grass species can be grown</li>
-                <li><strong>Reclamation Potential:</strong> Can be reclaimed for agriculture with proper treatment</li>
-                <li><strong>Post-Reclamation Crops:</strong> Rice, wheat, sugarcane, and cotton after successful reclamation</li>
-                <li><strong>Productivity:</strong> Very low without reclamation; improves significantly after treatment</li>
-                <li><strong>Economic Impact:</strong> Represents significant land degradation problem affecting agricultural productivity</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Crop Limitations:</strong> Most crops cannot tolerate high salt concentration; severely limits agriculture</li>
+                        <li><strong>Salt-Tolerant Crops:</strong> Barley, rapeseed, mustard, and certain grass species can be grown</li>
+                        <li><strong>Reclamation Potential:</strong> Can be reclaimed for agriculture with proper treatment</li>
+                        <li><strong>Post-Reclamation Crops:</strong> Rice, wheat, sugarcane, and cotton after successful reclamation</li>
+                        <li><strong>Productivity:</strong> Very low without reclamation; improves significantly after treatment</li>
+                        <li><strong>Economic Impact:</strong> Represents significant land degradation problem affecting agricultural productivity</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management and Reclamation</h4>
-            <ul>
-                <li><strong>Saline Soil Reclamation:</strong> Leaching excess salts through flooding and drainage</li>
-                <li><strong>Alkaline Soil Treatment:</strong> Application of gypsum (calcium sulfate) to replace sodium with calcium</li>
-                <li><strong>Chemical Amendments:</strong> Use of sulfur, sulfuric acid, or iron sulfate to neutralize alkalinity</li>
-                <li><strong>Organic Matter Addition:</strong> Heavy doses of farmyard manure and green manure</li>
-                <li><strong>Drainage System:</strong> Installation of subsurface drainage to lower water table and remove salts</li>
-                <li><strong>Surface Drainage:</strong> Construction of field drains to remove excess water</li>
-                <li><strong>Scraping:</strong> Removal of surface salt crust before treatment</li>
-                <li><strong>Bio-drainage:</strong> Planting deep-rooted trees (eucalyptus, poplar) to lower groundwater levels</li>
-                <li><strong>Salt-Tolerant Plants:</strong> Initial cultivation of Karnal grass, dhaincha, or other salt-tolerant species</li>
-                <li><strong>Irrigation Management:</strong> Careful irrigation to prevent re-salinization</li>
-                <li><strong>Quality Water:</strong> Use of good quality irrigation water; avoid saline water</li>
-                <li><strong>Crop Rotation:</strong> Rotation with salt-tolerant crops during reclamation phase</li>
-                <li><strong>Monitoring:</strong> Regular testing of soil pH and EC values</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management and Reclamation</h4>
+                    <ul>
+                        <li><strong>Saline Soil Reclamation:</strong> Leaching excess salts through flooding and drainage</li>
+                        <li><strong>Alkaline Soil Treatment:</strong> Application of gypsum (calcium sulfate) to replace sodium with calcium</li>
+                        <li><strong>Chemical Amendments:</strong> Use of sulfur, sulfuric acid, or iron sulfate to neutralize alkalinity</li>
+                        <li><strong>Organic Matter Addition:</strong> Heavy doses of farmyard manure and green manure</li>
+                        <li><strong>Drainage System:</strong> Installation of subsurface drainage to lower water table and remove salts</li>
+                        <li><strong>Surface Drainage:</strong> Construction of field drains to remove excess water</li>
+                        <li><strong>Scraping:</strong> Removal of surface salt crust before treatment</li>
+                        <li><strong>Bio-drainage:</strong> Planting deep-rooted trees (eucalyptus, poplar) to lower groundwater levels</li>
+                        <li><strong>Salt-Tolerant Plants:</strong> Initial cultivation of Karnal grass, dhaincha, or other salt-tolerant species</li>
+                        <li><strong>Irrigation Management:</strong> Careful irrigation to prevent re-salinization</li>
+                        <li><strong>Quality Water:</strong> Use of good quality irrigation water; avoid saline water</li>
+                        <li><strong>Crop Rotation:</strong> Rotation with salt-tolerant crops during reclamation phase</li>
+                        <li><strong>Monitoring:</strong> Regular testing of soil pH and EC values</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Peaty and Marshy Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-water"></i> Peaty and Marshy Soil (Organic Soil)</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Formation Process:</strong> Developed in waterlogged, poorly drained areas with accumulation of dead organic matter</li>
-                <li><strong>Organic Accumulation:</strong> Formed from partial decomposition of vegetation under anaerobic conditions</li>
-                <li><strong>Color:</strong> Black to dark brown or grey due to high organic content</li>
-                <li><strong>Texture:</strong> Heavy and clayey with large amounts of organic material</li>
-                <li><strong>Organic Matter:</strong> Extremely high organic content (10-40% or more)</li>
-                <li><strong>pH Level:</strong> Acidic to neutral (4.5-7.0)</li>
-                <li><strong>Water Content:</strong> Very high moisture retention; remains waterlogged for most of the year</li>
-                <li><strong>Depth:</strong> Variable; peat deposits can be several meters deep</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-water"></i> Peaty and Marshy Soil (Organic Soil)</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-peaty"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2F4F4F;"></div>
+                            <span>Peaty Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3CB371;"></div>
+                            <span>Marshy Areas</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #20B2AA;"></div>
+                            <span>Coastal Wetlands</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Formation Process:</strong> Developed in waterlogged, poorly drained areas with accumulation of dead organic matter</li>
+                        <li><strong>Organic Accumulation:</strong> Formed from partial decomposition of vegetation under anaerobic conditions</li>
+                        <li><strong>Color:</strong> Black to dark brown or grey due to high organic content</li>
+                        <li><strong>Texture:</strong> Heavy and clayey with large amounts of organic material</li>
+                        <li><strong>Organic Matter:</strong> Extremely high organic content (10-40% or more)</li>
+                        <li><strong>pH Level:</strong> Acidic to neutral (4.5-7.0)</li>
+                        <li><strong>Water Content:</strong> Very high moisture retention; remains waterlogged for most of the year</li>
+                        <li><strong>Depth:</strong> Variable; peat deposits can be several meters deep</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Kerala:</strong> Kuttanad region (below sea level agriculture), Coastal backwaters</li>
-                <li><strong>West Bengal:</strong> Sundarbans delta region</li>
-                <li><strong>Odisha:</strong> Coastal areas and deltaic regions</li>
-                <li><strong>Tamil Nadu:</strong> Coastal marshy areas</li>
-                <li><strong>Bihar:</strong> North Bihar wetlands</li>
-                <li><strong>Uttarakhand:</strong> Almora and hill areas</li>
-                <li><strong>Total Coverage:</strong> Limited extent; approximately 0.18 lakh square kilometers</li>
-                <li><strong>Typical Locations:</strong> River deltas, coastal backwaters, lake margins, and wetlands</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Kerala:</strong> Kuttanad region (below sea level agriculture), Coastal backwaters</li>
+                        <li><strong>West Bengal:</strong> Sundarbans delta region</li>
+                        <li><strong>Odisha:</strong> Coastal areas and deltaic regions</li>
+                        <li><strong>Tamil Nadu:</strong> Coastal marshy areas</li>
+                        <li><strong>Bihar:</strong> North Bihar wetlands</li>
+                        <li><strong>Uttarakhand:</strong> Almora and hill areas</li>
+                        <li><strong>Total Coverage:</strong> Limited extent; approximately 0.18 lakh square kilometers</li>
+                        <li><strong>Typical Locations:</strong> River deltas, coastal backwaters, lake margins, and wetlands</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Organic Content:</strong> Very high proportion of decomposed and partially decomposed organic matter</li>
-                <li><strong>Nitrogen:</strong> High nitrogen content trapped in organic matter</li>
-                <li><strong>Phosphorus:</strong> Moderate to high phosphorus levels</li>
-                <li><strong>Potash:</strong> Adequate potassium content</li>
-                <li><strong>Soluble Salts:</strong> May contain soluble salts in coastal areas</li>
-                <li><strong>Humus:</strong> Rich in humic substances</li>
-                <li><strong>Iron:</strong> Often contains ferrous compounds due to reducing conditions</li>
-                <li><strong>Sulfur:</strong> May have sulfur compounds; can produce hydrogen sulfide</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Organic Content:</strong> Very high proportion of decomposed and partially decomposed organic matter</li>
+                        <li><strong>Nitrogen:</strong> High nitrogen content trapped in organic matter</li>
+                        <li><strong>Phosphorus:</strong> Moderate to high phosphorus levels</li>
+                        <li><strong>Potash:</strong> Adequate potassium content</li>
+                        <li><strong>Soluble Salts:</strong> May contain soluble salts in coastal areas</li>
+                        <li><strong>Humus:</strong> Rich in humic substances</li>
+                        <li><strong>Iron:</strong> Often contains ferrous compounds due to reducing conditions</li>
+                        <li><strong>Sulfur:</strong> May have sulfur compounds; can produce hydrogen sulfide</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Rice Cultivation:</strong> Excellent for wetland rice (paddy) cultivation</li>
-                <li><strong>Kuttanad Region:</strong> Unique below-sea-level rice farming in Kerala</li>
-                <li><strong>Hemp and Jute:</strong> Suitable for jute and hemp cultivation in reclaimed areas</li>
-                <li><strong>Coconut:</strong> Coconut cultivation in coastal peaty areas</li>
-                <li><strong>Vegetables:</strong> Water-loving vegetables in properly managed areas</li>
-                <li><strong>Aquaculture:</strong> Ideal for fish farming and integrated farming systems</li>
-                <li><strong>Productivity:</strong> High productivity for wetland crops after proper management</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Rice Cultivation:</strong> Excellent for wetland rice (paddy) cultivation</li>
+                        <li><strong>Kuttanad Region:</strong> Unique below-sea-level rice farming in Kerala</li>
+                        <li><strong>Hemp and Jute:</strong> Suitable for jute and hemp cultivation in reclaimed areas</li>
+                        <li><strong>Coconut:</strong> Coconut cultivation in coastal peaty areas</li>
+                        <li><strong>Vegetables:</strong> Water-loving vegetables in properly managed areas</li>
+                        <li><strong>Aquaculture:</strong> Ideal for fish farming and integrated farming systems</li>
+                        <li><strong>Productivity:</strong> High productivity for wetland crops after proper management</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
-            <ul>
-                <li><strong>Drainage:</strong> Controlled drainage systems needed for most agricultural activities</li>
-                <li><strong>Lime Application:</strong> Liming required to neutralize acidity</li>
-                <li><strong>Potash Fertilizers:</strong> Addition of potassium fertilizers beneficial</li>
-                <li><strong>Phosphate Addition:</strong> Phosphatic fertilizers improve crop response</li>
-                <li><strong>Subsidence Prevention:</strong> Avoiding complete drainage to prevent oxidation and subsidence</li>
-                <li><strong>Water Table Management:</strong> Maintaining optimal water levels for different crops</li>
-                <li><strong>Salinity Control:</strong> Managing salt intrusion in coastal areas</li>
-                <li><strong>Bunding:</strong> Construction of bunds to control water levels</li>
-                <li><strong>Reclamation:</strong> Gradual reclamation through controlled drainage and cultivation</li>
-                <li><strong>Crop Selection:</strong> Growing crops adapted to waterlogged conditions</li>
-                <li><strong>Organic Matter Management:</strong> Preventing excessive decomposition while utilizing organic fertility</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
+                    <ul>
+                        <li><strong>Drainage:</strong> Controlled drainage systems needed for most agricultural activities</li>
+                        <li><strong>Lime Application:</strong> Liming required to neutralize acidity</li>
+                        <li><strong>Potash Fertilizers:</strong> Addition of potassium fertilizers beneficial</li>
+                        <li><strong>Phosphate Addition:</strong> Phosphatic fertilizers improve crop response</li>
+                        <li><strong>Subsidence Prevention:</strong> Avoiding complete drainage to prevent oxidation and subsidence</li>
+                        <li><strong>Water Table Management:</strong> Maintaining optimal water levels for different crops</li>
+                        <li><strong>Salinity Control:</strong> Managing salt intrusion in coastal areas</li>
+                        <li><strong>Bunding:</strong> Construction of bunds to control water levels</li>
+                        <li><strong>Reclamation:</strong> Gradual reclamation through controlled drainage and cultivation</li>
+                        <li><strong>Crop Selection:</strong> Growing crops adapted to waterlogged conditions</li>
+                        <li><strong>Organic Matter Management:</strong> Preventing excessive decomposition while utilizing organic fertility</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Forest and Mountain Soil -->
         <div class="soil-card">
-            <h3><i class="fas fa-tree"></i> Forest and Mountain Soil</h3>
-            
-            <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
-            <ul>
-                <li><strong>Formation Zones:</strong> Developed in forest and mountainous regions with varying altitudes and climates</li>
-                <li><strong>Heterogeneity:</strong> Highly diverse and heterogeneous due to varying parent rocks, climate, and vegetation</li>
-                <li><strong>Altitude Influence:</strong> Soil characteristics change with altitude from valley to peak</li>
-                <li><strong>Organic Layer:</strong> Thick layer of organic matter from forest litter (humus-rich)</li>
-                <li><strong>Color:</strong> Dark brown to black in upper horizons due to organic matter; varies in lower layers</li>
-                <li><strong>Texture:</strong> Loamy to silty; varies with parent material</li>
-                <li><strong>pH Level:</strong> Generally acidic (5.0-6.5) in higher altitudes; varies in different zones</li>
-                <li><strong>Depth:</strong> Shallow on steep slopes; deeper in valleys and gentler slopes</li>
-            </ul>
+            <div class="soil-header">
+                <h3><i class="fas fa-tree"></i> Forest and Mountain Soil</h3>
+            </div>
+            <div class="soil-content">
+                <div class="map-section">
+                    <div class="map-container" id="map-forest"></div>
+                    <div class="map-legend">
+                        <h4><i class="fas fa-map-marked-alt"></i> Distribution Map</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #228B22;"></div>
+                            <span>Forest Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8B4513;"></div>
+                            <span>Mountain Soil</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #556B2F;"></div>
+                            <span>Hill Forest Soil</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fas fa-info-circle"></i> Formation and Characteristics</h4>
+                    <ul>
+                        <li><strong>Formation Zones:</strong> Developed in forest and mountainous regions with varying altitudes and climates</li>
+                        <li><strong>Heterogeneity:</strong> Highly diverse and heterogeneous due to varying parent rocks, climate, and vegetation</li>
+                        <li><strong>Altitude Influence:</strong> Soil characteristics change with altitude from valley to peak</li>
+                        <li><strong>Organic Layer:</strong> Thick layer of organic matter from forest litter (humus-rich)</li>
+                        <li><strong>Color:</strong> Dark brown to black in upper horizons due to organic matter; varies in lower layers</li>
+                        <li><strong>Texture:</strong> Loamy to silty; varies with parent material</li>
+                        <li><strong>pH Level:</strong> Generally acidic (5.0-6.5) in higher altitudes; varies in different zones</li>
+                        <li><strong>Depth:</strong> Shallow on steep slopes; deeper in valleys and gentler slopes</li>
+                    </ul>
 
-            <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
-            <ul>
-                <li><strong>Himalayan Region:</strong> Entire Himalayan mountain range from Kashmir to Arunachal Pradesh</li>
-                <li><strong>Western Himalayas:</strong> Jammu & Kashmir, Himachal Pradesh, and Uttarakhand</li>
-                <li><strong>Eastern Himalayas:</strong> Sikkim, Darjeeling hills, and northeastern states</li>
-                <li><strong>Western Ghats:</strong> Forest areas of Maharashtra, Karnataka, Kerala, and Tamil Nadu</li>
-                <li><strong>Eastern Ghats:</strong> Forest regions of Odisha and Andhra Pradesh</li>
-                <li><strong>Central India:</strong> Satpura, Vindhya, and Maikal ranges</li>
-                <li><strong>Altitude Range:</strong> From foothills (300m) to high mountains (5000m+)</li>
-                <li><strong>Total Coverage:</strong> Approximately 2.85 lakh square kilometers under forest soils</li>
-            </ul>
+                    <h4><i class="fas fa-map-marked-alt"></i> Geographical Distribution</h4>
+                    <ul>
+                        <li><strong>Himalayan Region:</strong> Entire Himalayan mountain range from Kashmir to Arunachal Pradesh</li>
+                        <li><strong>Western Himalayas:</strong> Jammu & Kashmir, Himachal Pradesh, and Uttarakhand</li>
+                        <li><strong>Eastern Himalayas:</strong> Sikkim, Darjeeling hills, and northeastern states</li>
+                        <li><strong>Western Ghats:</strong> Forest areas of Maharashtra, Karnataka, Kerala, and Tamil Nadu</li>
+                        <li><strong>Eastern Ghats:</strong> Forest regions of Odisha and Andhra Pradesh</li>
+                        <li><strong>Central India:</strong> Satpura, Vindhya, and Maikal ranges</li>
+                        <li><strong>Altitude Range:</strong> From foothills (300m) to high mountains (5000m+)</li>
+                        <li><strong>Total Coverage:</strong> Approximately 2.85 lakh square kilometers under forest soils</li>
+                    </ul>
 
-            <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
-            <ul>
-                <li><strong>Organic Matter:</strong> High organic content (3-8%) in surface layers from decomposing forest litter</li>
-                <li><strong>Humus:</strong> Rich in humus and partially decomposed organic material</li>
-                <li><strong>Nitrogen:</strong> Adequate nitrogen from organic matter decomposition</li>
-                <li><strong>Phosphorus:</strong> Moderate phosphorus levels; varies with parent rock</li>
-                <li><strong>Potash:</strong> Generally adequate potassium content</li>
-                <li><strong>Minerals:</strong> Rich in minerals derived from parent rocks (granite, gneiss, schist, limestone)</li>
-                <li><strong>Iron and Aluminum:</strong> Presence of sesquioxides in acidic variants</li>
-                <li><strong>Base Saturation:</strong> Variable; lower at higher altitudes</li>
-            </ul>
+                    <h4><i class="fas fa-flask"></i> Chemical Composition</h4>
+                    <ul>
+                        <li><strong>Organic Matter:</strong> High organic content (3-8%) in surface layers from decomposing forest litter</li>
+                        <li><strong>Humus:</strong> Rich in humus and partially decomposed organic material</li>
+                        <li><strong>Nitrogen:</strong> Adequate nitrogen from organic matter decomposition</li>
+                        <li><strong>Phosphorus:</strong> Moderate phosphorus levels; varies with parent rock</li>
+                        <li><strong>Potash:</strong> Generally adequate potassium content</li>
+                        <li><strong>Minerals:</strong> Rich in minerals derived from parent rocks (granite, gneiss, schist, limestone)</li>
+                        <li><strong>Iron and Aluminum:</strong> Presence of sesquioxides in acidic variants</li>
+                        <li><strong>Base Saturation:</strong> Variable; lower at higher altitudes</li>
+                    </ul>
 
-            <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
-            <ul>
-                <li><strong>Limited Agriculture:</strong> Steep slopes and shallow depth limit conventional agriculture</li>
-                <li><strong>Terrace Farming:</strong> Traditional terraced cultivation in valleys and gentler slopes</li>
-                <li><strong>Valley Agriculture:</strong> Rice, wheat, maize, and vegetables in valley floors</li>
-                <li><strong>Plantation Crops:</strong> Tea in Darjeeling, Assam; Coffee in Nilgiris, Western Ghats</li>
-                <li><strong>Spice Cultivation:</strong> Cardamom, pepper, cinnamon in Western Ghats</li>
-                <li><strong>Temperate Fruits:</strong> Apple, pear, plum, apricot in temperate Himalayan regions</li>
-                <li><strong>Medicinal Plants:</strong> Various medicinal and aromatic plants</li>
-                <li><strong>Horticulture:</strong> Vegetable cultivation in mid-altitude regions</li>
-                <li><strong>Potato:</strong> Important crop in Himalayan states</li>
-                <li><strong>Forestry:</strong> Primary land use remains forestry and biodiversity conservation</li>
-            </ul>
+                    <h4><i class="fas fa-seedling"></i> Agricultural Significance</h4>
+                    <ul>
+                        <li><strong>Limited Agriculture:</strong> Steep slopes and shallow depth limit conventional agriculture</li>
+                        <li><strong>Terrace Farming:</strong> Traditional terraced cultivation in valleys and gentler slopes</li>
+                        <li><strong>Valley Agriculture:</strong> Rice, wheat, maize, and vegetables in valley floors</li>
+                        <li><strong>Plantation Crops:</strong> Tea in Darjeeling, Assam; Coffee in Nilgiris, Western Ghats</li>
+                        <li><strong>Spice Cultivation:</strong> Cardamom, pepper, cinnamon in Western Ghats</li>
+                        <li><strong>Temperate Fruits:</strong> Apple, pear, plum, apricot in temperate Himalayan regions</li>
+                        <li><strong>Medicinal Plants:</strong> Various medicinal and aromatic plants</li>
+                        <li><strong>Horticulture:</strong> Vegetable cultivation in mid-altitude regions</li>
+                        <li><strong>Potato:</strong> Important crop in Himalayan states</li>
+                        <li><strong>Forestry:</strong> Primary land use remains forestry and biodiversity conservation</li>
+                    </ul>
 
-            <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
-            <ul>
-                <li><strong>Erosion Control:</strong> Critical priority due to steep slopes and heavy rainfall</li>
-                <li><strong>Terracing:</strong> Construction and maintenance of agricultural terraces</li>
-                <li><strong>Contour Cultivation:</strong> Farming along contours to reduce soil erosion</li>
-                <li><strong>Afforestation:</strong> Maintaining forest cover to prevent landslides and soil loss</li>
-                <li><strong>Mulching:</strong> Using forest litter as mulch to conserve moisture and add nutrients</li>
-                <li><strong>Organic Farming:</strong> Preference for organic methods utilizing forest biomass</li>
-                <li><strong>Lime Application:</strong> Liming may be needed for acidic soils in agricultural areas</li>
-                <li><strong>Minimal Tillage:</strong> Reduced tillage to prevent erosion</li>
-                <li><strong>Check Dams:</strong> Construction of small check dams and barriers</li>
-                <li><strong>Vegetative Barriers:</strong> Growing grass strips and hedge rows</li>
-                <li><strong>Jhum Cultivation Control:</strong> Discouraging shifting cultivation (jhum) in northeastern states</li>
-                <li><strong>Soil Conservation:</strong> Implementation of comprehensive soil and water conservation measures</li>
-                <li><strong>Landslide Prevention:</strong> Monitoring and stabilizing landslide-prone areas</li>
-            </ul>
+                    <h4><i class="fas fa-tools"></i> Soil Management Requirements</h4>
+                    <ul>
+                        <li><strong>Erosion Control:</strong> Critical priority due to steep slopes and heavy rainfall</li>
+                        <li><strong>Terracing:</strong> Construction and maintenance of agricultural terraces</li>
+                        <li><strong>Contour Cultivation:</strong> Farming along contours to reduce soil erosion</li>
+                        <li><strong>Afforestation:</strong> Maintaining forest cover to prevent landslides and soil loss</li>
+                        <li><strong>Mulching:</strong> Using forest litter as mulch to conserve moisture and add nutrients</li>
+                        <li><strong>Organic Farming:</strong> Preference for organic methods utilizing forest biomass</li>
+                        <li><strong>Lime Application:</strong> Liming may be needed for acidic soils in agricultural areas</li>
+                        <li><strong>Minimal Tillage:</strong> Reduced tillage to prevent erosion</li>
+                        <li><strong>Check Dams:</strong> Construction of small check dams and barriers</li>
+                        <li><strong>Vegetative Barriers:</strong> Growing grass strips and hedge rows</li>
+                        <li><strong>Jhum Cultivation Control:</strong> Discouraging shifting cultivation (jhum) in northeastern states</li>
+                        <li><strong>Soil Conservation:</strong> Implementation of comprehensive soil and water conservation measures</li>
+                        <li><strong>Landslide Prevention:</strong> Monitoring and stabilizing landslide-prone areas</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Major Soil Problems in India -->
@@ -1091,10 +1728,303 @@
 
     </div>
 
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <footer>
-        <p>&copy; 2026 Geotopia Encyclopedia - Exploring the Soils of Bharat</p>
+        <p>&copy; 2024 Geotopia Encyclopedia - Exploring the Soils of Bharat</p>
         <p>Empowering knowledge for sustainable soil management and agricultural development</p>
     </footer>
 
+    <script>
+        // Initialize maps for each soil type
+        function initMap(elementId, center, markers, polygons) {
+            const map = L.map(elementId).setView(center, 5);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add markers
+            if (markers) {
+                markers.forEach(marker => {
+                    L.marker(marker.coords)
+                        .addTo(map)
+                        .bindPopup(marker.name);
+                });
+            }
+
+            // Add polygons for soil distribution areas
+            if (polygons) {
+                polygons.forEach(polygon => {
+                    L.polygon(polygon.coords, {
+                        color: polygon.color,
+                        fillColor: polygon.fillColor,
+                        fillOpacity: 0.5
+                    }).addTo(map).bindPopup(polygon.name);
+                });
+            }
+
+            return map;
+        }
+
+        // Alluvial Soil Map
+        initMap('map-alluvial', [28.6139, 77.2090], null, [
+            {
+                name: 'Indo-Gangetic Plain',
+                coords: [
+                    [30.5, 75.0], [30.5, 88.0], [25.0, 88.0], [25.0, 75.0]
+                ],
+                color: '#90EE90',
+                fillColor: '#90EE90'
+            },
+            {
+                name: 'Brahmaputra Valley',
+                coords: [
+                    [27.5, 89.0], [27.5, 96.0], [26.0, 96.0], [26.0, 89.0]
+                ],
+                color: '#C8E6C9',
+                fillColor: '#C8E6C9'
+            },
+            {
+                name: 'Coastal Deltas',
+                coords: [
+                    [16.5, 81.5], [16.5, 82.5], [15.5, 82.5], [15.5, 81.5]
+                ],
+                color: '#FFD700',
+                fillColor: '#FFD700'
+            }
+        ]);
+
+        // Black Soil Map
+        initMap('map-black', [20.5937, 78.9629], null, [
+            {
+                name: 'Deccan Plateau - Maharashtra',
+                coords: [
+                    [21.0, 73.0], [21.0, 80.0], [16.0, 80.0], [16.0, 73.0]
+                ],
+                color: '#2C2C2C',
+                fillColor: '#2C2C2C'
+            },
+            {
+                name: 'Madhya Pradesh',
+                coords: [
+                    [24.0, 74.0], [24.0, 82.0], [21.0, 82.0], [21.0, 74.0]
+                ],
+                color: '#5C5C5C',
+                fillColor: '#5C5C5C'
+            },
+            {
+                name: 'Gujarat',
+                coords: [
+                    [23.0, 69.0], [23.0, 74.0], [20.0, 74.0], [20.0, 69.0]
+                ],
+                color: '#8C8C8C',
+                fillColor: '#8C8C8C'
+            }
+        ]);
+
+        // Red and Yellow Soil Map
+        initMap('map-red', [15.9129, 79.7400], null, [
+            {
+                name: 'Eastern Plateau',
+                coords: [
+                    [24.0, 82.0], [24.0, 88.0], [20.0, 88.0], [20.0, 82.0]
+                ],
+                color: '#CD5C5C',
+                fillColor: '#CD5C5C'
+            },
+            {
+                name: 'Southern Peninsula',
+                coords: [
+                    [16.0, 74.0], [16.0, 80.0], [11.0, 80.0], [11.0, 74.0]
+                ],
+                color: '#F4A460',
+                fillColor: '#F4A460'
+            },
+            {
+                name: 'Northeastern Hills',
+                coords: [
+                    [26.0, 89.0], [26.0, 95.0], [23.0, 95.0], [23.0, 89.0]
+                ],
+                color: '#DAA520',
+                fillColor: '#DAA520'
+            }
+        ]);
+
+        // Laterite Soil Map
+        initMap('map-laterite', [12.9716, 77.5946], null, [
+            {
+                name: 'Western Ghats',
+                coords: [
+                    [15.0, 73.0], [15.0, 77.0], [8.0, 77.0], [8.0, 73.0]
+                ],
+                color: '#8B4513',
+                fillColor: '#8B4513'
+            },
+            {
+                name: 'Northeastern States',
+                coords: [
+                    [26.0, 89.0], [26.0, 97.0], [23.0, 97.0], [23.0, 89.0]
+                ],
+                color: '#D2691E',
+                fillColor: '#D2691E'
+            },
+            {
+                name: 'Eastern Plateau',
+                coords: [
+                    [23.0, 84.0], [23.0, 87.0], [21.0, 87.0], [21.0, 84.0]
+                ],
+                color: '#A0522D',
+                fillColor: '#A0522D'
+            }
+        ]);
+
+        // Arid and Desert Soil Map
+        initMap('map-arid', [27.0238, 74.2179], null, [
+            {
+                name: 'Thar Desert',
+                coords: [
+                    [28.0, 69.0], [28.0, 75.0], [24.0, 75.0], [24.0, 69.0]
+                ],
+                color: '#F4A460',
+                fillColor: '#F4A460'
+            },
+            {
+                name: 'Kutch Region',
+                coords: [
+                    [24.0, 68.0], [24.0, 71.0], [22.5, 71.0], [22.5, 68.0]
+                ],
+                color: '#DEB887',
+                fillColor: '#DEB887'
+            },
+            {
+                name: 'Semi-Arid Regions',
+                coords: [
+                    [30.0, 74.0], [30.0, 76.0], [28.0, 76.0], [28.0, 74.0]
+                ],
+                color: '#D2B48C',
+                fillColor: '#D2B48C'
+            }
+        ]);
+
+        // Saline and Alkaline Soil Map
+        initMap('map-saline', [28.7041, 77.1025], null, [
+            {
+                name: 'Punjab-Haryana',
+                coords: [
+                    [31.0, 74.0], [31.0, 77.0], [29.0, 77.0], [29.0, 74.0]
+                ],
+                color: '#E0E0E0',
+                fillColor: '#E0E0E0'
+            },
+            {
+                name: 'Uttar Pradesh',
+                coords: [
+                    [28.0, 77.0], [28.0, 82.0], [26.0, 82.0], [26.0, 77.0]
+                ],
+                color: '#C0C0C0',
+                fillColor: '#C0C0C0'
+            },
+            {
+                name: 'Gujarat Coastal',
+                coords: [
+                    [23.0, 68.0], [23.0, 73.0], [21.5, 73.0], [21.5, 68.0]
+                ],
+                color: '#A9A9A9',
+                fillColor: '#A9A9A9'
+            }
+        ]);
+
+        // Peaty and Marshy Soil Map
+        initMap('map-peaty', [9.4981, 76.3388], null, [
+            {
+                name: 'Kerala Backwaters',
+                coords: [
+                    [10.0, 76.0], [10.0, 77.0], [9.0, 77.0], [9.0, 76.0]
+                ],
+                color: '#2F4F4F',
+                fillColor: '#2F4F4F'
+            },
+            {
+                name: 'Sundarbans',
+                coords: [
+                    [22.5, 88.5], [22.5, 89.5], [21.5, 89.5], [21.5, 88.5]
+                ],
+                color: '#3CB371',
+                fillColor: '#3CB371'
+            },
+            {
+                name: 'Coastal Wetlands',
+                coords: [
+                    [20.0, 85.5], [20.0, 87.0], [19.0, 87.0], [19.0, 85.5]
+                ],
+                color: '#20B2AA',
+                fillColor: '#20B2AA'
+            }
+        ]);
+
+        // Forest and Mountain Soil Map
+        initMap('map-forest', [30.0668, 79.0193], null, [
+            {
+                name: 'Himalayan Region',
+                coords: [
+                    [35.0, 74.0], [35.0, 95.0], [28.0, 95.0], [28.0, 74.0]
+                ],
+                color: '#228B22',
+                fillColor: '#228B22'
+            },
+            {
+                name: 'Western Ghats',
+                coords: [
+                    [16.0, 73.0], [16.0, 77.0], [8.0, 77.0], [8.0, 73.0]
+                ],
+                color: '#8B4513',
+                fillColor: '#8B4513'
+            },
+            {
+                name: 'Central India Hills',
+                coords: [
+                    [23.0, 78.0], [23.0, 82.0], [20.0, 82.0], [20.0, 78.0]
+                ],
+                color: '#556B2F',
+                fillColor: '#556B2F'
+            }
+        ]);
+
+        // Scroll to Top Button Functionality
+        const scrollTopBtn = document.getElementById('scrollTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('show');
+            } else {
+                scrollTopBtn.classList.remove('show');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Smooth scroll for all anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
