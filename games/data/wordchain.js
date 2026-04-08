@@ -1,5 +1,5 @@
 const WORD_CHAIN_DATABASE = {
-    A: [
+    A: [ 
         // Countries
         "Algeria", "Angola", "Albania", "Andorra", "Armenia", "Argentina", "Afghanistan", 
         "Azerbaijan", "Austria", "Australia", "Antigua",
