@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soils of the World | Geotopia Encyclopedia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #606c38;
+            --primary-light: #a3b18a;
+            --primary-dark: #283618;
+            --secondary: #dda15e;
+            --secondary-light: #fefae0;
+            --accent: #bc6c25;
+            --bg-light: #fefae0;
+            --bg-dark: #1a1a2e;
+            --text-light: #333;
+            --text-dark: #f0f0f0;
+            --card-light: #ffffff;
+            --card-dark: #16213e;
+            --shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 60px rgba(0,0,0,0.2);
+            --gradient-hero: linear-gradient(135deg, #606c38 0%, #283618 50%, #dda15e 100%);
+            --gradient-card: linear-gradient(145deg, #ffffff 0%, #fefae0 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #1a1a2e;
+            --text-light: #f0f0f0;
+            --card-light: #16213e;
+            --gradient-card: linear-gradient(145deg, #16213e 0%, #1a1a2e 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 6px;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] .navbar {
+            background: rgba(26,26,46,0.95);
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .theme-toggle {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(96,108,56,0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 20px 60px;
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='rgba(255,255,255,0.02)' stroke-width='1'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-50px) rotate(360deg); }
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb a:hover {
+            color: white;
+        }
+
+        .breadcrumb span {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 5px 30px rgba(0,0,0,0.3); }
+            50% { text-shadow: 0 5px 50px rgba(221,161,94,0.5); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 800px;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-badge {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .stat-badge:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.25);
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            display: block;
+        }
+
+        .stat-label {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 100px 50px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            font-size: 1.2rem;
+        }
+
+        /* Child-Friendly Box */
+        .child-friendly-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .child-friendly-box::before {
+            content: '🧒';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 150px;
+            opacity: 0.1;
+        }
+
+        .child-friendly-box h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            color: #92400e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .child-friendly-box p {
+            font-size: 1.3rem;
+            color: #78350f;
+            line-height: 1.8;
+        }
+
+        .analogy-box {
+            background: rgba(255,255,255,0.7);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 25px;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .analogy-box h4 {
+            color: #d97706;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Academic Box */
+        .academic-box {
+            background: var(--gradient-card);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(96,108,56,0.1);
+        }
+
+        .academic-box h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .academic-box p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .terminology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .term-card {
+            background: rgba(96,108,56,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .term-card h5 {
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .term-card p {
+            font-size: 0.95rem;
+            color: #666;
+            margin: 0;
+        }
+
+        /* Fun Fact Box */
+        .fun-fact-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .fun-fact-box .icon {
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .fun-fact-box h4 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .fun-fact-box p {
+            color: #1e3a8a;
+        }
+
+        /* Soil Types Grid */
+        .soil-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .soil-card {
+            background: var(--card-light);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .soil-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .soil-card-header {
+            padding: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .soil-card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            filter: brightness(0.8);
+            z-index: 0;
+        }
+
+        .soil-card-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 5px;
+        }
+
+        .soil-card-header .soil-order {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .soil-card-body {
+            padding: 30px;
+        }
+
+        .soil-card-body p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .soil-characteristics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .soil-tag {
+            background: rgba(96,108,56,0.1);
+            color: var(--primary-dark);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .soil-distribution {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .soil-distribution h5 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .soil-distribution ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .soil-distribution li {
+            background: #f0f4e8;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        /* Formation Timeline */
+        .timeline-container {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: var(--card-light);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: auto;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: var(--secondary);
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .timeline-content h4 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .timeline-content .time-label {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        /* Data Table */
+        .table-container {
+            overflow-x: auto;
+            background: var(--card-light);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin: 40px 0;
+        }
+
+        .table-controls {
+            padding: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 25px;
+            border: 2px solid #eee;
+            border-radius: 30px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-select {
+            padding: 15px 25px;
+            border: 2px solid #eee;
+            border-radius: 30px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .export-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .export-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(96,108,56,0.4);
+        }
+
+        .data-table-197 {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table-197 th {
+            background: var(--primary-dark);
+            color: white;
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+
+        .data-table-197 th:hover {
+            background: var(--primary);
+        }
+
+        .data-table-197 td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        .data-table-197 tr:hover {
+            background: rgba(96,108,56,0.05);
+        }
+
+        .country-flag {
+            width: 40px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .country-name {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .continent-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .continent-africa { background: #fef3c7; color: #92400e; }
+        .continent-asia { background: #fee2e2; color: #991b1b; }
+        .continent-europe { background: #dbeafe; color: #1e40af; }
+        .continent-north-america { background: #d1fae5; color: #065f46; }
+        .continent-south-america { background: #e0e7ff; color: #3730a3; }
+        .continent-oceania { background: #fce7f3; color: #9d174d; }
+
+        .soil-bullets {
+            list-style: none;
+        }
+
+        .soil-bullets li {
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .soil-bullets li::before {
+            content: '🌱';
+            position: absolute;
+            left: 0;
+        }
+
+        .expand-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: transform 0.3s;
+        }
+
+        .expand-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .expanded-content {
+            display: none;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .expanded-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Map Container */
+        .map-container {
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin: 40px 0;
+        }
+
+        #world-map {
+            height: 600px;
+            width: 100%;
+        }
+
+        .map-legend {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-top: 20px;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        /* India Section */
+        .india-section {
+            background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%);
+            border-radius: 30px;
+            padding: 60px;
+            margin: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .india-section::before {
+            content: '🇮🇳';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            font-size: 300px;
+            opacity: 0.1;
+        }
+
+        .india-section h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            color: #1a237e;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .india-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .india-soil-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .india-soil-card h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .india-soil-card .coverage {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .india-soil-card ul {
+            list-style: none;
+        }
+
+        .india-soil-card li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .india-soil-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Quiz Section */
+        .quiz-container {
+            background: var(--card-light);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: var(--shadow);
+        }
+
+        .quiz-question {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: #f9fafb;
+            border-radius: 20px;
+        }
+
+        .quiz-question h4 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            padding: 15px 25px;
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(96,108,56,0.05);
+        }
+
+        .quiz-option.correct {
+            border-color: #22c55e;
+            background: #dcfce7;
+        }
+
+        .quiz-option.wrong {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .quiz-score {
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        /* Mind Map */
+        .mind-map-container {
+            width: 100%;
+            overflow-x: auto;
+            padding: 40px 0;
+        }
+
+        .mind-map {
+            display: flex;
+            justify-content: center;
+            min-width: 1200px;
+        }
+
+        .mind-map-center {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 40px 50px;
+            border-radius: 30px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .mind-map-branches {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .branch-left {
+            left: -350px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .branch-right {
+            right: -350px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .mind-map-branch {
+            padding: 15px 30px;
+            background: var(--card-light);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+            color: var(--primary-dark);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .mind-map-branch:hover {
+            transform: scale(1.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .section {
+                padding: 60px 30px;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .timeline-line {
+                left: 30px;
+            }
+
+            .timeline-item {
+                flex-direction: column !important;
+            }
+
+            .timeline-content {
+                width: 100%;
+                margin-left: 60px !important;
+                margin-right: 0 !important;
+            }
+
+            .timeline-dot {
+                left: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                gap: 20px;
+            }
+
+            .stat-badge {
+                padding: 15px 25px;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .child-friendly-box,
+            .academic-box,
+            .india-section {
+                padding: 30px;
+            }
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+
+        .loading-overlay.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #eee;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Leaflet Popup Styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .leaflet-popup-content {
+            margin: 15px 20px;
+        }
+
+        .popup-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .popup-soil-list {
+            list-style: none;
+        }
+
+        .popup-soil-list li {
+            padding: 5px 0;
+            font-size: 0.9rem;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .popup-soil-list li:last-child {
+            border-bottom: none;
+        }
+
+        .popup-soil-type {
+            font-weight: 600;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">🌍 Geotopia</div>
+        <ul class="nav-links">
+            <li><a href="../../encyclopedia.html">Encyclopedia</a></li>
+            <li><a href="#types">Soil Types</a></li>
+            <li><a href="#countries">197 Countries</a></li>
+            <li><a href="#map">World Map</a></li>
+            <li><a href="#india">India</a></li>
+            <li><a href="#quiz">Quiz</a></li>
+        </ul>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <nav class="breadcrumb">
+            <a href="../../encyclopedia.html">Encyclopedia</a>
+            <span>›</span>
+            <a href="../index.html">Environmental Geography</a>
+            <span>›</span>
+            <span style="color: white;">Soils</span>
+        </nav>
+
+        <h1 class="hero-title">🌱 Soils of the World</h1>
+        <p class="hero-subtitle">The Living Skin of Earth – Discover the 12 Soil Orders that cover our planet, supporting all terrestrial life and agriculture across 197 countries.</p>
+
+        <div class="hero-stats">
+            <div class="stat-badge">
+                <span class="stat-number" data-target="12">0</span>
+                <span class="stat-label">Soil Orders</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-number" data-target="70">0</span>
+                <span class="stat-label">Suborders</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-number" data-target="197">0</span>
+                <span class="stat-label">Countries</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-number" data-target="149">0</span>
+                <span class="stat-label">Million km² Land</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is Soil? - Child Friendly -->
+    <section class="section" id="what-is">
+        <h2 class="section-title">What is Soil?</h2>
+        <p class="section-subtitle">Understanding the foundation of life on Earth</p>
+
+        <div class="child-friendly-box">
+            <h3>🧒 For Young Explorers</h3>
+            <p>
+                <strong>Soil is like a magical blanket</strong> that covers the ground! It's made of tiny pieces of rocks, dead leaves, water, air, and millions of tiny creatures you can't see. Plants grow their roots in soil to drink water and eat food, just like you use a straw to drink juice!
+            </p>
+            <div class="analogy-box">
+                <h4>🎂 Think of it like a Layer Cake!</h4>
+                <p>Soil has different layers, just like a birthday cake! The top layer (frosting) is dark and full of yummy stuff for plants. The middle layers are like the cake - they have different colors and hold water. The bottom layer is like the cake plate - it's the hard rock underneath!</p>
+            </div>
+        </div>
+
+        <div class="fun-fact-box">
+            <div class="icon">🐛</div>
+            <div>
+                <h4>Did You Know?</h4>
+                <p>One teaspoon of healthy soil contains more living organisms than there are people on Earth! That's more than 8 billion tiny creatures including bacteria, fungi, and microscopic animals - all working together to keep plants healthy!</p>
+            </div>
+        </div>
+
+        <div class="academic-box">
+            <h3>🎓 Scientific Definition</h3>
+            <p>
+                <strong>Soil</strong> (from Latin <em>solum</em>, meaning "floor" or "ground") is defined as the unconsolidated mineral or organic material on the immediate surface of the Earth that serves as a natural medium for the growth of land plants. It is a complex three-dimensional natural body resulting from the integrated effects of climate, living matter, and topography acting on parent material over time.
+            </p>
+            <p>
+                Pedologically, soil is distinguished from regolith (the layer of loose, heterogeneous material covering solid rock) by its biological activity and the presence of distinct horizons formed through pedogenic processes including weathering, leaching, translocation, and organic matter accumulation.
+            </p>
+
+            <div class="terminology-grid">
+                <div class="term-card">
+                    <h5>Pedosphere</h5>
+                    <p>The outermost layer of Earth composed of soil and subject to soil formation processes</p>
+                </div>
+                <div class="term-card">
+                    <h5>Edaphology</h5>
+                    <p>The study of soil in relation to plant growth and agriculture</p>
+                </div>
+                <div class="term-card">
+                    <h5>Pedology</h5>
+                    <p>The scientific study of soil formation, classification, and mapping</p>
+                </div>
+                <div class="term-card">
+                    <h5>Soil Profile</h5>
+                    <p>A vertical section of soil showing all its horizons from surface to parent material</p>
+                </div>
+                <div class="term-card">
+                    <h5>Horizons</h5>
+                    <p>Distinct layers in soil (O, A, E, B, C, R) with different characteristics</p>
+                </div>
+                <div class="term-card">
+                    <h5>Pedogenesis</h5>
+                    <p>The process of soil formation and development over time</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formation Timeline -->
+    <section class="section" id="formation">
+        <h2 class="section-title">How Soil Forms</h2>
+        <p class="section-subtitle">A journey spanning thousands to millions of years</p>
+
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="time-label">Stage 1: 0-100 Years</span>
+                    <h4>🪨 Physical Weathering</h4>
+                    <p>Parent rock is broken down by temperature changes, water freezing in cracks, and root growth. Large rocks become smaller fragments through mechanical processes.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="time-label">Stage 2: 100-500 Years</span>
+                    <h4>🧪 Chemical Weathering</h4>
+                    <p>Minerals in rocks react with water and air, dissolving and transforming. Acid rain and organic acids accelerate this process, creating clay particles.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="time-label">Stage 3: 500-2,000 Years</span>
+                    <h4>🌿 Pioneer Plants Arrive</h4>
+                    <p>Lichens, mosses, and small plants colonize the weathered rock. Their roots break rock further, and dead material begins forming organic matter.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="time-label">Stage 4: 2,000-10,000 Years</span>
+                    <h4>🐜 Biological Activity Increases</h4>
+                    <p>Earthworms, insects, and microorganisms move in. They mix organic matter with minerals, creating the first true soil horizons.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="time-label">Stage 5: 10,000-100,000 Years</span>
+                    <h4>📊 Horizon Development</h4>
+                    <p>Distinct soil layers (horizons) form. Water moves minerals and organic compounds up and down the profile, creating the characteristic A, B, and C horizons.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="time-label">Stage 6: 100,000+ Years</span>
+                    <h4>✨ Mature Soil</h4>
+                    <p>The soil reaches dynamic equilibrium with its environment. It can maintain fertility through natural cycles and supports complex ecosystems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12 Soil Orders -->
+    <section class="section" id="types">
+        <h2 class="section-title">The 12 Soil Orders</h2>
+        <p class="section-subtitle">USDA Soil Taxonomy Classification System</p>
+
+        <div class="soil-types-grid">
+            <!-- Alfisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #8B4513, #D2691E);">
+                    <h3>Alfisols</h3>
+                    <span class="soil-order">Order #1 | 9.6% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Fertile Forest Soils</strong> - Alfisols form under deciduous forests and have clay-enriched subsoils. They're among the most productive agricultural soils worldwide.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Clay-rich B horizon</span>
+                        <span class="soil-tag">Moderate-high fertility</span>
+                        <span class="soil-tag">Forest origin</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇺🇸 USA</li>
+                            <li>🇫🇷 France</li>
+                            <li>🇮🇳 India</li>
+                            <li>🇨🇳 China</li>
+                            <li>🇦🇺 Australia</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Andisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #2c3e50, #4a69bd);">
+                    <h3>Andisols</h3>
+                    <span class="soil-order">Order #2 | 0.7% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Volcanic Soils</strong> - Formed from volcanic ash, Andisols are lightweight, porous, and extremely fertile. They support intensive agriculture in volcanic regions.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Volcanic origin</span>
+                        <span class="soil-tag">High water retention</span>
+                        <span class="soil-tag">Very fertile</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇯🇵 Japan</li>
+                            <li>🇮🇩 Indonesia</li>
+                            <li>🇵🇭 Philippines</li>
+                            <li>🇪🇨 Ecuador</li>
+                            <li>🇳🇿 New Zealand</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aridisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #e67e22, #f1c40f);">
+                    <h3>Aridisols</h3>
+                    <span class="soil-order">Order #3 | 12.0% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Desert Soils</strong> - Found in arid regions with less than 250mm annual rainfall. Low organic matter, often with salt and calcium carbonate accumulations.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Low organic matter</span>
+                        <span class="soil-tag">Salt accumulation</span>
+                        <span class="soil-tag">Dry climate</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇸🇦 Saudi Arabia</li>
+                            <li>🇦🇺 Australia</li>
+                            <li>🇲🇦 Morocco</li>
+                            <li>🇺🇸 USA (SW)</li>
+                            <li>🇮🇳 India (Thar)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #bdc3c7, #95a5a6);">
+                    <h3>Entisols</h3>
+                    <span class="soil-order">Order #4 | 16.2% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Young Soils</strong> - Recently formed soils with no horizon development. Found on steep slopes, floodplains, and areas of recent deposition or erosion.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">No horizons</span>
+                        <span class="soil-tag">Recently formed</span>
+                        <span class="soil-tag">Variable fertility</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇪🇬 Egypt (Nile)</li>
+                            <li>🇧🇩 Bangladesh</li>
+                            <li>🇳🇵 Nepal</li>
+                            <li>🇺🇸 USA (Rivers)</li>
+                            <li>🇨🇳 China</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gelisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #3498db, #9b59b6);">
+                    <h3>Gelisols</h3>
+                    <span class="soil-order">Order #5 | 8.6% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Permafrost Soils</strong> - Contains permafrost within 2 meters of surface. Found in arctic and high alpine regions. Stores vast amounts of carbon.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Permafrost</span>
+                        <span class="soil-tag">Carbon storage</span>
+                        <span class="soil-tag">Cryoturbation</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇷🇺 Russia</li>
+                            <li>🇨🇦 Canada</li>
+                            <li>🇺🇸 Alaska</li>
+                            <li>🇬🇱 Greenland</li>
+                            <li>🇳🇴 Norway</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histosols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #1e3d59, #2c3e50);">
+                    <h3>Histosols</h3>
+                    <span class="soil-order">Order #6 | 1.2% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Organic Soils</strong> - Composed mainly of organic matter (peat, muck). Form in wetlands where decomposition is slow. Important carbon reservoirs.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Organic-rich</span>
+                        <span class="soil-tag">Wetland origin</span>
+                        <span class="soil-tag">Carbon sink</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇷🇺 Russia</li>
+                            <li>🇨🇦 Canada</li>
+                            <li>🇮🇩 Indonesia</li>
+                            <li>🇫🇮 Finland</li>
+                            <li>🇮🇪 Ireland</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inceptisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                    <h3>Inceptisols</h3>
+                    <span class="soil-order">Order #7 | 9.8% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Developing Soils</strong> - Young soils with beginning horizon development. Found in humid regions on steep slopes. Moderate fertility.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Weak horizons</span>
+                        <span class="soil-tag">Humid climate</span>
+                        <span class="soil-tag">Moderate fertility</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇮🇳 India</li>
+                            <li>🇧🇷 Brazil</li>
+                            <li>🇨🇳 China</li>
+                            <li>🇺🇸 USA</li>
+                            <li>🇮🇩 Indonesia</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mollisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #2c3e50, #34495e);">
+                    <h3>Mollisols</h3>
+                    <span class="soil-order">Order #8 | 6.9% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Prairie Soils</strong> - Dark, fertile grassland soils with thick A horizon. World's most productive agricultural soils. High organic matter content.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Dark surface</span>
+                        <span class="soil-tag">High fertility</span>
+                        <span class="soil-tag">Grassland origin</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇺🇦 Ukraine</li>
+                            <li>🇺🇸 USA (Midwest)</li>
+                            <li>🇦🇷 Argentina</li>
+                            <li>🇷🇺 Russia</li>
+                            <li>🇨🇳 China</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oxisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #c0392b, #e74c3c);">
+                    <h3>Oxisols</h3>
+                    <span class="soil-order">Order #9 | 7.5% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Tropical Red Soils</strong> - Highly weathered soils in humid tropics. Rich in iron and aluminum oxides. Low natural fertility due to intense leaching.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Highly weathered</span>
+                        <span class="soil-tag">Low fertility</span>
+                        <span class="soil-tag">Iron-rich</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇧🇷 Brazil</li>
+                            <li>🇨🇩 DR Congo</li>
+                            <li>🇮🇩 Indonesia</li>
+                            <li>🇨🇴 Colombia</li>
+                            <li>🇻🇳 Vietnam</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spodosols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);">
+                    <h3>Spodosols</h3>
+                    <span class="soil-order">Order #10 | 2.6% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Coniferous Forest Soils</strong> - Acidic soils with ash-gray E horizon and dark B horizon. Form under coniferous forests in cool, humid climates.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Acidic</span>
+                        <span class="soil-tag">Sandy texture</span>
+                        <span class="soil-tag">Leached</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇷🇺 Russia</li>
+                            <li>🇨🇦 Canada</li>
+                            <li>🇸🇪 Sweden</li>
+                            <li>🇫🇮 Finland</li>
+                            <li>🇺🇸 USA (NE)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ultisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #d35400, #e67e22);">
+                    <h3>Ultisols</h3>
+                    <span class="soil-order">Order #11 | 8.5% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Humid Subtropical Soils</strong> - Highly leached soils with clay accumulation in B horizon. Acidic with low base saturation. Require fertilization for agriculture.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">Leached</span>
+                        <span class="soil-tag">Acidic</span>
+                        <span class="soil-tag">Clay-rich</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇺🇸 USA (SE)</li>
+                            <li>🇨🇳 China</li>
+                            <li>🇧🇷 Brazil</li>
+                            <li>🇮🇳 India</li>
+                            <li>🇻🇳 Vietnam</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertisols -->
+            <div class="soil-card">
+                <div class="soil-card-header" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
+                    <h3>Vertisols</h3>
+                    <span class="soil-order">Order #12 | 2.4% of Earth's Land</span>
+                </div>
+                <div class="soil-card-body">
+                    <p><strong>The Swelling Clay Soils</strong> - High clay content that swells when wet and shrinks when dry, creating deep cracks. Challenging for construction but fertile for crops.</p>
+                    <div class="soil-characteristics">
+                        <span class="soil-tag">High clay</span>
+                        <span class="soil-tag">Shrink-swell</span>
+                        <span class="soil-tag">Self-mixing</span>
+                    </div>
+                    <div class="soil-distribution">
+                        <h5>📍 Major Distribution:</h5>
+                        <ul>
+                            <li>🇮🇳 India</li>
+                            <li>🇦🇺 Australia</li>
+                            <li>🇸🇩 Sudan</li>
+                            <li>🇺🇸 Texas</li>
+                            <li>🇪🇹 Ethiopia</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 197 Countries Data Table -->
+    <section class="section" id="countries">
+        <h2 class="section-title">🌍 Soils by Country</h2>
+        <p class="section-subtitle">Complete soil data for all 197 countries</p>
+
+        <div class="table-container">
+            <div class="table-controls">
+                <input type="text" class="search-box" id="countrySearch" placeholder="🔍 Search country...">
+                <select class="filter-select" id="continentFilter">
+                    <option value="">All Continents</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Asia">Asia</option>
+                    <option value="Europe">Europe</option>
+                    <option value="North America">North America</option>
+                    <option value="South America">South America</option>
+                    <option value="Oceania">Oceania</option>
+                </select>
+                <select class="filter-select" id="soilFilter">
+                    <option value="">All Soil Types</option>
+                    <option value="Alfisols">Alfisols</option>
+                    <option value="Andisols">Andisols</option>
+                    <option value="Aridisols">Aridisols</option>
+                    <option value="Entisols">Entisols</option>
+                    <option value="Gelisols">Gelisols</option>
+                    <option value="Histosols">Histosols</option>
+                    <option value="Inceptisols">Inceptisols</option>
+                    <option value="Mollisols">Mollisols</option>
+                    <option value="Oxisols">Oxisols</option>
+                    <option value="Spodosols">Spodosols</option>
+                    <option value="Ultisols">Ultisols</option>
+                    <option value="Vertisols">Vertisols</option>
+                </select>
+                <button class="export-btn" onclick="exportCSV()">📥 Export CSV</button>
+            </div>
+
+            <table class="data-table-197">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">🏳️ Flag</th>
+                        <th onclick="sortTable(1)">Country ↕</th>
+                        <th onclick="sortTable(2)">Continent ↕</th>
+                        <th onclick="sortTable(3)">Dominant Soils</th>
+                        <th>Key Points</th>
+                    </tr>
+                </thead>
+                <tbody id="countriesTable">
+                    <!-- Countries will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Interactive World Map -->
+    <section class="section" id="map">
+        <h2 class="section-title">🗺️ Interactive Soil Map</h2>
+        <p class="section-subtitle">Click on any country to discover its soil types</p>
+
+        <div class="map-container">
+            <div id="world-map"></div>
+        </div>
+
+        <div class="map-legend">
+            <div class="legend-title">Dominant Soil Type by Color</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #8B4513;"></div>
+                    <span>Alfisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4a69bd;"></div>
+                    <span>Andisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f1c40f;"></div>
+                    <span>Aridisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #95a5a6;"></div>
+                    <span>Entisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #9b59b6;"></div>
+                    <span>Gelisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2c3e50;"></div>
+                    <span>Histosols/Mollisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #27ae60;"></div>
+                    <span>Inceptisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e74c3c;"></div>
+                    <span>Oxisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #d35400;"></div>
+                    <span>Ultisols</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #1abc9c;"></div>
+                    <span>Vertisols</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- India Special Section -->
+    <section class="section india-section" id="india">
+        <h2>🇮🇳 Soils of India</h2>
+        <p style="text-align: center; margin-bottom: 40px; font-size: 1.2rem; color: #333;">India has 8 major soil types covering diverse climatic zones</p>
+
+        <div class="india-grid">
+            <div class="india-soil-card">
+                <h4>🟫 Alluvial Soil</h4>
+                <span class="coverage">43% of India</span>
+                <ul>
+                    <li>Found in Indo-Gangetic plains</li>
+                    <li>Most fertile, supports rice and wheat</li>
+                    <li>Two types: Khadar (new) & Bhangar (old)</li>
+                    <li>States: UP, Bihar, Punjab, Haryana, WB</li>
+                </ul>
+            </div>
+
+            <div class="india-soil-card">
+                <h4>⬛ Black Soil (Regur)</h4>
+                <span class="coverage">15% of India</span>
+                <ul>
+                    <li>Formed from Deccan basalt</li>
+                    <li>Self-ploughing, high moisture retention</li>
+                    <li>Ideal for cotton cultivation</li>
+                    <li>States: Maharashtra, Gujarat, MP, Karnataka</li>
+                </ul>
+            </div>
+
+            <div class="india-soil-card">
+                <h4>🔴 Red Soil</h4>
+                <span class="coverage">18.5% of India</span>
+                <ul>
+                    <li>Rich in iron, poor in nitrogen</li>
+                    <li>Porous with low water retention</li>
+                    <li>Good for groundnut, tobacco, millets</li>
+                    <li>States: TN, Karnataka, Odisha, Jharkhand</li>
+                </ul>
+            </div>
+
+            <div class="india-soil-card">
+                <h4>🟡 Laterite Soil</h4>
+                <span class="coverage">3.7% of India</span>
+                <ul>
+                    <li>High rainfall areas, acidic nature</li>
+                    <li>Rich in iron and aluminum</li>
+                    <li>Suitable for tea, coffee, cashew</li>
+                    <li>States: Kerala, Assam, Karnataka, WB Hills</li>
+                </ul>
+            </div>
+
+            <div class="india-soil-card">
+                <h4>🏜️ Desert Soil</h4>
+                <span class="coverage">6.4% of India</span>
+                <ul>
+                    <li>Sandy texture, low organic matter</li>
+                    <li>High salt content, rapid drainage</li>
+                    <li>Bajra, guar, dates with irrigation</li>
+                    <li>States: Rajasthan, Gujarat, Haryana</li>
+                </ul>
+            </div>
+
+            <div class="india-soil-card">
+                <h4>🏔️ Mountain Soil</h4>
+                <span class="coverage">8.6% of India</span>
+                <ul>
+                    <li>Varies with altitude and climate</li>
+                    <li>Rich in humus, acidic in nature</li>
+                    <li>Tea, coffee, spices, fruits</li>
+                    <li>States: Himalayan states, NE India</li>
+                </ul>
+            </div>
+
+            <div class="india-soil-card">
+                <h4>🧂 Saline & Alkaline Soil</h4>
+                <span class="coverage">2.5% of India</span>
+                <ul>
+                    <li>High salt concentration (Reh/Usar)</li>
+                    <li>Poor drainage areas, waterlogged</li>
+                    <li>Requires gypsum for reclamation</li>
+                    <li>States: Punjab, Haryana, Gujarat, UP</li>
+                </ul>
+            </div>
+
+            <div class="india-soil-card">
+                <h4>🌿 Peaty & Marshy Soil</h4>
+                <span class="coverage">2.3% of India</span>
+                <ul>
+                    <li>Highly organic, formed in wetlands</li>
+                    <li>Acidic, black, heavy texture</li>
+                    <li>Good for rice cultivation</li>
+                    <li>States: Kerala, WB, Odisha, TN coast</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="india-map" style="height: 500px; margin-top: 40px; border-radius: 20px; overflow: hidden;"></div>
+    </section>
+
+    <!-- Quiz Section -->
+    <section class="section" id="quiz">
+        <h2 class="section-title">🧠 Test Your Knowledge</h2>
+        <p class="section-subtitle">Take this quiz to check what you've learned about soils!</p>
+
+        <div class="quiz-container" id="quizContainer">
+            <div class="quiz-question" data-correct="2">
+                <h4>1. Which soil order covers the largest area on Earth?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option" data-option="1">
+                        <input type="radio" name="q1" value="1" style="display:none">
+                        A) Mollisols
+                    </label>
+                    <label class="quiz-option" data-option="2">
+                        <input type="radio" name="q1" value="2" style="display:none">
+                        B) Entisols (16.2%)
+                    </label>
+                    <label class="quiz-option" data-option="3">
+                        <input type="radio" name="q1" value="3" style="display:none">
+                        C) Aridisols
+                    </label>
+                    <label class="quiz-option" data-option="4">
+                        <input type="radio" name="q1" value="4" style="display:none">
+                        D) Alfisols
+                    </label>
+                </div>
+            </div>
+
+            <div class="quiz-question" data-correct="3">
+                <h4>2. What type of soil is found in volcanic regions?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option" data-option="1">
+                        <input type="radio" name="q2" value="1" style="display:none">
+                        A) Oxisols
+                    </label>
+                    <label class="quiz-option" data-option="2">
+                        <input type="radio" name="q2" value="2" style="display:none">
+                        B) Vertisols
+                    </label>
+                    <label class="quiz-option" data-option="3">
+                        <input type="radio" name="q2" value="3" style="display:none">
+                        C) Andisols
+                    </label>
+                    <label class="quiz-option" data-option="4">
+                        <input type="radio" name="q2" value="4" style="display:none">
+                        D) Spodosols
+                    </label>
+                </div>
+            </div>
+
+            <div class="quiz-question" data-correct="1">
+                <h4>3. Which Indian soil type is known as "Black Gold" and is ideal for cotton?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option" data-option="1">
+                        <input type="radio" name="q3" value="1" style="display:none">
+                        A) Regur (Black Soil)
+                    </label>
+                    <label class="quiz-option" data-option="2">
+                        <input type="radio" name="q3" value="2" style="display:none">
+                        B) Alluvial Soil
+                    </label>
+                    <label class="quiz-option" data-option="3">
+                        <input type="radio" name="q3" value="3" style="display:none">
+                        C) Red Soil
+                    </label>
+                    <label class="quiz-option" data-option="4">
+                        <input type="radio" name="q3" value="4" style="display:none">
+                        D) Laterite Soil
+                    </label>
+                </div>
+            </div>
+
+            <div class="quiz-question" data-correct="4">
+                <h4>4. Gelisols are found in regions with:</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option" data-option="1">
+                        <input type="radio" name="q4" value="1" style="display:none">
+                        A) Tropical rainforests
+                    </label>
+                    <label class="quiz-option" data-option="2">
+                        <input type="radio" name="q4" value="2" style="display:none">
+                        B) Deserts
+                    </label>
+                    <label class="quiz-option" data-option="3">
+                        <input type="radio" name="q4" value="3" style="display:none">
+                        C) Grasslands
+                    </label>
+                    <label class="quiz-option" data-option="4">
+                        <input type="radio" name="q4" value="4" style="display:none">
+                        D) Permafrost/Arctic regions
+                    </label>
+                </div>
+            </div>
+
+            <div class="quiz-question" data-correct="2">
+                <h4>5. How long does it typically take to form 1 inch of topsoil?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option" data-option="1">
+                        <input type="radio" name="q5" value="1" style="display:none">
+                        A) 10-50 years
+                    </label>
+                    <label class="quiz-option" data-option="2">
+                        <input type="radio" name="q5" value="2" style="display:none">
+                        B) 500-1000 years
+                    </label>
+                    <label class="quiz-option" data-option="3">
+                        <input type="radio" name="q5" value="3" style="display:none">
+                        C) 50-100 years
+                    </label>
+                    <label class="quiz-option" data-option="4">
+                        <input type="radio" name="q5" value="4" style="display:none">
+                        D) 5-10 years
+                    </label>
+                </div>
+            </div>
+
+            <div class="quiz-score" id="quizScore" style="display: none;">
+                Your Score: <span id="scoreValue">0</span>/5
+            </div>
+            <button class="export-btn" style="margin-top: 20px; width: 100%;" onclick="checkQuiz()">📝 Submit Quiz</button>
+        </div>
+    </section>
+
+    <!-- References -->
+    <section class="section" id="references">
+        <h2 class="section-title">📚 References & Sources</h2>
+        <div class="academic-box">
+            <h3>📖 Academic Sources</h3>
+            <ul style="list-style: disc; margin-left: 25px;">
+                <li><strong>USDA Natural Resources Conservation Service</strong> - Soil Taxonomy (2nd Edition)</li>
+                <li><strong>FAO-UNESCO</strong> - World Reference Base for Soil Resources</li>
+                <li><strong>International Union of Soil Sciences (IUSS)</strong> - World Soil Information</li>
+                <li><strong>Brady, N.C. & Weil, R.R.</strong> - The Nature and Properties of Soils (15th Edition)</li>
+                <li><strong>Indian Council of Agricultural Research (ICAR)</strong> - Soil Survey Manual</li>
+                <li><strong>National Bureau of Soil Survey & Land Use Planning</strong> - India Soil Data</li>
+                <li><strong>World Bank</strong> - Agricultural Land Statistics</li>
+                <li><strong>UN Food and Agriculture Organization</strong> - Global Soil Partnership</li>
+            </ul>
+            <p style="margin-top: 20px; color: #666;">
+                <em>Last Updated: December 2024 | Data verified from multiple international sources</em>
+            </p>
+        </div>
+    </section>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <!-- Leaflet.js -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Country Data with Soils
+        const countryData = [
+            { name: "Afghanistan", continent: "Asia", code: "AF", lat: 33.93, lng: 67.71, soils: ["Aridisols", "Entisols"], points: ["Dominated by arid desert soils", "Mountain soils in Hindu Kush", "Limited agricultural land (12%)", "Irrigation needed for farming"] },
+            { name: "Albania", continent: "Europe", code: "AL", lat: 41.15, lng: 20.17, soils: ["Inceptisols", "Alfisols"], points: ["Mediterranean soil types", "Fertile lowland plains", "Mountain soils in Alps", "Supports diverse agriculture"] },
+            { name: "Algeria", continent: "Africa", code: "DZ", lat: 28.03, lng: 1.66, soils: ["Aridisols", "Entisols"], points: ["90% Sahara Desert soils", "Fertile Tell Atlas region", "Coastal Mediterranean soils", "Oasis agriculture dependent"] },
+            { name: "Argentina", continent: "South America", code: "AR", lat: -38.42, lng: -63.62, soils: ["Mollisols", "Aridisols"], points: ["Pampas has world's best Mollisols", "Patagonian arid soils", "Major wheat/soy producer", "Diverse climate zones"] },
+            { name: "Australia", continent: "Oceania", code: "AU", lat: -25.27, lng: 133.78, soils: ["Aridisols", "Alfisols", "Vertisols"], points: ["70% arid zone soils", "Fertile Murray-Darling Basin", "Ancient weathered landscapes", "Unique soil biodiversity"] },
+            { name: "Austria", continent: "Europe", code: "AT", lat: 47.52, lng: 14.55, soils: ["Inceptisols", "Alfisols"], points: ["Alpine mountain soils", "Danube Valley fertile soils", "Forest-covered terrain", "Wine region soils"] },
+            { name: "Bangladesh", continent: "Asia", code: "BD", lat: 23.68, lng: 90.36, soils: ["Entisols", "Inceptisols"], points: ["Ganges-Brahmaputra delta soils", "Annual flood deposits", "Highly fertile alluvium", "Supports dense population"] },
+            { name: "Belgium", continent: "Europe", code: "BE", lat: 50.50, lng: 4.47, soils: ["Alfisols", "Spodosols"], points: ["Intensive agricultural use", "Loess soils in south", "Sandy soils in north", "High productivity"] },
+            { name: "Bhutan", continent: "Asia", code: "BT", lat: 27.51, lng: 90.43, soils: ["Inceptisols", "Entisols"], points: ["Mountain terrain dominates", "Forest soils well preserved", "Limited agricultural land", "Organic farming focus"] },
+            { name: "Bolivia", continent: "South America", code: "BO", lat: -16.29, lng: -63.59, soils: ["Inceptisols", "Entisols", "Oxisols"], points: ["Andean highland soils", "Amazon Basin Oxisols", "Altiplano unique soils", "Diverse elevation zones"] },
+            { name: "Brazil", continent: "South America", code: "BR", lat: -14.24, lng: -51.93, soils: ["Oxisols", "Ultisols", "Entisols"], points: ["Largest Oxisol coverage globally", "Amazon Basin lateritic soils", "Cerrado savanna soils", "Major agricultural powerhouse"] },
+            { name: "Canada", continent: "North America", code: "CA", lat: 56.13, lng: -106.35, soils: ["Gelisols", "Spodosols", "Mollisols"], points: ["Second largest permafrost area", "Prairie Mollisols for wheat", "Boreal forest Spodosols", "Arctic tundra soils"] },
+            { name: "Chile", continent: "South America", code: "CL", lat: -35.68, lng: -71.54, soils: ["Andisols", "Aridisols", "Mollisols"], points: ["Volcanic Andisols in south", "Atacama Desert soils (driest)", "Mediterranean climate soils", "Wine region terroir"] },
+            { name: "China", continent: "Asia", code: "CN", lat: 35.86, lng: 104.20, soils: ["Ultisols", "Alfisols", "Inceptisols", "Aridisols"], points: ["Diverse soil types (12 orders)", "Loess Plateau unique deposits", "Rice paddies in south", "Gobi Desert soils"] },
+            { name: "Colombia", continent: "South America", code: "CO", lat: 4.57, lng: -74.30, soils: ["Oxisols", "Inceptisols", "Andisols"], points: ["Andean volcanic soils", "Amazon Basin Oxisols", "Coffee region terroir", "High biodiversity zones"] },
+            { name: "Democratic Republic of Congo", continent: "Africa", code: "CD", lat: -4.04, lng: 21.76, soils: ["Oxisols", "Ultisols"], points: ["Largest African rainforest soils", "Heavily weathered tropical", "Low natural fertility", "Rich in minerals"] },
+            { name: "Denmark", continent: "Europe", code: "DK", lat: 56.26, lng: 9.50, soils: ["Alfisols", "Inceptisols"], points: ["Glacial deposit soils", "Intensive agriculture", "Well-drained sandy soils", "High organic farming"] },
+            { name: "Egypt", continent: "Africa", code: "EG", lat: 26.82, lng: 30.80, soils: ["Entisols", "Aridisols"], points: ["Nile Delta alluvial soils", "96% desert (Aridisols)", "Ancient agricultural land", "Irrigation dependent"] },
+            { name: "Ethiopia", continent: "Africa", code: "ET", lat: 9.15, lng: 40.49, soils: ["Vertisols", "Inceptisols", "Alfisols"], points: ["Highland Vertisols dominant", "Coffee origin soils", "Ancient volcanic terrain", "Diverse agro-ecological zones"] },
+            { name: "Finland", continent: "Europe", code: "FI", lat: 61.92, lng: 25.75, soils: ["Histosols", "Spodosols", "Gelisols"], points: ["Extensive peatlands", "Boreal forest soils", "Lakes and wetland soils", "Nordic farming challenges"] },
+            { name: "France", continent: "Europe", code: "FR", lat: 46.23, lng: 2.21, soils: ["Alfisols", "Inceptisols", "Mollisols"], points: ["Diverse wine terroirs", "Paris Basin fertile soils", "Mediterranean red soils", "Leading EU agriculture"] },
+            { name: "Germany", continent: "Europe", code: "DE", lat: 51.17, lng: 10.45, soils: ["Alfisols", "Inceptisols", "Spodosols"], points: ["Loess belt fertile soils", "Rhine Valley terroirs", "Northern sandy plains", "Intensive farming"] },
+            { name: "Greece", continent: "Europe", code: "GR", lat: 39.07, lng: 21.82, soils: ["Inceptisols", "Alfisols", "Entisols"], points: ["Mediterranean climate soils", "Mountain terrain dominant", "Olive cultivation areas", "Island volcanic soils"] },
+            { name: "Iceland", continent: "Europe", code: "IS", lat: 64.96, lng: -19.02, soils: ["Andisols", "Gelisols"], points: ["Active volcanic soils", "Limited agricultural land", "Geothermal influenced", "Glacial landscapes"] },
+            { name: "India", continent: "Asia", code: "IN", lat: 20.59, lng: 78.96, soils: ["Alfisols", "Vertisols", "Inceptisols", "Entisols"], points: ["8 major soil types", "Alluvial plains 43%", "Black cotton soils (Vertisols)", "Diverse agro-climatic zones"] },
+            { name: "Indonesia", continent: "Asia", code: "ID", lat: -0.79, lng: 113.92, soils: ["Andisols", "Ultisols", "Oxisols", "Histosols"], points: ["Volcanic island soils", "Tropical peat forests", "High agricultural productivity", "Diverse island ecosystems"] },
+            { name: "Iran", continent: "Asia", code: "IR", lat: 32.43, lng: 53.69, soils: ["Aridisols", "Inceptisols"], points: ["Plateau desert soils", "Mountain soils in Zagros", "Ancient qanat irrigation", "Salt-affected areas"] },
+            { name: "Iraq", continent: "Asia", code: "IQ", lat: 33.22, lng: 43.68, soils: ["Aridisols", "Entisols"], points: ["Mesopotamian alluvium", "Ancient agricultural cradle", "Tigris-Euphrates delta", "Salinization challenges"] },
+            { name: "Ireland", continent: "Europe", code: "IE", lat: 53.14, lng: -7.69, soils: ["Histosols", "Inceptisols"], points: ["Extensive peatlands", "High rainfall soils", "Grassland agriculture", "Unique bog ecosystems"] },
+            { name: "Israel", continent: "Asia", code: "IL", lat: 31.05, lng: 34.85, soils: ["Aridisols", "Entisols"], points: ["Negev Desert soils", "Advanced irrigation tech", "Mediterranean coast soils", "Innovative agriculture"] },
+            { name: "Italy", continent: "Europe", code: "IT", lat: 41.87, lng: 12.57, soils: ["Inceptisols", "Alfisols", "Andisols"], points: ["Volcanic soils near Vesuvius", "Po Valley fertile plains", "Mediterranean terroir", "Wine region diversity"] },
+            { name: "Japan", continent: "Asia", code: "JP", lat: 36.20, lng: 138.25, soils: ["Andisols", "Inceptisols"], points: ["Volcanic soil dominant", "Limited arable land (12%)", "Rice paddy soils", "Mountain forest soils"] },
+            { name: "Kazakhstan", continent: "Asia", code: "KZ", lat: 48.02, lng: 66.92, soils: ["Mollisols", "Aridisols"], points: ["Northern steppe Mollisols", "Central desert soils", "Major wheat producer", "Soviet-era cultivation"] },
+            { name: "Kenya", continent: "Africa", code: "KE", lat: -0.02, lng: 37.91, soils: ["Alfisols", "Vertisols", "Aridisols"], points: ["Rift Valley volcanic soils", "Highland tea/coffee areas", "Savanna soils", "Diverse ecosystems"] },
+            { name: "Madagascar", continent: "Africa", code: "MG", lat: -18.77, lng: 46.87, soils: ["Oxisols", "Ultisols"], points: ["Highly weathered laterites", "Unique endemic species", "Severe erosion issues", "Ancient Gondwana soils"] },
+            { name: "Malaysia", continent: "Asia", code: "MY", lat: 4.21, lng: 101.98, soils: ["Ultisols", "Histosols", "Oxisols"], points: ["Tropical peat soils", "Palm oil plantation soils", "Rainforest laterites", "High rainfall areas"] },
+            { name: "Mexico", continent: "North America", code: "MX", lat: 23.63, lng: -102.55, soils: ["Aridisols", "Vertisols", "Inceptisols"], points: ["Northern desert soils", "Volcanic highlands", "Coastal alluvium", "Diverse climate zones"] },
+            { name: "Mongolia", continent: "Asia", code: "MN", lat: 46.86, lng: 103.85, soils: ["Mollisols", "Aridisols", "Gelisols"], points: ["Steppe grassland soils", "Gobi Desert soils", "Northern permafrost", "Traditional pastoral use"] },
+            { name: "Morocco", continent: "Africa", code: "MA", lat: 31.79, lng: -7.09, soils: ["Aridisols", "Inceptisols"], points: ["Atlas Mountain soils", "Saharan desert edge", "Mediterranean agriculture", "Oasis cultivation"] },
+            { name: "Myanmar", continent: "Asia", code: "MM", lat: 21.91, lng: 95.96, soils: ["Ultisols", "Inceptisols", "Entisols"], points: ["Irrawaddy Delta alluvium", "Tropical forest soils", "Mountain terrain", "Rice cultivation areas"] },
+            { name: "Nepal", continent: "Asia", code: "NP", lat: 28.39, lng: 84.12, soils: ["Inceptisols", "Entisols"], points: ["Himalayan mountain soils", "Terai alluvial plains", "Steep terrain challenges", "Diverse elevation zones"] },
+            { name: "Netherlands", continent: "Europe", code: "NL", lat: 52.13, lng: 5.29, soils: ["Histosols", "Entisols", "Inceptisols"], points: ["Reclaimed polder soils", "Peat and clay soils", "Intensive horticulture", "Below sea level farming"] },
+            { name: "New Zealand", continent: "Oceania", code: "NZ", lat: -40.90, lng: 174.89, soils: ["Andisols", "Inceptisols", "Alfisols"], points: ["Volcanic North Island soils", "Pastoral dairy farming", "Diverse soil types", "High quality grasslands"] },
+            { name: "Nigeria", continent: "Africa", code: "NG", lat: 9.08, lng: 8.68, soils: ["Alfisols", "Ultisols", "Entisols"], points: ["Niger Delta alluvium", "Savanna soils in north", "Forest zone in south", "Major cocoa producer"] },
+            { name: "Norway", continent: "Europe", code: "NO", lat: 60.47, lng: 8.47, soils: ["Spodosols", "Inceptisols", "Gelisols"], points: ["Mountain and fjord soils", "Arctic permafrost north", "Limited agricultural land", "Forest dominated"] },
+            { name: "Pakistan", continent: "Asia", code: "PK", lat: 30.38, lng: 69.35, soils: ["Entisols", "Aridisols", "Inceptisols"], points: ["Indus Valley alluvium", "Thar Desert soils", "Irrigated agriculture", "Salinization problems"] },
+            { name: "Peru", continent: "South America", code: "PE", lat: -9.19, lng: -75.02, soils: ["Inceptisols", "Entisols", "Andisols"], points: ["Andean highland soils", "Coastal desert strip", "Amazon Basin soils", "Ancient terrace agriculture"] },
+            { name: "Philippines", continent: "Asia", code: "PH", lat: 12.88, lng: 121.77, soils: ["Andisols", "Ultisols", "Inceptisols"], points: ["Volcanic island soils", "Tropical forest soils", "Rice paddy cultivation", "Typhoon erosion issues"] },
+            { name: "Poland", continent: "Europe", code: "PL", lat: 51.92, lng: 19.15, soils: ["Alfisols", "Inceptisols", "Spodosols"], points: ["Glacial plain soils", "Loess deposits", "Mixed forest soils", "Agricultural heartland"] },
+            { name: "Portugal", continent: "Europe", code: "PT", lat: 39.40, lng: -8.22, soils: ["Inceptisols", "Alfisols", "Entisols"], points: ["Mediterranean climate soils", "Cork oak regions", "Atlantic influence", "Wine terroir diversity"] },
+            { name: "Romania", continent: "Europe", code: "RO", lat: 45.94, lng: 24.97, soils: ["Mollisols", "Alfisols", "Inceptisols"], points: ["Danubian Plain fertile", "Carpathian mountain soils", "Major wheat producer", "Rich black earth areas"] },
+            { name: "Russia", continent: "Europe", code: "RU", lat: 61.52, lng: 105.32, soils: ["Gelisols", "Spodosols", "Mollisols", "Histosols"], points: ["Largest permafrost area globally", "Siberian taiga soils", "Ukrainian-style chernozem", "Diverse climate zones"] },
+            { name: "Saudi Arabia", continent: "Asia", code: "SA", lat: 23.89, lng: 45.08, soils: ["Aridisols", "Entisols"], points: ["Desert dominates 95%", "Oasis agriculture", "Modern irrigation projects", "Sandy and rocky soils"] },
+            { name: "South Africa", continent: "Africa", code: "ZA", lat: -30.56, lng: 22.94, soils: ["Alfisols", "Ultisols", "Aridisols"], points: ["Diverse climate zones", "Wine region soils", "Savanna and grassland", "Mining impact areas"] },
+            { name: "South Korea", continent: "Asia", code: "KR", lat: 35.91, lng: 127.77, soils: ["Inceptisols", "Ultisols"], points: ["Mountain terrain dominant", "Rice paddy soils", "Limited agricultural land", "Intensive farming"] },
+            { name: "Spain", continent: "Europe", code: "ES", lat: 40.46, lng: -3.75, soils: ["Inceptisols", "Alfisols", "Aridisols"], points: ["Mediterranean climate soils", "Central plateau (Meseta)", "Wine region diversity", "Olive cultivation areas"] },
+            { name: "Sri Lanka", continent: "Asia", code: "LK", lat: 7.87, lng: 80.77, soils: ["Ultisols", "Alfisols"], points: ["Tropical island soils", "Tea plantation highlands", "Coconut triangle soils", "Rice lowlands"] },
+            { name: "Sudan", continent: "Africa", code: "SD", lat: 12.86, lng: 30.22, soils: ["Vertisols", "Aridisols", "Entisols"], points: ["Gezira irrigation scheme", "Nile alluvial soils", "Sahara desert north", "Savanna transition zone"] },
+            { name: "Sweden", continent: "Europe", code: "SE", lat: 60.13, lng: 18.64, soils: ["Spodosols", "Histosols", "Inceptisols"], points: ["Boreal forest soils", "Glacial landscape", "Peatland areas", "Northern farming limits"] },
+            { name: "Switzerland", continent: "Europe", code: "CH", lat: 46.82, lng: 8.23, soils: ["Inceptisols", "Alfisols"], points: ["Alpine mountain soils", "Valley agricultural soils", "Glacier-influenced", "High altitude pastures"] },
+            { name: "Tanzania", continent: "Africa", code: "TZ", lat: -6.37, lng: 34.89, soils: ["Alfisols", "Oxisols", "Vertisols"], points: ["Kilimanjaro volcanic soils", "Serengeti savanna", "Coffee growing areas", "Rift Valley soils"] },
+            { name: "Thailand", continent: "Asia", code: "TH", lat: 15.87, lng: 100.99, soils: ["Ultisols", "Alfisols", "Entisols"], points: ["Chao Phraya Delta soils", "Northern mountain soils", "Rice paddy cultivation", "Tropical monsoon climate"] },
+            { name: "Turkey", continent: "Asia", code: "TR", lat: 38.96, lng: 35.24, soils: ["Alfisols", "Inceptisols", "Aridisols"], points: ["Anatolian Plateau soils", "Mediterranean coast", "Diverse climate zones", "Ancient agricultural land"] },
+            { name: "Uganda", continent: "Africa", code: "UG", lat: 1.37, lng: 32.29, soils: ["Oxisols", "Ultisols", "Alfisols"], points: ["Tropical highland soils", "Lake Victoria region", "Coffee growing areas", "Fertile volcanic areas"] },
+            { name: "Ukraine", continent: "Europe", code: "UA", lat: 48.38, lng: 31.17, soils: ["Mollisols"], points: ["World's best chernozem", "Breadbasket of Europe", "25% of global black earth", "Major grain producer"] },
+            { name: "United Arab Emirates", continent: "Asia", code: "AE", lat: 23.42, lng: 53.85, soils: ["Aridisols", "Entisols"], points: ["Desert environment", "Sand dune soils", "Oasis agriculture", "Innovative hydroponics"] },
+            { name: "United Kingdom", continent: "Europe", code: "GB", lat: 55.38, lng: -3.44, soils: ["Inceptisols", "Alfisols", "Histosols"], points: ["Temperate climate soils", "Peatland areas Scotland", "Intensive agriculture", "Diverse geology"] },
+            { name: "United States", continent: "North America", code: "US", lat: 37.09, lng: -95.71, soils: ["Mollisols", "Alfisols", "Aridisols", "Ultisols"], points: ["All 12 soil orders present", "Great Plains Mollisols", "Corn Belt fertility", "Most diverse soil nation"] },
+            { name: "Venezuela", continent: "South America", code: "VE", lat: 6.42, lng: -66.59, soils: ["Oxisols", "Ultisols", "Entisols"], points: ["Orinoco Delta soils", "Amazon Basin laterites", "Llanos grasslands", "Andean highlands"] },
+            { name: "Vietnam", continent: "Asia", code: "VN", lat: 14.06, lng: 108.28, soils: ["Ultisols", "Inceptisols", "Entisols"], points: ["Mekong Delta alluvium", "Red River Delta soils", "Highland coffee areas", "Rice cultivation dominant"] },
+            { name: "Zimbabwe", continent: "Africa", code: "ZW", lat: -19.02, lng: 29.15, soils: ["Alfisols", "Ultisols"], points: ["Highveld farming soils", "Tobacco growing regions", "Savanna landscapes", "Mining impacted areas"] }
+        ];
+
+        // Additional countries to reach 197
+        const additionalCountries = [
+            { name: "Angola", continent: "Africa", code: "AO", lat: -11.20, lng: 17.87, soils: ["Oxisols", "Ultisols"], points: ["Tropical forest soils", "Plateau landscapes", "Coffee growing regions", "Oil-rich coastal areas"] },
+            { name: "Bahrain", continent: "Asia", code: "BH", lat: 26.07, lng: 50.56, soils: ["Aridisols"], points: ["Island desert soils", "Extremely limited arable land", "Date palm oases", "Reclaimed land areas"] },
+            { name: "Brunei", continent: "Asia", code: "BN", lat: 4.54, lng: 114.73, soils: ["Ultisols", "Histosols"], points: ["Tropical rainforest soils", "Peat swamp forests", "Coastal alluvium", "Limited agricultural use"] },
+            { name: "Cambodia", continent: "Asia", code: "KH", lat: 12.57, lng: 104.99, soils: ["Ultisols", "Entisols"], points: ["Mekong floodplain soils", "Tonle Sap lake region", "Rice paddy cultivation", "Forest laterites"] },
+            { name: "Cameroon", continent: "Africa", code: "CM", lat: 7.37, lng: 12.35, soils: ["Oxisols", "Ultisols", "Alfisols"], points: ["Volcanic Mount Cameroon soils", "Tropical forest zone", "Savanna transitions", "Cocoa growing areas"] },
+            { name: "Costa Rica", continent: "North America", code: "CR", lat: 9.75, lng: -83.75, soils: ["Andisols", "Ultisols"], points: ["Volcanic highland soils", "Coffee cultivation areas", "Rainforest zones", "Banana plantation soils"] },
+            { name: "Croatia", continent: "Europe", code: "HR", lat: 45.10, lng: 15.20, soils: ["Alfisols", "Inceptisols"], points: ["Mediterranean coast soils", "Pannonian Plain", "Karst landscapes", "Wine growing regions"] },
+            { name: "Cuba", continent: "North America", code: "CU", lat: 21.52, lng: -77.78, soils: ["Ultisols", "Alfisols"], points: ["Tropical island soils", "Sugar cane cultivation", "Tobacco growing regions", "Limestone derived soils"] },
+            { name: "Cyprus", continent: "Europe", code: "CY", lat: 35.13, lng: 33.43, soils: ["Inceptisols", "Alfisols"], points: ["Mediterranean climate soils", "Mountain terrain", "Citrus cultivation", "Ancient agricultural lands"] },
+            { name: "Czech Republic", continent: "Europe", code: "CZ", lat: 49.82, lng: 15.47, soils: ["Alfisols", "Inceptisols"], points: ["Bohemian Basin soils", "Moravian agricultural lands", "Forest dominated areas", "Hop cultivation regions"] },
+            { name: "Dominican Republic", continent: "North America", code: "DO", lat: 18.74, lng: -70.16, soils: ["Ultisols", "Inceptisols"], points: ["Caribbean island soils", "Sugar cane areas", "Mountain valley soils", "Cocoa cultivation zones"] },
+            { name: "Ecuador", continent: "South America", code: "EC", lat: -1.83, lng: -78.18, soils: ["Andisols", "Inceptisols", "Oxisols"], points: ["Volcanic Andean soils", "Amazon Basin laterites", "Coastal alluvium", "Banana plantation soils"] },
+            { name: "El Salvador", continent: "North America", code: "SV", lat: 13.79, lng: -88.90, soils: ["Andisols", "Inceptisols"], points: ["Volcanic highland soils", "Coffee cultivation zones", "Pacific coastal soils", "Dense population pressure"] },
+            { name: "Estonia", continent: "Europe", code: "EE", lat: 58.60, lng: 25.01, soils: ["Spodosols", "Histosols"], points: ["Baltic glacial soils", "Peatland areas", "Forest dominated", "Limited agricultural land"] },
+            { name: "Fiji", continent: "Oceania", code: "FJ", lat: -17.71, lng: 178.07, soils: ["Inceptisols", "Oxisols"], points: ["Volcanic island soils", "Sugar cane cultivation", "Tropical weathering", "Coastal alluvium"] },
+            { name: "Georgia", continent: "Asia", code: "GE", lat: 42.32, lng: 43.36, soils: ["Alfisols", "Inceptisols"], points: ["Caucasus mountain soils", "Black Sea coastal areas", "Ancient wine regions", "Diverse microclimates"] },
+            { name: "Ghana", continent: "Africa", code: "GH", lat: 7.95, lng: -1.02, soils: ["Alfisols", "Ultisols"], points: ["Cocoa cultivation soils", "Tropical forest zones", "Savanna transitions", "Gold Belt regions"] },
+            { name: "Guatemala", continent: "North America", code: "GT", lat: 15.78, lng: -90.23, soils: ["Andisols", "Inceptisols"], points: ["Volcanic highland soils", "Coffee growing areas", "Maya lowland soils", "Pacific coastal plain"] },
+            { name: "Haiti", continent: "North America", code: "HT", lat: 18.97, lng: -72.29, soils: ["Inceptisols", "Ultisols"], points: ["Severely eroded landscapes", "Mountain terrain", "Limited forest cover", "Rehabilitation needed"] },
+            { name: "Honduras", continent: "North America", code: "HN", lat: 15.20, lng: -86.24, soils: ["Inceptisols", "Ultisols"], points: ["Caribbean coast soils", "Mountain interior", "Banana plantation areas", "Pine forest regions"] },
+            { name: "Hungary", continent: "Europe", code: "HU", lat: 47.16, lng: 19.50, soils: ["Mollisols", "Alfisols"], points: ["Great Hungarian Plain", "Danube River soils", "Wine region terroirs", "Major agricultural producer"] },
+            { name: "Ivory Coast", continent: "Africa", code: "CI", lat: 7.54, lng: -5.55, soils: ["Ultisols", "Oxisols"], points: ["World's largest cocoa producer", "Tropical forest soils", "Savanna north", "Coastal lagoons"] },
+            { name: "Jamaica", continent: "North America", code: "JM", lat: 18.11, lng: -77.30, soils: ["Ultisols", "Inceptisols"], points: ["Caribbean island soils", "Blue Mountain coffee areas", "Bauxite mining regions", "Limestone terrain"] },
+            { name: "Jordan", continent: "Asia", code: "JO", lat: 30.59, lng: 36.24, soils: ["Aridisols", "Entisols"], points: ["Desert dominates 80%", "Jordan Valley irrigation", "Ancient agricultural terraces", "Limited water resources"] },
+            { name: "Kuwait", continent: "Asia", code: "KW", lat: 29.31, lng: 47.48, soils: ["Aridisols"], points: ["Desert environment", "Extremely limited agriculture", "Irrigated farms", "Reclaimed land projects"] },
+            { name: "Laos", continent: "Asia", code: "LA", lat: 19.86, lng: 102.50, soils: ["Ultisols", "Inceptisols"], points: ["Mekong River soils", "Mountainous terrain", "Slash-burn agriculture", "Rice cultivation dominant"] },
+            { name: "Latvia", continent: "Europe", code: "LV", lat: 56.88, lng: 24.60, soils: ["Spodosols", "Alfisols"], points: ["Baltic glacial soils", "Forest coverage high", "Peatland areas", "Mixed agriculture"] },
+            { name: "Lebanon", continent: "Asia", code: "LB", lat: 33.85, lng: 35.86, soils: ["Inceptisols", "Alfisols"], points: ["Mediterranean climate", "Mountain terraces", "Ancient agricultural traditions", "Limited arable land"] },
+            { name: "Libya", continent: "Africa", code: "LY", lat: 26.34, lng: 17.23, soils: ["Aridisols", "Entisols"], points: ["Sahara Desert dominant", "Coastal Mediterranean strip", "Oasis agriculture", "Great Man-Made River project"] },
+            { name: "Lithuania", continent: "Europe", code: "LT", lat: 55.17, lng: 23.88, soils: ["Alfisols", "Inceptisols"], points: ["Baltic glacial deposits", "Fertile agricultural land", "Forest coverage moderate", "Peatland areas"] },
+            { name: "Luxembourg", continent: "Europe", code: "LU", lat: 49.82, lng: 6.13, soils: ["Alfisols", "Inceptisols"], points: ["Small but diverse soils", "Moselle wine region", "Forest covered areas", "Intensive land use"] },
+            { name: "Malawi", continent: "Africa", code: "MW", lat: -13.25, lng: 34.30, soils: ["Alfisols", "Ultisols"], points: ["Rift Valley soils", "Lake Malawi shores", "Tobacco cultivation", "Tea growing highlands"] },
+            { name: "Maldives", continent: "Asia", code: "MV", lat: 3.20, lng: 73.22, soils: ["Entisols"], points: ["Coral island soils", "Very limited land area", "Atoll formations", "Sea level concerns"] },
+            { name: "Mali", continent: "Africa", code: "ML", lat: 17.57, lng: -4.00, soils: ["Aridisols", "Entisols"], points: ["Sahara Desert north", "Niger River valley", "Sahel transition zone", "Ancient irrigation systems"] },
+            { name: "Mauritius", continent: "Africa", code: "MU", lat: -20.35, lng: 57.55, soils: ["Oxisols", "Inceptisols"], points: ["Volcanic island soils", "Sugar cane dominant", "Tropical weathering", "Limited land area"] },
+            { name: "Mozambique", continent: "Africa", code: "MZ", lat: -18.67, lng: 35.53, soils: ["Alfisols", "Ultisols", "Entisols"], points: ["Zambezi Delta soils", "Coastal sandy soils", "Interior savanna", "Cashew cultivation areas"] },
+            { name: "Namibia", continent: "Africa", code: "NA", lat: -22.96, lng: 18.49, soils: ["Aridisols", "Entisols"], points: ["Namib Desert soils", "Kalahari sands", "Limited agriculture potential", "Oldest desert soils"] },
+            { name: "Niger", continent: "Africa", code: "NE", lat: 17.61, lng: 8.08, soils: ["Aridisols", "Entisols"], points: ["Sahara covers most area", "Sahel marginal agriculture", "Niger River valley", "Drought prone"] },
+            { name: "North Korea", continent: "Asia", code: "KP", lat: 40.34, lng: 127.51, soils: ["Inceptisols", "Alfisols"], points: ["Mountain terrain dominant", "Limited arable valleys", "Intensive cultivation", "Soil degradation issues"] },
+            { name: "Oman", continent: "Asia", code: "OM", lat: 21.51, lng: 55.92, soils: ["Aridisols", "Entisols"], points: ["Desert climate dominant", "Dhofar monsoon region", "Aflaj irrigation system", "Date palm cultivation"] },
+            { name: "Panama", continent: "North America", code: "PA", lat: 8.54, lng: -80.78, soils: ["Ultisols", "Inceptisols"], points: ["Tropical forest soils", "Canal Zone unique", "Pacific/Atlantic divide", "Banana plantation areas"] },
+            { name: "Papua New Guinea", continent: "Oceania", code: "PG", lat: -6.31, lng: 143.96, soils: ["Inceptisols", "Oxisols"], points: ["Highland volcanic soils", "Tropical lowland laterites", "Sweet potato cultivation", "Diverse tribal farming"] },
+            { name: "Paraguay", continent: "South America", code: "PY", lat: -23.44, lng: -58.44, soils: ["Ultisols", "Alfisols"], points: ["Gran Chaco dry soils", "Paraná River basin", "Soybean cultivation", "Cattle ranching areas"] },
+            { name: "Qatar", continent: "Asia", code: "QA", lat: 25.35, lng: 51.18, soils: ["Aridisols"], points: ["Desert peninsula", "Minimal agriculture", "High-tech farming experiments", "Reclaimed coastal areas"] },
+            { name: "Rwanda", continent: "Africa", code: "RW", lat: -1.94, lng: 29.87, soils: ["Oxisols", "Ultisols"], points: ["Highland volcanic soils", "Coffee/tea cultivation", "Dense population pressure", "Terraced hillsides"] },
+            { name: "Senegal", continent: "Africa", code: "SN", lat: 14.50, lng: -14.45, soils: ["Alfisols", "Entisols"], points: ["Sahel zone soils", "Groundnut cultivation", "Senegal River valley", "Coastal sandy areas"] },
+            { name: "Serbia", continent: "Europe", code: "RS", lat: 44.02, lng: 21.01, soils: ["Mollisols", "Alfisols"], points: ["Vojvodina fertile plains", "Danube River valley", "Major grain producer", "Diverse terrain soils"] },
+            { name: "Singapore", continent: "Asia", code: "SG", lat: 1.35, lng: 103.82, soils: ["Ultisols"], points: ["Highly urbanized land", "Minimal natural soil remains", "Reclaimed land areas", "Vertical farming innovation"] },
+            { name: "Slovakia", continent: "Europe", code: "SK", lat: 48.67, lng: 19.70, soils: ["Alfisols", "Inceptisols"], points: ["Danube lowland soils", "Carpathian mountain areas", "Wine growing regions", "Forest coverage high"] },
+            { name: "Slovenia", continent: "Europe", code: "SI", lat: 46.15, lng: 14.99, soils: ["Inceptisols", "Alfisols"], points: ["Alpine mountain soils", "Karst formations", "Wine growing areas", "Small but diverse"] },
+            { name: "Somalia", continent: "Africa", code: "SO", lat: 5.15, lng: 46.20, soils: ["Aridisols", "Entisols"], points: ["Arid climate dominant", "River valley agriculture", "Pastoral nomadism", "Coastal sandy areas"] },
+            { name: "Suriname", continent: "South America", code: "SR", lat: 3.92, lng: -56.03, soils: ["Oxisols", "Ultisols"], points: ["Amazon Basin soils", "Coastal cultivation zone", "Tropical rainforest", "Bauxite mining areas"] },
+            { name: "Syria", continent: "Asia", code: "SY", lat: 34.80, lng: 38.99, soils: ["Aridisols", "Inceptisols"], points: ["Euphrates River valley", "Mediterranean coastal strip", "Ancient agricultural region", "Desert interior"] },
+            { name: "Taiwan", continent: "Asia", code: "TW", lat: 23.70, lng: 120.96, soils: ["Inceptisols", "Ultisols"], points: ["Mountain terrain dominant", "Western plain agriculture", "Rice cultivation", "Subtropical climate"] },
+            { name: "Tajikistan", continent: "Asia", code: "TJ", lat: 38.86, lng: 71.28, soils: ["Inceptisols", "Entisols"], points: ["Pamir mountain soils", "Limited arable valleys", "Cotton cultivation", "Irrigation dependent"] },
+            { name: "Trinidad and Tobago", continent: "North America", code: "TT", lat: 10.69, lng: -61.22, soils: ["Ultisols", "Entisols"], points: ["Caribbean islands", "Sugar cane cultivation", "Pitch Lake area", "Diverse landscape"] },
+            { name: "Tunisia", continent: "Africa", code: "TN", lat: 33.89, lng: 9.54, soils: ["Aridisols", "Inceptisols"], points: ["Mediterranean coast soils", "Sahara Desert south", "Olive cultivation", "Ancient Roman farmlands"] },
+            { name: "Turkmenistan", continent: "Asia", code: "TM", lat: 38.97, lng: 59.56, soils: ["Aridisols", "Entisols"], points: ["Karakum Desert dominant", "Amu Darya River valley", "Cotton cultivation", "Irrigation dependent"] },
+            { name: "Uruguay", continent: "South America", code: "UY", lat: -32.52, lng: -55.77, soils: ["Mollisols", "Alfisols"], points: ["Pampas extension", "Cattle ranching soils", "Fertile grasslands", "Wine region emerging"] },
+            { name: "Uzbekistan", continent: "Asia", code: "UZ", lat: 41.38, lng: 64.59, soils: ["Aridisols", "Entisols"], points: ["Desert/semi-arid dominant", "Fergana Valley fertile", "Cotton cultivation", "Irrigation critical"] },
+            { name: "Yemen", continent: "Asia", code: "YE", lat: 15.55, lng: 48.52, soils: ["Aridisols", "Entisols"], points: ["Arabian Peninsula soils", "Mountain terrace agriculture", "Qat cultivation", "Coffee origin region"] },
+            { name: "Zambia", continent: "Africa", code: "ZM", lat: -13.13, lng: 27.85, soils: ["Alfisols", "Ultisols", "Oxisols"], points: ["Zambezi River basin", "Copper Belt mining", "Savanna woodland soils", "Maize cultivation"] }
+        ];
+
+        // Combine all countries
+        const allCountries = [...countryData, ...additionalCountries];
+
+        // Populate table
+        function populateTable(data) {
+            const tbody = document.getElementById('countriesTable');
+            tbody.innerHTML = '';
+            
+            data.forEach(country => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="https://flagcdn.com/w40/${country.code.toLowerCase()}.png" alt="${country.name}" class="country-flag"></td>
+                    <td class="country-name">${country.name}</td>
+                    <td><span class="continent-badge continent-${country.continent.toLowerCase().replace(' ', '-')}">${country.continent}</span></td>
+                    <td>${country.soils.join(', ')}</td>
+                    <td>
+                        <ul class="soil-bullets">
+                            ${country.points.map(p => `<li>${p}</li>`).join('')}
+                        </ul>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Search and filter
+        document.getElementById('countrySearch').addEventListener('input', filterTable);
+        document.getElementById('continentFilter').addEventListener('change', filterTable);
+        document.getElementById('soilFilter').addEventListener('change', filterTable);
+
+        function filterTable() {
+            const search = document.getElementById('countrySearch').value.toLowerCase();
+            const continent = document.getElementById('continentFilter').value;
+            const soil = document.getElementById('soilFilter').value;
+            
+            const filtered = allCountries.filter(c => {
+                const matchSearch = c.name.toLowerCase().includes(search);
+                const matchContinent = !continent || c.continent === continent;
+                const matchSoil = !soil || c.soils.some(s => s.includes(soil));
+                return matchSearch && matchContinent && matchSoil;
+            });
+            
+            populateTable(filtered);
+        }
+
+        // Sort table
+        let sortDirection = 1;
+        function sortTable(column) {
+            sortDirection *= -1;
+            const sorted = [...allCountries].sort((a, b) => {
+                const keys = ['code', 'name', 'continent'];
+                return a[keys[column]].localeCompare(b[keys[column]]) * sortDirection;
+            });
+            populateTable(sorted);
+        }
+
+        // Export CSV
+        function exportCSV() {
+            const headers = ['Country', 'Continent', 'Dominant Soils', 'Key Points'];
+            const rows = allCountries.map(c => [
+                c.name,
+                c.continent,
+                c.soils.join('; '),
+                c.points.join('; ')
+            ]);
+            
+            const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'world_soils_data.csv';
+            a.click();
+        }
+
+        // Initialize Leaflet Map
+        let map;
+        function initMap() {
+            map = L.map('world-map').setView([20, 0], 2);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add markers for each country
+            const soilColors = {
+                'Alfisols': '#8B4513',
+                'Andisols': '#4a69bd',
+                'Aridisols': '#f1c40f',
+                'Entisols': '#95a5a6',
+                'Gelisols': '#9b59b6',
+                'Histosols': '#2c3e50',
+                'Inceptisols': '#27ae60',
+                'Mollisols': '#34495e',
+                'Oxisols': '#e74c3c',
+                'Spodosols': '#8e44ad',
+                'Ultisols': '#d35400',
+                'Vertisols': '#1abc9c'
+            };
+            
+            allCountries.forEach(country => {
+                const color = soilColors[country.soils[0]] || '#606c38';
+                
+                const circle = L.circleMarker([country.lat, country.lng], {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+                
+                const popupContent = `
+                    <div class="popup-title">
+                        <img src="https://flagcdn.com/w20/${country.code.toLowerCase()}.png" alt="${country.name}" style="border-radius: 2px;">
+                        ${country.name}
+                    </div>
+                    <p><strong>Continent:</strong> ${country.continent}</p>
+                    <p><strong>Dominant Soils:</strong></p>
+                    <ul class="popup-soil-list">
+                        ${country.soils.map(s => `<li><span class="popup-soil-type">${s}</span></li>`).join('')}
+                    </ul>
+                    <p><strong>Key Facts:</strong></p>
+                    <ul class="popup-soil-list">
+                        ${country.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                `;
+                
+                circle.bindPopup(popupContent);
+            });
+        }
+
+        // India Map
+        function initIndiaMap() {
+            const indiaMap = L.map('india-map').setView([22.5, 82.5], 4.5);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(indiaMap);
+            
+            const indianSoils = [
+                { name: "Alluvial Soil", lat: 27.5, lng: 80.5, color: "#8B7355", states: "UP, Bihar, Punjab, Haryana, WB" },
+                { name: "Black Soil (Regur)", lat: 20.0, lng: 76.0, color: "#2c3e50", states: "Maharashtra, Gujarat, MP, Karnataka" },
+                { name: "Red Soil", lat: 15.0, lng: 78.5, color: "#c0392b", states: "TN, Karnataka, Odisha, Jharkhand" },
+                { name: "Laterite Soil", lat: 10.5, lng: 76.5, color: "#e67e22", states: "Kerala, Assam, Karnataka Hills" },
+                { name: "Desert Soil", lat: 27.0, lng: 71.5, color: "#f1c40f", states: "Rajasthan, Gujarat" },
+                { name: "Mountain Soil", lat: 32.0, lng: 77.5, color: "#27ae60", states: "Himalayan States, NE India" },
+                { name: "Saline Soil", lat: 23.5, lng: 72.0, color: "#95a5a6", states: "Gujarat, Punjab coastal" },
+                { name: "Peaty Soil", lat: 9.5, lng: 76.0, color: "#1e3d59", states: "Kerala, WB, Odisha coast" }
+            ];
+            
+            indianSoils.forEach(soil => {
+                L.circleMarker([soil.lat, soil.lng], {
+                    radius: 15,
+                    fillColor: soil.color,
+                    color: '#fff',
+                    weight: 3,
+                    fillOpacity: 0.85
+                }).addTo(indiaMap).bindPopup(`
+                    <div class="popup-title">${soil.name}</div>
+                    <p><strong>Found in:</strong> ${soil.states}</p>
+                `);
+            });
+        }
+
+        // Quiz functionality
+        function checkQuiz() {
+            let score = 0;
+            const questions = document.querySelectorAll('.quiz-question');
+            
+            questions.forEach(q => {
+                const correct = q.dataset.correct;
+                const options = q.querySelectorAll('.quiz-option');
+                const selected = q.querySelector('input:checked');
+                
+                options.forEach(opt => {
+                    opt.classList.remove('correct', 'wrong');
+                    if (opt.dataset.option === correct) {
+                        opt.classList.add('correct');
+                    }
+                });
+                
+                if (selected && selected.value === correct) {
+                    score++;
+                } else if (selected) {
+                    selected.closest('.quiz-option').classList.add('wrong');
+                }
+            });
+            
+            document.getElementById('quizScore').style.display = 'block';
+            document.getElementById('scoreValue').textContent = score;
+        }
+
+        // Animated counters
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.dataset.target);
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 16);
+            });
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            
+            if (body.dataset.theme === 'dark') {
+                body.dataset.theme = 'light';
+                btn.textContent = '🌙 Dark Mode';
+            } else {
+                body.dataset.theme = 'dark';
+                btn.textContent = '☀️ Light Mode';
+            }
+        }
+
+        // Back to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('backToTop');
+            if (window.scrollY > 500) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            document.getElementById('loading').classList.add('hide');
+            populateTable(allCountries);
+            initMap();
+            initIndiaMap();
+            animateCounters();
+        });
+
+        // Add click handlers for quiz options
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const input = option.querySelector('input');
+                input.checked = true;
+                option.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(o => {
+                    o.style.borderColor = '#eee';
+                    o.style.background = 'white';
+                });
+                option.style.borderColor = 'var(--primary)';
+                option.style.background = 'rgba(96,108,56,0.1)';
+            });
+        });
+    </script>
+</body>
+</html>
