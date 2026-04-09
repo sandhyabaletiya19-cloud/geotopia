@@ -554,6 +554,12 @@
             color: #721c24;
         }
 
+        .data-status.loading {
+            background: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .hero-title {
@@ -673,9 +679,9 @@
             </p>
 
             <!-- Data Status -->
-            <div class="data-status" id="data-status">
-                <i class="fas fa-check-circle"></i>
-                <span id="status-text">Loading maps...</span>
+            <div class="data-status loading" id="data-status">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span id="status-text">Loading maps and data...</span>
             </div>
 
             <!-- Map 1: Valleys -->
@@ -893,102 +899,26 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- External Data File -->
-    <script src="https://sandhyabaletiya19-cloud.github.io/geotopia/encyclopedia/physical-geography/landforms/landform-data.js"></script>
-
     <!-- Main JavaScript -->
     <script>
         // ============================================================
-        // FALLBACK DATA (in case external file fails)
+        // GLOBAL VARIABLES
         // ============================================================
-        const fallbackData = {
-            valleys: [
-                {name: 'Kashmir Valley', country: 'India', lat: 34.0837, lon: 74.7973, length: '135 km', type: 'Tectonic', funFact: 'Called Paradise on Earth'},
-                {name: 'Great Rift Valley', country: 'Kenya', lat: -1.2921, lon: 36.8219, length: '6,000 km', type: 'Tectonic', funFact: 'Birthplace of humanity'},
-                {name: 'Yosemite Valley', country: 'USA', lat: 37.7456, lon: -119.5936, length: '12 km', type: 'Glacial', funFact: 'Home to El Capitan'},
-                {name: 'Kullu Valley', country: 'India', lat: 32.2396, lon: 77.1887, length: '80 km', type: 'River', funFact: 'Valley of Gods'},
-                {name: 'Spiti Valley', country: 'India', lat: 32.2460, lon: 78.0413, length: '400 km', type: 'Cold Desert', funFact: 'Little Tibet of India'},
-                {name: 'Death Valley', country: 'USA', lat: 36.5323, lon: -116.9325, depth: '86m below sea', type: 'Tectonic', funFact: 'Hottest place on Earth'},
-                {name: 'Loire Valley', country: 'France', lat: 47.4085, lon: 0.9819, length: '280 km', type: 'River', funFact: 'Garden of France'},
-                {name: 'Nile Valley', country: 'Egypt', lat: 26.8206, lon: 30.8025, length: '1,000+ km', type: 'River', funFact: 'Cradle of civilization'},
-                {name: 'Hunza Valley', country: 'Pakistan', lat: 36.3167, lon: 74.6500, elevation: '2,500 m', type: 'Glacial', funFact: 'Inspiration for Shangri-La'},
-                {name: 'Lauterbrunnen', country: 'Switzerland', lat: 46.5933, lon: 7.9089, waterfalls: '72', type: 'Glacial', funFact: 'Inspired Tolkien\'s Rivendell'}
-            ],
-            canyons: [
-                {name: 'Grand Canyon', country: 'USA', lat: 36.1069, lon: -112.1129, depth: '1,829 m', length: '446 km', funFact: '2 billion years of history'},
-                {name: 'Yarlung Tsangpo', country: 'China/Tibet', lat: 29.6333, lon: 95.1167, depth: '5,590 m', length: '504 km', funFact: 'Deepest canyon on Earth'},
-                {name: 'Kali Gandaki', country: 'Nepal', lat: 28.7333, lon: 83.7167, depth: '5,571 m', length: '55 km', funFact: 'River older than Himalayas'},
-                {name: 'Fish River Canyon', country: 'Namibia', lat: -27.6167, lon: 17.5000, depth: '550 m', length: '160 km', funFact: '2nd largest in Africa'},
-                {name: 'Copper Canyon', country: 'Mexico', lat: 27.4500, lon: -107.9667, depth: '1,879 m', canyons: '6', funFact: 'Deeper than Grand Canyon'},
-                {name: 'Colca Canyon', country: 'Peru', lat: -15.6167, lon: -71.8833, depth: '3,270 m', length: '100 km', funFact: 'Twice as deep as Grand Canyon'},
-                {name: 'Tara River Canyon', country: 'Montenegro', lat: 43.1500, lon: 19.3167, depth: '1,300 m', length: '82 km', funFact: 'Deepest in Europe'},
-                {name: 'Antelope Canyon', country: 'USA', lat: 36.8619, lon: -111.3743, type: 'Slot Canyon', formation: 'Flash floods', funFact: 'Famous light beams'},
-                {name: 'Blyde River Canyon', country: 'South Africa', lat: -24.5500, lon: 30.8000, depth: '800 m', length: '25 km', funFact: 'Largest green canyon'},
-                {name: 'Verdon Gorge', country: 'France', lat: 43.7667, lon: 6.3667, depth: '700 m', length: '25 km', funFact: 'Grand Canyon of Europe'}
-            ],
-            deserts: [
-                {name: 'Sahara Desert', country: 'Africa (11 countries)', lat: 23.4162, lon: 25.6628, area: '9.2 million km²', type: 'Hot', funFact: 'Largest hot desert'},
-                {name: 'Antarctic Desert', country: 'Antarctica', lat: -82.8628, lon: 135.0000, area: '14.2 million km²', type: 'Cold', funFact: 'Largest desert on Earth'},
-                {name: 'Thar Desert', country: 'India/Pakistan', lat: 27.0238, lon: 71.8310, area: '200,000 km²', type: 'Hot', funFact: 'Most populated desert'},
-                {name: 'Gobi Desert', country: 'Mongolia/China', lat: 42.5000, lon: 103.5000, area: '1.3 million km²', type: 'Cold', funFact: 'Dinosaur fossils found here'},
-                {name: 'Atacama Desert', country: 'Chile', lat: -24.5000, lon: -69.2500, area: '105,000 km²', type: 'Coastal', funFact: 'Driest place on Earth'},
-                {name: 'Namib Desert', country: 'Namibia', lat: -24.5000, lon: 15.5000, area: '81,000 km²', age: '55 million years', funFact: 'World\'s oldest desert'},
-                {name: 'Kalahari Desert', country: 'Botswana', lat: -24.5000, lon: 21.9500, area: '930,000 km²', type: 'Semi-arid', funFact: 'Home to San people'},
-                {name: 'Arabian Desert', country: 'Middle East', lat: 23.8859, lon: 45.0792, area: '2.3 million km²', type: 'Hot', funFact: 'World\'s oil reserves'},
-                {name: 'Rann of Kutch', country: 'India', lat: 23.8348, lon: 69.6497, area: '30,000 km²', type: 'Salt Desert', funFact: 'World\'s largest salt desert'},
-                {name: 'Ladakh Cold Desert', country: 'India', lat: 34.1526, lon: 77.5771, area: '59,146 km²', elevation: '3,000-5,000 m', funFact: 'Highest cold desert'}
-            ],
-            islands: [
-                {name: 'Greenland', country: 'Denmark', lat: 71.7069, lon: -42.6043, area: '2,166,086 km²', rank: '#1 Largest', funFact: '80% covered in ice'},
-                {name: 'Madagascar', country: 'Madagascar', lat: -18.7669, lon: 46.8691, area: '587,041 km²', rank: '#4 Largest', funFact: '90% species endemic'},
-                {name: 'Iceland', country: 'Iceland', lat: 64.9631, lon: -19.0208, area: '103,000 km²', volcanism: 'Active', funFact: 'Land of fire and ice'},
-                {name: 'Andaman Islands', country: 'India', lat: 11.7401, lon: 92.6586, islands: '572', tribes: 'Indigenous', funFact: 'Sentinelese tribe lives here'},
-                {name: 'Galápagos Islands', country: 'Ecuador', lat: -0.9538, lon: -90.9656, islands: '21', significance: 'Evolution', funFact: 'Inspired Darwin\'s theory'},
-                {name: 'Hawaii', country: 'USA', lat: 19.8968, lon: -155.5828, islands: '137', type: 'Volcanic', funFact: 'Still growing from lava'},
-                {name: 'Maldives', country: 'Maldives', lat: 3.2028, lon: 73.2207, islands: '1,192', elevation: '1.5 m', funFact: 'Lowest country on Earth'},
-                {name: 'Borneo', country: 'Malaysia/Indonesia/Brunei', lat: 0.9619, lon: 114.5548, area: '748,168 km²', rank: '#3 Largest', funFact: 'Oldest rainforest (140M years)'},
-                {name: 'Sri Lanka', country: 'Sri Lanka', lat: 7.8731, lon: 80.7718, area: '65,610 km²', oldName: 'Ceylon', funFact: 'Word serendipity from here'},
-                {name: 'Easter Island', country: 'Chile', lat: -27.1127, lon: -109.3497, statues: '887 Moai', isolation: '3,700 km from Chile', funFact: 'Most remote inhabited island'}
-            ],
-            caves: [
-                {name: 'Son Doong Cave', country: 'Vietnam', lat: 17.4564, lon: 106.2877, volume: '38.5 million m³', rank: 'Largest', funFact: 'Has its own weather system'},
-                {name: 'Mammoth Cave', country: 'USA', lat: 37.1862, lon: -86.1000, length: '685+ km', rank: 'Longest', funFact: 'Could exceed 1,000 km'},
-                {name: 'Borra Caves', country: 'India', lat: 18.2833, lon: 83.0333, age: '150 million years', state: 'Andhra Pradesh', funFact: 'Deepest cave in India'},
-                {name: 'Ajanta Caves', country: 'India', lat: 20.5519, lon: 75.7033, caves: '30', type: 'Rock-cut Buddhist', funFact: 'Lost for 1,000 years'},
-                {name: 'Waitomo Caves', country: 'New Zealand', lat: -38.2614, lon: 175.1031, feature: 'Glowworms', age: '30 million years', funFact: 'Ceiling glows blue at night'},
-                {name: 'Carlsbad Caverns', country: 'USA', lat: 32.1479, lon: -104.5567, chambers: '119', bats: '400,000', funFact: 'Bat flight every sunset'},
-                {name: 'Postojna Cave', country: 'Slovenia', lat: 45.7833, lon: 14.2000, length: '24 km', fauna: 'Olm salamander', funFact: 'Has cave railway since 1872'},
-                {name: 'Ellora Caves', country: 'India', lat: 20.0269, lon: 75.1793, caves: '34', religions: '3', funFact: 'Buddhist, Hindu, Jain caves together'},
-                {name: 'Reed Flute Cave', country: 'China', lat: 25.2983, lon: 110.2700, age: '180 million years', inscriptions: '1,000+ years old', funFact: 'Natural palace of art'},
-                {name: 'Škocjan Caves', country: 'Slovenia', lat: 45.6647, lon: 14.0028, UNESCO: 'Yes', canyon: 'Underground', funFact: 'River disappears underground'}
-            ],
-            volcanic: [
-                {name: 'Yellowstone Caldera', country: 'USA', lat: 44.4280, lon: -110.5885, area: '55×72 km', type: 'Supervolcano', funFact: 'Could end civilization'},
-                {name: 'Mount Vesuvius', country: 'Italy', lat: 40.8214, lon: 14.4260, eruption: '79 AD', type: 'Stratovolcano', funFact: 'Destroyed Pompeii'},
-                {name: 'Krakatoa', country: 'Indonesia', lat: -6.1021, lon: 105.4230, eruption: '1883', sound: 'Loudest ever', funFact: 'Heard 4,800 km away'},
-                {name: 'Mount Fuji', country: 'Japan', lat: 35.3606, lon: 138.7274, elevation: '3,776 m', type: 'Stratovolcano', funFact: 'Japan\'s highest peak'},
-                {name: 'Deccan Traps', country: 'India', lat: 19.0000, lon: 75.0000, area: '500,000 km²', age: '66 million years', funFact: 'May have killed dinosaurs'},
-                {name: 'Mauna Loa', country: 'USA (Hawaii)', lat: 19.4756, lon: -155.6054, volume: '75,000 km³', type: 'Shield', funFact: 'Largest active volcano'},
-                {name: 'Kilauea', country: 'USA (Hawaii)', lat: 19.4069, lon: -155.2834, activity: 'Continuous since 1983', type: 'Shield', funFact: 'Most active volcano'},
-                {name: 'Santorini', country: 'Greece', lat: 36.4074, lon: 25.4326, eruption: '1600 BC', theory: 'Atlantis?', funFact: 'May be lost Atlantis'},
-                {name: 'Barren Island', country: 'India', lat: 12.2788, lon: 93.8581, status: 'Active', location: 'Andaman Sea', funFact: 'Only active volcano in India'},
-                {name: 'Mount Erebus', country: 'Antarctica', lat: -77.5278, lon: 167.1531, elevation: '3,794 m', lava: 'Persistent lake', funFact: 'Southernmost active volcano'}
-            ]
-        };
-
-        // Use external data if available, otherwise use fallback
-        const landformData = (typeof window.landformData !== 'undefined') ? window.landformData : fallbackData;
+        var landformData = null;
+        var maps = {};
+        var currentLayers = {};
+        var combinedLayers = {};
 
         // ============================================================
         // MAP CONFIGURATION
         // ============================================================
-        const tileLayers = {
+        var tileLayers = {
             streets: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
             terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
         };
 
-        const iconColors = {
+        var iconColors = {
             valleys: '#2ecc71',
             canyons: '#e74c3c',
             deserts: '#f39c12',
@@ -997,10 +927,110 @@
             volcanic: '#c0392b'
         };
 
-        // Store maps and layers
-        const maps = {};
-        const currentLayers = {};
-        const combinedLayers = {};
+        // ============================================================
+        // LOAD EXTERNAL DATA FILE
+        // ============================================================
+        function loadExternalData() {
+            return new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.src = 'https://sandhyabaletiya19-cloud.github.io/geotopia/encyclopedia/physical-geography/landforms/landform-data.js';
+                script.onload = function() {
+                    console.log('✅ External data file loaded');
+                    // Check if landformData is available globally
+                    if (typeof window.landformData !== 'undefined') {
+                        resolve(window.landformData);
+                    } else {
+                        console.warn('⚠️ landformData not found in external file, using fallback');
+                        resolve(getFallbackData());
+                    }
+                };
+                script.onerror = function() {
+                    console.warn('⚠️ Failed to load external data, using fallback');
+                    resolve(getFallbackData());
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // ============================================================
+        // FALLBACK DATA
+        // ============================================================
+        function getFallbackData() {
+            return {
+                valleys: [
+                    {name: 'Kashmir Valley', country: 'India', lat: 34.0837, lon: 74.7973, length: '135 km', type: 'Tectonic', funFact: 'Called Paradise on Earth'},
+                    {name: 'Great Rift Valley', country: 'Kenya', lat: -1.2921, lon: 36.8219, length: '6,000 km', type: 'Tectonic', funFact: 'Birthplace of humanity'},
+                    {name: 'Yosemite Valley', country: 'USA', lat: 37.7456, lon: -119.5936, length: '12 km', type: 'Glacial', funFact: 'Home to El Capitan'},
+                    {name: 'Kullu Valley', country: 'India', lat: 32.2396, lon: 77.1887, length: '80 km', type: 'River', funFact: 'Valley of Gods'},
+                    {name: 'Spiti Valley', country: 'India', lat: 32.2460, lon: 78.0413, length: '400 km', type: 'Cold Desert', funFact: 'Little Tibet of India'},
+                    {name: 'Death Valley', country: 'USA', lat: 36.5323, lon: -116.9325, depth: '86m below sea', type: 'Tectonic', funFact: 'Hottest place on Earth'},
+                    {name: 'Loire Valley', country: 'France', lat: 47.4085, lon: 0.9819, length: '280 km', type: 'River', funFact: 'Garden of France'},
+                    {name: 'Nile Valley', country: 'Egypt', lat: 26.8206, lon: 30.8025, length: '1,000+ km', type: 'River', funFact: 'Cradle of civilization'},
+                    {name: 'Hunza Valley', country: 'Pakistan', lat: 36.3167, lon: 74.6500, elevation: '2,500 m', type: 'Glacial', funFact: 'Inspiration for Shangri-La'},
+                    {name: 'Lauterbrunnen', country: 'Switzerland', lat: 46.5933, lon: 7.9089, waterfalls: '72', type: 'Glacial', funFact: 'Inspired Tolkien\'s Rivendell'}
+                ],
+                canyons: [
+                    {name: 'Grand Canyon', country: 'USA', lat: 36.1069, lon: -112.1129, depth: '1,829 m', length: '446 km', funFact: '2 billion years of history'},
+                    {name: 'Yarlung Tsangpo', country: 'China/Tibet', lat: 29.6333, lon: 95.1167, depth: '5,590 m', length: '504 km', funFact: 'Deepest canyon on Earth'},
+                    {name: 'Kali Gandaki', country: 'Nepal', lat: 28.7333, lon: 83.7167, depth: '5,571 m', length: '55 km', funFact: 'River older than Himalayas'},
+                    {name: 'Fish River Canyon', country: 'Namibia', lat: -27.6167, lon: 17.5000, depth: '550 m', length: '160 km', funFact: '2nd largest in Africa'},
+                    {name: 'Copper Canyon', country: 'Mexico', lat: 27.4500, lon: -107.9667, depth: '1,879 m', canyons: '6', funFact: 'Deeper than Grand Canyon'},
+                    {name: 'Colca Canyon', country: 'Peru', lat: -15.6167, lon: -71.8833, depth: '3,270 m', length: '100 km', funFact: 'Twice as deep as Grand Canyon'},
+                    {name: 'Tara River Canyon', country: 'Montenegro', lat: 43.1500, lon: 19.3167, depth: '1,300 m', length: '82 km', funFact: 'Deepest in Europe'},
+                    {name: 'Antelope Canyon', country: 'USA', lat: 36.8619, lon: -111.3743, type: 'Slot Canyon', formation: 'Flash floods', funFact: 'Famous light beams'},
+                    {name: 'Blyde River Canyon', country: 'South Africa', lat: -24.5500, lon: 30.8000, depth: '800 m', length: '25 km', funFact: 'Largest green canyon'},
+                    {name: 'Verdon Gorge', country: 'France', lat: 43.7667, lon: 6.3667, depth: '700 m', length: '25 km', funFact: 'Grand Canyon of Europe'}
+                ],
+                deserts: [
+                    {name: 'Sahara Desert', country: 'Africa (11 countries)', lat: 23.4162, lon: 25.6628, area: '9.2 million km²', type: 'Hot', funFact: 'Largest hot desert'},
+                    {name: 'Antarctic Desert', country: 'Antarctica', lat: -82.8628, lon: 135.0000, area: '14.2 million km²', type: 'Cold', funFact: 'Largest desert on Earth'},
+                    {name: 'Thar Desert', country: 'India/Pakistan', lat: 27.0238, lon: 71.8310, area: '200,000 km²', type: 'Hot', funFact: 'Most populated desert'},
+                    {name: 'Gobi Desert', country: 'Mongolia/China', lat: 42.5000, lon: 103.5000, area: '1.3 million km²', type: 'Cold', funFact: 'Dinosaur fossils found here'},
+                    {name: 'Atacama Desert', country: 'Chile', lat: -24.5000, lon: -69.2500, area: '105,000 km²', type: 'Coastal', funFact: 'Driest place on Earth'},
+                    {name: 'Namib Desert', country: 'Namibia', lat: -24.5000, lon: 15.5000, area: '81,000 km²', age: '55 million years', funFact: 'World\'s oldest desert'},
+                    {name: 'Kalahari Desert', country: 'Botswana', lat: -24.5000, lon: 21.9500, area: '930,000 km²', type: 'Semi-arid', funFact: 'Home to San people'},
+                    {name: 'Arabian Desert', country: 'Middle East', lat: 23.8859, lon: 45.0792, area: '2.3 million km²', type: 'Hot', funFact: 'World\'s oil reserves'},
+                    {name: 'Rann of Kutch', country: 'India', lat: 23.8348, lon: 69.6497, area: '30,000 km²', type: 'Salt Desert', funFact: 'World\'s largest salt desert'},
+                    {name: 'Ladakh Cold Desert', country: 'India', lat: 34.1526, lon: 77.5771, area: '59,146 km²', elevation: '3,000-5,000 m', funFact: 'Highest cold desert'}
+                ],
+                islands: [
+                    {name: 'Greenland', country: 'Denmark', lat: 71.7069, lon: -42.6043, area: '2,166,086 km²', rank: '#1 Largest', funFact: '80% covered in ice'},
+                    {name: 'Madagascar', country: 'Madagascar', lat: -18.7669, lon: 46.8691, area: '587,041 km²', rank: '#4 Largest', funFact: '90% species endemic'},
+                    {name: 'Iceland', country: 'Iceland', lat: 64.9631, lon: -19.0208, area: '103,000 km²', volcanism: 'Active', funFact: 'Land of fire and ice'},
+                    {name: 'Andaman Islands', country: 'India', lat: 11.7401, lon: 92.6586, islands: '572', tribes: 'Indigenous', funFact: 'Sentinelese tribe lives here'},
+                    {name: 'Galápagos Islands', country: 'Ecuador', lat: -0.9538, lon: -90.9656, islands: '21', significance: 'Evolution', funFact: 'Inspired Darwin\'s theory'},
+                    {name: 'Hawaii', country: 'USA', lat: 19.8968, lon: -155.5828, islands: '137', type: 'Volcanic', funFact: 'Still growing from lava'},
+                    {name: 'Maldives', country: 'Maldives', lat: 3.2028, lon: 73.2207, islands: '1,192', elevation: '1.5 m', funFact: 'Lowest country on Earth'},
+                    {name: 'Borneo', country: 'Malaysia/Indonesia/Brunei', lat: 0.9619, lon: 114.5548, area: '748,168 km²', rank: '#3 Largest', funFact: 'Oldest rainforest (140M years)'},
+                    {name: 'Sri Lanka', country: 'Sri Lanka', lat: 7.8731, lon: 80.7718, area: '65,610 km²', oldName: 'Ceylon', funFact: 'Word serendipity from here'},
+                    {name: 'Easter Island', country: 'Chile', lat: -27.1127, lon: -109.3497, statues: '887 Moai', isolation: '3,700 km from Chile', funFact: 'Most remote inhabited island'}
+                ],
+                caves: [
+                    {name: 'Son Doong Cave', country: 'Vietnam', lat: 17.4564, lon: 106.2877, volume: '38.5 million m³', rank: 'Largest', funFact: 'Has its own weather system'},
+                    {name: 'Mammoth Cave', country: 'USA', lat: 37.1862, lon: -86.1000, length: '685+ km', rank: 'Longest', funFact: 'Could exceed 1,000 km'},
+                    {name: 'Borra Caves', country: 'India', lat: 18.2833, lon: 83.0333, age: '150 million years', state: 'Andhra Pradesh', funFact: 'Deepest cave in India'},
+                    {name: 'Ajanta Caves', country: 'India', lat: 20.5519, lon: 75.7033, caves: '30', type: 'Rock-cut Buddhist', funFact: 'Lost for 1,000 years'},
+                    {name: 'Waitomo Caves', country: 'New Zealand', lat: -38.2614, lon: 175.1031, feature: 'Glowworms', age: '30 million years', funFact: 'Ceiling glows blue at night'},
+                    {name: 'Carlsbad Caverns', country: 'USA', lat: 32.1479, lon: -104.5567, chambers: '119', bats: '400,000', funFact: 'Bat flight every sunset'},
+                    {name: 'Postojna Cave', country: 'Slovenia', lat: 45.7833, lon: 14.2000, length: '24 km', fauna: 'Olm salamander', funFact: 'Has cave railway since 1872'},
+                    {name: 'Ellora Caves', country: 'India', lat: 20.0269, lon: 75.1793, caves: '34', religions: '3', funFact: 'Buddhist, Hindu, Jain caves together'},
+                    {name: 'Reed Flute Cave', country: 'China', lat: 25.2983, lon: 110.2700, age: '180 million years', inscriptions: '1,000+ years old', funFact: 'Natural palace of art'},
+                    {name: 'Škocjan Caves', country: 'Slovenia', lat: 45.6647, lon: 14.0028, UNESCO: 'Yes', canyon: 'Underground', funFact: 'River disappears underground'}
+                ],
+                volcanic: [
+                    {name: 'Yellowstone Caldera', country: 'USA', lat: 44.4280, lon: -110.5885, area: '55×72 km', type: 'Supervolcano', funFact: 'Could end civilization'},
+                    {name: 'Mount Vesuvius', country: 'Italy', lat: 40.8214, lon: 14.4260, eruption: '79 AD', type: 'Stratovolcano', funFact: 'Destroyed Pompeii'},
+                    {name: 'Krakatoa', country: 'Indonesia', lat: -6.1021, lon: 105.4230, eruption: '1883', sound: 'Loudest ever', funFact: 'Heard 4,800 km away'},
+                    {name: 'Mount Fuji', country: 'Japan', lat: 35.3606, lon: 138.7274, elevation: '3,776 m', type: 'Stratovolcano', funFact: 'Japan\'s highest peak'},
+                    {name: 'Deccan Traps', country: 'India', lat: 19.0000, lon: 75.0000, area: '500,000 km²', age: '66 million years', funFact: 'May have killed dinosaurs'},
+                    {name: 'Mauna Loa', country: 'USA (Hawaii)', lat: 19.4756, lon: -155.6054, volume: '75,000 km³', type: 'Shield', funFact: 'Largest active volcano'},
+                    {name: 'Kilauea', country: 'USA (Hawaii)', lat: 19.4069, lon: -155.2834, activity: 'Continuous since 1983', type: 'Shield', funFact: 'Most active volcano'},
+                    {name: 'Santorini', country: 'Greece', lat: 36.4074, lon: 25.4326, eruption: '1600 BC', theory: 'Atlantis?', funFact: 'May be lost Atlantis'},
+                    {name: 'Barren Island', country: 'India', lat: 12.2788, lon: 93.8581, status: 'Active', location: 'Andaman Sea', funFact: 'Only active volcano in India'},
+                    {name: 'Mount Erebus', country: 'Antarctica', lat: -77.5278, lon: 167.1531, elevation: '3,794 m', lava: 'Persistent lake', funFact: 'Southernmost active volcano'}
+                ]
+            };
+        }
 
         // ============================================================
         // INITIALIZE MAPS
@@ -1008,17 +1038,17 @@
         function initMaps() {
             console.log('🚀 Starting map initialization...');
             
-            const mapTypes = ['valleys', 'canyons', 'deserts', 'islands', 'caves', 'volcanic', 'combined'];
-            let mapsCreated = 0;
-            let totalMarkers = 0;
+            var mapTypes = ['valleys', 'canyons', 'deserts', 'islands', 'caves', 'volcanic', 'combined'];
+            var mapsCreated = 0;
+            var totalMarkers = 0;
 
             mapTypes.forEach(function(type) {
-                const mapElement = document.getElementById(type + '-map');
+                var mapElement = document.getElementById(type + '-map');
                 
                 if (mapElement) {
                     try {
                         // Create map
-                        const map = L.map(type + '-map', {
+                        var map = L.map(type + '-map', {
                             center: [20, 0],
                             zoom: 2,
                             minZoom: 1,
@@ -1026,7 +1056,7 @@
                         });
 
                         // Add tile layer
-                        const tileLayer = L.tileLayer(tileLayers.streets, {
+                        var tileLayer = L.tileLayer(tileLayers.streets, {
                             attribution: '© OpenStreetMap',
                             maxZoom: 18
                         }).addTo(map);
@@ -1039,8 +1069,8 @@
                         if (type === 'combined') {
                             // Add all landform types to combined map
                             Object.keys(landformData).forEach(function(landformType) {
-                                const layer = L.layerGroup();
-                                const count = addMarkersToLayer(layer, landformData[landformType], landformType);
+                                var layer = L.layerGroup();
+                                var count = addMarkersToLayer(layer, landformData[landformType], landformType);
                                 layer.addTo(map);
                                 combinedLayers[landformType] = layer;
                                 totalMarkers += count;
@@ -1048,7 +1078,7 @@
                         } else {
                             // Add specific landform type
                             if (landformData[type]) {
-                                const count = addMarkersToMap(map, landformData[type], type);
+                                var count = addMarkersToMap(map, landformData[type], type);
                                 totalMarkers += count;
                             }
                         }
@@ -1072,10 +1102,10 @@
         function addMarkersToMap(map, data, type) {
             if (!data || !Array.isArray(data)) return 0;
             
-            let count = 0;
+            var count = 0;
             data.forEach(function(item) {
                 if (item.lat && item.lon) {
-                    const marker = createMarker(item, type);
+                    var marker = createMarker(item, type);
                     marker.addTo(map);
                     count++;
                 }
@@ -1086,10 +1116,10 @@
         function addMarkersToLayer(layer, data, type) {
             if (!data || !Array.isArray(data)) return 0;
             
-            let count = 0;
+            var count = 0;
             data.forEach(function(item) {
                 if (item.lat && item.lon) {
-                    const marker = createMarker(item, type);
+                    var marker = createMarker(item, type);
                     marker.addTo(layer);
                     count++;
                 }
@@ -1098,32 +1128,32 @@
         }
 
         // ============================================================
-        // CREATE MARKER - FIXED VERSION
+        // CREATE MARKER
         // ============================================================
         function createMarker(item, type) {
-            const color = iconColors[type] || '#1a5f7a';
+            var color = iconColors[type] || '#1a5f7a';
             
-            const icon = L.divIcon({
+            var icon = L.divIcon({
                 className: 'custom-marker',
                 html: '<div style="background: ' + color + '; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>',
                 iconSize: [14, 14],
                 iconAnchor: [7, 7]
             });
 
-            const marker = L.marker([item.lat, item.lon], { icon: icon });
+            var marker = L.marker([item.lat, item.lon], { icon: icon });
             
             // Create popup and bind it to marker
-            const popupContent = createPopupContent(item, type);
+            var popupContent = createPopupContent(item, type);
             marker.bindPopup(popupContent, { maxWidth: 300 });
             
             return marker;
         }
 
         // ============================================================
-        // CREATE POPUP CONTENT - SEPARATE FUNCTION
+        // CREATE POPUP CONTENT
         // ============================================================
         function createPopupContent(item, type) {
-            const emoji = {
+            var emoji = {
                 valleys: '🏞️',
                 canyons: '🏔️',
                 deserts: '🏜️',
@@ -1132,22 +1162,26 @@
                 volcanic: '🌋'
             };
 
-            let statsHtml = '';
-            Object.entries(item).forEach(function([key, value]) {
-                if (!['lat', 'lon', 'name', 'funFact'].includes(key)) {
-                    const label = key.charAt(0).toUpperCase() + key.slice(1);
-                    statsHtml += '<div class="popup-stat"><strong>' + label + ':</strong> <span>' + value + '</span></div>';
+            var statsHtml = '';
+            for (var key in item) {
+                if (item.hasOwnProperty(key)) {
+                    if (['lat', 'lon', 'name', 'funFact'].indexOf(key) === -1) {
+                        var label = key.charAt(0).toUpperCase() + key.slice(1);
+                        statsHtml += '<div class="popup-stat"><strong>' + label + ':</strong> <span>' + item[key] + '</span></div>';
+                    }
                 }
-            });
+            }
 
-            const funFactHtml = item.funFact ? 
-                '<div style="background: #fff5e6; padding: 8px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #ff6b6b;">' +
-                '<strong style="color: #ff6b6b;">🎉 Fun Fact:</strong><br>' +
-                '<span style="font-size: 0.85rem;">' + item.funFact + '</span>' +
-                '</div>' : '';
+            var funFactHtml = '';
+            if (item.funFact) {
+                funFactHtml = '<div style="background: #fff5e6; padding: 8px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #ff6b6b;">' +
+                    '<strong style="color: #ff6b6b;">🎉 Fun Fact:</strong><br>' +
+                    '<span style="font-size: 0.85rem;">' + item.funFact + '</span>' +
+                    '</div>';
+            }
 
             // Escape the name for use in onclick
-            const escapedName = item.name.replace(/'/g, "\\'");
+            var escapedName = item.name.replace(/'/g, "\\'");
 
             return '<div class="popup-content">' +
                 '<div class="popup-title">' + (emoji[type] || '📍') + ' ' + item.name + '</div>' +
@@ -1179,23 +1213,24 @@
             }).addTo(maps[mapType]);
 
             // Update button states
-            const section = document.getElementById(mapType + '-section');
+            var section = document.getElementById(mapType + '-section');
             if (section) {
-                section.querySelectorAll('.map-btn').forEach(function(btn) {
-                    btn.classList.remove('active');
-                });
+                var buttons = section.querySelectorAll('.map-btn');
+                for (var i = 0; i < buttons.length; i++) {
+                    buttons[i].classList.remove('active');
+                }
                 buttonElement.classList.add('active');
             }
         }
 
         function toggleFullscreen(mapId) {
-            const mapElement = document.getElementById(mapId);
+            var mapElement = document.getElementById(mapId);
             if (!mapElement) return;
 
             if (!document.fullscreenElement) {
                 mapElement.requestFullscreen().then(function() {
                     setTimeout(function() {
-                        const type = mapId.replace('-map', '');
+                        var type = mapId.replace('-map', '');
                         if (maps[type]) maps[type].invalidateSize();
                     }, 100);
                 }).catch(function(err) {
@@ -1207,7 +1242,7 @@
         }
 
         function toggleLayer(layerType) {
-            const checkbox = document.getElementById('toggle-' + layerType);
+            var checkbox = document.getElementById('toggle-' + layerType);
             if (!checkbox || !combinedLayers[layerType] || !maps.combined) return;
 
             if (checkbox.checked) {
@@ -1222,15 +1257,19 @@
         // ============================================================
         function showDetailedInfo(type, name) {
             // Find the item in data
-            const data = landformData[type];
+            var data = landformData[type];
             if (!data) {
                 console.error('Data not found for type:', type);
                 return;
             }
 
-            const item = data.find(function(d) {
-                return d.name === name;
-            });
+            var item = null;
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].name === name) {
+                    item = data[i];
+                    break;
+                }
+            }
             
             if (!item) {
                 console.error('Item not found:', name);
@@ -1246,53 +1285,55 @@
         // ============================================================
         function createDetailModal(item, type) {
             // Remove existing modal if any
-            const existingModal = document.getElementById('landform-detail-modal');
+            var existingModal = document.getElementById('landform-detail-modal');
             if (existingModal) {
                 existingModal.remove();
             }
 
             // Emoji mapping
-            const emojis = {
+            var emojis = {
                 'valleys': '🏞️', 'canyons': '🏔️', 'deserts': '🏜️',
                 'islands': '🏝️', 'caves': '🕳️', 'volcanic': '🌋'
             };
 
-            const emoji = emojis[type] || '📍';
-            const typeName = type.charAt(0).toUpperCase() + type.slice(1);
+            var emoji = emojis[type] || '📍';
+            var typeName = type.charAt(0).toUpperCase() + type.slice(1);
 
             // Build info rows
-            let infoRowsHTML = '';
-            const excludeKeys = ['lat', 'lon', 'name', 'localName', 'id', 'imageUrl'];
+            var infoRowsHTML = '';
+            var excludeKeys = ['lat', 'lon', 'name', 'localName', 'id', 'imageUrl'];
             
-            Object.entries(item).forEach(function([key, value]) {
-                if (!excludeKeys.includes(key) && value !== null && value !== undefined) {
-                    // Format key
-                    let label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+            for (var key in item) {
+                if (item.hasOwnProperty(key)) {
+                    if (excludeKeys.indexOf(key) === -1 && item[key] !== null && item[key] !== undefined) {
+                        // Format key
+                        var label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
 
-                    // Format value
-                    let displayValue = value;
-                    if (typeof value === 'object') {
-                        displayValue = JSON.stringify(value);
-                    }
+                        // Format value
+                        var displayValue = item[key];
+                        if (typeof displayValue === 'object') {
+                            displayValue = JSON.stringify(displayValue);
+                        }
 
-                    // Special styling for fun fact
-                    if (key === 'funFact') {
-                        infoRowsHTML += '<tr class="fun-fact-row"><td colspan="2">' +
-                            '<div class="fun-fact-cell">' +
-                            '<strong>🎉 Fun Fact</strong>' +
-                            '<p>' + displayValue + '</p>' +
-                            '</div></td></tr>';
-                    } else {
-                        infoRowsHTML += '<tr>' +
-                            '<td class="label-cell">' + label + '</td>' +
-                            '<td class="value-cell">' + displayValue + '</td>' +
-                            '</tr>';
+                        // Special styling for fun fact
+                        if (key === 'funFact') {
+                            infoRowsHTML += '<tr class="fun-fact-row"><td colspan="2">' +
+                                '<div class="fun-fact-cell">' +
+                                '<strong>🎉 Fun Fact</strong>' +
+                                '<p>' + displayValue + '</p>' +
+                                '</div></td></tr>';
+                        } else {
+                            infoRowsHTML += '<tr>' +
+                                '<td class="label-cell">' + label + '</td>' +
+                                '<td class="value-cell">' + displayValue + '</td>' +
+                                '</tr>';
+                        }
                     }
                 }
-            });
+            }
 
             // Create modal HTML
-            const modalHTML = '<div id="landform-detail-modal" class="detail-modal-overlay" onclick="closeDetailModal(event)">' +
+            var modalHTML = '<div id="landform-detail-modal" class="detail-modal-overlay" onclick="closeDetailModal(event)">' +
                 '<div class="detail-modal-content" onclick="event.stopPropagation()">' +
                 
                 '<div class="detail-modal-header">' +
@@ -1359,7 +1400,7 @@
                 event.stopPropagation();
             }
             
-            const modal = document.getElementById('landform-detail-modal');
+            var modal = document.getElementById('landform-detail-modal');
             if (modal) {
                 modal.classList.add('closing');
                 setTimeout(function() {
@@ -1382,7 +1423,7 @@
         function addModalStyles() {
             if (document.getElementById('modal-styles')) return;
 
-            const styles = document.createElement('style');
+            var styles = document.createElement('style');
             styles.id = 'modal-styles';
             styles.textContent = 
                 '.detail-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s ease; overflow-y: auto; }' +
@@ -1429,23 +1470,25 @@
         // UI UPDATES
         // ============================================================
         function updateStatus(mapsCreated, totalMarkers) {
-            const statusElement = document.getElementById('data-status');
-            const statusText = document.getElementById('status-text');
+            var statusElement = document.getElementById('data-status');
+            var statusText = document.getElementById('status-text');
+            
+            statusElement.classList.remove('loading');
             
             if (mapsCreated > 0) {
                 statusElement.classList.remove('error');
-                statusText.innerHTML = '✅ ' + mapsCreated + ' maps loaded with ' + totalMarkers + ' landform markers!';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i><span>' + mapsCreated + ' maps loaded with ' + totalMarkers + ' landform markers!</span>';
                 
                 // Update stats
                 document.getElementById('stat-locations').textContent = totalMarkers;
             } else {
                 statusElement.classList.add('error');
-                statusText.innerHTML = '❌ Maps failed to load. Please refresh the page.';
+                statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Maps failed to load. Please refresh the page.</span>';
             }
         }
 
         // Scroll to top
-        const scrollTopBtn = document.getElementById('scrollTop');
+        var scrollTopBtn = document.getElementById('scrollTop');
         
         window.addEventListener('scroll', function() {
             if (window.pageYOffset > 300) {
@@ -1463,25 +1506,37 @@
         // INITIALIZE ON PAGE LOAD
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 Page loaded, initializing maps...');
+            console.log('📄 Page loaded, loading data...');
             
-            // Small delay to ensure DOM is ready
-            setTimeout(function() {
-                try {
-                    initMaps();
-                } catch (error) {
-                    console.error('❌ Critical error:', error);
-                    document.getElementById('status-text').innerHTML = '❌ Error: ' + error.message;
-                    document.getElementById('data-status').classList.add('error');
-                }
-            }, 100);
+            // Load external data first, then initialize maps
+            loadExternalData().then(function(data) {
+                landformData = data;
+                console.log('📊 Data loaded:', Object.keys(landformData));
+                
+                // Small delay to ensure everything is ready
+                setTimeout(function() {
+                    try {
+                        initMaps();
+                    } catch (error) {
+                        console.error('❌ Critical error:', error);
+                        var statusElement = document.getElementById('data-status');
+                        statusElement.classList.remove('loading');
+                        statusElement.classList.add('error');
+                        statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Error: ' + error.message + '</span>';
+                    }
+                }, 100);
+            });
         });
 
         // Handle fullscreen exit
         document.addEventListener('fullscreenchange', function() {
-            Object.values(maps).forEach(function(map) {
-                if (map) setTimeout(function() { map.invalidateSize(); }, 100);
-            });
+            for (var key in maps) {
+                if (maps.hasOwnProperty(key) && maps[key]) {
+                    setTimeout(function() {
+                        maps[key].invalidateSize();
+                    }, 100);
+                }
+            }
         });
 
         console.log('📦 Script loaded successfully!');
