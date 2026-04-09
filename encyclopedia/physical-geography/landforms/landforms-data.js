@@ -4013,7 +4013,7 @@ const LandformsData = {
             rank: "Largest European peninsula",
             features: "Fjords, Northern Lights, midnight sun",
             length: "1,850 km",
-            countries: 2 '(core)',
+            countries: "2, (core)",
             funFact: "Largest European peninsula; has 50,000+ islands along Norwegian coast",
             imageUrl: "scandinavian-peninsula.jpg"
         },
