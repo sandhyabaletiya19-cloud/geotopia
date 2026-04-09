@@ -1111,46 +1111,41 @@
             const marker = L.marker([item.lat, item.lon], { icon: icon });
             
             // Create popup
-            const popupContent = createPopupContent(item, type);
-            marker.bindPopup(popupContent, { maxWidth: 300 });
-            
-            return marker;
+            function createPopupContent(item, type) {
+    const emoji = {
+        valleys: '🏞️',
+        canyons: '🏔️',
+        deserts: '🏜️',
+        islands: '🏝️',
+        caves: '🕳️',
+        volcanic: '🌋'
+    };
+
+    let statsHtml = '';
+    Object.entries(item).forEach(([key, value]) => {
+        if (!['lat', 'lon', 'name', 'funFact'].includes(key)) {
+            const label = key.charAt(0).toUpperCase() + key.slice(1);
+            statsHtml += `<div class="popup-stat"><strong>${label}:</strong> <span>${value}</span></div>`;
         }
+    });
 
-        function createPopupContent(item, type) {
-            const emoji = {
-                valleys: '🏞️',
-                canyons: '🏔️',
-                deserts: '🏜️',
-                islands: '🏝️',
-                caves: '🕳️',
-                volcanic: '🌋'
-            };
+    const funFactHtml = item.funFact ? `
+        <div style="background: #fff5e6; padding: 8px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #ff6b6b;">
+            <strong style="color: #ff6b6b;">🎉 Fun Fact:</strong><br>
+            <span style="font-size: 0.85rem;">${item.funFact}</span>
+        </div>
+    ` : '';
 
-            let statsHtml = '';
-            Object.entries(item).forEach(([key, value]) => {
-                if (!['lat', 'lon', 'name', 'funFact'].includes(key)) {
-                    const label = key.charAt(0).toUpperCase() + key.slice(1);
-                    statsHtml += `<div class="popup-stat"><strong>${label}:</strong> <span>${value}</span></div>`;
-                }
-            });
-
-            const funFactHtml = item.funFact ? `
-                <div style="background: #fff5e6; padding: 8px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #ff6b6b;">
-                    <strong style="color: #ff6b6b;">🎉 Fun Fact:</strong><br>
-                    <span style="font-size: 0.85rem;">${item.funFact}</span>
-                </div>
-            ` : '';
-
-            return `
-                <div class="popup-content">
-                    <div class="popup-title">${emoji[type] || '📍'} ${item.name}</div>
-                    <div class="popup-stats">${statsHtml}</div>
-                    ${funFactHtml}
-                    <button class="popup-btn" onclick="showDetails('${item.name}')">📊 More Details</button>
-                </div>
-            `;
-        }
+    return `
+        <div class="popup-content">
+            <div class="popup-title">${emoji[type] || '📍'} ${item.name}</div>
+            <div class="popup-stats">${statsHtml}</div>
+            ${funFactHtml}
+            <!-- ✅ FIXED: Changed showDetails to showDetailedInfo with both parameters -->
+            <button class="popup-btn" onclick="showDetailedInfo('${type}', '${item.name}')">📊 More Details</button>
+        </div>
+    `;
+}
 
         // ============================================================
         // MAP CONTROLS
