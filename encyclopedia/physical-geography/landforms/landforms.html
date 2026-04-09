@@ -893,12 +893,15 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <!-- External Data File -->
+    <script src="https://sandhyabaletiya19-cloud.github.io/geotopia/encyclopedia/physical-geography/landforms/landform-data.js"></script>
+
     <!-- Main JavaScript -->
     <script>
         // ============================================================
-        // LANDFORMS DATA - EMBEDDED FOR RELIABILITY
+        // FALLBACK DATA (in case external file fails)
         // ============================================================
-        const landformData = {
+        const fallbackData = {
             valleys: [
                 {name: 'Kashmir Valley', country: 'India', lat: 34.0837, lon: 74.7973, length: '135 km', type: 'Tectonic', funFact: 'Called Paradise on Earth'},
                 {name: 'Great Rift Valley', country: 'Kenya', lat: -1.2921, lon: 36.8219, length: '6,000 km', type: 'Tectonic', funFact: 'Birthplace of humanity'},
@@ -944,7 +947,7 @@
                 {name: 'Hawaii', country: 'USA', lat: 19.8968, lon: -155.5828, islands: '137', type: 'Volcanic', funFact: 'Still growing from lava'},
                 {name: 'Maldives', country: 'Maldives', lat: 3.2028, lon: 73.2207, islands: '1,192', elevation: '1.5 m', funFact: 'Lowest country on Earth'},
                 {name: 'Borneo', country: 'Malaysia/Indonesia/Brunei', lat: 0.9619, lon: 114.5548, area: '748,168 km²', rank: '#3 Largest', funFact: 'Oldest rainforest (140M years)'},
-                {name: 'Sri Lanka', country: 'Sri Lanka', lat: 7.8731, lon: 80.7718, area: '65,610 km²', name: 'Ceylon', funFact: 'Word serendipity from here'},
+                {name: 'Sri Lanka', country: 'Sri Lanka', lat: 7.8731, lon: 80.7718, area: '65,610 km²', oldName: 'Ceylon', funFact: 'Word serendipity from here'},
                 {name: 'Easter Island', country: 'Chile', lat: -27.1127, lon: -109.3497, statues: '887 Moai', isolation: '3,700 km from Chile', funFact: 'Most remote inhabited island'}
             ],
             caves: [
@@ -972,6 +975,9 @@
                 {name: 'Mount Erebus', country: 'Antarctica', lat: -77.5278, lon: 167.1531, elevation: '3,794 m', lava: 'Persistent lake', funFact: 'Southernmost active volcano'}
             ]
         };
+
+        // Use external data if available, otherwise use fallback
+        const landformData = (typeof window.landformData !== 'undefined') ? window.landformData : fallbackData;
 
         // ============================================================
         // MAP CONFIGURATION
@@ -1006,13 +1012,13 @@
             let mapsCreated = 0;
             let totalMarkers = 0;
 
-            mapTypes.forEach(type => {
-                const mapElement = document.getElementById(`${type}-map`);
+            mapTypes.forEach(function(type) {
+                const mapElement = document.getElementById(type + '-map');
                 
                 if (mapElement) {
                     try {
                         // Create map
-                        const map = L.map(`${type}-map`, {
+                        const map = L.map(type + '-map', {
                             center: [20, 0],
                             zoom: 2,
                             minZoom: 1,
@@ -1032,7 +1038,7 @@
                         // Add markers
                         if (type === 'combined') {
                             // Add all landform types to combined map
-                            Object.keys(landformData).forEach(landformType => {
+                            Object.keys(landformData).forEach(function(landformType) {
                                 const layer = L.layerGroup();
                                 const count = addMarkersToLayer(layer, landformData[landformType], landformType);
                                 layer.addTo(map);
@@ -1048,10 +1054,10 @@
                         }
 
                         mapsCreated++;
-                        console.log(`✅ ${type} map created`);
+                        console.log('✅ ' + type + ' map created');
 
                     } catch (error) {
-                        console.error(`❌ Error creating ${type} map:`, error);
+                        console.error('❌ Error creating ' + type + ' map:', error);
                     }
                 }
             });
@@ -1067,7 +1073,7 @@
             if (!data || !Array.isArray(data)) return 0;
             
             let count = 0;
-            data.forEach(item => {
+            data.forEach(function(item) {
                 if (item.lat && item.lon) {
                     const marker = createMarker(item, type);
                     marker.addTo(map);
@@ -1081,7 +1087,7 @@
             if (!data || !Array.isArray(data)) return 0;
             
             let count = 0;
-            data.forEach(item => {
+            data.forEach(function(item) {
                 if (item.lat && item.lon) {
                     const marker = createMarker(item, type);
                     marker.addTo(layer);
@@ -1091,67 +1097,65 @@
             return count;
         }
 
-       createMarker(item, type) {
-    const color = iconColors[type] || '#1a5f7a';
-    
-    const icon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="
-            background: ${color}; 
-            width: 14px; 
-            height: 14px; 
-            border-radius: 50%; 
-            border: 2px solid white; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        "></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7]
-    });
+        // ============================================================
+        // CREATE MARKER - FIXED VERSION
+        // ============================================================
+        function createMarker(item, type) {
+            const color = iconColors[type] || '#1a5f7a';
+            
+            const icon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="background: ' + color + '; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>',
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+            });
 
-    const marker = L.marker([item.lat, item.lon], { icon: icon });
-    
-    // Create popup and bind it to marker
-    const popupContent = createPopupContent(item, type);
-    marker.bindPopup(popupContent, { maxWidth: 300 });
-    
-    return marker;  // ✅ This was missing!
-}  // ✅ This closing brace was missing!
-
-// ✅ This function should be OUTSIDE createMarker, not inside it
-function createPopupContent(item, type) {
-    const emoji = {
-        valleys: '🏞️',
-        canyons: '🏔️',
-        deserts: '🏜️',
-        islands: '🏝️',
-        caves: '🕳️',
-        volcanic: '🌋'
-    };
-
-    let statsHtml = '';
-    Object.entries(item).forEach(([key, value]) => {
-        if (!['lat', 'lon', 'name', 'funFact'].includes(key)) {
-            const label = key.charAt(0).toUpperCase() + key.slice(1);
-            statsHtml += `<div class="popup-stat"><strong>${label}:</strong> <span>${value}</span></div>`;
+            const marker = L.marker([item.lat, item.lon], { icon: icon });
+            
+            // Create popup and bind it to marker
+            const popupContent = createPopupContent(item, type);
+            marker.bindPopup(popupContent, { maxWidth: 300 });
+            
+            return marker;
         }
-    });
 
-    const funFactHtml = item.funFact ? `
-        <div style="background: #fff5e6; padding: 8px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #ff6b6b;">
-            <strong style="color: #ff6b6b;">🎉 Fun Fact:</strong><br>
-            <span style="font-size: 0.85rem;">${item.funFact}</span>
-        </div>
-    ` : '';
+        // ============================================================
+        // CREATE POPUP CONTENT - SEPARATE FUNCTION
+        // ============================================================
+        function createPopupContent(item, type) {
+            const emoji = {
+                valleys: '🏞️',
+                canyons: '🏔️',
+                deserts: '🏜️',
+                islands: '🏝️',
+                caves: '🕳️',
+                volcanic: '🌋'
+            };
 
-    return `
-        <div class="popup-content">
-            <div class="popup-title">${emoji[type] || '📍'} ${item.name}</div>
-            <div class="popup-stats">${statsHtml}</div>
-            ${funFactHtml}
-            <button class="popup-btn" onclick="showDetailedInfo('${type}', '${item.name}')">📊 More Details</button>
-        </div>
-    `;
-}
+            let statsHtml = '';
+            Object.entries(item).forEach(function([key, value]) {
+                if (!['lat', 'lon', 'name', 'funFact'].includes(key)) {
+                    const label = key.charAt(0).toUpperCase() + key.slice(1);
+                    statsHtml += '<div class="popup-stat"><strong>' + label + ':</strong> <span>' + value + '</span></div>';
+                }
+            });
+
+            const funFactHtml = item.funFact ? 
+                '<div style="background: #fff5e6; padding: 8px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #ff6b6b;">' +
+                '<strong style="color: #ff6b6b;">🎉 Fun Fact:</strong><br>' +
+                '<span style="font-size: 0.85rem;">' + item.funFact + '</span>' +
+                '</div>' : '';
+
+            // Escape the name for use in onclick
+            const escapedName = item.name.replace(/'/g, "\\'");
+
+            return '<div class="popup-content">' +
+                '<div class="popup-title">' + (emoji[type] || '📍') + ' ' + item.name + '</div>' +
+                '<div class="popup-stats">' + statsHtml + '</div>' +
+                funFactHtml +
+                '<button class="popup-btn" onclick="showDetailedInfo(\'' + type + '\', \'' + escapedName + '\')">📊 More Details</button>' +
+                '</div>';
+        }
 
         // ============================================================
         // MAP CONTROLS
@@ -1163,7 +1167,7 @@ function createPopupContent(item, type) {
             }
 
             // Update tile layer
-            maps[mapType].eachLayer(layer => {
+            maps[mapType].eachLayer(function(layer) {
                 if (layer instanceof L.TileLayer) {
                     maps[mapType].removeLayer(layer);
                 }
@@ -1175,9 +1179,11 @@ function createPopupContent(item, type) {
             }).addTo(maps[mapType]);
 
             // Update button states
-            const section = document.getElementById(`${mapType}-section`);
+            const section = document.getElementById(mapType + '-section');
             if (section) {
-                section.querySelectorAll('.map-btn').forEach(btn => btn.classList.remove('active'));
+                section.querySelectorAll('.map-btn').forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
                 buttonElement.classList.add('active');
             }
         }
@@ -1187,19 +1193,21 @@ function createPopupContent(item, type) {
             if (!mapElement) return;
 
             if (!document.fullscreenElement) {
-                mapElement.requestFullscreen().then(() => {
-                    setTimeout(() => {
+                mapElement.requestFullscreen().then(function() {
+                    setTimeout(function() {
                         const type = mapId.replace('-map', '');
                         if (maps[type]) maps[type].invalidateSize();
                     }, 100);
-                }).catch(err => console.warn('Fullscreen error:', err));
+                }).catch(function(err) {
+                    console.warn('Fullscreen error:', err);
+                });
             } else {
                 document.exitFullscreen();
             }
         }
 
         function toggleLayer(layerType) {
-            const checkbox = document.getElementById(`toggle-${layerType}`);
+            const checkbox = document.getElementById('toggle-' + layerType);
             if (!checkbox || !combinedLayers[layerType] || !maps.combined) return;
 
             if (checkbox.checked) {
@@ -1209,577 +1217,214 @@ function createPopupContent(item, type) {
             }
         }
 
-       // ============================================================
-// SHOW DETAILED INFO - BEAUTIFUL MODAL
-// ============================================================
-function showDetailedInfo(type, name) {
-    // Find the item in data
-    const data = landformData[type];
-    if (!data) {
-        console.error('Data not found for type:', type);
-        return;
-    }
+        // ============================================================
+        // SHOW DETAILED INFO - MODAL
+        // ============================================================
+        function showDetailedInfo(type, name) {
+            // Find the item in data
+            const data = landformData[type];
+            if (!data) {
+                console.error('Data not found for type:', type);
+                return;
+            }
 
-    const item = data.find(d => d.name === name);
-    
-    if (!item) {
-        console.error('Item not found:', name);
-        return;
-    }
+            const item = data.find(function(d) {
+                return d.name === name;
+            });
+            
+            if (!item) {
+                console.error('Item not found:', name);
+                return;
+            }
 
-    // Create modal
-    createDetailModal(item, type);
-}
+            // Create modal
+            createDetailModal(item, type);
+        }
 
-// ============================================================
-// CREATE DETAIL MODAL
-// ============================================================
-function createDetailModal(item, type) {
-    // Remove existing modal if any
-    const existingModal = document.getElementById('landform-detail-modal');
-    if (existingModal) {
-        existingModal.remove();
-    }
+        // ============================================================
+        // CREATE DETAIL MODAL
+        // ============================================================
+        function createDetailModal(item, type) {
+            // Remove existing modal if any
+            const existingModal = document.getElementById('landform-detail-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
 
-    // Emoji mapping
-    const emojis = {
-        'valleys': '🏞️', 'canyons': '🏔️', 'gorges': '⛰️',
-        'hot-deserts': '🏜️', 'cold-deserts': '❄️', 'coastal-deserts': '🌊',
-        'islands': '🏝️', 'archipelagos': '🗺️', 'peninsulas': '🌍',
-        'caves': '🕳️', 'glacial': '🧊', 'volcanic': '🌋',
-        'coastal': '🏖️', 'aeolian': '🌬️', 'fluvial': '💧'
-    };
+            // Emoji mapping
+            const emojis = {
+                'valleys': '🏞️', 'canyons': '🏔️', 'deserts': '🏜️',
+                'islands': '🏝️', 'caves': '🕳️', 'volcanic': '🌋'
+            };
 
-    const emoji = emojis[type] || '📍';
-    const typeName = type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const emoji = emojis[type] || '📍';
+            const typeName = type.charAt(0).toUpperCase() + type.slice(1);
 
-    // Build info rows
-    let infoRowsHTML = '';
-    const excludeKeys = ['lat', 'lon', 'name', 'localName', 'id', 'imageUrl'];
-    
-    Object.entries(item).forEach(([key, value]) => {
-        if (!excludeKeys.includes(key) && value !== null && value !== undefined) {
-            // Format key
-            const label = key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, str => str.toUpperCase())
-                .replace('Fun Fact', '🎉 Fun Fact')
-                .replace('Unesco Status', '🏛️ UNESCO Status')
-                .replace('Country', '🌍 Country')
-                .replace('Continent', '🌐 Continent')
-                .replace('Area', '📐 Area')
-                .replace('Length', '📏 Length')
-                .replace('Depth', '📉 Depth')
-                .replace('Height', '📈 Height')
-                .replace('Elevation', '⛰️ Elevation')
-                .replace('Type', '🏷️ Type')
-                .replace('Population', '👥 Population')
-                .replace('Temperature', '🌡️ Temperature');
+            // Build info rows
+            let infoRowsHTML = '';
+            const excludeKeys = ['lat', 'lon', 'name', 'localName', 'id', 'imageUrl'];
+            
+            Object.entries(item).forEach(function([key, value]) {
+                if (!excludeKeys.includes(key) && value !== null && value !== undefined) {
+                    // Format key
+                    let label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
 
-            // Format value
-            let displayValue = value;
-            if (typeof value === 'object') {
-                if (key === 'temperature') {
-                    displayValue = Object.entries(value)
-                        .map(([k, v]) => `<span class="temp-item">${k}: ${v}</span>`)
-                        .join(' | ');
-                } else {
-                    displayValue = JSON.stringify(value, null, 2);
+                    // Format value
+                    let displayValue = value;
+                    if (typeof value === 'object') {
+                        displayValue = JSON.stringify(value);
+                    }
+
+                    // Special styling for fun fact
+                    if (key === 'funFact') {
+                        infoRowsHTML += '<tr class="fun-fact-row"><td colspan="2">' +
+                            '<div class="fun-fact-cell">' +
+                            '<strong>🎉 Fun Fact</strong>' +
+                            '<p>' + displayValue + '</p>' +
+                            '</div></td></tr>';
+                    } else {
+                        infoRowsHTML += '<tr>' +
+                            '<td class="label-cell">' + label + '</td>' +
+                            '<td class="value-cell">' + displayValue + '</td>' +
+                            '</tr>';
+                    }
                 }
-            }
+            });
 
-            // Special styling for fun fact
-            if (key === 'funFact') {
-                infoRowsHTML += `
-                    <tr class="fun-fact-row">
-                        <td colspan="2">
-                            <div class="fun-fact-cell">
-                                <strong>🎉 Fun Fact</strong>
-                                <p>${displayValue}</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            } else {
-                infoRowsHTML += `
-                    <tr>
-                        <td class="label-cell">${label}</td>
-                        <td class="value-cell">${displayValue}</td>
-                    </tr>
-                `;
-            }
-        }
-    });
-
-    // Create modal HTML
-    const modalHTML = `
-        <div id="landform-detail-modal" class="detail-modal-overlay" onclick="closeDetailModal(event)">
-            <div class="detail-modal-content" onclick="event.stopPropagation()">
+            // Create modal HTML
+            const modalHTML = '<div id="landform-detail-modal" class="detail-modal-overlay" onclick="closeDetailModal(event)">' +
+                '<div class="detail-modal-content" onclick="event.stopPropagation()">' +
                 
-                <!-- Header -->
-                <div class="detail-modal-header">
-                    <div class="header-content">
-                        <span class="header-emoji">${emoji}</span>
-                        <div class="header-text">
-                            <h2>${item.name}</h2>
-                            ${item.localName ? `<p class="local-name">${item.localName}</p>` : ''}
-                            <span class="type-badge">${typeName}</span>
-                        </div>
-                    </div>
-                    <button class="close-modal-btn" onclick="closeDetailModal(event)">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                '<div class="detail-modal-header">' +
+                '<div class="header-content">' +
+                '<span class="header-emoji">' + emoji + '</span>' +
+                '<div class="header-text">' +
+                '<h2>' + item.name + '</h2>' +
+                '<span class="type-badge">' + typeName + '</span>' +
+                '</div></div>' +
+                '<button class="close-modal-btn" onclick="closeDetailModal(event)">' +
+                '<i class="fas fa-times"></i></button>' +
+                '</div>' +
 
-                <!-- Body -->
-                <div class="detail-modal-body">
-                    
-                    <!-- Quick Stats -->
-                    <div class="quick-stats">
-                        <div class="quick-stat">
-                            <span class="stat-icon">🌍</span>
-                            <span class="stat-value">${item.country || 'N/A'}</span>
-                            <span class="stat-label">Country</span>
-                        </div>
-                        <div class="quick-stat">
-                            <span class="stat-icon">🌐</span>
-                            <span class="stat-value">${item.continent || 'N/A'}</span>
-                            <span class="stat-label">Continent</span>
-                        </div>
-                        <div class="quick-stat">
-                            <span class="stat-icon">📍</span>
-                            <span class="stat-value">${item.lat?.toFixed(2)}°, ${item.lon?.toFixed(2)}°</span>
-                            <span class="stat-label">Coordinates</span>
-                        </div>
-                    </div>
+                '<div class="detail-modal-body">' +
+                
+                '<div class="quick-stats">' +
+                '<div class="quick-stat">' +
+                '<span class="stat-icon">🌍</span>' +
+                '<span class="stat-value">' + (item.country || 'N/A') + '</span>' +
+                '<span class="stat-label">Country</span>' +
+                '</div>' +
+                '<div class="quick-stat">' +
+                '<span class="stat-icon">📍</span>' +
+                '<span class="stat-value">' + item.lat.toFixed(2) + '°, ' + item.lon.toFixed(2) + '°</span>' +
+                '<span class="stat-label">Coordinates</span>' +
+                '</div>' +
+                '<div class="quick-stat">' +
+                '<span class="stat-icon">' + emoji + '</span>' +
+                '<span class="stat-value">' + typeName + '</span>' +
+                '<span class="stat-label">Type</span>' +
+                '</div></div>' +
 
-                    <!-- Detailed Info Table -->
-                    <div class="info-section">
-                        <h3>📋 Complete Information</h3>
-                        <table class="info-table">
-                            <tbody>
-                                ${infoRowsHTML}
-                            </tbody>
-                        </table>
-                    </div>
+                '<div class="info-section">' +
+                '<h3>📋 Complete Information</h3>' +
+                '<table class="info-table"><tbody>' + infoRowsHTML + '</tbody></table>' +
+                '</div>' +
 
-                    <!-- Action Buttons -->
-                    <div class="action-buttons">
-                        <a href="https://www.google.com/maps?q=${item.lat},${item.lon}" 
-                           target="_blank" 
-                           class="action-btn google-maps-btn">
-                            <i class="fas fa-map-marker-alt"></i>
-                            View on Google Maps
-                        </a>
-                        <a href="https://www.google.com/maps/@${item.lat},${item.lon},10z/data=!3m1!1e3" 
-                           target="_blank" 
-                           class="action-btn satellite-btn">
-                            <i class="fas fa-satellite"></i>
-                            Satellite View
-                        </a>
-                        <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.name.replace(/ /g, '_'))}" 
-                           target="_blank" 
-                           class="action-btn wiki-btn">
-                            <i class="fab fa-wikipedia-w"></i>
-                            Wikipedia
-                        </a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent(item.name + ' ' + type)}&tbm=isch" 
-                           target="_blank" 
-                           class="action-btn images-btn">
-                            <i class="fas fa-images"></i>
-                            View Images
-                        </a>
-                    </div>
+                '<div class="action-buttons">' +
+                '<a href="https://www.google.com/maps?q=' + item.lat + ',' + item.lon + '" target="_blank" class="action-btn google-maps-btn">' +
+                '<i class="fas fa-map-marker-alt"></i> Google Maps</a>' +
+                '<a href="https://en.wikipedia.org/wiki/' + encodeURIComponent(item.name.replace(/ /g, '_')) + '" target="_blank" class="action-btn wiki-btn">' +
+                '<i class="fab fa-wikipedia-w"></i> Wikipedia</a>' +
+                '</div></div>' +
 
-                </div>
+                '<div class="detail-modal-footer">' +
+                '<p>📍 Coordinates: ' + item.lat + ', ' + item.lon + '</p>' +
+                '</div></div></div>';
 
-                <!-- Footer -->
-                <div class="detail-modal-footer">
-                    <p>📍 Exact Coordinates: ${item.lat}, ${item.lon}</p>
-                    <p>🗂️ Category: ${typeName}</p>
-                </div>
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-            </div>
-        </div>
-    `;
+            // Add styles if not already added
+            addModalStyles();
 
-    // Add modal to body
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Add styles if not already added
-    addModalStyles();
-
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
-
-    // Focus trap for accessibility
-    const modal = document.getElementById('landform-detail-modal');
-    modal.focus();
-}
-
-// ============================================================
-// CLOSE MODAL
-// ============================================================
-function closeDetailModal(event) {
-    if (event) {
-        event.stopPropagation();
-    }
-    
-    const modal = document.getElementById('landform-detail-modal');
-    if (modal) {
-        modal.classList.add('closing');
-        setTimeout(() => {
-            modal.remove();
-            document.body.style.overflow = '';
-        }, 300);
-    }
-}
-
-// Close on Escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeDetailModal();
-    }
-});
-
-// ============================================================
-// ADD MODAL STYLES (Only once)
-// ============================================================
-function addModalStyles() {
-    if (document.getElementById('modal-styles')) return;
-
-    const styles = document.createElement('style');
-    styles.id = 'modal-styles';
-    styles.textContent = `
-        /* Modal Overlay */
-        .detail-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-            overflow-y: auto;
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
         }
 
-        .detail-modal-overlay.closing {
-            animation: fadeOut 0.3s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-
-        /* Modal Content */
-        .detail-modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 700px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.4s ease;
-        }
-
-        @keyframes slideUp {
-            from { 
-                opacity: 0;
-                transform: translateY(50px) scale(0.95);
+        // ============================================================
+        // CLOSE MODAL
+        // ============================================================
+        function closeDetailModal(event) {
+            if (event) {
+                event.stopPropagation();
             }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
+            
+            const modal = document.getElementById('landform-detail-modal');
+            if (modal) {
+                modal.classList.add('closing');
+                setTimeout(function() {
+                    modal.remove();
+                    document.body.style.overflow = '';
+                }, 300);
             }
         }
 
-        /* Header */
-        .detail-modal-header {
-            background: linear-gradient(135deg, #1a5f7a 0%, #57c5b6 100%);
-            color: white;
-            padding: 25px 30px;
-            border-radius: 20px 20px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-        }
-
-        .header-content {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .header-emoji {
-            font-size: 3rem;
-            line-height: 1;
-        }
-
-        .header-text h2 {
-            margin: 0 0 5px 0;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .header-text .local-name {
-            margin: 0 0 8px 0;
-            opacity: 0.9;
-            font-style: italic;
-            font-size: 1rem;
-        }
-
-        .type-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .close-modal-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-modal-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        /* Body */
-        .detail-modal-body {
-            padding: 25px 30px;
-        }
-
-        /* Quick Stats */
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .quick-stat {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #dee2e6;
-        }
-
-        .quick-stat .stat-icon {
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .quick-stat .stat-value {
-            font-weight: 700;
-            color: #1a5f7a;
-            display: block;
-            font-size: 0.95rem;
-        }
-
-        .quick-stat .stat-label {
-            font-size: 0.75rem;
-            color: #6c757d;
-            display: block;
-            margin-top: 3px;
-        }
-
-        /* Info Section */
-        .info-section h3 {
-            color: #1a5f7a;
-            margin: 0 0 15px 0;
-            font-size: 1.2rem;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 10px;
-        }
-
-        /* Info Table */
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .info-table tr {
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .info-table tr:last-child {
-            border-bottom: none;
-        }
-
-        .info-table td {
-            padding: 12px 0;
-            vertical-align: top;
-        }
-
-        .info-table .label-cell {
-            font-weight: 600;
-            color: #495057;
-            width: 40%;
-            font-size: 0.95rem;
-        }
-
-        .info-table .value-cell {
-            color: #212529;
-            font-size: 0.95rem;
-        }
-
-        /* Fun Fact Row */
-        .fun-fact-row .fun-fact-cell {
-            background: linear-gradient(135deg, #fff5e6 0%, #ffe6f0 100%);
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #ff6b6b;
-            margin: 10px 0;
-        }
-
-        .fun-fact-row .fun-fact-cell strong {
-            color: #ff6b6b;
-            display: block;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-
-        .fun-fact-row .fun-fact-cell p {
-            margin: 0;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        /* Temperature items */
-        .temp-item {
-            background: #e3f2fd;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-right: 5px;
-            font-size: 0.85rem;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .google-maps-btn {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-        }
-
-        .satellite-btn {
-            background: linear-gradient(135deg, #1a5f7a 0%, #57c5b6 100%);
-        }
-
-        .wiki-btn {
-            background: linear-gradient(135deg, #333 0%, #666 100%);
-        }
-
-        .images-btn {
-            background: linear-gradient(135deg, #e91e63 0%, #ff5722 100%);
-        }
-
-        /* Footer */
-        .detail-modal-footer {
-            background: #f8f9fa;
-            padding: 15px 30px;
-            border-radius: 0 0 20px 20px;
-            border-top: 1px solid #e9ecef;
-            text-align: center;
-        }
-
-        .detail-modal-footer p {
-            margin: 5px 0;
-            color: #6c757d;
-            font-size: 0.85rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .detail-modal-content {
-                border-radius: 15px;
-                margin: 10px;
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDetailModal();
             }
+        });
 
-            .detail-modal-header {
-                padding: 20px;
-                border-radius: 15px 15px 0 0;
-            }
+        // ============================================================
+        // ADD MODAL STYLES
+        // ============================================================
+        function addModalStyles() {
+            if (document.getElementById('modal-styles')) return;
 
-            .header-emoji {
-                font-size: 2rem;
-            }
+            const styles = document.createElement('style');
+            styles.id = 'modal-styles';
+            styles.textContent = 
+                '.detail-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s ease; overflow-y: auto; }' +
+                '.detail-modal-overlay.closing { animation: fadeOut 0.3s ease forwards; }' +
+                '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }' +
+                '@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }' +
+                '.detail-modal-content { background: white; border-radius: 20px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.5); animation: slideUp 0.4s ease; }' +
+                '@keyframes slideUp { from { opacity: 0; transform: translateY(50px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }' +
+                '.detail-modal-header { background: linear-gradient(135deg, #1a5f7a 0%, #57c5b6 100%); color: white; padding: 25px 30px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: flex-start; }' +
+                '.header-content { display: flex; align-items: flex-start; gap: 15px; }' +
+                '.header-emoji { font-size: 3rem; line-height: 1; }' +
+                '.header-text h2 { margin: 0 0 5px 0; font-size: 1.8rem; font-weight: 700; }' +
+                '.type-badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }' +
+                '.close-modal-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }' +
+                '.close-modal-btn:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }' +
+                '.detail-modal-body { padding: 25px 30px; }' +
+                '.quick-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }' +
+                '.quick-stat { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #dee2e6; }' +
+                '.quick-stat .stat-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }' +
+                '.quick-stat .stat-value { font-weight: 700; color: #1a5f7a; display: block; font-size: 0.95rem; }' +
+                '.quick-stat .stat-label { font-size: 0.75rem; color: #6c757d; display: block; margin-top: 3px; }' +
+                '.info-section h3 { color: #1a5f7a; margin: 0 0 15px 0; font-size: 1.2rem; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }' +
+                '.info-table { width: 100%; border-collapse: collapse; }' +
+                '.info-table tr { border-bottom: 1px solid #e9ecef; }' +
+                '.info-table td { padding: 12px 0; vertical-align: top; }' +
+                '.info-table .label-cell { font-weight: 600; color: #495057; width: 40%; font-size: 0.95rem; }' +
+                '.info-table .value-cell { color: #212529; font-size: 0.95rem; }' +
+                '.fun-fact-row .fun-fact-cell { background: linear-gradient(135deg, #fff5e6 0%, #ffe6f0 100%); padding: 15px; border-radius: 10px; border-left: 4px solid #ff6b6b; margin: 10px 0; }' +
+                '.fun-fact-row .fun-fact-cell strong { color: #ff6b6b; display: block; margin-bottom: 8px; font-size: 1rem; }' +
+                '.fun-fact-row .fun-fact-cell p { margin: 0; color: #555; line-height: 1.6; }' +
+                '.action-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 25px; }' +
+                '.action-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; color: white; }' +
+                '.action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }' +
+                '.google-maps-btn { background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); }' +
+                '.wiki-btn { background: linear-gradient(135deg, #333 0%, #666 100%); }' +
+                '.detail-modal-footer { background: #f8f9fa; padding: 15px 30px; border-radius: 0 0 20px 20px; border-top: 1px solid #e9ecef; text-align: center; }' +
+                '.detail-modal-footer p { margin: 5px 0; color: #6c757d; font-size: 0.85rem; }' +
+                '@media (max-width: 600px) { .quick-stats { grid-template-columns: 1fr; } .action-buttons { grid-template-columns: 1fr; } }';
 
-            .header-text h2 {
-                font-size: 1.4rem;
-            }
-
-            .detail-modal-body {
-                padding: 20px;
-            }
-
-            .quick-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .action-buttons {
-                grid-template-columns: 1fr;
-            }
-
-            .info-table .label-cell {
-                width: 45%;
-            }
+            document.head.appendChild(styles);
         }
-    `;
 
-    document.head.appendChild(styles);
-}
         // ============================================================
         // UI UPDATES
         // ============================================================
@@ -1789,7 +1434,7 @@ function addModalStyles() {
             
             if (mapsCreated > 0) {
                 statusElement.classList.remove('error');
-                statusText.innerHTML = `✅ ${mapsCreated} maps loaded with ${totalMarkers} landform markers!`;
+                statusText.innerHTML = '✅ ' + mapsCreated + ' maps loaded with ' + totalMarkers + ' landform markers!';
                 
                 // Update stats
                 document.getElementById('stat-locations').textContent = totalMarkers;
@@ -1802,7 +1447,7 @@ function addModalStyles() {
         // Scroll to top
         const scrollTopBtn = document.getElementById('scrollTop');
         
-        window.addEventListener('scroll', () => {
+        window.addEventListener('scroll', function() {
             if (window.pageYOffset > 300) {
                 scrollTopBtn.classList.add('visible');
             } else {
@@ -1810,33 +1455,32 @@ function addModalStyles() {
             }
         });
 
-        scrollTopBtn.addEventListener('click', () => {
+        scrollTopBtn.addEventListener('click', function() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         // ============================================================
         // INITIALIZE ON PAGE LOAD
         // ============================================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 Page loaded, initializing maps...');
             
             // Small delay to ensure DOM is ready
-            setTimeout(() => {
+            setTimeout(function() {
                 try {
                     initMaps();
                 } catch (error) {
                     console.error('❌ Critical error:', error);
-                    document.getElementById('status-text').innerHTML = 
-                        '❌ Error: ' + error.message;
+                    document.getElementById('status-text').innerHTML = '❌ Error: ' + error.message;
                     document.getElementById('data-status').classList.add('error');
                 }
             }, 100);
         });
 
         // Handle fullscreen exit
-        document.addEventListener('fullscreenchange', () => {
-            Object.values(maps).forEach(map => {
-                if (map) setTimeout(() => map.invalidateSize(), 100);
+        document.addEventListener('fullscreenchange', function() {
+            Object.values(maps).forEach(function(map) {
+                if (map) setTimeout(function() { map.invalidateSize(); }, 100);
             });
         });
 
