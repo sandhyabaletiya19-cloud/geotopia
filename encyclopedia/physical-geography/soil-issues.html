@@ -1,0 +1,3066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil Issues: Erosion, Conservation & Fertility | Geotopia Encyclopedia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #c23a22;
+            --primary-light: #e57373;
+            --primary-dark: #8b0000;
+            --secondary: #4caf50;
+            --secondary-light: #81c784;
+            --accent: #ff9800;
+            --warning: #f44336;
+            --success: #4caf50;
+            --info: #2196f3;
+            --bg-light: #fff8f0;
+            --bg-dark: #1a1a2e;
+            --text-light: #333;
+            --text-dark: #f0f0f0;
+            --card-light: #ffffff;
+            --card-dark: #16213e;
+            --shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+            --gradient-hero: linear-gradient(135deg, #8b0000 0%, #c23a22 30%, #ff6b35 60%, #4caf50 100%);
+            --gradient-erosion: linear-gradient(135deg, #d32f2f, #f44336);
+            --gradient-conservation: linear-gradient(135deg, #388e3c, #4caf50);
+            --gradient-fertility: linear-gradient(135deg, #f57c00, #ff9800);
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #1a1a2e;
+            --text-light: #f0f0f0;
+            --card-light: #16213e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-light); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        [data-theme="dark"] .navbar {
+            background: rgba(26,26,46,0.95);
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .theme-toggle {
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 80 Q25 60 50 80 T100 80 V100 H0 Z' fill='rgba(255,255,255,0.05)'/%3E%3Cpath d='M0 85 Q25 65 50 85 T100 85 V100 H0 Z' fill='rgba(255,255,255,0.03)'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+            animation: erode 15s linear infinite;
+        }
+
+        @keyframes erode {
+            0% { background-position: 0 0; }
+            100% { background-position: 200px 0; }
+        }
+
+        .hero-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            animation: fall 10s infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh) translateX(50px); opacity: 0; }
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .breadcrumb a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb a:hover { color: white; }
+        .breadcrumb span { color: rgba(255,255,255,0.5); }
+
+        .hero-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: shake 2s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: rgba(255,255,255,0.9);
+            max-width: 900px;
+            margin-bottom: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-badge {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px 35px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+            min-width: 140px;
+        }
+
+        .stat-badge:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.25);
+        }
+
+        .stat-badge.danger { border-color: #ff6b6b; }
+        .stat-badge.warning { border-color: #ffd93d; }
+        .stat-badge.success { border-color: #6bcb77; }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: white;
+            display: block;
+        }
+
+        .stat-label {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sections */
+        .section {
+            padding: 100px 50px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Topic Cards */
+        .topic-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .topic-tab {
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            font-size: 1rem;
+        }
+
+        .topic-tab.erosion {
+            background: rgba(244, 67, 54, 0.1);
+            color: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .topic-tab.erosion:hover, .topic-tab.erosion.active {
+            background: var(--gradient-erosion);
+            color: white;
+        }
+
+        .topic-tab.conservation {
+            background: rgba(76, 175, 80, 0.1);
+            color: #388e3c;
+            border-color: #388e3c;
+        }
+
+        .topic-tab.conservation:hover, .topic-tab.conservation.active {
+            background: var(--gradient-conservation);
+            color: white;
+        }
+
+        .topic-tab.fertility {
+            background: rgba(255, 152, 0, 0.1);
+            color: #f57c00;
+            border-color: #f57c00;
+        }
+
+        .topic-tab.fertility:hover, .topic-tab.fertility.active {
+            background: var(--gradient-fertility);
+            color: white;
+        }
+
+        /* Child-Friendly Box */
+        .child-friendly-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .child-friendly-box::before {
+            content: '🧒';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            font-size: 180px;
+            opacity: 0.1;
+        }
+
+        .child-friendly-box h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            color: #e65100;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .child-friendly-box p {
+            font-size: 1.2rem;
+            color: #bf360c;
+            line-height: 1.9;
+        }
+
+        .analogy-box {
+            background: rgba(255,255,255,0.8);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 25px;
+            border-left: 6px solid #ff9800;
+        }
+
+        .analogy-box h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Academic Box */
+        .academic-box {
+            background: var(--card-light);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+
+        .academic-box h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+        }
+
+        .academic-box h4 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin: 30px 0 15px;
+        }
+
+        .academic-box p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .academic-box ul, .academic-box ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        .academic-box li {
+            margin-bottom: 10px;
+        }
+
+        /* Issue Cards Grid */
+        .issues-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        @media (max-width: 1200px) {
+            .issues-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .issues-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .issue-card {
+            background: var(--card-light);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .issue-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .issue-card-header {
+            padding: 25px 30px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .issue-card-header.erosion { background: var(--gradient-erosion); }
+        .issue-card-header.conservation { background: var(--gradient-conservation); }
+        .issue-card-header.fertility { background: var(--gradient-fertility); }
+
+        .issue-card-header .icon {
+            font-size: 2.5rem;
+        }
+
+        .issue-card-header h4 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+        }
+
+        .issue-card-body {
+            padding: 30px;
+        }
+
+        .issue-card-body p {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .issue-card-body ul {
+            list-style: none;
+        }
+
+        .issue-card-body li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .issue-card-body li:last-child {
+            border-bottom: none;
+        }
+
+        .issue-card-body li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .issue-card.erosion li::before { color: #d32f2f; }
+        .issue-card.conservation li::before { color: #388e3c; }
+        .issue-card.fertility li::before { color: #f57c00; }
+
+        /* Statistics Dashboard */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 50px 0;
+        }
+
+        .stat-card {
+            background: var(--card-light);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .stat-card.danger::before { background: var(--gradient-erosion); }
+        .stat-card.warning::before { background: var(--gradient-fertility); }
+        .stat-card.success::before { background: var(--gradient-conservation); }
+        .stat-card.info::before { background: linear-gradient(135deg, #1976d2, #2196f3); }
+
+        .stat-card .big-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-card.danger .big-number { color: #d32f2f; }
+        .stat-card.warning .big-number { color: #f57c00; }
+        .stat-card.success .big-number { color: #388e3c; }
+        .stat-card.info .big-number { color: #1976d2; }
+
+        .stat-card .stat-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Erosion Types Visual */
+        .erosion-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .erosion-type-card {
+            background: var(--card-light);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .erosion-type-card:hover {
+            transform: scale(1.02);
+        }
+
+        .erosion-type-visual {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .erosion-type-visual.water { background: linear-gradient(135deg, #bbdefb, #64b5f6); }
+        .erosion-type-visual.wind { background: linear-gradient(135deg, #fff9c4, #ffeb3b); }
+        .erosion-type-visual.tillage { background: linear-gradient(135deg, #d7ccc8, #8d6e63); }
+        .erosion-type-visual.gully { background: linear-gradient(135deg, #ffccbc, #ff5722); }
+        .erosion-type-visual.sheet { background: linear-gradient(135deg, #c8e6c9, #66bb6a); }
+        .erosion-type-visual.rill { background: linear-gradient(135deg, #b3e5fc, #03a9f4); }
+        .erosion-type-visual.coastal { background: linear-gradient(135deg, #80deea, #00bcd4); }
+        .erosion-type-visual.glacial { background: linear-gradient(135deg, #e1f5fe, #4fc3f7); }
+
+        .erosion-type-content {
+            padding: 25px;
+        }
+
+        .erosion-type-content h4 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .erosion-type-content p {
+            color: #555;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .erosion-rate {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .erosion-rate.high { background: #ffebee; color: #c62828; }
+        .erosion-rate.medium { background: #fff3e0; color: #e65100; }
+        .erosion-rate.low { background: #e8f5e9; color: #2e7d32; }
+
+        /* Conservation Methods */
+        .conservation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .conservation-card {
+            background: var(--card-light);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid #4caf50;
+            transition: all 0.3s;
+        }
+
+        .conservation-card:hover {
+            transform: translateX(10px);
+            border-left-width: 10px;
+        }
+
+        .conservation-card h4 {
+            font-family: 'Poppins', sans-serif;
+            color: #2e7d32;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+        }
+
+        .conservation-card p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .effectiveness-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .effectiveness-fill {
+            height: 100%;
+            background: var(--gradient-conservation);
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+
+        .effectiveness-label {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* Fertility Management */
+        .fertility-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .fertility-card {
+            background: var(--card-light);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fertility-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(255,152,0,0.1), rgba(255,152,0,0.05));
+            border-radius: 0 20px 0 100%;
+        }
+
+        .fertility-card h4 {
+            font-family: 'Poppins', sans-serif;
+            color: #e65100;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fertility-card ul {
+            list-style: none;
+        }
+
+        .fertility-card li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+        }
+
+        .fertility-card li::before {
+            content: '🌱';
+            position: absolute;
+            left: 0;
+        }
+
+        /* NPK Visualization */
+        .npk-container {
+            background: var(--card-light);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin: 40px 0;
+        }
+
+        .npk-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .npk-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .npk-card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .npk-card.nitrogen { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+        .npk-card.phosphorus { background: linear-gradient(135deg, #fce4ec, #f8bbd9); }
+        .npk-card.potassium { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+
+        .npk-symbol {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        .npk-card.nitrogen .npk-symbol { color: #1565c0; }
+        .npk-card.phosphorus .npk-symbol { color: #c2185b; }
+        .npk-card.potassium .npk-symbol { color: #e65100; }
+
+        .npk-card h4 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .npk-card ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .npk-card li {
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        /* Map Section */
+        .map-section {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 80px 50px;
+            margin: 60px 0;
+        }
+
+        .map-section .section-title {
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .map-section .section-subtitle {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .map-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #f9fafb;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .map-search {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .map-search input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            font-size: 0.95rem;
+        }
+
+        .map-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .map-search button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .map-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            border-color: var(--primary);
+            background: rgba(194, 58, 34, 0.1);
+        }
+
+        .filter-btn.erosion-filter.active { background: rgba(244, 67, 54, 0.15); border-color: #d32f2f; }
+        .filter-btn.conservation-filter.active { background: rgba(76, 175, 80, 0.15); border-color: #388e3c; }
+        .filter-btn.fertility-filter.active { background: rgba(255, 152, 0, 0.15); border-color: #f57c00; }
+
+        #world-map {
+            height: 700px;
+            width: 100%;
+        }
+
+        .map-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            padding: 25px 30px;
+            background: #f9fafb;
+            border-top: 1px solid #eee;
+        }
+
+        .legend-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 0.9rem;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Leaflet Popup Custom */
+        .leaflet-popup-content-wrapper {
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            min-width: 350px;
+            max-width: 400px;
+        }
+
+        .popup-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+        }
+
+        .popup-header.high-risk { background: var(--gradient-erosion); }
+        .popup-header.medium-risk { background: var(--gradient-fertility); }
+        .popup-header.low-risk { background: var(--gradient-conservation); }
+
+        .popup-header img {
+            width: 50px;
+            height: 35px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .popup-header h4 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .popup-header span {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .popup-body {
+            padding: 20px;
+        }
+
+        .popup-section {
+            margin-bottom: 15px;
+        }
+
+        .popup-section h5 {
+            font-size: 0.9rem;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .popup-section.erosion h5 { color: #d32f2f; }
+        .popup-section.conservation h5 { color: #388e3c; }
+        .popup-section.fertility h5 { color: #f57c00; }
+
+        .popup-points {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .popup-points li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.85rem;
+            color: #555;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .popup-points li:last-child {
+            border-bottom: none;
+        }
+
+        .popup-points li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .popup-section.erosion .popup-points li::before { color: #d32f2f; }
+        .popup-section.conservation .popup-points li::before { color: #388e3c; }
+        .popup-section.fertility .popup-points li::before { color: #f57c00; }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .risk-badge.critical { background: #ffebee; color: #c62828; }
+        .risk-badge.high { background: #fff3e0; color: #e65100; }
+        .risk-badge.moderate { background: #fff8e1; color: #f9a825; }
+        .risk-badge.low { background: #e8f5e9; color: #2e7d32; }
+
+        /* Timeline Section */
+        .timeline-horizontal {
+            display: flex;
+            overflow-x: auto;
+            gap: 30px;
+            padding: 30px 0;
+            margin: 40px 0;
+        }
+
+        .timeline-item-h {
+            min-width: 280px;
+            background: var(--card-light);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .timeline-item-h::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .timeline-item-h:last-child::after {
+            display: none;
+        }
+
+        .timeline-year {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .timeline-item-h h5 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .timeline-item-h p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Quiz Section */
+        .quiz-container {
+            background: var(--card-light);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: var(--shadow);
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .quiz-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .quiz-dot.active {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.2);
+        }
+
+        .quiz-dot.completed {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .quiz-question {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-question h4 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+            margin-bottom: 30px;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .quiz-option {
+            padding: 20px 25px;
+            background: #f5f5f5;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(194, 58, 34, 0.05);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background: rgba(194, 58, 34, 0.1);
+        }
+
+        .quiz-option.correct {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.15);
+        }
+
+        .quiz-option.wrong {
+            border-color: #f44336;
+            background: rgba(244, 67, 54, 0.15);
+        }
+
+        .quiz-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .quiz-btn {
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .quiz-btn-secondary {
+            background: #eee;
+            color: #333;
+        }
+
+        .quiz-btn-primary {
+            background: var(--gradient-hero);
+            color: white;
+        }
+
+        .quiz-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .quiz-result {
+            text-align: center;
+            padding: 40px;
+            background: var(--gradient-hero);
+            border-radius: 20px;
+            color: white;
+        }
+
+        .quiz-result h3 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 5px solid white;
+        }
+
+        .score-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Call to Action */
+        .cta-section {
+            background: var(--gradient-conservation);
+            border-radius: 30px;
+            padding: 60px;
+            text-align: center;
+            color: white;
+            margin: 60px 0;
+        }
+
+        .cta-section h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .cta-btn-primary {
+            background: white;
+            color: #2e7d32;
+        }
+
+        .cta-btn-secondary {
+            background: transparent;
+            border: 3px solid white;
+            color: white;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* References */
+        .references-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .reference-card {
+            background: var(--card-light);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
+        }
+
+        .reference-card h5 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reference-card p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .reference-card a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .reference-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px) scale(1.1);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+
+        .loading-overlay.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 5px solid #eee;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .section {
+                padding: 80px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .section {
+                padding: 60px 20px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                gap: 15px;
+            }
+
+            .stat-badge {
+                padding: 15px 20px;
+                min-width: 100px;
+            }
+
+            .stat-number {
+                font-size: 1.8rem;
+            }
+
+            .child-friendly-box,
+            .academic-box,
+            .quiz-container {
+                padding: 25px;
+            }
+
+            .npk-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #world-map {
+                height: 400px;
+            }
+
+            .cta-section {
+                padding: 40px 25px;
+            }
+
+            .cta-section h3 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Print */
+        @media print {
+            .navbar, .back-to-top, .theme-toggle, .quiz-container {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loader"></div>
+        <div class="loading-text">Loading Soil Issues Encyclopedia...</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">🌍 Geotopia</div>
+        <ul class="nav-links">
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#erosion">Erosion</a></li>
+            <li><a href="#conservation">Conservation</a></li>
+            <li><a href="#fertility">Fertility</a></li>
+            <li><a href="#map">World Map</a></li>
+            <li><a href="#quiz">Quiz</a></li>
+        </ul>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-particles">
+            <div class="particle" style="left: 5%; animation-delay: 0s;"></div>
+            <div class="particle" style="left: 15%; animation-delay: 1s;"></div>
+            <div class="particle" style="left: 25%; animation-delay: 2s;"></div>
+            <div class="particle" style="left: 35%; animation-delay: 0.5s;"></div>
+            <div class="particle" style="left: 45%; animation-delay: 1.5s;"></div>
+            <div class="particle" style="left: 55%; animation-delay: 2.5s;"></div>
+            <div class="particle" style="left: 65%; animation-delay: 0.8s;"></div>
+            <div class="particle" style="left: 75%; animation-delay: 1.8s;"></div>
+            <div class="particle" style="left: 85%; animation-delay: 2.8s;"></div>
+            <div class="particle" style="left: 95%; animation-delay: 0.3s;"></div>
+        </div>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">🏠 Home</a>
+            <span>›</span>
+            <a href="../encyclopedia.html">📚 Encyclopedia</a>
+            <span>›</span>
+            <a href="index.html">🌿 Environmental Geography</a>
+            <span>›</span>
+            <span style="color: white; font-weight: 600;">⚠️ Soil Issues</span>
+        </nav>
+
+        <div class="hero-icon">⚠️🌱</div>
+        <h1 class="hero-title">SOIL ISSUES: EROSION, CONSERVATION & FERTILITY</h1>
+        <p class="hero-subtitle">
+            Understanding the critical challenges facing Earth's soils — from devastating erosion that strips away millennia of 
+            soil formation, to innovative conservation practices and sustainable fertility management across all 197 countries.
+        </p>
+
+        <div class="hero-stats">
+            <div class="stat-badge danger">
+                <span class="stat-number" data-target="24">0</span>
+                <span class="stat-label">Billion Tons Lost/Year</span>
+            </div>
+            <div class="stat-badge danger">
+                <span class="stat-number" data-target="33">0</span>
+                <span class="stat-label">% Degraded Globally</span>
+            </div>
+            <div class="stat-badge warning">
+                <span class="stat-number" data-target="52">0</span>
+                <span class="stat-label">% Farmland Affected</span>
+            </div>
+            <div class="stat-badge success">
+                <span class="stat-number" data-target="15">0</span>
+                <span class="stat-label">% Using Conservation</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-number" data-target="197">0</span>
+                <span class="stat-label">Countries Covered</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="section" id="overview">
+        <div class="section-header">
+            <h2 class="section-title">🌍 Understanding Soil Issues</h2>
+            <p class="section-subtitle">The foundation of life is under threat worldwide</p>
+        </div>
+
+        <!-- Child-Friendly Explanation -->
+        <div class="child-friendly-box">
+            <h3>🧒 For Young Explorers</h3>
+            <p>
+                Imagine you have a beautiful garden with rich, dark soil where plants grow happily. Now imagine a heavy rainstorm 
+                washes away all that soil, or strong winds blow it away like dust. That's called <strong>erosion</strong> — and 
+                it's like losing a treasure that took thousands of years to make! 
+            </p>
+            <p style="margin-top: 15px;">
+                <strong>Conservation</strong> is like being a superhero for soil — we protect it with plants, terraces, and 
+                clever farming tricks. <strong>Fertility</strong> is making sure the soil has all the "vitamins" plants need to 
+                grow big and strong — just like you need healthy food!
+            </p>
+            <div class="analogy-box">
+                <h4>🏠 Think of Soil Like Your Skin!</h4>
+                <p>
+                    Soil is Earth's skin! When you get a cut, it needs time to heal. If you keep scratching it, it gets worse. 
+                    Soil erosion is like scratching Earth's skin over and over. Conservation is like putting a bandage on it 
+                    and letting it heal. And fertility is like eating healthy food so your skin stays strong and healthy!
+                </p>
+            </div>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <h3 style="text-align: center; margin: 50px 0 30px; font-family: 'Poppins', sans-serif; color: var(--primary-dark);">
+            📊 Global Soil Crisis: The Numbers
+        </h3>
+
+        <div class="stats-dashboard">
+            <div class="stat-card danger">
+                <div class="big-number">24B</div>
+                <div class="stat-title">Tons of Soil Lost Annually</div>
+                <div class="stat-desc">Equivalent to 3.4 tons per person on Earth every year</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="big-number">33%</div>
+                <div class="stat-title">Global Soils Degraded</div>
+                <div class="stat-desc">One-third of world's soils are moderately to highly degraded</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="big-number">10M</div>
+                <div class="stat-title">Hectares Lost per Year</div>
+                <div class="stat-desc">Agricultural land lost to erosion annually (size of South Korea)</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="big-number">$400B</div>
+                <div class="stat-title">Annual Economic Loss</div>
+                <div class="stat-desc">Global cost of soil degradation to agriculture</div>
+            </div>
+            <div class="stat-card info">
+                <div class="big-number">75B</div>
+                <div class="stat-title">Tons of Topsoil Lost</div>
+                <div class="stat-desc">From agricultural land globally each year</div>
+            </div>
+            <div class="stat-card success">
+                <div class="big-number">~15%</div>
+                <div class="stat-title">Land Under Conservation</div>
+                <div class="stat-desc">Cropland using conservation tillage practices</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Erosion Section -->
+    <section class="section" id="erosion">
+        <div class="section-header">
+            <h2 class="section-title">💨 Soil Erosion</h2>
+            <p class="section-subtitle">The silent crisis stripping away Earth's fertile skin</p>
+        </div>
+
+        <div class="academic-box">
+            <h3>🎓 Scientific Definition</h3>
+            <p>
+                <strong>Soil erosion</strong> is the displacement of the upper layer of soil by water, wind, ice, or 
+                gravitational forces. It is a natural geological process accelerated dramatically by human activities such as 
+                deforestation, overgrazing, and improper agricultural practices. The erosion rate under natural conditions is 
+                typically 0.001-2 tons/hectare/year, but under intensive agriculture can exceed 100 tons/hectare/year — 
+                far exceeding the rate of soil formation.
+            </p>
+
+            <h4>📐 Key Metrics & Measurements</h4>
+            <ul>
+                <li><strong>Soil Loss Tolerance (T-value):</strong> Maximum allowable erosion rate (typically 5-11 tons/ha/year)</li>
+                <li><strong>Universal Soil Loss Equation (USLE):</strong> A = R × K × LS × C × P (predicts soil loss)</li>
+                <li><strong>Erosivity (R):</strong> Rainfall's erosive potential</li>
+                <li><strong>Erodibility (K):</strong> Soil's susceptibility to erosion</li>
+                <li><strong>Sediment Delivery Ratio:</strong> Proportion of eroded soil reaching waterways</li>
+            </ul>
+        </div>
+
+        <h3 style="text-align: center; margin: 50px 0 30px; font-family: 'Poppins', sans-serif;">
+            🌊💨 Types of Soil Erosion
+        </h3>
+
+        <div class="erosion-types-grid">
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual water">💧🌊</div>
+                <div class="erosion-type-content">
+                    <h4>Water Erosion</h4>
+                    <p>The most widespread type globally. Rainfall and runoff detach and transport soil particles. Responsible for 56% of global soil degradation.</p>
+                    <span class="erosion-rate high">⚠️ High Impact</span>
+                </div>
+            </div>
+
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual wind">💨🏜️</div>
+                <div class="erosion-type-content">
+                    <h4>Wind Erosion</h4>
+                    <p>Dominant in arid and semi-arid regions. Fine particles become airborne, causing dust storms. Affects 28% of degraded land.</p>
+                    <span class="erosion-rate high">⚠️ High Impact</span>
+                </div>
+            </div>
+
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual sheet">🌧️📄</div>
+                <div class="erosion-type-content">
+                    <h4>Sheet Erosion</h4>
+                    <p>Uniform removal of thin soil layers across slopes. Often unnoticed until significant damage occurs. "Silent thief" of topsoil.</p>
+                    <span class="erosion-rate medium">⚡ Medium Impact</span>
+                </div>
+            </div>
+
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual rill">〰️🌧️</div>
+                <div class="erosion-type-content">
+                    <h4>Rill Erosion</h4>
+                    <p>Small channels (rills) formed by concentrated water flow. Can be eliminated by tillage. Early warning sign of serious erosion.</p>
+                    <span class="erosion-rate medium">⚡ Medium Impact</span>
+                </div>
+            </div>
+
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual gully">🕳️⛰️</div>
+                <div class="erosion-type-content">
+                    <h4>Gully Erosion</h4>
+                    <p>Deep channels carved by concentrated runoff. Cannot be crossed by farm equipment. Most severe and visible form.</p>
+                    <span class="erosion-rate high">🔴 Severe Impact</span>
+                </div>
+            </div>
+
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual tillage">🚜🔄</div>
+                <div class="erosion-type-content">
+                    <h4>Tillage Erosion</h4>
+                    <p>Soil movement caused by plowing, especially on slopes. Soil moves downhill with each tillage pass. Often overlooked.</p>
+                    <span class="erosion-rate medium">⚡ Medium Impact</span>
+                </div>
+            </div>
+
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual coastal">🌊🏖️</div>
+                <div class="erosion-type-content">
+                    <h4>Coastal Erosion</h4>
+                    <p>Wave action and tidal forces erode shorelines. Accelerated by sea level rise. Threatens coastal agriculture and infrastructure.</p>
+                    <span class="erosion-rate high">⚠️ High Impact</span>
+                </div>
+            </div>
+
+            <div class="erosion-type-card">
+                <div class="erosion-type-visual glacial">🏔️❄️</div>
+                <div class="erosion-type-content">
+                    <h4>Glacial Erosion</h4>
+                    <p>Ice movement scrapes and transports soil and rock. Creates U-shaped valleys. Important in high latitudes and mountains.</p>
+                    <span class="erosion-rate low">🟢 Low Impact (localized)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Causes of Erosion -->
+        <div class="academic-box" style="margin-top: 50px;">
+            <h3>⚡ Major Causes of Accelerated Erosion</h3>
+            
+            <div class="issues-grid">
+                <div class="issue-card erosion">
+                    <div class="issue-card-header erosion">
+                        <span class="icon">🌳❌</span>
+                        <h4>Deforestation</h4>
+                    </div>
+                    <div class="issue-card-body">
+                        <p>Removal of forest cover eliminates root systems that hold soil in place.</p>
+                        <ul>
+                            <li>13 million hectares of forest lost annually</li>
+                            <li>Erosion rates increase 10-100x after clearing</li>
+                            <li>Amazon, Southeast Asia, Central Africa most affected</li>
+                            <li>Slash-and-burn agriculture particularly damaging</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="issue-card erosion">
+                    <div class="issue-card-header erosion">
+                        <span class="icon">🐄🌾</span>
+                        <h4>Overgrazing</h4>
+                    </div>
+                    <div class="issue-card-body">
+                        <p>Excessive livestock grazing removes protective vegetation cover.</p>
+                        <ul>
+                            <li>35% of global land surface affected</li>
+                            <li>Compaction reduces water infiltration</li>
+                            <li>Creates bare patches susceptible to erosion</li>
+                            <li>Particularly severe in Sahel, Central Asia</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="issue-card erosion">
+                    <div class="issue-card-header erosion">
+                        <span class="icon">🚜⚠️</span>
+                        <h4>Intensive Tillage</h4>
+                    </div>
+                    <div class="issue-card-body">
+                        <p>Repeated plowing destroys soil structure and exposes soil to erosion.</p>
+                        <ul>
+                            <li>Breaks up protective aggregates</li>
+                            <li>Reduces organic matter content</li>
+                            <li>Creates plow pans that limit drainage</li>
+                            <li>Leaves soil bare between crop cycles</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="issue-card erosion">
+                    <div class="issue-card-header erosion">
+                        <span class="icon">🏗️🏠</span>
+                        <h4>Construction & Development</h4>
+                    </div>
+                    <div class="issue-card-body">
+                        <p>Urban expansion and infrastructure remove vegetation and compact soil.</p>
+                        <ul>
+                            <li>Construction sites erode 2000x faster than forests</li>
+                            <li>Impervious surfaces increase runoff</li>
+                            <li>Sediment pollution of waterways</li>
+                            <li>Loss of prime agricultural land</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="issue-card erosion">
+                    <div class="issue-card-header erosion">
+                        <span class="icon">🌧️🔥</span>
+                        <h4>Climate Change</h4>
+                    </div>
+                    <div class="issue-card-body">
+                        <p>Changing precipitation patterns intensify erosion events.</p>
+                        <ul>
+                            <li>More intense rainfall events</li>
+                            <li>Longer droughts increase wind erosion</li>
+                            <li>Permafrost thaw destabilizes soils</li>
+                            <li>Sea level rise causes coastal erosion</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="issue-card erosion">
+                    <div class="issue-card-header erosion">
+                        <span class="icon">⛏️🔥</span>
+                        <h4>Mining & Extraction</h4>
+                    </div>
+                    <div class="issue-card-body">
+                        <p>Resource extraction removes vegetation and disturbs large soil areas.</p>
+                        <ul>
+                            <li>Open-pit mining creates massive disturbance</li>
+                            <li>Tailings ponds contaminate surrounding soils</li>
+                            <li>Acid mine drainage destroys soil biology</li>
+                            <li>Rehabilitation often incomplete</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conservation Section -->
+    <section class="section" id="conservation">
+        <div class="section-header">
+            <h2 class="section-title">🌿 Soil Conservation</h2>
+            <p class="section-subtitle">Protecting Earth's most precious non-renewable resource</p>
+        </div>
+
+        <div class="academic-box">
+            <h3>🎓 Scientific Definition</h3>
+            <p>
+                <strong>Soil conservation</strong> encompasses all practices and strategies that prevent soil erosion, 
+                maintain soil fertility, and preserve soil health for sustainable use. It integrates agronomic, vegetative, 
+                structural, and management measures to reduce erosion, improve water infiltration, enhance organic matter, 
+                and maintain the soil's productive capacity for future generations.
+            </p>
+        </div>
+
+        <h3 style="text-align: center; margin: 50px 0 30px; font-family: 'Poppins', sans-serif; color: #2e7d32;">
+            🛡️ Conservation Methods & Practices
+        </h3>
+
+        <div class="conservation-grid">
+            <div class="conservation-card">
+                <h4>🚜 Conservation Tillage</h4>
+                <p>Minimizing soil disturbance to maintain crop residue cover and soil structure.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ No-till farming leaves soil undisturbed</li>
+                    <li style="padding: 5px 0;">✓ Reduced tillage minimizes passes</li>
+                    <li style="padding: 5px 0;">✓ Maintains 30%+ residue cover</li>
+                    <li style="padding: 5px 0;">✓ Reduces erosion by 60-90%</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 85%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>85%</span>
+                </div>
+            </div>
+
+            <div class="conservation-card">
+                <h4>🌾 Cover Crops</h4>
+                <p>Growing crops specifically to protect and improve soil between cash crop seasons.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ Prevents bare soil exposure</li>
+                    <li style="padding: 5px 0;">✓ Adds organic matter when terminated</li>
+                    <li style="padding: 5px 0;">✓ Legumes fix nitrogen naturally</li>
+                    <li style="padding: 5px 0;">✓ Improves soil structure</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 75%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>75%</span>
+                </div>
+            </div>
+
+            <div class="conservation-card">
+                <h4>📏 Contour Farming</h4>
+                <p>Plowing and planting across slopes following natural contours to reduce runoff.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ Creates natural barriers to water flow</li>
+                    <li style="padding: 5px 0;">✓ Increases water infiltration</li>
+                    <li style="padding: 5px 0;">✓ Reduces rill formation</li>
+                    <li style="padding: 5px 0;">✓ Can reduce erosion by 50%</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 50%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>50%</span>
+                </div>
+            </div>
+
+            <div class="conservation-card">
+                <h4>🏔️ Terracing</h4>
+                <p>Creating level platforms on steep slopes to reduce slope length and gradient.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ Converts slopes to level surfaces</li>
+                    <li style="padding: 5px 0;">✓ Ancient technique (Incas, rice paddies)</li>
+                    <li style="padding: 5px 0;">✓ Allows farming on steep terrain</li>
+                    <li style="padding: 5px 0;">✓ Can reduce erosion by 80%+</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 90%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>90%</span>
+                </div>
+            </div>
+
+            <div class="conservation-card">
+                <h4>🌳 Windbreaks & Shelterbelts</h4>
+                <p>Rows of trees/shrubs planted to reduce wind speed and protect crops/soil.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ Reduces wind erosion by 50-80%</li>
+                    <li style="padding: 5px 0;">✓ Creates favorable microclimate</li>
+                    <li style="padding: 5px 0;">✓ Provides wildlife habitat</li>
+                    <li style="padding: 5px 0;">✓ Can increase crop yields 10-20%</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 70%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>70%</span>
+                </div>
+            </div>
+
+            <div class="conservation-card">
+                <h4>🔄 Crop Rotation</h4>
+                <p>Alternating different crops in sequence to improve soil health and break pest cycles.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ Different root depths access nutrients</li>
+                    <li style="padding: 5px 0;">✓ Legume rotation adds nitrogen</li>
+                    <li style="padding: 5px 0;">✓ Reduces disease and pest pressure</li>
+                    <li style="padding: 5px 0;">✓ Improves soil organic matter</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 65%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>65%</span>
+                </div>
+            </div>
+
+            <div class="conservation-card">
+                <h4>🌊 Waterways & Diversions</h4>
+                <p>Engineered channels to safely convey runoff and prevent gully formation.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ Grassed waterways prevent gullying</li>
+                    <li style="padding: 5px 0;">✓ Diversion terraces redirect water</li>
+                    <li style="padding: 5px 0;">✓ Drop structures control velocity</li>
+                    <li style="padding: 5px 0;">✓ Critical for concentrated flow areas</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 80%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>80%</span>
+                </div>
+            </div>
+
+            <div class="conservation-card">
+                <h4>🦠 Biological Methods</h4>
+                <p>Using living organisms to improve soil structure, fertility, and erosion resistance.</p>
+                <ul style="list-style: none; margin-top: 15px;">
+                    <li style="padding: 5px 0;">✓ Mycorrhizal fungi improve aggregation</li>
+                    <li style="padding: 5px 0;">✓ Earthworms enhance structure</li>
+                    <li style="padding: 5px 0;">✓ Cover crop roots bind soil</li>
+                    <li style="padding: 5px 0;">✓ Biochar improves water retention</li>
+                </ul>
+                <div class="effectiveness-bar">
+                    <div class="effectiveness-fill" style="width: 60%;"></div>
+                </div>
+                <div class="effectiveness-label">
+                    <span>Effectiveness</span>
+                    <span>60%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fertility Section -->
+    <section class="section" id="fertility">
+        <div class="section-header">
+            <h2 class="section-title">🌱 Fertility Management</h2>
+            <p class="section-subtitle">Sustaining the productive capacity of Earth's soils</p>
+        </div>
+
+        <div class="academic-box">
+            <h3>🎓 Scientific Definition</h3>
+            <p>
+                <strong>Soil fertility management</strong> is the science and practice of maintaining and improving the soil's 
+                capacity to supply essential nutrients for plant growth. It involves understanding nutrient cycling, soil 
+                chemistry, biological processes, and implementing practices that optimize nutrient availability while 
+                minimizing environmental impacts such as eutrophication, groundwater contamination, and greenhouse gas emissions.
+            </p>
+
+            <h4>📊 Essential Plant Nutrients</h4>
+            <p>
+                Plants require 17 essential elements. Three come from air and water (C, H, O). The remaining 14 must come from 
+                soil: <strong>Macronutrients</strong> (N, P, K, Ca, Mg, S) and <strong>Micronutrients</strong> (Fe, Mn, Zn, Cu, 
+                B, Mo, Cl, Ni).
+            </p>
+        </div>
+
+        <!-- NPK Visualization -->
+        <div class="npk-container">
+            <h3 style="text-align: center; font-family: 'Poppins', sans-serif; color: var(--primary-dark);">
+                🧪 The Big Three: N-P-K
+            </h3>
+            <p style="text-align: center; color: #666; margin-top: 10px;">
+                The primary macronutrients that plants need in largest quantities
+            </p>
+
+            <div class="npk-grid">
+                <div class="npk-card nitrogen">
+                    <div class="npk-symbol">N</div>
+                    <h4>Nitrogen</h4>
+                    <ul>
+                        <li><strong>Function:</strong> Protein synthesis, chlorophyll, vegetative growth</li>
+                        <li><strong>Deficiency:</strong> Yellowing of older leaves, stunted growth</li>
+                        <li><strong>Sources:</strong> Urea, ammonium nitrate, legume fixation</li>
+                        <li><strong>Environmental Issue:</strong> Nitrate leaching, N₂O emissions</li>
+                        <li><strong>Global Use:</strong> ~120 million tons/year</li>
+                    </ul>
+                </div>
+
+                <div class="npk-card phosphorus">
+                    <div class="npk-symbol">P</div>
+                    <h4>Phosphorus</h4>
+                    <ul>
+                        <li><strong>Function:</strong> Energy transfer (ATP), root development, flowering</li>
+                        <li><strong>Deficiency:</strong> Purple coloration, poor root growth</li>
+                        <li><strong>Sources:</strong> Rock phosphate, superphosphate, bone meal</li>
+                        <li><strong>Environmental Issue:</strong> Eutrophication of water bodies</li>
+                        <li><strong>Global Use:</strong> ~50 million tons/year</li>
+                    </ul>
+                </div>
+
+                <div class="npk-card potassium">
+                    <div class="npk-symbol">K</div>
+                    <h4>Potassium</h4>
+                    <ul>
+                        <li><strong>Function:</strong> Water regulation, disease resistance, fruit quality</li>
+                        <li><strong>Deficiency:</strong> Brown leaf edges, weak stems</li>
+                        <li><strong>Sources:</strong> Potash (KCl), potassium sulfate, wood ash</li>
+                        <li><strong>Environmental Issue:</strong> Salt buildup in soils</li>
+                        <li><strong>Global Use:</strong> ~40 million tons/year</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fertility Management Methods -->
+        <h3 style="text-align: center; margin: 50px 0 30px; font-family: 'Poppins', sans-serif; color: #e65100;">
+            🌿 Fertility Management Strategies
+        </h3>
+
+        <div class="fertility-grid">
+            <div class="fertility-card">
+                <h4>🧪 Soil Testing</h4>
+                <ul>
+                    <li>Regular soil analysis (every 2-3 years)</li>
+                    <li>Test for pH, nutrients, organic matter</li>
+                    <li>Base fertilizer applications on test results</li>
+                    <li>Identify deficiencies before symptoms appear</li>
+                    <li>Precision agriculture uses GPS-based sampling</li>
+                </ul>
+            </div>
+
+            <div class="fertility-card">
+                <h4>🌿 Organic Amendments</h4>
+                <ul>
+                    <li>Compost adds nutrients and improves structure</li>
+                    <li>Animal manures provide slow-release nutrients</li>
+                    <li>Green manures (cover crops plowed under)</li>
+                    <li>Biosolids (treated sewage) where appropriate</li>
+                    <li>Biochar for long-term carbon storage</li>
+                </ul>
+            </div>
+
+            <div class="fertility-card">
+                <h4>⚗️ Mineral Fertilizers</h4>
+                <ul>
+                    <li>Synthetic fertilizers for precise nutrient delivery</li>
+                    <li>Slow-release formulations reduce losses</li>
+                    <li>Foliar application for quick correction</li>
+                    <li>Fertigation (fertilizer + irrigation)</li>
+                    <li>Site-specific management (precision ag)</li>
+                </ul>
+            </div>
+
+            <div class="fertility-card">
+                <h4>🔬 pH Management</h4>
+                <ul>
+                    <li>Lime application raises acidic soil pH</li>
+                    <li>Sulfur lowers alkaline soil pH</li>
+                    <li>Optimal pH (6.0-7.0) maximizes nutrient availability</li>
+                    <li>Some crops prefer acidic (blueberries) or alkaline soils</li>
+                    <li>pH affects microbial activity</li>
+                </ul>
+            </div>
+
+            <div class="fertility-card">
+                <h4>🦠 Biological Fertility</h4>
+                <ul>
+                    <li>Rhizobium inoculants for legume N-fixation</li>
+                    <li>Mycorrhizal fungi improve P uptake</li>
+                    <li>Azotobacter free-living N-fixers</li>
+                    <li>Phosphate-solubilizing bacteria</li>
+                    <li>Vermicomposting (earthworm composting)</li>
+                </ul>
+            </div>
+
+            <div class="fertility-card">
+                <h4>📐 Integrated Nutrient Management</h4>
+                <ul>
+                    <li>Combine organic + inorganic sources</li>
+                    <li>Match nutrient supply to crop demand</li>
+                    <li>4R Stewardship: Right source, rate, time, place</li>
+                    <li>Minimize losses to environment</li>
+                    <li>Build long-term soil health</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Common Soil Fertility Problems -->
+        <div class="academic-box" style="margin-top: 50px;">
+            <h3>⚠️ Common Fertility Problems & Solutions</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 25px;">
+                <div style="background: #ffebee; padding: 25px; border-radius: 15px;">
+                    <h4 style="color: #c62828; margin-bottom: 15px;">🧂 Salinization</h4>
+                    <p><strong>Cause:</strong> Irrigation with saline water, poor drainage, coastal intrusion</p>
+                    <p><strong>Affected Area:</strong> 20% of irrigated land globally</p>
+                    <p><strong>Solutions:</strong> Improved drainage, leaching, salt-tolerant crops, drip irrigation</p>
+                </div>
+
+                <div style="background: #fff3e0; padding: 25px; border-radius: 15px;">
+                    <h4 style="color: #e65100; margin-bottom: 15px;">⬇️ Acidification</h4>
+                    <p><strong>Cause:</strong> Acid rain, nitrogen fertilizers, organic matter decomposition</p>
+                    <p><strong>Affected Area:</strong> 40% of world's arable soils are acidic</p>
+                    <p><strong>Solutions:</strong> Liming, using acid-tolerant varieties, reducing N fertilizer</p>
+                </div>
+
+                <div style="background: #e8f5e9; padding: 25px; border-radius: 15px;">
+                    <h4 style="color: #2e7d32; margin-bottom: 15px;">📉 Organic Matter Decline</h4>
+                    <p><strong>Cause:</strong> Intensive tillage, residue removal, monoculture</p>
+                    <p><strong>Affected Area:</strong> 45% of European soils have low organic matter</p>
+                    <p><strong>Solutions:</strong> Cover crops, reduced tillage, manure application, crop rotation</p>
+                </div>
+
+                <div style="background: #e3f2fd; padding: 25px; border-radius: 15px;">
+                    <h4 style="color: #1565c0; margin-bottom: 15px;">🔒 Nutrient Mining</h4>
+                    <p><strong>Cause:</strong> Removing more nutrients in harvest than are added</p>
+                    <p><strong>Affected Area:</strong> 85% of African farmland has negative nutrient balance</p>
+                    <p><strong>Solutions:</strong> Balanced fertilization, crop residue return, integrated nutrient management</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- World Map Section -->
+    <section class="map-section" id="map">
+        <div style="max-width: 1800px; margin: 0 auto;">
+            <div class="section-header">
+                <h2 class="section-title">🗺️ Global Soil Issues Map</h2>
+                <p class="section-subtitle">Click on any country to see erosion, conservation, and fertility data</p>
+            </div>
+
+            <div class="map-container">
+                <div class="map-toolbar">
+                    <div class="map-search">
+                        <input type="text" id="mapSearch" placeholder="Search country...">
+                        <button onclick="searchOnMap()">🔍 Find</button>
+                    </div>
+                    <div class="map-filters">
+                        <button class="filter-btn erosion-filter active" onclick="toggleFilter('erosion')">
+                            <span style="color: #d32f2f;">⚠️</span> Erosion Risk
+                        </button>
+                        <button class="filter-btn conservation-filter active" onclick="toggleFilter('conservation')">
+                            <span style="color: #388e3c;">🌿</span> Conservation
+                        </button>
+                        <button class="filter-btn fertility-filter active" onclick="toggleFilter('fertility')">
+                            <span style="color: #f57c00;">🌱</span> Fertility
+                        </button>
+                    </div>
+                </div>
+
+                <div id="world-map"></div>
+
+                <div class="map-legend">
+                    <div class="legend-group">
+                        <div class="legend-title">🚨 Erosion Risk Level</div>
+                        <div class="legend-items">
+                            <div class="legend-item"><div class="legend-color" style="background: #c62828;"></div>Critical</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #ef5350;"></div>High</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #ff8a65;"></div>Moderate</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #81c784;"></div>Low</div>
+                        </div>
+                    </div>
+                    <div class="legend-group">
+                        <div class="legend-title">🌿 Conservation Status</div>
+                        <div class="legend-items">
+                            <div class="legend-item"><div class="legend-color" style="background: #2e7d32;"></div>Advanced</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #66bb6a;"></div>Developing</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #ffb74d;"></div>Limited</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historical Timeline -->
+    <section class="section" id="history">
+        <div class="section-header">
+            <h2 class="section-title">📜 History of Soil Conservation</h2>
+            <p class="section-subtitle">Key milestones in protecting Earth's soils</p>
+        </div>
+
+        <div class="timeline-horizontal">
+            <div class="timeline-item-h">
+                <div class="timeline-year">~6000 BCE</div>
+                <h5>First Terraces</h5>
+                <p>Ancient civilizations in Yemen and Andes build terraces to farm steep slopes.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">1930s</div>
+                <h5>Dust Bowl</h5>
+                <p>Catastrophic wind erosion devastates American Great Plains, displacing millions.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">1935</div>
+                <h5>USDA Soil Conservation Service</h5>
+                <p>US establishes first national soil conservation agency after Dust Bowl.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">1960s</div>
+                <h5>Green Revolution</h5>
+                <p>High-yield varieties require intensive fertilization, changing soil management.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">1972</div>
+                <h5>UNEP Founded</h5>
+                <p>UN Environment Programme addresses global environmental issues including soil.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">1982</div>
+                <h5>World Soil Charter</h5>
+                <p>FAO adopts first international framework for sustainable soil management.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">2012</div>
+                <h5>Global Soil Partnership</h5>
+                <p>FAO launches international effort to improve global soil governance.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">2015</div>
+                <h5>International Year of Soils</h5>
+                <p>UN declares 2015 International Year of Soils; Dec 5 = World Soil Day.</p>
+            </div>
+            <div class="timeline-item-h">
+                <div class="timeline-year">2020s</div>
+                <h5>Regenerative Agriculture</h5>
+                <p>Growing movement to restore soil health through holistic practices.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz Section -->
+    <section class="section" id="quiz">
+        <div class="section-header">
+            <h2 class="section-title">🧠 Test Your Knowledge</h2>
+            <p class="section-subtitle">How much do you know about soil issues?</p>
+        </div>
+
+        <div class="quiz-container">
+            <div class="quiz-progress" id="quizProgress">
+                <!-- Dots generated by JS -->
+            </div>
+
+            <div id="quizContent">
+                <!-- Quiz content generated by JS -->
+            </div>
+
+            <div class="quiz-actions" id="quizActions">
+                <button class="quiz-btn quiz-btn-secondary" onclick="prevQuestion()" id="prevBtn">← Previous</button>
+                <button class="quiz-btn quiz-btn-primary" onclick="nextQuestion()" id="nextBtn">Next →</button>
+            </div>
+
+            <div class="quiz-result" id="quizResult" style="display: none;">
+                <div class="score-circle">
+                    <span class="score-value" id="finalScore">0</span>
+                    <span>/10</span>
+                </div>
+                <h3 id="resultTitle">Quiz Complete!</h3>
+                <p id="resultMessage">You've completed the soil issues quiz.</p>
+                <button class="quiz-btn quiz-btn-primary" onclick="resetQuiz()" style="margin-top: 20px; background: white; color: #388e3c;">
+                    🔄 Try Again
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="section">
+        <div class="cta-section">
+            <h3>🌍 Take Action for Soil Health</h3>
+            <p>
+                Every person can contribute to soil conservation. Whether you're a farmer, gardener, consumer, or citizen, 
+                your choices matter for the future of our soils.
+            </p>
+            <div class="cta-buttons">
+                <a href="#conservation" class="cta-btn cta-btn-primary">🌿 Learn Conservation Methods</a>
+                <a href="#map" class="cta-btn cta-btn-secondary">🗺️ Explore Global Data</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- References -->
+    <section class="section" id="references">
+        <div class="section-header">
+            <h2 class="section-title">📚 References & Sources</h2>
+            <p class="section-subtitle">Academic and institutional sources for this encyclopedia</p>
+        </div>
+
+        <div class="references-grid">
+            <div class="reference-card">
+                <h5>📖 FAO SOLAW Report</h5>
+                <p>State of the World's Land and Water Resources for Food and Agriculture (2021)</p>
+                <a href="https://www.fao.org/land-water/solaw2021/en/" target="_blank">View Source →</a>
+            </div>
+            <div class="reference-card">
+                <h5>🌍 UNCCD</h5>
+                <p>UN Convention to Combat Desertification - Global Land Outlook (2022)</p>
+                <a href="https://www.unccd.int/resources/global-land-outlook/glo2" target="_blank">View Source →</a>
+            </div>
+            <div class="reference-card">
+                <h5>📊 GLASOD/GLADIS</h5>
+                <p>Global Assessment of Soil Degradation databases</p>
+                <a href="https://www.isric.org/projects/global-assessment-human-induced-soil-degradation-glasod" target="_blank">View Source →</a>
+            </div>
+            <div class="reference-card">
+                <h5>🌱 IPCC Land Report</h5>
+                <p>Climate Change and Land: Special Report on climate change and soil (2019)</p>
+                <a href="https://www.ipcc.ch/srccl/" target="_blank">View Source →</a>
+            </div>
+            <div class="reference-card">
+                <h5>📕 Montgomery (2007)</h5>
+                <p>"Dirt: The Erosion of Civilizations" - History of soil and human societies</p>
+                <a href="#">ISBN: 978-0520258068</a>
+            </div>
+            <div class="reference-card">
+                <h5>🏛️ USDA-NRCS</h5>
+                <p>Conservation Practice Standards and Guidelines</p>
+                <a href="https://www.nrcs.usda.gov/resources/guides-and-instructions/conservation-practice-standards" target="_blank">View Source →</a>
+            </div>
+        </div>
+
+        <div class="academic-box" style="margin-top: 40px;">
+            <h3>📝 Citation</h3>
+            <p>
+                If you use this resource, please cite as:<br><br>
+                <em>Geotopia Encyclopedia. (2024). Soil Issues: Erosion, Conservation & Fertility Management. 
+                Retrieved from https://geotopia.org/encyclopedia/environmental/soil-issues.html</em>
+            </p>
+            <p style="margin-top: 20px; color: #666;">
+                <strong>Last Updated:</strong> December 2024 | <strong>Version:</strong> 1.0 | 
+                <strong>Data Sources:</strong> FAO, UNCCD, USDA, IPCC, National Agencies
+            </p>
+        </div>
+    </section>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // ============================================
+        // COMPLETE 197 COUNTRIES SOIL ISSUES DATABASE
+        // ============================================
+        const countriesData = [
+            // AFRICA (54 countries)
+            { name: "Algeria", code: "dz", continent: "Africa", lat: 28.03, lng: 1.66, riskLevel: "high", erosion: ["Severe wind erosion in Sahara regions", "Water erosion on Atlas mountain slopes", "Desertification advancing 50,000 ha/year"], conservation: ["Barrage Vert (Green Dam) reforestation project", "Oasis rehabilitation programs"], fertility: ["Salinization affects 20% of irrigated land", "Low organic matter in arid soils", "Phosphorus deficiency widespread"] },
+            { name: "Angola", code: "ao", continent: "Africa", lat: -11.20, lng: 17.87, riskLevel: "moderate", erosion: ["Deforestation-driven erosion in highlands", "Slash-and-burn agriculture impacts", "Gully erosion in Planalto region"], conservation: ["Post-war rehabilitation efforts ongoing", "Agroforestry promotion in coffee zones"], fertility: ["Acidic soils require liming", "Nutrient mining from subsistence farming", "Potential for organic fertilizer use"] },
+            { name: "Benin", code: "bj", continent: "Africa", lat: 9.31, lng: 2.32, riskLevel: "moderate", erosion: ["Sheet erosion on cultivated slopes", "Coastal erosion threatening communities", "Deforestation accelerating soil loss"], conservation: ["Community-based natural resource management", "Vetiver grass barriers promoted"], fertility: ["Soil fertility declining 2-3% annually", "Cotton monoculture depleting nutrients", "Integrated soil fertility management programs"] },
+            { name: "Botswana", code: "bw", continent: "Africa", lat: -22.33, lng: 24.68, riskLevel: "moderate", erosion: ["Wind erosion in Kalahari Desert", "Overgrazing causing degradation", "Bush encroachment altering soil dynamics"], conservation: ["Fencing programs for rangeland management", "Community-based wildlife management"], fertility: ["Sandy soils with very low fertility", "Saline soils around pans", "Limited fertilizer use in pastoral systems"] },
+            { name: "Burkina Faso", code: "bf", continent: "Africa", lat: 12.24, lng: -1.56, riskLevel: "critical", erosion: ["Severe wind and water erosion in Sahel", "Hardpan formation limiting productivity", "Loss of 60,000 ha arable land/year"], conservation: ["Zaï pits traditional water harvesting", "Stone bunds (diguettes) widely adopted", "Assisted natural regeneration (FMNR)"], fertility: ["Extremely low organic matter (<1%)", "Phosphorus the most limiting nutrient", "Composting and manure critical"] },
+            { name: "Burundi", code: "bi", continent: "Africa", lat: -3.37, lng: 29.92, riskLevel: "critical", erosion: ["Severe erosion on steep hillsides", "Highest population density pressure in Africa", "90% of soil degraded to some degree"], conservation: ["Radical terracing mandatory on slopes", "Marsh reclamation for agriculture"], fertility: ["Acidic soils (pH 4-5) widespread", "Continuous cropping depleting nutrients", "Limited access to fertilizers"] },
+            { name: "Cabo Verde", code: "cv", continent: "Africa", lat: 16.00, lng: -24.01, riskLevel: "high", erosion: ["Wind erosion on volcanic islands", "Water erosion during rare rainfall events", "Limited arable land (10%) under threat"], conservation: ["Terracing on steep volcanic slopes", "Drip irrigation expanding"], fertility: ["Volcanic soils potentially fertile", "Severe water limitation", "Salt intrusion in coastal aquifers"] },
+            { name: "Cameroon", code: "cm", continent: "Africa", lat: 7.37, lng: 12.35, riskLevel: "moderate", erosion: ["Deforestation causing erosion in south", "Overgrazing in northern Sahel zone", "Landslides on Mt. Cameroon slopes"], conservation: ["Community forestry programs active", "Agroforestry systems promoted"], fertility: ["Volcanic soils highly fertile (Mt. Cameroon)", "Acidic soils in humid south", "Nutrient mining in cocoa/coffee areas"] },
+            { name: "Central African Republic", code: "cf", continent: "Africa", lat: 6.61, lng: 20.94, riskLevel: "moderate", erosion: ["Slash-and-burn causing localized erosion", "Low population density limits widespread damage", "Mining operations create hotspots"], conservation: ["Large forest reserves remain intact", "Traditional fallow systems still practiced"], fertility: ["Low fertility Oxisols dominate", "Shifting cultivation maintains fertility", "Very limited fertilizer access"] },
+            { name: "Chad", code: "td", continent: "Africa", lat: 15.45, lng: 18.73, riskLevel: "critical", erosion: ["Lake Chad shrinkage exposes soils to wind", "Severe Sahel desertification", "Sand dune encroachment on farmland"], conservation: ["Great Green Wall initiative participation", "Traditional water harvesting (wadis)"], fertility: ["Salinization around Lake Chad", "Very low organic matter in north", "Vertisols productive when managed"] },
+            { name: "Comoros", code: "km", continent: "Africa", lat: -11.88, lng: 43.87, riskLevel: "high", erosion: ["Steep volcanic slopes highly erodible", "Deforestation severe (80% forest lost)", "Landslides during cyclone season"], conservation: ["Reforestation programs on degraded lands", "Agroforestry with vanilla/ylang-ylang"], fertility: ["Volcanic soils fertile but shallow", "Nutrient leaching in high rainfall", "Organic farming traditions"] },
+            { name: "Democratic Republic of Congo", code: "cd", continent: "Africa", lat: -4.04, lng: 21.76, riskLevel: "moderate", erosion: ["Deforestation hotspots in east", "Mining causing severe local degradation", "Slash-and-burn in forest margins"], conservation: ["Vast intact rainforest carbon sink", "Community forestry emerging"], fertility: ["Highly weathered Oxisols low fertility", "Peat forests store massive carbon", "Traditional intercropping systems"] },
+            { name: "Republic of Congo", code: "cg", continent: "Africa", lat: -0.23, lng: 15.83, riskLevel: "low", erosion: ["Limited erosion due to forest cover", "Oil exploration causing local damage", "Urban expansion impacts"], conservation: ["Large forest reserves protected", "REDD+ programs active"], fertility: ["Low fertility tropical soils", "Forest soils rapidly degrade when cleared", "Shifting cultivation predominant"] },
+            { name: "Côte d'Ivoire", code: "ci", continent: "Africa", lat: 7.54, lng: -5.55, riskLevel: "high", erosion: ["Severe cocoa deforestation (80% forest lost)", "Sheet erosion under cocoa plantations", "Gully erosion in degraded areas"], conservation: ["Cocoa sustainability initiatives", "Agroforestry shade cocoa promoted"], fertility: ["Soil fertility decline in cocoa belt", "Acidification from continuous cropping", "Fertilizer subsidies for cocoa farmers"] },
+            { name: "Djibouti", code: "dj", continent: "Africa", lat: 11.83, lng: 42.59, riskLevel: "high", erosion: ["Wind erosion in hyper-arid climate", "Flash flood erosion in wadis", "Overgrazing degrading rangeland"], conservation: ["Very limited arable land to conserve", "Coastal mangrove protection"], fertility: ["Extremely limited agriculture potential", "Saline soils near coast", "Hydroponic farming emerging"] },
+            { name: "Egypt", code: "eg", continent: "Africa", lat: 26.82, lng: 30.80, riskLevel: "moderate", erosion: ["Wind erosion in Western Desert", "Coastal erosion in Nile Delta (rising seas)", "Loss of Nile sediment post-Aswan Dam"], conservation: ["Sophisticated ancient irrigation systems", "New land reclamation projects"], fertility: ["Nile Delta highly fertile (declining)", "Salinization major threat (35% affected)", "Heavy fertilizer dependency"] },
+            { name: "Equatorial Guinea", code: "gq", continent: "Africa", lat: 1.65, lng: 10.27, riskLevel: "moderate", erosion: ["Deforestation for oil palm expansion", "Volcanic island erosion", "Limited monitoring data available"], conservation: ["Some protected forest areas", "Oil revenues not invested in conservation"], fertility: ["Volcanic soils on Bioko fertile", "Mainland soils less productive", "Cocoa cultivation historically important"] },
+            { name: "Eritrea", code: "er", continent: "Africa", lat: 15.18, lng: 39.78, riskLevel: "critical", erosion: ["85% of highland soils severely degraded", "30+ years of conflict damaged land", "Deforestation to 1% forest cover"], conservation: ["Massive terracing campaigns (paid labor)", "Soil bunds and check dams"], fertility: ["Severely depleted from overuse", "Very limited fertilizer access", "Organic matter <1% widespread"] },
+            { name: "Eswatini", code: "sz", continent: "Africa", lat: -26.52, lng: 31.47, riskLevel: "moderate", erosion: ["Overgrazing on communal lands", "Sugarcane expansion impacts", "Gully erosion in degraded areas"], conservation: ["Conservation agriculture promotion", "Woodlot establishment programs"], fertility: ["Acidic soils require liming", "Sugarcane depletes nutrients", "Small-scale farmers lack inputs"] },
+            { name: "Ethiopia", code: "et", continent: "Africa", lat: 9.15, lng: 40.49, riskLevel: "critical", erosion: ["1.5 billion tons soil lost annually", "Severe highland erosion (deforestation)", "Gully erosion widespread"], conservation: ["Massive community mobilization programs", "30 million ha under rehabilitation", "Food-for-work soil conservation"], fertility: ["Vertisols difficult to manage", "Acidic highland soils common", "Only 1% farmers use recommended fertilizer"] },
+            { name: "Gabon", code: "ga", continent: "Africa", lat: -0.80, lng: 11.61, riskLevel: "low", erosion: ["85% forest cover protects soils", "Localized mining and logging impacts", "Low population pressure"], conservation: ["13 national parks protecting forests", "FSC certified logging expanding"], fertility: ["Low fertility Oxisols dominate", "Slash-and-burn traditional", "Oil wealth not invested in agriculture"] },
+            { name: "Gambia", code: "gm", continent: "Africa", lat: 13.44, lng: -15.31, riskLevel: "high", erosion: ["Riverbank erosion along Gambia River", "Wind erosion in dry season", "Deforestation accelerating"], conservation: ["Community forest management", "Agroforestry promotion"], fertility: ["Sandy soils low in nutrients", "Groundnut monoculture depleting", "Salinization in tidal areas"] },
+            { name: "Ghana", code: "gh", continent: "Africa", lat: 7.95, lng: -1.02, riskLevel: "high", erosion: ["Severe cocoa deforestation", "Illegal mining (galamsey) devastating soils", "Northern savanna wind erosion"], conservation: ["Cocoa agroforestry programs", "Mining rehabilitation requirements"], fertility: ["Soil fertility declining in cocoa zone", "Acidic soils widespread", "Fertilizer subsidies available"] },
+            { name: "Guinea", code: "gn", continent: "Africa", lat: 9.95, lng: -9.70, riskLevel: "high", erosion: ["Bauxite mining severely degrades land", "Deforestation in Fouta Djallon highlands", "Source rivers carry eroded sediment"], conservation: ["Protected area network exists", "Limited enforcement capacity"], fertility: ["Lateritic soils low fertility", "Slash-and-burn predominant", "Very limited fertilizer use"] },
+            { name: "Guinea-Bissau", code: "gw", continent: "Africa", lat: 11.80, lng: -15.18, riskLevel: "moderate", erosion: ["Coastal erosion and mangrove loss", "Cashew expansion clearing forests", "Limited inland erosion data"], conservation: ["Mangrove protection critical", "Community natural resource management"], fertility: ["Mangrove soils acidic when drained", "Cashew tolerates poor soils", "Rice paddies require management"] },
+            { name: "Kenya", code: "ke", continent: "Africa", lat: -0.02, lng: 37.91, riskLevel: "high", erosion: ["12 tons/ha annual soil loss", "60% of land degraded", "Overgrazing in arid lands"], conservation: ["National soil conservation program", "FMNR widely adopted", "Payment for ecosystem services piloted"], fertility: ["Nutrient mining in smallholder farms", "Acidic highland soils", "30% farmers use fertilizers"] },
+            { name: "Lesotho", code: "ls", continent: "Africa", lat: -29.61, lng: 28.23, riskLevel: "critical", erosion: ["Severe gully erosion (dongas)", "90% of land degraded", "Overgrazing on steep slopes"], conservation: ["Conservation agriculture promoted", "Gabion structures for gullies"], fertility: ["Very thin soils on slopes", "Low organic matter", "Limited fertilizer access in highlands"] },
+            { name: "Liberia", code: "lr", continent: "Africa", lat: 6.43, lng: -9.43, riskLevel: "moderate", erosion: ["Post-war deforestation impacts", "Mining operations cause local damage", "Slash-and-burn agriculture"], conservation: ["Community forestry emerging", "Protected areas system"], fertility: ["Lateritic soils low fertility", "Traditional fallow systems", "Very limited input use"] },
+            { name: "Libya", code: "ly", continent: "Africa", lat: 26.34, lng: 17.23, riskLevel: "high", erosion: ["95% desert wind erosion", "Overgrazing in coastal strip", "Conflict has damaged land"], conservation: ["Great Man-Made River (fossil water)", "Limited agricultural focus"], fertility: ["Extremely limited arable soil", "Salinization from irrigation", "Dependent on fossil aquifers"] },
+            { name: "Madagascar", code: "mg", continent: "Africa", lat: -18.77, lng: 46.87, riskLevel: "critical", erosion: ["'Bleeding island' - severe erosion visible from space", "80% forest lost to slash-and-burn", "Lavaka gullies expanding"], conservation: ["Protected areas expanding", "Corridor restoration projects"], fertility: ["Ancient laterites very infertile", "Erosion removes topsoil rapidly", "Limited fertilizer availability"] },
+            { name: "Malawi", code: "mw", continent: "Africa", lat: -13.25, lng: 34.30, riskLevel: "critical", erosion: ["29 tons/ha annual soil loss", "Deforestation severe (1% forest remains)", "Steep slope cultivation"], conservation: ["Conservation agriculture scaling", "Agroforestry widely promoted"], fertility: ["Severely depleted soils", "Acidic soils need lime", "Fertilizer subsidies critical"] },
+            { name: "Mali", code: "ml", continent: "Africa", lat: 17.57, lng: -4.00, riskLevel: "critical", erosion: ["Sahara expanding southward", "Wind erosion severe in north", "Niger River siltation"], conservation: ["Great Green Wall participation", "Traditional water harvesting"], fertility: ["Very low organic matter", "Phosphorus deficiency severe", "Manure critical in Sahel"] },
+            { name: "Mauritania", code: "mr", continent: "Africa", lat: 21.01, lng: -10.94, riskLevel: "critical", erosion: ["90% desert - wind erosion dominant", "Oasis degradation from overuse", "Senegal Valley flood erosion"], conservation: ["Great Green Wall efforts", "Oasis rehabilitation"], fertility: ["Extremely limited arable land", "Salinization in Senegal Valley", "Nomadic pastoral systems"] },
+            { name: "Mauritius", code: "mu", continent: "Africa", lat: -20.35, lng: 57.55, riskLevel: "moderate", erosion: ["Sugar cane erosion during harvest", "Coastal erosion from rising seas", "Cyclone-related landslides"], conservation: ["Advanced erosion control on plantations", "Coastal protection structures"], fertility: ["Volcanic soils moderately fertile", "Intensive sugarcane depleting", "High fertilizer use"] },
+            { name: "Morocco", code: "ma", continent: "Africa", lat: 31.79, lng: -7.09, riskLevel: "high", erosion: ["Water erosion in Atlas mountains", "Wind erosion in south/east", "Overgrazing degrading rangelands"], conservation: ["Major dam and terrace programs", "Conservation agriculture promotion"], fertility: ["Phosphate-rich but export-focused", "Salinization in irrigated areas", "Organic matter declining"] },
+            { name: "Mozambique", code: "mz", continent: "Africa", lat: -18.67, lng: 35.53, riskLevel: "moderate", erosion: ["Cyclone damage causes massive erosion", "Deforestation for charcoal", "Zambezi flooding erosion"], conservation: ["Post-conflict rehabilitation ongoing", "Mangrove protection programs"], fertility: ["Sandy coastal soils poor", "Potential in Zambezi Valley", "Very low fertilizer use (<5 kg/ha)"] },
+            { name: "Namibia", code: "na", continent: "Africa", lat: -22.96, lng: 18.49, riskLevel: "moderate", erosion: ["World's oldest desert (Namib)", "Overgrazing in communal lands", "Bush encroachment changing dynamics"], conservation: ["Community-based natural resource management", "Conservancy system successful"], fertility: ["Sandy soils extremely low fertility", "Saline soils in pans", "Pastoral systems dominate"] },
+            { name: "Niger", code: "ne", continent: "Africa", lat: 17.61, lng: 8.08, riskLevel: "critical", erosion: ["80% Sahara/Sahel wind erosion", "Desertification advancing rapidly", "Vegetation loss accelerating"], conservation: ["Farmer-managed natural regeneration pioneer", "Great Green Wall participation"], fertility: ["Extremely low fertility", "Phosphorus and nitrogen critical", "Manure and composting essential"] },
+            { name: "Nigeria", code: "ng", continent: "Africa", lat: 9.08, lng: 8.68, riskLevel: "high", erosion: ["Severe gully erosion in southeast (Anambra)", "Oil spill devastation in Niger Delta", "Desertification in north"], conservation: ["Erosion gully treatment projects", "Great Green Wall (northern)"], fertility: ["30% yield decline from degradation", "Acidic soils in south", "Fertilizer use increasing but uneven"] },
+            { name: "Rwanda", code: "rw", continent: "Africa", lat: -1.94, lng: 29.87, riskLevel: "critical", erosion: ["'Land of a thousand hills' severe erosion risk", "Highest population density in Africa", "Terracing critical but insufficient"], conservation: ["Radical terracing mandatory", "Land consolidation program"], fertility: ["Acidic volcanic soils", "Organic matter declining", "Fertilizer subsidies provided"] },
+            { name: "São Tomé and Príncipe", code: "st", continent: "Africa", lat: 0.19, lng: 6.61, riskLevel: "moderate", erosion: ["Steep volcanic slopes vulnerable", "Deforestation for cocoa historically", "Heavy rainfall causes erosion"], conservation: ["Ecotourism protecting forests", "Shade cocoa agroforestry"], fertility: ["Volcanic soils fertile", "Small scale farming predominant", "Organic cacao production"] },
+            { name: "Senegal", code: "sn", continent: "Africa", lat: 14.50, lng: -14.45, riskLevel: "high", erosion: ["Desertification in north", "Coastal erosion severe (Saint-Louis)", "Salinization in Casamance"], conservation: ["Great Green Wall participant", "Mangrove restoration successful"], fertility: ["Groundnut basin depleted", "Phosphate resources available", "Saline soils expanding"] },
+            { name: "Seychelles", code: "sc", continent: "Africa", lat: -4.68, lng: 55.49, riskLevel: "moderate", erosion: ["Steep granite island slopes", "Coastal erosion from storms", "Limited flat land"], conservation: ["Strict development controls", "Watershed protection"], fertility: ["Granite soils thin and poor", "Limited agriculture (1% land)", "Focus on sustainability"] },
+            { name: "Sierra Leone", code: "sl", continent: "Africa", lat: 8.46, lng: -11.78, riskLevel: "high", erosion: ["Diamond mining devastates land", "Slash-and-burn in uplands", "Deforestation severe"], conservation: ["Post-war rehabilitation efforts", "Community forestry emerging"], fertility: ["Lateritic soils low fertility", "Shifting cultivation traditional", "Very limited fertilizer access"] },
+            { name: "Somalia", code: "so", continent: "Africa", lat: 5.15, lng: 46.20, riskLevel: "critical", erosion: ["Charcoal production destroying vegetation", "Overgrazing dominant impact", "Conflict prevents management"], conservation: ["Very limited capacity/programs", "Some local pastoral management"], fertility: ["Arid soils low productivity", "River valleys productive", "No functioning agricultural system"] },
+            { name: "South Africa", code: "za", continent: "Africa", lat: -30.56, lng: 22.94, riskLevel: "moderate", erosion: ["25% of land severely eroded", "Overgrazing in communal areas", "Mining causes local devastation"], conservation: ["LandCare program national", "Conservation agriculture adoption growing"], fertility: ["Acidic soils in east require lime", "Commercial farms well-fertilized", "Smallholders lack inputs"] },
+            { name: "South Sudan", code: "ss", continent: "Africa", lat: 6.88, lng: 31.31, riskLevel: "high", erosion: ["Conflict prevents land management", "Deforestation for fuel", "Sudd wetland threatened"], conservation: ["Minimal capacity during conflict", "Traditional systems disrupted"], fertility: ["Potential in Vertisol areas", "Sudd wetland fertile when managed", "No input supply chains"] },
+            { name: "Sudan", code: "sd", continent: "Africa", lat: 12.86, lng: 30.22, riskLevel: "critical", erosion: ["Sahara expanding 100km southward since 1930s", "Gezira scheme soil degradation", "Wind erosion dominant"], conservation: ["Gum Arabic belt protection", "Great Green Wall participation"], fertility: ["Salinization in Gezira", "Vertisols productive but difficult", "Limited fertilizer use"] },
+            { name: "Tanzania", code: "tz", continent: "Africa", lat: -6.37, lng: 34.89, riskLevel: "high", erosion: ["61% of land degraded", "Deforestation severe", "Overgrazing in pastoral areas"], conservation: ["Village land forest reserves", "Conservation agriculture scaling"], fertility: ["Nutrient mining widespread", "Acidic soils in highlands", "Very low fertilizer use (9 kg/ha)"] },
+            { name: "Togo", code: "tg", continent: "Africa", lat: 8.62, lng: 0.82, riskLevel: "high", erosion: ["Phosphate mining damages land", "Deforestation for farming", "Coastal erosion significant"], conservation: ["Village woodlots promoted", "Conservation farming introduced"], fertility: ["Ironically phosphate-rich but depleted soils", "Acidic soils need lime", "Limited fertilizer access"] },
+            { name: "Tunisia", code: "tn", continent: "Africa", lat: 33.89, lng: 9.54, riskLevel: "moderate", erosion: ["Water erosion in Tell mountains", "Wind erosion in south", "Overgrazing impacts"], conservation: ["Long history of soil conservation", "Jessour traditional water harvesting"], fertility: ["Salinization in irrigated areas", "Phosphate resources available", "Olive groves well-managed"] },
+            { name: "Uganda", code: "ug", continent: "Africa", lat: 1.37, lng: 32.29, riskLevel: "high", erosion: ["Severe erosion on steep slopes", "Deforestation rapid (2%/year)", "Wetland drainage impacts"], conservation: ["Soil conservation mandatory but unenforced", "Agroforestry promoted"], fertility: ["Nutrient mining in banana systems", "Acidic soils in highlands", "Limited fertilizer use"] },
+            { name: "Zambia", code: "zm", continent: "Africa", lat: -13.13, lng: 27.85, riskLevel: "moderate", erosion: ["Deforestation for charcoal", "Mining area degradation", "Fire-based clearing"], conservation: ["Conservation farming unit established", "COMACO conservation enterprise model"], fertility: ["Acidic soils need lime", "Nutrient mining in smallholder farms", "Fertilizer subsidies provided"] },
+            { name: "Zimbabwe", code: "zw", continent: "Africa", lat: -19.02, lng: 29.15, riskLevel: "high", erosion: ["Severe gully erosion in communal lands", "Deforestation for tobacco curing", "Land reform disrupted conservation"], conservation: ["Historic strong conservation program", "Capacity declined with economic crisis"], fertility: ["Acidic sandy soils dominate", "Tobacco depletes nutrients", "Fertilizer access limited by economy"] },
+
+            // ASIA (48 countries)
+            { name: "Afghanistan", code: "af", continent: "Asia", lat: 33.93, lng: 67.71, riskLevel: "critical", erosion: ["Decades of conflict destroyed vegetation", "Severe deforestation (2% forest remains)", "Wind and water erosion widespread"], conservation: ["Traditional karez (qanat) irrigation", "Reforestation efforts limited by security"], fertility: ["Salinization in irrigated valleys", "Nutrient depletion from war", "Very limited fertilizer access"] },
+            { name: "Armenia", code: "am", continent: "Asia", lat: 40.07, lng: 45.04, riskLevel: "moderate", erosion: ["Water erosion on mountain slopes", "Wind erosion in Ararat Valley", "Land abandonment causing changes"], conservation: ["Soviet-era terraces still functional", "Sustainable land management projects"], fertility: ["Volcanic soils moderately fertile", "Salinization in lowlands", "Limited modern input use"] },
+            { name: "Azerbaijan", code: "az", continent: "Asia", lat: 40.14, lng: 47.58, riskLevel: "moderate", erosion: ["Wind erosion in semi-arid areas", "Water erosion in mountains", "Oil industry local contamination"], conservation: ["Shelterbelts established", "Irrigation system rehabilitation"], fertility: ["Salinization major issue (40% irrigated land)", "Cotton depleted many soils", "Transitioning from Soviet practices"] },
+            { name: "Bahrain", code: "bh", continent: "Asia", lat: 26.07, lng: 50.56, riskLevel: "moderate", erosion: ["Wind erosion of desert soils", "Coastal erosion from development", "Very limited arable land"], conservation: ["Advanced irrigation systems", "Soil-less cultivation expanding"], fertility: ["Extremely saline soils", "Date palm oases traditional", "Modern hydroponics growing"] },
+            { name: "Bangladesh", code: "bd", continent: "Asia", lat: 23.68, lng: 90.36, riskLevel: "high", erosion: ["Severe riverbank erosion (displaces 500,000/year)", "Cyclone storm surge erosion", "Deforestation in Chittagong Hills"], conservation: ["Embankment systems", "Char (island) management", "Mangrove restoration"], fertility: ["Annual floods deposit nutrients", "Arsenic contamination in groundwater", "Intensive rice depletes some areas"] },
+            { name: "Bhutan", code: "bt", continent: "Asia", lat: 27.51, lng: 90.43, riskLevel: "moderate", erosion: ["Steep Himalayan slopes vulnerable", "Road construction causes landslides", "Glacial lake outburst flood risks"], conservation: ["72% forest cover maintained", "GNH environmental protection", "Organic by policy"], fertility: ["Thin mountain soils", "Limited arable land (3%)", "Organic fertilizers only"] },
+            { name: "Brunei", code: "bn", continent: "Asia", lat: 4.54, lng: 114.73, riskLevel: "low", erosion: ["Limited erosion due to forest cover", "Oil palm expansion localized", "Peat drainage issues"], conservation: ["75% forest cover protected", "Oil wealth reduces pressure"], fertility: ["Peat soils when drained problematic", "Very limited agriculture sector", "Food largely imported"] },
+            { name: "Cambodia", code: "kh", continent: "Asia", lat: 12.57, lng: 104.99, riskLevel: "moderate", erosion: ["Deforestation severe (losing 2%/year)", "Tonle Sap sediment dynamics changing", "Upland shifting cultivation"], conservation: ["Community forestry expanding", "Flooded forest protection"], fertility: ["Tonle Sap floodplain fertile", "Laterite plateaus infertile", "Low fertilizer use traditionally"] },
+            { name: "China", code: "cn", continent: "Asia", lat: 35.86, lng: 104.20, riskLevel: "high", erosion: ["Loess Plateau world's worst erosion historically", "37% of land degraded", "Yellow River sediment issues"], conservation: ["Grain for Green program massive success", "Terrace construction extensive"], fertility: ["Soil pollution from industry", "Overuse of fertilizers (4x global average)", "Acidification increasing"] },
+            { name: "Cyprus", code: "cy", continent: "Asia", lat: 35.13, lng: 33.43, riskLevel: "moderate", erosion: ["Water erosion on Troodos slopes", "Overgrazing historical impact", "Desertification in south"], conservation: ["EU-supported soil protection", "Reservoir construction"], fertility: ["Limestone-derived soils productive", "Salinization in irrigated areas", "Modern farming practices"] },
+            { name: "Georgia", code: "ge", continent: "Asia", lat: 42.32, lng: 43.36, riskLevel: "moderate", erosion: ["Landslides in Caucasus mountains", "Overgrazing on alpine meadows", "Black Sea coastal erosion"], conservation: ["Protected areas expanding", "Sustainable wine production initiatives"], fertility: ["Diverse fertile valleys", "Ancient viticulture knowledge", "Organic farming growing"] },
+            { name: "India", code: "in", continent: "Asia", lat: 20.59, lng: 78.96, riskLevel: "high", erosion: ["5.3 billion tons soil lost annually", "30% land degraded", "Himalayan erosion severe"], conservation: ["Watershed development programs", "MGNREGA soil conservation", "Traditional tank systems"], fertility: ["60% soils low in organic carbon", "46% deficient in zinc", "Fertilizer subsidies massive"] },
+            { name: "Indonesia", code: "id", continent: "Asia", lat: -0.79, lng: 113.92, riskLevel: "high", erosion: ["Peat fire destruction massive", "Deforestation severe (Kalimantan, Sumatra)", "Steep volcanic slopes erode"], conservation: ["Peat restoration agency formed", "Moratorium on forest clearing"], fertility: ["Volcanic Java highly fertile", "Peat soils release carbon when drained", "Palm oil exhausts tropical soils"] },
+            { name: "Iran", code: "ir", continent: "Asia", lat: 32.43, lng: 53.69, riskLevel: "high", erosion: ["Wind erosion in central deserts", "Water erosion in Zagros", "Overgrazing widespread"], conservation: ["Qanat traditional irrigation", "Sand dune stabilization projects"], fertility: ["Salinization severe (15M ha)", "Groundwater depletion", "Limited organic matter"] },
+            { name: "Iraq", code: "iq", continent: "Asia", lat: 33.22, lng: 43.68, riskLevel: "critical", erosion: ["War damage to irrigation systems", "Wind erosion increasing", "Tigris-Euphrates upstream dams reducing flow"], conservation: ["Mesopotamian marshes restoration", "Limited post-conflict capacity"], fertility: ["Ancient salinization legacy", "Cradle of agriculture degraded", "Drought and upstream dams"] },
+            { name: "Israel", code: "il", continent: "Asia", lat: 31.05, lng: 34.85, riskLevel: "low", erosion: ["Historical erosion now controlled", "Negev Desert wind erosion", "Coastal development impacts"], conservation: ["World leader in water efficiency", "Drip irrigation invented here", "Precision agriculture advanced"], fertility: ["Saline soils managed with technology", "Recycled wastewater for irrigation", "High-tech fertigation"] },
+            { name: "Japan", code: "jp", continent: "Asia", lat: 36.20, lng: 138.25, riskLevel: "low", erosion: ["Volcanic slopes prone to landslides", "Typhoon-related erosion", "Terraced paddies prevent erosion"], conservation: ["Long tradition of conservation", "Advanced erosion control engineering", "Satoyama landscape management"], fertility: ["Volcanic Andisols fertile", "Paddies maintained for centuries", "High fertilizer use, precision application"] },
+            { name: "Jordan", code: "jo", continent: "Asia", lat: 30.59, lng: 36.24, riskLevel: "high", erosion: ["Wind erosion in 90% desert", "Flash flood erosion in wadis", "Overgrazing degrading rangelands"], conservation: ["Ancient terrace rehabilitation", "Treated wastewater for irrigation"], fertility: ["Extremely water-limited", "Salinization in Jordan Valley", "Innovative water conservation"] },
+            { name: "Kazakhstan", code: "kz", continent: "Asia", lat: 48.02, lng: 66.92, riskLevel: "high", erosion: ["Virgin Lands program caused wind erosion", "Aral Sea disaster exposed soils", "Overgrazing in steppes"], conservation: ["Shelterbelts establishment", "Reduced tillage adoption"], fertility: ["Chernozem degradation in north", "Salinization in irrigated south", "Transitioning farming systems"] },
+            { name: "Kuwait", code: "kw", continent: "Asia", lat: 29.31, lng: 47.48, riskLevel: "moderate", erosion: ["Desert wind erosion", "Gulf War oil contamination legacy", "Very limited soil resources"], conservation: ["Dust stabilization efforts", "Protected desert areas"], fertility: ["Hyper-arid minimal agriculture", "Advanced hydroponics", "Food security through imports"] },
+            { name: "Kyrgyzstan", code: "kg", continent: "Asia", lat: 41.20, lng: 74.77, riskLevel: "moderate", erosion: ["Mountain pasture overgrazing", "Irrigation erosion in valleys", "Glacial lake outburst flood risks"], conservation: ["Community pasture management", "Soviet-era structures maintained"], fertility: ["Fertile Fergana Valley", "Walnut forest soils unique", "Transitioning from Soviet system"] },
+            { name: "Laos", code: "la", continent: "Asia", lat: 19.86, lng: 102.50, riskLevel: "high", erosion: ["Shifting cultivation erosion", "Road construction landslides", "Hydropower dam impacts on sediment"], conservation: ["Forest allocation to villages", "Sloping land management"], fertility: ["Lateritic soils low fertility", "Mekong Valley more productive", "Very low fertilizer use"] },
+            { name: "Lebanon", code: "lb", continent: "Asia", lat: 33.85, lng: 35.86, riskLevel: "high", erosion: ["Steep mountain slopes eroding", "Cedar deforestation historical", "Quarrying damages land"], conservation: ["Terracing traditions ancient", "Reforestation efforts ongoing"], fertility: ["Bekaa Valley fertile", "Water scarcity limiting", "Refugee pressure on land"] },
+            { name: "Malaysia", code: "my", continent: "Asia", lat: 4.21, lng: 101.98, riskLevel: "moderate", erosion: ["Peat drainage and fire", "Oil palm expansion impacts", "Highland development erosion"], conservation: ["Sustainable palm oil certification", "Peat protection regulations"], fertility: ["Highly weathered soils low fertility", "Palm oil requires heavy inputs", "Peat subsidence issues"] },
+            { name: "Maldives", code: "mv", continent: "Asia", lat: 3.20, lng: 73.22, riskLevel: "critical", erosion: ["Entire country <2m elevation", "Coastal erosion existential threat", "Rising seas washing away islands"], conservation: ["Coastal protection priority", "Reclamation creating new land"], fertility: ["Coral sand only - infertile", "No arable land", "All food imported except fish"] },
+            { name: "Mongolia", code: "mn", continent: "Asia", lat: 46.86, lng: 103.85, riskLevel: "high", erosion: ["90% of land at risk of desertification", "Overgrazing from livestock boom", "Mining destroying vast areas"], conservation: ["Traditional nomadic management eroding", "Protected area expansion"], fertility: ["Steppe soils degrading", "Climate change affecting pastures", "Mining contamination"] },
+            { name: "Myanmar", code: "mm", continent: "Asia", lat: 21.91, lng: 95.96, riskLevel: "high", erosion: ["Deforestation severe (1.8%/year)", "Jade/gem mining devastation", "Cyclone Nargis destroyed delta soils"], conservation: ["Community forestry where accessible", "Conflict limits conservation"], fertility: ["Irrawaddy Delta naturally fertile", "Shifting cultivation in hills", "Very limited fertilizer use"] },
+            { name: "Nepal", code: "np", continent: "Asia", lat: 28.39, lng: 84.12, riskLevel: "critical", erosion: ["Severe Himalayan erosion", "Landslides during monsoon", "Terai deforestation"], conservation: ["Community forestry highly successful", "Terrace agriculture traditional"], fertility: ["Thin mountain soils", "Terai plains more fertile", "Low fertilizer use (35 kg/ha)"] },
+            { name: "North Korea", code: "kp", continent: "Asia", lat: 40.34, lng: 127.51, riskLevel: "critical", erosion: ["Severe deforestation for fuel", "Hillside cultivation eroding", "Flood damage frequent"], conservation: ["Limited resources for conservation", "Some terracing efforts"], fertility: ["Severely degraded from overuse", "Limited fertilizer imports", "Food insecurity related to soil"] },
+            { name: "Oman", code: "om", continent: "Asia", lat: 21.51, lng: 55.92, riskLevel: "moderate", erosion: ["Wind erosion in deserts", "Wadis flash flood erosion", "Coastal development impacts"], conservation: ["UNESCO Aflaj irrigation system", "Dhofar cloud forest protection"], fertility: ["Salinization in coastal areas", "Date palm oases traditional", "Modern agriculture limited"] },
+            { name: "Pakistan", code: "pk", continent: "Asia", lat: 30.38, lng: 69.35, riskLevel: "critical", erosion: ["40% land degraded", "Indus Valley salinization/waterlogging", "Deforestation severe (2% forest cover)"], conservation: ["Billion Tree Tsunami project", "Traditional irrigation karez"], fertility: ["6.2M ha saline/waterlogged", "Nutrient imbalance severe", "Heavy urea dependency"] },
+            { name: "Palestine", code: "ps", continent: "Asia", lat: 31.95, lng: 35.23, riskLevel: "high", erosion: ["Olive terrace degradation", "Limited land access", "Water scarcity impacts"], conservation: ["Traditional terracing maintained", "Limited capacity under occupation"], fertility: ["Ancient agricultural land", "Water scarcity limiting", "Restricted input access"] },
+            { name: "Philippines", code: "ph", continent: "Asia", lat: 12.88, lng: 121.77, riskLevel: "high", erosion: ["Typhoon-related erosion severe", "Deforestation widespread", "Mining damages extensive"], conservation: ["SALT (sloping agricultural land technology)", "Community forestry programs"], fertility: ["Volcanic soils variable", "Typhoons wash away topsoil", "Intensive rice requires inputs"] },
+            { name: "Qatar", code: "qa", continent: "Asia", lat: 25.35, lng: 51.18, riskLevel: "moderate", erosion: ["Desert wind erosion", "Very limited land degradation concern", "Coastal reclamation dominant"], conservation: ["Advanced water treatment", "Soil-less cultivation expanding"], fertility: ["No natural arable soil", "Hydroponics and imports", "Food security investment"] },
+            { name: "Saudi Arabia", code: "sa", continent: "Asia", lat: 23.89, lng: 45.08, riskLevel: "high", erosion: ["Wind erosion in vast deserts", "Unsustainable groundwater depletion", "Sand dune encroachment"], conservation: ["Massive fossil water irrigation", "Center-pivot agriculture"], fertility: ["Fossil water depleting rapidly", "Salinization of irrigated land", "Shifting food strategy"] },
+                       { name: "Singapore", code: "sg", continent: "Asia", lat: 1.35, lng: 103.82, riskLevel: "low", erosion: ["Construction erosion well-controlled", "Land reclamation dominant activity", "Minimal natural erosion"], conservation: ["Strict erosion control regulations", "Green building requirements", "Advanced stormwater management"], fertility: ["Very limited natural soil remaining", "Urban farming high-tech", "Vertical farming leader"] },
+            { name: "South Korea", code: "kr", continent: "Asia", lat: 35.91, lng: 127.77, riskLevel: "low", erosion: ["Historically deforested, now reforested", "Terraced paddies stable", "Monsoon flooding controlled"], conservation: ["Remarkable reforestation success story", "Advanced erosion control engineering", "Smart agriculture adoption"], fertility: ["Intensive rice cultivation managed", "High fertilizer use", "Precision agriculture growing"] },
+            { name: "Sri Lanka", code: "lk", continent: "Asia", lat: 7.87, lng: 80.77, riskLevel: "moderate", erosion: ["Tea estate erosion significant", "Deforestation in dry zone", "Gem mining local impacts"], conservation: ["Contour planting in tea estates", "Tank irrigation traditional system"], fertility: ["Acidic tea soils need management", "Dry zone less fertile", "Organic farming promoted"] },
+            { name: "Syria", code: "sy", continent: "Asia", lat: 34.80, lng: 38.99, riskLevel: "critical", erosion: ["War devastated agricultural systems", "Pre-war drought severe erosion", "Desertification advancing"], conservation: ["Conflict destroyed conservation capacity", "Traditional systems abandoned"], fertility: ["Fertile Crescent heritage damaged", "Salinization in irrigated areas", "No functioning input systems"] },
+            { name: "Taiwan", code: "tw", continent: "Asia", lat: 23.70, lng: 120.96, riskLevel: "moderate", erosion: ["Typhoon-related landslides", "Steep mountain slopes", "Earthquake loosens soil"], conservation: ["Advanced engineering solutions", "Watershed protection programs", "Reforestation successful"], fertility: ["Western plain fertile", "High fertilizer efficiency", "Precision agriculture advanced"] },
+            { name: "Tajikistan", code: "tj", continent: "Asia", lat: 38.86, lng: 71.28, riskLevel: "high", erosion: ["Mountain slope erosion severe", "Overgrazing on pastures", "Irrigation infrastructure degraded"], conservation: ["Soviet-era structures deteriorating", "International projects supporting"], fertility: ["Cotton monoculture legacy damage", "Salinization in lowlands", "Limited fertilizer access"] },
+            { name: "Thailand", code: "th", continent: "Asia", lat: 15.87, lng: 100.99, riskLevel: "moderate", erosion: ["Northern highland erosion", "Coastal erosion significant", "Deforestation impacts"], conservation: ["Royal project watershed management", "Community forestry established"], fertility: ["Central plain highly productive", "Northeast Khorat Plateau poor", "High fertilizer use in commercial farms"] },
+            { name: "Timor-Leste", code: "tl", continent: "Asia", lat: -8.87, lng: 125.73, riskLevel: "high", erosion: ["Severe deforestation", "Steep slopes highly erodible", "Slash-and-burn widespread"], conservation: ["Limited capacity post-independence", "International support growing"], fertility: ["Thin mountain soils", "Coffee areas need management", "Very limited fertilizer access"] },
+            { name: "Turkey", code: "tr", continent: "Asia", lat: 38.96, lng: 35.24, riskLevel: "moderate", erosion: ["59% of land eroded to some degree", "Central Anatolia wind erosion", "Deforestation historical but reversing"], conservation: ["Major reforestation programs", "GAP irrigation project impacts", "EU alignment improving practices"], fertility: ["Diverse soil fertility", "Salinization in GAP area", "Fertilizer use increasing"] },
+            { name: "Turkmenistan", code: "tm", continent: "Asia", lat: 38.97, lng: 59.56, riskLevel: "critical", erosion: ["80% Karakum Desert wind erosion", "Aral Sea contribution", "Overgrazing in margins"], conservation: ["Very limited transparent data", "Some oasis protection"], fertility: ["Severe salinization (65% irrigated land)", "Cotton monoculture devastation", "Water-intensive crops inappropriate"] },
+            { name: "United Arab Emirates", code: "ae", continent: "Asia", lat: 23.42, lng: 53.85, riskLevel: "moderate", erosion: ["Desert wind erosion natural", "Coastal development impacts", "Sand dune management needed"], conservation: ["Advanced desalination", "Date palm oasis protection", "Soil-less agriculture investment"], fertility: ["No natural arable soil", "Advanced hydroponics", "Food security through technology/imports"] },
+            { name: "Uzbekistan", code: "uz", continent: "Asia", lat: 41.38, lng: 64.59, riskLevel: "critical", erosion: ["Aral Sea disaster - exposed seabed erosion", "Wind erosion severe", "Cotton belt degraded"], conservation: ["Aral Sea partial restoration efforts", "Some shelter belt programs"], fertility: ["Salinization severe (50%+ irrigated land)", "Cotton monoculture depleted soils", "Heavy chemical use legacy"] },
+            { name: "Vietnam", code: "vn", continent: "Asia", lat: 14.06, lng: 108.28, riskLevel: "moderate", erosion: ["Central Highlands deforestation", "Agent Orange legacy damage", "Mekong Delta erosion from dams"], conservation: ["Mangrove restoration successful", "Community forest allocation"], fertility: ["Red River Delta fertile", "Mekong Delta highly productive", "High fertilizer use in intensive systems"] },
+            { name: "Yemen", code: "ye", continent: "Asia", lat: 15.55, lng: 48.52, riskLevel: "critical", erosion: ["War devastated terraces", "Ancient systems collapsing", "Water crisis accelerating degradation"], conservation: ["Traditional terrace system endangered", "Conflict prevents all conservation"], fertility: ["Qat diverting water from food", "Ancient coffee terraces degrading", "No functioning agricultural system"] },
+
+            // EUROPE (44 countries)
+            { name: "Albania", code: "al", continent: "Europe", lat: 41.15, lng: 20.17, riskLevel: "moderate", erosion: ["Severe erosion after 1990s deforestation", "Overgrazing in mountains", "Landslides in central highlands"], conservation: ["EU pre-accession support", "Reforestation efforts ongoing"], fertility: ["Diverse soils from mountains to coast", "Acidic soils in highlands", "Limited fertilizer use"] },
+            { name: "Andorra", code: "ad", continent: "Europe", lat: 42.55, lng: 1.60, riskLevel: "low", erosion: ["Ski resort development impacts", "Limited agricultural land", "Mountain slopes managed"], conservation: ["Tourism revenue protects landscape", "Limited agriculture"], fertility: ["Thin mountain soils", "Pastoral traditions", "Minimal fertilizer use"] },
+            { name: "Austria", code: "at", continent: "Europe", lat: 47.52, lng: 14.55, riskLevel: "low", erosion: ["Alpine erosion well-managed", "Some agricultural erosion", "Torrent control advanced"], conservation: ["Long tradition of mountain protection", "Organic farming 25% of farmland", "Advanced watershed management"], fertility: ["Danube Valley fertile", "Alpine meadows managed", "Precision agriculture adopted"] },
+            { name: "Belarus", code: "by", continent: "Europe", lat: 53.71, lng: 27.95, riskLevel: "moderate", erosion: ["Peat drainage causes subsidence", "Water erosion moderate", "Chernobyl contamination legacy"], conservation: ["Peatland restoration beginning", "Some protected wetlands"], fertility: ["Podsolic soils require liming", "Peat soils when drained problematic", "Soviet-era heavy fertilization legacy"] },
+            { name: "Belgium", code: "be", continent: "Europe", lat: 50.50, lng: 4.47, riskLevel: "low", erosion: ["Loess soils prone to water erosion", "Some tillage erosion", "Well-managed overall"], conservation: ["EU erosion control directives", "Buffer strips required", "Cover crop adoption increasing"], fertility: ["Loess belt very fertile", "Some pollution from intensive livestock", "Precision nutrient management"] },
+            { name: "Bosnia and Herzegovina", code: "ba", continent: "Europe", lat: 43.92, lng: 17.68, riskLevel: "moderate", erosion: ["War legacy landmines limit land use", "Karst erosion natural", "Deforestation in some areas"], conservation: ["Post-war recovery ongoing", "EU support for land management"], fertility: ["Diverse fertile valleys", "Karst areas challenging", "Traditional practices persisting"] },
+            { name: "Bulgaria", code: "bg", continent: "Europe", lat: 42.73, lng: 25.49, riskLevel: "moderate", erosion: ["Wind erosion in Danubian Plain", "Water erosion in mountains", "Land abandonment changes dynamics"], conservation: ["EU cross-compliance requirements", "Some traditional practices maintained"], fertility: ["Chernozem in north very fertile", "Acidification concerns", "Fertilizer use variable"] },
+            { name: "Croatia", code: "hr", continent: "Europe", lat: 45.10, lng: 15.20, riskLevel: "low", erosion: ["Karst terrain unique challenges", "Some coastal erosion", "Generally well-managed"], conservation: ["EU environmental standards", "Protected Plitvice watershed"], fertility: ["Pannonian Plain fertile", "Dalmatian coast challenging", "Organic farming growing"] },
+            { name: "Czech Republic", code: "cz", continent: "Europe", lat: 49.82, lng: 15.47, riskLevel: "moderate", erosion: ["50% arable land at erosion risk", "Large field sizes problematic", "Water erosion significant"], conservation: ["EU greening measures", "Anti-erosion measures required", "Land consolidation improving"], fertility: ["Fertile Bohemian Basin", "Some acidification", "Precision farming adopted"] },
+            { name: "Denmark", code: "dk", continent: "Europe", lat: 56.26, lng: 9.50, riskLevel: "low", erosion: ["Coastal erosion significant", "Wind erosion on sandy soils", "Well-managed agriculture"], conservation: ["Strict environmental regulations", "Buffer zones along water", "Organic farming leader"], fertility: ["Intensive livestock nutrient issues", "Nitrate leaching concern", "Precision nutrient management"] },
+            { name: "Estonia", code: "ee", continent: "Europe", lat: 58.60, lng: 25.01, riskLevel: "low", erosion: ["Limited erosion due to flat terrain", "Some peat extraction impacts", "Coastal erosion localized"], conservation: ["EU environmental standards", "Oil shale area rehabilitation"], fertility: ["Poor sandy and peaty soils", "Liming required", "Organic farming growing"] },
+            { name: "Finland", code: "fi", continent: "Europe", lat: 61.92, lng: 25.75, riskLevel: "low", erosion: ["Minimal erosion risk", "Some peatland drainage issues", "Coastal erosion limited"], conservation: ["Strong environmental tradition", "Peatland conservation growing", "Forest management sustainable"], fertility: ["Acidic soils require liming", "Short growing season limiting", "Precision agriculture adopted"] },
+            { name: "France", code: "fr", continent: "Europe", lat: 46.23, lng: 2.21, riskLevel: "moderate", erosion: ["Loess areas susceptible", "Mediterranean areas vulnerable", "18% of soils degraded"], conservation: ["EU CAP greening measures", "Agroecology Plan national policy", "Cover crops increasing"], fertility: ["Paris Basin world-class fertility", "Some areas over-fertilized", "Organic farming growing (10%)"] },
+            { name: "Germany", code: "de", continent: "Europe", lat: 51.17, lng: 10.45, riskLevel: "low", erosion: ["Some water erosion in loess", "Wind erosion in northeast", "Generally well-controlled"], conservation: ["Strict environmental regulations", "Leader in sustainable farming", "Greening measures enforced"], fertility: ["Loess belt highly fertile", "Some areas nitrogen surplus", "Organic farming 10%+"] },
+            { name: "Greece", code: "gr", continent: "Europe", lat: 39.07, lng: 21.82, riskLevel: "high", erosion: ["Severe erosion on deforested slopes", "Overgrazing impacts", "Wildfire erosion significant"], conservation: ["EU support for terracing", "Traditional olive cultivation positive", "Reforestation efforts"], fertility: ["Thessaly Plain productive", "Island soils often poor", "Organic farming expanding"] },
+            { name: "Hungary", code: "hu", continent: "Europe", lat: 47.16, lng: 19.50, riskLevel: "moderate", erosion: ["Wind erosion in Great Plain", "Water erosion in hills", "Large field sizes contribute"], conservation: ["EU cross-compliance", "Soil protection law enacted", "Buffer strips implemented"], fertility: ["Black earth in south fertile", "Some compaction issues", "Fertilizer use rebounded"] },
+            { name: "Iceland", code: "is", continent: "Europe", lat: 64.96, lng: -19.02, riskLevel: "high", erosion: ["Severe historical overgrazing damage", "50% of original vegetation lost", "Volcanic soils easily eroded"], conservation: ["Major revegetation programs", "Soil Conservation Service since 1907", "Grazing restrictions"], fertility: ["Andisols potentially fertile", "Very short growing season", "Limited agriculture focus on grazing"] },
+            { name: "Ireland", code: "ie", continent: "Europe", lat: 53.14, lng: -7.69, riskLevel: "low", erosion: ["Peat extraction impacts", "Coastal erosion in some areas", "Grassland protects most land"], conservation: ["EU Habitats Directive", "Peatland restoration programs", "Buffer zones along water"], fertility: ["High rainfall limits nutrient loss", "Acidic soils require lime", "Grassland phosphorus concerns"] },
+            { name: "Italy", code: "it", continent: "Europe", lat: 41.87, lng: 12.57, riskLevel: "moderate", erosion: ["30% of territory at erosion risk", "Sicily particularly affected", "Landslides common in mountains"], conservation: ["Terracing traditions in wine regions", "EU soil protection support", "Organic farming expanding"], fertility: ["Po Valley highly fertile", "Southern soils often poor", "Organic farming leader in EU"] },
+            { name: "Kosovo", code: "xk", continent: "Europe", lat: 42.60, lng: 20.90, riskLevel: "moderate", erosion: ["Mining areas degraded", "Post-war land use changes", "Some agricultural erosion"], conservation: ["International support for rehabilitation", "Limited national capacity"], fertility: ["Fertile basins exist", "Mining contamination localized", "Transitioning practices"] },
+            { name: "Latvia", code: "lv", continent: "Europe", lat: 56.88, lng: 24.60, riskLevel: "low", erosion: ["Limited erosion due to flat terrain", "Some drainage impacts", "Peatland extraction effects"], conservation: ["EU standards implemented", "Organic farming 14%+ of farmland", "Forest cover maintained"], fertility: ["Podsolic soils poor", "Liming required widely", "Organic matter improving"] },
+            { name: "Liechtenstein", code: "li", continent: "Europe", lat: 47.17, lng: 9.56, riskLevel: "low", erosion: ["Mountain slopes managed", "Small scale agriculture", "Limited erosion risk"], conservation: ["High environmental standards", "Traditional alpine practices"], fertility: ["Valley soils fertile", "Mountain pastures maintained", "Organic farming significant"] },
+            { name: "Lithuania", code: "lt", continent: "Europe", lat: 55.17, lng: 23.88, riskLevel: "low", erosion: ["Wind erosion in sandy areas", "Water erosion limited", "Drainage system extensive"], conservation: ["EU environmental directives", "Organic farming growing", "Buffer zones required"], fertility: ["Moderately fertile overall", "Some acidification", "Fertilizer use recovering"] },
+            { name: "Luxembourg", code: "lu", continent: "Europe", lat: 49.82, lng: 6.13, riskLevel: "low", erosion: ["Limited erosion concerns", "Some vineyard slope erosion", "Well-managed overall"], conservation: ["Strong environmental regulations", "Small-scale diverse farming", "Organic farming growing"], fertility: ["Generally fertile soils", "Nitrogen surplus from livestock", "Precision farming adopted"] },
+            { name: "Malta", code: "mt", continent: "Europe", lat: 35.94, lng: 14.38, riskLevel: "high", erosion: ["Severe coastal erosion", "Limited soil resources", "Ancient terraces degrading"], conservation: ["Terrace wall restoration", "Water harvesting traditional", "EU support for conservation"], fertility: ["Limestone-derived soils", "Severe water limitation", "Limited agricultural potential"] },
+            { name: "Moldova", code: "md", continent: "Europe", lat: 47.41, lng: 28.37, riskLevel: "moderate", erosion: ["40% of agricultural land eroded", "Gully erosion significant", "Land abandonment changes"], conservation: ["Post-Soviet neglect recovering", "International support programs", "Afforestation efforts"], fertility: ["Chernozem potentially highly fertile", "Organic matter declined", "Fertilizer use low"] },
+            { name: "Monaco", code: "mc", continent: "Europe", lat: 43.74, lng: 7.42, riskLevel: "low", erosion: ["Fully urbanized territory", "Coastal protection priority", "No agricultural land"], conservation: ["Urban sustainability focus", "Green infrastructure"], fertility: ["No agricultural soil", "Some rooftop/urban gardens", "High-tech growing only"] },
+            { name: "Montenegro", code: "me", continent: "Europe", lat: 42.71, lng: 19.37, riskLevel: "moderate", erosion: ["Karst terrain erosion", "Coastal development impacts", "Mountain slope erosion"], conservation: ["EU accession driving improvements", "Protected area expansion"], fertility: ["Diverse soil types", "Traditional practices maintained", "Organic farming growing"] },
+            { name: "Netherlands", code: "nl", continent: "Europe", lat: 52.13, lng: 5.29, riskLevel: "low", erosion: ["25% below sea level - unique situation", "Peat subsidence major issue", "Coastal erosion managed"], conservation: ["World-leading water management", "Peat oxidation reduction efforts", "Strict environmental rules"], fertility: ["Highly productive soils", "Nutrient surplus from livestock", "Precision agriculture leader"] },
+            { name: "North Macedonia", code: "mk", continent: "Europe", lat: 41.51, lng: 21.75, riskLevel: "moderate", erosion: ["Water erosion in hilly areas", "Overgrazing impacts", "Mining area degradation"], conservation: ["EU alignment improving practices", "Limited resources for conservation"], fertility: ["Vardar Valley fertile", "Diverse wine terroirs", "Traditional practices"] },
+            { name: "Norway", code: "no", continent: "Europe", lat: 60.47, lng: 8.47, riskLevel: "low", erosion: ["Limited agricultural erosion", "Arctic soils sensitive", "Landslides in fjord areas"], conservation: ["Strong environmental tradition", "3% land is agricultural", "Strict regulations"], fertility: ["Limited arable land", "Acidic soils need lime", "Focus on sustainability"] },
+            { name: "Poland", code: "pl", continent: "Europe", lat: 51.92, lng: 19.15, riskLevel: "moderate", erosion: ["Wind erosion in central lowlands", "Water erosion in loess uplands", "Large fields problematic"], conservation: ["EU cross-compliance adopted", "Buffer zones required", "Conservation agriculture growing"], fertility: ["Generally moderate fertility", "Some acidification", "Fertilizer use increasing"] },
+            { name: "Portugal", code: "pt", continent: "Europe", lat: 39.40, lng: -8.22, riskLevel: "high", erosion: ["68% at erosion risk", "Eucalyptus plantations problematic", "Wildfire erosion severe"], conservation: ["Cork oak sustainable system", "EU support for terracing", "Fire prevention critical"], fertility: ["Generally poor soils", "Atlantic coast better", "Organic farming growing"] },
+            { name: "Romania", code: "ro", continent: "Europe", lat: 45.94, lng: 24.97, riskLevel: "moderate", erosion: ["30% of farmland affected", "Wind erosion in south", "Danube Delta sedimentation"], conservation: ["EU support improving practices", "Large-scale farm conservation better", "Small farms struggle"], fertility: ["Chernozem in south fertile", "Carpathian mountain soils poor", "Fertilizer use rebounding"] },
+            { name: "Russia", code: "ru", continent: "Europe", lat: 61.52, lng: 105.32, riskLevel: "high", erosion: ["58M ha affected by water erosion", "Siberian permafrost thaw", "Wind erosion in steppes"], conservation: ["Shelterbelts historic legacy", "Limited recent investment", "Climate change adaptation needed"], fertility: ["Chernozem world-famous", "Permafrost soils sensitive", "Varied fertilizer access"] },
+            { name: "San Marino", code: "sm", continent: "Europe", lat: 43.94, lng: 12.46, riskLevel: "low", erosion: ["Limited agricultural land", "Hilltop erosion managed", "Small scale concerns"], conservation: ["Traditional terracing", "Tourism focus protects landscape"], fertility: ["Small productive areas", "Traditional practices", "Quality over quantity"] },
+            { name: "Serbia", code: "rs", continent: "Europe", lat: 44.02, lng: 21.01, riskLevel: "moderate", erosion: ["Erosion affects 86% of territory", "Kosovo mining impacts severe", "Vojvodina wind erosion"], conservation: ["National strategy adopted", "EU accession driving improvement", "Watershed programs"], fertility: ["Vojvodina black earth fertile", "Central areas variable", "Fertilizer use increasing"] },
+            { name: "Slovakia", code: "sk", continent: "Europe", lat: 48.67, lng: 19.70, riskLevel: "moderate", erosion: ["40% of agricultural land at risk", "Water erosion in highlands", "Wind erosion in lowlands"], conservation: ["EU cross-compliance", "Buffer strips implemented", "Conservation tillage growing"], fertility: ["Danubian lowland fertile", "Mountain soils poor", "Precision farming adopted"] },
+            { name: "Slovenia", code: "si", continent: "Europe", lat: 46.15, lng: 14.99, riskLevel: "moderate", erosion: ["Karst terrain challenges", "Alpine erosion managed", "Small farm scale helps"], conservation: ["60% forest cover", "EU environmental standards", "Organic farming 10%+"], fertility: ["Diverse soil types", "Alpine meadows managed", "Quality-focused farming"] },
+            { name: "Spain", code: "es", continent: "Europe", lat: 40.46, lng: -3.75, riskLevel: "high", erosion: ["74% at erosion risk (highest in EU)", "Desertification in southeast", "Olive grove erosion"], conservation: ["EU support critical", "Olive terrace rehabilitation", "Greening measures implemented"], fertility: ["Central Meseta low fertility", "Mediterranean areas degraded", "Irrigation expanding unsustainably"] },
+            { name: "Sweden", code: "se", continent: "Europe", lat: 60.13, lng: 18.64, riskLevel: "low", erosion: ["Minimal erosion risk", "Some agricultural erosion in south", "Forestry managed sustainably"], conservation: ["Strong environmental tradition", "7% arable land only", "Organic farming 20%+"], fertility: ["Southern plains productive", "Acidic forest soils", "Precision farming adopted"] },
+            { name: "Switzerland", code: "ch", continent: "Europe", lat: 46.82, lng: 8.23, riskLevel: "low", erosion: ["Alpine erosion well-managed", "Some intensive area erosion", "Climate change glacier impacts"], conservation: ["Strong tradition mountain protection", "Precision farming widespread", "Organic farming ~17%"], fertility: ["Valley soils fertile", "Mountain pastures maintained", "High-quality focus"] },
+            { name: "Ukraine", code: "ua", continent: "Europe", lat: 48.38, lng: 31.17, riskLevel: "high", erosion: ["32% of arable land eroded", "War damage to soils significant", "Wind erosion in south"], conservation: ["Conflict disrupted all programs", "Post-war rehabilitation needed", "Historic shelterbelt system damaged"], fertility: ["25% world's chernozem", "War contamination unknown extent", "Breadbasket potential threatened"] },
+            { name: "United Kingdom", code: "gb", continent: "Europe", lat: 55.38, lng: -3.44, riskLevel: "low", erosion: ["Some arable erosion in east", "Peat erosion in uplands", "Coastal erosion increasing"], conservation: ["Environmental stewardship schemes", "Buffer strips along water", "Peatland restoration growing"], fertility: ["Variable by region", "Generally productive", "Precision farming adopted"] },
+            { name: "Vatican City", code: "va", continent: "Europe", lat: 41.90, lng: 12.45, riskLevel: "low", erosion: ["Fully urbanized territory", "Vatican Gardens maintained", "No erosion concern"], conservation: ["Historic garden preservation", "Laudato Si' environmental focus"], fertility: ["Gardens well-maintained", "No agricultural production", "Symbolic importance"] },
+
+            // NORTH AMERICA (23 countries)
+            { name: "Antigua and Barbuda", code: "ag", continent: "North America", lat: 17.06, lng: -61.80, riskLevel: "moderate", erosion: ["Hurricane-related erosion", "Coastal erosion significant", "Small land area vulnerable"], conservation: ["Beach nourishment programs", "Mangrove protection"], fertility: ["Limestone soils alkaline", "Limited fresh water", "Small-scale farming only"] },
+            { name: "Bahamas", code: "bs", continent: "North America", lat: 25.03, lng: -77.40, riskLevel: "moderate", erosion: ["Coastal erosion from hurricanes", "Sea level rise threat", "Very limited soil resources"], conservation: ["Beach and dune protection", "Mangrove conservation"], fertility: ["No true soil - coral/sand", "Hydroponics for local food", "Almost all food imported"] },
+            { name: "Barbados", code: "bb", continent: "North America", lat: 13.19, lng: -59.54, riskLevel: "moderate", erosion: ["Historical sugar cane erosion", "Coastal erosion significant", "Densely populated pressure"], conservation: ["Gully stabilization programs", "Coastal setback policies"], fertility: ["Coral limestone soils", "Water scarce", "Diverse small-scale farming"] },
+            { name: "Belize", code: "bz", continent: "North America", lat: 17.19, lng: -88.50, riskLevel: "moderate", erosion: ["Deforestation for agriculture", "Coastal mangrove loss", "Riverbank erosion"], conservation: ["Protected area network extensive", "Barrier reef protection"], fertility: ["Variable - good in valleys", "Citrus/banana soils productive", "Low fertilizer use traditionally"] },
+            { name: "Canada", code: "ca", continent: "North America", lat: 56.13, lng: -106.35, riskLevel: "moderate", erosion: ["Prairie wind erosion historical", "Water erosion in east", "Permafrost thaw accelerating"], conservation: ["Conservation tillage widely adopted", "Prairie shelterbelt program", "Wetland conservation advanced"], fertility: ["Prairie chernozem world-class", "Climate limits northern farming", "Precision agriculture leader"] },
+            { name: "Costa Rica", code: "cr", continent: "North America", lat: 9.75, lng: -83.75, riskLevel: "moderate", erosion: ["Steep slope erosion", "Deforestation reversed", "Banana/pineapple plantation impacts"], conservation: ["Payment for ecosystem services pioneer", "Forest cover recovered to 52%", "Organic farming growing"], fertility: ["Volcanic soils very fertile", "Heavy rainfall leaches nutrients", "Coffee shade systems sustainable"] },
+            { name: "Cuba", code: "cu", continent: "North America", lat: 21.52, lng: -77.78, riskLevel: "moderate", erosion: ["Sugar cane erosion historical", "Coastal erosion from storms", "Some gully formation"], conservation: ["Agroecology movement strong", "Urban farming extensive", "Organic by necessity (1990s)"], fertility: ["Red lateritic soils variable", "Organic fertilizers dominant", "Limited synthetic input access"] },
+            { name: "Dominica", code: "dm", continent: "North America", lat: 15.42, lng: -61.34, riskLevel: "high", erosion: ["Steep volcanic slopes highly erodible", "Hurricane Maria devastation (2017)", "Landslides frequent"], conservation: ["Rainforest preservation", "Watershed protection critical"], fertility: ["Volcanic soils fertile", "Heavy rainfall challenge", "Banana/citrus cultivation"] },
+            { name: "Dominican Republic", code: "do", continent: "North America", lat: 18.74, lng: -70.16, riskLevel: "moderate", erosion: ["Deforestation historical (only 28% forest)", "Hillside cultivation erosion", "Hurricane-related damage"], conservation: ["Reforestation programs active", "Watershed protection improving"], fertility: ["Cibao Valley fertile", "Variable across terrain", "Sugar/coffee/cacao soils managed"] },
+            { name: "El Salvador", code: "sv", continent: "North America", lat: 13.79, lng: -88.90, riskLevel: "high", erosion: ["Most densely populated Central American country", "Steep slopes heavily eroded", "Deforestation severe"], conservation: ["Hillside farming techniques promoted", "Agroforestry for coffee"], fertility: ["Volcanic soils fertile but thin", "Hillside erosion removes topsoil", "Fertilizer use moderate"] },
+            { name: "Grenada", code: "gd", continent: "North America", lat: 12.26, lng: -61.60, riskLevel: "moderate", erosion: ["Hurricane Ivan devastation (2004)", "Steep slope erosion", "Coastal erosion"], conservation: ["Spice agroforestry traditional", "Watershed rehabilitation ongoing"], fertility: ["Volcanic soils fertile", "Nutmeg/spice soils managed", "Small-scale organic growing"] },
+            { name: "Guatemala", code: "gt", continent: "North America", lat: 15.78, lng: -90.23, riskLevel: "high", erosion: ["Severe highland erosion", "Deforestation in Petén", "Volcanic slope instability"], conservation: ["Traditional Maya agroforestry", "Shade coffee conservation", "Community forestry growing"], fertility: ["Volcanic highlands very fertile", "Petén lowlands leached", "Variable fertilizer access"] },
+            { name: "Haiti", code: "ht", continent: "North America", lat: 18.97, lng: -72.29, riskLevel: "critical", erosion: ["98% deforested - catastrophic erosion", "Visible from space soil loss", "Gullies destroying farmland"], conservation: ["Many NGO programs with limited success", "Tree planting challenged by poverty", "Charcoal demand drives deforestation"], fertility: ["Severely degraded fertility", "Very limited fertilizer access", "Rehabilitation desperately needed"] },
+            { name: "Honduras", code: "hn", continent: "North America", lat: 15.20, lng: -86.24, riskLevel: "high", erosion: ["Hurricane Mitch devastation (1998)", "Hillside cultivation erosion", "Deforestation ongoing"], conservation: ["Watershed management programs", "Agroforestry promotion", "Limited enforcement capacity"], fertility: ["Banana/palm soils managed intensively", "Hillside soils thin", "Variable fertilizer access"] },
+            { name: "Jamaica", code: "jm", continent: "North America", lat: 18.11, lng: -77.30, riskLevel: "moderate", erosion: ["Bauxite mining destroys land", "Hillside erosion significant", "Coastal erosion"], conservation: ["Reforestation in Blue Mountains", "Mining rehabilitation required"], fertility: ["Blue Mountain coffee soils special", "Bauxite areas need rehabilitation", "Small-scale farming variable"] },
+            { name: "Mexico", code: "mx", continent: "North America", lat: 23.63, lng: -102.55, riskLevel: "high", erosion: ["64% of land degraded", "Wind erosion in north", "Water erosion in mountains"], conservation: ["Payment for ecosystem services", "Community forestry strong", "Conservation agriculture growing"], fertility: ["Diverse - volcanic areas fertile", "Northern arid soils poor", "Fertilizer subsidies significant"] },
+            { name: "Nicaragua", code: "ni", continent: "North America", lat: 12.87, lng: -85.21, riskLevel: "high", erosion: ["Agricultural frontier advancing", "Deforestation rapid", "Volcanic slope instability"], conservation: ["Protected areas underfunded", "Community forestry emerging"], fertility: ["Volcanic Pacific soils fertile", "Atlantic lowlands leached", "Limited fertilizer access"] },
+            { name: "Panama", code: "pa", continent: "North America", lat: 8.54, lng: -80.78, riskLevel: "moderate", erosion: ["Canal watershed critical to protect", "Darién deforestation", "Hillside cultivation impacts"], conservation: ["Canal Authority watershed protection", "Indigenous territory protection"], fertility: ["Variable across terrain", "Banana/palm plantations intensive", "Growing organic sector"] },
+            { name: "Saint Kitts and Nevis", code: "kn", continent: "North America", lat: 17.36, lng: -62.78, riskLevel: "moderate", erosion: ["Steep volcanic slopes", "Hurricane damage periodic", "Coastal erosion"], conservation: ["Rainforest protection", "Sugar industry ended (2005)"], fertility: ["Volcanic soils fertile", "Sugar cane exhausted some areas", "Diversifying agriculture"] },
+            { name: "Saint Lucia", code: "lc", continent: "North America", lat: 13.91, lng: -60.98, riskLevel: "moderate", erosion: ["Steep terrain erosion risk", "Banana plantation impacts", "Hurricane-related damage"], conservation: ["Pitons UNESCO protection", "Watershed management programs"], fertility: ["Volcanic soils productive", "Banana monoculture transitioning", "Tourism reducing farm pressure"] },
+            { name: "Saint Vincent and the Grenadines", code: "vc", continent: "North America", lat: 12.98, lng: -61.29, riskLevel: "high", erosion: ["Active volcano (La Soufrière)", "2021 eruption devastated agriculture", "Steep slope erosion"], conservation: ["Post-eruption rehabilitation", "Watershed protection programs"], fertility: ["Volcanic soils very fertile when stable", "Eruption ash impacts", "Banana/arrowroot traditional"] },
+            { name: "Trinidad and Tobago", code: "tt", continent: "North America", lat: 10.69, lng: -61.22, riskLevel: "moderate", erosion: ["Northern Range deforestation", "Quarrying impacts", "Coastal erosion"], conservation: ["Forest reserves protected", "Pitch Lake unique feature preserved"], fertility: ["Diverse soil types", "Sugar/cocoa historical", "Oil economy reduces farm pressure"] },
+            { name: "United States", code: "us", continent: "North America", lat: 37.09, lng: -95.71, riskLevel: "moderate", erosion: ["Dust Bowl historical disaster", "1.7 billion tons lost annually", "Varied by region"], conservation: ["CRP (Conservation Reserve Program)", "No-till adoption 40%+", "Cover crops expanding"], fertility: ["Corn Belt world-class fertility", "Great Plains managed", "Precision agriculture leader"] },
+
+            // SOUTH AMERICA (12 countries)
+            { name: "Argentina", code: "ar", continent: "South America", lat: -38.42, lng: -63.62, riskLevel: "moderate", erosion: ["Pampas wind erosion increasing", "Patagonian desertification", "Soy expansion impacts"], conservation: ["No-till pioneer and leader", "Some buffer strip adoption", "Climate-smart agriculture growing"], fertility: ["Pampas world-class but declining", "Soy monoculture depleting", "Variable fertilizer use"] },
+            { name: "Bolivia", code: "bo", continent: "South America", lat: -16.29, lng: -63.59, riskLevel: "high", erosion: ["Severe Andean erosion", "Amazon deforestation frontier", "Mining impacts"], conservation: ["Traditional terrace systems", "Community forest management"], fertility: ["Altiplano soils challenging", "Eastern lowlands variable", "Limited fertilizer access"] },
+            { name: "Brazil", code: "br", continent: "South America", lat: -14.24, lng: -51.93, riskLevel: "high", erosion: ["822 million tons lost annually", "Amazon deforestation accelerating", "Cerrado conversion massive"], conservation: ["Forest Code (controversial)", "No-till widespread", "Integrated crop-livestock systems"], fertility: ["Cerrado soils acidic, need lime", "Amazon soils infertile when cleared", "Heavy fertilizer use in commercial farms"] },
+            { name: "Chile", code: "cl", continent: "South America", lat: -35.68, lng: -71.54, riskLevel: "moderate", erosion: ["Central Valley water erosion", "Atacama wind erosion natural", "Forestry plantation erosion"], conservation: ["Soil conservation law enacted", "Payment for ecosystem services", "Wine region terroir protection"], fertility: ["Central Valley fertile", "Volcanic south productive", "Export agriculture well-managed"] },
+            { name: "Colombia", code: "co", continent: "South America", lat: 4.57, lng: -74.30, riskLevel: "moderate", erosion: ["Andean slope erosion", "Coca cultivation in forests", "Amazon frontier deforestation"], conservation: ["Peace process enabling conservation", "Payment for ecosystem services", "Coffee landscape UNESCO"], fertility: ["Coffee triangle volcanic soils excellent", "Llanos acidic", "Amazon infertile when cleared"] },
+            { name: "Ecuador", code: "ec", continent: "South America", lat: -1.83, lng: -78.18, riskLevel: "high", erosion: ["Severe Andean erosion", "Coastal shrimp pond damage", "Amazon oil extraction impacts"], conservation: ["Galápagos strict protection", "Watershed payment programs"], fertility: ["Volcanic Sierra fertile", "Coast alluvial productive", "Amazon leached soils"] },
+            { name: "Guyana", code: "gy", continent: "South America", lat: 4.86, lng: -58.93, riskLevel: "low", erosion: ["Limited erosion due to forest cover", "Coastal sea level concerns", "Mining localized impacts"], conservation: ["85% forest cover", "LCDS (Low Carbon Development Strategy)", "Indigenous territory protection"], fertility: ["Coastal sugar soils managed", "Interior laterites infertile", "Limited agriculture overall"] },
+            { name: "Paraguay", code: "py", continent: "South America", lat: -23.44, lng: -58.44, riskLevel: "high", erosion: ["Rapid deforestation (highest rate in world)", "Soy expansion destroying forest", "Chaco conversion accelerating"], conservation: ["Forest law poorly enforced", "Some no-till adoption", "Indigenous territory some protection"], fertility: ["Eastern soils productive", "Chaco soils variable", "Heavy soy fertilizer use"] },
+            { name: "Peru", code: "pe", continent: "South America", lat: -9.19, lng: -75.02, riskLevel: "high", erosion: ["Ancient Inca terraces degrading", "Amazon deforestation frontier", "Mining severe local impacts"], conservation: ["Terrace rehabilitation programs", "Protected area network", "Community conservation areas"], fertility: ["Coastal irrigated productive", "Sierra terraces managed", "Amazon infertile when cleared"] },
+            { name: "Suriname", code: "sr", continent: "South America", lat: 3.92, lng: -56.03, riskLevel: "low", erosion: ["93% forest cover protects", "Gold mining localized devastation", "Coastal erosion limited"], conservation: ["Vast forest reserves", "Indigenous management", "REDD+ potential"], fertility: ["Coastal rice soils managed", "Interior laterites poor", "Very limited agriculture"] },
+            { name: "Uruguay", code: "uy", continent: "South America", lat: -32.52, lng: -55.77, riskLevel: "moderate", erosion: ["Pampa extension erosion", "Soy expansion impacts", "Some gully formation"], conservation: ["Soil conservation law requires plans", "No-till widely adopted", "Rotational grazing promoted"], fertility: ["Generally productive soils", "Some degradation from intensification", "Growing organic sector"] },
+            { name: "Venezuela", code: "ve", continent: "South America", lat: 6.42, lng: -66.59, riskLevel: "high", erosion: ["Llanos overgrazing", "Oil extraction contamination", "Amazon frontier deforestation"], conservation: ["Economic crisis limits capacity", "Some protected areas", "Indigenous territories"], fertility: ["Llanos acidic soils", "Oil contamination areas", "Limited functioning agriculture system"] },
+
+            // OCEANIA (14 countries)
+            { name: "Australia", code: "au", continent: "Oceania", lat: -25.27, lng: 133.78, riskLevel: "moderate", erosion: ["Dryland salinity affecting 5.7M ha", "Wind erosion in rangelands", "Overgrazing historical damage"], conservation: ["Landcare community movement", "Conservation agriculture adoption high", "Carbon farming initiatives"], fertility: ["Ancient weathered soils low fertility", "Murray-Darling under stress", "Precision agriculture advancing"] },
+            { name: "Fiji", code: "fj", continent: "Oceania", lat: -17.71, lng: 178.07, riskLevel: "moderate", erosion: ["Sugar cane erosion on slopes", "Cyclone-related damage", "Coastal erosion increasing"], conservation: ["Mangrove restoration programs", "Watershed management"], fertility: ["Volcanic soils variable", "Sugar cane depleting areas", "Organic farming growing"] },
+            { name: "Kiribati", code: "ki", continent: "Oceania", lat: 1.87, lng: -157.36, riskLevel: "critical", erosion: ["Sea level rise existential threat", "Storm surge erosion", "Coral mining damages reefs"], conservation: ["Climate adaptation priority", "Phoenix Islands Protected Area"], fertility: ["No true soil - coral sand", "Pit gardens for taro", "Extremely limited agriculture"] },
+            { name: "Marshall Islands", code: "mh", continent: "Oceania", lat: 7.13, lng: 171.18, riskLevel: "critical", erosion: ["Sea level rise threatening existence", "Storm overwash erosion", "Nuclear testing contamination legacy"], conservation: ["Climate adaptation focus", "Traditional knowledge"], fertility: ["Coral atoll no true soil", "Breadfruit/coconut traditional", "Food largely imported"] },
+            { name: "Micronesia", code: "fm", continent: "Oceania", lat: 7.43, lng: 150.55, riskLevel: "moderate", erosion: ["High island volcanic erosion", "Low atoll sea level rise", "Typhoon damage"], conservation: ["Marine protected areas priority", "Traditional agroforestry"], fertility: ["Volcanic islands more fertile", "Atoll soils extremely limited", "Subsistence agriculture dominant"] },
+            { name: "Nauru", code: "nr", continent: "Oceania", lat: -0.52, lng: 166.93, riskLevel: "critical", erosion: ["80% of land strip-mined for phosphate", "Remaining pinnacles eroding", "Coastal erosion from mining"], conservation: ["Rehabilitation extremely challenging", "Secondary mining of pinnacles"], fertility: ["Once richest phosphate deposits", "Now devastated landscape", "Food almost entirely imported"] },
+            { name: "New Zealand", code: "nz", continent: "Oceania", lat: -40.90, lng: 174.89, riskLevel: "low", erosion: ["Some pastoral hillside erosion", "Cyclone-related landslides", "Coastal erosion localized"], conservation: ["Strong environmental movement", "Erosion control well-established", "Riparian planting widespread"], fertility: ["Volcanic North Island fertile", "Canterbury Plains productive", "Dairy nutrient issues"] },
+            { name: "Palau", code: "pw", continent: "Oceania", lat: 7.51, lng: 134.58, riskLevel: "moderate", erosion: ["Volcanic island slope erosion", "Coastal development impacts", "Climate change effects"], conservation: ["Marine environment priority", "Protected area network"], fertility: ["Volcanic soils variable", "Limited agricultural development", "Subsistence and tourism focus"] },
+            { name: "Papua New Guinea", code: "pg", continent: "Oceania", lat: -6.31, lng: 143.96, riskLevel: "high", erosion: ["Highland sweet potato cultivation erosion", "Mining devastating local areas", "Logging road erosion"], conservation: ["Community land ownership traditional", "Some protected areas", "REDD+ programs"], fertility: ["Highland volcanic soils managed traditionally", "Lowland soils leached", "Sweet potato gardens sustainable"] },
+            { name: "Samoa", code: "ws", continent: "Oceania", lat: -13.76, lng: -172.10, riskLevel: "moderate", erosion: ["Cyclone damage periodic", "Volcanic slope instability", "Coastal erosion increasing"], conservation: ["Village-based resource management", "Watershed protection"], fertility: ["Volcanic soils fertile", "Traditional agroforestry sustainable", "Organic farming growing"] },
+            { name: "Solomon Islands", code: "sb", continent: "Oceania", lat: -9.43, lng: 160.03, riskLevel: "high", erosion: ["Logging causing severe erosion", "Mining impacts localized", "Coastal erosion"], conservation: ["Community-based management potential", "Limited government capacity"], fertility: ["Volcanic soils variable", "Logging destroys forest soils", "Subsistence agriculture dominant"] },
+            { name: "Tonga", code: "to", continent: "Oceania", lat: -21.18, lng: -175.20, riskLevel: "moderate", erosion: ["Cyclone damage periodic", "Some agricultural erosion", "Coastal erosion"], conservation: ["Community management traditional", "Climate adaptation growing focus"], fertility: ["Volcanic/coral mix soils", "Squash export success", "Traditional agriculture sustainable"] },
+            { name: "Tuvalu", code: "tv", continent: "Oceania", lat: -7.11, lng: 177.65, riskLevel: "critical", erosion: ["Sea level rise existential threat", "Storm surge overwash", "Groundwater salinization"], conservation: ["Climate frontline nation", "International attention growing"], fertility: ["No arable soil - coral atoll", "Pulaka pits for root crops", "Food security through imports/aid"] },
+            { name: "Vanuatu", code: "vu", continent: "Oceania", lat: -15.38, lng: 166.96, riskLevel: "high", erosion: ["Active volcanoes", "Cyclone damage frequent", "Steep slope erosion"], conservation: ["Traditional land management", "Climate adaptation priority"], fertility: ["Volcanic soils very fertile", "Kava cultivation traditional", "Subsistence agriculture dominant"] },
+
+            // ANTARCTICA (1)
+            { name: "Antarctica", code: "aq", continent: "Antarctica", lat: -75.25, lng: -0.07, riskLevel: "low", erosion: ["98% ice-covered - limited soil exposure", "Periglacial processes in ice-free areas", "Climate change thawing some areas"], conservation: ["Antarctic Treaty protection", "Scientific research priority", "No development allowed"], fertility: ["No agricultural soil", "Microbial communities in ice-free areas", "Research focus only"] }
+        ];
+
+        // ============================================
+        // QUIZ QUESTIONS
+        // ============================================
+        const quizQuestions = [
+            {
+                question: "How many billion tons of soil are lost to erosion globally each year?",
+                options: ["10 billion tons", "24 billion tons", "50 billion tons", "5 billion tons"],
+                correct: 1
+            },
+            {
+                question: "Which type of erosion is responsible for 56% of global soil degradation?",
+                options: ["Wind erosion", "Water erosion", "Tillage erosion", "Glacial erosion"],
+                correct: 1
+            },
+            {
+                question: "What is the primary macronutrient responsible for vegetative growth and chlorophyll production?",
+                options: ["Phosphorus (P)", "Potassium (K)", "Nitrogen (N)", "Calcium (Ca)"],
+                correct: 2
+            },
+            {
+                question: "Which country pioneered the 'Farmer-Managed Natural Regeneration' (FMNR) technique?",
+                options: ["Kenya", "Niger", "Ethiopia", "India"],
+                correct: 1
+            },
+            {
+                question: "What percentage of the world's food production depends on soil?",
+                options: ["75%", "85%", "95%", "65%"],
+                correct: 2
+            },
+            {
+                question: "Which conservation technique can reduce soil erosion by up to 90%?",
+                options: ["Crop rotation", "Cover crops", "Terracing", "Mulching"],
+                correct: 2
+            },
+            {
+                question: "The Dust Bowl of the 1930s primarily affected which country?",
+                options: ["Australia", "China", "United States", "Russia"],
+                correct: 2
+            },
+            {
+                question: "What is salinization?",
+                options: ["Increase in soil acidity", "Accumulation of salts in soil", "Loss of organic matter", "Soil compaction"],
+                correct: 1
+            },
+            {
+                question: "Which African island nation is called the 'Bleeding Island' due to severe erosion?",
+                options: ["Mauritius", "Comoros", "Madagascar", "Seychelles"],
+                correct: 2
+            },
+            {
+                question: "What is the approximate time needed to form 2.5 cm (1 inch) of topsoil naturally?",
+                options: ["50-100 years", "200-300 years", "500-1000 years", "10-50 years"],
+                correct: 2
+            }
+        ];
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        let map;
+        let markers = [];
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let activeFilters = { erosion: true, conservation: true, fertility: true };
+
+        // Risk level colors
+        const riskColors = {
+            critical: '#c62828',
+            high: '#ef5350',
+            moderate: '#ff8a65',
+            low: '#81c784'
+        };
+
+        // Initialize map
+        function initMap() {
+            map = L.map('world-map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                maxZoom: 18
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors | Soil Data: FAO, UNCCD, USDA'
+            }).addTo(map);
+
+            addMarkers();
+        }
+
+        // Add markers to map
+        function addMarkers() {
+            markers.forEach(m => map.removeLayer(m.marker));
+            markers = [];
+
+            countriesData.forEach(country => {
+                const color = riskColors[country.riskLevel] || '#ff8a65';
+                
+                const marker = L.circleMarker([country.lat, country.lng], {
+                    radius: 7,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.85
+                }).addTo(map);
+
+                const riskClass = country.riskLevel === 'critical' || country.riskLevel === 'high' ? 'high-risk' : 
+                                  country.riskLevel === 'moderate' ? 'medium-risk' : 'low-risk';
+
+                const popupContent = `
+                    <div class="popup-header ${riskClass}">
+                        <img src="https://flagcdn.com/w40/${country.code}.png" alt="${country.name}"
+                             onerror="this.src='https://via.placeholder.com/40x27?text=${country.code.toUpperCase()}'">
+                        <div>
+                            <h4>${country.name}</h4>
+                            <span>${country.continent} | <span class="risk-badge ${country.riskLevel}">${country.riskLevel.toUpperCase()} RISK</span></span>
+                        </div>
+                    </div>
+                    <div class="popup-body">
+                        ${activeFilters.erosion ? `
+                        <div class="popup-section erosion">
+                            <h5>⚠️ Erosion Issues</h5>
+                            <ul class="popup-points">
+                                ${country.erosion.map(e => `<li>${e}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        ${activeFilters.conservation ? `
+                        <div class="popup-section conservation">
+                            <h5>🌿 Conservation Efforts</h5>
+                            <ul class="popup-points">
+                                ${country.conservation.map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        ${activeFilters.fertility ? `
+                        <div class="popup-section fertility">
+                            <h5>🌱 Fertility Status</h5>
+                            <ul class="popup-points">
+                                ${country.fertility.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, { maxWidth: 400 });
+                markers.push({ marker, country });
+            });
+        }
+
+        // Toggle filter
+        function toggleFilter(type) {
+            activeFilters[type] = !activeFilters[type];
+            
+            const btn = document.querySelector(`.${type}-filter`);
+            btn.classList.toggle('active', activeFilters[type]);
+            
+            addMarkers();
+        }
+
+        // Search on map
+        function searchOnMap() {
+            const searchTerm = document.getElementById('mapSearch').value.toLowerCase();
+            const found = markers.find(({ country }) => 
+                country.name.toLowerCase().includes(searchTerm)
+            );
+
+            if (found) {
+                map.setView([found.country.lat, found.country.lng], 5);
+                found.marker.openPopup();
+            } else {
+                alert('Country not found. Please try another search.');
+            }
+        }
+
+        document.getElementById('mapSearch').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchOnMap();
+        });
+
+        // ============================================
+        // QUIZ FUNCTIONS
+        // ============================================
+        function initQuiz() {
+            const progressContainer = document.getElementById('quizProgress');
+            progressContainer.innerHTML = quizQuestions.map((_, i) => 
+                `<div class="quiz-dot ${i === 0 ? 'active' : ''}">${i + 1}</div>`
+            ).join('');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = quizQuestions[currentQuestion];
+            const container = document.getElementById('quizContent');
+            
+            container.innerHTML = `
+                <div class="quiz-question">
+                    <h4>Question ${currentQuestion + 1} of ${quizQuestions.length}: ${q.question}</h4>
+                    <div class="quiz-options">
+                        ${q.options.map((opt, i) => `
+                            <div class="quiz-option ${userAnswers[currentQuestion] === i ? 'selected' : ''}" 
+                                 onclick="selectAnswer(${i})">
+                                ${String.fromCharCode(65 + i)}. ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            updateProgress();
+            updateButtons();
+        }
+
+        function selectAnswer(index) {
+            userAnswers[currentQuestion] = index;
+            renderQuestion();
+        }
+
+        function updateProgress() {
+            document.querySelectorAll('.quiz-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'completed');
+                if (i === currentQuestion) dot.classList.add('active');
+                else if (userAnswers[i] !== undefined) dot.classList.add('completed');
+            });
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').textContent = 
+                currentQuestion === quizQuestions.length - 1 ? 'Submit' : 'Next →';
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion === quizQuestions.length - 1) {
+                submitQuiz();
+            } else {
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizQuestions.forEach((q, i) => {
+                if (userAnswers[i] === q.correct) score++;
+            });
+
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('quizActions').style.display = 'none';
+            document.getElementById('quizProgress').style.display = 'none';
+            
+            const result = document.getElementById('quizResult');
+            result.style.display = 'block';
+            document.getElementById('finalScore').textContent = score;
+
+            let title, message;
+            if (score >= 9) { title = '🏆 Soil Conservation Expert!'; message = 'Outstanding! You truly understand global soil issues.'; }
+            else if (score >= 7) { title = '🌟 Great Knowledge!'; message = 'Excellent understanding of soil challenges and solutions.'; }
+            else if (score >= 5) { title = '👍 Good Progress!'; message = 'Solid foundation - keep learning about our soils!'; }
+            else { title = '🌱 Keep Learning!'; message = 'Soils need our attention - review and try again!'; }
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('quizActions').style.display = 'flex';
+            document.getElementById('quizProgress').style.display = 'flex';
+            document.getElementById('quizResult').style.display = 'none';
+            initQuiz();
+        }
+
+        // ============================================
+        // ANIMATED COUNTERS
+        // ============================================
+        function animateCounters() {
+            document.querySelectorAll('.stat-number').forEach(counter => {
+                const target = parseInt(counter.dataset.target);
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 16);
+            });
+        }
+
+        // ============================================
+        // THEME TOGGLE
+        // ============================================
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            
+            if (body.dataset.theme === 'dark') {
+                body.dataset.theme = 'light';
+                btn.textContent = '🌙 Dark Mode';
+            } else {
+                body.dataset.theme = 'dark';
+                btn.textContent = '☀️ Light Mode';
+            }
+            localStorage.setItem('theme', body.dataset.theme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.dataset.theme = savedTheme;
+                document.querySelector('.theme-toggle').textContent = 
+                    savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+            }
+        }
+
+        // ============================================
+        // BACK TO TOP
+        // ============================================
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('backToTop');
+            btn.classList.toggle('show', window.scrollY > 500);
+        });
+
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // ============================================
+        // EFFECTIVENESS BARS ANIMATION
+        // ============================================
+        function animateEffectivenessBars() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const fill = entry.target.querySelector('.effectiveness-fill');
+                        if (fill) {
+                            const width = fill.style.width;
+                            fill.style.width = '0%';
+                            setTimeout(() => { fill.style.width = width; }, 100);
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('.conservation-card').forEach(card => observer.observe(card));
+        }
+
+        // ============================================
+        // INITIALIZE EVERYTHING
+        // ============================================
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hide');
+            }, 500);
+
+            loadTheme();
+            initMap();
+            initQuiz();
+            
+            const heroObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    animateCounters();
+                    heroObserver.disconnect();
+                }
+            });
+            heroObserver.observe(document.querySelector('.hero-section'));
+
+            animateEffectivenessBars();
+
+            console.log('🌱 Geotopia Soil Issues Encyclopedia loaded!');
+            console.log(`📊 ${countriesData.length} countries with soil issues data`);
+        });
+    </script>
+</body>
+</html>
