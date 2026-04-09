@@ -1869,407 +1869,389 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <!-- LANDFORMS DATA FILE - ADD THIS LINE -->
+<script src="landforms-data.js"></script>
+
+
     <!-- Main JavaScript -->
-    <script>
-        // Map tile layers
-        const tileLayers = {
-            streets: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-            dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        };
+  <script>  
+ // ========================================================================
+// LANDFORMS DATA INTEGRATION
+// ========================================================================
 
-        // Store all maps
-        const maps = {};
-        const mapLayers = {};
+// Map tile layers
+const tileLayers = {
+    streets: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+};
 
-        // Sample landform data (In production, load from external JSON files)
-        const landformData = {
-            valleys: [
-                {name: 'Kashmir Valley', country: 'India', lat: 34.0837, lon: 74.7973, length: '135 km', type: 'Tectonic'},
-                {name: 'Great Rift Valley', country: 'Kenya', lat: -1.2921, lon: 36.8219, length: '6000 km', type: 'Tectonic'},
-                {name: 'Yosemite Valley', country: 'USA', lat: 37.7456, lon: -119.5930, length: '12 km', type: 'Glacial'},
-                {name: 'Kullu Valley', country: 'India', lat: 32.2396, lon: 77.1887, length: '80 km', type: 'River'},
-                {name: 'Spiti Valley', country: 'India', lat: 32.2460, lon: 78.0413, length: '400 km', type: 'River'},
-                {name: 'Death Valley', country: 'USA', lat: 36.5323, lon: -116.9325, depth: '86m below sea level', type: 'Tectonic'},
-                {name: 'Napa Valley', country: 'USA', lat: 38.5025, lon: -122.4168, length: '48 km', type: 'River'},
-                {name: 'Loire Valley', country: 'France', lat: 47.4085, lon: 0.9819, length: '280 km', type: 'River'},
-                {name: 'Nile Valley', country: 'Egypt', lat: 26.8206, lon: 30.8025, length: '1000+ km', type: 'River'},
-                {name: 'Indus Valley', country: 'Pakistan', lat: 27.7004, lon: 68.2087, length: '800+ km', type: 'River'}
-            ],
-            canyons: [
-                {name: 'Grand Canyon', country: 'USA', lat: 36.1069, lon: -112.1129, depth: '1829 m', length: '446 km'},
-                {name: 'Yarlung Tsangpo Canyon', country: 'China', lat: 29.6333, lon: 95.1167, depth: '5590 m', length: '504 km'},
-                {name: 'Kali Gandaki Gorge', country: 'Nepal', lat: 28.7333, lon: 83.7167, depth: '5571 m', length: '55 km'},
-                {name: 'Fish River Canyon', country: 'Namibia', lat: -27.6167, lon: 17.5000, depth: '550 m', length: '160 km'},
-                {name: 'Copper Canyon', country: 'Mexico', lat: 27.4500, lon: -107.9667, depth: '1879 m', length: '60 km'},
-                {name: 'Tiger Leaping Gorge', country: 'China', lat: 27.2000, lon: 100.1000, depth: '3790 m', length: '16 km'},
-                {name: 'Colca Canyon', country: 'Peru', lat: -15.6167, lon: -71.8833, depth: '3270 m', length: '100 km'},
-                {name: 'Blyde River Canyon', country: 'South Africa', lat: -24.5500, lon: 30.8000, depth: '800 m', length: '25 km'},
-                {name: 'Tara River Canyon', country: 'Montenegro', lat: 43.1500, lon: 19.3167, depth: '1300 m', length: '82 km'},
-                {name: 'Fjaðrárgljúfur', country: 'Iceland', lat: 63.7722, lon: -18.1778, depth: '100 m', length: '2 km'}
-            ],
-            gorges: [
-                {name: 'Vikos Gorge', country: 'Greece', lat: 39.9167, lon: 20.7333, depth: '900 m', status: 'Deepest gorge in the world (Guinness)'},
-                {name: 'Samaria Gorge', country: 'Greece', lat: 35.2500, lon: 23.9667, length: '16 km', status: 'National Park'},
-                {name: 'Verdon Gorge', country: 'France', lat: 43.7667, lon: 6.3667, depth: '700 m', length: '25 km'},
-                {name: 'Gorges du Tarn', country: 'France', lat: 44.3000, lon: 3.3000, depth: '500 m', length: '53 km'},
-                {name: 'Olduvai Gorge', country: 'Tanzania', lat: -2.9833, lon: 35.3500, depth: '100 m', significance: 'Paleoanthropological site'},
-                {name: 'Tallulah Gorge', country: 'USA', lat: 34.7392, lon: -83.3930, depth: '305 m', length: '3 km'},
-                {name: 'Imbros Gorge', country: 'Greece', lat: 35.2833, lon: 24.1500, length: '8 km', width: 'Narrows to 2m'},
-                {name: 'Aare Gorge', country: 'Switzerland', lat: 46.7333, lon: 8.1833, length: '1.4 km', depth: '200 m'},
-                {name: 'Partnach Gorge', country: 'Germany', lat: 47.4667, lon: 11.1000, length: '700 m', depth: '80 m'},
-                {name: 'Vintgar Gorge', country: 'Slovenia', lat: 46.3833, lon: 14.1000, length: '1.6 km', depth: '100 m'}
-            ],
-            'hot-deserts': [
-                {name: 'Sahara Desert', country: 'Multiple (Africa)', lat: 23.4162, lon: 25.6628, area: '9.2 million km²', temp: '58°C max'},
-                {name: 'Arabian Desert', country: 'Multiple (Middle East)', lat: 23.8859, lon: 45.0792, area: '2.3 million km²', temp: '56°C max'},
-                {name: 'Thar Desert', country: 'India/Pakistan', lat: 27.0238, lon: 71.8310, area: '200,000 km²', temp: '50°C max'},
-                {name: 'Kalahari Desert', country: 'Botswana', lat: -24.5000, lon: 21.9500, area: '930,000 km²', temp: '45°C max'},
-                {name: 'Mojave Desert', country: 'USA', lat: 35.0456, lon: -115.4734, area: '124,000 km²', temp: '54°C max'},
-                {name: 'Sonoran Desert', country: 'USA/Mexico', lat: 32.0000, lon: -112.0000, area: '260,000 km²', temp: '48°C max'},
-                {name: 'Chihuahuan Desert', country: 'Mexico/USA', lat: 29.0000, lon: -104.0000, area: '362,000 km²', temp: '45°C max'},
-                {name: 'Great Victoria Desert', country: 'Australia', lat: -29.0000, lon: 129.0000, area: '348,750 km²', temp: '48°C max'},
-                {name: 'Syrian Desert', country: 'Syria/Jordan/Iraq', lat: 33.0000, lon: 38.0000, area: '500,000 km²', temp: '50°C max'},
-                {name: 'Dasht-e Lut', country: 'Iran', lat: 30.5833, lon: 59.0667, area: '51,800 km²', temp: '70.7°C (hottest recorded)'}
-            ],
-            'cold-deserts': [
-                {name: 'Antarctic Desert', country: 'Antarctica', lat: -82.8628, lon: 135.0000, area: '14.2 million km²', temp: '-89.2°C min'},
-                {name: 'Arctic Desert', country: 'Multiple (Arctic)', lat: 75.0000, lon: -90.0000, area: '13.9 million km²', temp: '-68°C min'},
-                {name: 'Gobi Desert', country: 'Mongolia/China', lat: 42.5000, lon: 103.5000, area: '1.3 million km²', temp: '-40°C winter'},
-                {name: 'Great Basin Desert', country: 'USA', lat: 40.0000, lon: -117.0000, area: '492,000 km²', temp: '-30°C winter'},
-                {name: 'Taklamakan Desert', country: 'China', lat: 39.0000, lon: 82.0000, area: '337,000 km²', temp: '-20°C winter'},
-                {name: 'Patagonian Desert', country: 'Argentina', lat: -45.0000, lon: -68.0000, area: '673,000 km²', temp: '-25°C winter'},
-                {name: 'Karakum Desert', country: 'Turkmenistan', lat: 40.0000, lon: 60.0000, area: '350,000 km²', temp: '-20°C winter'},
-                {name: 'Kyzylkum Desert', country: 'Kazakhstan/Uzbekistan', lat: 43.0000, lon: 63.0000, area: '298,000 km²', temp: '-25°C winter'},
-                {name: 'Ladakh Cold Desert', country: 'India', lat: 34.1526, lon: 77.5771, area: '59,146 km²', temp: '-30°C winter'},
-                {name: 'Spiti Valley Cold Desert', country: 'India', lat: 32.2460, lon: 78.0413, elevation: '4270 m', temp: '-35°C winter'}
-            ],
-            'coastal-deserts': [
-                {name: 'Atacama Desert', country: 'Chile', lat: -24.5000, lon: -69.2500, area: '105,000 km²', rainfall: 'Driest place on Earth'},
-                {name: 'Namib Desert', country: 'Namibia', lat: -24.5000, lon: 15.5000, area: '81,000 km²', age: '55+ million years old'},
-                {name: 'Sechura Desert', country: 'Peru', lat: -5.5500, lon: -80.8167, area: '188,735 km²', coast: 'Pacific'},
-                {name: 'Skeleton Coast', country: 'Namibia', lat: -19.8333, lon: 13.0000, length: '500 km', feature: 'Shipwrecks'},
-                {name: 'Baja California Desert', country: 'Mexico', lat: 28.0000, lon: -113.0000, area: '77,000 km²', coast: 'Pacific'},
-                {name: 'Rann of Kutch', country: 'India', lat: 23.8348, lon: 69.6497, area: '30,000 km²', type: 'Salt marsh coastal'},
-                {name: 'Ica Desert', country: 'Peru', lat: -14.0678, lon: -75.7286, feature: 'Oasis & Huacachina lagoon', coast: 'Pacific'},
-                {name: 'Western Sahara Coast', country: 'Morocco', lat: 24.2155, lon: -12.8858, length: '1000+ km', coast: 'Atlantic'}
-            ],
-            islands: [
-                {name: 'Greenland', country: 'Denmark', lat: 71.7069, lon: -42.6043, area: '2,166,086 km²', rank: '1st largest island'},
-                {name: 'New Guinea', country: 'Papua New Guinea/Indonesia', lat: -5.5000, lon: 141.0000, area: '785,753 km²', rank: '2nd largest'},
-                {name: 'Borneo', country: 'Malaysia/Indonesia/Brunei', lat: 0.9619, lon: 114.5548, area: '748,168 km²', rank: '3rd largest'},
-                {name: 'Madagascar', country: 'Madagascar', lat: -18.7669, lon: 46.8691, area: '587,041 km²', biodiversity: 'Unique species'},
-                {name: 'Baffin Island', country: 'Canada', lat: 68.0000, lon: -70.0000, area: '507,451 km²', climate: 'Arctic'},
-                {name: 'Andaman & Nicobar', country: 'India', lat: 11.7401, lon: 92.6586, islands: '572 islands', tribes: 'Indigenous'},
-                {name: 'Lakshadweep', country: 'India', lat: 10.5667, lon: 72.6417, islands: '36 islands', type: 'Coral atolls'},
-                {name: 'Iceland', country: 'Iceland', lat: 64.9631, lon: -19.0208, area: '103,000 km²', volcanism: 'Active'},
-                {name: 'Cuba', country: 'Cuba', lat: 21.5218, lon: -77.7812, area: '109,884 km²', region: 'Caribbean'},
-                {name: 'Great Britain', country: 'United Kingdom', lat: 54.0000, lon: -2.5000, area: '209,331 km²', population: '60+ million'}
-            ],
-            peninsulas: [
-                {name: 'Arabian Peninsula', country: 'Multiple', lat: 23.8859, lon: 45.0792, area: '3.2 million km²', largest: 'World\'s largest'},
-                {name: 'Indian Peninsula', country: 'India', lat: 18.0000, lon: 77.0000, area: '2 million km²', shape: 'Triangular'},
-                {name: 'Iberian Peninsula', country: 'Spain/Portugal', lat: 40.0000, lon: -4.0000, area: '583,254 km²', feature: 'Pyrenees'},
-                {name: 'Korean Peninsula', country: 'North & South Korea', lat: 38.0000, lon: 127.5000, area: '220,847 km²', division: 'DMZ'},
-                {name: 'Scandinavian Peninsula', country: 'Norway/Sweden', lat: 63.0000, lon: 14.0000, area: '750,000 km²', fjords: 'Famous'},
-                {name: 'Balkan Peninsula', country: 'Multiple (SE Europe)', lat: 42.0000, lon: 21.0000, countries: '12+ countries', history: 'Ancient'},
-                {name: 'Italian Peninsula', country: 'Italy', lat: 42.8333, lon: 12.8333, shape: 'Boot-shaped', seas: 'Mediterranean'},
-                {name: 'Kathiawar Peninsula', country: 'India', lat: 22.0000, lon: 71.0000, state: 'Gujarat', coast: '1,600 km'},
-                {name: 'Yucatán Peninsula', country: 'Mexico', lat: 20.0000, lon: -88.0000, civilization: 'Maya ruins', feature: 'Cenotes'},
-                {name: 'Florida Peninsula', country: 'USA', lat: 28.0000, lon: -82.0000, coastline: '2,170 km', climate: 'Subtropical'}
-            ],
-            caves: [
-                {name: 'Son Doong Cave', country: 'Vietnam', lat: 17.4564, lon: 106.2877, volume: '38.5 million m³', discovered: '1991'},
-                {name: 'Mammoth Cave', country: 'USA', lat: 37.1862, lon: -86.1000, length: '663 km', status: 'Longest cave system'},
-                {name: 'Deer Cave', country: 'Malaysia', lat: 4.0278, lon: 114.8214, passage: 'Largest cave passage', volume: '12 million m³'},
-                {name: 'Carlsbad Caverns', country: 'USA', lat: 32.1479, lon: -104.5567, chamber: 'Big Room (33,210 m²)', limestone: 'Massive'},
-                {name: 'Borra Caves', country: 'India', lat: 18.2833, lon: 83.0333, state: 'Andhra Pradesh', formation: 'Stalactites'},
-                {name: 'Ajanta Caves', country: 'India', lat: 20.5519, lon: 75.7033, type: 'Rock-cut Buddhist', UNESCO: 'World Heritage'},
-                {name: 'Ellora Caves', country: 'India', lat: 20.0269, lon: 75.1793, temples: '34 monasteries', period: '6th-10th century'},
-                {name: 'Mulu Caves', country: 'Malaysia', lat: 4.0500, lon: 114.8167, chamber: 'Sarawak Chamber (largest)', UNESCO: 'Heritage'},
-                {name: 'Waitomo Glowworm', country: 'New Zealand', lat: -38.2614, lon: 175.1031, feature: 'Bioluminescent glowworms', tourism: 'Popular'},
-                {name: 'Postojna Cave', country: 'Slovenia', lat: 45.7833, lon: 14.2000, length: '24 km', fauna: 'Olm salamanders'}
-            ],
-            glacial: [
-                {name: 'Canadian Shield Moraines', country: 'Canada', lat: 60.0000, lon: -95.0000, extent: '8 million km²', age: 'Pleistocene'},
-                {name: 'Siachen Glacier', country: 'India', lat: 35.4219, lon: 77.0953, length: '76 km', elevation: '5,753 m'},
-                {name: 'Gangotri Glacier', country: 'India', lat: 30.9219, lon: 79.0831, length: '30 km', source: 'River Ganges'},
-                {name: 'Drumlin Fields Ireland', country: 'Ireland', lat: 53.5000, lon: -8.0000, count: '1000s of drumlins', shape: 'Egg-shaped hills'},
-                {name: 'Patagonian Ice Field', country: 'Chile/Argentina', lat: -49.3000, lon: -73.2000, area: '16,800 km²', largest: 'Southern hemisphere'},
-                {name: 'Vatnajökull Glacier', country: 'Iceland', lat: 64.4167, lon: -16.8167, area: '8,100 km²', volume: '3,100 km³'},
-                {name: 'Jostedalsbreen', country: 'Norway', lat: 61.7000, lon: 7.0000, area: '487 km²', largest: 'Continental Europe'},
-                {name: 'Aletsch Glacier', country: 'Switzerland', lat: 46.5000, lon: 8.0333, length: '23 km', UNESCO: 'World Heritage'},
-                {name: 'Perito Moreno Glacier', country: 'Argentina', lat: -50.4950, lon: -73.0500, area: '250 km²', advancing: 'Unique'},
-                {name: 'Franz Josef Glacier', country: 'New Zealand', lat: -43.4667, lon: 170.1833, length: '12 km', descent: 'Sea level proximity'}
-            ],
-            volcanic: [
-                {name: 'Yellowstone Caldera', country: 'USA', lat: 44.4280, lon: -110.5885, area: '55×72 km', type: 'Supervolcano'},
-                {name: 'Deccan Traps', country: 'India', lat: 19.0000, lon: 75.0000, area: '500,000 km²', age: '66 million years'},
-                {name: 'Toba Caldera', country: 'Indonesia', lat: 2.6853, lon: 98.8756, eruption: '74,000 years ago', VEI: '8 (mega-colossal)'},
-                {name: 'Mount Vesuvius', country: 'Italy', lat: 40.8214, lon: 14.4260, eruption: '79 AD (Pompeii)', type: 'Stratovolcano'},
-                {name: 'Krakatoa', country: 'Indonesia', lat: -6.1021, lon: 105.4230, eruption: '1883 (catastrophic)', sound: 'Loudest in history'},
-                {name: 'Mauna Loa', country: 'USA (Hawaii)', lat: 19.4756, lon: -155.6054, volume: '75,000 km³', largest: 'Active volcano'},
-                {name: 'Mount Fuji', country: 'Japan', lat: 35.3606, lon: 138.7274, elevation: '3,776 m', type: 'Stratovolcano'},
-                {name: 'Santorini Caldera', country: 'Greece', lat: 36.4074, lon: 25.4326, eruption: '1600 BC (Minoan)', tourism: 'Popular'},
-                {name: 'Barren Island', country: 'India', lat: 12.2788, lon: 93.8581, status: 'Only active volcano in South Asia', location: 'Andaman Sea'},
-                {name: 'Kilauea', country: 'USA (Hawaii)', lat: 19.4069, lon: -155.2834, activity: 'Continuously active since 1983', lava: 'Fluid basalt'}
-            ],
-            coastal: [
-                {name: 'Twelve Apostles', country: 'Australia', lat: -38.6656, lon: 143.1048, type: 'Limestone stacks', erosion: 'Wave action'},
-                {name: 'White Cliffs of Dover', country: 'United Kingdom', lat: 51.1241, lon: 1.3873, height: '110 m', composition: 'Chalk'},
-                {name: 'Chesil Beach', country: 'United Kingdom', lat: 50.6333, lon: -2.5500, type: 'Tombolo', length: '29 km'},
-                {name: 'Marina Beach', country: 'India', lat: 13.0500, lon: 80.2824, length: '13 km', rank: '2nd longest urban beach'},
-                {name: 'Cape Cod Spit', country: 'USA', lat: 42.0667, lon: -70.2500, type: 'Sandy spit', formation: 'Longshore drift'},
-                {name: 'Mont Saint-Michel', country: 'France', lat: 48.6361, lon: -1.5115, type: 'Tidal island', tides: '14 m range'},
-                {name: 'Giants Causeway', country: 'United Kingdom', lat: 55.2408, lon: -6.5116, columns: '40,000 basalt columns', UNESCO: 'Heritage'},
-                {name: 'Phi Phi Islands', country: 'Thailand', lat: 7.7407, lon: 98.7784, type: 'Limestone karst', tourism: 'Maya Bay'},
-                {name: 'Etretat Cliffs', country: 'France', lat: 49.7075, lon: 0.2072, type: 'Chalk cliffs with arches', art: 'Monet paintings'},
-                {name: 'Rameshwaram Spit', country: 'India', lat: 9.2876, lon: 79.3129, connects: 'India to Sri Lanka (Adam\'s Bridge)', legend: 'Ramayana'}
-            ],
-            aeolian: [
-                {name: 'Namib Sand Sea', country: 'Namibia', lat: -24.7500, lon: 15.2833, area: '34,000 km²', UNESCO: 'World Heritage'},
-                {name: 'Rub al Khali Dunes', country: 'Saudi Arabia', lat: 21.0000, lon: 51.0000, area: '650,000 km²', height: '250 m dunes'},
-                {name: 'Erg Chech', country: 'Algeria', lat: 27.0000, lon: -4.0000, type: 'Sand sea', dunes: 'Star dunes'},
-                {name: 'Thar Desert Dunes', country: 'India', lat: 27.0000, lon: 72.0000, types: 'Barchan, longitudinal', rainfall: '<200 mm'},
-                {name: 'White Sands', country: 'USA', lat: 32.7872, lon: -106.3257, composition: 'Gypsum', color: 'White', area: '710 km²'},
-                {name: 'Sossusvlei', country: 'Namibia', lat: -24.7292, lon: 15.2928, height: '380 m (Big Daddy dune)', age: '5 million years'},
-                {name: 'Gobi Yardangs', country: 'China', lat: 42.0000, lon: 103.0000, formation: 'Wind erosion', shape: 'Streamlined ridges'},
-                {name: 'Great Sand Dunes', country: 'USA', lat: 37.7916, lon: -105.5943, height: '229 m (Star Dune)', park: 'National Park'},
-                {name: 'Lençóis Maranhenses', country: 'Brazil', lat: -2.5000, lon: -43.0000, type: 'Coastal dunes with lagoons', season: 'Rainy fills lagoons'},
-                {name: 'Taklamakan Dunes', country: 'China', lat: 39.0000, lon: 82.0000, type: 'Shifting sands', meaning: '"Place of no return"'}
-            ],
-            fluvial: [
-                {name: 'Ganges-Brahmaputra Delta', country: 'Bangladesh/India', lat: 22.0000, lon: 90.0000, area: '105,000 km²', largest: 'World\'s largest delta'},
-                {name: 'Amazon Delta', country: 'Brazil', lat: 0.0000, lon: -50.0000, discharge: '209,000 m³/s', area: '100,000 km²'},
-                {name: 'Nile Delta', country: 'Egypt', lat: 30.8880, lon: 31.3003, area: '24,000 km²', civilization: 'Ancient Egypt'},
-                {name: 'Mississippi Delta', country: 'USA', lat: 29.1566, lon: -89.2495, type: 'Bird-foot delta', sediment: '500 million tons/year'},
-                {name: 'Mekong Delta', country: 'Vietnam', lat: 10.0000, lon: 106.0000, area: '40,500 km²', population: '17 million'},
-                {name: 'Yangtze Meanders', country: 'China', lat: 30.0000, lon: 110.0000, length: '6,300 km', feature: 'Oxbow lakes'},
-                {name: 'Rhine Floodplain', country: 'Germany/Netherlands', lat: 51.0000, lon: 6.5000, width: 'Up to 30 km', agriculture: 'Fertile'},
-                {name: 'Indus Floodplain', country: 'Pakistan/India', lat: 27.0000, lon: 68.0000, area: '1 million km²', civilization: 'Indus Valley'},
-                {name: 'Okavango Delta', country: 'Botswana', lat: -19.2833, lon: 22.7667, type: 'Inland delta', area: '15,000 km²'},
-                {name: 'Lena Delta', country: 'Russia', lat: 72.5000, lon: 126.0000, area: '32,000 km²', climate: 'Arctic', permafrost: 'Continuous'}
-            ]
-        };
+// Store all maps
+const maps = {};
+const mapLayers = {};
 
-        // Initialize all maps
-        function initMaps() {
-            const mapTypes = ['valleys', 'canyons', 'gorges', 'hot-deserts', 'cold-deserts', 'coastal-deserts', 
-                             'islands', 'peninsulas', 'caves', 'glacial', 'volcanic', 'coastal', 'aeolian', 'fluvial', 'combined'];
+// ========================================================================
+// 🔥 USE EXTERNAL DATA OR FALLBACK
+// ========================================================================
+const landformData = typeof LandformsData !== 'undefined' ? {
+    valleys: LandformsData.valleys || [],
+    canyons: LandformsData.canyons || [],
+    gorges: LandformsData.gorges || [],
+    'hot-deserts': LandformsData.hotDeserts || [],
+    'cold-deserts': LandformsData.coldDeserts || [],
+    'coastal-deserts': LandformsData.coastalDeserts || [],
+    islands: LandformsData.islands || [],
+    archipelagos: LandformsData.archipelagos || [],
+    peninsulas: LandformsData.peninsulas || [],
+    caves: LandformsData.caves || [],
+    glacial: LandformsData.glacialLandforms || [],
+    volcanic: LandformsData.volcanicLandforms || [],
+    coastal: LandformsData.coastalLandforms || [],
+    aeolian: LandformsData.aeolianLandforms || [],
+    fluvial: LandformsData.fluvialLandforms || []
+} : {
+    // FALLBACK DATA (Your original data)
+    valleys: [
+        {name: 'Kashmir Valley', country: 'India', lat: 34.0837, lon: 74.7973, length: '135 km', type: 'Tectonic'},
+        {name: 'Great Rift Valley', country: 'Kenya', lat: -1.2921, lon: 36.8219, length: '6000 km', type: 'Tectonic'},
+        {name: 'Yosemite Valley', country: 'USA', lat: 37.7456, lon: -119.5930, length: '12 km', type: 'Glacial'},
+        {name: 'Kullu Valley', country: 'India', lat: 32.2396, lon: 77.1887, length: '80 km', type: 'River'},
+        {name: 'Spiti Valley', country: 'India', lat: 32.2460, lon: 78.0413, length: '400 km', type: 'River'},
+        {name: 'Death Valley', country: 'USA', lat: 36.5323, lon: -116.9325, depth: '86m below sea level', type: 'Tectonic'},
+        {name: 'Napa Valley', country: 'USA', lat: 38.5025, lon: -122.4168, length: '48 km', type: 'River'},
+        {name: 'Loire Valley', country: 'France', lat: 47.4085, lon: 0.9819, length: '280 km', type: 'River'},
+        {name: 'Nile Valley', country: 'Egypt', lat: 26.8206, lon: 30.8025, length: '1000+ km', type: 'River'},
+        {name: 'Indus Valley', country: 'Pakistan', lat: 27.7004, lon: 68.2087, length: '800+ km', type: 'River'}
+    ],
+    canyons: [
+        {name: 'Grand Canyon', country: 'USA', lat: 36.1069, lon: -112.1129, depth: '1829 m', length: '446 km'},
+        {name: 'Yarlung Tsangpo Canyon', country: 'China', lat: 29.6333, lon: 95.1167, depth: '5590 m', length: '504 km'},
+        {name: 'Kali Gandaki Gorge', country: 'Nepal', lat: 28.7333, lon: 83.7167, depth: '5571 m', length: '55 km'},
+        {name: 'Fish River Canyon', country: 'Namibia', lat: -27.6167, lon: 17.5000, depth: '550 m', length: '160 km'},
+        {name: 'Copper Canyon', country: 'Mexico', lat: 27.4500, lon: -107.9667, depth: '1879 m', length: '60 km'},
+        {name: 'Tiger Leaping Gorge', country: 'China', lat: 27.2000, lon: 100.1000, depth: '3790 m', length: '16 km'},
+        {name: 'Colca Canyon', country: 'Peru', lat: -15.6167, lon: -71.8833, depth: '3270 m', length: '100 km'},
+        {name: 'Blyde River Canyon', country: 'South Africa', lat: -24.5500, lon: 30.8000, depth: '800 m', length: '25 km'},
+        {name: 'Tara River Canyon', country: 'Montenegro', lat: 43.1500, lon: 19.3167, depth: '1300 m', length: '82 km'},
+        {name: 'Fjaðrárgljúfur', country: 'Iceland', lat: 63.7722, lon: -18.1778, depth: '100 m', length: '2 km'}
+    ],
+    gorges: [
+        {name: 'Vikos Gorge', country: 'Greece', lat: 39.9167, lon: 20.7333, depth: '900 m', status: 'Deepest gorge in the world (Guinness)'},
+        {name: 'Samaria Gorge', country: 'Greece', lat: 35.2500, lon: 23.9667, length: '16 km', status: 'National Park'},
+        {name: 'Verdon Gorge', country: 'France', lat: 43.7667, lon: 6.3667, depth: '700 m', length: '25 km'},
+        {name: 'Gorges du Tarn', country: 'France', lat: 44.3000, lon: 3.3000, depth: '500 m', length: '53 km'},
+        {name: 'Olduvai Gorge', country: 'Tanzania', lat: -2.9833, lon: 35.3500, depth: '100 m', significance: 'Paleoanthropological site'},
+        {name: 'Tallulah Gorge', country: 'USA', lat: 34.7392, lon: -83.3930, depth: '305 m', length: '3 km'},
+        {name: 'Imbros Gorge', country: 'Greece', lat: 35.2833, lon: 24.1500, length: '8 km', width: 'Narrows to 2m'},
+        {name: 'Aare Gorge', country: 'Switzerland', lat: 46.7333, lon: 8.1833, length: '1.4 km', depth: '200 m'},
+        {name: 'Partnach Gorge', country: 'Germany', lat: 47.4667, lon: 11.1000, length: '700 m', depth: '80 m'},
+        {name: 'Vintgar Gorge', country: 'Slovenia', lat: 46.3833, lon: 14.1000, length: '1.6 km', depth: '100 m'}
+    ],
+    'hot-deserts': [
+        {name: 'Sahara Desert', country: 'Multiple (Africa)', lat: 23.4162, lon: 25.6628, area: '9.2 million km²', temp: '58°C max'},
+        {name: 'Arabian Desert', country: 'Multiple (Middle East)', lat: 23.8859, lon: 45.0792, area: '2.3 million km²', temp: '56°C max'},
+        {name: 'Thar Desert', country: 'India/Pakistan', lat: 27.0238, lon: 71.8310, area: '200,000 km²', temp: '50°C max'},
+        {name: 'Kalahari Desert', country: 'Botswana', lat: -24.5000, lon: 21.9500, area: '930,000 km²', temp: '45°C max'},
+        {name: 'Mojave Desert', country: 'USA', lat: 35.0456, lon: -115.4734, area: '124,000 km²', temp: '54°C max'},
+        {name: 'Sonoran Desert', country: 'USA/Mexico', lat: 32.0000, lon: -112.0000, area: '260,000 km²', temp: '48°C max'},
+        {name: 'Chihuahuan Desert', country: 'Mexico/USA', lat: 29.0000, lon: -104.0000, area: '362,000 km²', temp: '45°C max'},
+        {name: 'Great Victoria Desert', country: 'Australia', lat: -29.0000, lon: 129.0000, area: '348,750 km²', temp: '48°C max'},
+        {name: 'Syrian Desert', country: 'Syria/Jordan/Iraq', lat: 33.0000, lon: 38.0000, area: '500,000 km²', temp: '50°C max'},
+        {name: 'Dasht-e Lut', country: 'Iran', lat: 30.5833, lon: 59.0667, area: '51,800 km²', temp: '70.7°C (hottest recorded)'}
+    ],
+    'cold-deserts': [
+        {name: 'Antarctic Desert', country: 'Antarctica', lat: -82.8628, lon: 135.0000, area: '14.2 million km²', temp: '-89.2°C min'},
+        {name: 'Arctic Desert', country: 'Multiple (Arctic)', lat: 75.0000, lon: -90.0000, area: '13.9 million km²', temp: '-68°C min'},
+        {name: 'Gobi Desert', country: 'Mongolia/China', lat: 42.5000, lon: 103.5000, area: '1.3 million km²', temp: '-40°C winter'},
+        {name: 'Great Basin Desert', country: 'USA', lat: 40.0000, lon: -117.0000, area: '492,000 km²', temp: '-30°C winter'},
+        {name: 'Taklamakan Desert', country: 'China', lat: 39.0000, lon: 82.0000, area: '337,000 km²', temp: '-20°C winter'},
+        {name: 'Patagonian Desert', country: 'Argentina', lat: -45.0000, lon: -68.0000, area: '673,000 km²', temp: '-25°C winter'},
+        {name: 'Karakum Desert', country: 'Turkmenistan', lat: 40.0000, lon: 60.0000, area: '350,000 km²', temp: '-20°C winter'},
+        {name: 'Kyzylkum Desert', country: 'Kazakhstan/Uzbekistan', lat: 43.0000, lon: 63.0000, area: '298,000 km²', temp: '-25°C winter'},
+        {name: 'Ladakh Cold Desert', country: 'India', lat: 34.1526, lon: 77.5771, area: '59,146 km²', temp: '-30°C winter'},
+        {name: 'Spiti Valley Cold Desert', country: 'India', lat: 32.2460, lon: 78.0413, elevation: '4270 m', temp: '-35°C winter'}
+    ],
+    'coastal-deserts': [
+        {name: 'Atacama Desert', country: 'Chile', lat: -24.5000, lon: -69.2500, area: '105,000 km²', rainfall: 'Driest place on Earth'},
+        {name: 'Namib Desert', country: 'Namibia', lat: -24.5000, lon: 15.5000, area: '81,000 km²', age: '55+ million years old'},
+        {name: 'Sechura Desert', country: 'Peru', lat: -5.5500, lon: -80.8167, area: '188,735 km²', coast: 'Pacific'},
+        {name: 'Skeleton Coast', country: 'Namibia', lat: -19.8333, lon: 13.0000, length: '500 km', feature: 'Shipwrecks'},
+        {name: 'Baja California Desert', country: 'Mexico', lat: 28.0000, lon: -113.0000, area: '77,000 km²', coast: 'Pacific'},
+        {name: 'Rann of Kutch', country: 'India', lat: 23.8348, lon: 69.6497, area: '30,000 km²', type: 'Salt marsh coastal'},
+        {name: 'Ica Desert', country: 'Peru', lat: -14.0678, lon: -75.7286, feature: 'Oasis & Huacachina lagoon', coast: 'Pacific'},
+        {name: 'Western Sahara Coast', country: 'Morocco', lat: 24.2155, lon: -12.8858, length: '1000+ km', coast: 'Atlantic'}
+    ],
+    islands: [
+        {name: 'Greenland', country: 'Denmark', lat: 71.7069, lon: -42.6043, area: '2,166,086 km²', rank: '1st largest island'},
+        {name: 'New Guinea', country: 'Papua New Guinea/Indonesia', lat: -5.5000, lon: 141.0000, area: '785,753 km²', rank: '2nd largest'},
+        {name: 'Borneo', country: 'Malaysia/Indonesia/Brunei', lat: 0.9619, lon: 114.5548, area: '748,168 km²', rank: '3rd largest'},
+        {name: 'Madagascar', country: 'Madagascar', lat: -18.7669, lon: 46.8691, area: '587,041 km²', biodiversity: 'Unique species'},
+        {name: 'Baffin Island', country: 'Canada', lat: 68.0000, lon: -70.0000, area: '507,451 km²', climate: 'Arctic'},
+        {name: 'Andaman & Nicobar', country: 'India', lat: 11.7401, lon: 92.6586, islands: '572 islands', tribes: 'Indigenous'},
+        {name: 'Lakshadweep', country: 'India', lat: 10.5667, lon: 72.6417, islands: '36 islands', type: 'Coral atolls'},
+        {name: 'Iceland', country: 'Iceland', lat: 64.9631, lon: -19.0208, area: '103,000 km²', volcanism: 'Active'},
+        {name: 'Cuba', country: 'Cuba', lat: 21.5218, lon: -77.7812, area: '109,884 km²', region: 'Caribbean'},
+        {name: 'Great Britain', country: 'United Kingdom', lat: 54.0000, lon: -2.5000, area: '209,331 km²', population: '60+ million'}
+    ],
+    archipelagos: [],
+    peninsulas: [
+        {name: 'Arabian Peninsula', country: 'Multiple', lat: 23.8859, lon: 45.0792, area: '3.2 million km²', largest: 'World\'s largest'},
+        {name: 'Indian Peninsula', country: 'India', lat: 18.0000, lon: 77.0000, area: '2 million km²', shape: 'Triangular'},
+        {name: 'Iberian Peninsula', country: 'Spain/Portugal', lat: 40.0000, lon: -4.0000, area: '583,254 km²', feature: 'Pyrenees'},
+        {name: 'Korean Peninsula', country: 'North & South Korea', lat: 38.0000, lon: 127.5000, area: '220,847 km²', division: 'DMZ'},
+        {name: 'Scandinavian Peninsula', country: 'Norway/Sweden', lat: 63.0000, lon: 14.0000, area: '750,000 km²', fjords: 'Famous'},
+        {name: 'Balkan Peninsula', country: 'Multiple (SE Europe)', lat: 42.0000, lon: 21.0000, countries: '12+ countries', history: 'Ancient'},
+        {name: 'Italian Peninsula', country: 'Italy', lat: 42.8333, lon: 12.8333, shape: 'Boot-shaped', seas: 'Mediterranean'},
+        {name: 'Kathiawar Peninsula', country: 'India', lat: 22.0000, lon: 71.0000, state: 'Gujarat', coast: '1,600 km'},
+        {name: 'Yucatán Peninsula', country: 'Mexico', lat: 20.0000, lon: -88.0000, civilization: 'Maya ruins', feature: 'Cenotes'},
+        {name: 'Florida Peninsula', country: 'USA', lat: 28.0000, lon: -82.0000, coastline: '2,170 km', climate: 'Subtropical'}
+    ],
+    caves: [
+        {name: 'Son Doong Cave', country: 'Vietnam', lat: 17.4564, lon: 106.2877, volume: '38.5 million m³', discovered: '1991'},
+        {name: 'Mammoth Cave', country: 'USA', lat: 37.1862, lon: -86.1000, length: '663 km', status: 'Longest cave system'},
+        {name: 'Deer Cave', country: 'Malaysia', lat: 4.0278, lon: 114.8214, passage: 'Largest cave passage', volume: '12 million m³'},
+        {name: 'Carlsbad Caverns', country: 'USA', lat: 32.1479, lon: -104.5567, chamber: 'Big Room (33,210 m²)', limestone: 'Massive'},
+        {name: 'Borra Caves', country: 'India', lat: 18.2833, lon: 83.0333, state: 'Andhra Pradesh', formation: 'Stalactites'},
+        {name: 'Ajanta Caves', country: 'India', lat: 20.5519, lon: 75.7033, type: 'Rock-cut Buddhist', UNESCO: 'World Heritage'},
+        {name: 'Ellora Caves', country: 'India', lat: 20.0269, lon: 75.1793, temples: '34 monasteries', period: '6th-10th century'},
+        {name: 'Mulu Caves', country: 'Malaysia', lat: 4.0500, lon: 114.8167, chamber: 'Sarawak Chamber (largest)', UNESCO: 'Heritage'},
+        {name: 'Waitomo Glowworm', country: 'New Zealand', lat: -38.2614, lon: 175.1031, feature: 'Bioluminescent glowworms', tourism: 'Popular'},
+        {name: 'Postojna Cave', country: 'Slovenia', lat: 45.7833, lon: 14.2000, length: '24 km', fauna: 'Olm salamanders'}
+    ],
+    glacial: [
+        {name: 'Canadian Shield Moraines', country: 'Canada', lat: 60.0000, lon: -95.0000, extent: '8 million km²', age: 'Pleistocene'},
+        {name: 'Siachen Glacier', country: 'India', lat: 35.4219, lon: 77.0953, length: '76 km', elevation: '5,753 m'},
+        {name: 'Gangotri Glacier', country: 'India', lat: 30.9219, lon: 79.0831, length: '30 km', source: 'River Ganges'},
+        {name: 'Drumlin Fields Ireland', country: 'Ireland', lat: 53.5000, lon: -8.0000, count: '1000s of drumlins', shape: 'Egg-shaped hills'},
+        {name: 'Patagonian Ice Field', country: 'Chile/Argentina', lat: -49.3000, lon: -73.2000, area: '16,800 km²', largest: 'Southern hemisphere'},
+        {name: 'Vatnajökull Glacier', country: 'Iceland', lat: 64.4167, lon: -16.8167, area: '8,100 km²', volume: '3,100 km³'},
+        {name: 'Jostedalsbreen', country: 'Norway', lat: 61.7000, lon: 7.0000, area: '487 km²', largest: 'Continental Europe'},
+        {name: 'Aletsch Glacier', country: 'Switzerland', lat: 46.5000, lon: 8.0333, length: '23 km', UNESCO: 'World Heritage'},
+        {name: 'Perito Moreno Glacier', country: 'Argentina', lat: -50.4950, lon: -73.0500, area: '250 km²', advancing: 'Unique'},
+        {name: 'Franz Josef Glacier', country: 'New Zealand', lat: -43.4667, lon: 170.1833, length: '12 km', descent: 'Sea level proximity'}
+    ],
+    volcanic: [
+        {name: 'Yellowstone Caldera', country: 'USA', lat: 44.4280, lon: -110.5885, area: '55×72 km', type: 'Supervolcano'},
+        {name: 'Deccan Traps', country: 'India', lat: 19.0000, lon: 75.0000, area: '500,000 km²', age: '66 million years'},
+        {name: 'Toba Caldera', country: 'Indonesia', lat: 2.6853, lon: 98.8756, eruption: '74,000 years ago', VEI: '8 (mega-colossal)'},
+        {name: 'Mount Vesuvius', country: 'Italy', lat: 40.8214, lon: 14.4260, eruption: '79 AD (Pompeii)', type: 'Stratovolcano'},
+        {name: 'Krakatoa', country: 'Indonesia', lat: -6.1021, lon: 105.4230, eruption: '1883 (catastrophic)', sound: 'Loudest in history'},
+        {name: 'Mauna Loa', country: 'USA (Hawaii)', lat: 19.4756, lon: -155.6054, volume: '75,000 km³', largest: 'Active volcano'},
+        {name: 'Mount Fuji', country: 'Japan', lat: 35.3606, lon: 138.7274, elevation: '3,776 m', type: 'Stratovolcano'},
+        {name: 'Santorini Caldera', country: 'Greece', lat: 36.4074, lon: 25.4326, eruption: '1600 BC (Minoan)', tourism: 'Popular'},
+        {name: 'Barren Island', country: 'India', lat: 12.2788, lon: 93.8581, status: 'Only active volcano in South Asia', location: 'Andaman Sea'},
+        {name: 'Kilauea', country: 'USA (Hawaii)', lat: 19.4069, lon: -155.2834, activity: 'Continuously active since 1983', lava: 'Fluid basalt'}
+    ],
+    coastal: [
+        {name: 'Twelve Apostles', country: 'Australia', lat: -38.6656, lon: 143.1048, type: 'Limestone stacks', erosion: 'Wave action'},
+        {name: 'White Cliffs of Dover', country: 'United Kingdom', lat: 51.1241, lon: 1.3873, height: '110 m', composition: 'Chalk'},
+        {name: 'Chesil Beach', country: 'United Kingdom', lat: 50.6333, lon: -2.5500, type: 'Tombolo', length: '29 km'},
+        {name: 'Marina Beach', country: 'India', lat: 13.0500, lon: 80.2824, length: '13 km', rank: '2nd longest urban beach'},
+        {name: 'Cape Cod Spit', country: 'USA', lat: 42.0667, lon: -70.2500, type: 'Sandy spit', formation: 'Longshore drift'},
+        {name: 'Mont Saint-Michel', country: 'France', lat: 48.6361, lon: -1.5115, type: 'Tidal island', tides: '14 m range'},
+        {name: 'Giants Causeway', country: 'United Kingdom', lat: 55.2408, lon: -6.5116, columns: '40,000 basalt columns', UNESCO: 'Heritage'},
+        {name: 'Phi Phi Islands', country: 'Thailand', lat: 7.7407, lon: 98.7784, type: 'Limestone karst', tourism: 'Maya Bay'},
+        {name: 'Etretat Cliffs', country: 'France', lat: 49.7075, lon: 0.2072, type: 'Chalk cliffs with arches', art: 'Monet paintings'},
+        {name: 'Rameshwaram Spit', country: 'India', lat: 9.2876, lon: 79.3129, connects: 'India to Sri Lanka (Adam\'s Bridge)', legend: 'Ramayana'}
+    ],
+    aeolian: [
+        {name: 'Namib Sand Sea', country: 'Namibia', lat: -24.7500, lon: 15.2833, area: '34,000 km²', UNESCO: 'World Heritage'},
+        {name: 'Rub al Khali Dunes', country: 'Saudi Arabia', lat: 21.0000, lon: 51.0000, area: '650,000 km²', height: '250 m dunes'},
+        {name: 'Erg Chech', country: 'Algeria', lat: 27.0000, lon: -4.0000, type: 'Sand sea', dunes: 'Star dunes'},
+        {name: 'Thar Desert Dunes', country: 'India', lat: 27.0000, lon: 72.0000, types: 'Barchan, longitudinal', rainfall: '<200 mm'},
+        {name: 'White Sands', country: 'USA', lat: 32.7872, lon: -106.3257, composition: 'Gypsum', color: 'White', area: '710 km²'},
+        {name: 'Sossusvlei', country: 'Namibia', lat: -24.7292, lon: 15.2928, height: '380 m (Big Daddy dune)', age: '5 million years'},
+        {name: 'Gobi Yardangs', country: 'China', lat: 42.0000, lon: 103.0000, formation: 'Wind erosion', shape: 'Streamlined ridges'},
+        {name: 'Great Sand Dunes', country: 'USA', lat: 37.7916, lon: -105.5943, height: '229 m (Star Dune)', park: 'National Park'},
+        {name: 'Lençóis Maranhenses', country: 'Brazil', lat: -2.5000, lon: -43.0000, type: 'Coastal dunes with lagoons', season: 'Rainy fills lagoons'},
+        {name: 'Taklamakan Dunes', country: 'China', lat: 39.0000, lon: 82.0000, type: 'Shifting sands', meaning: '"Place of no return"'}
+    ],
+    fluvial: [
+        {name: 'Ganges-Brahmaputra Delta', country: 'Bangladesh/India', lat: 22.0000, lon: 90.0000, area: '105,000 km²', largest: 'World\'s largest delta'},
+        {name: 'Amazon Delta', country: 'Brazil', lat: 0.0000, lon: -50.0000, discharge: '209,000 m³/s', area: '100,000 km²'},
+        {name: 'Nile Delta', country: 'Egypt', lat: 30.8880, lon: 31.3003, area: '24,000 km²', civilization: 'Ancient Egypt'},
+        {name: 'Mississippi Delta', country: 'USA', lat: 29.1566, lon: -89.2495, type: 'Bird-foot delta', sediment: '500 million tons/year'},
+        {name: 'Mekong Delta', country: 'Vietnam', lat: 10.0000, lon: 106.0000, area: '40,500 km²', population: '17 million'},
+        {name: 'Yangtze Meanders', country: 'China', lat: 30.0000, lon: 110.0000, length: '6,300 km', feature: 'Oxbow lakes'},
+        {name: 'Rhine Floodplain', country: 'Germany/Netherlands', lat: 51.0000, lon: 6.5000, width: 'Up to 30 km', agriculture: 'Fertile'},
+        {name: 'Indus Floodplain', country: 'Pakistan/India', lat: 27.0000, lon: 68.0000, area: '1 million km²', civilization: 'Indus Valley'},
+        {name: 'Okavango Delta', country: 'Botswana', lat: -19.2833, lon: 22.7667, type: 'Inland delta', area: '15,000 km²'},
+        {name: 'Lena Delta', country: 'Russia', lat: 72.5000, lon: 126.0000, area: '32,000 km²', climate: 'Arctic', permafrost: 'Continuous'}
+    ]
+};
+
+// Log data source
+console.log('📊 Data Source:', typeof LandformsData !== 'undefined' ? 'External File ✅' : 'Fallback Data ⚠️');
+console.log('📍 Total landforms:', Object.values(landformData).reduce((sum, arr) => sum + arr.length, 0));
+
+// Initialize all maps
+function initMaps() {
+    const mapTypes = ['valleys', 'canyons', 'gorges', 'hot-deserts', 'cold-deserts', 'coastal-deserts', 
+                     'islands', 'peninsulas', 'caves', 'glacial', 'volcanic', 'coastal', 'aeolian', 'fluvial', 'combined'];
+    
+    mapTypes.forEach(type => {
+        const mapElement = document.getElementById(`${type}-map`);
+        if (mapElement) {
+            const map = L.map(`${type}-map`).setView([20, 0], 2);
+            L.tileLayer(tileLayers.streets, {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
             
-            mapTypes.forEach(type => {
-                const mapElement = document.getElementById(`${type}-map`);
-                if (mapElement) {
-                    const map = L.map(`${type}-map`).setView([20, 0], 2);
-                    L.tileLayer(tileLayers.streets, {
-                        attribution: '© OpenStreetMap contributors',
-                        maxZoom: 18
-                    }).addTo(map);
-                    
-                    maps[type] = map;
-                    mapLayers[type] = {};
-                    
-                    // Add markers for specific landform type
-                    if (type !== 'combined') {
-                        addMarkers(map, landformData[type] || [], type);
-                    } else {
-                        // For combined map, add all landforms with different colors
-                        Object.keys(landformData).forEach((landformType, index) => {
-                            const layer = L.layerGroup();
-                            addMarkers(layer, landformData[landformType], landformType);
-                            layer.addTo(map);
-                            mapLayers.combined[landformType] = layer;
-                        });
-                    }
-                }
-            });
-        }
-
-        // Add markers to map
-        function addMarkers(map, data, type) {
-            const iconColors = {
-                'valleys': '#2ecc71',
-                'canyons': '#e74c3c',
-                'gorges': '#9b59b6',
-                'hot-deserts': '#f39c12',
-                'cold-deserts': '#3498db',
-                'coastal-deserts': '#1abc9c',
-                'islands': '#16a085',
-                'peninsulas': '#27ae60',
-                'caves': '#8e44ad',
-                'glacial': '#ecf0f1',
-                'volcanic': '#c0392b',
-                'coastal': '#3498db',
-                'aeolian': '#f1c40f',
-                'fluvial': '#2980b9'
-            };
-
-            data.forEach(item => {
-                const icon = L.divIcon({
-                    className: 'custom-marker',
-                    html: `<div style="background: ${iconColors[type] || '#1a5f7a'}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-                    iconSize: [12, 12]
-                });
-
-                const marker = L.marker([item.lat, item.lon], {icon: icon}).addTo(map);
-                
-                // Create popup content
-                let popupContent = `
-                    <div class="popup-content">
-                        <div class="popup-title">${item.name}</div>
-                        <div class="popup-stats">
-                `;
-                
-                Object.keys(item).forEach(key => {
-                    if (key !== 'lat' && key !== 'lon' && key !== 'name') {
-                        popupContent += `
-                            <div class="popup-stat">
-                                <strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong>
-                                <span>${item[key]}</span>
-                            </div>
-                        `;
-                    }
-                });
-
-                popupContent += `
-                        </div>
-                        <button class="popup-btn" onclick="showDetailedInfo('${type}', '${item.name}')">
-                            📊 View Full Details
-                        </button>
-                    </div>
-                `;
-
-                marker.bindPopup(popupContent);
-            });
-        }
-
-        // Change map view (satellite, terrain, etc.)
-        function setMapView(mapType, viewType) {
-            if (maps[mapType]) {
-                // Remove existing tile layers
-                maps[mapType].eachLayer(layer => {
-                    if (layer instanceof L.TileLayer) {
-                        maps[mapType].removeLayer(layer);
-                    }
-                });
-
-                // Add new tile layer
-                L.tileLayer(tileLayers[viewType], {
-                    attribution: viewType === 'streets' ? '© OpenStreetMap' : viewType === 'satellite' ? '© Esri' : '© OpenTopoMap',
-                    maxZoom: 18
-                }).addTo(maps[mapType]);
-
-                // Update button states
-                const buttons = document.querySelectorAll(`#${mapType}-section .map-btn`);
-                buttons.forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
-            }
-        }
-
-        // Toggle fullscreen
-        function toggleFullscreen(mapId) {
-            const mapElement = document.getElementById(mapId);
-            if (mapElement) {
-                if (!document.fullscreenElement) {
-                    mapElement.requestFullscreen().then(() => {
-                        // Invalidate map size after entering fullscreen
-                        setTimeout(() => {
-                            const mapType = mapId.replace('-map', '');
-                            if (maps[mapType]) {
-                                maps[mapType].invalidateSize();
-                            }
-                        }, 100);
-                    });
-                } else {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        // Toggle layer in combined map
-        function toggleLayer(layerType) {
-            if (mapLayers.combined && mapLayers.combined[layerType]) {
-                const checkbox = document.getElementById(`toggle-${layerType}`);
-                if (checkbox.checked) {
-                    maps.combined.addLayer(mapLayers.combined[layerType]);
-                } else {
-                    maps.combined.removeLayer(mapLayers.combined[layerType]);
-                }
-            }
-        }
-
-        // Show detailed information (can be expanded to show modal with full data)
-        function showDetailedInfo(type, name) {
-            alert(`Detailed information for ${name} will be displayed here.\n\nIn production, this would open a modal with:\n- Full description\n- High-resolution images\n- Historical data\n- Related locations\n- Climate information\n- Tourism details\n- Research papers`);
-        }
-
-        // Scroll to top functionality
-        const scrollTopBtn = document.getElementById('scrollTop');
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                scrollTopBtn.classList.add('visible');
+            maps[type] = map;
+            mapLayers[type] = {};
+            
+            if (type !== 'combined') {
+                addMarkers(map, landformData[type] || [], type);
             } else {
-                scrollTopBtn.classList.remove('visible');
+                Object.keys(landformData).forEach((landformType) => {
+                    const layer = L.layerGroup();
+                    addMarkers(layer, landformData[landformType], landformType);
+                    layer.addTo(map);
+                    mapLayers.combined[landformType] = layer;
+                });
+            }
+        }
+    });
+}
+
+// Add markers to map
+function addMarkers(map, data, type) {
+    const iconColors = {
+        'valleys': '#2ecc71', 'canyons': '#e74c3c', 'gorges': '#9b59b6',
+        'hot-deserts': '#f39c12', 'cold-deserts': '#3498db', 'coastal-deserts': '#1abc9c',
+        'islands': '#16a085', 'archipelagos': '#27ae60', 'peninsulas': '#2c3e50',
+        'caves': '#8e44ad', 'glacial': '#ecf0f1', 'volcanic': '#c0392b',
+        'coastal': '#3498db', 'aeolian': '#f1c40f', 'fluvial': '#2980b9'
+    };
+
+    data.forEach(item => {
+        const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="background: ${iconColors[type] || '#1a5f7a'}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [12, 12]
+        });
+
+        const marker = L.marker([item.lat, item.lon], {icon: icon}).addTo(map);
+        
+        let popupContent = `<div class="popup-content"><div class="popup-title">${item.name}</div><div class="popup-stats">`;
+        
+        Object.keys(item).forEach(key => {
+            if (key !== 'lat' && key !== 'lon' && key !== 'name') {
+                popupContent += `<div class="popup-stat"><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong><span>${item[key]}</span></div>`;
             }
         });
 
-        scrollTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
+        popupContent += `</div><button class="popup-btn" onclick="showDetailedInfo('${type}', '${item.name}')">📊 View Full Details</button></div>`;
+        marker.bindPopup(popupContent);
+    });
+}
+
+function setMapView(mapType, viewType) {
+    if (maps[mapType]) {
+        maps[mapType].eachLayer(layer => {
+            if (layer instanceof L.TileLayer) maps[mapType].removeLayer(layer);
+        });
+        L.tileLayer(tileLayers[viewType], {
+            attribution: viewType === 'streets' ? '© OpenStreetMap' : viewType === 'satellite' ? '© Esri' : '© OpenTopoMap',
+            maxZoom: 18
+        }).addTo(maps[mapType]);
+        
+        const buttons = document.querySelectorAll(`#${mapType}-section .map-btn`);
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+}
+
+function toggleFullscreen(mapId) {
+    const mapElement = document.getElementById(mapId);
+    if (mapElement) {
+        if (!document.fullscreenElement) {
+            mapElement.requestFullscreen().then(() => {
+                setTimeout(() => {
+                    const mapType = mapId.replace('-map', '');
+                    if (maps[mapType]) maps[mapType].invalidateSize();
+                }, 100);
             });
-        });
-
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Initialize maps when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            initMaps();
-        });
-
-        // Animate stats counters
-        function animateCounter(element, target) {
-            let current = 0;
-            const increment = target / 100;
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    element.textContent = target.toLocaleString();
-                    clearInterval(timer);
-                } else {
-                    element.textContent = Math.floor(current).toLocaleString();
-                }
-            }, 20);
+        } else {
+            document.exitFullscreen();
         }
+    }
+}
 
-        // Observe stat cards and animate when in view
-        const statObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const counter = entry.target.querySelector('.stat-number');
-                    const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
-                    animateCounter(counter, target);
-                    statObserver.unobserve(entry.target);
-                }
-            });
-        });
+function toggleLayer(layerType) {
+    if (mapLayers.combined && mapLayers.combined[layerType]) {
+        const checkbox = document.getElementById(`toggle-${layerType}`);
+        if (checkbox.checked) {
+            maps.combined.addLayer(mapLayers.combined[layerType]);
+        } else {
+            maps.combined.removeLayer(mapLayers.combined[layerType]);
+        }
+    }
+}
 
-        document.querySelectorAll('.stat-card').forEach(card => {
-            statObserver.observe(card);
-        });
-    </script>
+function showDetailedInfo(type, name) {
+    alert(`Detailed information for ${name} will be displayed here.\n\nIn production, this would open a modal with:\n- Full description\n- High-resolution images\n- Historical data\n- Related locations\n- Climate information\n- Tourism details\n- Research papers`);
+}
+
+// Scroll to top
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+        scrollTopBtn.classList.add('visible');
+    } else {
+        scrollTopBtn.classList.remove('visible');
+    }
+});
+
+scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+
+// Initialize maps
+document.addEventListener('DOMContentLoaded', () => {
+    initMaps();
+});
+
+// Animate stats
+function animateCounter(element, target) {
+    let current = 0;
+    const increment = target / 100;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            element.textContent = target.toLocaleString();
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current).toLocaleString();
+        }
+    }, 20);
+}
+
+const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const counter = entry.target.querySelector('.stat-number');
+            const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
+            animateCounter(counter, target);
+            statObserver.unobserve(entry.target);
+        }
+    });
+});
+
+document.querySelectorAll('.stat-card').forEach(card => {
+    statObserver.observe(card);
+});
+      <script>
 </body>
 </html>
