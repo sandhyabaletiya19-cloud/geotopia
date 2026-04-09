@@ -21,33 +21,6 @@
            COMPLETELY NEW STYLE - CYBERPUNK ARCADE
            ============================================ */
 
-        
-// ========================================
-// ADD THIS CSS FOR FLAG IMAGES
-// Add to your <style> section
-// ========================================
-/*
-.question-flag-img {
-    height: 60px;
-    min-height: 50px;
-    max-height: 80px;
-    border: 2px solid var(--border-dim);
-    border-radius: 4px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    transition: transform 0.3s ease;
-}
-
-.question-flag-img:hover {
-    transform: scale(1.05);
-}
-
-@media (max-width: 400px) {
-    .question-flag-img {
-        height: 45px;
-    }
-}
-*/
-
         :root {
             /* NEON COLOR PALETTE */
             --neon-cyan: #00f5ff;
@@ -691,6 +664,7 @@
            ============================================ */
         .category-screen {
             align-items: center;
+            overflow-y: auto;
         }
 
         .category-header {
@@ -1035,6 +1009,11 @@
             z-index: 1;
         }
 
+        .hud-controls {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
         .hud-controls button {
             width: 36px;
             height: 36px;
@@ -1090,6 +1069,7 @@
             align-items: center;
             justify-content: center;
             gap: var(--space-sm);
+            flex-wrap: wrap;
         }
 
         .question-flag {
@@ -1107,7 +1087,7 @@
         .map-shrink-container {
             position: relative;
             flex: 1;
-            min-height: 200px;
+            min-height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1339,6 +1319,10 @@
             animation: record-pulse 1s ease infinite;
         }
 
+        .new-record.hidden {
+            display: none;
+        }
+
         @keyframes record-pulse {
             0%, 100% { transform: scale(1); box-shadow: 0 0 20px var(--glow-yellow); }
             50% { transform: scale(1.05); box-shadow: 0 0 40px var(--glow-yellow); }
@@ -1456,6 +1440,7 @@
            ============================================ */
         .settings-screen {
             align-items: center;
+            overflow-y: auto;
         }
 
         .settings-header {
@@ -1622,6 +1607,7 @@
            ============================================ */
         .leaderboard-screen {
             align-items: center;
+            overflow-y: auto;
         }
 
         .leaderboard-header {
@@ -1778,6 +1764,29 @@
             0% { opacity: 1; transform: translateY(0) scale(1); }
             50% { opacity: 1; transform: translateY(-30px) scale(1.2); }
             100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+
+        /* ============================================
+           FLAG IMAGE STYLES
+           ============================================ */
+        .flag-img {
+            height: 60px;
+            min-height: 50px;
+            max-height: 80px;
+            border: 2px solid var(--border-dim);
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .flag-img:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 400px) {
+            .flag-img {
+                height: 45px;
+            }
         }
 
         /* ============================================
@@ -2031,7 +2040,7 @@
 
             <div class="leaderboard-list" id="leaderboardList"></div>
 
-            <button class="neon-btn mt-lg" id="lbBackBtn" style="margin-top: 24px;">
+            <button class="neon-btn" id="lbBackBtn" style="margin-top: 24px;">
                 <span class="btn-bg"></span>
                 <span class="btn-text">← Back</span>
             </button>
@@ -2215,881 +2224,520 @@
             'use strict';
 
             // ========================================
-// REPLACE THE ENTIRE QUESTIONS OBJECT WITH THIS
-// 1000+ REAL QUESTIONS DATABASE
-// ========================================
+            // 1000+ QUESTIONS DATABASE
+            // ========================================
+            const QUESTIONS = {
+                capitals: [
+                    // EUROPE
+                    { q: "What is the capital of France?", a: "Paris", wrong: ["Lyon", "Marseille", "Nice"] },
+                    { q: "What is the capital of Germany?", a: "Berlin", wrong: ["Munich", "Frankfurt", "Hamburg"] },
+                    { q: "What is the capital of Italy?", a: "Rome", wrong: ["Milan", "Venice", "Florence"] },
+                    { q: "What is the capital of Spain?", a: "Madrid", wrong: ["Barcelona", "Seville", "Valencia"] },
+                    { q: "What is the capital of United Kingdom?", a: "London", wrong: ["Manchester", "Birmingham", "Liverpool"] },
+                    { q: "What is the capital of Portugal?", a: "Lisbon", wrong: ["Porto", "Faro", "Coimbra"] },
+                    { q: "What is the capital of Netherlands?", a: "Amsterdam", wrong: ["Rotterdam", "The Hague", "Utrecht"] },
+                    { q: "What is the capital of Belgium?", a: "Brussels", wrong: ["Antwerp", "Ghent", "Bruges"] },
+                    { q: "What is the capital of Switzerland?", a: "Bern", wrong: ["Zurich", "Geneva", "Basel"] },
+                    { q: "What is the capital of Austria?", a: "Vienna", wrong: ["Salzburg", "Innsbruck", "Graz"] },
+                    { q: "What is the capital of Poland?", a: "Warsaw", wrong: ["Krakow", "Gdansk", "Wroclaw"] },
+                    { q: "What is the capital of Czech Republic?", a: "Prague", wrong: ["Brno", "Ostrava", "Pilsen"] },
+                    { q: "What is the capital of Hungary?", a: "Budapest", wrong: ["Debrecen", "Szeged", "Pécs"] },
+                    { q: "What is the capital of Romania?", a: "Bucharest", wrong: ["Cluj-Napoca", "Timișoara", "Iași"] },
+                    { q: "What is the capital of Bulgaria?", a: "Sofia", wrong: ["Plovdiv", "Varna", "Burgas"] },
+                    { q: "What is the capital of Greece?", a: "Athens", wrong: ["Thessaloniki", "Patras", "Heraklion"] },
+                    { q: "What is the capital of Sweden?", a: "Stockholm", wrong: ["Gothenburg", "Malmö", "Uppsala"] },
+                    { q: "What is the capital of Norway?", a: "Oslo", wrong: ["Bergen", "Trondheim", "Stavanger"] },
+                    { q: "What is the capital of Denmark?", a: "Copenhagen", wrong: ["Aarhus", "Odense", "Aalborg"] },
+                    { q: "What is the capital of Finland?", a: "Helsinki", wrong: ["Tampere", "Turku", "Oulu"] },
+                    { q: "What is the capital of Ireland?", a: "Dublin", wrong: ["Cork", "Galway", "Limerick"] },
+                    { q: "What is the capital of Iceland?", a: "Reykjavik", wrong: ["Akureyri", "Keflavik", "Selfoss"] },
+                    { q: "What is the capital of Russia?", a: "Moscow", wrong: ["St. Petersburg", "Novosibirsk", "Kazan"] },
+                    { q: "What is the capital of Ukraine?", a: "Kyiv", wrong: ["Kharkiv", "Odesa", "Lviv"] },
+                    { q: "What is the capital of Serbia?", a: "Belgrade", wrong: ["Novi Sad", "Niš", "Kragujevac"] },
+                    { q: "What is the capital of Croatia?", a: "Zagreb", wrong: ["Split", "Rijeka", "Dubrovnik"] },
+                    { q: "What is the capital of Slovenia?", a: "Ljubljana", wrong: ["Maribor", "Celje", "Kranj"] },
+                    { q: "What is the capital of Slovakia?", a: "Bratislava", wrong: ["Košice", "Prešov", "Žilina"] },
+                    { q: "What is the capital of Lithuania?", a: "Vilnius", wrong: ["Kaunas", "Klaipėda", "Šiauliai"] },
+                    { q: "What is the capital of Latvia?", a: "Riga", wrong: ["Daugavpils", "Liepāja", "Jelgava"] },
+                    { q: "What is the capital of Estonia?", a: "Tallinn", wrong: ["Tartu", "Narva", "Pärnu"] },
+                    { q: "What is the capital of Albania?", a: "Tirana", wrong: ["Durrës", "Vlorë", "Shkodër"] },
+                    { q: "What is the capital of Montenegro?", a: "Podgorica", wrong: ["Nikšić", "Cetinje", "Budva"] },
+                    { q: "What is the capital of Luxembourg?", a: "Luxembourg City", wrong: ["Esch-sur-Alzette", "Differdange", "Dudelange"] },
+                    { q: "What is the capital of Malta?", a: "Valletta", wrong: ["Mdina", "Sliema", "Birkirkara"] },
+                    { q: "What is the capital of Cyprus?", a: "Nicosia", wrong: ["Limassol", "Larnaca", "Paphos"] },
+                    
+                    // ASIA
+                    { q: "What is the capital of Japan?", a: "Tokyo", wrong: ["Osaka", "Kyoto", "Yokohama"] },
+                    { q: "What is the capital of China?", a: "Beijing", wrong: ["Shanghai", "Guangzhou", "Shenzhen"] },
+                    { q: "What is the capital of India?", a: "New Delhi", wrong: ["Mumbai", "Kolkata", "Chennai"] },
+                    { q: "What is the capital of South Korea?", a: "Seoul", wrong: ["Busan", "Incheon", "Daegu"] },
+                    { q: "What is the capital of North Korea?", a: "Pyongyang", wrong: ["Hamhung", "Chongjin", "Nampo"] },
+                    { q: "What is the capital of Vietnam?", a: "Hanoi", wrong: ["Ho Chi Minh City", "Da Nang", "Haiphong"] },
+                    { q: "What is the capital of Thailand?", a: "Bangkok", wrong: ["Chiang Mai", "Phuket", "Pattaya"] },
+                    { q: "What is the capital of Indonesia?", a: "Jakarta", wrong: ["Surabaya", "Bandung", "Bali"] },
+                    { q: "What is the capital of Malaysia?", a: "Kuala Lumpur", wrong: ["Penang", "Johor Bahru", "Malacca"] },
+                    { q: "What is the capital of Singapore?", a: "Singapore", wrong: ["Sentosa", "Jurong", "Changi"] },
+                    { q: "What is the capital of Philippines?", a: "Manila", wrong: ["Cebu", "Davao", "Quezon City"] },
+                    { q: "What is the capital of Myanmar?", a: "Naypyidaw", wrong: ["Yangon", "Mandalay", "Bagan"] },
+                    { q: "What is the capital of Cambodia?", a: "Phnom Penh", wrong: ["Siem Reap", "Battambang", "Sihanoukville"] },
+                    { q: "What is the capital of Laos?", a: "Vientiane", wrong: ["Luang Prabang", "Savannakhet", "Pakse"] },
+                    { q: "What is the capital of Bangladesh?", a: "Dhaka", wrong: ["Chittagong", "Khulna", "Rajshahi"] },
+                    { q: "What is the capital of Pakistan?", a: "Islamabad", wrong: ["Karachi", "Lahore", "Peshawar"] },
+                    { q: "What is the capital of Afghanistan?", a: "Kabul", wrong: ["Kandahar", "Herat", "Mazar-i-Sharif"] },
+                    { q: "What is the capital of Nepal?", a: "Kathmandu", wrong: ["Pokhara", "Lalitpur", "Biratnagar"] },
+                    { q: "What is the capital of Sri Lanka?", a: "Sri Jayawardenepura Kotte", wrong: ["Colombo", "Kandy", "Galle"] },
+                    { q: "What is the capital of Mongolia?", a: "Ulaanbaatar", wrong: ["Erdenet", "Darkhan", "Choibalsan"] },
+                    { q: "What is the capital of Kazakhstan?", a: "Astana", wrong: ["Almaty", "Shymkent", "Karaganda"] },
+                    { q: "What is the capital of Uzbekistan?", a: "Tashkent", wrong: ["Samarkand", "Bukhara", "Namangan"] },
+                    { q: "What is the capital of Iran?", a: "Tehran", wrong: ["Isfahan", "Mashhad", "Shiraz"] },
+                    { q: "What is the capital of Iraq?", a: "Baghdad", wrong: ["Basra", "Mosul", "Erbil"] },
+                    { q: "What is the capital of Saudi Arabia?", a: "Riyadh", wrong: ["Jeddah", "Mecca", "Medina"] },
+                    { q: "What is the capital of United Arab Emirates?", a: "Abu Dhabi", wrong: ["Dubai", "Sharjah", "Ajman"] },
+                    { q: "What is the capital of Qatar?", a: "Doha", wrong: ["Al Wakrah", "Al Khor", "Umm Salal"] },
+                    { q: "What is the capital of Kuwait?", a: "Kuwait City", wrong: ["Hawalli", "Salmiya", "Fahaheel"] },
+                    { q: "What is the capital of Jordan?", a: "Amman", wrong: ["Zarqa", "Irbid", "Aqaba"] },
+                    { q: "What is the capital of Lebanon?", a: "Beirut", wrong: ["Tripoli", "Sidon", "Tyre"] },
+                    { q: "What is the capital of Israel?", a: "Jerusalem", wrong: ["Tel Aviv", "Haifa", "Eilat"] },
+                    { q: "What is the capital of Turkey?", a: "Ankara", wrong: ["Istanbul", "Izmir", "Antalya"] },
+                    { q: "What is the capital of Taiwan?", a: "Taipei", wrong: ["Kaohsiung", "Taichung", "Tainan"] },
+                    
+                    // AFRICA
+                    { q: "What is the capital of Egypt?", a: "Cairo", wrong: ["Alexandria", "Giza", "Luxor"] },
+                    { q: "What is the capital of South Africa?", a: "Pretoria", wrong: ["Cape Town", "Johannesburg", "Durban"] },
+                    { q: "What is the capital of Nigeria?", a: "Abuja", wrong: ["Lagos", "Kano", "Ibadan"] },
+                    { q: "What is the capital of Kenya?", a: "Nairobi", wrong: ["Mombasa", "Kisumu", "Nakuru"] },
+                    { q: "What is the capital of Morocco?", a: "Rabat", wrong: ["Casablanca", "Marrakech", "Fes"] },
+                    { q: "What is the capital of Algeria?", a: "Algiers", wrong: ["Oran", "Constantine", "Annaba"] },
+                    { q: "What is the capital of Tunisia?", a: "Tunis", wrong: ["Sfax", "Sousse", "Kairouan"] },
+                    { q: "What is the capital of Ethiopia?", a: "Addis Ababa", wrong: ["Dire Dawa", "Gondar", "Mekelle"] },
+                    { q: "What is the capital of Tanzania?", a: "Dodoma", wrong: ["Dar es Salaam", "Mwanza", "Arusha"] },
+                    { q: "What is the capital of Uganda?", a: "Kampala", wrong: ["Entebbe", "Jinja", "Gulu"] },
+                    { q: "What is the capital of Rwanda?", a: "Kigali", wrong: ["Butare", "Gisenyi", "Ruhengeri"] },
+                    { q: "What is the capital of Ghana?", a: "Accra", wrong: ["Kumasi", "Tamale", "Sekondi-Takoradi"] },
+                    { q: "What is the capital of Senegal?", a: "Dakar", wrong: ["Thiès", "Saint-Louis", "Kaolack"] },
+                    { q: "What is the capital of Cameroon?", a: "Yaoundé", wrong: ["Douala", "Garoua", "Bamenda"] },
+                    { q: "What is the capital of DR Congo?", a: "Kinshasa", wrong: ["Lubumbashi", "Mbuji-Mayi", "Goma"] },
+                    { q: "What is the capital of Angola?", a: "Luanda", wrong: ["Huambo", "Lobito", "Benguela"] },
+                    { q: "What is the capital of Zimbabwe?", a: "Harare", wrong: ["Bulawayo", "Mutare", "Gweru"] },
+                    { q: "What is the capital of Zambia?", a: "Lusaka", wrong: ["Ndola", "Kitwe", "Livingstone"] },
+                    { q: "What is the capital of Botswana?", a: "Gaborone", wrong: ["Francistown", "Maun", "Kasane"] },
+                    { q: "What is the capital of Namibia?", a: "Windhoek", wrong: ["Walvis Bay", "Swakopmund", "Rundu"] },
+                    { q: "What is the capital of Madagascar?", a: "Antananarivo", wrong: ["Toamasina", "Antsirabe", "Mahajanga"] },
+                    { q: "What is the capital of Sudan?", a: "Khartoum", wrong: ["Omdurman", "Port Sudan", "Kassala"] },
+                    { q: "What is the capital of Libya?", a: "Tripoli", wrong: ["Benghazi", "Misrata", "Sabha"] },
+                    
+                    // AMERICAS
+                    { q: "What is the capital of United States?", a: "Washington, D.C.", wrong: ["New York", "Los Angeles", "Chicago"] },
+                    { q: "What is the capital of Canada?", a: "Ottawa", wrong: ["Toronto", "Vancouver", "Montreal"] },
+                    { q: "What is the capital of Mexico?", a: "Mexico City", wrong: ["Guadalajara", "Monterrey", "Cancún"] },
+                    { q: "What is the capital of Brazil?", a: "Brasília", wrong: ["Rio de Janeiro", "São Paulo", "Salvador"] },
+                    { q: "What is the capital of Argentina?", a: "Buenos Aires", wrong: ["Córdoba", "Rosario", "Mendoza"] },
+                    { q: "What is the capital of Chile?", a: "Santiago", wrong: ["Valparaíso", "Concepción", "Antofagasta"] },
+                    { q: "What is the capital of Peru?", a: "Lima", wrong: ["Cusco", "Arequipa", "Trujillo"] },
+                    { q: "What is the capital of Colombia?", a: "Bogotá", wrong: ["Medellín", "Cali", "Barranquilla"] },
+                    { q: "What is the capital of Venezuela?", a: "Caracas", wrong: ["Maracaibo", "Valencia", "Barquisimeto"] },
+                    { q: "What is the capital of Ecuador?", a: "Quito", wrong: ["Guayaquil", "Cuenca", "Manta"] },
+                    { q: "What is the capital of Bolivia?", a: "Sucre", wrong: ["La Paz", "Santa Cruz", "Cochabamba"] },
+                    { q: "What is the capital of Paraguay?", a: "Asunción", wrong: ["Ciudad del Este", "San Lorenzo", "Luque"] },
+                    { q: "What is the capital of Uruguay?", a: "Montevideo", wrong: ["Salto", "Paysandú", "Las Piedras"] },
+                    { q: "What is the capital of Cuba?", a: "Havana", wrong: ["Santiago de Cuba", "Camagüey", "Holguín"] },
+                    { q: "What is the capital of Jamaica?", a: "Kingston", wrong: ["Montego Bay", "Spanish Town", "Portmore"] },
+                    { q: "What is the capital of Dominican Republic?", a: "Santo Domingo", wrong: ["Santiago", "Puerto Plata", "La Romana"] },
+                    { q: "What is the capital of Guatemala?", a: "Guatemala City", wrong: ["Antigua", "Quetzaltenango", "Escuintla"] },
+                    { q: "What is the capital of Honduras?", a: "Tegucigalpa", wrong: ["San Pedro Sula", "La Ceiba", "Choloma"] },
+                    { q: "What is the capital of El Salvador?", a: "San Salvador", wrong: ["Santa Ana", "San Miguel", "Soyapango"] },
+                    { q: "What is the capital of Nicaragua?", a: "Managua", wrong: ["León", "Granada", "Masaya"] },
+                    { q: "What is the capital of Costa Rica?", a: "San José", wrong: ["Alajuela", "Cartago", "Heredia"] },
+                    { q: "What is the capital of Panama?", a: "Panama City", wrong: ["Colón", "David", "Santiago"] },
+                    
+                    // OCEANIA
+                    { q: "What is the capital of Australia?", a: "Canberra", wrong: ["Sydney", "Melbourne", "Brisbane"] },
+                    { q: "What is the capital of New Zealand?", a: "Wellington", wrong: ["Auckland", "Christchurch", "Hamilton"] },
+                    { q: "What is the capital of Papua New Guinea?", a: "Port Moresby", wrong: ["Lae", "Mount Hagen", "Madang"] },
+                    { q: "What is the capital of Fiji?", a: "Suva", wrong: ["Nadi", "Lautoka", "Labasa"] },
+                    { q: "What is the capital of Samoa?", a: "Apia", wrong: ["Vaitele", "Faleula", "Siusega"] },
+                    { q: "What is the capital of Tonga?", a: "Nukuʻalofa", wrong: ["Neiafu", "Haveluloto", "Vaini"] }
+                ],
 
-const QUESTIONS = {
-    capitals: [
-        // EUROPE (50+)
-        { q: "What is the capital of France?", a: "Paris", wrong: ["Lyon", "Marseille", "Nice"] },
-        { q: "What is the capital of Germany?", a: "Berlin", wrong: ["Munich", "Frankfurt", "Hamburg"] },
-        { q: "What is the capital of Italy?", a: "Rome", wrong: ["Milan", "Venice", "Florence"] },
-        { q: "What is the capital of Spain?", a: "Madrid", wrong: ["Barcelona", "Seville", "Valencia"] },
-        { q: "What is the capital of United Kingdom?", a: "London", wrong: ["Manchester", "Birmingham", "Liverpool"] },
-        { q: "What is the capital of Portugal?", a: "Lisbon", wrong: ["Porto", "Faro", "Coimbra"] },
-        { q: "What is the capital of Netherlands?", a: "Amsterdam", wrong: ["Rotterdam", "The Hague", "Utrecht"] },
-        { q: "What is the capital of Belgium?", a: "Brussels", wrong: ["Antwerp", "Ghent", "Bruges"] },
-        { q: "What is the capital of Switzerland?", a: "Bern", wrong: ["Zurich", "Geneva", "Basel"] },
-        { q: "What is the capital of Austria?", a: "Vienna", wrong: ["Salzburg", "Innsbruck", "Graz"] },
-        { q: "What is the capital of Poland?", a: "Warsaw", wrong: ["Krakow", "Gdansk", "Wroclaw"] },
-        { q: "What is the capital of Czech Republic?", a: "Prague", wrong: ["Brno", "Ostrava", "Pilsen"] },
-        { q: "What is the capital of Hungary?", a: "Budapest", wrong: ["Debrecen", "Szeged", "Pécs"] },
-        { q: "What is the capital of Romania?", a: "Bucharest", wrong: ["Cluj-Napoca", "Timișoara", "Iași"] },
-        { q: "What is the capital of Bulgaria?", a: "Sofia", wrong: ["Plovdiv", "Varna", "Burgas"] },
-        { q: "What is the capital of Greece?", a: "Athens", wrong: ["Thessaloniki", "Patras", "Heraklion"] },
-        { q: "What is the capital of Sweden?", a: "Stockholm", wrong: ["Gothenburg", "Malmö", "Uppsala"] },
-        { q: "What is the capital of Norway?", a: "Oslo", wrong: ["Bergen", "Trondheim", "Stavanger"] },
-        { q: "What is the capital of Denmark?", a: "Copenhagen", wrong: ["Aarhus", "Odense", "Aalborg"] },
-        { q: "What is the capital of Finland?", a: "Helsinki", wrong: ["Tampere", "Turku", "Oulu"] },
-        { q: "What is the capital of Ireland?", a: "Dublin", wrong: ["Cork", "Galway", "Limerick"] },
-        { q: "What is the capital of Iceland?", a: "Reykjavik", wrong: ["Akureyri", "Keflavik", "Selfoss"] },
-        { q: "What is the capital of Russia?", a: "Moscow", wrong: ["St. Petersburg", "Novosibirsk", "Kazan"] },
-        { q: "What is the capital of Ukraine?", a: "Kyiv", wrong: ["Kharkiv", "Odesa", "Lviv"] },
-        { q: "What is the capital of Belarus?", a: "Minsk", wrong: ["Gomel", "Brest", "Vitebsk"] },
-        { q: "What is the capital of Serbia?", a: "Belgrade", wrong: ["Novi Sad", "Niš", "Kragujevac"] },
-        { q: "What is the capital of Croatia?", a: "Zagreb", wrong: ["Split", "Rijeka", "Dubrovnik"] },
-        { q: "What is the capital of Slovenia?", a: "Ljubljana", wrong: ["Maribor", "Celje", "Kranj"] },
-        { q: "What is the capital of Slovakia?", a: "Bratislava", wrong: ["Košice", "Prešov", "Žilina"] },
-        { q: "What is the capital of Lithuania?", a: "Vilnius", wrong: ["Kaunas", "Klaipėda", "Šiauliai"] },
-        { q: "What is the capital of Latvia?", a: "Riga", wrong: ["Daugavpils", "Liepāja", "Jelgava"] },
-        { q: "What is the capital of Estonia?", a: "Tallinn", wrong: ["Tartu", "Narva", "Pärnu"] },
-        { q: "What is the capital of Albania?", a: "Tirana", wrong: ["Durrës", "Vlorë", "Shkodër"] },
-        { q: "What is the capital of North Macedonia?", a: "Skopje", wrong: ["Bitola", "Kumanovo", "Ohrid"] },
-        { q: "What is the capital of Montenegro?", a: "Podgorica", wrong: ["Nikšić", "Cetinje", "Budva"] },
-        { q: "What is the capital of Bosnia and Herzegovina?", a: "Sarajevo", wrong: ["Banja Luka", "Mostar", "Tuzla"] },
-        { q: "What is the capital of Moldova?", a: "Chișinău", wrong: ["Tiraspol", "Bălți", "Bender"] },
-        { q: "What is the capital of Luxembourg?", a: "Luxembourg City", wrong: ["Esch-sur-Alzette", "Differdange", "Dudelange"] },
-        { q: "What is the capital of Malta?", a: "Valletta", wrong: ["Mdina", "Sliema", "Birkirkara"] },
-        { q: "What is the capital of Cyprus?", a: "Nicosia", wrong: ["Limassol", "Larnaca", "Paphos"] },
-        { q: "What is the capital of Monaco?", a: "Monaco", wrong: ["Monte Carlo", "La Condamine", "Fontvieille"] },
-        { q: "What is the capital of Andorra?", a: "Andorra la Vella", wrong: ["Escaldes-Engordany", "Encamp", "Sant Julià"] },
-        { q: "What is the capital of San Marino?", a: "San Marino", wrong: ["Serravalle", "Borgo Maggiore", "Domagnano"] },
-        { q: "What is the capital of Liechtenstein?", a: "Vaduz", wrong: ["Schaan", "Balzers", "Triesen"] },
-        { q: "What is the capital of Vatican City?", a: "Vatican City", wrong: ["Rome", "Florence", "Naples"] },
-        
-        // ASIA (60+)
-        { q: "What is the capital of Japan?", a: "Tokyo", wrong: ["Osaka", "Kyoto", "Yokohama"] },
-        { q: "What is the capital of China?", a: "Beijing", wrong: ["Shanghai", "Guangzhou", "Shenzhen"] },
-        { q: "What is the capital of India?", a: "New Delhi", wrong: ["Mumbai", "Kolkata", "Chennai"] },
-        { q: "What is the capital of South Korea?", a: "Seoul", wrong: ["Busan", "Incheon", "Daegu"] },
-        { q: "What is the capital of North Korea?", a: "Pyongyang", wrong: ["Hamhung", "Chongjin", "Nampo"] },
-        { q: "What is the capital of Vietnam?", a: "Hanoi", wrong: ["Ho Chi Minh City", "Da Nang", "Haiphong"] },
-        { q: "What is the capital of Thailand?", a: "Bangkok", wrong: ["Chiang Mai", "Phuket", "Pattaya"] },
-        { q: "What is the capital of Indonesia?", a: "Jakarta", wrong: ["Surabaya", "Bandung", "Bali"] },
-        { q: "What is the capital of Malaysia?", a: "Kuala Lumpur", wrong: ["Penang", "Johor Bahru", "Malacca"] },
-        { q: "What is the capital of Singapore?", a: "Singapore", wrong: ["Sentosa", "Jurong", "Changi"] },
-        { q: "What is the capital of Philippines?", a: "Manila", wrong: ["Cebu", "Davao", "Quezon City"] },
-        { q: "What is the capital of Myanmar?", a: "Naypyidaw", wrong: ["Yangon", "Mandalay", "Bagan"] },
-        { q: "What is the capital of Cambodia?", a: "Phnom Penh", wrong: ["Siem Reap", "Battambang", "Sihanoukville"] },
-        { q: "What is the capital of Laos?", a: "Vientiane", wrong: ["Luang Prabang", "Savannakhet", "Pakse"] },
-        { q: "What is the capital of Bangladesh?", a: "Dhaka", wrong: ["Chittagong", "Khulna", "Rajshahi"] },
-        { q: "What is the capital of Pakistan?", a: "Islamabad", wrong: ["Karachi", "Lahore", "Peshawar"] },
-        { q: "What is the capital of Afghanistan?", a: "Kabul", wrong: ["Kandahar", "Herat", "Mazar-i-Sharif"] },
-        { q: "What is the capital of Nepal?", a: "Kathmandu", wrong: ["Pokhara", "Lalitpur", "Biratnagar"] },
-        { q: "What is the capital of Bhutan?", a: "Thimphu", wrong: ["Paro", "Punakha", "Phuentsholing"] },
-        { q: "What is the capital of Sri Lanka?", a: "Sri Jayawardenepura Kotte", wrong: ["Colombo", "Kandy", "Galle"] },
-        { q: "What is the capital of Maldives?", a: "Malé", wrong: ["Addu City", "Fuvahmulah", "Kulhudhuffushi"] },
-        { q: "What is the capital of Mongolia?", a: "Ulaanbaatar", wrong: ["Erdenet", "Darkhan", "Choibalsan"] },
-        { q: "What is the capital of Kazakhstan?", a: "Astana", wrong: ["Almaty", "Shymkent", "Karaganda"] },
-        { q: "What is the capital of Uzbekistan?", a: "Tashkent", wrong: ["Samarkand", "Bukhara", "Namangan"] },
-        { q: "What is the capital of Turkmenistan?", a: "Ashgabat", wrong: ["Türkmenabat", "Mary", "Daşoguz"] },
-        { q: "What is the capital of Tajikistan?", a: "Dushanbe", wrong: ["Khujand", "Kulob", "Qurghonteppa"] },
-        { q: "What is the capital of Kyrgyzstan?", a: "Bishkek", wrong: ["Osh", "Jalal-Abad", "Karakol"] },
-        { q: "What is the capital of Azerbaijan?", a: "Baku", wrong: ["Ganja", "Sumqayit", "Mingachevir"] },
-        { q: "What is the capital of Georgia?", a: "Tbilisi", wrong: ["Batumi", "Kutaisi", "Rustavi"] },
-        { q: "What is the capital of Armenia?", a: "Yerevan", wrong: ["Gyumri", "Vanadzor", "Vagharshapat"] },
-        { q: "What is the capital of Iran?", a: "Tehran", wrong: ["Isfahan", "Mashhad", "Shiraz"] },
-        { q: "What is the capital of Iraq?", a: "Baghdad", wrong: ["Basra", "Mosul", "Erbil"] },
-        { q: "What is the capital of Saudi Arabia?", a: "Riyadh", wrong: ["Jeddah", "Mecca", "Medina"] },
-        { q: "What is the capital of United Arab Emirates?", a: "Abu Dhabi", wrong: ["Dubai", "Sharjah", "Ajman"] },
-        { q: "What is the capital of Qatar?", a: "Doha", wrong: ["Al Wakrah", "Al Khor", "Umm Salal"] },
-        { q: "What is the capital of Kuwait?", a: "Kuwait City", wrong: ["Hawalli", "Salmiya", "Fahaheel"] },
-        { q: "What is the capital of Bahrain?", a: "Manama", wrong: ["Muharraq", "Riffa", "Hamad Town"] },
-        { q: "What is the capital of Oman?", a: "Muscat", wrong: ["Salalah", "Sohar", "Nizwa"] },
-        { q: "What is the capital of Yemen?", a: "Sana'a", wrong: ["Aden", "Taiz", "Hodeidah"] },
-        { q: "What is the capital of Jordan?", a: "Amman", wrong: ["Zarqa", "Irbid", "Aqaba"] },
-        { q: "What is the capital of Lebanon?", a: "Beirut", wrong: ["Tripoli", "Sidon", "Tyre"] },
-        { q: "What is the capital of Syria?", a: "Damascus", wrong: ["Aleppo", "Homs", "Latakia"] },
-        { q: "What is the capital of Israel?", a: "Jerusalem", wrong: ["Tel Aviv", "Haifa", "Eilat"] },
-        { q: "What is the capital of Turkey?", a: "Ankara", wrong: ["Istanbul", "Izmir", "Antalya"] },
-        { q: "What is the capital of Taiwan?", a: "Taipei", wrong: ["Kaohsiung", "Taichung", "Tainan"] },
-        { q: "What is the capital of Brunei?", a: "Bandar Seri Begawan", wrong: ["Kuala Belait", "Seria", "Tutong"] },
-        { q: "What is the capital of East Timor?", a: "Dili", wrong: ["Baucau", "Maliana", "Suai"] },
-        
-        // AFRICA (55+)
-        { q: "What is the capital of Egypt?", a: "Cairo", wrong: ["Alexandria", "Giza", "Luxor"] },
-        { q: "What is the capital of South Africa?", a: "Pretoria", wrong: ["Cape Town", "Johannesburg", "Durban"] },
-        { q: "What is the capital of Nigeria?", a: "Abuja", wrong: ["Lagos", "Kano", "Ibadan"] },
-        { q: "What is the capital of Kenya?", a: "Nairobi", wrong: ["Mombasa", "Kisumu", "Nakuru"] },
-        { q: "What is the capital of Morocco?", a: "Rabat", wrong: ["Casablanca", "Marrakech", "Fes"] },
-        { q: "What is the capital of Algeria?", a: "Algiers", wrong: ["Oran", "Constantine", "Annaba"] },
-        { q: "What is the capital of Tunisia?", a: "Tunis", wrong: ["Sfax", "Sousse", "Kairouan"] },
-        { q: "What is the capital of Libya?", a: "Tripoli", wrong: ["Benghazi", "Misrata", "Sabha"] },
-        { q: "What is the capital of Ethiopia?", a: "Addis Ababa", wrong: ["Dire Dawa", "Gondar", "Mekelle"] },
-        { q: "What is the capital of Tanzania?", a: "Dodoma", wrong: ["Dar es Salaam", "Mwanza", "Arusha"] },
-        { q: "What is the capital of Uganda?", a: "Kampala", wrong: ["Entebbe", "Jinja", "Gulu"] },
-        { q: "What is the capital of Rwanda?", a: "Kigali", wrong: ["Butare", "Gisenyi", "Ruhengeri"] },
-        { q: "What is the capital of Ghana?", a: "Accra", wrong: ["Kumasi", "Tamale", "Sekondi-Takoradi"] },
-        { q: "What is the capital of Ivory Coast?", a: "Yamoussoukro", wrong: ["Abidjan", "Bouaké", "Daloa"] },
-        { q: "What is the capital of Senegal?", a: "Dakar", wrong: ["Thiès", "Saint-Louis", "Kaolack"] },
-        { q: "What is the capital of Cameroon?", a: "Yaoundé", wrong: ["Douala", "Garoua", "Bamenda"] },
-        { q: "What is the capital of Democratic Republic of Congo?", a: "Kinshasa", wrong: ["Lubumbashi", "Mbuji-Mayi", "Goma"] },
-        { q: "What is the capital of Angola?", a: "Luanda", wrong: ["Huambo", "Lobito", "Benguela"] },
-        { q: "What is the capital of Mozambique?", a: "Maputo", wrong: ["Beira", "Nampula", "Quelimane"] },
-        { q: "What is the capital of Zimbabwe?", a: "Harare", wrong: ["Bulawayo", "Mutare", "Gweru"] },
-        { q: "What is the capital of Zambia?", a: "Lusaka", wrong: ["Ndola", "Kitwe", "Livingstone"] },
-        { q: "What is the capital of Botswana?", a: "Gaborone", wrong: ["Francistown", "Maun", "Kasane"] },
-        { q: "What is the capital of Namibia?", a: "Windhoek", wrong: ["Walvis Bay", "Swakopmund", "Rundu"] },
-        { q: "What is the capital of Madagascar?", a: "Antananarivo", wrong: ["Toamasina", "Antsirabe", "Mahajanga"] },
-        { q: "What is the capital of Mauritius?", a: "Port Louis", wrong: ["Curepipe", "Vacoas", "Quatre Bornes"] },
-        { q: "What is the capital of Seychelles?", a: "Victoria", wrong: ["Anse Boileau", "Beau Vallon", "Takamaka"] },
-        { q: "What is the capital of Sudan?", a: "Khartoum", wrong: ["Omdurman", "Port Sudan", "Kassala"] },
-        { q: "What is the capital of South Sudan?", a: "Juba", wrong: ["Malakal", "Wau", "Rumbek"] },
-        { q: "What is the capital of Somalia?", a: "Mogadishu", wrong: ["Hargeisa", "Kismayo", "Berbera"] },
-        { q: "What is the capital of Eritrea?", a: "Asmara", wrong: ["Massawa", "Keren", "Assab"] },
-        { q: "What is the capital of Djibouti?", a: "Djibouti City", wrong: ["Ali Sabieh", "Tadjoura", "Obock"] },
-        { q: "What is the capital of Mali?", a: "Bamako", wrong: ["Timbuktu", "Mopti", "Sikasso"] },
-        { q: "What is the capital of Niger?", a: "Niamey", wrong: ["Zinder", "Maradi", "Agadez"] },
-        { q: "What is the capital of Chad?", a: "N'Djamena", wrong: ["Moundou", "Abéché", "Sarh"] },
-        { q: "What is the capital of Burkina Faso?", a: "Ouagadougou", wrong: ["Bobo-Dioulasso", "Koudougou", "Banfora"] },
-        { q: "What is the capital of Benin?", a: "Porto-Novo", wrong: ["Cotonou", "Parakou", "Djougou"] },
-        { q: "What is the capital of Togo?", a: "Lomé", wrong: ["Sokodé", "Kara", "Kpalimé"] },
-        { q: "What is the capital of Liberia?", a: "Monrovia", wrong: ["Buchanan", "Gbarnga", "Kakata"] },
-        { q: "What is the capital of Sierra Leone?", a: "Freetown", wrong: ["Bo", "Kenema", "Makeni"] },
-        { q: "What is the capital of Guinea?", a: "Conakry", wrong: ["Nzérékoré", "Kankan", "Kindia"] },
-        { q: "What is the capital of Guinea-Bissau?", a: "Bissau", wrong: ["Bafatá", "Gabú", "Bissorã"] },
-        { q: "What is the capital of Gambia?", a: "Banjul", wrong: ["Serekunda", "Brikama", "Bakau"] },
-        { q: "What is the capital of Mauritania?", a: "Nouakchott", wrong: ["Nouadhibou", "Kaédi", "Zouérat"] },
-        { q: "What is the capital of Gabon?", a: "Libreville", wrong: ["Port-Gentil", "Franceville", "Oyem"] },
-        { q: "What is the capital of Republic of Congo?", a: "Brazzaville", wrong: ["Pointe-Noire", "Dolisie", "Nkayi"] },
-        { q: "What is the capital of Central African Republic?", a: "Bangui", wrong: ["Bimbo", "Berbérati", "Carnot"] },
-        { q: "What is the capital of Equatorial Guinea?", a: "Malabo", wrong: ["Bata", "Ebebiyin", "Aconibe"] },
-        { q: "What is the capital of São Tomé and Príncipe?", a: "São Tomé", wrong: ["Santo António", "Neves", "Santana"] },
-        { q: "What is the capital of Cape Verde?", a: "Praia", wrong: ["Mindelo", "Santa Maria", "Espargos"] },
-        { q: "What is the capital of Comoros?", a: "Moroni", wrong: ["Mutsamudu", "Fomboni", "Domoni"] },
-        { q: "What is the capital of Lesotho?", a: "Maseru", wrong: ["Teyateyaneng", "Mafeteng", "Hlotse"] },
-        { q: "What is the capital of Eswatini?", a: "Mbabane", wrong: ["Manzini", "Lobamba", "Siteki"] },
-        { q: "What is the capital of Malawi?", a: "Lilongwe", wrong: ["Blantyre", "Mzuzu", "Zomba"] },
-        { q: "What is the capital of Burundi?", a: "Gitega", wrong: ["Bujumbura", "Ngozi", "Rumonge"] },
-        
-        // AMERICAS (40+)
-        { q: "What is the capital of United States?", a: "Washington, D.C.", wrong: ["New York", "Los Angeles", "Chicago"] },
-        { q: "What is the capital of Canada?", a: "Ottawa", wrong: ["Toronto", "Vancouver", "Montreal"] },
-        { q: "What is the capital of Mexico?", a: "Mexico City", wrong: ["Guadalajara", "Monterrey", "Cancún"] },
-        { q: "What is the capital of Brazil?", a: "Brasília", wrong: ["Rio de Janeiro", "São Paulo", "Salvador"] },
-        { q: "What is the capital of Argentina?", a: "Buenos Aires", wrong: ["Córdoba", "Rosario", "Mendoza"] },
-        { q: "What is the capital of Chile?", a: "Santiago", wrong: ["Valparaíso", "Concepción", "Antofagasta"] },
-        { q: "What is the capital of Peru?", a: "Lima", wrong: ["Cusco", "Arequipa", "Trujillo"] },
-        { q: "What is the capital of Colombia?", a: "Bogotá", wrong: ["Medellín", "Cali", "Barranquilla"] },
-        { q: "What is the capital of Venezuela?", a: "Caracas", wrong: ["Maracaibo", "Valencia", "Barquisimeto"] },
-        { q: "What is the capital of Ecuador?", a: "Quito", wrong: ["Guayaquil", "Cuenca", "Manta"] },
-        { q: "What is the capital of Bolivia?", a: "Sucre", wrong: ["La Paz", "Santa Cruz", "Cochabamba"] },
-        { q: "What is the capital of Paraguay?", a: "Asunción", wrong: ["Ciudad del Este", "San Lorenzo", "Luque"] },
-        { q: "What is the capital of Uruguay?", a: "Montevideo", wrong: ["Salto", "Paysandú", "Las Piedras"] },
-        { q: "What is the capital of Guyana?", a: "Georgetown", wrong: ["Linden", "New Amsterdam", "Anna Regina"] },
-        { q: "What is the capital of Suriname?", a: "Paramaribo", wrong: ["Lelydorp", "Nieuw Nickerie", "Moengo"] },
-        { q: "What is the capital of Cuba?", a: "Havana", wrong: ["Santiago de Cuba", "Camagüey", "Holguín"] },
-        { q: "What is the capital of Jamaica?", a: "Kingston", wrong: ["Montego Bay", "Spanish Town", "Portmore"] },
-        { q: "What is the capital of Haiti?", a: "Port-au-Prince", wrong: ["Cap-Haïtien", "Gonaïves", "Les Cayes"] },
-        { q: "What is the capital of Dominican Republic?", a: "Santo Domingo", wrong: ["Santiago", "Puerto Plata", "La Romana"] },
-        { q: "What is the capital of Puerto Rico?", a: "San Juan", wrong: ["Ponce", "Mayagüez", "Caguas"] },
-        { q: "What is the capital of Trinidad and Tobago?", a: "Port of Spain", wrong: ["San Fernando", "Chaguanas", "Arima"] },
-        { q: "What is the capital of Bahamas?", a: "Nassau", wrong: ["Freeport", "Marsh Harbour", "George Town"] },
-        { q: "What is the capital of Barbados?", a: "Bridgetown", wrong: ["Speightstown", "Oistins", "Holetown"] },
-        { q: "What is the capital of Guatemala?", a: "Guatemala City", wrong: ["Antigua", "Quetzaltenango", "Escuintla"] },
-        { q: "What is the capital of Honduras?", a: "Tegucigalpa", wrong: ["San Pedro Sula", "La Ceiba", "Choloma"] },
-        { q: "What is the capital of El Salvador?", a: "San Salvador", wrong: ["Santa Ana", "San Miguel", "Soyapango"] },
-        { q: "What is the capital of Nicaragua?", a: "Managua", wrong: ["León", "Granada", "Masaya"] },
-        { q: "What is the capital of Costa Rica?", a: "San José", wrong: ["Alajuela", "Cartago", "Heredia"] },
-        { q: "What is the capital of Panama?", a: "Panama City", wrong: ["Colón", "David", "Santiago"] },
-        { q: "What is the capital of Belize?", a: "Belmopan", wrong: ["Belize City", "San Ignacio", "Orange Walk"] },
-        { q: "What is the capital of Grenada?", a: "St. George's", wrong: ["Gouyave", "Grenville", "Victoria"] },
-        { q: "What is the capital of Saint Lucia?", a: "Castries", wrong: ["Vieux Fort", "Soufrière", "Micoud"] },
-        { q: "What is the capital of Dominica?", a: "Roseau", wrong: ["Portsmouth", "Marigot", "Berekua"] },
-        { q: "What is the capital of Saint Vincent?", a: "Kingstown", wrong: ["Georgetown", "Barrouallie", "Layou"] },
-        { q: "What is the capital of Antigua and Barbuda?", a: "St. John's", wrong: ["All Saints", "Liberta", "Potters Village"] },
-        { q: "What is the capital of Saint Kitts and Nevis?", a: "Basseterre", wrong: ["Charlestown", "Sandy Point", "Dieppe Bay"] },
-        
-        // OCEANIA (15+)
-        { q: "What is the capital of Australia?", a: "Canberra", wrong: ["Sydney", "Melbourne", "Brisbane"] },
-        { q: "What is the capital of New Zealand?", a: "Wellington", wrong: ["Auckland", "Christchurch", "Hamilton"] },
-        { q: "What is the capital of Papua New Guinea?", a: "Port Moresby", wrong: ["Lae", "Mount Hagen", "Madang"] },
-        { q: "What is the capital of Fiji?", a: "Suva", wrong: ["Nadi", "Lautoka", "Labasa"] },
-        { q: "What is the capital of Solomon Islands?", a: "Honiara", wrong: ["Gizo", "Auki", "Tulagi"] },
-        { q: "What is the capital of Vanuatu?", a: "Port Vila", wrong: ["Luganville", "Isangel", "Sola"] },
-        { q: "What is the capital of Samoa?", a: "Apia", wrong: ["Vaitele", "Faleula", "Siusega"] },
-        { q: "What is the capital of Tonga?", a: "Nukuʻalofa", wrong: ["Neiafu", "Haveluloto", "Vaini"] },
-        { q: "What is the capital of Kiribati?", a: "South Tarawa", wrong: ["Betio", "Bairiki", "Bikenibeu"] },
-        { q: "What is the capital of Micronesia?", a: "Palikir", wrong: ["Weno", "Kolonia", "Tofol"] },
-        { q: "What is the capital of Marshall Islands?", a: "Majuro", wrong: ["Ebeye", "Jabor", "Wotje"] },
-        { q: "What is the capital of Palau?", a: "Ngerulmud", wrong: ["Koror", "Airai", "Melekeok"] },
-        { q: "What is the capital of Nauru?", a: "Yaren", wrong: ["Denigomodu", "Meneng", "Aiwo"] },
-        { q: "What is the capital of Tuvalu?", a: "Funafuti", wrong: ["Vaiaku", "Nanumea", "Nukufetau"] }
-    ],
+                flags: [
+                    // EUROPE
+                    { q: "fr", a: "France", wrong: ["Belgium", "Netherlands", "Italy"], isFlag: true },
+                    { q: "de", a: "Germany", wrong: ["Belgium", "Austria", "Luxembourg"], isFlag: true },
+                    { q: "it", a: "Italy", wrong: ["Ireland", "Mexico", "Hungary"], isFlag: true },
+                    { q: "es", a: "Spain", wrong: ["Portugal", "Andorra", "Monaco"], isFlag: true },
+                    { q: "gb", a: "United Kingdom", wrong: ["Australia", "New Zealand", "Fiji"], isFlag: true },
+                    { q: "pt", a: "Portugal", wrong: ["Brazil", "Angola", "Mozambique"], isFlag: true },
+                    { q: "nl", a: "Netherlands", wrong: ["Luxembourg", "France", "Russia"], isFlag: true },
+                    { q: "be", a: "Belgium", wrong: ["Germany", "Chad", "Mali"], isFlag: true },
+                    { q: "ch", a: "Switzerland", wrong: ["Denmark", "Austria", "Georgia"], isFlag: true },
+                    { q: "at", a: "Austria", wrong: ["Latvia", "Lebanon", "Poland"], isFlag: true },
+                    { q: "pl", a: "Poland", wrong: ["Monaco", "Indonesia", "Singapore"], isFlag: true },
+                    { q: "cz", a: "Czech Republic", wrong: ["Philippines", "Cuba", "Puerto Rico"], isFlag: true },
+                    { q: "hu", a: "Hungary", wrong: ["Italy", "Bulgaria", "Tajikistan"], isFlag: true },
+                    { q: "ro", a: "Romania", wrong: ["Chad", "Moldova", "Andorra"], isFlag: true },
+                    { q: "bg", a: "Bulgaria", wrong: ["Hungary", "Italy", "Russia"], isFlag: true },
+                    { q: "gr", a: "Greece", wrong: ["Uruguay", "Israel", "El Salvador"], isFlag: true },
+                    { q: "se", a: "Sweden", wrong: ["Finland", "Ukraine", "Estonia"], isFlag: true },
+                    { q: "no", a: "Norway", wrong: ["Iceland", "Denmark", "Finland"], isFlag: true },
+                    { q: "dk", a: "Denmark", wrong: ["Switzerland", "Sweden", "England"], isFlag: true },
+                    { q: "fi", a: "Finland", wrong: ["Sweden", "Iceland", "Estonia"], isFlag: true },
+                    { q: "ie", a: "Ireland", wrong: ["Italy", "Ivory Coast", "India"], isFlag: true },
+                    { q: "is", a: "Iceland", wrong: ["Norway", "Sweden", "Australia"], isFlag: true },
+                    { q: "ru", a: "Russia", wrong: ["Netherlands", "Serbia", "Slovakia"], isFlag: true },
+                    { q: "ua", a: "Ukraine", wrong: ["Sweden", "Palau", "Rwanda"], isFlag: true },
+                    { q: "rs", a: "Serbia", wrong: ["Slovakia", "Slovenia", "Russia"], isFlag: true },
+                    { q: "hr", a: "Croatia", wrong: ["Slovakia", "Serbia", "Czech Republic"], isFlag: true },
+                    { q: "si", a: "Slovenia", wrong: ["Slovakia", "Russia", "Serbia"], isFlag: true },
+                    { q: "sk", a: "Slovakia", wrong: ["Slovenia", "Russia", "Serbia"], isFlag: true },
+                    { q: "lt", a: "Lithuania", wrong: ["Myanmar", "Bolivia", "Colombia"], isFlag: true },
+                    { q: "lv", a: "Latvia", wrong: ["Austria", "Lebanon", "Poland"], isFlag: true },
+                    { q: "ee", a: "Estonia", wrong: ["Botswana", "Honduras", "Nicaragua"], isFlag: true },
+                    { q: "al", a: "Albania", wrong: ["Turkey", "Montenegro", "Kosovo"], isFlag: true },
+                    { q: "me", a: "Montenegro", wrong: ["Serbia", "Albania", "Bosnia"], isFlag: true },
+                    { q: "lu", a: "Luxembourg", wrong: ["Netherlands", "Paraguay", "Argentina"], isFlag: true },
+                    { q: "mt", a: "Malta", wrong: ["Monaco", "Singapore", "Indonesia"], isFlag: true },
+                    { q: "cy", a: "Cyprus", wrong: ["Kosovo", "Turkey", "Greece"], isFlag: true },
+                    
+                    // ASIA
+                    { q: "jp", a: "Japan", wrong: ["Bangladesh", "Palau", "Greenland"], isFlag: true },
+                    { q: "cn", a: "China", wrong: ["Vietnam", "Turkey", "Morocco"], isFlag: true },
+                    { q: "in", a: "India", wrong: ["Niger", "Ireland", "Ivory Coast"], isFlag: true },
+                    { q: "kr", a: "South Korea", wrong: ["North Korea", "Taiwan", "Japan"], isFlag: true },
+                    { q: "kp", a: "North Korea", wrong: ["South Korea", "Laos", "Vietnam"], isFlag: true },
+                    { q: "vn", a: "Vietnam", wrong: ["China", "Morocco", "Turkey"], isFlag: true },
+                    { q: "th", a: "Thailand", wrong: ["Costa Rica", "Netherlands", "Paraguay"], isFlag: true },
+                    { q: "id", a: "Indonesia", wrong: ["Monaco", "Poland", "Singapore"], isFlag: true },
+                    { q: "my", a: "Malaysia", wrong: ["United States", "Liberia", "Puerto Rico"], isFlag: true },
+                    { q: "sg", a: "Singapore", wrong: ["Indonesia", "Poland", "Monaco"], isFlag: true },
+                    { q: "ph", a: "Philippines", wrong: ["Czech Republic", "Cuba", "Puerto Rico"], isFlag: true },
+                    { q: "mm", a: "Myanmar", wrong: ["Lithuania", "Bolivia", "Ghana"], isFlag: true },
+                    { q: "kh", a: "Cambodia", wrong: ["Thailand", "Laos", "Vietnam"], isFlag: true },
+                    { q: "la", a: "Laos", wrong: ["Thailand", "Cambodia", "North Korea"], isFlag: true },
+                    { q: "bd", a: "Bangladesh", wrong: ["Japan", "Palau", "Greenland"], isFlag: true },
+                    { q: "pk", a: "Pakistan", wrong: ["Algeria", "Turkey", "Azerbaijan"], isFlag: true },
+                    { q: "np", a: "Nepal", wrong: ["Sri Lanka", "Bhutan", "Bangladesh"], isFlag: true },
+                    { q: "bt", a: "Bhutan", wrong: ["Sri Lanka", "Nepal", "Cambodia"], isFlag: true },
+                    { q: "lk", a: "Sri Lanka", wrong: ["Bangladesh", "Maldives", "Nepal"], isFlag: true },
+                    { q: "mn", a: "Mongolia", wrong: ["Kazakhstan", "Kyrgyzstan", "Tajikistan"], isFlag: true },
+                    { q: "kz", a: "Kazakhstan", wrong: ["Palau", "Rwanda", "Ukraine"], isFlag: true },
+                    { q: "uz", a: "Uzbekistan", wrong: ["Kazakhstan", "Turkmenistan", "Tajikistan"], isFlag: true },
+                    { q: "ir", a: "Iran", wrong: ["India", "Hungary", "Italy"], isFlag: true },
+                    { q: "iq", a: "Iraq", wrong: ["Egypt", "Syria", "Yemen"], isFlag: true },
+                    { q: "sa", a: "Saudi Arabia", wrong: ["Algeria", "Libya", "Mauritania"], isFlag: true },
+                    { q: "ae", a: "United Arab Emirates", wrong: ["Kuwait", "Jordan", "Palestine"], isFlag: true },
+                    { q: "qa", a: "Qatar", wrong: ["Bahrain", "Turkey", "Morocco"], isFlag: true },
+                    { q: "kw", a: "Kuwait", wrong: ["UAE", "Jordan", "Palestine"], isFlag: true },
+                    { q: "jo", a: "Jordan", wrong: ["Palestine", "Kuwait", "UAE"], isFlag: true },
+                    { q: "lb", a: "Lebanon", wrong: ["Austria", "Latvia", "Singapore"], isFlag: true },
+                    { q: "il", a: "Israel", wrong: ["Greece", "Honduras", "El Salvador"], isFlag: true },
+                    { q: "tr", a: "Turkey", wrong: ["Tunisia", "Algeria", "Singapore"], isFlag: true },
+                    { q: "tw", a: "Taiwan", wrong: ["China", "Japan", "South Korea"], isFlag: true },
+                    
+                    // AFRICA
+                    { q: "eg", a: "Egypt", wrong: ["Syria", "Iraq", "Yemen"], isFlag: true },
+                    { q: "za", a: "South Africa", wrong: ["Kenya", "Nigeria", "Ethiopia"], isFlag: true },
+                    { q: "ng", a: "Nigeria", wrong: ["India", "Ireland", "Niger"], isFlag: true },
+                    { q: "ke", a: "Kenya", wrong: ["South Africa", "Tanzania", "Uganda"], isFlag: true },
+                    { q: "ma", a: "Morocco", wrong: ["Algeria", "Tunisia", "Libya"], isFlag: true },
+                    { q: "dz", a: "Algeria", wrong: ["Morocco", "Tunisia", "Pakistan"], isFlag: true },
+                    { q: "tn", a: "Tunisia", wrong: ["Turkey", "Singapore", "Morocco"], isFlag: true },
+                    { q: "et", a: "Ethiopia", wrong: ["Ghana", "Senegal", "Cameroon"], isFlag: true },
+                    { q: "tz", a: "Tanzania", wrong: ["Kenya", "Uganda", "Rwanda"], isFlag: true },
+                    { q: "ug", a: "Uganda", wrong: ["Kenya", "Tanzania", "Rwanda"], isFlag: true },
+                    { q: "rw", a: "Rwanda", wrong: ["Burundi", "Uganda", "Tanzania"], isFlag: true },
+                    { q: "gh", a: "Ghana", wrong: ["Ethiopia", "Senegal", "Cameroon"], isFlag: true },
+                    { q: "ci", a: "Ivory Coast", wrong: ["Ireland", "India", "Italy"], isFlag: true },
+                    { q: "sn", a: "Senegal", wrong: ["Mali", "Cameroon", "Guinea"], isFlag: true },
+                    { q: "cm", a: "Cameroon", wrong: ["Senegal", "Mali", "Guinea"], isFlag: true },
+                    { q: "cd", a: "DR Congo", wrong: ["Republic of Congo", "CAR", "Gabon"], isFlag: true },
+                    { q: "ao", a: "Angola", wrong: ["Mozambique", "Zambia", "Zimbabwe"], isFlag: true },
+                    { q: "zw", a: "Zimbabwe", wrong: ["Zambia", "Mozambique", "Angola"], isFlag: true },
+                    { q: "zm", a: "Zambia", wrong: ["Zimbabwe", "Mozambique", "Angola"], isFlag: true },
+                    { q: "bw", a: "Botswana", wrong: ["Estonia", "Namibia", "Lesotho"], isFlag: true },
+                    { q: "na", a: "Namibia", wrong: ["South Africa", "Botswana", "Zimbabwe"], isFlag: true },
+                    { q: "mg", a: "Madagascar", wrong: ["Mozambique", "Tanzania", "Kenya"], isFlag: true },
+                    
+                    // AMERICAS
+                    { q: "us", a: "United States", wrong: ["Liberia", "Malaysia", "Chile"], isFlag: true },
+                    { q: "ca", a: "Canada", wrong: ["Peru", "Lebanon", "Switzerland"], isFlag: true },
+                    { q: "mx", a: "Mexico", wrong: ["Italy", "Hungary", "Ireland"], isFlag: true },
+                    { q: "br", a: "Brazil", wrong: ["Portugal", "Angola", "Cape Verde"], isFlag: true },
+                    { q: "ar", a: "Argentina", wrong: ["Uruguay", "El Salvador", "Honduras"], isFlag: true },
+                    { q: "cl", a: "Chile", wrong: ["Texas", "Liberia", "Cuba"], isFlag: true },
+                    { q: "pe", a: "Peru", wrong: ["Canada", "Lebanon", "Austria"], isFlag: true },
+                    { q: "co", a: "Colombia", wrong: ["Ecuador", "Venezuela", "Romania"], isFlag: true },
+                    { q: "ve", a: "Venezuela", wrong: ["Colombia", "Ecuador", "Lithuania"], isFlag: true },
+                    { q: "ec", a: "Ecuador", wrong: ["Colombia", "Venezuela", "Armenia"], isFlag: true },
+                    { q: "bo", a: "Bolivia", wrong: ["Ghana", "Lithuania", "Myanmar"], isFlag: true },
+                    { q: "py", a: "Paraguay", wrong: ["Netherlands", "Croatia", "Serbia"], isFlag: true },
+                    { q: "uy", a: "Uruguay", wrong: ["Argentina", "Greece", "El Salvador"], isFlag: true },
+                    { q: "cu", a: "Cuba", wrong: ["Puerto Rico", "Chile", "Czech Republic"], isFlag: true },
+                    { q: "jm", a: "Jamaica", wrong: ["Bahamas", "Barbados", "Trinidad"], isFlag: true },
+                    { q: "do", a: "Dominican Republic", wrong: ["Haiti", "Cuba", "Puerto Rico"], isFlag: true },
+                    { q: "gt", a: "Guatemala", wrong: ["Honduras", "El Salvador", "Nicaragua"], isFlag: true },
+                    { q: "hn", a: "Honduras", wrong: ["Guatemala", "El Salvador", "Nicaragua"], isFlag: true },
+                    { q: "sv", a: "El Salvador", wrong: ["Honduras", "Guatemala", "Nicaragua"], isFlag: true },
+                    { q: "ni", a: "Nicaragua", wrong: ["Honduras", "El Salvador", "Costa Rica"], isFlag: true },
+                    { q: "cr", a: "Costa Rica", wrong: ["Thailand", "Netherlands", "Paraguay"], isFlag: true },
+                    { q: "pa", a: "Panama", wrong: ["Colombia", "Costa Rica", "Nicaragua"], isFlag: true },
+                    
+                    // OCEANIA
+                    { q: "au", a: "Australia", wrong: ["New Zealand", "UK", "Fiji"], isFlag: true },
+                    { q: "nz", a: "New Zealand", wrong: ["Australia", "UK", "Fiji"], isFlag: true },
+                    { q: "pg", a: "Papua New Guinea", wrong: ["Indonesia", "Fiji", "Vanuatu"], isFlag: true },
+                    { q: "fj", a: "Fiji", wrong: ["Tuvalu", "Samoa", "Tonga"], isFlag: true },
+                    { q: "ws", a: "Samoa", wrong: ["Tonga", "Fiji", "Tuvalu"], isFlag: true },
+                    { q: "to", a: "Tonga", wrong: ["Samoa", "Fiji", "Tuvalu"], isFlag: true }
+                ],
 
-    flags: [
-        // EUROPE
-        { q: "fr", a: "France", wrong: ["Belgium", "Netherlands", "Italy"], isFlag: true },
-        { q: "de", a: "Germany", wrong: ["Belgium", "Austria", "Luxembourg"], isFlag: true },
-        { q: "it", a: "Italy", wrong: ["Ireland", "Mexico", "Hungary"], isFlag: true },
-        { q: "es", a: "Spain", wrong: ["Portugal", "Andorra", "Monaco"], isFlag: true },
-        { q: "gb", a: "United Kingdom", wrong: ["Australia", "New Zealand", "Fiji"], isFlag: true },
-        { q: "pt", a: "Portugal", wrong: ["Brazil", "Angola", "Mozambique"], isFlag: true },
-        { q: "nl", a: "Netherlands", wrong: ["Luxembourg", "France", "Russia"], isFlag: true },
-        { q: "be", a: "Belgium", wrong: ["Germany", "Chad", "Mali"], isFlag: true },
-        { q: "ch", a: "Switzerland", wrong: ["Denmark", "Austria", "Georgia"], isFlag: true },
-        { q: "at", a: "Austria", wrong: ["Latvia", "Lebanon", "Poland"], isFlag: true },
-        { q: "pl", a: "Poland", wrong: ["Monaco", "Indonesia", "Singapore"], isFlag: true },
-        { q: "cz", a: "Czech Republic", wrong: ["Philippines", "Cuba", "Puerto Rico"], isFlag: true },
-        { q: "hu", a: "Hungary", wrong: ["Italy", "Bulgaria", "Tajikistan"], isFlag: true },
-        { q: "ro", a: "Romania", wrong: ["Chad", "Moldova", "Andorra"], isFlag: true },
-        { q: "bg", a: "Bulgaria", wrong: ["Hungary", "Italy", "Russia"], isFlag: true },
-        { q: "gr", a: "Greece", wrong: ["Uruguay", "Israel", "El Salvador"], isFlag: true },
-        { q: "se", a: "Sweden", wrong: ["Finland", "Ukraine", "Estonia"], isFlag: true },
-        { q: "no", a: "Norway", wrong: ["Iceland", "Denmark", "Finland"], isFlag: true },
-        { q: "dk", a: "Denmark", wrong: ["Switzerland", "Sweden", "England"], isFlag: true },
-        { q: "fi", a: "Finland", wrong: ["Sweden", "Iceland", "Estonia"], isFlag: true },
-        { q: "ie", a: "Ireland", wrong: ["Italy", "Ivory Coast", "India"], isFlag: true },
-        { q: "is", a: "Iceland", wrong: ["Norway", "Sweden", "Australia"], isFlag: true },
-        { q: "ru", a: "Russia", wrong: ["Netherlands", "Serbia", "Slovakia"], isFlag: true },
-        { q: "ua", a: "Ukraine", wrong: ["Sweden", "Palau", "Rwanda"], isFlag: true },
-        { q: "by", a: "Belarus", wrong: ["Oman", "Bulgaria", "Lithuania"], isFlag: true },
-        { q: "rs", a: "Serbia", wrong: ["Slovakia", "Slovenia", "Russia"], isFlag: true },
-        { q: "hr", a: "Croatia", wrong: ["Slovakia", "Serbia", "Czech Republic"], isFlag: true },
-        { q: "si", a: "Slovenia", wrong: ["Slovakia", "Russia", "Serbia"], isFlag: true },
-        { q: "sk", a: "Slovakia", wrong: ["Slovenia", "Russia", "Serbia"], isFlag: true },
-        { q: "lt", a: "Lithuania", wrong: ["Myanmar", "Bolivia", "Colombia"], isFlag: true },
-        { q: "lv", a: "Latvia", wrong: ["Austria", "Lebanon", "Poland"], isFlag: true },
-        { q: "ee", a: "Estonia", wrong: ["Botswana", "Honduras", "Nicaragua"], isFlag: true },
-        { q: "al", a: "Albania", wrong: ["Turkey", "Montenegro", "Kosovo"], isFlag: true },
-        { q: "mk", a: "North Macedonia", wrong: ["Kyrgyzstan", "Japan", "Bangladesh"], isFlag: true },
-        { q: "me", a: "Montenegro", wrong: ["Serbia", "Albania", "Bosnia"], isFlag: true },
-        { q: "ba", a: "Bosnia and Herzegovina", wrong: ["Liechtenstein", "Slovenia", "Kosovo"], isFlag: true },
-        { q: "md", a: "Moldova", wrong: ["Romania", "Andorra", "Chad"], isFlag: true },
-        { q: "lu", a: "Luxembourg", wrong: ["Netherlands", "Paraguay", "Argentina"], isFlag: true },
-        { q: "mt", a: "Malta", wrong: ["Monaco", "Singapore", "Indonesia"], isFlag: true },
-        { q: "cy", a: "Cyprus", wrong: ["Kosovo", "Turkey", "Greece"], isFlag: true },
-        { q: "mc", a: "Monaco", wrong: ["Indonesia", "Poland", "Singapore"], isFlag: true },
-        { q: "ad", a: "Andorra", wrong: ["Moldova", "Romania", "Chad"], isFlag: true },
-        { q: "sm", a: "San Marino", wrong: ["Argentina", "Guatemala", "Honduras"], isFlag: true },
-        { q: "li", a: "Liechtenstein", wrong: ["Haiti", "Philippines", "Czech Republic"], isFlag: true },
-        { q: "va", a: "Vatican City", wrong: ["Malta", "Switzerland", "Monaco"], isFlag: true },
-        
-        // ASIA
-        { q: "jp", a: "Japan", wrong: ["Bangladesh", "Palau", "Greenland"], isFlag: true },
-        { q: "cn", a: "China", wrong: ["Vietnam", "Turkey", "Morocco"], isFlag: true },
-        { q: "in", a: "India", wrong: ["Niger", "Ireland", "Ivory Coast"], isFlag: true },
-        { q: "kr", a: "South Korea", wrong: ["North Korea", "Taiwan", "Japan"], isFlag: true },
-        { q: "kp", a: "North Korea", wrong: ["South Korea", "Laos", "Vietnam"], isFlag: true },
-        { q: "vn", a: "Vietnam", wrong: ["China", "Morocco", "Turkey"], isFlag: true },
-        { q: "th", a: "Thailand", wrong: ["Costa Rica", "Netherlands", "Paraguay"], isFlag: true },
-        { q: "id", a: "Indonesia", wrong: ["Monaco", "Poland", "Singapore"], isFlag: true },
-        { q: "my", a: "Malaysia", wrong: ["United States", "Liberia", "Puerto Rico"], isFlag: true },
-        { q: "sg", a: "Singapore", wrong: ["Indonesia", "Poland", "Monaco"], isFlag: true },
-        { q: "ph", a: "Philippines", wrong: ["Czech Republic", "Cuba", "Puerto Rico"], isFlag: true },
-        { q: "mm", a: "Myanmar", wrong: ["Lithuania", "Bolivia", "Ghana"], isFlag: true },
-        { q: "kh", a: "Cambodia", wrong: ["Thailand", "Laos", "Vietnam"], isFlag: true },
-        { q: "la", a: "Laos", wrong: ["Thailand", "Cambodia", "North Korea"], isFlag: true },
-        { q: "bd", a: "Bangladesh", wrong: ["Japan", "Palau", "Greenland"], isFlag: true },
-        { q: "pk", a: "Pakistan", wrong: ["Algeria", "Turkey", "Azerbaijan"], isFlag: true },
-        { q: "af", a: "Afghanistan", wrong: ["Tajikistan", "Turkmenistan", "Uzbekistan"], isFlag: true },
-        { q: "np", a: "Nepal", wrong: ["Sri Lanka", "Bhutan", "Bangladesh"], isFlag: true },
-        { q: "bt", a: "Bhutan", wrong: ["Sri Lanka", "Nepal", "Cambodia"], isFlag: true },
-        { q: "lk", a: "Sri Lanka", wrong: ["Bangladesh", "Maldives", "Nepal"], isFlag: true },
-        { q: "mv", a: "Maldives", wrong: ["Pakistan", "Singapore", "Bangladesh"], isFlag: true },
-        { q: "mn", a: "Mongolia", wrong: ["Kazakhstan", "Kyrgyzstan", "Tajikistan"], isFlag: true },
-        { q: "kz", a: "Kazakhstan", wrong: ["Palau", "Rwanda", "Ukraine"], isFlag: true },
-        { q: "uz", a: "Uzbekistan", wrong: ["Kazakhstan", "Turkmenistan", "Tajikistan"], isFlag: true },
-        { q: "tm", a: "Turkmenistan", wrong: ["Uzbekistan", "Tajikistan", "Kyrgyzstan"], isFlag: true },
-        { q: "tj", a: "Tajikistan", wrong: ["Hungary", "Bulgaria", "Serbia"], isFlag: true },
-        { q: "kg", a: "Kyrgyzstan", wrong: ["Turkey", "Malaysia", "Brunei"], isFlag: true },
-        { q: "az", a: "Azerbaijan", wrong: ["Turkey", "Pakistan", "Turkmenistan"], isFlag: true },
-        { q: "ge", a: "Georgia", wrong: ["Denmark", "England", "Switzerland"], isFlag: true },
-        { q: "am", a: "Armenia", wrong: ["Colombia", "Bulgaria", "Lithuania"], isFlag: true },
-        { q: "ir", a: "Iran", wrong: ["India", "Hungary", "Italy"], isFlag: true },
-        { q: "iq", a: "Iraq", wrong: ["Egypt", "Syria", "Yemen"], isFlag: true },
-        { q: "sa", a: "Saudi Arabia", wrong: ["Algeria", "Libya", "Mauritania"], isFlag: true },
-        { q: "ae", a: "United Arab Emirates", wrong: ["Kuwait", "Jordan", "Palestine"], isFlag: true },
-        { q: "qa", a: "Qatar", wrong: ["Bahrain", "Turkey", "Morocco"], isFlag: true },
-        { q: "kw", a: "Kuwait", wrong: ["UAE", "Jordan", "Palestine"], isFlag: true },
-        { q: "bh", a: "Bahrain", wrong: ["Qatar", "Morocco", "Turkey"], isFlag: true },
-        { q: "om", a: "Oman", wrong: ["Belarus", "Bulgaria", "Hungary"], isFlag: true },
-        { q: "ye", a: "Yemen", wrong: ["Syria", "Egypt", "Iraq"], isFlag: true },
-        { q: "jo", a: "Jordan", wrong: ["Palestine", "Kuwait", "UAE"], isFlag: true },
-        { q: "lb", a: "Lebanon", wrong: ["Austria", "Latvia", "Singapore"], isFlag: true },
-        { q: "sy", a: "Syria", wrong: ["Iraq", "Egypt", "Yemen"], isFlag: true },
-        { q: "il", a: "Israel", wrong: ["Greece", "Honduras", "El Salvador"], isFlag: true },
-        { q: "tr", a: "Turkey", wrong: ["Tunisia", "Algeria", "Singapore"], isFlag: true },
-        { q: "tw", a: "Taiwan", wrong: ["China", "Japan", "South Korea"], isFlag: true },
-        { q: "bn", a: "Brunei", wrong: ["Malaysia", "Singapore", "Indonesia"], isFlag: true },
-        { q: "tl", a: "East Timor", wrong: ["Indonesia", "Portugal", "Brazil"], isFlag: true },
-        
-        // AFRICA
-        { q: "eg", a: "Egypt", wrong: ["Syria", "Iraq", "Yemen"], isFlag: true },
-        { q: "za", a: "South Africa", wrong: ["Kenya", "Nigeria", "Ethiopia"], isFlag: true },
-        { q: "ng", a: "Nigeria", wrong: ["India", "Ireland", "Niger"], isFlag: true },
-        { q: "ke", a: "Kenya", wrong: ["South Africa", "Tanzania", "Uganda"], isFlag: true },
-        { q: "ma", a: "Morocco", wrong: ["Algeria", "Tunisia", "Libya"], isFlag: true },
-        { q: "dz", a: "Algeria", wrong: ["Morocco", "Tunisia", "Pakistan"], isFlag: true },
-        { q: "tn", a: "Tunisia", wrong: ["Turkey", "Singapore", "Morocco"], isFlag: true },
-        { q: "ly", a: "Libya", wrong: ["Egypt", "Syria", "Iraq"], isFlag: true },
-        { q: "et", a: "Ethiopia", wrong: ["Ghana", "Senegal", "Cameroon"], isFlag: true },
-        { q: "tz", a: "Tanzania", wrong: ["Kenya", "Uganda", "Rwanda"], isFlag: true },
-        { q: "ug", a: "Uganda", wrong: ["Kenya", "Tanzania", "Rwanda"], isFlag: true },
-        { q: "rw", a: "Rwanda", wrong: ["Burundi", "Uganda", "Tanzania"], isFlag: true },
-        { q: "gh", a: "Ghana", wrong: ["Ethiopia", "Senegal", "Cameroon"], isFlag: true },
-        { q: "ci", a: "Ivory Coast", wrong: ["Ireland", "India", "Italy"], isFlag: true },
-        { q: "sn", a: "Senegal", wrong: ["Mali", "Cameroon", "Guinea"], isFlag: true },
-        { q: "cm", a: "Cameroon", wrong: ["Senegal", "Mali", "Guinea"], isFlag: true },
-        { q: "cd", a: "DR Congo", wrong: ["Republic of Congo", "CAR", "Gabon"], isFlag: true },
-        { q: "ao", a: "Angola", wrong: ["Mozambique", "Zambia", "Zimbabwe"], isFlag: true },
-        { q: "mz", a: "Mozambique", wrong: ["Angola", "Zambia", "Zimbabwe"], isFlag: true },
-        { q: "zw", a: "Zimbabwe", wrong: ["Zambia", "Mozambique", "Angola"], isFlag: true },
-        { q: "zm", a: "Zambia", wrong: ["Zimbabwe", "Mozambique", "Angola"], isFlag: true },
-        { q: "bw", a: "Botswana", wrong: ["Estonia", "Namibia", "Lesotho"], isFlag: true },
-        { q: "na", a: "Namibia", wrong: ["South Africa", "Botswana", "Zimbabwe"], isFlag: true },
-        { q: "mg", a: "Madagascar", wrong: ["Mozambique", "Tanzania", "Kenya"], isFlag: true },
-        { q: "mu", a: "Mauritius", wrong: ["Madagascar", "Seychelles", "Comoros"], isFlag: true },
-        { q: "sc", a: "Seychelles", wrong: ["Mauritius", "Madagascar", "Comoros"], isFlag: true },
-        { q: "sd", a: "Sudan", wrong: ["South Sudan", "Ethiopia", "Egypt"], isFlag: true },
-        { q: "ss", a: "South Sudan", wrong: ["Sudan", "Ethiopia", "Kenya"], isFlag: true },
-        { q: "so", a: "Somalia", wrong: ["Djibouti", "Ethiopia", "Kenya"], isFlag: true },
-        { q: "er", a: "Eritrea", wrong: ["Ethiopia", "Djibouti", "Somalia"], isFlag: true },
-        { q: "dj", a: "Djibouti", wrong: ["Somalia", "Eritrea", "Ethiopia"], isFlag: true },
-        { q: "ml", a: "Mali", wrong: ["Senegal", "Guinea", "Burkina Faso"], isFlag: true },
-        { q: "ne", a: "Niger", wrong: ["Nigeria", "Mali", "Chad"], isFlag: true },
-        { q: "td", a: "Chad", wrong: ["Romania", "Mali", "Niger"], isFlag: true },
-        { q: "bf", a: "Burkina Faso", wrong: ["Ghana", "Mali", "Niger"], isFlag: true },
-        { q: "bj", a: "Benin", wrong: ["Togo", "Ghana", "Nigeria"], isFlag: true },
-        { q: "tg", a: "Togo", wrong: ["Benin", "Ghana", "Ivory Coast"], isFlag: true },
-        { q: "lr", a: "Liberia", wrong: ["United States", "Malaysia", "Myanmar"], isFlag: true },
-        { q: "sl", a: "Sierra Leone", wrong: ["Liberia", "Guinea", "Gambia"], isFlag: true },
-        { q: "gn", a: "Guinea", wrong: ["Mali", "Senegal", "Guinea-Bissau"], isFlag: true },
-        { q: "gw", a: "Guinea-Bissau", wrong: ["Guinea", "Senegal", "Gambia"], isFlag: true },
-        { q: "gm", a: "Gambia", wrong: ["Senegal", "Guinea-Bissau", "Sierra Leone"], isFlag: true },
-        { q: "mr", a: "Mauritania", wrong: ["Algeria", "Mali", "Morocco"], isFlag: true },
-        { q: "ga", a: "Gabon", wrong: ["Republic of Congo", "Cameroon", "CAR"], isFlag: true },
-        { q: "cg", a: "Republic of Congo", wrong: ["DR Congo", "Gabon", "CAR"], isFlag: true },
-        { q: "cf", a: "Central African Republic", wrong: ["Chad", "Cameroon", "DR Congo"], isFlag: true },
-        { q: "gq", a: "Equatorial Guinea", wrong: ["Guinea", "Guinea-Bissau", "Cameroon"], isFlag: true },
-        { q: "st", a: "São Tomé and Príncipe", wrong: ["Cape Verde", "Comoros", "Seychelles"], isFlag: true },
-        { q: "cv", a: "Cape Verde", wrong: ["São Tomé", "Comoros", "Seychelles"], isFlag: true },
-        { q: "km", a: "Comoros", wrong: ["Madagascar", "Mauritius", "Seychelles"], isFlag: true },
-        { q: "ls", a: "Lesotho", wrong: ["Botswana", "Eswatini", "Namibia"], isFlag: true },
-        { q: "sz", a: "Eswatini", wrong: ["Lesotho", "Botswana", "South Africa"], isFlag: true },
-        { q: "mw", a: "Malawi", wrong: ["Zambia", "Zimbabwe", "Mozambique"], isFlag: true },
-        { q: "bi", a: "Burundi", wrong: ["Rwanda", "Uganda", "Tanzania"], isFlag: true },
-        
-        // AMERICAS
-        { q: "us", a: "United States", wrong: ["Liberia", "Malaysia", "Chile"], isFlag: true },
-        { q: "ca", a: "Canada", wrong: ["Peru", "Lebanon", "Switzerland"], isFlag: true },
-        { q: "mx", a: "Mexico", wrong: ["Italy", "Hungary", "Ireland"], isFlag: true },
-        { q: "br", a: "Brazil", wrong: ["Portugal", "Angola", "Cape Verde"], isFlag: true },
-        { q: "ar", a: "Argentina", wrong: ["Uruguay", "El Salvador", "Honduras"], isFlag: true },
-        { q: "cl", a: "Chile", wrong: ["Texas", "Liberia", "Cuba"], isFlag: true },
-        { q: "pe", a: "Peru", wrong: ["Canada", "Lebanon", "Austria"], isFlag: true },
-        { q: "co", a: "Colombia", wrong: ["Ecuador", "Venezuela", "Romania"], isFlag: true },
-        { q: "ve", a: "Venezuela", wrong: ["Colombia", "Ecuador", "Lithuania"], isFlag: true },
-        { q: "ec", a: "Ecuador", wrong: ["Colombia", "Venezuela", "Armenia"], isFlag: true },
-        { q: "bo", a: "Bolivia", wrong: ["Ghana", "Lithuania", "Myanmar"], isFlag: true },
-        { q: "py", a: "Paraguay", wrong: ["Netherlands", "Croatia", "Serbia"], isFlag: true },
-        { q: "uy", a: "Uruguay", wrong: ["Argentina", "Greece", "El Salvador"], isFlag: true },
-        { q: "gy", a: "Guyana", wrong: ["Ghana", "Jamaica", "Barbados"], isFlag: true },
-        { q: "sr", a: "Suriname", wrong: ["Guyana", "French Guiana", "Brazil"], isFlag: true },
-        { q: "cu", a: "Cuba", wrong: ["Puerto Rico", "Chile", "Czech Republic"], isFlag: true },
-        { q: "jm", a: "Jamaica", wrong: ["Bahamas", "Barbados", "Trinidad"], isFlag: true },
-        { q: "ht", a: "Haiti", wrong: ["Liechtenstein", "Philippines", "Panama"], isFlag: true },
-        { q: "do", a: "Dominican Republic", wrong: ["Haiti", "Cuba", "Puerto Rico"], isFlag: true },
-        { q: "pr", a: "Puerto Rico", wrong: ["Cuba", "Chile", "Czech Republic"], isFlag: true },
-        { q: "tt", a: "Trinidad and Tobago", wrong: ["Barbados", "Jamaica", "Bahamas"], isFlag: true },
-        { q: "bs", a: "Bahamas", wrong: ["Argentina", "Jamaica", "Barbados"], isFlag: true },
-        { q: "bb", a: "Barbados", wrong: ["Ukraine", "Armenia", "Jamaica"], isFlag: true },
-        { q: "gt", a: "Guatemala", wrong: ["Honduras", "El Salvador", "Nicaragua"], isFlag: true },
-        { q: "hn", a: "Honduras", wrong: ["Guatemala", "El Salvador", "Nicaragua"], isFlag: true },
-        { q: "sv", a: "El Salvador", wrong: ["Honduras", "Guatemala", "Nicaragua"], isFlag: true },
-        { q: "ni", a: "Nicaragua", wrong: ["Honduras", "El Salvador", "Costa Rica"], isFlag: true },
-        { q: "cr", a: "Costa Rica", wrong: ["Thailand", "Netherlands", "Paraguay"], isFlag: true },
-        { q: "pa", a: "Panama", wrong: ["Colombia", "Costa Rica", "Nicaragua"], isFlag: true },
-        { q: "bz", a: "Belize", wrong: ["Guatemala", "Honduras", "Jamaica"], isFlag: true },
-        { q: "gd", a: "Grenada", wrong: ["Jamaica", "Barbados", "Trinidad"], isFlag: true },
-        { q: "lc", a: "Saint Lucia", wrong: ["Barbados", "Jamaica", "Dominica"], isFlag: true },
-        { q: "dm", a: "Dominica", wrong: ["Dominican Republic", "Jamaica", "Saint Lucia"], isFlag: true },
-        { q: "vc", a: "Saint Vincent", wrong: ["Saint Lucia", "Grenada", "Barbados"], isFlag: true },
-        { q: "ag", a: "Antigua and Barbuda", wrong: ["Barbados", "Jamaica", "Trinidad"], isFlag: true },
-        { q: "kn", a: "Saint Kitts and Nevis", wrong: ["Jamaica", "Bahamas", "Barbados"], isFlag: true },
-        
-        // OCEANIA
-        { q: "au", a: "Australia", wrong: ["New Zealand", "UK", "Fiji"], isFlag: true },
-        { q: "nz", a: "New Zealand", wrong: ["Australia", "UK", "Fiji"], isFlag: true },
-        { q: "pg", a: "Papua New Guinea", wrong: ["Indonesia", "Fiji", "Vanuatu"], isFlag: true },
-        { q: "fj", a: "Fiji", wrong: ["Tuvalu", "Samoa", "Tonga"], isFlag: true },
-        { q: "sb", a: "Solomon Islands", wrong: ["Fiji", "Vanuatu", "Papua New Guinea"], isFlag: true },
-        { q: "vu", a: "Vanuatu", wrong: ["Fiji", "Solomon Islands", "Samoa"], isFlag: true },
-        { q: "ws", a: "Samoa", wrong: ["Tonga", "Fiji", "Tuvalu"], isFlag: true },
-        { q: "to", a: "Tonga", wrong: ["Samoa", "Fiji", "Tuvalu"], isFlag: true },
-        { q: "ki", a: "Kiribati", wrong: ["Marshall Islands", "Micronesia", "Palau"], isFlag: true },
-        { q: "fm", a: "Micronesia", wrong: ["Palau", "Marshall Islands", "Kiribati"], isFlag: true },
-        { q: "mh", a: "Marshall Islands", wrong: ["Micronesia", "Palau", "Kiribati"], isFlag: true },
-        { q: "pw", a: "Palau", wrong: ["Micronesia", "Marshall Islands", "Guam"], isFlag: true },
-        { q: "nr", a: "Nauru", wrong: ["Palau", "Kiribati", "Tuvalu"], isFlag: true },
-        { q: "tv", a: "Tuvalu", wrong: ["Nauru", "Kiribati", "Samoa"], isFlag: true }
-    ],
+                landmarks: [
+                    { q: "Where is the Eiffel Tower located?", a: "France", wrong: ["Germany", "Belgium", "Switzerland"] },
+                    { q: "Where is the Colosseum located?", a: "Italy", wrong: ["Greece", "Spain", "Turkey"] },
+                    { q: "Where is the Taj Mahal located?", a: "India", wrong: ["Pakistan", "Bangladesh", "Sri Lanka"] },
+                    { q: "Where are the Pyramids of Giza?", a: "Egypt", wrong: ["Sudan", "Libya", "Morocco"] },
+                    { q: "Where is Machu Picchu?", a: "Peru", wrong: ["Bolivia", "Ecuador", "Chile"] },
+                    { q: "Where is the Great Wall?", a: "China", wrong: ["Japan", "Mongolia", "Korea"] },
+                    { q: "Where is the Statue of Liberty?", a: "USA", wrong: ["France", "UK", "Canada"] },
+                    { q: "Where is Big Ben located?", a: "United Kingdom", wrong: ["Germany", "France", "Ireland"] },
+                    { q: "Where is Christ the Redeemer?", a: "Brazil", wrong: ["Argentina", "Portugal", "Mexico"] },
+                    { q: "Where is the Sydney Opera House?", a: "Australia", wrong: ["New Zealand", "UK", "USA"] },
+                    { q: "Where is the Leaning Tower of Pisa?", a: "Italy", wrong: ["Spain", "Greece", "Portugal"] },
+                    { q: "Where is the Acropolis?", a: "Greece", wrong: ["Italy", "Turkey", "Egypt"] },
+                    { q: "Where is Petra located?", a: "Jordan", wrong: ["Israel", "Egypt", "Saudi Arabia"] },
+                    { q: "Where is Angkor Wat?", a: "Cambodia", wrong: ["Thailand", "Vietnam", "Laos"] },
+                    { q: "Where is the Forbidden City?", a: "China", wrong: ["Japan", "Korea", "Vietnam"] },
+                    { q: "Where is the Sagrada Familia?", a: "Spain", wrong: ["Italy", "Portugal", "France"] },
+                    { q: "Where is the Brandenburg Gate?", a: "Germany", wrong: ["Austria", "Belgium", "Poland"] },
+                    { q: "Where is the Kremlin?", a: "Russia", wrong: ["Ukraine", "Belarus", "Poland"] },
+                    { q: "Where is the Tower of London?", a: "United Kingdom", wrong: ["France", "Germany", "Belgium"] },
+                    { q: "Where is Buckingham Palace?", a: "United Kingdom", wrong: ["France", "Germany", "Spain"] },
+                    { q: "Where is the Louvre Museum?", a: "France", wrong: ["Italy", "Spain", "UK"] },
+                    { q: "Where is Mount Rushmore?", a: "USA", wrong: ["Canada", "UK", "Australia"] },
+                    { q: "Where is the Golden Gate Bridge?", a: "USA", wrong: ["UK", "Australia", "Japan"] },
+                    { q: "Where is the Empire State Building?", a: "USA", wrong: ["UK", "Canada", "France"] },
+                    { q: "Where is Niagara Falls located?", a: "USA/Canada", wrong: ["Brazil", "Argentina", "Iceland"] },
+                    { q: "Where is the Grand Canyon?", a: "USA", wrong: ["Mexico", "Australia", "China"] },
+                    { q: "Where is Chichen Itza?", a: "Mexico", wrong: ["Guatemala", "Peru", "Colombia"] },
+                    { q: "Where is Stonehenge?", a: "United Kingdom", wrong: ["Ireland", "France", "Germany"] },
+                    { q: "Where is the Burj Khalifa?", a: "UAE", wrong: ["Saudi Arabia", "Qatar", "Kuwait"] },
+                    { q: "Where is the Hagia Sophia?", a: "Turkey", wrong: ["Greece", "Bulgaria", "Syria"] },
+                    { q: "Where is Neuschwanstein Castle?", a: "Germany", wrong: ["Austria", "Switzerland", "France"] },
+                    { q: "Where is the Palace of Versailles?", a: "France", wrong: ["UK", "Germany", "Austria"] },
+                    { q: "Where is the Alhambra?", a: "Spain", wrong: ["Morocco", "Portugal", "Italy"] },
+                    { q: "Where is the Little Mermaid statue?", a: "Denmark", wrong: ["Norway", "Sweden", "Netherlands"] },
+                    { q: "Where is the Terracotta Army?", a: "China", wrong: ["Japan", "Korea", "Vietnam"] },
+                    { q: "Where is the Tokyo Tower?", a: "Japan", wrong: ["Korea", "China", "Taiwan"] },
+                    { q: "Where is Marina Bay Sands?", a: "Singapore", wrong: ["Malaysia", "UAE", "Hong Kong"] },
+                    { q: "Where is the Petronas Towers?", a: "Malaysia", wrong: ["Singapore", "Indonesia", "UAE"] },
+                    { q: "Where is Uluru (Ayers Rock)?", a: "Australia", wrong: ["New Zealand", "USA", "South Africa"] },
+                    { q: "Where is the Great Barrier Reef?", a: "Australia", wrong: ["Indonesia", "Fiji", "Maldives"] },
+                    { q: "Where is Table Mountain?", a: "South Africa", wrong: ["Tanzania", "Kenya", "Namibia"] },
+                    { q: "Where is Victoria Falls?", a: "Zambia/Zimbabwe", wrong: ["South Africa", "Tanzania", "Kenya"] },
+                    { q: "Where is the Blue Lagoon?", a: "Iceland", wrong: ["Norway", "Finland", "Greenland"] }
+                ],
 
-    landmarks: [
-        // FAMOUS LANDMARKS
-        { q: "Where is the Eiffel Tower located?", a: "France", wrong: ["Germany", "Belgium", "Switzerland"] },
-        { q: "Where is the Colosseum located?", a: "Italy", wrong: ["Greece", "Spain", "Turkey"] },
-        { q: "Where is the Taj Mahal located?", a: "India", wrong: ["Pakistan", "Bangladesh", "Sri Lanka"] },
-        { q: "Where are the Pyramids of Giza?", a: "Egypt", wrong: ["Sudan", "Libya", "Morocco"] },
-        { q: "Where is Machu Picchu?", a: "Peru", wrong: ["Bolivia", "Ecuador", "Chile"] },
-        { q: "Where is the Great Wall?", a: "China", wrong: ["Japan", "Mongolia", "Korea"] },
-        { q: "Where is the Statue of Liberty?", a: "USA", wrong: ["France", "UK", "Canada"] },
-        { q: "Where is Big Ben located?", a: "United Kingdom", wrong: ["Germany", "France", "Ireland"] },
-        { q: "Where is Christ the Redeemer?", a: "Brazil", wrong: ["Argentina", "Portugal", "Mexico"] },
-        { q: "Where is the Sydney Opera House?", a: "Australia", wrong: ["New Zealand", "UK", "USA"] },
-        { q: "Where is the Leaning Tower of Pisa?", a: "Italy", wrong: ["Spain", "Greece", "Portugal"] },
-        { q: "Where is the Acropolis?", a: "Greece", wrong: ["Italy", "Turkey", "Egypt"] },
-        { q: "Where is the Parthenon?", a: "Greece", wrong: ["Italy", "Turkey", "Cyprus"] },
-        { q: "Where is Petra located?", a: "Jordan", wrong: ["Israel", "Egypt", "Saudi Arabia"] },
-        { q: "Where is Angkor Wat?", a: "Cambodia", wrong: ["Thailand", "Vietnam", "Laos"] },
-        { q: "Where is the Forbidden City?", a: "China", wrong: ["Japan", "Korea", "Vietnam"] },
-        { q: "Where is the Sagrada Familia?", a: "Spain", wrong: ["Italy", "Portugal", "France"] },
-        { q: "Where is the Brandenburg Gate?", a: "Germany", wrong: ["Austria", "Belgium", "Poland"] },
-        { q: "Where is the Kremlin?", a: "Russia", wrong: ["Ukraine", "Belarus", "Poland"] },
-        { q: "Where is St. Basil's Cathedral?", a: "Russia", wrong: ["Ukraine", "Greece", "Serbia"] },
-        { q: "Where is the Tower of London?", a: "United Kingdom", wrong: ["France", "Germany", "Belgium"] },
-        { q: "Where is Buckingham Palace?", a: "United Kingdom", wrong: ["France", "Germany", "Spain"] },
-        { q: "Where is the Louvre Museum?", a: "France", wrong: ["Italy", "Spain", "UK"] },
-        { q: "Where is the Vatican Museums?", a: "Vatican City", wrong: ["Italy", "France", "Spain"] },
-        { q: "Where is the Anne Frank House?", a: "Netherlands", wrong: ["Germany", "Belgium", "Poland"] },
-        { q: "Where is the Sistine Chapel?", a: "Vatican City", wrong: ["Italy", "France", "Spain"] },
-        { q: "Where is Mount Rushmore?", a: "USA", wrong: ["Canada", "UK", "Australia"] },
-        { q: "Where is the Golden Gate Bridge?", a: "USA", wrong: ["UK", "Australia", "Japan"] },
-        { q: "Where is the Empire State Building?", a: "USA", wrong: ["UK", "Canada", "France"] },
-        { q: "Where is Niagara Falls located?", a: "USA/Canada", wrong: ["Brazil", "Argentina", "Iceland"] },
-        { q: "Where is the Grand Canyon?", a: "USA", wrong: ["Mexico", "Australia", "China"] },
-        { q: "Where is Chichen Itza?", a: "Mexico", wrong: ["Guatemala", "Peru", "Colombia"] },
-        { q: "Where is the CN Tower?", a: "Canada", wrong: ["USA", "UK", "Australia"] },
-        { q: "Where is the Space Needle?", a: "USA", wrong: ["Canada", "UK", "Japan"] },
-        { q: "Where is the Hollywood Sign?", a: "USA", wrong: ["UK", "Canada", "Australia"] },
-        { q: "Where is Stonehenge?", a: "United Kingdom", wrong: ["Ireland", "France", "Germany"] },
-        { q: "Where is the Burj Khalifa?", a: "UAE", wrong: ["Saudi Arabia", "Qatar", "Kuwait"] },
-        { q: "Where is the Palm Jumeirah?", a: "UAE", wrong: ["Saudi Arabia", "Bahrain", "Qatar"] },
-        { q: "Where is the Hagia Sophia?", a: "Turkey", wrong: ["Greece", "Bulgaria", "Syria"] },
-        { q: "Where is the Blue Mosque?", a: "Turkey", wrong: ["Egypt", "Iran", "Morocco"] },
-        { q: "Where is Neuschwanstein Castle?", a: "Germany", wrong: ["Austria", "Switzerland", "France"] },
-        { q: "Where is the Palace of Versailles?", a: "France", wrong: ["UK", "Germany", "Austria"] },
-        { q: "Where is the Alhambra?", a: "Spain", wrong: ["Morocco", "Portugal", "Italy"] },
-        { q: "Where is the Little Mermaid statue?", a: "Denmark", wrong: ["Norway", "Sweden", "Netherlands"] },
-        { q: "Where is the Manneken Pis?", a: "Belgium", wrong: ["Netherlands", "France", "Germany"] },
-        { q: "Where is the Atomium?", a: "Belgium", wrong: ["Netherlands", "France", "Switzerland"] },
-        { q: "Where is the Charles Bridge?", a: "Czech Republic", wrong: ["Austria", "Germany", "Hungary"] },
-        { q: "Where is the Fisherman's Bastion?", a: "Hungary", wrong: ["Austria", "Czech Republic", "Poland"] },
-        { q: "Where is the Terracotta Army?", a: "China", wrong: ["Japan", "Korea", "Vietnam"] },
-        { q: "Where is the Temple of Heaven?", a: "China", wrong: ["Japan", "Thailand", "Korea"] },
-        { q: "Where is Victoria Harbour?", a: "Hong Kong", wrong: ["Singapore", "Japan", "Taiwan"] },
-        { q: "Where is the Tokyo Tower?", a: "Japan", wrong: ["Korea", "China", "Taiwan"] },
-        { q: "Where is the Golden Pavilion (Kinkaku-ji)?", a: "Japan", wrong: ["China", "Korea", "Thailand"] },
-        { q: "Where is the Great Buddha of Kamakura?", a: "Japan", wrong: ["Thailand", "China", "India"] },
-        { q: "Where is the Sensoji Temple?", a: "Japan", wrong: ["China", "Thailand", "Vietnam"] },
-        { q: "Where is Gyeongbokgung Palace?", a: "South Korea", wrong: ["Japan", "China", "Vietnam"] },
-        { q: "Where is Marina Bay Sands?", a: "Singapore", wrong: ["Malaysia", "UAE", "Hong Kong"] },
-        { q: "Where is the Petronas Towers?", a: "Malaysia", wrong: ["Singapore", "Indonesia", "UAE"] },
-        { q: "Where is Borobudur Temple?", a: "Indonesia", wrong: ["Thailand", "Cambodia", "Myanmar"] },
-        { q: "Where is the Banaue Rice Terraces?", a: "Philippines", wrong: ["Indonesia", "Vietnam", "China"] },
-        { q: "Where is the Shwedagon Pagoda?", a: "Myanmar", wrong: ["Thailand", "Cambodia", "Laos"] },
-        { q: "Where is Uluru (Ayers Rock)?", a: "Australia", wrong: ["New Zealand", "USA", "South Africa"] },
-        { q: "Where is the Great Barrier Reef?", a: "Australia", wrong: ["Indonesia", "Fiji", "Maldives"] },
-        { q: "Where is the Moai statues?", a: "Chile (Easter Island)", wrong: ["Peru", "Ecuador", "Fiji"] },
-        { q: "Where is the Blue Lagoon?", a: "Iceland", wrong: ["Norway", "Finland", "Greenland"] },
-        { q: "Where is the Northern Lights best viewed?", a: "Norway/Iceland", wrong: ["UK", "France", "Russia"] },
-        { q: "Where is Table Mountain?", a: "South Africa", wrong: ["Tanzania", "Kenya", "Namibia"] },
-        { q: "Where is Victoria Falls?", a: "Zambia/Zimbabwe", wrong: ["South Africa", "Tanzania", "Kenya"] },
-        { q: "Where is the Sphinx?", a: "Egypt", wrong: ["Sudan", "Libya", "Jordan"] },
-        { q: "Where is the Valley of the Kings?", a: "Egypt", wrong: ["Jordan", "Iraq", "Turkey"] },
-        { q: "Where is Medina (Old City)?", a: "Morocco", wrong: ["Egypt", "Tunisia", "Algeria"] },
-        { q: "Where is the Hassan II Mosque?", a: "Morocco", wrong: ["Egypt", "Turkey", "Saudi Arabia"] },
-        { q: "Where is the Rock of Gibraltar?", a: "Gibraltar (UK)", wrong: ["Spain", "Morocco", "Portugal"] },
-        { q: "Where is the Galápagos Islands?", a: "Ecuador", wrong: ["Peru", "Chile", "Colombia"] },
-        { q: "Where is the Amazon Rainforest primarily?", a: "Brazil", wrong: ["Peru", "Colombia", "Venezuela"] },
-        { q: "Where is Iguazu Falls?", a: "Argentina/Brazil", wrong: ["Chile", "Peru", "Paraguay"] },
-        { q: "Where is the Dead Sea located?", a: "Israel/Jordan", wrong: ["Egypt", "Saudi Arabia", "Turkey"] },
-        { q: "Where is Santorini?", a: "Greece", wrong: ["Italy", "Turkey", "Croatia"] },
-        { q: "Where is Dubrovnik's Old Town?", a: "Croatia", wrong: ["Montenegro", "Slovenia", "Italy"] },
-        { q: "Where is the Plitvice Lakes?", a: "Croatia", wrong: ["Slovenia", "Bosnia", "Austria"] },
-        { q: "Where is Lake Bled?", a: "Slovenia", wrong: ["Austria", "Croatia", "Switzerland"] },
-        { q: "Where is the Matterhorn?", a: "Switzerland/Italy", wrong: ["Austria", "France", "Germany"] },
-        { q: "Where is the Cliffs of Moher?", a: "Ireland", wrong: ["Scotland", "Wales", "England"] },
-        { q: "Where is Giant's Causeway?", a: "Northern Ireland", wrong: ["Scotland", "Iceland", "Norway"] },
-        { q: "Where is Edinburgh Castle?", a: "Scotland", wrong: ["England", "Ireland", "Wales"] },
-        { q: "Where is Windsor Castle?", a: "England", wrong: ["Scotland", "Wales", "France"] },
-        { q: "Where is the Rijksmuseum?", a: "Netherlands", wrong: ["Belgium", "Germany", "Denmark"] },
-        { q: "Where is Checkpoint Charlie?", a: "Germany", wrong: ["Austria", "Poland", "Czech Republic"] },
-        { q: "Where is the Berlin Wall Memorial?", a: "Germany", wrong: ["Austria", "Poland", "Czech Republic"] },
-        { q: "Where is the Anne Frank House?", a: "Netherlands", wrong: ["Germany", "Belgium", "Poland"] },
-        { q: "Where is the Auschwitz-Birkenau?", a: "Poland", wrong: ["Germany", "Austria", "Czech Republic"] },
-        { q: "Where is the Wieliczka Salt Mine?", a: "Poland", wrong: ["Czech Republic", "Germany", "Austria"] }
-    ],
+                mountains: [
+                    { q: "Where is Mount Everest located?", a: "Nepal/Tibet", wrong: ["India", "Pakistan", "Bhutan"] },
+                    { q: "Where is K2 located?", a: "Pakistan/China", wrong: ["Nepal", "India", "Bhutan"] },
+                    { q: "Where is Mount Kilimanjaro?", a: "Tanzania", wrong: ["Kenya", "Uganda", "Ethiopia"] },
+                    { q: "Where is Mount Fuji?", a: "Japan", wrong: ["China", "Korea", "Taiwan"] },
+                    { q: "Where is Mont Blanc?", a: "France/Italy", wrong: ["Switzerland", "Austria", "Germany"] },
+                    { q: "Where is the Matterhorn?", a: "Switzerland/Italy", wrong: ["Austria", "France", "Germany"] },
+                    { q: "Where is Mount Denali (McKinley)?", a: "Alaska, USA", wrong: ["Canada", "Russia", "Norway"] },
+                    { q: "Where is Aconcagua?", a: "Argentina", wrong: ["Chile", "Peru", "Bolivia"] },
+                    { q: "Where is Mount Cook (Aoraki)?", a: "New Zealand", wrong: ["Australia", "Fiji", "Papua New Guinea"] },
+                    { q: "Where is Mount Elbrus?", a: "Russia", wrong: ["Georgia", "Turkey", "Iran"] },
+                    { q: "Where is Mount Ararat?", a: "Turkey", wrong: ["Armenia", "Iran", "Georgia"] },
+                    { q: "Where is Mount Olympus (Greece)?", a: "Greece", wrong: ["Italy", "Turkey", "Cyprus"] },
+                    { q: "Where is Mount Etna?", a: "Italy (Sicily)", wrong: ["Greece", "Turkey", "Spain"] },
+                    { q: "Where is Mount Vesuvius?", a: "Italy", wrong: ["Greece", "Turkey", "Spain"] },
+                    { q: "Where is Ben Nevis?", a: "Scotland", wrong: ["Wales", "Ireland", "England"] },
+                    { q: "Where is Table Mountain?", a: "South Africa", wrong: ["Tanzania", "Kenya", "Namibia"] },
+                    { q: "Where is Mount Kenya located?", a: "Kenya", wrong: ["Tanzania", "Uganda", "Rwanda"] },
+                    { q: "Which continent has the Andes?", a: "South America", wrong: ["North America", "Europe", "Asia"] },
+                    { q: "Which continent has the Rocky Mountains?", a: "North America", wrong: ["South America", "Europe", "Asia"] },
+                    { q: "Which continent has the Alps?", a: "Europe", wrong: ["Asia", "North America", "South America"] },
+                    { q: "Which continent has the Himalayas?", a: "Asia", wrong: ["Europe", "Africa", "Oceania"] },
+                    { q: "Where is the Pyrenees?", a: "Spain/France", wrong: ["Italy/Austria", "Germany/Switzerland", "Portugal/Morocco"] },
+                    { q: "Where is the Caucasus Mountains?", a: "Russia/Georgia", wrong: ["Turkey/Iran", "Pakistan/India", "Mongolia/China"] },
+                    { q: "Where is Mount Kinabalu?", a: "Malaysia", wrong: ["Indonesia", "Philippines", "Thailand"] },
+                    { q: "Where is Pico de Orizaba?", a: "Mexico", wrong: ["Guatemala", "USA", "Honduras"] },
+                    { q: "Where is Mount Whitney?", a: "USA (California)", wrong: ["Canada", "Mexico", "Colorado"] },
+                    { q: "Where is Mauna Kea?", a: "Hawaii, USA", wrong: ["Japan", "Philippines", "Indonesia"] },
+                    { q: "Where is Chimborazo?", a: "Ecuador", wrong: ["Peru", "Colombia", "Bolivia"] },
+                    { q: "Where is Torres del Paine?", a: "Chile", wrong: ["Argentina", "Peru", "Bolivia"] }
+                ],
 
-    mountains: [
-        { q: "Where is Mount Everest located?", a: "Nepal/Tibet", wrong: ["India", "Pakistan", "Bhutan"] },
-        { q: "Where is K2 located?", a: "Pakistan/China", wrong: ["Nepal", "India", "Bhutan"] },
-        { q: "Where is Kangchenjunga?", a: "Nepal/India", wrong: ["Tibet", "Bhutan", "Pakistan"] },
-        { q: "Where is Lhotse?", a: "Nepal/Tibet", wrong: ["India", "Pakistan", "Bhutan"] },
-        { q: "Where is Makalu?", a: "Nepal/Tibet", wrong: ["India", "Pakistan", "Bhutan"] },
-        { q: "Where is Mount Kilimanjaro?", a: "Tanzania", wrong: ["Kenya", "Uganda", "Ethiopia"] },
-        { q: "Where is Mount Kenya?", a: "Kenya", wrong: ["Tanzania", "Uganda", "Ethiopia"] },
-        { q: "Where is Mount Elbrus?", a: "Russia", wrong: ["Georgia", "Turkey", "Iran"] },
-        { q: "Where is Mont Blanc?", a: "France/Italy", wrong: ["Switzerland", "Austria", "Germany"] },
-        { q: "Where is the Matterhorn?", a: "Switzerland/Italy", wrong: ["Austria", "France", "Germany"] },
-        { q: "Where is Mount Fuji?", a: "Japan", wrong: ["China", "Korea", "Taiwan"] },
-        { q: "Where is Mount Denali (McKinley)?", a: "Alaska, USA", wrong: ["Canada", "Russia", "Norway"] },
-        { q: "Where is Aconcagua?", a: "Argentina", wrong: ["Chile", "Peru", "Bolivia"] },
-        { q: "Where is Mount Rainier?", a: "USA", wrong: ["Canada", "Mexico", "Alaska"] },
-        { q: "Where is Mount Cook (Aoraki)?", a: "New Zealand", wrong: ["Australia", "Fiji", "Papua New Guinea"] },
-        { q: "Where is Mount Kosciuszko?", a: "Australia", wrong: ["New Zealand", "Papua New Guinea", "Indonesia"] },
-        { q: "Where is Puncak Jaya (Carstensz)?", a: "Indonesia", wrong: ["Papua New Guinea", "Philippines", "Malaysia"] },
-        { q: "Where is Mount Vinson?", a: "Antarctica", wrong: ["Chile", "Argentina", "New Zealand"] },
-        { q: "Where is Mount Ararat?", a: "Turkey", wrong: ["Armenia", "Iran", "Georgia"] },
-        { q: "Where is Mount Olympus (Greece)?", a: "Greece", wrong: ["Turkey", "Cyprus", "Albania"] },
-        { q: "Where is Mount Etna?", a: "Italy (Sicily)", wrong: ["Greece", "Turkey", "Spain"] },
-        { q: "Where is Mount Vesuvius?", a: "Italy", wrong: ["Greece", "Turkey", "Spain"] },
-        { q: "Where is Mount Stromboli?", a: "Italy", wrong: ["Greece", "Iceland", "Japan"] },
-        { q: "Where is Mount Teide?", a: "Spain (Canary Islands)", wrong: ["Portugal", "Morocco", "Italy"] },
-        { q: "Where is Jungfrau?", a: "Switzerland", wrong: ["Austria", "Germany", "France"] },
-        { q: "Where is Eiger?", a: "Switzerland", wrong: ["Austria", "Italy", "France"] },
-        { q: "Where is the Grossglockner?", a: "Austria", wrong: ["Switzerland", "Germany", "Italy"] },
-        { q: "Where is Zugspitze?", a: "Germany", wrong: ["Austria", "Switzerland", "France"] },
-        { q: "Where is Ben Nevis?", a: "Scotland", wrong: ["Wales", "Ireland", "England"] },
-        { q: "Where is Snowdon?", a: "Wales", wrong: ["Scotland", "England", "Ireland"] },
-        { q: "Where is Carrauntoohil?", a: "Ireland", wrong: ["Scotland", "Wales", "England"] },
-        { q: "Where is Table Mountain?", a: "South Africa", wrong: ["Tanzania", "Kenya", "Namibia"] },
-        { q: "Where is Mount Kenya located?", a: "Kenya", wrong: ["Tanzania", "Uganda", "Rwanda"] },
-        { q: "Where is the Drakensberg Mountains?", a: "South Africa", wrong: ["Tanzania", "Kenya", "Zimbabwe"] },
-        { q: "Where is Mount Stanley?", a: "Uganda/DR Congo", wrong: ["Kenya", "Tanzania", "Rwanda"] },
-        { q: "Where is Mount Cameroon?", a: "Cameroon", wrong: ["Nigeria", "Gabon", "Chad"] },
-        { q: "Where is Toubkal?", a: "Morocco", wrong: ["Algeria", "Tunisia", "Libya"] },
-        { q: "Where is Mount Sinai?", a: "Egypt", wrong: ["Israel", "Jordan", "Saudi Arabia"] },
-        { q: "Which continent has the Andes?", a: "South America", wrong: ["North America", "Europe", "Asia"] },
-        { q: "Which continent has the Rocky Mountains?", a: "North America", wrong: ["South America", "Europe", "Asia"] },
-        { q: "Which continent has the Alps?", a: "Europe", wrong: ["Asia", "North America", "South America"] },
-        { q: "Which continent has the Himalayas?", a: "Asia", wrong: ["Europe", "Africa", "Oceania"] },
-        { q: "Where is the Carpathian Mountains?", a: "Central/Eastern Europe", wrong: ["Scandinavia", "Iberia", "Balkans"] },
-        { q: "Where is the Pyrenees?", a: "Spain/France", wrong: ["Italy/Austria", "Germany/Switzerland", "Portugal/Morocco"] },
-        { q: "Where is the Caucasus Mountains?", a: "Russia/Georgia", wrong: ["Turkey/Iran", "Pakistan/India", "Mongolia/China"] },
-        { q: "Where is the Karakoram Range?", a: "Pakistan/China", wrong: ["Nepal/Tibet", "India/Bhutan", "Afghanistan/Tajikistan"] },
-        { q: "Where is the Hindu Kush?", a: "Afghanistan/Pakistan", wrong: ["Iran/Iraq", "Nepal/India", "Tajikistan/China"] },
-        { q: "Where is the Tian Shan?", a: "Central Asia", wrong: ["Siberia", "Middle East", "South Asia"] },
-        { q: "Where is the Altai Mountains?", a: "Russia/Mongolia", wrong: ["China/Korea", "Japan/Taiwan", "India/Nepal"] },
-        { q: "Where is Mount Hua?", a: "China", wrong: ["Japan", "Korea", "Vietnam"] },
-        { q: "Where is Huangshan (Yellow Mountain)?", a: "China", wrong: ["Japan", "Vietnam", "Thailand"] },
-        { q: "Where is Mount Kinabalu?", a: "Malaysia", wrong: ["Indonesia", "Philippines", "Thailand"] },
-        { q: "Where is Mount Apo?", a: "Philippines", wrong: ["Indonesia", "Malaysia", "Vietnam"] },
-        { q: "Where is Mount Fansipan?", a: "Vietnam", wrong: ["Laos", "Thailand", "Cambodia"] },
-        { q: "Where is Pico de Orizaba?", a: "Mexico", wrong: ["Guatemala", "USA", "Honduras"] },
-        { q: "Where is Popocatépetl?", a: "Mexico", wrong: ["Guatemala", "El Salvador", "Costa Rica"] },
-        { q: "Where is Mount Whitney?", a: "USA (California)", wrong: ["Canada", "Mexico", "Colorado"] },
-        { q: "Where is Pike's Peak?", a: "USA (Colorado)", wrong: ["Montana", "Wyoming", "Utah"] },
-        { q: "Where is Mount Hood?", a: "USA (Oregon)", wrong: ["Washington", "California", "Idaho"] },
-        { q: "Where is Mount St. Helens?", a: "USA (Washington)", wrong: ["Oregon", "California", "Alaska"] },
-        { q: "Where is Mauna Kea?", a: "Hawaii, USA", wrong: ["Japan", "Philippines", "Indonesia"] },
-        { q: "Where is Mauna Loa?", a: "Hawaii, USA", wrong: ["Japan", "Indonesia", "Philippines"] },
-        { q: "Where is Ojos del Salado?", a: "Chile/Argentina", wrong: ["Peru/Bolivia", "Ecuador/Colombia", "Brazil/Paraguay"] },
-        { q: "Where is Chimborazo?", a: "Ecuador", wrong: ["Peru", "Colombia", "Bolivia"] },
-        { q: "Where is Cotopaxi?", a: "Ecuador", wrong: ["Peru", "Colombia", "Bolivia"] },
-        { q: "Where is Huascarán?", a: "Peru", wrong: ["Ecuador", "Bolivia", "Chile"] },
-        { q: "Where is Fitz Roy?", a: "Argentina", wrong: ["Chile", "Peru", "Bolivia"] },
-        { q: "Where is Torres del Paine?", a: "Chile", wrong: ["Argentina", "Peru", "Bolivia"] },
-        { q: "Where is Mount Ruapehu?", a: "New Zealand", wrong: ["Australia", "Fiji", "Samoa"] },
-        { q: "Where is Mount Taranaki?", a: "New Zealand", wrong: ["Australia", "Papua New Guinea", "Fiji"] }
-    ],
+                rivers: [
+                    { q: "Which continent has the Nile River?", a: "Africa", wrong: ["Asia", "South America", "Europe"] },
+                    { q: "Which continent has the Amazon River?", a: "South America", wrong: ["Africa", "Asia", "North America"] },
+                    { q: "Which continent has the Yangtze River?", a: "Asia", wrong: ["Africa", "Europe", "Australia"] },
+                    { q: "Which continent has the Mississippi River?", a: "North America", wrong: ["South America", "Europe", "Africa"] },
+                    { q: "Which continent has the Danube River?", a: "Europe", wrong: ["Asia", "Africa", "North America"] },
+                    { q: "Where is the Ganges River?", a: "India", wrong: ["Pakistan", "Bangladesh", "Nepal"] },
+                    { q: "Where is the Mekong River?", a: "Southeast Asia", wrong: ["South Asia", "East Asia", "Central Asia"] },
+                    { q: "Where is the Thames River?", a: "England", wrong: ["France", "Germany", "Ireland"] },
+                    { q: "Where is the Seine River?", a: "France", wrong: ["Germany", "Belgium", "Spain"] },
+                    { q: "Where is the Rhine River?", a: "Germany/Netherlands", wrong: ["France/Spain", "Italy/Austria", "Poland/Czech"] },
+                    { q: "Where is the Volga River?", a: "Russia", wrong: ["Ukraine", "Poland", "Germany"] },
+                    { q: "Where is the Tigris River?", a: "Iraq/Turkey", wrong: ["Egypt/Sudan", "Iran/Afghanistan", "Israel/Jordan"] },
+                    { q: "Where is the Euphrates River?", a: "Iraq/Syria", wrong: ["Egypt/Libya", "Iran/Pakistan", "Israel/Lebanon"] },
+                    { q: "Where is the Indus River?", a: "Pakistan", wrong: ["India", "Bangladesh", "Afghanistan"] },
+                    { q: "Where is the Congo River?", a: "Central Africa", wrong: ["West Africa", "East Africa", "North Africa"] },
+                    { q: "Where is the Niger River?", a: "West Africa", wrong: ["East Africa", "Central Africa", "North Africa"] },
+                    { q: "Where is the Zambezi River?", a: "Southern Africa", wrong: ["East Africa", "West Africa", "Central Africa"] },
+                    { q: "Where is the Murray River?", a: "Australia", wrong: ["New Zealand", "Indonesia", "Papua New Guinea"] },
+                    { q: "Where is the Colorado River?", a: "USA", wrong: ["Mexico", "Canada", "Argentina"] },
+                    { q: "Where is the Rio Grande?", a: "USA/Mexico", wrong: ["USA/Canada", "Mexico/Guatemala", "Brazil/Argentina"] },
+                    { q: "Where is the St. Lawrence River?", a: "Canada/USA", wrong: ["Mexico/USA", "Canada only", "USA only"] },
+                    { q: "Where is the Orinoco River?", a: "Venezuela", wrong: ["Brazil", "Colombia", "Peru"] },
+                    { q: "Where is the Paraná River?", a: "South America", wrong: ["Africa", "Europe", "Asia"] },
+                    { q: "Where is the Elbe River?", a: "Germany/Czech Republic", wrong: ["France/Belgium", "Poland/Ukraine", "Austria/Hungary"] },
+                    { q: "Where is the Po River?", a: "Italy", wrong: ["France", "Switzerland", "Austria"] },
+                    { q: "Where is the Ebro River?", a: "Spain", wrong: ["Portugal", "France", "Italy"] },
+                    { q: "Where is the Loire River?", a: "France", wrong: ["Spain", "Germany", "Belgium"] },
+                    { q: "Where is the Shannon River?", a: "Ireland", wrong: ["Scotland", "Wales", "England"] }
+                ],
 
-    rivers: [
-        { q: "Which continent has the Nile River?", a: "Africa", wrong: ["Asia", "South America", "Europe"] },
-        { q: "Which continent has the Amazon River?", a: "South America", wrong: ["Africa", "Asia", "North America"] },
-        { q: "Which continent has the Yangtze River?", a: "Asia", wrong: ["Africa", "Europe", "Australia"] },
-        { q: "Which continent has the Mississippi River?", a: "North America", wrong: ["South America", "Europe", "Africa"] },
-        { q: "Which continent has the Danube River?", a: "Europe", wrong: ["Asia", "Africa", "North America"] },
-        { q: "Where is the Ganges River?", a: "India", wrong: ["Pakistan", "Bangladesh", "Nepal"] },
-        { q: "Where is the Mekong River?", a: "Southeast Asia", wrong: ["South Asia", "East Asia", "Central Asia"] },
-        { q: "Where is the Thames River?", a: "England", wrong: ["France", "Germany", "Ireland"] },
-        { q: "Where is the Seine River?", a: "France", wrong: ["Germany", "Belgium", "Spain"] },
-        { q: "Where is the Rhine River?", a: "Germany/Netherlands", wrong: ["France/Spain", "Italy/Austria", "Poland/Czech"] },
-        { q: "Where is the Volga River?", a: "Russia", wrong: ["Ukraine", "Poland", "Germany"] },
-        { q: "Where is the Tigris River?", a: "Iraq/Turkey", wrong: ["Egypt/Sudan", "Iran/Afghanistan", "Israel/Jordan"] },
-        { q: "Where is the Euphrates River?", a: "Iraq/Syria", wrong: ["Egypt/Libya", "Iran/Pakistan", "Israel/Lebanon"] },
-        { q: "Where is the Indus River?", a: "Pakistan", wrong: ["India", "Bangladesh", "Afghanistan"] },
-        { q: "Where is the Brahmaputra River?", a: "India/Bangladesh", wrong: ["Pakistan/Afghanistan", "Nepal/Bhutan", "Myanmar/Thailand"] },
-        { q: "Where is the Yellow River (Huang He)?", a: "China", wrong: ["Japan", "Korea", "Vietnam"] },
-        { q: "Where is the Pearl River?", a: "China", wrong: ["Japan", "Vietnam", "Thailand"] },
-        { q: "Where is the Congo River?", a: "Central Africa", wrong: ["West Africa", "East Africa", "North Africa"] },
-        { q: "Where is the Niger River?", a: "West Africa", wrong: ["East Africa", "Central Africa", "North Africa"] },
-        { q: "Where is the Zambezi River?", a: "Southern Africa", wrong: ["East Africa", "West Africa", "Central Africa"] },
-        { q: "Where is the Orange River?", a: "South Africa", wrong: ["Kenya", "Tanzania", "Egypt"] },
-        { q: "Where is the Limpopo River?", a: "Southern Africa", wrong: ["East Africa", "West Africa", "North Africa"] },
-        { q: "Where is the Murray River?", a: "Australia", wrong: ["New Zealand", "Indonesia", "Papua New Guinea"] },
-        { q: "Where is the Darling River?", a: "Australia", wrong: ["New Zealand", "Fiji", "Samoa"] },
-        { q: "Where is the Colorado River?", a: "USA", wrong: ["Mexico", "Canada", "Argentina"] },
-        { q: "Where is the Columbia River?", a: "USA/Canada", wrong: ["Mexico/USA", "Canada only", "Alaska"] },
-        { q: "Where is the Missouri River?", a: "USA", wrong: ["Canada", "Mexico", "Brazil"] },
-        { q: "Where is the Ohio River?", a: "USA", wrong: ["Canada", "Mexico", "Cuba"] },
-        { q: "Where is the Rio Grande?", a: "USA/Mexico", wrong: ["USA/Canada", "Mexico/Guatemala", "Brazil/Argentina"] },
-        { q: "Where is the St. Lawrence River?", a: "Canada/USA", wrong: ["Mexico/USA", "Canada only", "USA only"] },
-        { q: "Where is the Mackenzie River?", a: "Canada", wrong: ["USA", "Russia", "Alaska"] },
-        { q: "Where is the Yukon River?", a: "Canada/Alaska", wrong: ["Russia", "Greenland", "Iceland"] },
-        { q: "Where is the Orinoco River?", a: "Venezuela", wrong: ["Brazil", "Colombia", "Peru"] },
-        { q: "Where is the Paraná River?", a: "South America", wrong: ["Africa", "Europe", "Asia"] },
-        { q: "Where is the Paraguay River?", a: "South America", wrong: ["Africa", "Europe", "Australia"] },
-        { q: "Where is the Uruguay River?", a: "South America", wrong: ["Europe", "North America", "Africa"] },
-        { q: "Where is the São Francisco River?", a: "Brazil", wrong: ["Argentina", "Peru", "Colombia"] },
-        { q: "Where is the Elbe River?", a: "Germany/Czech Republic", wrong: ["France/Belgium", "Poland/Ukraine", "Austria/Hungary"] },
-        { q: "Where is the Oder River?", a: "Germany/Poland", wrong: ["France/Germany", "Czech/Austria", "Sweden/Denmark"] },
-        { q: "Where is the Vistula River?", a: "Poland", wrong: ["Germany", "Czech Republic", "Ukraine"] },
-        { q: "Where is the Dnieper River?", a: "Ukraine", wrong: ["Russia", "Poland", "Belarus"] },
-        { q: "Where is the Don River?", a: "Russia", wrong: ["Ukraine", "Poland", "Germany"] },
-        { q: "Where is the Po River?", a: "Italy", wrong: ["France", "Switzerland", "Austria"] },
-        { q: "Where is the Tiber River?", a: "Italy", wrong: ["Greece", "Spain", "France"] },
-        { q: "Where is the Ebro River?", a: "Spain", wrong: ["Portugal", "France", "Italy"] },
-        { q: "Where is the Tagus River?", a: "Spain/Portugal", wrong: ["France/Spain", "Morocco/Algeria", "Italy/France"] },
-        { q: "Where is the Douro River?", a: "Spain/Portugal", wrong: ["France/Spain", "Italy/France", "Morocco/Spain"] },
-        { q: "Where is the Loire River?", a: "France", wrong: ["Spain", "Germany", "Belgium"] },
-        { q: "Where is the Rhône River?", a: "France/Switzerland", wrong: ["Spain/France", "Italy/France", "Germany/Netherlands"] },
-        { q: "Where is the Garonne River?", a: "France", wrong: ["Spain", "Belgium", "Germany"] },
-        { q: "Where is the Severn River?", a: "United Kingdom", wrong: ["Ireland", "France", "Germany"] },
-        { q: "Where is the Liffey River?", a: "Ireland", wrong: ["Scotland", "Wales", "England"] },
-        { q: "Where is the Shannon River?", a: "Ireland", wrong: ["Scotland", "Wales", "England"] },
-        { q: "Where is the Amu Darya?", a: "Central Asia", wrong: ["Middle East", "South Asia", "Siberia"] },
-        { q: "Where is the Syr Darya?", a: "Central Asia", wrong: ["Middle East", "South Asia", "East Asia"] },
-        { q: "Where is the Irrawaddy River?", a: "Myanmar", wrong: ["Thailand", "Vietnam", "Cambodia"] },
-        { q: "Where is the Salween River?", a: "Myanmar/China", wrong: ["Thailand/Laos", "Vietnam/Cambodia", "India/Bangladesh"] },
-        { q: "Where is the Chao Phraya River?", a: "Thailand", wrong: ["Vietnam", "Cambodia", "Laos"] },
-        { q: "Where is the Red River (Asia)?", a: "Vietnam", wrong: ["China", "Thailand", "Laos"] },
-        { q: "Where is the Han River?", a: "South Korea", wrong: ["North Korea", "Japan", "China"] },
-        { q: "Where is the Ob River?", a: "Russia (Siberia)", wrong: ["China", "Mongolia", "Kazakhstan"] },
-        { q: "Where is the Yenisei River?", a: "Russia (Siberia)", wrong: ["Mongolia", "China", "Kazakhstan"] },
-        { q: "Where is the Lena River?", a: "Russia (Siberia)", wrong: ["China", "Mongolia", "Japan"] },
-        { q: "Where is the Amur River?", a: "Russia/China", wrong: ["Japan/Korea", "Mongolia/Kazakhstan", "Vietnam/Laos"] }
-    ],
+                deserts: [
+                    { q: "Where is the Sahara Desert?", a: "Africa", wrong: ["Asia", "Australia", "Middle East"] },
+                    { q: "Where is the Arabian Desert?", a: "Middle East", wrong: ["Africa", "Asia", "Australia"] },
+                    { q: "Where is the Gobi Desert?", a: "Mongolia/China", wrong: ["India/Pakistan", "Iran/Afghanistan", "Kazakhstan/Uzbekistan"] },
+                    { q: "Where is the Kalahari Desert?", a: "Southern Africa", wrong: ["North Africa", "Middle East", "Australia"] },
+                    { q: "Where is the Namib Desert?", a: "Namibia", wrong: ["South Africa", "Botswana", "Angola"] },
+                    { q: "Where is the Atacama Desert?", a: "Chile", wrong: ["Peru", "Argentina", "Bolivia"] },
+                    { q: "Where is the Mojave Desert?", a: "USA", wrong: ["Mexico", "Australia", "Africa"] },
+                    { q: "Where is the Sonoran Desert?", a: "USA/Mexico", wrong: ["Australia", "Africa", "Chile"] },
+                    { q: "Where is the Great Victoria Desert?", a: "Australia", wrong: ["Africa", "Asia", "South America"] },
+                    { q: "Where is the Great Sandy Desert?", a: "Australia", wrong: ["Africa", "Arabia", "USA"] },
+                    { q: "Where is the Thar Desert?", a: "India/Pakistan", wrong: ["Iran/Afghanistan", "Saudi Arabia", "Egypt/Libya"] },
+                    { q: "Where is the Taklamakan Desert?", a: "China", wrong: ["Mongolia", "Kazakhstan", "India"] },
+                    { q: "Where is the Rub' al Khali (Empty Quarter)?", a: "Saudi Arabia", wrong: ["Egypt", "Iran", "Afghanistan"] },
+                    { q: "Where is the Negev Desert?", a: "Israel", wrong: ["Jordan", "Egypt", "Saudi Arabia"] },
+                    { q: "Where is the Sinai Desert?", a: "Egypt", wrong: ["Israel", "Jordan", "Saudi Arabia"] },
+                    { q: "Where is Death Valley?", a: "USA (California)", wrong: ["Mexico", "Nevada", "Arizona"] },
+                    { q: "Where is the Patagonian Desert?", a: "Argentina", wrong: ["Chile", "Brazil", "Peru"] }
+                ],
 
-    deserts: [
-        { q: "Where is the Sahara Desert?", a: "Africa", wrong: ["Asia", "Australia", "Middle East"] },
-        { q: "Where is the Arabian Desert?", a: "Middle East", wrong: ["Africa", "Asia", "Australia"] },
-        { q: "Where is the Gobi Desert?", a: "Mongolia/China", wrong: ["India/Pakistan", "Iran/Afghanistan", "Kazakhstan/Uzbekistan"] },
-        { q: "Where is the Kalahari Desert?", a: "Southern Africa", wrong: ["North Africa", "Middle East", "Australia"] },
-        { q: "Where is the Namib Desert?", a: "Namibia", wrong: ["South Africa", "Botswana", "Angola"] },
-        { q: "Where is the Atacama Desert?", a: "Chile", wrong: ["Peru", "Argentina", "Bolivia"] },
-        { q: "Where is the Mojave Desert?", a: "USA", wrong: ["Mexico", "Australia", "Africa"] },
-        { q: "Where is the Sonoran Desert?", a: "USA/Mexico", wrong: ["Australia", "Africa", "Chile"] },
-        { q: "Where is the Chihuahuan Desert?", a: "USA/Mexico", wrong: ["South America", "Africa", "Australia"] },
-        { q: "Where is the Great Basin Desert?", a: "USA", wrong: ["Canada", "Mexico", "Australia"] },
-        { q: "Where is the Colorado Plateau Desert?", a: "USA", wrong: ["Mexico", "Australia", "Africa"] },
-        { q: "Where is the Patagonian Desert?", a: "Argentina", wrong: ["Chile", "Brazil", "Peru"] },
-        { q: "Where is the Great Victoria Desert?", a: "Australia", wrong: ["Africa", "Asia", "South America"] },
-        { q: "Where is the Great Sandy Desert?", a: "Australia", wrong: ["Africa", "Arabia", "USA"] },
-        { q: "Where is the Gibson Desert?", a: "Australia", wrong: ["Africa", "Asia", "Americas"] },
-        { q: "Where is the Simpson Desert?", a: "Australia", wrong: ["Africa", "Arabia", "China"] },
-        { q: "Where is the Tanami Desert?", a: "Australia", wrong: ["Africa", "Arabia", "India"] },
-        { q: "Where is the Thar Desert?", a: "India/Pakistan", wrong: ["Iran/Afghanistan", "Saudi Arabia", "Egypt/Libya"] },
-        { q: "Where is the Karakum Desert?", a: "Turkmenistan", wrong: ["Kazakhstan", "Iran", "Afghanistan"] },
-        { q: "Where is the Kyzylkum Desert?", a: "Uzbekistan/Kazakhstan", wrong: ["Iran/Iraq", "Afghanistan/Pakistan", "Mongolia/China"] },
-        { q: "Where is the Taklamakan Desert?", a: "China", wrong: ["Mongolia", "Kazakhstan", "India"] },
-        { q: "Where is the Dasht-e Kavir?", a: "Iran", wrong: ["Afghanistan", "Pakistan", "Iraq"] },
-        { q: "Where is the Dasht-e Lut?", a: "Iran", wrong: ["Afghanistan", "Saudi Arabia", "Egypt"] },
-        { q: "Where is the Syrian Desert?", a: "Syria/Iraq/Jordan", wrong: ["Egypt/Libya", "Saudi Arabia only", "Iran/Afghanistan"] },
-        { q: "Where is the Negev Desert?", a: "Israel", wrong: ["Jordan", "Egypt", "Saudi Arabia"] },
-        { q: "Where is the Sinai Desert?", a: "Egypt", wrong: ["Israel", "Jordan", "Saudi Arabia"] },
-        { q: "Where is the Rub' al Khali (Empty Quarter)?", a: "Saudi Arabia", wrong: ["Egypt", "Iran", "Afghanistan"] },
-        { q: "Where is the Nubian Desert?", a: "Sudan/Egypt", wrong: ["Libya/Chad", "Ethiopia/Eritrea", "Algeria/Tunisia"] },
-        { q: "Where is the Libyan Desert?", a: "Libya/Egypt", wrong: ["Sudan/Chad", "Algeria/Tunisia", "Morocco/Mauritania"] },
-        { q: "Where is the Danakil Desert?", a: "Ethiopia/Eritrea", wrong: ["Sudan/Egypt", "Kenya/Somalia", "Yemen/Oman"] },
-        { q: "Where is the Chalbi Desert?", a: "Kenya", wrong: ["Tanzania", "Ethiopia", "Somalia"] },
-        { q: "Where is the Monte Desert?", a: "Argentina", wrong: ["Chile", "Brazil", "Peru"] },
-        { q: "Where is the Sechura Desert?", a: "Peru", wrong: ["Chile", "Ecuador", "Bolivia"] },
-        { q: "Where is Death Valley?", a: "USA (California)", wrong: ["Mexico", "Nevada", "Arizona"] },
-        { q: "Where is the Painted Desert?", a: "USA (Arizona)", wrong: ["New Mexico", "Utah", "Nevada"] },
-        { q: "Where is the Ordos Desert?", a: "China", wrong: ["Mongolia", "Kazakhstan", "Russia"] }
-    ],
+                oceans: [
+                    { q: "Which is the largest ocean?", a: "Pacific Ocean", wrong: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"] },
+                    { q: "Which is the second largest ocean?", a: "Atlantic Ocean", wrong: ["Pacific Ocean", "Indian Ocean", "Southern Ocean"] },
+                    { q: "Which is the third largest ocean?", a: "Indian Ocean", wrong: ["Atlantic Ocean", "Pacific Ocean", "Arctic Ocean"] },
+                    { q: "Which is the smallest ocean?", a: "Arctic Ocean", wrong: ["Indian Ocean", "Atlantic Ocean", "Southern Ocean"] },
+                    { q: "Which ocean surrounds Antarctica?", a: "Southern Ocean", wrong: ["Arctic Ocean", "Atlantic Ocean", "Pacific Ocean"] },
+                    { q: "Which ocean borders the east coast of USA?", a: "Atlantic Ocean", wrong: ["Pacific Ocean", "Indian Ocean", "Arctic Ocean"] },
+                    { q: "Which ocean borders the west coast of USA?", a: "Pacific Ocean", wrong: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"] },
+                    { q: "Which ocean borders India?", a: "Indian Ocean", wrong: ["Pacific Ocean", "Atlantic Ocean", "Arabian Sea only"] },
+                    { q: "Which sea is between Europe and Africa?", a: "Mediterranean Sea", wrong: ["Black Sea", "Red Sea", "Caribbean Sea"] },
+                    { q: "Which sea separates Arabia from Africa?", a: "Red Sea", wrong: ["Arabian Sea", "Persian Gulf", "Gulf of Aden"] },
+                    { q: "Which gulf separates Iran from Arabia?", a: "Persian Gulf", wrong: ["Gulf of Oman", "Red Sea", "Arabian Sea"] },
+                    { q: "Where is the Caribbean Sea?", a: "Central America/West Indies", wrong: ["South America", "Africa", "Southeast Asia"] },
+                    { q: "Which sea borders Japan?", a: "Sea of Japan", wrong: ["East China Sea", "South China Sea", "Yellow Sea"] },
+                    { q: "Which sea is between Australia and New Zealand?", a: "Tasman Sea", wrong: ["Coral Sea", "Arafura Sea", "Solomon Sea"] },
+                    { q: "Where is the Bay of Bengal?", a: "East of India", wrong: ["West of India", "South of India", "North of India"] },
+                    { q: "Which strait connects Atlantic and Pacific?", a: "Strait of Magellan", wrong: ["Bering Strait", "Strait of Gibraltar", "Strait of Hormuz"] },
+                    { q: "Which strait connects Mediterranean and Atlantic?", a: "Strait of Gibraltar", wrong: ["Suez Canal", "Bosphorus", "Dardanelles"] },
+                    { q: "Which canal connects Mediterranean and Red Sea?", a: "Suez Canal", wrong: ["Panama Canal", "Strait of Gibraltar", "Bosphorus"] },
+                    { q: "Which canal connects Atlantic and Pacific through Central America?", a: "Panama Canal", wrong: ["Suez Canal", "Strait of Magellan", "Nicaragua Canal"] },
+                    { q: "Where is the English Channel?", a: "Between England and France", wrong: ["Between UK and Ireland", "Between Denmark and Sweden", "Between Spain and Morocco"] },
+                    { q: "Which is the deepest point in the ocean?", a: "Mariana Trench (Pacific)", wrong: ["Puerto Rico Trench (Atlantic)", "Java Trench (Indian)", "Arctic Basin (Arctic)"] }
+                ],
 
-    oceans: [
-        { q: "Which is the largest ocean?", a: "Pacific Ocean", wrong: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"] },
-        { q: "Which is the second largest ocean?", a: "Atlantic Ocean", wrong: ["Pacific Ocean", "Indian Ocean", "Southern Ocean"] },
-        { q: "Which is the third largest ocean?", a: "Indian Ocean", wrong: ["Atlantic Ocean", "Pacific Ocean", "Arctic Ocean"] },
-        { q: "Which is the smallest ocean?", a: "Arctic Ocean", wrong: ["Indian Ocean", "Atlantic Ocean", "Southern Ocean"] },
-        { q: "Which ocean surrounds Antarctica?", a: "Southern Ocean", wrong: ["Arctic Ocean", "Atlantic Ocean", "Pacific Ocean"] },
-        { q: "Which ocean borders the east coast of USA?", a: "Atlantic Ocean", wrong: ["Pacific Ocean", "Indian Ocean", "Arctic Ocean"] },
-        { q: "Which ocean borders the west coast of USA?", a: "Pacific Ocean", wrong: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"] },
-        { q: "Which ocean borders India?", a: "Indian Ocean", wrong: ["Pacific Ocean", "Atlantic Ocean", "Arabian Sea only"] },
-        { q: "Which ocean borders Australia's east coast?", a: "Pacific Ocean", wrong: ["Indian Ocean", "Atlantic Ocean", "Southern Ocean"] },
-        { q: "Which ocean borders Australia's west coast?", a: "Indian Ocean", wrong: ["Pacific Ocean", "Atlantic Ocean", "Southern Ocean"] },
-        { q: "Which sea is between Europe and Africa?", a: "Mediterranean Sea", wrong: ["Black Sea", "Red Sea", "Caribbean Sea"] },
-        { q: "Which sea is between Europe and Asia?", a: "Black Sea", wrong: ["Mediterranean Sea", "Caspian Sea", "Baltic Sea"] },
-        { q: "Which sea borders Scandinavia?", a: "Baltic Sea", wrong: ["North Sea", "Norwegian Sea", "Barents Sea"] },
-        { q: "Which sea is the largest enclosed sea?", a: "Caspian Sea", wrong: ["Black Sea", "Mediterranean Sea", "Red Sea"] },
-        { q: "Which sea separates Arabia from Africa?", a: "Red Sea", wrong: ["Arabian Sea", "Persian Gulf", "Gulf of Aden"] },
-        { q: "Which gulf separates Iran from Arabia?", a: "Persian Gulf", wrong: ["Gulf of Oman", "Red Sea", "Arabian Sea"] },
-        { q: "Where is the Caribbean Sea?", a: "Central America/West Indies", wrong: ["South America", "Africa", "Southeast Asia"] },
-        { q: "Where is the Gulf of Mexico?", a: "Between USA and Mexico", wrong: ["Mediterranean", "South America", "Africa"] },
-        { q: "Which sea borders Japan?", a: "Sea of Japan", wrong: ["East China Sea", "South China Sea", "Yellow Sea"] },
-        { q: "Which sea borders Korea?", a: "Yellow Sea", wrong: ["Sea of Japan", "East China Sea", "Philippine Sea"] },
-        { q: "Which sea is between China and Philippines?", a: "South China Sea", wrong: ["East China Sea", "Philippine Sea", "Yellow Sea"] },
-        { q: "Which sea borders Thailand?", a: "Andaman Sea/Gulf of Thailand", wrong: ["South China Sea", "Java Sea", "Celebes Sea"] },
-        { q: "Which sea is north of Australia?", a: "Arafura Sea", wrong: ["Coral Sea", "Tasman Sea", "Timor Sea"] },
-        { q: "Which sea is between Australia and New Zealand?", a: "Tasman Sea", wrong: ["Coral Sea", "Arafura Sea", "Solomon Sea"] },
-        { q: "Where is the Coral Sea?", a: "Northeast of Australia", wrong: ["Northwest of Australia", "South of Australia", "West of Australia"] },
-        { q: "Where is the Arabian Sea?", a: "Between India and Arabia", wrong: ["Mediterranean", "Southeast Asia", "East Africa"] },
-        { q: "Where is the Bay of Bengal?", a: "East of India", wrong: ["West of India", "South of India", "North of India"] },
-        { q: "Where is the Norwegian Sea?", a: "Between Norway and Iceland", wrong: ["Baltic region", "Mediterranean", "Black Sea region"] },
-        { q: "Where is the Barents Sea?", a: "North of Norway/Russia", wrong: ["Baltic region", "Near Iceland", "Near UK"] },
-        { q: "Where is the Bering Sea?", a: "Between Alaska and Russia", wrong: ["Near Japan", "Near Hawaii", "Near Canada"] },
-        { q: "Where is the Sea of Okhotsk?", a: "East of Russia", wrong: ["Near Japan", "Near China", "Near Korea"] },
-        { q: "Which strait connects Atlantic and Pacific?", a: "Strait of Magellan", wrong: ["Bering Strait", "Strait of Gibraltar", "Strait of Hormuz"] },
-        { q: "Which strait connects Mediterranean and Atlantic?", a: "Strait of Gibraltar", wrong: ["Suez Canal", "Bosphorus", "Dardanelles"] },
-        { q: "Which strait connects Black Sea to Mediterranean?", a: "Bosphorus/Dardanelles", wrong: ["Strait of Gibraltar", "Suez Canal", "Strait of Hormuz"] },
-        { q: "Which canal connects Mediterranean and Red Sea?", a: "Suez Canal", wrong: ["Panama Canal", "Strait of Gibraltar", "Bosphorus"] },
-        { q: "Which canal connects Atlantic and Pacific through Central America?", a: "Panama Canal", wrong: ["Suez Canal", "Strait of Magellan", "Nicaragua Canal"] },
-        { q: "Where is the English Channel?", a: "Between England and France", wrong: ["Between UK and Ireland", "Between Denmark and Sweden", "Between Spain and Morocco"] },
-        { q: "Where is the Strait of Hormuz?", a: "Persian Gulf entrance", wrong: ["Red Sea", "Mediterranean", "Indian Ocean"] },
-        { q: "Where is the Malacca Strait?", a: "Between Malaysia and Indonesia", wrong: ["Between Japan and Korea", "Between Philippines and Taiwan", "Between India and Sri Lanka"] },
-        { q: "Which is the deepest point in the ocean?", a: "Mariana Trench (Pacific)", wrong: ["Puerto Rico Trench (Atlantic)", "Java Trench (Indian)", "Arctic Basin (Arctic)"] },
-        { q: "Where is the Great Barrier Reef?", a: "Australia (Coral Sea)", wrong: ["Caribbean", "Red Sea", "Indian Ocean"] },
-        { q: "Where is the Sargasso Sea?", a: "Atlantic Ocean", wrong: ["Pacific Ocean", "Indian Ocean", "Mediterranean"] },
-        { q: "Which sea has no coastline (surrounded by currents)?", a: "Sargasso Sea", wrong: ["Caspian Sea", "Dead Sea", "Aral Sea"] }
-    ],
-
-    populations: [
-        { q: "Which country has the largest population?", a: "India", wrong: ["China", "USA", "Indonesia"] },
-        { q: "Which country has the second largest population?", a: "China", wrong: ["India", "USA", "Indonesia"] },
-        { q: "Which country has the third largest population?", a: "USA", wrong: ["India", "Indonesia", "Brazil"] },
-        { q: "Which country has the fourth largest population?", a: "Indonesia", wrong: ["Brazil", "Pakistan", "Nigeria"] },
-        { q: "Which country has the fifth largest population?", a: "Pakistan", wrong: ["Brazil", "Nigeria", "Bangladesh"] },
-        { q: "Which country has the sixth largest population?", a: "Nigeria", wrong: ["Brazil", "Bangladesh", "Russia"] },
-        { q: "Which country has the seventh largest population?", a: "Brazil", wrong: ["Nigeria", "Bangladesh", "Russia"] },
-        { q: "Which country has the eighth largest population?", a: "Bangladesh", wrong: ["Russia", "Mexico", "Japan"] },
-        { q: "Which European country has the largest population?", a: "Russia", wrong: ["Germany", "UK", "France"] },
-        { q: "Which EU country has the largest population?", a: "Germany", wrong: ["France", "Italy", "Spain"] },
-        { q: "Which African country has the largest population?", a: "Nigeria", wrong: ["Ethiopia", "Egypt", "DR Congo"] },
-        { q: "Which South American country has the largest population?", a: "Brazil", wrong: ["Argentina", "Colombia", "Peru"] },
-        { q: "Which Southeast Asian country has the largest population?", a: "Indonesia", wrong: ["Philippines", "Vietnam", "Thailand"] },
-        { q: "Which Middle Eastern country has the largest population?", a: "Egypt", wrong: ["Iran", "Turkey", "Saudi Arabia"] },
-        { q: "Which country has approximately 1.4 billion people?", a: "India/China", wrong: ["USA", "Indonesia", "Brazil"] },
-        { q: "Which country has approximately 330 million people?", a: "USA", wrong: ["Brazil", "Indonesia", "Nigeria"] },
-        { q: "Which country has approximately 275 million people?", a: "Indonesia", wrong: ["Brazil", "Pakistan", "Nigeria"] },
-        { q: "Which country has approximately 230 million people?", a: "Pakistan", wrong: ["Brazil", "Nigeria", "Bangladesh"] },
-        { q: "Which country has approximately 220 million people?", a: "Nigeria", wrong: ["Bangladesh", "Brazil", "Russia"] },
-        { q: "Which country has approximately 215 million people?", a: "Brazil", wrong: ["Nigeria", "Bangladesh", "Russia"] },
-        { q: "Which country has approximately 170 million people?", a: "Bangladesh", wrong: ["Russia", "Mexico", "Japan"] },
-        { q: "Which country has approximately 145 million people?", a: "Russia", wrong: ["Mexico", "Japan", "Ethiopia"] },
-        { q: "Which country has approximately 130 million people?", a: "Mexico/Japan", wrong: ["Ethiopia", "Philippines", "Egypt"] },
-        { q: "Which country has approximately 125 million people?", a: "Ethiopia", wrong: ["Philippines", "Egypt", "Vietnam"] },
-        { q: "Which country has approximately 115 million people?", a: "Philippines", wrong: ["Egypt", "Vietnam", "DR Congo"] },
-        { q: "Which country has approximately 105 million people?", a: "Egypt", wrong: ["Vietnam", "DR Congo", "Turkey"] },
-        { q: "Which country has approximately 100 million people?", a: "Vietnam", wrong: ["DR Congo", "Turkey", "Iran"] },
-        { q: "Which country has approximately 95 million people?", a: "DR Congo", wrong: ["Turkey", "Iran", "Germany"] },
-        { q: "Which country has approximately 85 million people?", a: "Turkey/Iran/Germany", wrong: ["UK", "France", "Thailand"] },
-        { q: "Which country has approximately 70 million people?", a: "UK/France/Thailand", wrong: ["Italy", "South Africa", "South Korea"] },
-        { q: "Which is more populous: UK or France?", a: "About the same (~67M)", wrong: ["UK by far", "France by far", "Neither reaches 50M"] },
-        { q: "Which is more populous: Germany or France?", a: "Germany", wrong: ["France", "Same population", "Neither reaches 70M"] },
-        { q: "Which is more populous: Japan or Mexico?", a: "About the same (~125M)", wrong: ["Japan by far", "Mexico by far", "Neither reaches 100M"] },
-        { q: "Which is more populous: Indonesia or Brazil?", a: "Indonesia", wrong: ["Brazil", "Same population", "Neither reaches 200M"] },
-        { q: "Which is more populous: Nigeria or Brazil?", a: "About the same (~215M)", wrong: ["Nigeria by far", "Brazil by far", "Neither reaches 200M"] },
-        { q: "Which is more populous: India or China?", a: "India (as of 2023)", wrong: ["China", "Same population", "Neither reaches 1 billion"] },
-        { q: "Which is more populous: Canada or Australia?", a: "Canada", wrong: ["Australia", "Same population", "Neither reaches 30M"] },
-        { q: "Which is more populous: Spain or Poland?", a: "Spain", wrong: ["Poland", "Same population", "Neither reaches 40M"] },
-        { q: "Which is more populous: Italy or South Korea?", a: "Italy", wrong: ["South Korea", "Same population", "Neither reaches 50M"] },
-        { q: "Which country has the smallest population?", a: "Vatican City", wrong: ["Monaco", "San Marino", "Liechtenstein"] },
-        { q: "Which has less than 1 million people: Iceland or Malta?", a: "Both", wrong: ["Only Iceland", "Only Malta", "Neither"] },
-        { q: "Approximately how many people live in Tokyo metro area?", a: "37-38 million", wrong: ["20 million", "50 million", "15 million"] },
-        { q: "Approximately how many people live in Delhi metro area?", a: "32-33 million", wrong: ["20 million", "45 million", "15 million"] },
-        { q: "Approximately how many people live in Shanghai metro area?", a: "28-29 million", wrong: ["15 million", "40 million", "20 million"] },
-        { q: "Which city has the largest metro population?", a: "Tokyo", wrong: ["Delhi", "Shanghai", "Beijing"] },
-        { q: "Which has more people: New York or London metro?", a: "New York", wrong: ["London", "Same", "Neither reaches 15M"] },
-        { q: "Which continent has the most people?", a: "Asia", wrong: ["Africa", "Europe", "Americas"] },
-        { q: "What percentage of world population lives in Asia?", a: "About 60%", wrong: ["About 40%", "About 80%", "About 30%"] },
-        { q: "Which region is growing fastest in population?", a: "Sub-Saharan Africa", wrong: ["South Asia", "Southeast Asia", "Middle East"] }
-    ]
-};
-
-// ========================================
-// ADD THIS: QUESTION TRACKING SYSTEM
-// Add this to your State object or create new:
-// ========================================
-
-const QuestionTracker = {
-    usedQuestions: {},
-    
-    init() {
-        try {
-            const saved = localStorage.getItem('geoblitz_used_questions');
-            if (saved) {
-                const data = JSON.parse(saved);
-                // Reset if older than 30 days
-                if (Date.now() - data.timestamp > 30 * 24 * 60 * 60 * 1000) {
-                    this.reset();
-                } else {
-                    this.usedQuestions = data.questions || {};
-                }
-            }
-        } catch(e) {
-            this.reset();
-        }
-    },
-    
-    reset() {
-        this.usedQuestions = {};
-        this.save();
-    },
-    
-    save() {
-        localStorage.setItem('geoblitz_used_questions', JSON.stringify({
-            timestamp: Date.now(),
-            questions: this.usedQuestions
-        }));
-    },
-    
-    markUsed(category, index) {
-        if (!this.usedQuestions[category]) {
-            this.usedQuestions[category] = [];
-        }
-        if (!this.usedQuestions[category].includes(index)) {
-            this.usedQuestions[category].push(index);
-        }
-        this.save();
-    },
-    
-    getUnusedQuestion(category) {
-        const questions = QUESTIONS[category];
-        if (!questions || questions.length === 0) return null;
-        
-        const used = this.usedQuestions[category] || [];
-        const available = [];
-        
-        for (let i = 0; i < questions.length; i++) {
-            if (!used.includes(i)) {
-                available.push({ index: i, question: questions[i] });
-            }
-        }
-        
-        // If all used, reset this category
-        if (available.length === 0) {
-            this.usedQuestions[category] = [];
-            this.save();
-            return { 
-                index: Math.floor(Math.random() * questions.length), 
-                question: questions[Math.floor(Math.random() * questions.length)] 
+                populations: [
+                    { q: "Which country has the largest population?", a: "India", wrong: ["China", "USA", "Indonesia"] },
+                    { q: "Which country has the second largest population?", a: "China", wrong: ["India", "USA", "Indonesia"] },
+                    { q: "Which country has the third largest population?", a: "USA", wrong: ["India", "Indonesia", "Brazil"] },
+                    { q: "Which country has the fourth largest population?", a: "Indonesia", wrong: ["Brazil", "Pakistan", "Nigeria"] },
+                    { q: "Which European country has the largest population?", a: "Russia", wrong: ["Germany", "UK", "France"] },
+                    { q: "Which EU country has the largest population?", a: "Germany", wrong: ["France", "Italy", "Spain"] },
+                    { q: "Which African country has the largest population?", a: "Nigeria", wrong: ["Ethiopia", "Egypt", "DR Congo"] },
+                    { q: "Which South American country has the largest population?", a: "Brazil", wrong: ["Argentina", "Colombia", "Peru"] },
+                    { q: "Which Southeast Asian country has the largest population?", a: "Indonesia", wrong: ["Philippines", "Vietnam", "Thailand"] },
+                    { q: "Which country has approximately 330 million people?", a: "USA", wrong: ["Brazil", "Indonesia", "Nigeria"] },
+                    { q: "Which country has approximately 215 million people?", a: "Brazil", wrong: ["Nigeria", "Bangladesh", "Russia"] },
+                    { q: "Which country has approximately 170 million people?", a: "Bangladesh", wrong: ["Russia", "Mexico", "Japan"] },
+                    { q: "Which country has approximately 145 million people?", a: "Russia", wrong: ["Mexico", "Japan", "Ethiopia"] },
+                    { q: "Which country has approximately 125 million people?", a: "Japan/Mexico", wrong: ["Ethiopia", "Philippines", "Egypt"] },
+                    { q: "Which is more populous: UK or France?", a: "About the same (~67M)", wrong: ["UK by far", "France by far", "Neither reaches 50M"] },
+                    { q: "Which is more populous: Germany or France?", a: "Germany", wrong: ["France", "Same population", "Neither reaches 70M"] },
+                    { q: "Which is more populous: Indonesia or Brazil?", a: "Indonesia", wrong: ["Brazil", "Same population", "Neither reaches 200M"] },
+                    { q: "Which city has the largest metro population?", a: "Tokyo", wrong: ["Delhi", "Shanghai", "Beijing"] },
+                    { q: "Which continent has the most people?", a: "Asia", wrong: ["Africa", "Europe", "Americas"] },
+                    { q: "What percentage of world population lives in Asia?", a: "About 60%", wrong: ["About 40%", "About 80%", "About 30%"] },
+                    { q: "Which country has the smallest population?", a: "Vatican City", wrong: ["Monaco", "San Marino", "Liechtenstein"] }
+                ]
             };
-        }
-        
-        const selected = available[Math.floor(Math.random() * available.length)];
-        this.markUsed(category, selected.index);
-        return selected;
-    }
-};
 
-// Initialize tracker
-QuestionTracker.init();
+            // ========================================
+            // QUESTION TRACKER (Prevents Repeats)
+            // ========================================
+            const QuestionTracker = {
+                usedQuestions: {},
+                
+                init() {
+                    try {
+                        const saved = localStorage.getItem('geoblitz_used_questions');
+                        if (saved) {
+                            const data = JSON.parse(saved);
+                            if (Date.now() - data.timestamp > 30 * 24 * 60 * 60 * 1000) {
+                                this.reset();
+                            } else {
+                                this.usedQuestions = data.questions || {};
+                            }
+                        }
+                    } catch(e) {
+                        this.reset();
+                    }
+                },
+                
+                reset() {
+                    this.usedQuestions = {};
+                    this.save();
+                },
+                
+                               save() {
+                    localStorage.setItem('geoblitz_used_questions', JSON.stringify({
+                        timestamp: Date.now(),
+                        questions: this.usedQuestions
+                    }));
+                },
+                
+                markUsed(category, index) {
+                    if (!this.usedQuestions[category]) {
+                        this.usedQuestions[category] = [];
+                    }
+                    if (!this.usedQuestions[category].includes(index)) {
+                        this.usedQuestions[category].push(index);
+                    }
+                    this.save();
+                },
+                
+                getUnusedQuestion(category) {
+                    const questions = QUESTIONS[category];
+                    if (!questions || questions.length === 0) return null;
+                    
+                    const used = this.usedQuestions[category] || [];
+                    const available = [];
+                    
+                    for (let i = 0; i < questions.length; i++) {
+                        if (!used.includes(i)) {
+                            available.push({ index: i, question: questions[i] });
+                        }
+                    }
+                    
+                    if (available.length === 0) {
+                        this.usedQuestions[category] = [];
+                        this.save();
+                        const idx = Math.floor(Math.random() * questions.length);
+                        return { index: idx, question: questions[idx] };
+                    }
+                    
+                    const selected = available[Math.floor(Math.random() * available.length)];
+                    this.markUsed(category, selected.index);
+                    return selected;
+                }
+            };
 
-        
             // ========================================
             // DIFFICULTY CONFIG
             // ========================================
@@ -3108,13 +2756,11 @@ QuestionTracker.init();
                 isPlaying: false,
                 isPaused: false,
                 
-                // Settings
                 categories: ['capitals', 'flags'],
                 difficulty: 'medium',
                 soundOn: true,
                 volume: 70,
                 
-                // Game stats
                 score: 0,
                 correct: 0,
                 wrong: 0,
@@ -3123,16 +2769,13 @@ QuestionTracker.init();
                 combo: 1,
                 questionNum: 0,
                 
-                // Timer
                 totalTime: 60,
                 timeRemaining: 60,
                 timerInterval: null,
                 
-                // Current question
                 currentQ: null,
                 questionPool: [],
                 
-                // Persistent
                 stats: {
                     highScore: 0,
                     gamesPlayed: 0,
@@ -3194,7 +2837,7 @@ QuestionTracker.init();
             }
 
             // ========================================
-            // AUDIO
+            // AUDIO SYSTEM
             // ========================================
             const Audio = {
                 ctx: null,
@@ -3274,7 +2917,7 @@ QuestionTracker.init();
                 const lines = [
                     "GEOBLITZ ARCADE SYSTEM v1.0",
                     "INITIALIZING GEOGRAPHY MODULE...",
-                    "LOADING QUESTION DATABASE... OK",
+                    "LOADING 1000+ QUESTIONS... OK",
                     "CALIBRATING TIMER CIRCUITS...",
                     "ESTABLISHING NEURAL LINKS...",
                     "SYSTEM READY."
@@ -3351,31 +2994,21 @@ QuestionTracker.init();
             // ========================================
             // GAME LOGIC
             // ========================================
-           // ========================================
-// REPLACE buildQuestionPool FUNCTION WITH THIS
-// (Uses question tracker to avoid repeats)
-// ========================================
-
-function buildQuestionPool() {
-    State.questionPool = [];
-    
-    State.categories.forEach(cat => {
-        if (QUESTIONS[cat]) {
-            // Add category info to each question
-            QUESTIONS[cat].forEach((q, idx) => {
-                State.questionPool.push({ 
-                    ...q, 
-                    category: cat,
-                    originalIndex: idx 
+            function buildQuestionPool() {
+                State.questionPool = [];
+                State.categories.forEach(cat => {
+                    if (QUESTIONS[cat]) {
+                        QUESTIONS[cat].forEach((q, idx) => {
+                            State.questionPool.push({ 
+                                ...q, 
+                                category: cat,
+                                originalIndex: idx 
+                            });
+                        });
+                    }
                 });
-            });
-        }
-    });
-    
-    // Shuffle the pool
-    State.questionPool.sort(() => Math.random() - 0.5);
-}
-
+                State.questionPool.sort(() => Math.random() - 0.5);
+            }
 
             function startGame() {
                 buildQuestionPool();
@@ -3470,85 +3103,66 @@ function buildQuestionPool() {
                 else if (pct <= 40) DOM.timerBar.classList.add('warning');
             }
 
-            
-// ========================================
-// REPLACE nextQuestion FUNCTION WITH THIS  
-// (Uses tracking to prevent repeats)
-// ========================================
+            function nextQuestion() {
+                if (!State.isPlaying || State.timeRemaining <= 0) return;
 
-function nextQuestion() {
-    if (!State.isPlaying || State.timeRemaining <= 0) return;
+                State.questionNum++;
+                
+                const cat = State.categories[Math.floor(Math.random() * State.categories.length)];
+                const result = QuestionTracker.getUnusedQuestion(cat);
+                
+                if (result) {
+                    State.currentQ = { ...result.question, category: cat };
+                } else {
+                    const questions = QUESTIONS[cat];
+                    const idx = Math.floor(Math.random() * questions.length);
+                    State.currentQ = { ...questions[idx], category: cat };
+                }
+                
+                displayQuestion();
+            }
 
-    State.questionNum++;
-    
-    // Get random category from selected
-    const cat = State.categories[Math.floor(Math.random() * State.categories.length)];
-    
-    // Get unused question from tracker
-    const result = QuestionTracker.getUnusedQuestion(cat);
-    
-    if (result) {
-        State.currentQ = { ...result.question, category: cat };
-    } else {
-        // Fallback
-        const questions = QUESTIONS[cat];
-        const idx = Math.floor(Math.random() * questions.length);
-        State.currentQ = { ...questions[idx], category: cat };
-    }
-    
-    displayQuestion();
-}
-            
-// ========================================
-// REPLACE displayQuestion FUNCTION WITH THIS
-// (Shows real flag images from CDN)
-// ========================================
-
-function displayQuestion() {
-    const q = State.currentQ;
-    
-    // Category label
-    DOM.questionCategory.textContent = q.category.toUpperCase();
-    
-    // Question text - with REAL FLAGS
-    if (q.isFlag) {
-        // Use flagcdn.com for real flag images
-        const flagCode = q.q.toLowerCase();
-        DOM.questionText.innerHTML = `
-            <span style="font-size: 0.9rem; color: var(--text-dim); margin-right: 8px;">Identify this flag:</span>
-            <img src="https://flagcdn.com/w160/${flagCode}.png" 
-                 srcset="https://flagcdn.com/w320/${flagCode}.png 2x"
-                 alt="Flag" 
-                 style="height: 60px; border: 2px solid var(--border-dim); border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"
-                 onerror="this.src='https://flagcdn.com/w160/${flagCode}.png'; this.onerror=null;">
-        `;
-    } else {
-        DOM.questionText.textContent = q.q;
-    }
-    
-    DOM.questionNum.textContent = `Question ${State.questionNum}`;
-    
-    // Shuffle answers
-    const answers = [q.a, ...q.wrong].sort(() => Math.random() - 0.5);
-    const keys = ['A', 'B', 'C', 'D'];
-    
-    DOM.answersGrid.innerHTML = '';
-    answers.forEach((ans, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'answer-btn';
-        btn.dataset.key = keys[i];
-        btn.dataset.answer = ans;
-        btn.dataset.correct = ans === q.a;
-        btn.textContent = ans;
-        btn.addEventListener('click', () => handleAnswer(btn, ans === q.a));
-        DOM.answersGrid.appendChild(btn);
-    });
-}
+            function displayQuestion() {
+                const q = State.currentQ;
+                
+                DOM.questionCategory.textContent = q.category.toUpperCase();
+                
+                if (q.isFlag) {
+                    const flagCode = q.q.toLowerCase();
+                    DOM.questionText.innerHTML = `
+                        <span style="font-size: 0.9rem; color: var(--text-dim); margin-right: 8px;">Identify this flag:</span>
+                        <img src="https://flagcdn.com/w160/${flagCode}.png" 
+                             srcset="https://flagcdn.com/w320/${flagCode}.png 2x"
+                             alt="Flag" 
+                             class="flag-img"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                        <span style="display:none; font-size: 2rem;">🏳️</span>
+                    `;
+                } else {
+                    DOM.questionText.textContent = q.q;
+                }
+                
+                DOM.questionNum.textContent = `Question ${State.questionNum}`;
+                
+                const answers = [q.a, ...q.wrong].sort(() => Math.random() - 0.5);
+                const keys = ['A', 'B', 'C', 'D'];
+                
+                DOM.answersGrid.innerHTML = '';
+                answers.forEach((ans, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'answer-btn';
+                    btn.dataset.key = keys[i];
+                    btn.dataset.answer = ans;
+                    btn.dataset.correct = ans === q.a;
+                    btn.textContent = ans;
+                    btn.addEventListener('click', () => handleAnswer(btn, ans === q.a));
+                    DOM.answersGrid.appendChild(btn);
+                });
+            }
 
             function handleAnswer(btn, isCorrect) {
                 if (!State.isPlaying || State.isPaused) return;
                 
-                // Disable all buttons
                 const allBtns = DOM.answersGrid.querySelectorAll('.answer-btn');
                 allBtns.forEach(b => b.disabled = true);
                 
@@ -3560,13 +3174,11 @@ function displayQuestion() {
                     State.streak++;
                     if (State.streak > State.bestStreak) State.bestStreak = State.streak;
                     
-                    // Combo system
                     if (State.streak >= 10) State.combo = 4;
                     else if (State.streak >= 5) State.combo = 3;
                     else if (State.streak >= 3) State.combo = 2;
                     else State.combo = 1;
                     
-                    // Calculate points
                     const cfg = DIFFICULTY[State.difficulty];
                     const timeBonus = Math.round((State.timeRemaining / State.totalTime) * cfg.speedBonus);
                     const points = Math.round((cfg.basePoints + timeBonus) * State.combo);
@@ -3580,7 +3192,6 @@ function displayQuestion() {
                     }
                 } else {
                     btn.classList.add('wrong');
-                    // Show correct answer
                     allBtns.forEach(b => {
                         if (b.dataset.correct === 'true') b.classList.add('correct');
                     });
@@ -3593,7 +3204,6 @@ function displayQuestion() {
                 
                 updateHUD();
                 
-                // Next question after delay
                 setTimeout(() => {
                     if (State.isPlaying && State.timeRemaining > 0) {
                         nextQuestion();
@@ -3644,7 +3254,6 @@ function displayQuestion() {
                 
                 Audio.play('gameover');
                 
-                // Update stats
                 State.stats.gamesPlayed++;
                 State.stats.totalCorrect += State.correct;
                 const isNewRecord = State.score > State.stats.highScore;
@@ -3659,7 +3268,6 @@ function displayQuestion() {
                 const total = State.correct + State.wrong;
                 const accuracy = total > 0 ? Math.round((State.correct / total) * 100) : 0;
                 
-                // Determine title
                 let icon, title, titleClass, subtitle;
                 if (State.score >= 5000) {
                     icon = '🏆'; title = 'LEGENDARY!'; titleClass = 'amazing'; subtitle = 'Geography master!';
@@ -3678,9 +3286,12 @@ function displayQuestion() {
                 DOM.goTitle.className = `gameover-title ${titleClass}`;
                 DOM.goSubtitle.textContent = subtitle;
                 
-                DOM.newRecord.classList.toggle('hidden', !isNewRecord);
+                if (isNewRecord) {
+                    DOM.newRecord.classList.remove('hidden');
+                } else {
+                    DOM.newRecord.classList.add('hidden');
+                }
                 
-                // Animate score
                 let current = 0;
                 const step = Math.ceil(State.score / 30);
                 const interval = setInterval(() => {
@@ -3736,7 +3347,6 @@ function displayQuestion() {
                     `;
                 });
                 
-                // Add user
                 html += `
                     <div class="lb-entry you">
                         <div class="lb-rank">--</div>
@@ -3924,6 +3534,7 @@ function displayQuestion() {
                     if (confirm('Reset all progress?')) {
                         State.stats = { highScore: 0, gamesPlayed: 0, totalCorrect: 0, bestStreak: 0 };
                         saveStats();
+                        QuestionTracker.reset();
                         updateMenuStats();
                     }
                 });
@@ -3975,15 +3586,16 @@ function displayQuestion() {
             }
 
             // ========================================
-            // INIT
+            // INITIALIZE
             // ========================================
             function init() {
                 cacheDOM();
                 loadStats();
                 Audio.init();
+                QuestionTracker.init();
                 initEvents();
                 runBootSequence();
-                console.log('⚡ GeoBlitz v1.0 Ready!');
+                console.log('⚡ GeoBlitz v1.0 Ready! 1000+ Questions Loaded!');
             }
 
             if (document.readyState === 'loading') {
