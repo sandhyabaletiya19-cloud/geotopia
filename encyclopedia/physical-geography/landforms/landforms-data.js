@@ -2944,7 +2944,7 @@ const LandformsData = {
             coast: "Atlantic Ocean",
             features: "Shipwrecks, seal colonies, fog",
             shipwrecks: "1000+ recorded",
-            name origin: "Whale bones and shipwrecks",
+            origin: "Whale bones and shipwrecks",
             funFact: "Graveyard of 1000+ ships; Portuguese called it 'Gates of Hell'",
             imageUrl: "skeleton-coast.jpg"
         },
