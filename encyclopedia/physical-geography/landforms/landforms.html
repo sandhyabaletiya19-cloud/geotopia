@@ -1208,10 +1208,577 @@
             }
         }
 
-        function showDetails(name) {
-            alert(`📍 ${name}\n\nFull details would show:\n• Description\n• Images\n• Climate\n• Tourism info\n• Scientific data`);
+       // ============================================================
+// SHOW DETAILED INFO - BEAUTIFUL MODAL
+// ============================================================
+function showDetailedInfo(type, name) {
+    // Find the item in data
+    const data = landformData[type];
+    if (!data) {
+        console.error('Data not found for type:', type);
+        return;
+    }
+
+    const item = data.find(d => d.name === name);
+    
+    if (!item) {
+        console.error('Item not found:', name);
+        return;
+    }
+
+    // Create modal
+    createDetailModal(item, type);
+}
+
+// ============================================================
+// CREATE DETAIL MODAL
+// ============================================================
+function createDetailModal(item, type) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('landform-detail-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Emoji mapping
+    const emojis = {
+        'valleys': '🏞️', 'canyons': '🏔️', 'gorges': '⛰️',
+        'hot-deserts': '🏜️', 'cold-deserts': '❄️', 'coastal-deserts': '🌊',
+        'islands': '🏝️', 'archipelagos': '🗺️', 'peninsulas': '🌍',
+        'caves': '🕳️', 'glacial': '🧊', 'volcanic': '🌋',
+        'coastal': '🏖️', 'aeolian': '🌬️', 'fluvial': '💧'
+    };
+
+    const emoji = emojis[type] || '📍';
+    const typeName = type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    // Build info rows
+    let infoRowsHTML = '';
+    const excludeKeys = ['lat', 'lon', 'name', 'localName', 'id', 'imageUrl'];
+    
+    Object.entries(item).forEach(([key, value]) => {
+        if (!excludeKeys.includes(key) && value !== null && value !== undefined) {
+            // Format key
+            const label = key
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase())
+                .replace('Fun Fact', '🎉 Fun Fact')
+                .replace('Unesco Status', '🏛️ UNESCO Status')
+                .replace('Country', '🌍 Country')
+                .replace('Continent', '🌐 Continent')
+                .replace('Area', '📐 Area')
+                .replace('Length', '📏 Length')
+                .replace('Depth', '📉 Depth')
+                .replace('Height', '📈 Height')
+                .replace('Elevation', '⛰️ Elevation')
+                .replace('Type', '🏷️ Type')
+                .replace('Population', '👥 Population')
+                .replace('Temperature', '🌡️ Temperature');
+
+            // Format value
+            let displayValue = value;
+            if (typeof value === 'object') {
+                if (key === 'temperature') {
+                    displayValue = Object.entries(value)
+                        .map(([k, v]) => `<span class="temp-item">${k}: ${v}</span>`)
+                        .join(' | ');
+                } else {
+                    displayValue = JSON.stringify(value, null, 2);
+                }
+            }
+
+            // Special styling for fun fact
+            if (key === 'funFact') {
+                infoRowsHTML += `
+                    <tr class="fun-fact-row">
+                        <td colspan="2">
+                            <div class="fun-fact-cell">
+                                <strong>🎉 Fun Fact</strong>
+                                <p>${displayValue}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                infoRowsHTML += `
+                    <tr>
+                        <td class="label-cell">${label}</td>
+                        <td class="value-cell">${displayValue}</td>
+                    </tr>
+                `;
+            }
+        }
+    });
+
+    // Create modal HTML
+    const modalHTML = `
+        <div id="landform-detail-modal" class="detail-modal-overlay" onclick="closeDetailModal(event)">
+            <div class="detail-modal-content" onclick="event.stopPropagation()">
+                
+                <!-- Header -->
+                <div class="detail-modal-header">
+                    <div class="header-content">
+                        <span class="header-emoji">${emoji}</span>
+                        <div class="header-text">
+                            <h2>${item.name}</h2>
+                            ${item.localName ? `<p class="local-name">${item.localName}</p>` : ''}
+                            <span class="type-badge">${typeName}</span>
+                        </div>
+                    </div>
+                    <button class="close-modal-btn" onclick="closeDetailModal(event)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="detail-modal-body">
+                    
+                    <!-- Quick Stats -->
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <span class="stat-icon">🌍</span>
+                            <span class="stat-value">${item.country || 'N/A'}</span>
+                            <span class="stat-label">Country</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="stat-icon">🌐</span>
+                            <span class="stat-value">${item.continent || 'N/A'}</span>
+                            <span class="stat-label">Continent</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="stat-icon">📍</span>
+                            <span class="stat-value">${item.lat?.toFixed(2)}°, ${item.lon?.toFixed(2)}°</span>
+                            <span class="stat-label">Coordinates</span>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Info Table -->
+                    <div class="info-section">
+                        <h3>📋 Complete Information</h3>
+                        <table class="info-table">
+                            <tbody>
+                                ${infoRowsHTML}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <a href="https://www.google.com/maps?q=${item.lat},${item.lon}" 
+                           target="_blank" 
+                           class="action-btn google-maps-btn">
+                            <i class="fas fa-map-marker-alt"></i>
+                            View on Google Maps
+                        </a>
+                        <a href="https://www.google.com/maps/@${item.lat},${item.lon},10z/data=!3m1!1e3" 
+                           target="_blank" 
+                           class="action-btn satellite-btn">
+                            <i class="fas fa-satellite"></i>
+                            Satellite View
+                        </a>
+                        <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.name.replace(/ /g, '_'))}" 
+                           target="_blank" 
+                           class="action-btn wiki-btn">
+                            <i class="fab fa-wikipedia-w"></i>
+                            Wikipedia
+                        </a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(item.name + ' ' + type)}&tbm=isch" 
+                           target="_blank" 
+                           class="action-btn images-btn">
+                            <i class="fas fa-images"></i>
+                            View Images
+                        </a>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="detail-modal-footer">
+                    <p>📍 Exact Coordinates: ${item.lat}, ${item.lon}</p>
+                    <p>🗂️ Category: ${typeName}</p>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Add styles if not already added
+    addModalStyles();
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+
+    // Focus trap for accessibility
+    const modal = document.getElementById('landform-detail-modal');
+    modal.focus();
+}
+
+// ============================================================
+// CLOSE MODAL
+// ============================================================
+function closeDetailModal(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    const modal = document.getElementById('landform-detail-modal');
+    if (modal) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.remove();
+            document.body.style.overflow = '';
+        }, 300);
+    }
+}
+
+// Close on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeDetailModal();
+    }
+});
+
+// ============================================================
+// ADD MODAL STYLES (Only once)
+// ============================================================
+function addModalStyles() {
+    if (document.getElementById('modal-styles')) return;
+
+    const styles = document.createElement('style');
+    styles.id = 'modal-styles';
+    styles.textContent = `
+        /* Modal Overlay */
+        .detail-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
         }
 
+        .detail-modal-overlay.closing {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Modal Content */
+        .detail-modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Header */
+        .detail-modal-header {
+            background: linear-gradient(135deg, #1a5f7a 0%, #57c5b6 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .header-emoji {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .header-text h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .header-text .local-name {
+            margin: 0 0 8px 0;
+            opacity: 0.9;
+            font-style: italic;
+            font-size: 1rem;
+        }
+
+        .type-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .close-modal-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        /* Body */
+        .detail-modal-body {
+            padding: 25px 30px;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .quick-stat {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .quick-stat .stat-icon {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .quick-stat .stat-value {
+            font-weight: 700;
+            color: #1a5f7a;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .quick-stat .stat-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            display: block;
+            margin-top: 3px;
+        }
+
+        /* Info Section */
+        .info-section h3 {
+            color: #1a5f7a;
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        /* Info Table */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .info-table td {
+            padding: 12px 0;
+            vertical-align: top;
+        }
+
+        .info-table .label-cell {
+            font-weight: 600;
+            color: #495057;
+            width: 40%;
+            font-size: 0.95rem;
+        }
+
+        .info-table .value-cell {
+            color: #212529;
+            font-size: 0.95rem;
+        }
+
+        /* Fun Fact Row */
+        .fun-fact-row .fun-fact-cell {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe6f0 100%);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+            margin: 10px 0;
+        }
+
+        .fun-fact-row .fun-fact-cell strong {
+            color: #ff6b6b;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .fun-fact-row .fun-fact-cell p {
+            margin: 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Temperature items */
+        .temp-item {
+            background: #e3f2fd;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 0.85rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .google-maps-btn {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+        }
+
+        .satellite-btn {
+            background: linear-gradient(135deg, #1a5f7a 0%, #57c5b6 100%);
+        }
+
+        .wiki-btn {
+            background: linear-gradient(135deg, #333 0%, #666 100%);
+        }
+
+        .images-btn {
+            background: linear-gradient(135deg, #e91e63 0%, #ff5722 100%);
+        }
+
+        /* Footer */
+        .detail-modal-footer {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-radius: 0 0 20px 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .detail-modal-footer p {
+            margin: 5px 0;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .detail-modal-content {
+                border-radius: 15px;
+                margin: 10px;
+            }
+
+            .detail-modal-header {
+                padding: 20px;
+                border-radius: 15px 15px 0 0;
+            }
+
+            .header-emoji {
+                font-size: 2rem;
+            }
+
+            .header-text h2 {
+                font-size: 1.4rem;
+            }
+
+            .detail-modal-body {
+                padding: 20px;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .info-table .label-cell {
+                width: 45%;
+            }
+        }
+    `;
+
+    document.head.appendChild(styles);
+}
         // ============================================================
         // UI UPDATES
         // ============================================================
