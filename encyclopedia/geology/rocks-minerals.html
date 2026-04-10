@@ -4853,111 +4853,134 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    
-    <script>
-        // Global Variables
-        let map;
-        let fullscreenMap;
-        let currentTileLayer;
-        let allMarkers = [];
-        let markerClusterGroup;
-        let currentFilter = 'all';
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
-        // Toggle legend collapse/expand
-function toggleLegend() {
-    const legend = document.getElementById('mapLegend');
-    legend.classList.toggle('collapsed');
-}
+<script>
+    // ========== GLOBAL VARIABLES ==========
+    let map = null;
+    let fullscreenMap = null;
+    let currentTileLayer = null;
+    let allMarkers = [];
+    let markerClusterGroup = null;
+    let currentFilter = 'all';
+    let mapInitialized = false;
 
-        // Tile Layers
-        const tileLayers = {
-            street: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-            dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        };
+    // Tile Layers
+    const tileLayers = {
+        street: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    };
 
-        // Wait for DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hide loading after 1.5s
-            setTimeout(() => {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-            }, 1500);
+    // ========== WAIT FOR DOM ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing...');
+        
+        // Hide loading after 1.5s
+        setTimeout(() => {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden');
+            }
+        }, 1500);
 
-            // Initialize everything
-            createCrystals();
-            setupNavigation();
+        // Initialize everything
+        createCrystals();
+        setupNavigation();
+        setupScrollAnimations();
+        
+        // Initialize map after a short delay to ensure container exists
+        setTimeout(() => {
             initializeMap();
-            setupScrollAnimations();
+        }, 500);
+    });
+
+    // ========== CREATE FLOATING CRYSTALS ==========
+    function createCrystals() {
+        const container = document.getElementById('crystals');
+        if (!container) return;
+        
+        const colors = ['#00f5d4', '#845ef7', '#ff6b6b', '#ffd43b', '#4dabf7'];
+        
+        for (let i = 0; i < 40; i++) {
+            const crystal = document.createElement('div');
+            crystal.className = 'crystal';
+            crystal.style.left = Math.random() * 100 + '%';
+            crystal.style.animationDelay = Math.random() * 25 + 's';
+            crystal.style.animationDuration = (20 + Math.random() * 15) + 's';
+            container.appendChild(crystal);
+        }
+    }
+
+    // ========== NAVIGATION SETUP ==========
+    function setupNavigation() {
+        const nav = document.getElementById('mainNav');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        if (!nav) return;
+        
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+
+            // Update active nav link
+            const sections = document.querySelectorAll('section[id]');
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 200;
+                if (window.scrollY >= sectionTop) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href.includes(currentSection)) {
+                    link.classList.add('active');
+                }
+            });
         });
 
-        // Create floating crystals
-        function createCrystals() {
-            const container = document.getElementById('crystals');
-            const colors = ['#00f5d4', '#845ef7', '#ff6b6b', '#ffd43b', '#4dabf7'];
-            
-            for (let i = 0; i < 40; i++) {
-                const crystal = document.createElement('div');
-                crystal.className = 'crystal';
-                crystal.style.left = Math.random() * 100 + '%';
-                crystal.style.animationDelay = Math.random() * 25 + 's';
-                crystal.style.animationDuration = (20 + Math.random() * 15) + 's';
-                crystal.style.setProperty('--crystal-color', colors[Math.floor(Math.random() * colors.length)]);
-                container.appendChild(crystal);
-            }
-        }
-
-        // Navigation setup
-        function setupNavigation() {
-            const nav = document.getElementById('mainNav');
-            const navLinks = document.querySelectorAll('.nav-link');
-            
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 100) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
+        // Smooth scroll
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
                 }
-
-                // Update active nav link
-                const sections = document.querySelectorAll('section[id]');
-                let currentSection = '';
-                
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop - 200;
-                    if (window.scrollY >= sectionTop) {
-                        currentSection = section.getAttribute('id');
-                    }
-                });
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    const href = link.getAttribute('href');
-                    if (href && href.includes(currentSection)) {
-                        link.classList.add('active');
-                    }
-                });
             });
+        });
+    }
 
-            // Smooth scroll
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    if (href && href.startsWith('#')) {
-                        e.preventDefault();
-                        const target = document.querySelector(href);
-                        if (target) {
-                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }
-                });
-            });
+    // ========== INITIALIZE MAP ==========
+    function initializeMap() {
+        const mapContainer = document.getElementById('geologyMap');
+        
+        if (!mapContainer) {
+            console.error('Map container #geologyMap not found!');
+            return;
         }
 
-        // Initialize Map
-        function initializeMap() {
+        // Check if already initialized
+        if (mapInitialized && map) {
+            console.log('Map already initialized');
+            return;
+        }
+
+        try {
+            console.log('Initializing map...');
+            
             // Create map
             map = L.map('geologyMap', {
                 center: [20, 0],
@@ -4981,12 +5004,8 @@ function toggleLegend() {
                 showCoverageOnHover: false,
                 iconCreateFunction: function(cluster) {
                     const count = cluster.getChildCount();
-                    let size = 'small';
-                    if (count > 50) size = 'large';
-                    else if (count > 20) size = 'medium';
-                    
                     return L.divIcon({
-                        html: `<div style="background: linear-gradient(135deg, var(--accent), var(--accent3)); color: var(--primary); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron', sans-serif; box-shadow: 0 4px 15px rgba(0,245,212,0.4);">${count}</div>`,
+                        html: `<div style="background: linear-gradient(135deg, #00f5d4, #845ef7); color: #0a0a1a; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron', sans-serif; box-shadow: 0 4px 15px rgba(0,245,212,0.4);">${count}</div>`,
                         className: 'custom-cluster-icon',
                         iconSize: [40, 40]
                     });
@@ -4996,383 +5015,425 @@ function toggleLegend() {
             // Add all markers
             addAllMarkers();
             map.addLayer(markerClusterGroup);
+            
+            mapInitialized = true;
+            console.log('Map initialized successfully with', allMarkers.length, 'markers');
+
+        } catch (error) {
+            console.error('Error initializing map:', error);
         }
+    }
 
-        // Add all markers to map
-        function addAllMarkers() {
-            // Comprehensive marker data
-            const locations = [
-                // ===== MINERALS =====
-                // Gold
-                { lat: 35.5, lng: 139.7, type: 'mineral', name: 'Hishikari Gold Mine', country: 'Japan', details: 'One of the richest gold mines in the world', mineral: 'Gold' },
-                { lat: -26.2, lng: 28.0, type: 'mineral', name: 'Witwatersrand Basin', country: 'South Africa', details: 'Produced 40% of all gold ever mined', mineral: 'Gold' },
-                { lat: -21.2, lng: -43.5, type: 'mineral', name: 'Minas Gerais', country: 'Brazil', details: 'Major gold and gem producing region', mineral: 'Gold, Gems' },
-                { lat: 64.0, lng: -135.0, type: 'mineral', name: 'Klondike', country: 'Canada', details: 'Famous gold rush region', mineral: 'Gold' },
-                { lat: -6.0, lng: 106.8, type: 'mineral', name: 'Grasberg Mine', country: 'Indonesia', details: 'Largest gold mine and second largest copper mine', mineral: 'Gold, Copper' },
-                { lat: 41.5, lng: 64.4, type: 'mineral', name: 'Muruntau', country: 'Uzbekistan', details: 'Largest open-pit gold mine in the world', mineral: 'Gold' },
-                { lat: -6.8, lng: 147.0, type: 'mineral', name: 'Lihir Island', country: 'Papua New Guinea', details: 'Volcanic-hosted gold deposit', mineral: 'Gold' },
-                { lat: 6.0, lng: -2.0, type: 'mineral', name: 'Ashanti Belt', country: 'Ghana', details: 'Historic gold mining region', mineral: 'Gold' },
-                
-                // Diamonds
-                { lat: -21.2, lng: 25.5, type: 'gem', name: 'Jwaneng Mine', country: 'Botswana', details: 'Richest diamond mine by value', mineral: 'Diamond' },
-                { lat: 66.4, lng: 112.5, type: 'gem', name: 'Mir Mine', country: 'Russia', details: 'One of largest diamond mines ever excavated', mineral: 'Diamond' },
-                { lat: -28.7, lng: 24.0, type: 'gem', name: 'Kimberley', country: 'South Africa', details: 'Historic "Big Hole" diamond mine', mineral: 'Diamond' },
-                { lat: 64.8, lng: -110.6, type: 'gem', name: 'Diavik Mine', country: 'Canada', details: 'Major Canadian diamond producer', mineral: 'Diamond' },
-                { lat: -8.8, lng: 18.0, type: 'gem', name: 'Catoca Mine', country: 'Angola', details: 'Fourth largest diamond mine', mineral: 'Diamond' },
-                { lat: -29.0, lng: 29.5, type: 'gem', name: 'Letseng Mine', country: 'Lesotho', details: 'Highest dollar per carat mine', mineral: 'Diamond' },
-                
-                // Copper
-                { lat: -22.4, lng: -68.9, type: 'mineral', name: 'Chuquicamata', country: 'Chile', details: 'Largest open-pit copper mine', mineral: 'Copper' },
-                { lat: -13.5, lng: 28.5, type: 'mineral', name: 'Copperbelt', country: 'Zambia', details: 'Major copper mining region', mineral: 'Copper' },
-                { lat: 32.3, lng: -111.0, type: 'mineral', name: 'Morenci Mine', country: 'USA', details: 'Largest copper mine in North America', mineral: 'Copper' },
-                { lat: -5.5, lng: 29.2, type: 'mineral', name: 'Katanga Province', country: 'DR Congo', details: 'Major copper and cobalt deposits', mineral: 'Copper, Cobalt' },
-                
-                // Iron Ore
-                { lat: -23.4, lng: -46.4, type: 'mineral', name: 'Carajás Mine', country: 'Brazil', details: 'Largest iron ore mine in the world', mineral: 'Iron Ore' },
-                { lat: -23.0, lng: 119.7, type: 'mineral', name: 'Pilbara', country: 'Australia', details: 'Massive iron ore deposits', mineral: 'Iron Ore' },
-                { lat: 67.9, lng: 20.2, type: 'mineral', name: 'Kiruna', country: 'Sweden', details: 'Largest underground iron ore mine', mineral: 'Iron Ore' },
-                { lat: 52.5, lng: 36.0, type: 'mineral', name: 'Kursk Magnetic Anomaly', country: 'Russia', details: 'Largest known iron ore reserve', mineral: 'Iron Ore' },
-                
-                // Lithium
-                { lat: -23.5, lng: -67.8, type: 'mineral', name: 'Salar de Atacama', country: 'Chile', details: 'Largest lithium reserve', mineral: 'Lithium' },
-                { lat: -20.3, lng: -67.6, type: 'mineral', name: 'Salar de Uyuni', country: 'Bolivia', details: 'Largest salt flat, major lithium', mineral: 'Lithium' },
-                { lat: -24.0, lng: -66.5, type: 'mineral', name: 'Salta Province', country: 'Argentina', details: 'Lithium triangle', mineral: 'Lithium' },
-                { lat: -33.8, lng: 138.6, type: 'mineral', name: 'Adelaide Hills', country: 'Australia', details: 'Spodumene lithium deposits', mineral: 'Lithium' },
-                
-                // Rare Earth Elements
-                { lat: 41.8, lng: 109.9, type: 'mineral', name: 'Bayan Obo', country: 'China', details: 'Largest rare earth deposit (60% global)', mineral: 'Rare Earths' },
-                { lat: 35.3, lng: -115.5, type: 'mineral', name: 'Mountain Pass', country: 'USA', details: 'Major US rare earth mine', mineral: 'Rare Earths' },
-                { lat: -29.2, lng: 19.3, type: 'mineral', name: 'Steenkampskraal', country: 'South Africa', details: 'High-grade rare earth deposit', mineral: 'Rare Earths' },
-                
-                // Quartz & Crystals
-                { lat: -17.0, lng: -44.0, type: 'mineral', name: 'Minas Gerais Quartz', country: 'Brazil', details: 'World capital of quartz crystals', mineral: 'Quartz' },
-                { lat: 35.0, lng: -106.5, type: 'mineral', name: 'New Mexico Crystals', country: 'USA', details: 'Famous crystal localities', mineral: 'Quartz' },
-                { lat: 47.0, lng: 8.5, type: 'mineral', name: 'Swiss Alps', country: 'Switzerland', details: 'Famous alpine crystal pockets', mineral: 'Quartz, Fluorite' },
-                { lat: -19.0, lng: 47.5, type: 'mineral', name: 'Madagascar Crystals', country: 'Madagascar', details: 'Major crystal source', mineral: 'Various Crystals' },
-                
-                // Emeralds
-                { lat: 5.0, lng: -73.5, type: 'gem', name: 'Muzo & Chivor', country: 'Colombia', details: 'World finest emeralds', mineral: 'Emerald' },
-                { lat: -15.5, lng: 29.0, type: 'gem', name: 'Kagem Mine', country: 'Zambia', details: 'Largest emerald mine globally', mineral: 'Emerald' },
-                { lat: -17.5, lng: -44.5, type: 'gem', name: 'Belmont Mine', country: 'Brazil', details: 'Major emerald producer', mineral: 'Emerald' },
-                
-                // Rubies & Sapphires
-                { lat: 22.0, lng: 96.5, type: 'gem', name: 'Mogok Valley', country: 'Myanmar', details: 'Finest rubies in the world', mineral: 'Ruby, Sapphire' },
-                { lat: 7.0, lng: 80.0, type: 'gem', name: 'Ratnapura', country: 'Sri Lanka', details: 'City of Gems - sapphires', mineral: 'Sapphire' },
-                { lat: -20.0, lng: 47.0, type: 'gem', name: 'Ilakaka', country: 'Madagascar', details: 'Major sapphire deposit', mineral: 'Sapphire' },
-                { lat: 34.2, lng: 74.8, type: 'gem', name: 'Kashmir', country: 'India', details: 'Legendary Kashmir sapphires', mineral: 'Sapphire' },
-                { lat: -3.5, lng: 37.0, type: 'gem', name: 'Merelani Hills', country: 'Tanzania', details: 'Only tanzanite source', mineral: 'Tanzanite' },
-                { lat: 15.5, lng: 104.0, type: 'gem', name: 'Chanthaburi', country: 'Thailand', details: 'Major gem trading center', mineral: 'Ruby, Sapphire' },
-                
-                // Opals
-                { lat: -29.5, lng: 134.8, type: 'gem', name: 'Coober Pedy', country: 'Australia', details: 'Opal capital of the world', mineral: 'Opal' },
-                { lat: -30.0, lng: 141.0, type: 'gem', name: 'Lightning Ridge', country: 'Australia', details: 'Black opal source', mineral: 'Black Opal' },
-                { lat: 9.0, lng: 39.0, type: 'gem', name: 'Welo', country: 'Ethiopia', details: 'New opal discovery', mineral: 'Opal' },
-                
-                // Turquoise
-                { lat: 35.0, lng: -111.0, type: 'gem', name: 'Sleeping Beauty Mine', country: 'USA', details: 'Famous turquoise locality', mineral: 'Turquoise' },
-                { lat: 36.5, lng: 58.3, type: 'gem', name: 'Nishapur', country: 'Iran', details: 'Persian turquoise source', mineral: 'Turquoise' },
-                
-                // ===== ROCKS =====
-                { lat: 36.1, lng: -112.1, type: 'rock', name: 'Grand Canyon', country: 'USA', details: '2 billion years of geological history exposed', rock: 'Various - Sandstone, Limestone, Shale' },
-                { lat: -25.3, lng: 131.0, type: 'rock', name: 'Uluru (Ayers Rock)', country: 'Australia', details: 'Massive sandstone monolith', rock: 'Arkose Sandstone' },
-                { lat: 55.2, lng: -6.5, type: 'rock', name: "Giant's Causeway", country: 'UK (N. Ireland)', details: '40,000 basalt columns', rock: 'Basalt' },
-                { lat: 46.5, lng: 11.9, type: 'rock', name: 'Dolomites', country: 'Italy', details: 'Named location for dolomite rock', rock: 'Dolomite' },
-                { lat: 44.1, lng: 10.3, type: 'rock', name: 'Carrara', country: 'Italy', details: 'World famous marble quarries', rock: 'Marble' },
-                { lat: 27.2, lng: 78.0, type: 'rock', name: 'Makrana', country: 'India', details: 'Taj Mahal marble source', rock: 'Marble' },
-                { lat: 30.3, lng: 35.5, type: 'rock', name: 'Petra', country: 'Jordan', details: 'Rose-red sandstone city', rock: 'Sandstone' },
-                { lat: 52.9, lng: -3.0, type: 'rock', name: 'Snowdonia Slate', country: 'UK (Wales)', details: 'Historic slate quarries', rock: 'Slate' },
-                { lat: 63.9, lng: -22.4, type: 'rock', name: 'Reykjanes Peninsula', country: 'Iceland', details: 'Active volcanic area, basalt flows', rock: 'Basalt' },
-                { lat: 35.0, lng: -111.0, type: 'rock', name: 'Petrified Forest', country: 'USA', details: 'Fossilized wood from Triassic', rock: 'Petrified Wood' },
-                { lat: 43.7, lng: -110.5, type: 'rock', name: 'Yellowstone', country: 'USA', details: 'Volcanic features, obsidian, rhyolite', rock: 'Obsidian, Rhyolite' },
-                { lat: 36.5, lng: -117.5, type: 'rock', name: 'Death Valley', country: 'USA', details: 'Diverse rock exposures', rock: 'Various' },
-                { lat: -22.9, lng: -43.2, type: 'rock', name: 'Sugarloaf Mountain', country: 'Brazil', details: 'Granite/gneiss monolith', rock: 'Granite, Gneiss' },
-                { lat: 44.5, lng: 6.9, type: 'rock', name: 'Mont Blanc', country: 'France/Italy', details: 'Granite massif', rock: 'Granite' },
-                { lat: -33.9, lng: 18.4, type: 'rock', name: 'Table Mountain', country: 'South Africa', details: 'Sandstone flat-topped mountain', rock: 'Sandstone' },
-                { lat: 19.4, lng: -155.3, type: 'rock', name: 'Hawaii Volcanoes', country: 'USA', details: 'Active lava flows, basalt formation', rock: 'Basalt' },
-                { lat: 37.7, lng: 15.0, type: 'rock', name: 'Mount Etna', country: 'Italy', details: 'Active volcano, various igneous rocks', rock: 'Basalt, Trachyte' },
-                { lat: 29.6, lng: 35.4, type: 'rock', name: 'Wadi Rum', country: 'Jordan', details: 'Dramatic sandstone landscape', rock: 'Sandstone, Granite' },
-                
-                // ===== FOSSILS =====
-                { lat: 51.2, lng: -116.2, type: 'fossil', name: 'Burgess Shale', country: 'Canada', details: 'Best Cambrian fossils, UNESCO site', fossils: 'Cambrian fauna' },
-                { lat: 41.5, lng: 122.5, type: 'fossil', name: 'Liaoning Province', country: 'China', details: 'Feathered dinosaurs', fossils: 'Dinosaurs, Birds' },
-                { lat: 34.1, lng: -118.4, type: 'fossil', name: 'La Brea Tar Pits', country: 'USA', details: 'Ice Age mammals', fossils: 'Mammoths, Saber-tooths' },
-                { lat: 48.9, lng: 11.0, type: 'fossil', name: 'Solnhofen', country: 'Germany', details: 'Archaeopteryx discovery site', fossils: 'Archaeopteryx' },
-                { lat: 47.0, lng: -107.0, type: 'fossil', name: 'Hell Creek Formation', country: 'USA', details: 'T. rex and Triceratops', fossils: 'Dinosaurs' },
-                { lat: -26.0, lng: 27.8, type: 'fossil', name: 'Cradle of Humankind', country: 'South Africa', details: 'Human ancestor fossils, UNESCO', fossils: 'Hominids' },
-                { lat: -2.9, lng: 35.4, type: 'fossil', name: 'Olduvai Gorge', country: 'Tanzania', details: 'Human evolution site', fossils: 'Hominids, Tools' },
-                { lat: 50.2, lng: 8.8, type: 'fossil', name: 'Messel Pit', country: 'Germany', details: 'Eocene mammals, UNESCO', fossils: 'Mammals' },
-                { lat: 45.0, lng: -109.0, type: 'fossil', name: 'Morrison Formation', country: 'USA', details: 'Jurassic dinosaur bonebed', fossils: 'Dinosaurs' },
-                { lat: -43.0, lng: -68.0, type: 'fossil', name: 'Patagonia', country: 'Argentina', details: 'Largest dinosaurs', fossils: 'Titanosaurs' },
-                { lat: 43.5, lng: 104.0, type: 'fossil', name: 'Gobi Desert', country: 'Mongolia', details: 'Dinosaur eggs and nests', fossils: 'Dinosaurs, Eggs' },
-                { lat: 55.5, lng: 21.0, type: 'fossil', name: 'Baltic Amber Coast', country: 'Poland/Russia/Lithuania', details: 'Amber with insects', fossils: 'Insects in amber' },
-                { lat: 51.0, lng: -114.0, type: 'fossil', name: 'Dinosaur Provincial Park', country: 'Canada', details: '40+ dinosaur species, UNESCO', fossils: 'Dinosaurs' },
-                { lat: 24.5, lng: 102.5, type: 'fossil', name: 'Chengjiang', country: 'China', details: 'Cambrian explosion fossils, UNESCO', fossils: 'Cambrian fauna' },
-                { lat: -31.5, lng: 24.5, type: 'fossil', name: 'Karoo Basin', country: 'South Africa', details: 'Permian-Triassic fossils', fossils: 'Therapsids' },
-                { lat: -31.0, lng: 138.0, type: 'fossil', name: 'Ediacara Hills', country: 'Australia', details: 'Earliest complex life', fossils: 'Ediacaran fauna' },
-                { lat: -19.5, lng: 139.0, type: 'fossil', name: 'Riversleigh', country: 'Australia', details: 'Australian mammal evolution, UNESCO', fossils: 'Marsupials' },
-                { lat: 9.0, lng: 40.5, type: 'fossil', name: 'Afar Region', country: 'Ethiopia', details: 'Lucy discovery site', fossils: 'Australopithecus' },
-                { lat: 41.5, lng: -109.5, type: 'fossil', name: 'Green River Formation', country: 'USA', details: 'Eocene fish and plants', fossils: 'Fish, Plants' },
-                { lat: 50.7, lng: -2.4, type: 'fossil', name: 'Jurassic Coast', country: 'UK', details: '185 million years history, UNESCO', fossils: 'Marine reptiles' },
-                { lat: 68.0, lng: 135.0, type: 'fossil', name: 'Siberian Permafrost', country: 'Russia', details: 'Frozen mammoths', fossils: 'Mammoths' },
-                { lat: 29.5, lng: 30.8, type: 'fossil', name: 'Fayum Depression', country: 'Egypt', details: 'Early whales and primates', fossils: 'Whales, Primates' },
-                { lat: 28.0, lng: -16.5, type: 'fossil', name: 'Canary Islands', country: 'Spain', details: 'Giant lizard fossils', fossils: 'Reptiles' },
-                { lat: -45.0, lng: 170.5, type: 'fossil', name: 'Waitaki District', country: 'New Zealand', details: 'Giant penguin fossils', fossils: 'Penguins' },
-                { lat: 32.5, lng: -117.0, type: 'fossil', name: 'San Diego Formation', country: 'USA', details: 'Pliocene marine fossils', fossils: 'Marine life' }
-            ];
+    // ========== ADD ALL MARKERS ==========
+    function addAllMarkers() {
+        // Comprehensive marker data
+        const locations = [
+            // ===== MINERALS - GOLD =====
+            { lat: 35.5, lng: 139.7, type: 'mineral', name: 'Hishikari Gold Mine', country: 'Japan', details: 'One of the richest gold mines in the world', mineral: 'Gold' },
+            { lat: -26.2, lng: 28.0, type: 'mineral', name: 'Witwatersrand Basin', country: 'South Africa', details: 'Produced 40% of all gold ever mined', mineral: 'Gold' },
+            { lat: -21.2, lng: -43.5, type: 'mineral', name: 'Minas Gerais', country: 'Brazil', details: 'Major gold and gem producing region', mineral: 'Gold, Gems' },
+            { lat: 64.0, lng: -135.0, type: 'mineral', name: 'Klondike', country: 'Canada', details: 'Famous gold rush region', mineral: 'Gold' },
+            { lat: -6.0, lng: 106.8, type: 'mineral', name: 'Grasberg Mine', country: 'Indonesia', details: 'Largest gold mine and second largest copper mine', mineral: 'Gold, Copper' },
+            { lat: 41.5, lng: 64.4, type: 'mineral', name: 'Muruntau', country: 'Uzbekistan', details: 'Largest open-pit gold mine in the world', mineral: 'Gold' },
+            { lat: -6.8, lng: 147.0, type: 'mineral', name: 'Lihir Island', country: 'Papua New Guinea', details: 'Volcanic-hosted gold deposit', mineral: 'Gold' },
+            { lat: 6.0, lng: -2.0, type: 'mineral', name: 'Ashanti Belt', country: 'Ghana', details: 'Historic gold mining region', mineral: 'Gold' },
+            
+            // ===== DIAMONDS =====
+            { lat: -21.2, lng: 25.5, type: 'gem', name: 'Jwaneng Mine', country: 'Botswana', details: 'Richest diamond mine by value', mineral: 'Diamond' },
+            { lat: 66.4, lng: 112.5, type: 'gem', name: 'Mir Mine', country: 'Russia', details: 'One of largest diamond mines ever excavated', mineral: 'Diamond' },
+            { lat: -28.7, lng: 24.0, type: 'gem', name: 'Kimberley', country: 'South Africa', details: 'Historic "Big Hole" diamond mine', mineral: 'Diamond' },
+            { lat: 64.8, lng: -110.6, type: 'gem', name: 'Diavik Mine', country: 'Canada', details: 'Major Canadian diamond producer', mineral: 'Diamond' },
+            { lat: -8.8, lng: 18.0, type: 'gem', name: 'Catoca Mine', country: 'Angola', details: 'Fourth largest diamond mine', mineral: 'Diamond' },
+            { lat: -29.0, lng: 29.5, type: 'gem', name: 'Letseng Mine', country: 'Lesotho', details: 'Highest dollar per carat mine', mineral: 'Diamond' },
+            
+            // ===== COPPER =====
+            { lat: -22.4, lng: -68.9, type: 'mineral', name: 'Chuquicamata', country: 'Chile', details: 'Largest open-pit copper mine', mineral: 'Copper' },
+            { lat: -13.5, lng: 28.5, type: 'mineral', name: 'Copperbelt', country: 'Zambia', details: 'Major copper mining region', mineral: 'Copper' },
+            { lat: 32.3, lng: -111.0, type: 'mineral', name: 'Morenci Mine', country: 'USA', details: 'Largest copper mine in North America', mineral: 'Copper' },
+            { lat: -5.5, lng: 29.2, type: 'mineral', name: 'Katanga Province', country: 'DR Congo', details: 'Major copper and cobalt deposits', mineral: 'Copper, Cobalt' },
+            
+            // ===== IRON ORE =====
+            { lat: -23.4, lng: -46.4, type: 'mineral', name: 'Carajás Mine', country: 'Brazil', details: 'Largest iron ore mine in the world', mineral: 'Iron Ore' },
+            { lat: -23.0, lng: 119.7, type: 'mineral', name: 'Pilbara', country: 'Australia', details: 'Massive iron ore deposits', mineral: 'Iron Ore' },
+            { lat: 67.9, lng: 20.2, type: 'mineral', name: 'Kiruna', country: 'Sweden', details: 'Largest underground iron ore mine', mineral: 'Iron Ore' },
+            { lat: 52.5, lng: 36.0, type: 'mineral', name: 'Kursk Magnetic Anomaly', country: 'Russia', details: 'Largest known iron ore reserve', mineral: 'Iron Ore' },
+            
+            // ===== LITHIUM =====
+            { lat: -23.5, lng: -67.8, type: 'mineral', name: 'Salar de Atacama', country: 'Chile', details: 'Largest lithium reserve', mineral: 'Lithium' },
+            { lat: -20.3, lng: -67.6, type: 'mineral', name: 'Salar de Uyuni', country: 'Bolivia', details: 'Largest salt flat, major lithium', mineral: 'Lithium' },
+            { lat: -24.0, lng: -66.5, type: 'mineral', name: 'Salta Province', country: 'Argentina', details: 'Lithium triangle', mineral: 'Lithium' },
+            
+            // ===== RARE EARTHS =====
+            { lat: 41.8, lng: 109.9, type: 'mineral', name: 'Bayan Obo', country: 'China', details: 'Largest rare earth deposit (60% global)', mineral: 'Rare Earths' },
+            { lat: 35.3, lng: -115.5, type: 'mineral', name: 'Mountain Pass', country: 'USA', details: 'Major US rare earth mine', mineral: 'Rare Earths' },
+            
+            // ===== QUARTZ & CRYSTALS =====
+            { lat: -17.0, lng: -44.0, type: 'mineral', name: 'Minas Gerais Quartz', country: 'Brazil', details: 'World capital of quartz crystals', mineral: 'Quartz' },
+            { lat: 47.0, lng: 8.5, type: 'mineral', name: 'Swiss Alps', country: 'Switzerland', details: 'Famous alpine crystal pockets', mineral: 'Quartz, Fluorite' },
+            { lat: -19.0, lng: 47.5, type: 'mineral', name: 'Madagascar Crystals', country: 'Madagascar', details: 'Major crystal source', mineral: 'Various Crystals' },
+            
+            // ===== EMERALDS =====
+            { lat: 5.0, lng: -73.5, type: 'gem', name: 'Muzo & Chivor', country: 'Colombia', details: 'World finest emeralds', mineral: 'Emerald' },
+            { lat: -15.5, lng: 29.0, type: 'gem', name: 'Kagem Mine', country: 'Zambia', details: 'Largest emerald mine globally', mineral: 'Emerald' },
+            { lat: -17.5, lng: -44.5, type: 'gem', name: 'Belmont Mine', country: 'Brazil', details: 'Major emerald producer', mineral: 'Emerald' },
+            
+            // ===== RUBIES & SAPPHIRES =====
+            { lat: 22.0, lng: 96.5, type: 'gem', name: 'Mogok Valley', country: 'Myanmar', details: 'Finest rubies in the world', mineral: 'Ruby, Sapphire' },
+            { lat: 7.0, lng: 80.0, type: 'gem', name: 'Ratnapura', country: 'Sri Lanka', details: 'City of Gems - sapphires', mineral: 'Sapphire' },
+            { lat: -20.0, lng: 47.0, type: 'gem', name: 'Ilakaka', country: 'Madagascar', details: 'Major sapphire deposit', mineral: 'Sapphire' },
+            { lat: 34.2, lng: 74.8, type: 'gem', name: 'Kashmir', country: 'India', details: 'Legendary Kashmir sapphires', mineral: 'Sapphire' },
+            { lat: -3.5, lng: 37.0, type: 'gem', name: 'Merelani Hills', country: 'Tanzania', details: 'Only tanzanite source', mineral: 'Tanzanite' },
+            
+            // ===== OPALS =====
+            { lat: -29.5, lng: 134.8, type: 'gem', name: 'Coober Pedy', country: 'Australia', details: 'Opal capital of the world', mineral: 'Opal' },
+            { lat: -30.0, lng: 141.0, type: 'gem', name: 'Lightning Ridge', country: 'Australia', details: 'Black opal source', mineral: 'Black Opal' },
+            { lat: 9.0, lng: 39.0, type: 'gem', name: 'Welo', country: 'Ethiopia', details: 'New opal discovery', mineral: 'Opal' },
+            
+            // ===== TURQUOISE =====
+            { lat: 35.0, lng: -111.0, type: 'gem', name: 'Sleeping Beauty Mine', country: 'USA', details: 'Famous turquoise locality', mineral: 'Turquoise' },
+            { lat: 36.5, lng: 58.3, type: 'gem', name: 'Nishapur', country: 'Iran', details: 'Persian turquoise source', mineral: 'Turquoise' },
+            
+            // ===== ROCKS =====
+            { lat: 36.1, lng: -112.1, type: 'rock', name: 'Grand Canyon', country: 'USA', details: '2 billion years of geological history exposed', rock: 'Sandstone, Limestone, Shale' },
+            { lat: -25.3, lng: 131.0, type: 'rock', name: 'Uluru (Ayers Rock)', country: 'Australia', details: 'Massive sandstone monolith', rock: 'Arkose Sandstone' },
+            { lat: 55.2, lng: -6.5, type: 'rock', name: "Giant's Causeway", country: 'UK', details: '40,000 basalt columns', rock: 'Basalt' },
+            { lat: 46.5, lng: 11.9, type: 'rock', name: 'Dolomites', country: 'Italy', details: 'Named location for dolomite rock', rock: 'Dolomite' },
+            { lat: 44.1, lng: 10.3, type: 'rock', name: 'Carrara', country: 'Italy', details: 'World famous marble quarries', rock: 'Marble' },
+            { lat: 27.2, lng: 78.0, type: 'rock', name: 'Makrana', country: 'India', details: 'Taj Mahal marble source', rock: 'Marble' },
+            { lat: 30.3, lng: 35.5, type: 'rock', name: 'Petra', country: 'Jordan', details: 'Rose-red sandstone city', rock: 'Sandstone' },
+            { lat: 52.9, lng: -3.0, type: 'rock', name: 'Snowdonia Slate', country: 'UK', details: 'Historic slate quarries', rock: 'Slate' },
+            { lat: 63.9, lng: -22.4, type: 'rock', name: 'Reykjanes Peninsula', country: 'Iceland', details: 'Active volcanic area, basalt flows', rock: 'Basalt' },
+            { lat: 35.0, lng: -109.8, type: 'rock', name: 'Petrified Forest', country: 'USA', details: 'Fossilized wood from Triassic', rock: 'Petrified Wood' },
+            { lat: 44.4, lng: -110.6, type: 'rock', name: 'Yellowstone', country: 'USA', details: 'Volcanic features, obsidian, rhyolite', rock: 'Obsidian, Rhyolite' },
+            { lat: -22.9, lng: -43.2, type: 'rock', name: 'Sugarloaf Mountain', country: 'Brazil', details: 'Granite/gneiss monolith', rock: 'Granite, Gneiss' },
+            { lat: 45.8, lng: 6.9, type: 'rock', name: 'Mont Blanc', country: 'France', details: 'Granite massif', rock: 'Granite' },
+            { lat: -33.9, lng: 18.4, type: 'rock', name: 'Table Mountain', country: 'South Africa', details: 'Sandstone flat-topped mountain', rock: 'Sandstone' },
+            { lat: 19.4, lng: -155.3, type: 'rock', name: 'Hawaii Volcanoes', country: 'USA', details: 'Active lava flows, basalt formation', rock: 'Basalt' },
+            { lat: 37.7, lng: 15.0, type: 'rock', name: 'Mount Etna', country: 'Italy', details: 'Active volcano, various igneous rocks', rock: 'Basalt, Trachyte' },
+            { lat: 29.6, lng: 35.4, type: 'rock', name: 'Wadi Rum', country: 'Jordan', details: 'Dramatic sandstone landscape', rock: 'Sandstone, Granite' },
+            
+            // ===== FOSSILS =====
+            { lat: 51.2, lng: -116.2, type: 'fossil', name: 'Burgess Shale', country: 'Canada', details: 'Best Cambrian fossils, UNESCO site', fossils: 'Cambrian fauna' },
+            { lat: 41.5, lng: 122.5, type: 'fossil', name: 'Liaoning Province', country: 'China', details: 'Feathered dinosaurs', fossils: 'Dinosaurs, Birds' },
+            { lat: 34.1, lng: -118.4, type: 'fossil', name: 'La Brea Tar Pits', country: 'USA', details: 'Ice Age mammals', fossils: 'Mammoths, Saber-tooths' },
+            { lat: 48.9, lng: 11.0, type: 'fossil', name: 'Solnhofen', country: 'Germany', details: 'Archaeopteryx discovery site', fossils: 'Archaeopteryx' },
+            { lat: 47.0, lng: -107.0, type: 'fossil', name: 'Hell Creek Formation', country: 'USA', details: 'T. rex and Triceratops', fossils: 'Dinosaurs' },
+            { lat: -26.0, lng: 27.8, type: 'fossil', name: 'Cradle of Humankind', country: 'South Africa', details: 'Human ancestor fossils, UNESCO', fossils: 'Hominids' },
+            { lat: -2.9, lng: 35.4, type: 'fossil', name: 'Olduvai Gorge', country: 'Tanzania', details: 'Human evolution site', fossils: 'Hominids, Tools' },
+            { lat: 50.2, lng: 8.8, type: 'fossil', name: 'Messel Pit', country: 'Germany', details: 'Eocene mammals, UNESCO', fossils: 'Mammals' },
+            { lat: 45.0, lng: -109.0, type: 'fossil', name: 'Morrison Formation', country: 'USA', details: 'Jurassic dinosaur bonebed', fossils: 'Dinosaurs' },
+            { lat: -43.0, lng: -68.0, type: 'fossil', name: 'Patagonia', country: 'Argentina', details: 'Largest dinosaurs', fossils: 'Titanosaurs' },
+            { lat: 43.5, lng: 104.0, type: 'fossil', name: 'Gobi Desert', country: 'Mongolia', details: 'Dinosaur eggs and nests', fossils: 'Dinosaurs, Eggs' },
+            { lat: 55.5, lng: 21.0, type: 'fossil', name: 'Baltic Amber Coast', country: 'Poland/Lithuania', details: 'Amber with insects', fossils: 'Insects in amber' },
+            { lat: 51.0, lng: -114.0, type: 'fossil', name: 'Dinosaur Provincial Park', country: 'Canada', details: '40+ dinosaur species, UNESCO', fossils: 'Dinosaurs' },
+            { lat: 24.5, lng: 102.5, type: 'fossil', name: 'Chengjiang', country: 'China', details: 'Cambrian explosion fossils, UNESCO', fossils: 'Cambrian fauna' },
+            { lat: -31.5, lng: 24.5, type: 'fossil', name: 'Karoo Basin', country: 'South Africa', details: 'Permian-Triassic fossils', fossils: 'Therapsids' },
+            { lat: -31.0, lng: 138.0, type: 'fossil', name: 'Ediacara Hills', country: 'Australia', details: 'Earliest complex life', fossils: 'Ediacaran fauna' },
+            { lat: -19.5, lng: 139.0, type: 'fossil', name: 'Riversleigh', country: 'Australia', details: 'Australian mammal evolution, UNESCO', fossils: 'Marsupials' },
+            { lat: 9.0, lng: 40.5, type: 'fossil', name: 'Afar Region', country: 'Ethiopia', details: 'Lucy discovery site', fossils: 'Australopithecus' },
+            { lat: 41.5, lng: -109.5, type: 'fossil', name: 'Green River Formation', country: 'USA', details: 'Eocene fish and plants', fossils: 'Fish, Plants' },
+            { lat: 50.7, lng: -2.4, type: 'fossil', name: 'Jurassic Coast', country: 'UK', details: '185 million years history, UNESCO', fossils: 'Marine reptiles' },
+            { lat: 68.0, lng: 135.0, type: 'fossil', name: 'Siberian Permafrost', country: 'Russia', details: 'Frozen mammoths', fossils: 'Mammoths' },
+            { lat: 29.5, lng: 30.8, type: 'fossil', name: 'Fayum Depression', country: 'Egypt', details: 'Early whales and primates', fossils: 'Whales, Primates' }
+        ];
 
-            // Create markers for each location
-            locations.forEach(loc => {
-                const marker = createMarker(loc);
-                allMarkers.push({ marker, type: loc.type, data: loc });
-                markerClusterGroup.addLayer(marker);
-            });
-        }
+        // Create markers for each location
+        locations.forEach(loc => {
+            const marker = createMarker(loc);
+            allMarkers.push({ marker, type: loc.type, data: loc });
+            markerClusterGroup.addLayer(marker);
+        });
+    }
 
-        // Create custom marker
-        function createMarker(loc) {
-            const colors = {
-                mineral: 'linear-gradient(135deg, #00f5d4, #845ef7)',
-                rock: 'linear-gradient(135deg, #ff6b6b, #ffd43b)',
-                fossil: 'linear-gradient(135deg, #ffd43b, #ff6b6b)',
-                gem: 'linear-gradient(135deg, #845ef7, #ff6b6b)'
-            };
+    // ========== CREATE CUSTOM MARKER ==========
+    function createMarker(loc) {
+        const colors = {
+            mineral: 'linear-gradient(135deg, #00f5d4, #845ef7)',
+            rock: 'linear-gradient(135deg, #ff6b6b, #ffd43b)',
+            fossil: 'linear-gradient(135deg, #ffd43b, #ff6b6b)',
+            gem: 'linear-gradient(135deg, #845ef7, #ff6b6b)'
+        };
 
-            const icons = {
-                mineral: 'fa-gem',
-                rock: 'fa-mountain',
-                fossil: 'fa-bone',
-                gem: 'fa-crown'
-            };
+        const icons = {
+            mineral: 'fa-gem',
+            rock: 'fa-mountain',
+            fossil: 'fa-bone',
+            gem: 'fa-crown'
+        };
 
-            const icon = L.divIcon({
-                className: 'custom-marker',
-                html: `
-                    <div class="marker-pin ${loc.type}" style="background: ${colors[loc.type]};">
-                        <i class="fas ${icons[loc.type]}"></i>
-                    </div>
-                `,
-                iconSize: [30, 42],
-                iconAnchor: [15, 42],
-                popupAnchor: [0, -42]
-            });
-
-            const marker = L.marker([loc.lat, loc.lng], { icon });
-
-            // Create popup content
-            let content = `
-                <div style="min-width: 280px; max-width: 350px;">
-                    <h3 style="margin: 0 0 10px 0; color: var(--accent); font-family: 'Orbitron', sans-serif; font-size: 1.1rem;">
-                        ${loc.name}
-                    </h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                        <span style="padding: 4px 12px; background: rgba(0,245,212,0.2); color: #00f5d4; border-radius: 20px; font-size: 0.75rem; text-transform: uppercase;">
-                            ${loc.type}
-                        </span>
-                        <span style="padding: 4px 12px; background: rgba(255,255,255,0.1); color: var(--text-muted); border-radius: 20px; font-size: 0.75rem;">
-                            ${loc.country}
-                        </span>
-                    </div>
-                    <p style="margin: 0 0 10px 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
-                        ${loc.details}
-                    </p>
-            `;
-
-            if (loc.mineral) {
-                content += `<p style="margin: 5px 0; font-size: 0.85rem;"><strong style="color: #00f5d4;">Resource:</strong> <span style="color: var(--text-muted);">${loc.mineral}</span></p>`;
-            }
-            if (loc.rock) {
-                content += `<p style="margin: 5px 0; font-size: 0.85rem;"><strong style="color: #ff6b6b;">Rock Type:</strong> <span style="color: var(--text-muted);">${loc.rock}</span></p>`;
-            }
-            if (loc.fossils) {
-                content += `<p style="margin: 5px 0; font-size: 0.85rem;"><strong style="color: #ffd43b;">Fossils:</strong> <span style="color: var(--text-muted);">${loc.fossils}</span></p>`;
-            }
-
-            content += `
-                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <small style="color: var(--text-muted);">
-                            <i class="fas fa-map-marker-alt" style="color: var(--accent);"></i>
-                            ${loc.lat.toFixed(2)}°, ${loc.lng.toFixed(2)}°
-                        </small>
-                    </div>
+        const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `
+                <div class="marker-pin ${loc.type}" style="background: ${colors[loc.type]};">
+                    <i class="fas ${icons[loc.type]}"></i>
                 </div>
-            `;
+            `,
+            iconSize: [30, 42],
+            iconAnchor: [15, 42],
+            popupAnchor: [0, -42]
+        });
 
-            marker.bindPopup(content);
-            return marker;
+        const marker = L.marker([loc.lat, loc.lng], { icon });
+
+        // Create popup content
+        let content = `
+            <div style="min-width: 250px; max-width: 320px;">
+                <h3 style="margin: 0 0 10px 0; color: #00f5d4; font-family: 'Orbitron', sans-serif; font-size: 1rem;">
+                    ${loc.name}
+                </h3>
+                <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <span style="padding: 3px 10px; background: rgba(0,245,212,0.2); color: #00f5d4; border-radius: 15px; font-size: 0.7rem; text-transform: uppercase;">
+                        ${loc.type}
+                    </span>
+                    <span style="padding: 3px 10px; background: rgba(255,255,255,0.1); color: #a0aec0; border-radius: 15px; font-size: 0.7rem;">
+                        ${loc.country}
+                    </span>
+                </div>
+                <p style="margin: 0 0 8px 0; color: #a0aec0; font-size: 0.85rem; line-height: 1.5;">
+                    ${loc.details}
+                </p>
+        `;
+
+        if (loc.mineral) {
+            content += `<p style="margin: 4px 0; font-size: 0.8rem;"><strong style="color: #00f5d4;">Resource:</strong> <span style="color: #a0aec0;">${loc.mineral}</span></p>`;
+        }
+        if (loc.rock) {
+            content += `<p style="margin: 4px 0; font-size: 0.8rem;"><strong style="color: #ff6b6b;">Rock Type:</strong> <span style="color: #a0aec0;">${loc.rock}</span></p>`;
+        }
+        if (loc.fossils) {
+            content += `<p style="margin: 4px 0; font-size: 0.8rem;"><strong style="color: #ffd43b;">Fossils:</strong> <span style="color: #a0aec0;">${loc.fossils}</span></p>`;
         }
 
-        // Filter map markers
-        function filterMapMarkers(type) {
-            currentFilter = type;
-            
-            // Update buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+        content += `
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <small style="color: #718096;">
+                        <i class="fas fa-map-marker-alt" style="color: #00f5d4;"></i>
+                        ${loc.lat.toFixed(2)}°, ${loc.lng.toFixed(2)}°
+                    </small>
+                </div>
+            </div>
+        `;
+
+        marker.bindPopup(content);
+        return marker;
+    }
+
+    // ========== FILTER MAP MARKERS ==========
+    function filterMapMarkers(type) {
+        // Check if map is initialized
+        if (!mapInitialized || !markerClusterGroup) {
+            console.warn('Map not initialized yet, initializing now...');
+            initializeMap();
+            return;
+        }
+
+        currentFilter = type;
+        
+        // Update buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        if (event && event.target) {
             event.target.classList.add('active');
-
-            // Clear cluster group
-            markerClusterGroup.clearLayers();
-
-            // Add filtered markers
-            allMarkers.forEach(item => {
-                if (type === 'all' || item.type === type) {
-                    markerClusterGroup.addLayer(item.marker);
-                }
-            });
         }
 
-        // Change map style
-        function changeMapStyle(style, btn) {
-            map.removeLayer(currentTileLayer);
-            
-            currentTileLayer = L.tileLayer(tileLayers[style], {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 18
-            }).addTo(map);
+        // Clear cluster group
+        markerClusterGroup.clearLayers();
 
-            // Update buttons
-            document.querySelectorAll('.map-control-btn').forEach(b => {
-                b.classList.remove('active');
-            });
+        // Add filtered markers
+        allMarkers.forEach(item => {
+            if (type === 'all' || item.type === type) {
+                markerClusterGroup.addLayer(item.marker);
+            }
+        });
+
+        console.log('Filtered to:', type, '- showing', markerClusterGroup.getLayers().length, 'markers');
+    }
+
+    // ========== CHANGE MAP STYLE ==========
+    function changeMapStyle(style, btn) {
+        if (!map || !currentTileLayer) {
+            console.warn('Map not ready');
+            return;
+        }
+
+        map.removeLayer(currentTileLayer);
+        
+        currentTileLayer = L.tileLayer(tileLayers[style], {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        // Update buttons
+        document.querySelectorAll('.map-control-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        if (btn) {
             btn.classList.add('active');
         }
+    }
 
-        // Fullscreen map
-        function openFullscreen() {
-            const modal = document.getElementById('fullscreenModal');
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+    // ========== FULLSCREEN MAP ==========
+    function openFullscreen() {
+        const modal = document.getElementById('fullscreenModal');
+        if (!modal) return;
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
 
-            setTimeout(() => {
-                if (fullscreenMap) {
-                    fullscreenMap.remove();
-                }
-
-                fullscreenMap = L.map('fullscreenMapContainer', {
-                    center: map.getCenter(),
-                    zoom: map.getZoom(),
-                    worldCopyJump: true
-                });
-
-                L.tileLayer(tileLayers.dark, {
-                    attribution: '© OpenStreetMap',
-                    maxZoom: 18
-                }).addTo(fullscreenMap);
-
-                // Clone markers to fullscreen map
-                const fsClusterGroup = L.markerClusterGroup({
-                    chunkedLoading: true,
-                    maxClusterRadius: 50
-                });
-
-                allMarkers.forEach(item => {
-                    if (currentFilter === 'all' || item.type === currentFilter) {
-                        const newMarker = createMarker(item.data);
-                        fsClusterGroup.addLayer(newMarker);
-                    }
-                });
-
-                fullscreenMap.addLayer(fsClusterGroup);
-            }, 100);
-        }
-
-        function closeFullscreen() {
-            const modal = document.getElementById('fullscreenModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
+        setTimeout(() => {
+            const container = document.getElementById('fullscreenMapContainer');
+            if (!container) return;
 
             if (fullscreenMap) {
                 fullscreenMap.remove();
-                fullscreenMap = null;
             }
-        }
 
-        // ESC to close
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeFullscreen();
-            }
+            fullscreenMap = L.map('fullscreenMapContainer', {
+                center: map ? map.getCenter() : [20, 0],
+                zoom: map ? map.getZoom() : 2,
+                worldCopyJump: true
+            });
+
+            L.tileLayer(tileLayers.dark, {
+                attribution: '© OpenStreetMap',
+                maxZoom: 18
+            }).addTo(fullscreenMap);
+
+            // Clone markers to fullscreen map
+            const fsClusterGroup = L.markerClusterGroup({
+                chunkedLoading: true,
+                maxClusterRadius: 50
+            });
+
+            allMarkers.forEach(item => {
+                if (currentFilter === 'all' || item.type === currentFilter) {
+                    const newMarker = createMarker(item.data);
+                    fsClusterGroup.addLayer(newMarker);
+                }
+            });
+
+            fullscreenMap.addLayer(fsClusterGroup);
+        }, 100);
+    }
+
+    function closeFullscreen() {
+        const modal = document.getElementById('fullscreenModal');
+        if (!modal) return;
+        
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+
+        if (fullscreenMap) {
+            fullscreenMap.remove();
+            fullscreenMap = null;
+        }
+    }
+
+    // ESC to close fullscreen
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeFullscreen();
+        }
+    });
+
+    // ========== TOGGLE LEGEND ==========
+    function toggleLegend() {
+        const legend = document.getElementById('mapLegend');
+        if (legend) {
+            legend.classList.toggle('collapsed');
+        }
+    }
+
+    // ========== MINERAL TABS ==========
+    function showMineralTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
         });
 
-        // Tab functionality for minerals
-        function showMineralTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            document.getElementById('tab-' + tabId).classList.add('active');
+        const tabElement = document.getElementById('tab-' + tabId);
+        if (tabElement) {
+            tabElement.classList.add('active');
+        }
+        if (event && event.target) {
             event.target.classList.add('active');
         }
+    }
 
-        // Table search/filter
-        function filterTable(tableId, inputId) {
-            const input = document.getElementById(inputId);
-            const filter = input.value.toLowerCase();
-            const table = document.getElementById(tableId);
-            const rows = table.getElementsByTagName('tr');
+    // ========== TABLE SEARCH ==========
+    function filterTable(tableId, inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        
+        const rows = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                let found = false;
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
 
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].textContent.toLowerCase().includes(filter)) {
-                        found = true;
-                        break;
-                    }
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().includes(filter)) {
+                    found = true;
+                    break;
                 }
-
-                rows[i].style.display = found ? '' : 'none';
             }
-        }
 
-        // Scroll to tab
-        function scrollToTab(tabId) {
-            const tabSection = document.getElementById(tabId);
-            if (tabSection) {
-                tabSection.scrollIntoView({ behavior: 'smooth' });
-            }
+            rows[i].style.display = found ? '' : 'none';
         }
+    }
 
-        // Mobile menu toggle
-        function toggleMobileMenu() {
-            const navLinks = document.getElementById('navLinks');
+    // ========== MOBILE MENU ==========
+    function toggleMobileMenu() {
+        const navLinks = document.getElementById('navLinks');
+        if (navLinks) {
             navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
         }
+    }
 
-        // Scroll animations
-        function setupScrollAnimations() {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+    // ========== SCROLL ANIMATIONS ==========
+    function setupScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.glass-card, .info-box, .data-table-wrapper, .timeline-content, .item-card').forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(30px)';
-                el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                observer.observe(el);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
             });
-        }
+        }, observerOptions);
 
-        // Handle resize
-        window.addEventListener('resize', function() {
-            if (map) map.invalidateSize();
-            if (fullscreenMap) fullscreenMap.invalidateSize();
+        document.querySelectorAll('.glass-card, .info-box, .data-table-wrapper, .timeline-content, .item-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            observer.observe(el);
         });
-    </script>
+    }
+
+    // ========== HANDLE RESIZE ==========
+    window.addEventListener('resize', function() {
+        if (map) map.invalidateSize();
+        if (fullscreenMap) fullscreenMap.invalidateSize();
+    });
+
+    // ========== SCROLL TO ELEMENT ==========
+    function scrollToTab(tabId) {
+        const element = document.getElementById(tabId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+</script>
 </body>
 </html>
