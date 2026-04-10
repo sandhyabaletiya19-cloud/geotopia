@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landforms Encyclopedia | GeoTopia</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        /* ============================================
+           CORE STYLES (Simplified for testing)
+        ============================================ */
+        :root {
+            --primary-start: #0a4d68;
+            --primary-mid: #1a7f9e;
+            --primary-end: #57c5b6;
+            --accent-gold: #f0b90b;
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 15px 0;
+            background: rgba(10, 15, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .nav-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .nav-title span {
+            color: var(--primary-end);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-mid));
+            border-radius: var(--radius-md);
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 0 20px rgba(87, 197, 182, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 80px;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(87, 197, 182, 0.1) 0%, transparent 70%);
+        }
+
+        .hero-content {
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, rgba(87, 197, 182, 0.2), rgba(26, 127, 158, 0.2));
+            border: 1px solid rgba(87, 197, 182, 0.3);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-end);
+            margin-bottom: 25px;
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-end), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-end);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-end);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-mid));
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            background: linear-gradient(135deg, var(--primary-end), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .landform-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .landform-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(87, 197, 182, 0.2);
+        }
+
+        .card-header {
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(87, 197, 182, 0.1), rgba(26, 127, 158, 0.05));
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .card-stat {
+            background: var(--bg-glass);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--primary-end);
+        }
+
+        /* Map Container */
+        .map-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-top: 40px;
+        }
+
+        .map-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(26, 127, 158, 0.1), rgba(10, 77, 104, 0.1));
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .map-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .map-title-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .map-title h4 {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .map-title span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .map-container {
+            height: 500px;
+            width: 100%;
+        }
+
+        .map-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(10, 77, 104, 0.1), rgba(26, 127, 158, 0.05));
+        }
+
+        .map-stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-md);
+        }
+
+        .map-stat-item .number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-end);
+        }
+
+        .map-stat-item .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Table Styles */
+        .table-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(26, 127, 158, 0.1), rgba(10, 77, 104, 0.1));
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .table-count {
+            background: var(--primary-end);
+            color: var(--bg-primary);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .table-search {
+            position: relative;
+        }
+
+        .table-search input {
+            padding: 10px 15px 10px 40px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            width: 250px;
+            outline: none;
+        }
+
+        .table-search input:focus {
+            border-color: var(--primary-end);
+        }
+
+        .table-search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .data-table-container {
+            overflow-x: auto;
+            max-height: 500px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            background: var(--bg-tertiary);
+            z-index: 10;
+        }
+
+        .data-table th {
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-light);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-glass);
+        }
+
+        .country-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .country-flag {
+            font-size: 1.5rem;
+        }
+
+        .country-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .continent-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(87, 197, 182, 0.15);
+            color: var(--primary-end);
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-mid));
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-tertiary);
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .footer p {
+            color: var(--text-muted);
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 100px 15px 60px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .map-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .table-search input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="nav-logo">🌍</div>
+                <div class="nav-title">Geo<span>Topia</span></div>
+            </div>
+            <a href="https://sandhyabaletiya19-cloud.github.io/geotopia/encyclopedia/physical-geography/index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Physical Geography
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-mountain"></i>
+                Complete Global Encyclopedia
+            </div>
+            <h1 class="hero-title">🌍 Earth's Landforms</h1>
+            <p class="hero-subtitle">
+                Explore valleys, canyons, deserts, islands, caves, glaciers, volcanoes, and more across 
+                <strong>197 countries</strong> with interactive maps and detailed data!
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🏔️</div>
+                    <div class="stat-number">11</div>
+                    <div class="stat-label">Landform Types</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌍</div>
+                    <div class="stat-number">197</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Locations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🗺️</div>
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Interactive Maps</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Landform Categories -->
+    <section class="section" style="background: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-layer-group"></i>
+                    Landform Categories
+                </div>
+                <h2 class="section-title">Explore Earth's Diverse Landforms</h2>
+                <p class="section-subtitle">Click on any category to learn more</p>
+            </div>
+
+            <div class="cards-grid">
+                <!-- Valleys -->
+                <div class="landform-card" data-aos="fade-up">
+                    <div class="card-header">
+                        <div class="card-icon">⛰️</div>
+                        <h3 class="card-title">Valleys</h3>
+                        <p class="card-subtitle">V-Shaped, U-Shaped, Rift Valleys</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Elongated depressions between mountains carved by rivers or glaciers. 
+                            From the Great Rift Valley to Yosemite!
+                        </p>
+                        <div class="card-stats">
+                            <span class="card-stat">100+ mapped</span>
+                            <span class="card-stat">6 types</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canyons -->
+                <div class="landform-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-header">
+                        <div class="card-icon">🏜️</div>
+                        <h3 class="card-title">Canyons</h3>
+                        <p class="card-subtitle">River, Slot, Box, Submarine</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Deep valleys with steep sides carved by rivers. The Grand Canyon 
+                            is 446 km long and 1,857 m deep!
+                        </p>
+                        <div class="card-stats">
+                            <span class="card-stat">100+ mapped</span>
+                            <span class="card-stat">4 types</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deserts -->
+                <div class="landform-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-header">
+                        <div class="card-icon">☀️</div>
+                        <h3 class="card-title">Deserts</h3>
+                        <p class="card-subtitle">Hot, Cold, Coastal</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Arid regions covering 33% of Earth's land. Antarctica is actually 
+                            the largest desert!
+                        </p>
+                        <div class="card-stats">
+                            <span class="card-stat">50+ mapped</span>
+                            <span class="card-stat">3 types</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Islands -->
+                <div class="landform-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card-header">
+                        <div class="card-icon">🏝️</div>
+                        <h3 class="card-title">Islands</h3>
+                        <p class="card-subtitle">Continental, Volcanic, Coral</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Land surrounded by water. Earth has 900,000+ islands! 
+                            Indonesia alone has 17,508!
+                        </p>
+                        <div class="card-stats">
+                            <span class="card-stat">50+ mapped</span>
+                            <span class="card-stat">3 types</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Caves -->
+                <div class="landform-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card-header">
+                        <div class="card-icon">🕳️</div>
+                        <h3 class="card-title">Caves</h3>
+                        <p class="card-subtitle">Limestone, Lava, Ice, Sea</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Underground voids in rock. Mammoth Cave is 676 km long - 
+                            the world's longest!
+                        </p>
+                        <div class="card-stats">
+                            <span class="card-stat">40+ mapped</span>
+                            <span class="card-stat">5 types</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Volcanic -->
+                <div class="landform-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="card-header">
+                        <div class="card-icon">🌋</div>
+                        <h3 class="card-title">Volcanic</h3>
+                        <p class="card-subtitle">Calderas, Lava Plateaus</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Features formed by volcanic activity. Earth has 1,500 
+                            active volcanoes with 50-70 erupting yearly!
+                        </p>
+                        <div class="card-stats">
+                            <span class="card-stat">15+ mapped</span>
+                            <span class="card-stat">5 types</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- World Map Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-globe-americas"></i>
+                    Interactive Map
+                </div>
+                <h2 class="section-title">🗺️ World Landforms Map</h2>
+                <p class="section-subtitle">Click on markers to explore landforms worldwide</p>
+            </div>
+
+            <div class="map-wrapper">
+                <div class="map-header">
+                    <div class="map-title">
+                        <div class="map-title-icon">🌍</div>
+                        <div>
+                            <h4>Complete World Map</h4>
+                            <span>All landform types combined</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="map-container" id="worldMap"></div>
+                <div class="map-stats">
+                    <div class="map-stat-item">
+                        <div class="number">500+</div>
+                        <div class="label">Locations</div>
+                    </div>
+                    <div class="map-stat-item">
+                        <div class="number">197</div>
+                        <div class="label">Countries</div>
+                    </div>
+                    <div class="map-stat-item">
+                        <div class="number">11</div>
+                        <div class="label">Categories</div>
+                    </div>
+                    <div class="map-stat-item">
+                        <div class="number">7</div>
+                        <div class="label">Continents</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Countries Table Section -->
+    <section class="section" style="background: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-table"></i>
+                    Complete Database
+                </div>
+                <h2 class="section-title">197 Countries Data</h2>
+                <p class="section-subtitle">Searchable database of landforms by country</p>
+            </div>
+
+            <div class="table-wrapper">
+                <div class="table-header">
+                    <div class="table-title">
+                        <i class="fas fa-globe"></i>
+                        All Countries
+                        <span class="table-count">197</span>
+                    </div>
+                    <div class="table-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="tableSearch" placeholder="Search countries...">
+                    </div>
+                </div>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Country</th>
+                                <th>Continent</th>
+                                <th>Valleys</th>
+                                <th>Canyons</th>
+                                <th>Deserts</th>
+                                <th>Islands</th>
+                                <th>Caves</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="countriesTableBody">
+                            <!-- Data populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 GeoTopia Encyclopedia | Made with ❤️ for Geography Enthusiasts</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // ============================================
+        // INITIALIZE AOS
+        // ============================================
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // ============================================
+        // COUNTRIES DATA (SIMPLIFIED FOR TESTING)
+        // ============================================
+        const countriesData = [
+            { rank: 1, name: "United States", flag: "🇺🇸", continent: "North America", valleys: 342, canyons: 156, deserts: 4, islands: 18617, caves: 52000, total: 71119 },
+            { rank: 2, name: "China", flag: "🇨🇳", continent: "Asia", valleys: 289, canyons: 87, deserts: 6, islands: 6536, caves: 2800, total: 9718 },
+            { rank: 3, name: "India", flag: "🇮🇳", continent: "Asia", valleys: 198, canyons: 34, deserts: 3, islands: 1382, caves: 350, total: 1967 },
+            { rank: 4, name: "Brazil", flag: "🇧🇷", continent: "South America", valleys: 156, canyons: 42, deserts: 0, islands: 2000, caves: 15000, total: 17198 },
+            { rank: 5, name: "Australia", flag: "🇦🇺", continent: "Oceania", valleys: 178, canyons: 89, deserts: 10, islands: 8222, caves: 6500, total: 14999 },
+            { rank: 6, name: "Indonesia", flag: "🇮🇩", continent: "Asia", valleys: 234, canyons: 23, deserts: 0, islands: 17508, caves: 2000, total: 19765 },
+            { rank: 7, name: "Russia", flag: "🇷🇺", continent: "Europe", valleys: 456, canyons: 67, deserts: 3, islands: 2500, caves: 5000, total: 8026 },
+            { rank: 8, name: "Canada", flag: "🇨🇦", continent: "North America", valleys: 312, canyons: 78, deserts: 1, islands: 30000, caves: 3000, total: 33391 },
+            { rank: 9, name: "Mexico", flag: "🇲🇽", continent: "North America", valleys: 145, canyons: 234, deserts: 4, islands: 1365, caves: 3000, total: 4748 },
+            { rank: 10, name: "Japan", flag: "🇯🇵", continent: "Asia", valleys: 156, canyons: 45, deserts: 0, islands: 6852, caves: 600, total: 7653 },
+            { rank: 11, name: "France", flag: "🇫🇷", continent: "Europe", valleys: 178, canyons: 56, deserts: 0, islands: 1300, caves: 35000, total: 36534 },
+            { rank: 12, name: "Germany", flag: "🇩🇪", continent: "Europe", valleys: 145, canyons: 23, deserts: 0, islands: 77, caves: 1800, total: 2045 },
+            { rank: 13, name: "United Kingdom", flag: "🇬🇧", continent: "Europe", valleys: 189, canyons: 12, deserts: 0, islands: 6289, caves: 4500, total: 10990 },
+            { rank: 14, name: "Italy", flag: "🇮🇹", continent: "Europe", valleys: 189, canyons: 67, deserts: 0, islands: 450, caves: 36000, total: 36706 },
+            { rank: 15, name: "South Africa", flag: "🇿🇦", continent: "Africa", valleys: 98, canyons: 123, deserts: 2, islands: 46, caves: 4800, total: 5069 },
+            { rank: 16, name: "Spain", flag: "🇪🇸", continent: "Europe", valleys: 156, canyons: 45, deserts: 1, islands: 300, caves: 10000, total: 10502 },
+            { rank: 17, name: "Norway", flag: "🇳🇴", continent: "Europe", valleys: 234, canyons: 23, deserts: 0, islands: 50000, caves: 400, total: 50657 },
+            { rank: 18, name: "New Zealand", flag: "🇳🇿", continent: "Oceania", valleys: 123, canyons: 34, deserts: 0, islands: 600, caves: 800, total: 1557 },
+            { rank: 19, name: "Iceland", flag: "🇮🇸", continent: "Europe", valleys: 178, canyons: 89, deserts: 1, islands: 40, caves: 345, total: 653 },
+            { rank: 20, name: "Nepal", flag: "🇳🇵", continent: "Asia", valleys: 345, canyons: 123, deserts: 0, islands: 0, caves: 234, total: 702 }
+        ];
+
+        // ============================================
+        // LANDFORMS DATA FOR MAP
+        // ============================================
+        const landformsData = [
+            // Valleys
+            { name: "Yosemite Valley", country: "USA", type: "Valley", lat: 37.7456, lng: -119.5936, color: "#22c55e" },
+            { name: "Great Rift Valley", country: "Kenya", type: "Valley", lat: -1.2921, lng: 36.8219, color: "#22c55e" },
+            { name: "Kashmir Valley", country: "India", type: "Valley", lat: 34.0837, lng: 74.7973, color: "#22c55e" },
+            { name: "Lauterbrunnen", country: "Switzerland", type: "Valley", lat: 46.5925, lng: 7.9083, color: "#22c55e" },
+            { name: "Loire Valley", country: "France", type: "Valley", lat: 47.4134, lng: 0.9918, color: "#22c55e" },
+            
+            // Canyons
+            { name: "Grand Canyon", country: "USA", type: "Canyon", lat: 36.1069, lng: -112.1129, color: "#f97316" },
+            { name: "Fish River Canyon", country: "Namibia", type: "Canyon", lat: -27.5556, lng: 17.5833, color: "#f97316" },
+            { name: "Colca Canyon", country: "Peru", type: "Canyon", lat: -15.6167, lng: -71.9833, color: "#f97316" },
+            { name: "Antelope Canyon", country: "USA", type: "Canyon", lat: 36.8619, lng: -111.3743, color: "#f97316" },
+            { name: "Verdon Gorge", country: "France", type: "Canyon", lat: 43.7500, lng: 6.3333, color: "#f97316" },
+            
+            // Deserts
+            { name: "Sahara Desert", country: "Africa", type: "Desert", lat: 23.4162, lng: 25.6628, color: "#fbbf24" },
+            { name: "Atacama Desert", country: "Chile", type: "Desert", lat: -24.5000, lng: -69.2500, color: "#fbbf24" },
+            { name: "Gobi Desert", country: "Mongolia", type: "Desert", lat: 42.5000, lng: 103.0000, color: "#fbbf24" },
+            { name: "Thar Desert", country: "India", type: "Desert", lat: 27.0000, lng: 71.0000, color: "#fbbf24" },
+            { name: "Namib Desert", country: "Namibia", type: "Desert", lat: -24.0000, lng: 15.0000, color: "#fbbf24" },
+            
+            // Islands
+            { name: "Greenland", country: "Denmark", type: "Island", lat: 71.7069, lng: -42.6043, color: "#06b6d4" },
+            { name: "Madagascar", country: "Madagascar", type: "Island", lat: -18.7669, lng: 46.8691, color: "#06b6d4" },
+            { name: "Bali", country: "Indonesia", type: "Island", lat: -8.3405, lng: 115.0920, color: "#06b6d4" },
+            { name: "Hawaii", country: "USA", type: "Island", lat: 19.8987, lng: -155.6659, color: "#06b6d4" },
+            { name: "Iceland", country: "Iceland", type: "Island", lat: 64.9631, lng: -19.0208, color: "#06b6d4" },
+            
+            // Caves
+            { name: "Mammoth Cave", country: "USA", type: "Cave", lat: 37.1870, lng: -86.1004, color: "#8b5cf6" },
+            { name: "Son Doong Cave", country: "Vietnam", type: "Cave", lat: 17.4500, lng: 106.2833, color: "#8b5cf6" },
+            { name: "Waitomo Caves", country: "New Zealand", type: "Cave", lat: -38.2617, lng: 175.1061, color: "#8b5cf6" },
+            { name: "Carlsbad Caverns", country: "USA", type: "Cave", lat: 32.1479, lng: -104.5567, color: "#8b5cf6" },
+            
+            // Volcanoes
+            { name: "Mount Fuji", country: "Japan", type: "Volcano", lat: 35.3606, lng: 138.7274, color: "#dc2626" },
+            { name: "Mount Etna", country: "Italy", type: "Volcano", lat: 37.7510, lng: 14.9934, color: "#dc2626" },
+            { name: "Kilauea", country: "USA", type: "Volcano", lat: 19.4210, lng: -155.2870, color: "#dc2626" },
+            { name: "Mount Vesuvius", country: "Italy", type: "Volcano", lat: 40.8210, lng: 14.4260, color: "#dc2626" },
+            
+            // Coastal
+            { name: "White Cliffs of Dover", country: "UK", type: "Coastal", lat: 51.1333, lng: 1.3333, color: "#3b82f6" },
+            { name: "12 Apostles", country: "Australia", type: "Coastal", lat: -38.6658, lng: 143.1048, color: "#3b82f6" },
+            { name: "Ha Long Bay", country: "Vietnam", type: "Coastal", lat: 20.9101, lng: 107.1839, color: "#3b82f6" }
+        ];
+
+        // ============================================
+        // POPULATE COUNTRIES TABLE
+        // ============================================
+        function populateTable(data) {
+            const tbody = document.getElementById('countriesTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = data.map(country => `
+                <tr>
+                    <td>${country.rank}</td>
+                    <td>
+                        <div class="country-cell">
+                            <span class="country-flag">${country.flag}</span>
+                            <span class="country-name">${country.name}</span>
+                        </div>
+                    </td>
+                    <td><span class="continent-badge">${country.continent}</span></td>
+                    <td>${country.valleys.toLocaleString()}</td>
+                    <td>${country.canyons.toLocaleString()}</td>
+                    <td>${country.deserts}</td>
+                    <td>${country.islands.toLocaleString()}</td>
+                    <td>${country.caves.toLocaleString()}</td>
+                    <td><strong>${country.total.toLocaleString()}</strong></td>
+                    <td><button class="view-btn">View</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================
+        // INITIALIZE MAP
+        // ============================================
+        function initMap() {
+            const mapContainer = document.getElementById('worldMap');
+            if (!mapContainer) return;
+
+            const map = L.map('worldMap').setView([20, 0], 2);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Add markers
+            landformsData.forEach(item => {
+                L.circleMarker([item.lat, item.lng], {
+                    radius: 8,
+                    fillColor: item.color,
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.8
+                })
+                .bindPopup(`
+                    <strong>${item.name}</strong><br>
+                    ${item.country}<br>
+                    <em>${item.type}</em>
+                `)
+                .addTo(map);
+            });
+
+            console.log('✅ Map initialized with', landformsData.length, 'markers');
+        }
+
+        // ============================================
+        // TABLE SEARCH
+        // ============================================
+        function setupSearch() {
+            const searchInput = document.getElementById('tableSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const term = e.target.value.toLowerCase();
+                    const filtered = countriesData.filter(c => 
+                        c.name.toLowerCase().includes(term) ||
+                        c.continent.toLowerCase().includes(term)
+                    );
+                    populateTable(term ? filtered : countriesData);
+                });
+            }
+        }
+
+        // ============================================
+        // BACK TO TOP BUTTON
+        // ============================================
+        function setupBackToTop() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 500) {
+                    btn.classList.add('visible');
+                } else {
+                    btn.classList.remove('visible');
+                }
+            });
+
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // ============================================
+        // INITIALIZE EVERYTHING
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Landforms Encyclopedia...');
+            
+            // Populate table
+            populateTable(countriesData);
+            console.log('✅ Table populated');
+
+            // Setup search
+            setupSearch();
+            console.log('✅ Search ready');
+
+            // Setup back to top
+            setupBackToTop();
+            console.log('✅ Back to top ready');
+
+            // Initialize map
+            initMap();
+
+            console.log('🎉 All systems ready!');
+        });
+    </script>
+</body>
+</html>
