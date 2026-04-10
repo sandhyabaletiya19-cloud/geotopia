@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoMemory - Neural Sequence Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f5ff;
+            --secondary: #ff006e;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-1: #0a0a0f;
+            --dark-2: #12121a;
+            --dark-3: #1a1a25;
+            --dark-4: #252535;
+            --glow-cyan: 0 0 30px rgba(0, 245, 255, 0.5);
+            --glow-pink: 0 0 30px rgba(255, 0, 110, 0.5);
+            --glow-purple: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--dark-1);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Animated Background */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .neural-grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: 
+                linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(50px, 50px) rotate(1deg); }
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: nodeFlash 4s ease-in-out infinite;
+        }
+
+        @keyframes nodeFlash {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 0.8; transform: scale(2); }
+        }
+
+        .synapse {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            animation: synapseFlow 3s ease-in-out infinite;
+        }
+
+        @keyframes synapseFlow {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 245, 255, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--glow-cyan);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: var(--glow-cyan); }
+            50% { box-shadow: 0 0 50px rgba(0, 245, 255, 0.8); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(0, 245, 255, 0.05);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 10px;
+            min-width: 100px;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: var(--glow-cyan);
+        }
+
+        .stat-value.score { color: var(--success); text-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+        .stat-value.level { color: var(--accent); text-shadow: var(--glow-purple); }
+        .stat-value.lives { color: var(--secondary); text-shadow: var(--glow-pink); }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            min-height: calc(100vh - 100px);
+        }
+
+        /* Game Info Panel */
+        .game-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .info-panel {
+            background: rgba(18, 18, 26, 0.9);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .info-panel:hover {
+            border-color: var(--primary);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .info-title {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .sequence-length { color: var(--accent); }
+        .current-step { color: var(--success); }
+
+        /* Status Message */
+        .status-message {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            padding: 15px 40px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            text-align: center;
+            background: rgba(0, 245, 255, 0.1);
+            border: 2px solid rgba(0, 245, 255, 0.3);
+            color: var(--primary);
+            text-shadow: var(--glow-cyan);
+            animation: statusPulse 2s ease-in-out infinite;
+            min-width: 300px;
+        }
+
+        .status-message.watching {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: var(--accent);
+            text-shadow: var(--glow-purple);
+        }
+
+        .status-message.your-turn {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--success);
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .status-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--success);
+            animation: successPop 0.5s ease-out;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes successPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Game Board */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+            background: rgba(18, 18, 26, 0.6);
+            border: 2px solid rgba(0, 245, 255, 0.1);
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .game-board::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+            border-radius: 27px;
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(10px);
+        }
+
+        /* Cards */
+        .card {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(145deg, var(--dark-3), var(--dark-2));
+            border: 2px solid rgba(0, 245, 255, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, 
+                rgba(0, 245, 255, 0.1) 0%, 
+                transparent 50%, 
+                rgba(139, 92, 246, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover:not(.disabled) {
+            transform: translateY(-5px) scale(1.05);
+            border-color: rgba(0, 245, 255, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 245, 255, 0.2);
+        }
+
+        .card:hover:not(.disabled)::before {
+            opacity: 1;
+        }
+
+        .card.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Card Glow Animation */
+        .card.glowing {
+            animation: cardGlow 0.6s ease-in-out;
+            border-color: var(--primary);
+            box-shadow: 
+                0 0 30px rgba(0, 245, 255, 0.6),
+                0 0 60px rgba(0, 245, 255, 0.4),
+                0 0 90px rgba(0, 245, 255, 0.2),
+                inset 0 0 30px rgba(0, 245, 255, 0.3);
+            background: linear-gradient(145deg, 
+                rgba(0, 245, 255, 0.3), 
+                rgba(139, 92, 246, 0.2));
+        }
+
+        .card.glowing .card-inner {
+            color: #fff;
+            text-shadow: 0 0 20px var(--primary);
+            transform: scale(1.2);
+        }
+
+        @keyframes cardGlow {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.1); }
+            60% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Player Click Animation */
+        .card.player-click {
+            animation: playerClick 0.3s ease-out;
+            border-color: var(--success);
+            box-shadow: 
+                0 0 20px rgba(16, 185, 129, 0.5),
+                0 0 40px rgba(16, 185, 129, 0.3);
+        }
+
+        @keyframes playerClick {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .card.wrong {
+            animation: wrongClick 0.5s ease-out;
+            border-color: var(--danger);
+            box-shadow: 
+                0 0 30px rgba(239, 68, 68, 0.6),
+                0 0 60px rgba(239, 68, 68, 0.3);
+            background: linear-gradient(145deg, 
+                rgba(239, 68, 68, 0.3), 
+                rgba(239, 68, 68, 0.1));
+        }
+
+        @keyframes wrongClick {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            10%, 50%, 90% { transform: translateX(-8px) rotate(-2deg); }
+            30%, 70% { transform: translateX(8px) rotate(2deg); }
+        }
+
+        .card-inner {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: rgba(0, 245, 255, 0.6);
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        /* Card shapes/icons */
+        .card-symbol {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 245, 255, 0.3);
+            border-radius: 15px;
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover .card-symbol {
+            border-color: rgba(0, 245, 255, 0.6);
+            transform: rotate(45deg) scale(1.1);
+        }
+
+        .card.glowing .card-symbol {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .progress-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 245, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.5);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5));
+            animation: progressShine 2s ease-in-out infinite;
+        }
+
+        @keyframes progressShine {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Control Buttons */
+        .controls {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--dark-1);
+            box-shadow: 0 5px 30px rgba(0, 245, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 245, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 245, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 0, 110, 0.1);
+            transform: translateY(-3px);
+            box-shadow: var(--glow-pink);
+        }
+
+        /* Lives Display */
+        .lives-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .life {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 0, 110, 0.1);
+            border: 2px solid var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .life.active {
+            background: var(--secondary);
+            box-shadow: var(--glow-pink);
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+
+        .life.lost {
+            opacity: 0.3;
+            background: transparent;
+            border-color: rgba(255, 0, 110, 0.3);
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            40% { transform: scale(1); }
+            55% { transform: scale(1.1); }
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: linear-gradient(145deg, var(--dark-2), var(--dark-1));
+            border: 2px solid rgba(0, 245, 255, 0.3);
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.8) translateY(50px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+            border-radius: 32px;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(15px);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            animation: modalIconPulse 2s ease-in-out infinite;
+        }
+
+        .modal-icon.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .modal-icon.fail {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        @keyframes modalIconPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(0, 245, 255, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 0 50px rgba(0, 245, 255, 0.8); }
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-message {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .modal-stat {
+            text-align: center;
+        }
+
+        .modal-stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .modal-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Level Complete Animation */
+        .level-complete-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: particleFly 1.5s ease-out forwards;
+        }
+
+        @keyframes particleFly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Difficulty Indicator */
+        .difficulty-meter {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .difficulty-bars {
+            display: flex;
+            gap: 5px;
+        }
+
+        .difficulty-bar {
+            width: 20px;
+            height: 8px;
+            background: rgba(0, 245, 255, 0.2);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-bar.active {
+            background: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        .difficulty-bar.active.hard {
+            background: var(--warning);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .difficulty-bar.active.extreme {
+            background: var(--danger);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Speed Indicator */
+        .speed-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(0, 245, 255, 0.05);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .speed-icon {
+            font-size: 1.2rem;
+            animation: speedPulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes speedPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .speed-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        /* Combo Display */
+        .combo-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--success);
+            text-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 100;
+        }
+
+        .combo-display.show {
+            animation: comboShow 1s ease-out forwards;
+        }
+
+        @keyframes comboShow {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+
+        /* Tutorial Overlay */
+        .tutorial-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .tutorial-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tutorial-content {
+            max-width: 600px;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .tutorial-step {
+            display: none;
+        }
+
+        .tutorial-step.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tutorial-icon {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: tutorialBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes tutorialBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .tutorial-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tutorial-text {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .tutorial-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tutorial-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0, 245, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-dot.active {
+            background: var(--primary);
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* Level Milestone */
+        .milestone {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 500;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .milestone.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .milestone-level {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: milestoneNumber 1s ease-out;
+        }
+
+        @keyframes milestoneNumber {
+            0% {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .milestone-text {
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 15px;
+            }
+
+            .header-stats {
+                gap: 15px;
+            }
+
+            .stat-box {
+                padding: 8px 15px;
+                min-width: 80px;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .game-board {
+                gap: 12px;
+                padding: 20px;
+            }
+
+            .card {
+                width: 90px;
+                height: 90px;
+                border-radius: 15px;
+            }
+
+            .card-inner {
+                font-size: 1.5rem;
+            }
+
+            .card-symbol {
+                width: 45px;
+                height: 45px;
+            }
+
+            .status-message {
+                font-size: 1rem;
+                padding: 12px 25px;
+                min-width: 250px;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 0.9rem;
+            }
+
+            .modal {
+                padding: 30px;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+            }
+
+            .game-info {
+                gap: 15px;
+            }
+
+            .info-panel {
+                padding: 10px 20px;
+            }
+
+            .info-value {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                width: 75px;
+                height: 75px;
+            }
+
+            .game-board {
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .logo-text {
+                font-size: 1.3rem;
+            }
+
+            .milestone-level {
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-container">
+        <div class="neural-grid"></div>
+        <div id="neuralNetwork"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🧠</div>
+            <div class="logo-text">GEOMEMORY</div>
+        </div>
+        <div class="header-stats">
+            <div class="stat-box">
+                <div class="stat-label">Score</div>
+                <div class="stat-value score" id="scoreDisplay">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div class="stat-value level" id="levelDisplay">1</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Best</div>
+                <div class="stat-value" id="bestDisplay">0</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Lives -->
+        <div class="lives-container" id="livesContainer">
+            <div class="life active" data-life="1">❤️</div>
+            <div class="life active" data-life="2">❤️</div>
+            <div class="life active" data-life="3">❤️</div>
+        </div>
+
+        <!-- Difficulty Meter -->
+        <div class="difficulty-meter">
+            <span class="difficulty-label">Difficulty:</span>
+            <div class="difficulty-bars" id="difficultyBars">
+                <div class="difficulty-bar active"></div>
+                <div class="difficulty-bar"></div>
+                <div class="difficulty-bar"></div>
+                <div class="difficulty-bar"></div>
+                <div class="difficulty-bar"></div>
+            </div>
+            <span class="speed-indicator">
+                <span class="speed-icon">⚡</span>
+                <span class="speed-text" id="speedText">Normal</span>
+            </span>
+        </div>
+
+        <!-- Game Info -->
+        <div class="game-info">
+            <div class="info-panel">
+                <div class="info-title">Sequence</div>
+                <div class="info-value sequence-length" id="sequenceLength">1</div>
+            </div>
+            <div class="info-panel">
+                <div class="info-title">Your Turn</div>
+                <div class="info-value current-step" id="currentStep">0 / 1</div>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="status-message watching" id="statusMessage">
+            WATCH THE SEQUENCE
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span class="progress-label">Level Progress</span>
+                <span class="progress-value" id="progressText">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Game Board -->
+        <div class="game-board" id="gameBoard">
+            <!-- Cards will be generated here -->
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">
+                <span>▶</span> START GAME
+            </button>
+            <button class="btn btn-secondary" id="restartBtn" style="display: none;">
+                <span>↻</span> RESTART
+            </button>
+        </div>
+    </div>
+
+    <!-- Combo Display -->
+    <div class="combo-display" id="comboDisplay"></div>
+
+    <!-- Level Milestone -->
+    <div class="milestone" id="milestone">
+        <div class="milestone-level" id="milestoneLevel">1</div>
+        <div class="milestone-text">LEVEL UP!</div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div class="tutorial-overlay" id="tutorialOverlay">
+        <div class="tutorial-content">
+            <div class="tutorial-step active" data-step="1">
+                <div class="tutorial-icon">🧠</div>
+                <h2 class="tutorial-title">Welcome to GeoMemory</h2>
+                <p class="tutorial-text">
+                    Test your memory with this neural sequence challenge!<br>
+                    Watch the cards glow in sequence, then repeat the pattern.
+                </p>
+            </div>
+            <div class="tutorial-step" data-step="2">
+                <div class="tutorial-icon">👀</div>
+                <h2 class="tutorial-title">Watch Carefully</h2>
+                <p class="tutorial-text">
+                    Cards will glow one by one in a specific sequence.<br>
+                    Pay close attention to the order they light up!
+                </p>
+            </div>
+            <div class="tutorial-step" data-step="3">
+                <div class="tutorial-icon">🎯</div>
+                <h2 class="tutorial-title">Repeat the Pattern</h2>
+                <p class="tutorial-text">
+                    After watching, click the cards in the same order.<br>
+                    One mistake and you lose a life!
+                </p>
+            </div>
+            <div class="tutorial-step" data-step="4">
+                <div class="tutorial-icon">🚀</div>
+                <h2 class="tutorial-title">100 Levels Await!</h2>
+                <p class="tutorial-text">
+                    Sequences get longer and faster as you progress.<br>
+                    Can you reach level 100? Let's find out!
+                </p>
+            </div>
+            <div class="tutorial-dots">
+                <div class="tutorial-dot active" data-dot="1"></div>
+                <div class="tutorial-dot" data-dot="2"></div>
+                <div class="tutorial-dot" data-dot="3"></div>
+                <div class="tutorial-dot" data-dot="4"></div>
+            </div>
+            <button class="btn btn-primary" id="tutorialNextBtn">NEXT</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="modal">
+            <div class="modal-icon fail" id="modalIcon">😔</div>
+            <h2 class="modal-title" id="modalTitle">GAME OVER</h2>
+            <p class="modal-message" id="modalMessage">
+                Your neural network needs more training!
+            </p>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span class="modal-stat-value" id="finalScore">0</span>
+                    <span class="modal-stat-label">Score</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-value" id="finalLevel">1</span>
+                    <span class="modal-stat-label">Level</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-value" id="finalAccuracy">0%</span>
+                    <span class="modal-stat-label">Accuracy</span>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="playAgainBtn">
+                    PLAY AGAIN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Complete Particles -->
+    <div class="level-complete-particles" id="particles"></div>
+
+    <!-- Audio Elements -->
+    <audio id="glowSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1sbYKSsK2ofmFdcY6kwsK0mXVWTmB0l7vT0bqTdFxPUm2Mu9nb08KhfV5ST1l0l8Dc3c+5mXNZTk1YcZPB3t3Rx6N/YlRPVW2PvN7e1MW" type="audio/wav">
+    </audio>
+    <audio id="correctSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1sbYKSsK2ofmFdcY6kwsK0mXVWTmB0l7vT0bqTdFxPUm2Mu9nb08KhfV5ST1l0l8Dc3c+5mXNZTk1YcZPB3t3Rx6N/YlRPVW2PvN7e1MW" type="audio/wav">
+    </audio>
+    <audio id="wrongSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1sbYKSsK2ofmFdcY6kwsK0mXVWTmB0l7vT0bqTdFxPUm2Mu9nb08KhfV5ST1l0l8Dc3c+5mXNZTk1YcZPB3t3Rx6N/YlRPVW2PvN7e1MW" type="audio/wav">
+    </audio>
+    <audio id="levelUpSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1sbYKSsK2ofmFdcY6kwsK0mXVWTmB0l7vT0bqTdFxPUm2Mu9nb08KhfV5ST1l0l8Dc3c+5mXNZTk1YcZPB3t3Rx6N/YlRPVW2PvN7e1MW" type="audio/wav">
+    </audio>
+
+    <script>
+        // =============================================
+        // GEOMEMORY GAME ENGINE
+        // =============================================
+
+        const GeoMemory = (function() {
+            // Game State
+            const state = {
+                level: 1,
+                score: 0,
+                lives: 3,
+                maxLives: 3,
+                sequence: [],
+                playerSequence: [],
+                isPlaying: false,
+                isShowingSequence: false,
+                isPlayerTurn: false,
+                totalCards: 9,
+                bestLevel: 0,
+                bestScore: 0,
+                totalCorrect: 0,
+                totalAttempts: 0,
+                gameStarted: false,
+                soundEnabled: true
+            };
+
+            // Level Configuration (100 levels)
+            const levelConfig = {
+                // Base settings
+                baseSequenceLength: 1,
+                maxSequenceLength: 25,
+                
+                // Speed settings (ms between glows)
+                baseGlowDuration: 800,
+                minGlowDuration: 200,
+                baseGapDuration: 400,
+                minGapDuration: 100,
+                
+                // Difficulty tiers
+                tiers: [
+                    { maxLevel: 10, name: 'Novice', speedMultiplier: 1.0 },
+                    { maxLevel: 25, name: 'Beginner', speedMultiplier: 0.85 },
+                    { maxLevel: 40, name: 'Intermediate', speedMultiplier: 0.7 },
+                    { maxLevel: 60, name: 'Advanced', speedMultiplier: 0.55 },
+                    { maxLevel: 80, name: 'Expert', speedMultiplier: 0.4 },
+                    { maxLevel: 100, name: 'Master', speedMultiplier: 0.3 }
+                ],
+                
+                // Score multipliers
+                baseScore: 100,
+                levelMultiplier: 1.5,
+                comboMultiplier: 0.1
+            };
+
+            // DOM Elements
+            let elements = {};
+
+            // =============================================
+            // INITIALIZATION
+            // =============================================
+
+            function init() {
+                cacheElements();
+                loadBestScores();
+                createNeuralBackground();
+                createGameBoard();
+                attachEventListeners();
+                checkTutorial();
+            }
+
+            function cacheElements() {
+                elements = {
+                    gameBoard: document.getElementById('gameBoard'),
+                    statusMessage: document.getElementById('statusMessage'),
+                    scoreDisplay: document.getElementById('scoreDisplay'),
+                    levelDisplay: document.getElementById('levelDisplay'),
+                    bestDisplay: document.getElementById('bestDisplay'),
+                    sequenceLength: document.getElementById('sequenceLength'),
+                    currentStep: document.getElementById('currentStep'),
+                    progressFill: document.getElementById('progressFill'),
+                    progressText: document.getElementById('progressText'),
+                    livesContainer: document.getElementById('livesContainer'),
+                    startBtn: document.getElementById('startBtn'),
+                    restartBtn: document.getElementById('restartBtn'),
+                    difficultyBars: document.getElementById('difficultyBars'),
+                    speedText: document.getElementById('speedText'),
+                    comboDisplay: document.getElementById('comboDisplay'),
+                    milestone: document.getElementById('milestone'),
+                    milestoneLevel: document.getElementById('milestoneLevel'),
+                    tutorialOverlay: document.getElementById('tutorialOverlay'),
+                    tutorialNextBtn: document.getElementById('tutorialNextBtn'),
+                    gameOverModal: document.getElementById('gameOverModal'),
+                    modalIcon: document.getElementById('modalIcon'),
+                    modalTitle: document.getElementById('modalTitle'),
+                    modalMessage: document.getElementById('modalMessage'),
+                    finalScore: document.getElementById('finalScore'),
+                    finalLevel: document.getElementById('finalLevel'),
+                    finalAccuracy: document.getElementById('finalAccuracy'),
+                    playAgainBtn: document.getElementById('playAgainBtn'),
+                    particles: document.getElementById('particles')
+                };
+            }
+
+            function loadBestScores() {
+                state.bestLevel = parseInt(localStorage.getItem('geoMemoryBestLevel')) || 0;
+                state.bestScore = parseInt(localStorage.getItem('geoMemoryBestScore')) || 0;
+                elements.bestDisplay.textContent = state.bestLevel;
+            }
+
+            function saveBestScores() {
+                if (state.level > state.bestLevel) {
+                    state.bestLevel = state.level;
+                    localStorage.setItem('geoMemoryBestLevel', state.bestLevel);
+                }
+                if (state.score > state.bestScore) {
+                    state.bestScore = state.score;
+                    localStorage.setItem('geoMemoryBestScore', state.bestScore);
+                }
+                elements.bestDisplay.textContent = state.bestLevel;
+            }
+
+            function createNeuralBackground() {
+                const container = document.getElementById('neuralNetwork');
+                const nodeCount = 30;
+                
+                for (let i = 0; i < nodeCount; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'neural-node';
+                    node.style.left = Math.random() * 100 + '%';
+                    node.style.top = Math.random() * 100 + '%';
+                    node.style.animationDelay = Math.random() * 4 + 's';
+                    container.appendChild(node);
+                }
+
+                // Add synapses
+                for (let i = 0; i < 15; i++) {
+                    const synapse = document.createElement('div');
+                    synapse.className = 'synapse';
+                    synapse.style.left = Math.random() * 100 + '%';
+                    synapse.style.top = Math.random() * 100 + '%';
+                    synapse.style.width = Math.random() * 200 + 100 + 'px';
+                    synapse.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    synapse.style.animationDelay = Math.random() * 3 + 's';
+                    container.appendChild(synapse);
+                }
+            }
+
+            function createGameBoard() {
+                elements.gameBoard.innerHTML = '';
+                
+                for (let i = 0; i < state.totalCards; i++) {
+                    const card = document.createElement('div');
+                    card.className = 'card disabled';
+                    card.dataset.index = i;
+                    
+                    const symbol = document.createElement('div');
+                    symbol.className = 'card-symbol';
+                    
+                    const inner = document.createElement('div');
+                    inner.className = 'card-inner';
+                    inner.textContent = i + 1;
+                    
+                    card.appendChild(symbol);
+                    card.appendChild(inner);
+                    
+                    card.addEventListener('click', () => handleCardClick(i));
+                    elements.gameBoard.appendChild(card);
+                }
+            }
+
+            function attachEventListeners() {
+                elements.startBtn.addEventListener('click', startGame);
+                elements.restartBtn.addEventListener('click', restartGame);
+                elements.tutorialNextBtn.addEventListener('click', nextTutorialStep);
+                elements.playAgainBtn.addEventListener('click', () => {
+                    elements.gameOverModal.classList.remove('active');
+                    restartGame();
+                });
+            }
+
+            // =============================================
+            // TUTORIAL
+            // =============================================
+
+            let tutorialStep = 1;
+            const totalTutorialSteps = 4;
+
+            function checkTutorial() {
+                const tutorialSeen = localStorage.getItem('geoMemoryTutorialSeen');
+                if (!tutorialSeen) {
+                    elements.tutorialOverlay.classList.add('active');
+                }
+            }
+
+            function nextTutorialStep() {
+                if (tutorialStep < totalTutorialSteps) {
+                    // Hide current step
+                    document.querySelector(`.tutorial-step[data-step="${tutorialStep}"]`).classList.remove('active');
+                    document.querySelector(`.tutorial-dot[data-dot="${tutorialStep}"]`).classList.remove('active');
+                    
+                    // Show next step
+                    tutorialStep++;
+                    document.querySelector(`.tutorial-step[data-step="${tutorialStep}"]`).classList.add('active');
+                    document.querySelector(`.tutorial-dot[data-dot="${tutorialStep}"]`).classList.add('active');
+                    
+                    if (tutorialStep === totalTutorialSteps) {
+                        elements.tutorialNextBtn.textContent = "LET'S GO!";
+                    }
+                } else {
+                    // Close tutorial
+                    elements.tutorialOverlay.classList.remove('active');
+                    localStorage.setItem('geoMemoryTutorialSeen', 'true');
+                }
+            }
+
+            // =============================================
+            // GAME FLOW
+            // =============================================
+
+            function startGame() {
+                state.gameStarted = true;
+                state.isPlaying = true;
+                
+                elements.startBtn.style.display = 'none';
+                elements.restartBtn.style.display = 'flex';
+                
+                startLevel();
+            }
+
+            function restartGame() {
+                state.level = 1;
+                state.score = 0;
+                state.lives = state.maxLives;
+                state.sequence = [];
+                state.playerSequence = [];
+                state.isPlaying = true;
+                state.isShowingSequence = false;
+                state.isPlayerTurn = false;
+                state.totalCorrect = 0;
+                state.totalAttempts = 0;
+                
+                updateUI();
+                updateLives();
+                startLevel();
+            }
+
+            function startLevel() {
+                state.playerSequence = [];
+                state.isPlayerTurn = false;
+                state.isShowingSequence = true;
+                
+                // Show milestone for special levels
+                if (state.level % 10 === 0 || state.level === 1) {
+                    showMilestone();
+                }
+                
+                // Generate new sequence
+                generateSequence();
+                
+                // Update UI
+                updateUI();
+                disableCards();
+                
+                // Set status
+                setStatus('WATCH THE SEQUENCE', 'watching');
+                
+                // Show sequence after delay
+                setTimeout(() => {
+                    showSequence();
+                }, state.level === 1 ? 1500 : 1000);
+            }
+
+            function generateSequence() {
+                const sequenceLength = getSequenceLength();
+                
+                if (state.level === 1) {
+                    state.sequence = [];
+                }
+                
+                // Add one new card to sequence each level
+                const newCard = Math.floor(Math.random() * state.totalCards);
+                state.sequence.push(newCard);
+                
+                // Ensure sequence doesn't exceed max
+                if (state.sequence.length > sequenceLength) {
+                    state.sequence = state.sequence.slice(-sequenceLength);
+                }
+            }
+
+            function getSequenceLength() {
+                const baseLength = levelConfig.baseSequenceLength;
+                const levelBonus = Math.floor((state.level - 1) / 3);
+                return Math.min(baseLength + levelBonus + state.sequence.length, levelConfig.maxSequenceLength);
+            }
+
+            function showSequence() {
+                const { glowDuration, gapDuration } = getTimings();
+                let index = 0;
+                
+                const showNext = () => {
+                    if (index >= state.sequence.length) {
+                        // Sequence complete, player's turn
+                        setTimeout(() => {
+                            state.isShowingSequence = false;
+                            state.isPlayerTurn = true;
+                            enableCards();
+                            setStatus("YOUR TURN - REPEAT THE PATTERN", 'your-turn');
+                            updateCurrentStep();
+                        }, gapDuration);
+                        return;
+                    }
+                    
+                    const cardIndex = state.sequence[index];
+                    glowCard(cardIndex, glowDuration);
+                    playSound('glow');
+                    
+                    index++;
+                    setTimeout(showNext, glowDuration + gapDuration);
+                };
+                
+                showNext();
+            }
+
+            function getTimings() {
+                const tier = getCurrentTier();
+                const levelProgress = (state.level - 1) / 99;
+                
+                const glowDuration = Math.max(
+                    levelConfig.minGlowDuration,
+                    levelConfig.baseGlowDuration * tier.speedMultiplier
+                );
+                
+                const gapDuration = Math.max(
+                    levelConfig.minGapDuration,
+                    levelConfig.baseGapDuration * tier.speedMultiplier
+                );
+                
+                return { glowDuration, gapDuration };
+            }
+
+            function getCurrentTier() {
+                for (const tier of levelConfig.tiers) {
+                    if (state.level <= tier.maxLevel) {
+                        return tier;
+                    }
+                }
+                return levelConfig.tiers[levelConfig.tiers.length - 1];
+            }
+
+            // =============================================
+            // CARD INTERACTIONS
+            // =============================================
+
+            function handleCardClick(cardIndex) {
+                if (!state.isPlayerTurn || state.isShowingSequence) return;
+                
+                const card = document.querySelector(`.card[data-index="${cardIndex}"]`);
+                state.totalAttempts++;
+                
+                // Add to player sequence
+                state.playerSequence.push(cardIndex);
+                
+                // Check if correct
+                const currentStep = state.playerSequence.length - 1;
+                const expectedCard = state.sequence[currentStep];
+                
+                if (cardIndex === expectedCard) {
+                    // Correct!
+                    state.totalCorrect++;
+                    card.classList.add('player-click');
+                    playSound('correct');
+                    
+                    setTimeout(() => {
+                        card.classList.remove('player-click');
+                    }, 300);
+                    
+                    updateCurrentStep();
+                    
+                    // Check if sequence complete
+                    if (state.playerSequence.length === state.sequence.length) {
+                        // Level complete!
+                        levelComplete();
+                    }
+                } else {
+                    // Wrong!
+                    wrongAnswer(card);
+                }
+            }
+
+            function wrongAnswer(card) {
+                card.classList.add('wrong');
+                playSound('wrong');
+                setStatus('WRONG! TRY AGAIN', 'error');
+                
+                state.lives--;
+                updateLives();
+                
+                setTimeout(() => {
+                    card.classList.remove('wrong');
+                }, 500);
+                
+                if (state.lives <= 0) {
+                    // Game over
+                    setTimeout(() => {
+                        gameOver();
+                    }, 1000);
+                } else {
+                    // Reset player sequence and show again
+                    state.playerSequence = [];
+                    state.isPlayerTurn = false;
+                    disableCards();
+                    
+                    setTimeout(() => {
+                        setStatus('WATCH AGAIN', 'watching');
+                        state.isShowingSequence = true;
+                        setTimeout(() => {
+                            showSequence();
+                        }, 800);
+                    }, 1000);
+                }
+            }
+
+            function levelComplete() {
+                state.isPlayerTurn = false;
+                disableCards();
+                
+                // Calculate score
+                const levelScore = calculateScore();
+                state.score += levelScore;
+                
+                // Show success
+                setStatus(`LEVEL ${state.level} COMPLETE! +${levelScore}`, 'success');
+                playSound('levelUp');
+                showCombo(levelScore);
+                createParticles();
+                
+                // Update best scores
+                saveBestScores();
+                
+                // Next level
+                setTimeout(() => {
+                    if (state.level >= 100) {
+                        // Game won!
+                        gameWon();
+                    } else {
+                        state.level++;
+                        startLevel();
+                    }
+                }, 1500);
+            }
+
+            function calculateScore() {
+                const baseScore = levelConfig.baseScore;
+                const levelBonus = Math.floor(state.level * levelConfig.levelMultiplier);
+                const sequenceBonus = state.sequence.length * 10;
+                return baseScore + levelBonus + sequenceBonus;
+            }
+
+            function gameOver() {
+                state.isPlaying = false;
+                saveBestScores();
+                
+                const accuracy = state.totalAttempts > 0 
+                    ? Math.round((state.totalCorrect / state.totalAttempts) * 100) 
+                    : 0;
+                
+                elements.modalIcon.textContent = '😔';
+                elements.modalIcon.className = 'modal-icon fail';
+                elements.modalTitle.textContent = 'GAME OVER';
+                elements.modalMessage.textContent = getGameOverMessage();
+                elements.finalScore.textContent = state.score;
+                elements.finalLevel.textContent = state.level;
+                elements.finalAccuracy.textContent = accuracy + '%';
+                
+                elements.gameOverModal.classList.add('active');
+            }
+
+            function gameWon() {
+                state.isPlaying = false;
+                saveBestScores();
+                
+                const accuracy = state.totalAttempts > 0 
+                    ? Math.round((state.totalCorrect / state.totalAttempts) * 100) 
+                    : 0;
+                
+                elements.modalIcon.textContent = '🏆';
+                elements.modalIcon.className = 'modal-icon success';
+                elements.modalTitle.textContent = 'LEGENDARY!';
+                elements.modalMessage.textContent = 'You completed all 100 levels! Your neural network is unmatched!';
+                elements.finalScore.textContent = state.score;
+                elements.finalLevel.textContent = 100;
+                elements.finalAccuracy.textContent = accuracy + '%';
+                
+                elements.gameOverModal.classList.add('active');
+            }
+
+            function getGameOverMessage() {
+                const tier = getCurrentTier();
+                const messages = {
+                    'Novice': 'Keep practicing! Every master was once a beginner.',
+                    'Beginner': 'Good start! Your memory is warming up.',
+                    'Intermediate': 'Nice progress! You\'re getting better.',
+                    'Advanced': 'Impressive! Your neural connections are strong.',
+                    'Expert': 'Amazing performance! You\'re almost a master.',
+                    'Master': 'Incredible! Only the elite reach this level.'
+                };
+                return messages[tier.name] || messages['Novice'];
+            }
+
+            // =============================================
+            // UI UPDATES
+            // =============================================
+
+            function updateUI() {
+                elements.scoreDisplay.textContent = state.score;
+                elements.levelDisplay.textContent = state.level;
+                elements.sequenceLength.textContent = state.sequence.length;
+                
+                // Update progress
+                const progress = ((state.level - 1) / 99) * 100;
+                elements.progressFill.style.width = progress + '%';
+                elements.progressText.textContent = Math.round(progress) + '%';
+                
+                // Update difficulty
+                updateDifficulty();
+            }
+
+            function updateCurrentStep() {
+                elements.currentStep.textContent = 
+                    `${state.playerSequence.length} / ${state.sequence.length}`;
+            }
+
+            function updateLives() {
+                const lifeElements = elements.livesContainer.querySelectorAll('.life');
+                lifeElements.forEach((life, index) => {
+                    if (index < state.lives) {
+                        life.classList.add('active');
+                        life.classList.remove('lost');
+                    } else {
+                        life.classList.remove('active');
+                        life.classList.add('lost');
+                    }
+                });
+            }
+
+            function updateDifficulty() {
+                const tier = getCurrentTier();
+                const tierIndex = levelConfig.tiers.findIndex(t => t.name === tier.name);
+                const bars = elements.difficultyBars.querySelectorAll('.difficulty-bar');
+                
+                bars.forEach((bar, index) => {
+                    bar.classList.remove('active', 'hard', 'extreme');
+                    if (index <= tierIndex) {
+                        bar.classList.add('active');
+                        if (tierIndex >= 4) bar.classList.add('extreme');
+                        else if (tierIndex >= 3) bar.classList.add('hard');
+                    }
+                });
+                
+                elements.speedText.textContent = tier.name;
+            }
+
+            function setStatus(message, className = '') {
+                elements.statusMessage.textContent = message;
+                elements.statusMessage.className = 'status-message ' + className;
+            }
+
+            function glowCard(index, duration) {
+                const card = document.querySelector(`.card[data-index="${index}"]`);
+                if (!card) return;
+                
+                card.classList.add('glowing');
+                
+                setTimeout(() => {
+                    card.classList.remove('glowing');
+                }, duration);
+            }
+
+            function enableCards() {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.remove('disabled');
+                });
+            }
+
+            function disableCards() {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.add('disabled');
+                });
+            }
+
+            function showCombo(score) {
+                elements.comboDisplay.textContent = `+${score}`;
+                elements.comboDisplay.classList.add('show');
+                
+                setTimeout(() => {
+                    elements.comboDisplay.classList.remove('show');
+                }, 1000);
+            }
+
+            function showMilestone() {
+                elements.milestoneLevel.textContent = state.level;
+                elements.milestone.classList.add('show');
+                
+                setTimeout(() => {
+                    elements.milestone.classList.remove('show');
+                }, 1500);
+            }
+
+            function createParticles() {
+                const colors = ['#00f5ff', '#8b5cf6', '#ff006e', '#10b981', '#f59e0b'];
+                const particleCount = 30;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = '50%';
+                    particle.style.top = '50%';
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.setProperty('--tx', (Math.random() - 0.5) * 400 + 'px');
+                    particle.style.setProperty('--ty', (Math.random() - 0.5) * 400 + 'px');
+                    
+                    elements.particles.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 1500);
+                }
+            }
+
+            // =============================================
+            // SOUND
+            // =============================================
+
+            function playSound(type) {
+                if (!state.soundEnabled) return;
+                
+                // Create oscillator for sounds
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    switch (type) {
+                        case 'glow':
+                            oscillator.frequency.value = 440;
+                            oscillator.type = 'sine';
+                            gainNode.gain.value = 0.1;
+                            oscillator.start();
+                            oscillator.stop(audioContext.currentTime + 0.15);
+                            break;
+                        case 'correct':
+                            oscillator.frequency.value = 523;
+                            oscillator.type = 'sine';
+                            gainNode.gain.value = 0.1;
+                            oscillator.start();
+                            oscillator.stop(audioContext.currentTime + 0.1);
+                            break;
+                        case 'wrong':
+                            oscillator.frequency.value = 200;
+                            oscillator.type = 'sawtooth';
+                            gainNode.gain.value = 0.1;
+                            oscillator.start();
+                            oscillator.stop(audioContext.currentTime + 0.3);
+                            break;
+                        case 'levelUp':
+                            oscillator.frequency.value = 660;
+                            oscillator.type = 'sine';
+                            gainNode.gain.value = 0.1;
+                            oscillator.start();
+                            setTimeout(() => {
+                                oscillator.frequency.value = 880;
+                            }, 100);
+                            oscillator.stop(audioContext.currentTime + 0.3);
+                            break;
+                    }
+                } catch (e) {
+                    // Audio not supported
+                }
+            }
+
+            // Initialize on load
+            document.addEventListener('DOMContentLoaded', init);
+
+            // Public API
+            return {
+                start: startGame,
+                restart: restartGame,
+                getState: () => ({ ...state })
+            };
+        })();
+    </script>
+</body>
+</html>
