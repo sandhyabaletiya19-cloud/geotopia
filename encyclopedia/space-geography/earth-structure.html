@@ -1,0 +1,3343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth Structure — Journey to the Core | DharaVerse</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@200;300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --crust-color: #8B7355;
+            --mantle-color: #CC4A00;
+            --outer-core-color: #FF6B00;
+            --inner-core-color: #FFD700;
+            --hud-cyan: #00f5ff;
+            --hud-green: #00FF88;
+            --hud-red: #FF4444;
+            --hud-orange: #FF8C00;
+            --hud-gold: #FFD700;
+            --dark-bg: #020008;
+            --panel-bg: rgba(0,0,0,0.7);
+            --border-glow: rgba(0,245,255,0.15);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* ============================================================
+           LOADING SCREEN — DRILL BOOT SEQUENCE
+        ============================================================ */
+        .boot-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 60px;
+            font-family: 'Space Mono', monospace;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        .boot-screen.gone { opacity: 0; visibility: hidden; }
+
+        .boot-line {
+            font-size: 0.85rem;
+            color: var(--hud-green);
+            margin-bottom: 6px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.3s ease;
+        }
+        .boot-line.show { opacity: 1; transform: translateX(0); }
+        .boot-line.error { color: var(--hud-red); }
+        .boot-line.warn { color: var(--hud-gold); }
+
+        .boot-progress {
+            margin-top: 30px;
+            width: 500px;
+            max-width: 100%;
+        }
+        .boot-progress-label {
+            font-size: 0.7rem;
+            color: rgba(0,245,255,0.5);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        .boot-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .boot-progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--hud-green), var(--hud-cyan));
+            border-radius: 2px;
+            transition: width 0.4s ease;
+            box-shadow: 0 0 10px var(--hud-cyan);
+        }
+
+        /* ============================================================
+           CURSOR GLOW
+        ============================================================ */
+        .cursor-ring {
+            position: fixed;
+            width: 24px; height: 24px;
+            border: 1.5px solid rgba(0,245,255,0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%,-50%);
+            transition: left .08s linear, top .08s linear;
+            mix-blend-mode: screen;
+        }
+
+        /* ============================================================
+           HUD HEADER
+        ============================================================ */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.85);
+            border-bottom: 1px solid var(--border-glow);
+            backdrop-filter: blur(20px);
+        }
+
+        .hud-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--hud-cyan);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 2px;
+        }
+
+        /* Animated drill icon */
+        .drill-icon {
+            width: 30px; height: 30px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .drill-icon i {
+            font-size: 1.2rem;
+            color: var(--hud-orange);
+            animation: drillSpin 1s linear infinite;
+        }
+        @keyframes drillSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Depth meter in header */
+        .hud-depth-display {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--hud-cyan);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .hud-metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hud-metric .label {
+            font-size: 0.55rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .hud-metric .value {
+            font-size: 0.9rem;
+            color: var(--hud-cyan);
+            text-shadow: 0 0 10px var(--hud-cyan);
+        }
+        .hud-metric .value.red { color: var(--hud-red); text-shadow: 0 0 10px var(--hud-red); }
+        .hud-metric .value.orange { color: var(--hud-orange); text-shadow: 0 0 10px var(--hud-orange); }
+        .hud-metric .value.gold { color: var(--hud-gold); text-shadow: 0 0 10px var(--hud-gold); }
+
+        .hud-divider {
+            width: 1px; height: 30px;
+            background: var(--border-glow);
+        }
+
+        .nav-btns { display: flex; gap: 10px; }
+        .nav-btn {
+            padding: 6px 16px;
+            background: transparent;
+            border: 1px solid var(--border-glow);
+            color: var(--hud-cyan);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            background: rgba(0,245,255,0.08);
+            border-color: var(--hud-cyan);
+            box-shadow: 0 0 15px rgba(0,245,255,0.15);
+        }
+
+        /* ============================================================
+           SIDE LAYER NAV
+        ============================================================ */
+        .layer-nav {
+            position: fixed;
+            right: 20px; top: 50%;
+            transform: translateY(-50%);
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .layer-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 0;
+            justify-content: flex-end;
+        }
+        .layer-nav-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            text-align: right;
+        }
+        .layer-nav-item:hover .layer-nav-label,
+        .layer-nav-item.active .layer-nav-label {
+            opacity: 1;
+            color: var(--hud-cyan);
+        }
+        .layer-nav-pip {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .layer-nav-item.active .layer-nav-pip,
+        .layer-nav-item:hover .layer-nav-pip {
+            border-color: var(--pip-color, var(--hud-cyan));
+            background: var(--pip-color, var(--hud-cyan));
+            box-shadow: 0 0 10px var(--pip-color, var(--hud-cyan));
+        }
+
+        /* ============================================================
+           HERO — DESCEND INTO EARTH
+        ============================================================ */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background particle grid */
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridScroll 20s linear infinite;
+        }
+        @keyframes gridScroll {
+            from { transform: translateY(0); }
+            to { transform: translateY(60px); }
+        }
+
+        /* Scanlines */
+        .scanlines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.05) 2px,
+                rgba(0,0,0,0.05) 4px
+            );
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            max-width: 900px;
+            padding: 0 20px;
+        }
+
+        .hero-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--hud-green);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .hero-badge::before, .hero-badge::after {
+            content: '';
+            width: 40px; height: 1px;
+            background: var(--hud-green);
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        .hero-title .t1 {
+            display: block;
+            color: var(--crust-color);
+            text-shadow: 0 0 40px rgba(139,115,85,0.5);
+            animation: titlePulse 3s ease-in-out infinite alternate;
+        }
+        .hero-title .t2 {
+            display: block;
+            background: linear-gradient(135deg, var(--hud-gold), var(--outer-core-color), var(--hud-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: clamp(3rem, 8vw, 7rem);
+            filter: drop-shadow(0 0 30px rgba(255,107,0,0.4));
+        }
+        @keyframes titlePulse {
+            0% { text-shadow: 0 0 40px rgba(139,115,85,0.3); }
+            100% { text-shadow: 0 0 80px rgba(139,115,85,0.8); }
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            margin-bottom: 50px;
+        }
+
+        /* BIG EARTH CROSS SECTION — HERO */
+        .hero-earth-visual {
+            position: absolute;
+            right: -100px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 600px;
+            height: 600px;
+            opacity: 0.12;
+            pointer-events: none;
+        }
+
+        /* Hero stats bar */
+        .hero-stats {
+            display: flex;
+            gap: 0;
+            justify-content: center;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .h-stat {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            border-right: 1px solid var(--border-glow);
+            background: rgba(255,255,255,0.02);
+            transition: background 0.3s ease;
+        }
+        .h-stat:last-child { border-right: none; }
+        .h-stat:hover { background: rgba(0,245,255,0.04); }
+        .h-stat .sv {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .h-stat .sl {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 20;
+            animation: bobDown 2s ease-in-out infinite;
+        }
+        @keyframes bobDown {
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+        .scroll-down span {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 4px;
+        }
+        .scroll-down i { color: var(--hud-orange); font-size: 1.2rem; }
+
+        /* ============================================================
+           CROSS-SECTION VISUAL (MAIN INTERACTIVE)
+        ============================================================ */
+        .cross-section-wrapper {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cross-section-scene {
+            position: relative;
+            width: min(500px, 90vw);
+            height: min(500px, 90vw);
+        }
+
+        /* SVG Earth layers */
+        .earth-cross-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 30px rgba(255,107,0,0.3));
+        }
+
+        /* Pulse ring on active layer */
+        .pulse-ring {
+            fill: none;
+            stroke: var(--hud-cyan);
+            stroke-width: 1;
+            opacity: 0;
+            animation: ringPulse 2s ease-out infinite;
+        }
+        @keyframes ringPulse {
+            0% { r: 50; opacity: 0.8; }
+            100% { r: 250; opacity: 0; }
+        }
+
+        /* Rotating texture inside layers */
+        .layer-texture {
+            animation: textureSpin 30s linear infinite;
+            transform-origin: center;
+        }
+        .layer-texture.reverse {
+            animation: textureSpin 20s linear infinite reverse;
+        }
+
+        @keyframes textureSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* HUD overlay on the cross section */
+        .cs-hud-line {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+        .cs-hud-line .line-seg {
+            background: var(--hud-cyan);
+            opacity: 0.4;
+        }
+        .cs-hud-line .line-dot {
+            width: 6px; height: 6px;
+            background: var(--hud-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--hud-cyan);
+        }
+        .cs-hud-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--hud-cyan);
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        /* Depth indicator line */
+        .depth-indicator {
+            position: absolute;
+            left: -80px; top: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #8B7355, #CC4A00, #FF6B00, #FFD700);
+            border-radius: 2px;
+            transition: height 0.5s ease;
+        }
+
+        /* ============================================================
+           LAYER SECTIONS — FULL SCROLL
+        ============================================================ */
+        .layers-scroll-container {
+            position: relative;
+        }
+
+        .layer-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 80px 40px 80px 80px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .layer-section.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* DEPTH TAPE on left */
+        .depth-tape {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 60px;
+            border-right: 1px solid var(--border-glow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        .depth-tape-km {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 2px;
+        }
+        .depth-tape-bar {
+            width: 4px;
+            border-radius: 2px;
+            margin: 10px 0;
+            flex: 1;
+        }
+
+        .layer-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .layer-info h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+        .layer-tagline {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+        .layer-desc {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.9;
+            margin-bottom: 30px;
+        }
+
+        /* Stat pills */
+        .stat-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .pill {
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
+
+        /* Data cards grid */
+        .data-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .dc {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 18px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .dc::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .dc:hover::before { opacity: 1; }
+        .dc:hover {
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-3px);
+        }
+        .dc-icon {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .dc h5 {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .dc .dc-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .dc .dc-sub {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 4px;
+        }
+
+        /* Layer visual (right side) */
+        .layer-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Mini gauge */
+        .gauge-wrap {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .gauge-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .gauge-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .gauge-label {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.4);
+            width: 80px;
+            flex-shrink: 0;
+        }
+        .gauge-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .gauge-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.23,1,0.32,1);
+            position: relative;
+        }
+        .gauge-fill::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0;
+            width: 4px; height: 100%;
+            background: rgba(255,255,255,0.8);
+            border-radius: 2px;
+        }
+        .gauge-val {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            width: 70px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* Seismic waveform */
+        .seismic-display {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 20px;
+            height: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+        .seismic-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(0,245,255,0.4);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        .seismic-canvas {
+            width: 100%;
+            height: 70px;
+        }
+
+        /* Composition donut */
+        .comp-chart {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .donut-wrap {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            flex-shrink: 0;
+        }
+        .donut-svg { width: 100%; height: 100%; }
+        .donut-label-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .donut-label-center span {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .donut-label-center small {
+            font-size: 0.55rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .comp-legend {
+            flex: 1;
+        }
+        .comp-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .comp-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           SECTION SPECIFIC COLORS
+        ============================================================ */
+
+        /* CRUST */
+        #layer-crust { background: radial-gradient(ellipse at center, rgba(139,115,85,0.08) 0%, transparent 70%); }
+        #layer-crust .layer-info h2 { color: var(--crust-color); text-shadow: 0 0 40px rgba(139,115,85,0.3); }
+        #layer-crust .layer-tagline { color: var(--crust-color); }
+        #layer-crust .depth-tape-bar { background: linear-gradient(to bottom, #a89070, var(--crust-color)); }
+        #layer-crust .dc::before { background: var(--crust-color); }
+        #layer-crust .dc:hover { border-color: rgba(139,115,85,0.3); }
+        #layer-crust .dc-val { color: var(--crust-color); }
+        #layer-crust .pill { border-color: rgba(139,115,85,0.3); color: var(--crust-color); }
+        #layer-crust .pill:hover { background: rgba(139,115,85,0.1); }
+
+        /* MANTLE */
+        #layer-mantle { background: radial-gradient(ellipse at center, rgba(204,74,0,0.08) 0%, transparent 70%); }
+        #layer-mantle .layer-info h2 { color: var(--mantle-color); text-shadow: 0 0 40px rgba(204,74,0,0.4); }
+        #layer-mantle .layer-tagline { color: var(--mantle-color); }
+        #layer-mantle .depth-tape-bar { background: linear-gradient(to bottom, var(--crust-color), var(--mantle-color)); }
+        #layer-mantle .dc::before { background: var(--mantle-color); }
+        #layer-mantle .dc:hover { border-color: rgba(204,74,0,0.3); }
+        #layer-mantle .dc-val { color: var(--mantle-color); }
+        #layer-mantle .pill { border-color: rgba(204,74,0,0.3); color: var(--mantle-color); }
+        #layer-mantle .pill:hover { background: rgba(204,74,0,0.1); }
+
+        /* OUTER CORE */
+        #layer-outer-core { background: radial-gradient(ellipse at center, rgba(255,107,0,0.1) 0%, transparent 70%); }
+        #layer-outer-core .layer-info h2 { color: var(--outer-core-color); text-shadow: 0 0 40px rgba(255,107,0,0.5); }
+        #layer-outer-core .layer-tagline { color: var(--outer-core-color); }
+        #layer-outer-core .depth-tape-bar { background: linear-gradient(to bottom, var(--mantle-color), var(--outer-core-color)); }
+        #layer-outer-core .dc::before { background: var(--outer-core-color); }
+        #layer-outer-core .dc:hover { border-color: rgba(255,107,0,0.3); }
+        #layer-outer-core .dc-val { color: var(--outer-core-color); }
+        #layer-outer-core .pill { border-color: rgba(255,107,0,0.3); color: var(--outer-core-color); }
+        #layer-outer-core .pill:hover { background: rgba(255,107,0,0.1); }
+
+        /* INNER CORE */
+        #layer-inner-core { background: radial-gradient(ellipse at center, rgba(255,215,0,0.12) 0%, transparent 70%); }
+        #layer-inner-core .layer-info h2 { color: var(--inner-core-color); text-shadow: 0 0 60px rgba(255,215,0,0.6); }
+        #layer-inner-core .layer-tagline { color: var(--inner-core-color); }
+        #layer-inner-core .depth-tape-bar { background: linear-gradient(to bottom, var(--outer-core-color), var(--inner-core-color)); }
+        #layer-inner-core .dc::before { background: var(--inner-core-color); }
+        #layer-inner-core .dc:hover { border-color: rgba(255,215,0,0.3); }
+        #layer-inner-core .dc-val { color: var(--inner-core-color); }
+        #layer-inner-core .pill { border-color: rgba(255,215,0,0.3); color: var(--inner-core-color); }
+        #layer-inner-core .pill:hover { background: rgba(255,215,0,0.1); }
+
+        /* ============================================================
+           DISCONTINUITIES TABLE SECTION
+        ============================================================ */
+        .disco-section {
+            padding: 100px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-head {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .section-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: rgba(0,245,255,0.4);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .section-sub {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.95rem;
+            max-width: 550px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        .section-rule {
+            width: 60px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--hud-cyan), transparent);
+            margin: 20px auto 0;
+        }
+
+        /* Disco cards */
+        .disco-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .disco-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .disco-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--card-accent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        .disco-card:hover::after { transform: scaleX(1); }
+        .disco-card:hover {
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .disco-card .dc-depth {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .disco-card .dc-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 12px;
+        }
+        .disco-card .dc-between {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            line-height: 1.5;
+        }
+        .disco-card .dc-between strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.2);
+        }
+
+        /* ============================================================
+           PLATE TECTONICS SECTION
+        ============================================================ */
+        .tectonics-section {
+            padding: 100px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Tectonic map background */
+        .tectonic-bg {
+            position: absolute;
+            inset: 0;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg width='800' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100 200 L200 150 L300 180 L350 120 L450 160 L550 130 L650 170 L700 140' stroke='%2300f5ff' stroke-width='2' fill='none'/%3E%3Cpath d='M50 300 L150 280 L250 310 L400 270 L500 290 L600 260 L750 290' stroke='%2300f5ff' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+            background-size: cover;
+        }
+
+        .tectonics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            max-width: 1200px;
+            margin: 60px auto 0;
+        }
+
+        .boundary-card {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .boundary-card:hover {
+            border-color: var(--bc-color);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.2);
+            transform: translateY(-5px);
+        }
+
+        /* boundary animations */
+        .boundary-anim {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .plate {
+            width: 100px; height: 30px;
+            border-radius: 6px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* Convergent */
+        .convergent .plate-a {
+            background: rgba(255,68,68,0.2);
+            border: 1px solid rgba(255,68,68,0.4);
+            color: var(--hud-red);
+            left: 0;
+            animation: convergePush 3s ease-in-out infinite;
+        }
+        .convergent .plate-b {
+            background: rgba(255,68,68,0.2);
+            border: 1px solid rgba(255,68,68,0.4);
+            color: var(--hud-red);
+            right: 0;
+            animation: convergePull 3s ease-in-out infinite;
+        }
+        @keyframes convergePush {
+            0%,100% { left: 0; }
+            50% { left: 15px; }
+        }
+        @keyframes convergePull {
+            0%,100% { right: 0; }
+            50% { right: 15px; }
+        }
+        /* mountain popup on convergent */
+        .mountain-pop {
+            position: absolute;
+            width: 0; height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 25px solid rgba(255,68,68,0.4);
+            bottom: 25px;
+            animation: mountainRise 3s ease-in-out infinite;
+        }
+        @keyframes mountainRise {
+            0%,100% { transform: scaleY(0.5); opacity: 0.3; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        /* Divergent */
+        .divergent .plate-a {
+            background: rgba(0,255,136,0.15);
+            border: 1px solid rgba(0,255,136,0.35);
+            color: var(--hud-green);
+            left: 5px;
+            animation: divergeLeft 3s ease-in-out infinite;
+        }
+        .divergent .plate-b {
+            background: rgba(0,255,136,0.15);
+            border: 1px solid rgba(0,255,136,0.35);
+            color: var(--hud-green);
+            right: 5px;
+            animation: divergeRight 3s ease-in-out infinite;
+        }
+        @keyframes divergeLeft {
+            0%,100% { left: 5px; }
+            50% { left: -5px; }
+        }
+        @keyframes divergeRight {
+            0%,100% { right: 5px; }
+            50% { right: -5px; }
+        }
+        /* lava vent on divergent */
+        .lava-vent {
+            position: absolute;
+            width: 6px;
+            background: linear-gradient(to top, var(--outer-core-color), var(--hud-gold), transparent);
+            bottom: 25px;
+            border-radius: 3px;
+            animation: ventSpurt 3s ease-in-out infinite;
+        }
+        @keyframes ventSpurt {
+            0%,100% { height: 5px; opacity: 0.3; }
+            50% { height: 25px; opacity: 1; }
+        }
+
+        /* Transform */
+        .transform .plate-a {
+            background: rgba(255,215,0,0.15);
+            border: 1px solid rgba(255,215,0,0.35);
+            color: var(--hud-gold);
+            top: 20px;
+            left: 0; right: auto;
+            animation: transformA 3s ease-in-out infinite;
+        }
+        .transform .plate-b {
+            background: rgba(255,215,0,0.15);
+            border: 1px solid rgba(255,215,0,0.35);
+            color: var(--hud-gold);
+            bottom: 20px;
+            right: 0; left: auto;
+            animation: transformB 3s ease-in-out infinite;
+        }
+        @keyframes transformA {
+            0%,100% { transform: translateX(0); }
+            50% { transform: translateX(12px); }
+        }
+        @keyframes transformB {
+            0%,100% { transform: translateX(0); }
+            50% { transform: translateX(-12px); }
+        }
+
+        .boundary-card h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .boundary-card p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        .boundary-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+        .example-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ============================================================
+           ROCKS SECTION
+        ============================================================ */
+        .rocks-section {
+            padding: 100px 60px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .rock-cycle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 60px 0;
+            position: relative;
+        }
+
+        /* Rock cycle SVG animation */
+        .rock-cycle-svg {
+            width: min(700px, 100%);
+            height: auto;
+        }
+
+        .rock-nodes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: 40px auto 0;
+        }
+        .rock-node {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        .rock-node:hover {
+            border-color: var(--rn-color);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        .rock-node .rn-icon {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 15px;
+            border: 2px solid var(--rn-color);
+        }
+        .rock-node h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--rn-color);
+        }
+        .rock-node p {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .rock-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+        .rock-tag {
+            font-size: 0.65rem;
+            font-family: 'Space Mono', monospace;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ============================================================
+           ATMOSPHERE LAYERS (ELEVATOR STYLE)
+        ============================================================ */
+        .atmo-section {
+            padding: 100px 60px;
+            position: relative;
+        }
+
+        .atmo-stack {
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px;
+            margin: 60px auto 0;
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .atmo-layer {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            padding: 25px 35px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .atmo-layer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .atmo-layer:hover::before { opacity: 1; }
+        .atmo-layer:hover { transform: translateX(8px); }
+        .atmo-layer:last-child { border-bottom: none; }
+
+        .atmo-alt {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .atmo-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .atmo-info {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+        }
+        .atmo-features {
+            margin-left: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+            max-width: 300px;
+        }
+        .atmo-tag {
+            font-size: 0.65rem;
+            font-family: 'Space Mono', monospace;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+
+        /* Troposphere */
+        .atmo-layer.tropo { background: rgba(30,80,150,0.05); }
+        .atmo-layer.tropo::before { background: rgba(30,80,150,0.08); }
+        .atmo-layer.tropo .atmo-alt { color: #5dade2; }
+        .atmo-layer.tropo .atmo-name { color: #5dade2; }
+        .atmo-layer.tropo .atmo-tag { border-color: rgba(93,173,226,0.2); color: #5dade2; }
+
+        /* Stratosphere */
+        .atmo-layer.strato { background: rgba(50,150,100,0.05); }
+        .atmo-layer.strato::before { background: rgba(50,150,100,0.08); }
+        .atmo-layer.strato .atmo-alt { color: #27ae60; }
+        .atmo-layer.strato .atmo-name { color: #27ae60; }
+        .atmo-layer.strato .atmo-tag { border-color: rgba(39,174,96,0.2); color: #27ae60; }
+
+        /* Mesosphere */
+        .atmo-layer.meso { background: rgba(100,50,180,0.05); }
+        .atmo-layer.meso::before { background: rgba(100,50,180,0.08); }
+        .atmo-layer.meso .atmo-alt { color: #9b59b6; }
+        .atmo-layer.meso .atmo-name { color: #9b59b6; }
+        .atmo-layer.meso .atmo-tag { border-color: rgba(155,89,182,0.2); color: #9b59b6; }
+
+        /* Thermosphere */
+        .atmo-layer.thermo { background: rgba(255,100,50,0.05); }
+        .atmo-layer.thermo::before { background: rgba(255,100,50,0.08); }
+        .atmo-layer.thermo .atmo-alt { color: var(--hud-orange); }
+        .atmo-layer.thermo .atmo-name { color: var(--hud-orange); }
+        .atmo-layer.thermo .atmo-tag { border-color: rgba(255,140,0,0.2); color: var(--hud-orange); }
+
+        /* Exosphere */
+        .atmo-layer.exo { background: rgba(255,215,0,0.04); }
+        .atmo-layer.exo::before { background: rgba(255,215,0,0.06); }
+        .atmo-layer.exo .atmo-alt { color: var(--hud-gold); }
+        .atmo-layer.exo .atmo-name { color: var(--hud-gold); }
+        .atmo-layer.exo .atmo-tag { border-color: rgba(255,215,0,0.2); color: var(--hud-gold); }
+
+        /* Atmo gradient bar (left) */
+        .atmo-grad-bar {
+            width: 8px;
+            height: 100%;
+            border-radius: 4px;
+            position: absolute;
+            left: 0; top: 0;
+        }
+
+        /* ============================================================
+           LANDFORMS SECTION
+        ============================================================ */
+        .landforms-section {
+            padding: 100px 60px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .landform-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .lf-tab {
+            padding: 10px 24px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .lf-tab:hover { border-color: var(--hud-cyan); color: var(--hud-cyan); }
+        .lf-tab.active {
+            background: rgba(0,245,255,0.08);
+            border-color: var(--hud-cyan);
+            color: var(--hud-cyan);
+            box-shadow: 0 0 15px rgba(0,245,255,0.1);
+        }
+
+        .lf-content {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            animation: fadeTab 0.4s ease;
+        }
+        .lf-content.active { display: grid; }
+        @keyframes fadeTab {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lf-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px 15px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .lf-item:hover {
+            border-color: rgba(0,245,255,0.2);
+            background: rgba(0,245,255,0.02);
+            transform: translateY(-3px);
+        }
+        .lf-item .lf-emoji { font-size: 2rem; margin-bottom: 8px; display: block; }
+        .lf-item h5 {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--hud-cyan);
+            margin-bottom: 5px;
+        }
+        .lf-item p { font-size: 0.75rem; color: rgba(255,255,255,0.35); line-height: 1.5; }
+
+        /* ============================================================
+           HYDROSPHERE SECTION
+        ============================================================ */
+        .hydro-section {
+            padding: 100px 60px;
+            position: relative;
+        }
+
+        .ocean-visual {
+            max-width: 1000px;
+            margin: 60px auto 0;
+            background: rgba(0,0,30,0.5);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            height: 300px;
+        }
+
+        /* Animated ocean waves */
+        .ocean-surface {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            overflow: hidden;
+        }
+        .wave {
+            position: absolute;
+            bottom: 0;
+            width: 200%;
+            height: 100%;
+            background: rgba(74,144,217,0.15);
+            border-radius: 43% 57% 32% 68% / 55% 45% 65% 35%;
+            animation: waveAnim 6s ease-in-out infinite;
+        }
+        .wave:nth-child(2) {
+            animation: waveAnim 8s ease-in-out infinite reverse;
+            opacity: 0.5;
+        }
+        @keyframes waveAnim {
+            0%,100% { transform: translateX(-25%) rotate(0deg); }
+            50% { transform: translateX(0%) rotate(3deg); }
+        }
+
+        /* Ocean floor profile */
+        .ocean-profile {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+        }
+
+        .ocean-labels {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px 40px;
+            position: absolute;
+            bottom: 20px;
+            left: 0; right: 0;
+        }
+        .ocean-label {
+            text-align: center;
+        }
+        .ocean-label .ol-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: #4A90D9;
+            letter-spacing: 1px;
+        }
+        .ocean-label .ol-depth {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        /* Water stats */
+        .water-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: 40px auto 0;
+        }
+        .water-stat {
+            background: rgba(74,144,217,0.05);
+            border: 1px solid rgba(74,144,217,0.15);
+            border-radius: 12px;
+            padding: 25px 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+        .water-stat:hover {
+            background: rgba(74,144,217,0.1);
+            transform: translateY(-4px);
+        }
+        .water-stat .ws-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4A90D9;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .water-stat .ws-lbl {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.3);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* ============================================================
+           EARTHQUAKES SECTION
+        ============================================================ */
+        .quake-section {
+            padding: 100px 60px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .quake-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+            margin-top: 60px;
+        }
+
+        /* Wave types visual */
+        .wave-types {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .wave-type-card {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .wave-type-card:hover { border-color: rgba(0,245,255,0.2); }
+        .wave-anim-wrap {
+            width: 80px;
+            height: 40px;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .p-wave {
+            width: 100%;
+            height: 2px;
+            position: absolute;
+            top: 50%;
+            animation: pWaveAnim 1s ease-in-out infinite;
+        }
+        @keyframes pWaveAnim {
+            0% { background: radial-gradient(circle at 0% 50%, var(--hud-cyan) 0%, transparent 50%); }
+            50% { background: radial-gradient(circle at 50% 50%, var(--hud-cyan) 0%, transparent 50%); }
+            100% { background: radial-gradient(circle at 100% 50%, var(--hud-cyan) 0%, transparent 50%); }
+        }
+        .s-wave-path {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+            animation: drawWave 2s ease-in-out infinite;
+        }
+        @keyframes drawWave {
+            to { stroke-dashoffset: 0; }
+        }
+        .wave-type-info h5 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .wave-type-info p {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.5;
+        }
+
+        /* Richter scale visual */
+        .richter-visual {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 30px;
+        }
+        .richter-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--hud-cyan);
+            margin-bottom: 25px;
+        }
+        .richter-scale {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .richter-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .richter-mag {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            width: 40px;
+            flex-shrink: 0;
+        }
+        .richter-bar-wrap {
+            flex: 1;
+            height: 18px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .richter-bar {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.7);
+            transition: width 2s cubic-bezier(0.23,1,0.32,1);
+            width: 0%;
+        }
+
+        /* ============================================================
+           VOLCANOES SECTION
+        ============================================================ */
+        .volcano-section {
+            padding: 100px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated volcano in BG */
+        .volcano-bg-art {
+            position: absolute;
+            right: 0; bottom: 0;
+            width: 400px;
+            height: 400px;
+            opacity: 0.06;
+            pointer-events: none;
+        }
+
+        .volcano-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 1000px;
+            margin: 60px auto 0;
+        }
+        .volcano-card {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.4s ease;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .volcano-card:hover {
+            border-color: rgba(255,107,0,0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        .vc-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+        .vc-info h5 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--outer-core-color);
+            margin-bottom: 8px;
+        }
+        .vc-info p { font-size: 0.85rem; color: rgba(255,255,255,0.45); line-height: 1.6; }
+        .vc-examples {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .vc-tag {
+            font-size: 0.6rem;
+            font-family: 'Space Mono', monospace;
+            padding: 3px 8px;
+            background: rgba(255,107,0,0.08);
+            border: 1px solid rgba(255,107,0,0.2);
+            border-radius: 4px;
+            color: rgba(255,107,0,0.7);
+        }
+
+        /* ============================================================
+           QUIZ SECTION
+        ============================================================ */
+        .quiz-section {
+            padding: 100px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .quiz-wrap {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 50px;
+        }
+        .quiz-h { text-align: center; margin-bottom: 40px; }
+        .quiz-h h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--hud-gold);
+            margin-bottom: 8px;
+        }
+        .quiz-h p { font-size: 0.85rem; color: rgba(255,255,255,0.35); }
+
+        .quiz-progress {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .qp-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        .qp-dot.active { background: var(--hud-cyan); box-shadow: 0 0 8px var(--hud-cyan); }
+        .qp-dot.correct { background: var(--hud-green); }
+        .qp-dot.wrong { background: var(--hud-red); }
+
+        .quiz-q {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.85);
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .quiz-opts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .qopt {
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .qopt:hover { border-color: var(--hud-cyan); color: #fff; background: rgba(0,245,255,0.04); }
+        .qopt.correct-ans { border-color: var(--hud-green); background: rgba(0,255,136,0.08); color: var(--hud-green); }
+        .qopt.wrong-ans { border-color: var(--hud-red); background: rgba(255,68,68,0.08); color: var(--hud-red); }
+
+        .quiz-next-btn {
+            display: block;
+            margin: 25px auto 0;
+            padding: 11px 35px;
+            background: transparent;
+            border: 1px solid var(--hud-cyan);
+            color: var(--hud-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        .quiz-next-btn:hover {
+            background: rgba(0,245,255,0.08);
+            box-shadow: 0 0 20px rgba(0,245,255,0.15);
+        }
+        .quiz-result { text-align: center; display: none; }
+        .quiz-result .qr-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: var(--hud-gold);
+        }
+        .quiz-result p { color: rgba(255,255,255,0.4); margin: 10px 0 20px; }
+
+        /* ============================================================
+           FOOTER
+        ============================================================ */
+        footer {
+            padding: 50px 60px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            text-align: center;
+        }
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .footer-nav a {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.25);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+        .footer-nav a:hover { color: var(--hud-cyan); }
+        .footer-copy {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.1);
+        }
+
+        /* ============================================================
+           SCROLL REVEAL
+        ============================================================ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal-left.visible { opacity: 1; transform: translateX(0); }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+        /* ============================================================
+           RESPONSIVE
+        ============================================================ */
+        @media (max-width: 1024px) {
+            .layer-content { grid-template-columns: 1fr; gap: 30px; }
+            .tectonics-grid { grid-template-columns: 1fr; }
+            .quake-grid { grid-template-columns: 1fr; }
+            .rock-nodes { grid-template-columns: 1fr 1fr; }
+            .water-stats { grid-template-columns: 1fr 1fr; }
+            .disco-section, .tectonics-section, .rocks-section,
+            .atmo-section, .landforms-section, .hydro-section,
+            .quake-section, .volcano-section, .quiz-section { padding: 80px 30px; }
+        }
+        @media (max-width: 768px) {
+            header { padding: 0 15px; }
+            .hud-depth-display { display: none; }
+            .layer-nav { right: 8px; }
+            .layer-section { padding: 80px 15px 80px 60px; }
+            .depth-tape { width: 45px; }
+            .hero-stats { flex-direction: column; }
+            .h-stat { border-right: none; border-bottom: 1px solid var(--border-glow); }
+            .h-stat:last-child { border-bottom: none; }
+            .rock-nodes { grid-template-columns: 1fr; }
+            .volcano-cards { grid-template-columns: 1fr; }
+            .water-stats { grid-template-columns: 1fr 1fr; }
+            .quiz-opts { grid-template-columns: 1fr; }
+            .lf-tab { font-size: 0.6rem; padding: 8px 14px; }
+        }
+        @media (max-width: 480px) {
+            .hero-title .t1 { font-size: 2rem; }
+            .hero-title .t2 { font-size: 2.5rem; }
+            .disco-cards { grid-template-columns: 1fr 1fr; }
+            .water-stats { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== BOOT SCREEN ===== -->
+<div class="boot-screen" id="bootScreen">
+    <div id="bootLines"></div>
+    <div class="boot-progress">
+        <div class="boot-progress-label">DRILL SYSTEM INITIALIZING</div>
+        <div class="boot-progress-bar"><div class="boot-progress-fill" id="bootFill"></div></div>
+    </div>
+</div>
+
+<!-- ===== CURSOR ===== -->
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ===== HEADER ===== -->
+<header>
+    <a href="#" class="hud-logo">
+        <div class="drill-icon"><i class="fas fa-cog"></i></div>
+        DharaVerse
+    </a>
+    <div class="hud-depth-display">
+        <div class="hud-metric">
+            <span class="label">Depth</span>
+            <span class="value" id="hDepth">0 km</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-metric">
+            <span class="label">Temp</span>
+            <span class="value orange" id="hTemp">15°C</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-metric">
+            <span class="label">Pressure</span>
+            <span class="value red" id="hPressure">1 atm</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-metric">
+            <span class="label">Layer</span>
+            <span class="value gold" id="hLayer">Surface</span>
+        </div>
+    </div>
+    <div class="nav-btns">
+        <a href="earth-astronomy.html" class="nav-btn">← Astronomy</a>
+        <a href="#" class="nav-btn">Home</a>
+    </div>
+</header>
+
+<!-- ===== SIDE LAYER NAV ===== -->
+<div class="layer-nav">
+    <div class="layer-nav-item active" data-target="hero" style="--pip-color:#8B7355">
+        <span class="layer-nav-label">Surface</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="layer-crust" style="--pip-color:#A89070">
+        <span class="layer-nav-label">Crust</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="layer-mantle" style="--pip-color:#CC4A00">
+        <span class="layer-nav-label">Mantle</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="layer-outer-core" style="--pip-color:#FF6B00">
+        <span class="layer-nav-label">Outer Core</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="layer-inner-core" style="--pip-color:#FFD700">
+        <span class="layer-nav-label">Inner Core</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="section-disco" style="--pip-color:#00f5ff">
+        <span class="layer-nav-label">Discontinuities</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="section-tectonics" style="--pip-color:#00FF88">
+        <span class="layer-nav-label">Tectonics</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="section-rocks" style="--pip-color:#9b59b6">
+        <span class="layer-nav-label">Rocks</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+    <div class="layer-nav-item" data-target="section-atmo" style="--pip-color:#5dade2">
+        <span class="layer-nav-label">Atmosphere</span>
+        <div class="layer-nav-pip"></div>
+    </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+    <div class="grid-bg"></div>
+    <div class="scanlines"></div>
+
+    <div class="hero-content">
+        <div class="hero-badge">DharaVerse · Earth Structure Module</div>
+        <h1 class="hero-title">
+            <span class="t1">Journey to the</span>
+            <span class="t2">CORE</span>
+        </h1>
+        <p class="hero-sub">6,371 km of rock, magma, iron & fire — descend through every layer</p>
+
+        <div class="hero-stats">
+            <div class="h-stat">
+                <span class="sv" style="color:#8B7355">35 km</span>
+                <span class="sl">Crust Depth</span>
+            </div>
+            <div class="h-stat">
+                <span class="sv" style="color:#CC4A00">2,900 km</span>
+                <span class="sl">Mantle Depth</span>
+            </div>
+            <div class="h-stat">
+                <span class="sv" style="color:#FF6B00">5,150 km</span>
+                <span class="sl">Outer Core</span>
+            </div>
+            <div class="h-stat">
+                <span class="sv" style="color:#FFD700">5,500°C</span>
+                <span class="sl">Inner Core Temp</span>
+            </div>
+            <div class="h-stat">
+                <span class="sv" style="color:#fff">6,371 km</span>
+                <span class="sl">Earth's Radius</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-down">
+        <span>BEGIN DESCENT</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- ===== LAYER: CRUST ===== -->
+<section class="layer-section" id="layer-crust">
+    <div class="depth-tape">
+        <div class="depth-tape-km">0 – 70 km</div>
+        <div class="depth-tape-bar" style="background:linear-gradient(to bottom,#a89070,#8B7355)"></div>
+    </div>
+
+    <div class="layer-content">
+        <div class="layer-info reveal-left">
+            <h2>CRUST</h2>
+            <p class="layer-tagline">Earth's Outermost Shell</p>
+            <p class="layer-desc">
+                The crust is Earth's cool, rigid outer skin — the ground beneath your feet.
+                It's divided into <strong>continental crust</strong> (thick, granite-rich, older)
+                and <strong>oceanic crust</strong> (thin, basalt-rich, denser, younger).
+                Relatively speaking, it's thinner than an eggshell compared to Earth's size.
+            </p>
+
+            <div class="stat-pills">
+                <div class="pill">🌡️ 0 – 300°C</div>
+                <div class="pill">📏 5 – 70 km thick</div>
+                <div class="pill">⚖️ ~1% of Earth's volume</div>
+                <div class="pill">🪨 Si, Al, O, Fe</div>
+            </div>
+
+            <div class="data-cards">
+                <div class="dc">
+                    <span class="dc-icon">🏔️</span>
+                    <h5>Continental Crust</h5>
+                    <div class="dc-val">30 – 70 km</div>
+                    <div class="dc-sub">Granitic (SIAL) · Less dense</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🌊</span>
+                    <h5>Oceanic Crust</h5>
+                    <div class="dc-val">5 – 10 km</div>
+                    <div class="dc-sub">Basaltic (SIMA) · Denser</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🔥</span>
+                    <h5>Moho Boundary</h5>
+                    <div class="dc-val">~35 km</div>
+                    <div class="dc-sub">Crust–Mantle boundary</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🧱</span>
+                    <h5>Conrad Disc.</h5>
+                    <div class="dc-val">~20 km</div>
+                    <div class="dc-sub">Upper–Lower crust</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-visual reveal-right">
+            <!-- Temp/Pressure gauges -->
+            <div class="gauge-wrap">
+                <div class="gauge-title">LAYER METRICS</div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Temperature</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="width:5%;background:linear-gradient(90deg,#5dade2,#8B7355)" data-w="5"></div></div>
+                    <span class="gauge-val" style="color:#8B7355">~300°C</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Pressure</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="width:3%;background:linear-gradient(90deg,#5dade2,#8B7355)" data-w="3"></div></div>
+                    <span class="gauge-val" style="color:#8B7355">1 GPa</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Thickness</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="width:8%;background:linear-gradient(90deg,#5dade2,#8B7355)" data-w="8"></div></div>
+                    <span class="gauge-val" style="color:#8B7355">70 km</span>
+                </div>
+            </div>
+
+            <!-- Seismic display -->
+            <div class="seismic-display">
+                <div class="seismic-title">SEISMIC ACTIVITY MONITOR</div>
+                <canvas class="seismic-canvas" id="seismic-crust"></canvas>
+            </div>
+
+            <!-- Composition -->
+            <div class="comp-chart">
+                <div class="donut-wrap">
+                    <svg class="donut-svg" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#8B7355" stroke-width="4" stroke-dasharray="55 45" stroke-dashoffset="25" transform="rotate(-90 18 18)"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#A89070" stroke-width="4" stroke-dasharray="21 79" stroke-dashoffset="-30" transform="rotate(-90 18 18)"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#C0A080" stroke-width="4" stroke-dasharray="13 87" stroke-dashoffset="-51" transform="rotate(-90 18 18)"/>
+                    </svg>
+                    <div class="donut-label-center">
+                        <span style="color:#8B7355">SIAL</span>
+                        <small>Composition</small>
+                    </div>
+                </div>
+                <div class="comp-legend">
+                    <div class="comp-item"><div class="comp-dot" style="background:#8B7355"></div>Oxygen 46%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#A89070"></div>Silicon 28%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#C0A080"></div>Aluminium 8%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#6B5030"></div>Iron 5% + others</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== LAYER: MANTLE ===== -->
+<section class="layer-section" id="layer-mantle">
+    <div class="depth-tape">
+        <div class="depth-tape-km">35 – 2,900 km</div>
+        <div class="depth-tape-bar" style="background:linear-gradient(to bottom,#8B7355,#CC4A00)"></div>
+    </div>
+
+    <div class="layer-content">
+        <div class="layer-info reveal-left">
+            <h2>MANTLE</h2>
+            <p class="layer-tagline">The Engine Room of Earth</p>
+            <p class="layer-desc">
+                The mantle is Earth's thickest layer — a massive zone of hot, dense silicate rock.
+                The upper mantle contains the <strong>asthenosphere</strong>, a semi-molten zone where
+                tectonic plates slide. Giant <strong>convection currents</strong> here drive everything
+                — plate tectonics, volcanoes, earthquakes. It's the engine of our living planet.
+            </p>
+
+            <div class="stat-pills">
+                <div class="pill">🌡️ 300 – 3,000°C</div>
+                <div class="pill">📏 2,865 km thick</div>
+                <div class="pill">⚖️ 68% of Earth's mass</div>
+                <div class="pill">🪨 Mg, Fe, Si, O</div>
+            </div>
+
+            <div class="data-cards">
+                <div class="dc">
+                    <span class="dc-icon">🌊</span>
+                    <h5>Asthenosphere</h5>
+                    <div class="dc-val">100–700 km</div>
+                    <div class="dc-sub">Semi-molten · Plates move here</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🏋️</span>
+                    <h5>Mesosphere</h5>
+                    <div class="dc-val">700–2,900 km</div>
+                    <div class="dc-sub">Solid · Lower mantle</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🌀</span>
+                    <h5>Convection Cells</h5>
+                    <div class="dc-val">Thousands km</div>
+                    <div class="dc-sub">Drive plate movement</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🔴</span>
+                    <h5>Gutenberg Disc.</h5>
+                    <div class="dc-val">2,900 km</div>
+                    <div class="dc-sub">Mantle–Core boundary</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-visual reveal-right">
+            <div class="gauge-wrap">
+                <div class="gauge-title">LAYER METRICS</div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Temperature</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#CC4A00,#FF6B00)" data-w="40"></div></div>
+                    <span class="gauge-val" style="color:#CC4A00">~3,000°C</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Pressure</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#CC4A00,#FF6B00)" data-w="45"></div></div>
+                    <span class="gauge-val" style="color:#CC4A00">140 GPa</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Thickness</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#CC4A00,#FF6B00)" data-w="70"></div></div>
+                    <span class="gauge-val" style="color:#CC4A00">2,865 km</span>
+                </div>
+            </div>
+
+            <div class="seismic-display">
+                <div class="seismic-title">CONVECTION CURRENT MONITOR</div>
+                <canvas class="seismic-canvas" id="seismic-mantle"></canvas>
+            </div>
+
+            <div class="comp-chart">
+                <div class="donut-wrap">
+                    <svg class="donut-svg" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#CC4A00" stroke-width="4" stroke-dasharray="45 55" stroke-dashoffset="25" transform="rotate(-90 18 18)"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#E06020" stroke-width="4" stroke-dasharray="22 78" stroke-dashoffset="-20" transform="rotate(-90 18 18)"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#FF8050" stroke-width="4" stroke-dasharray="18 82" stroke-dashoffset="-42" transform="rotate(-90 18 18)"/>
+                    </svg>
+                    <div class="donut-label-center">
+                        <span style="color:#CC4A00">SIMA</span>
+                        <small>Composition</small>
+                    </div>
+                </div>
+                <div class="comp-legend">
+                    <div class="comp-item"><div class="comp-dot" style="background:#CC4A00"></div>Oxygen 44%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#E06020"></div>Silicon 22%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#FF8050"></div>Magnesium 18%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#904030"></div>Iron 10% + others</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== LAYER: OUTER CORE ===== -->
+<section class="layer-section" id="layer-outer-core">
+    <div class="depth-tape">
+        <div class="depth-tape-km">2,900 – 5,150 km</div>
+        <div class="depth-tape-bar" style="background:linear-gradient(to bottom,#CC4A00,#FF6B00)"></div>
+    </div>
+
+    <div class="layer-content">
+        <div class="layer-info reveal-left">
+            <h2>OUTER CORE</h2>
+            <p class="layer-tagline">The Liquid Iron Sea</p>
+            <p class="layer-desc">
+                Welcome to the most dramatic layer — a churning ocean of liquid iron and nickel
+                at temperatures rivaling the Sun's surface. The swirling currents of electrically
+                conducting liquid metal here generate Earth's <strong>magnetic field</strong> through
+                the <strong>geodynamo effect</strong>. Without this layer, life on Earth would be
+                destroyed by solar radiation.
+            </p>
+
+            <div class="stat-pills">
+                <div class="pill">🌡️ 4,000 – 5,000°C</div>
+                <div class="pill">💧 LIQUID state</div>
+                <div class="pill">🧲 Generates magnetic field</div>
+                <div class="pill">🔩 Iron + Nickel</div>
+            </div>
+
+            <div class="data-cards">
+                <div class="dc">
+                    <span class="dc-icon">🧲</span>
+                    <h5>Geodynamo</h5>
+                    <div class="dc-val">Active</div>
+                    <div class="dc-sub">Generates Earth's magnetic field</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">💧</span>
+                    <h5>State</h5>
+                    <div class="dc-val">Liquid</div>
+                    <div class="dc-sub">Too hot for solid structure</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">⚡</span>
+                    <h5>Speed</h5>
+                    <div class="dc-val">1 mm/s</div>
+                    <div class="dc-sub">Flow velocity of molten iron</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">📍</span>
+                    <h5>Lehmann Disc.</h5>
+                    <div class="dc-val">5,150 km</div>
+                    <div class="dc-sub">Outer–Inner core boundary</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-visual reveal-right">
+            <div class="gauge-wrap">
+                <div class="gauge-title">LAYER METRICS</div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Temperature</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#FF6B00,#FFD700)" data-w="75"></div></div>
+                    <span class="gauge-val" style="color:#FF6B00">~5,000°C</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Pressure</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#FF6B00,#FFD700)" data-w="80"></div></div>
+                    <span class="gauge-val" style="color:#FF6B00">330 GPa</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Thickness</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#FF6B00,#FFD700)" data-w="55"></div></div>
+                    <span class="gauge-val" style="color:#FF6B00">2,250 km</span>
+                </div>
+            </div>
+
+            <div class="seismic-display">
+                <div class="seismic-title">GEODYNAMO ELECTROMAGNETIC MONITOR</div>
+                <canvas class="seismic-canvas" id="seismic-ocore"></canvas>
+            </div>
+
+            <div class="comp-chart">
+                <div class="donut-wrap">
+                    <svg class="donut-svg" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#FF6B00" stroke-width="4" stroke-dasharray="85 15" stroke-dashoffset="25" transform="rotate(-90 18 18)"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#FFD700" stroke-width="4" stroke-dasharray="10 90" stroke-dashoffset="-60" transform="rotate(-90 18 18)"/>
+                    </svg>
+                    <div class="donut-label-center">
+                        <span style="color:#FF6B00">NiFe</span>
+                        <small>Composition</small>
+                    </div>
+                </div>
+                <div class="comp-legend">
+                    <div class="comp-item"><div class="comp-dot" style="background:#FF6B00"></div>Iron ~85%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#FFD700"></div>Nickel ~10%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#FF9900"></div>Sulfur/Oxygen ~5%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== LAYER: INNER CORE ===== -->
+<section class="layer-section" id="layer-inner-core">
+    <div class="depth-tape">
+        <div class="depth-tape-km">5,150 – 6,371 km</div>
+        <div class="depth-tape-bar" style="background:linear-gradient(to bottom,#FF6B00,#FFD700)"></div>
+    </div>
+
+    <div class="layer-content">
+        <div class="layer-info reveal-left">
+            <h2>INNER CORE</h2>
+            <p class="layer-tagline">The Beating Heart of Earth</p>
+            <p class="layer-desc">
+                You've reached it — the very center of Earth. A solid ball of iron roughly the
+                size of the Moon, compressed by the weight of the entire planet above it.
+                Despite temperatures hotter than the Sun's surface (~5,500°C), it remains
+                <strong>solid</strong> due to immense pressure. It rotates slightly <strong>faster</strong>
+                than the rest of Earth — a planet within a planet.
+            </p>
+
+            <div class="stat-pills">
+                <div class="pill">🌡️ ~5,500°C</div>
+                <div class="pill">🧱 SOLID despite heat</div>
+                <div class="pill">📐 1,221 km radius</div>
+                <div class="pill">🌀 Rotates faster than surface</div>
+            </div>
+
+            <div class="data-cards">
+                <div class="dc">
+                    <span class="dc-icon">🌡️</span>
+                    <h5>Temperature</h5>
+                    <div class="dc-val">5,500°C</div>
+                    <div class="dc-sub">= Surface of the Sun</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">💎</span>
+                    <h5>State</h5>
+                    <div class="dc-val">Solid</div>
+                    <div class="dc-sub">Pressure prevents melting</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🌀</span>
+                    <h5>Super-Rotation</h5>
+                    <div class="dc-val">0.1–0.5°/yr</div>
+                    <div class="dc-sub">Faster than surface</div>
+                </div>
+                <div class="dc">
+                    <span class="dc-icon">🎯</span>
+                    <h5>Pressure</h5>
+                    <div class="dc-val">360 GPa</div>
+                    <div class="dc-sub">3.6 million atmospheres</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-visual reveal-right">
+            <div class="gauge-wrap">
+                <div class="gauge-title">LAYER METRICS — MAXIMUM DEPTH</div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Temperature</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#FFD700,#fff)" data-w="100"></div></div>
+                    <span class="gauge-val" style="color:#FFD700">5,500°C</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Pressure</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#FFD700,#fff)" data-w="100"></div></div>
+                    <span class="gauge-val" style="color:#FFD700">360 GPa</span>
+                </div>
+                <div class="gauge-bar-wrap">
+                    <span class="gauge-label">Radius</span>
+                    <div class="gauge-bar"><div class="gauge-fill" style="background:linear-gradient(90deg,#FFD700,#fff)" data-w="30"></div></div>
+                    <span class="gauge-val" style="color:#FFD700">1,221 km</span>
+                </div>
+            </div>
+
+            <div class="seismic-display">
+                <div class="seismic-title">CORE RESONANCE SCAN</div>
+                <canvas class="seismic-canvas" id="seismic-icore"></canvas>
+            </div>
+
+            <div class="comp-chart">
+                <div class="donut-wrap">
+                    <svg class="donut-svg" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#FFD700" stroke-width="4" stroke-dasharray="90 10" stroke-dashoffset="25" transform="rotate(-90 18 18)"/>
+                        <circle cx="18" cy="18" r="14" fill="none" stroke="#FFA500" stroke-width="4" stroke-dasharray="8 92" stroke-dashoffset="-65" transform="rotate(-90 18 18)"/>
+                    </svg>
+                    <div class="donut-label-center">
+                        <span style="color:#FFD700">Fe</span>
+                        <small>Core</small>
+                    </div>
+                </div>
+                <div class="comp-legend">
+                    <div class="comp-item"><div class="comp-dot" style="background:#FFD700"></div>Iron ~90%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#FFA500"></div>Nickel ~8%</div>
+                    <div class="comp-item"><div class="comp-dot" style="background:#FF6B00"></div>Light elements ~2%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== DISCONTINUITIES ===== -->
+<div id="section-disco" class="disco-section reveal">
+    <div class="section-head">
+        <div class="section-num">Module 02</div>
+        <h2 class="section-title">Seismic Discontinuities</h2>
+        <p class="section-sub">Invisible boundaries inside Earth detected by how earthquake waves bend, speed up, or vanish</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <div class="disco-cards">
+        <div class="disco-card" style="--card-accent:#8B7355">
+            <span class="dc-depth" style="color:#8B7355">~20 km</span>
+            <div class="dc-name">Conrad Discontinuity</div>
+            <div class="dc-between"><strong>Between</strong>Upper Crust & Lower Crust</div>
+        </div>
+        <div class="disco-card" style="--card-accent:#A89070">
+            <span class="dc-depth" style="color:#A89070">~35 km</span>
+            <div class="dc-name">Mohorovičić Disc. (Moho)</div>
+            <div class="dc-between"><strong>Between</strong>Crust & Mantle — discovered 1909</div>
+        </div>
+        <div class="disco-card" style="--card-accent:#CC6600">
+            <span class="dc-depth" style="color:#CC6600">660 km</span>
+            <div class="dc-name">Repetti Discontinuity</div>
+            <div class="dc-between"><strong>Between</strong>Upper Mantle & Lower Mantle</div>
+        </div>
+        <div class="disco-card" style="--card-accent:#FF6B00">
+            <span class="dc-depth" style="color:#FF6B00">2,900 km</span>
+            <div class="dc-name">Gutenberg Discontinuity</div>
+            <div class="dc-between"><strong>Between</strong>Mantle & Outer Core — S-waves stop here</div>
+        </div>
+        <div class="disco-card" style="--card-accent:#FFD700">
+            <span class="dc-depth" style="color:#FFD700">5,150 km</span>
+            <div class="dc-name">Lehmann Discontinuity</div>
+            <div class="dc-between"><strong>Between</strong>Outer Core & Inner Core — discovered 1936</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PLATE TECTONICS ===== -->
+<div id="section-tectonics" class="tectonics-section">
+    <div class="tectonic-bg"></div>
+    <div class="section-head reveal">
+        <div class="section-num">Module 03</div>
+        <h2 class="section-title">Plate Tectonics</h2>
+        <p class="section-sub">Earth's crust is broken into giant puzzle pieces, constantly moving, colliding, and tearing apart</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <div class="tectonics-grid">
+        <!-- Convergent -->
+        <div class="boundary-card reveal" style="--bc-color:rgba(255,68,68,0.3)">
+            <div class="boundary-anim convergent">
+                <div class="plate plate-a">PLATE A</div>
+                <div class="mountain-pop"></div>
+                <div class="plate plate-b">PLATE B</div>
+            </div>
+            <h4 style="color:var(--hud-red)">Convergent</h4>
+            <p>Plates collide. Oceanic plate subducts under continental, creating trenches, volcanic arcs, and fold mountains.</p>
+            <div class="boundary-examples">
+                <span class="example-tag">Himalayas</span>
+                <span class="example-tag">Andes</span>
+                <span class="example-tag">Mariana Trench</span>
+                <span class="example-tag">Japan Arcs</span>
+            </div>
+        </div>
+
+        <!-- Divergent -->
+        <div class="boundary-card reveal" style="--bc-color:rgba(0,255,136,0.3)">
+            <div class="boundary-anim divergent">
+                <div class="plate plate-a">PLATE A</div>
+                <div class="lava-vent"></div>
+                <div class="plate plate-b">PLATE B</div>
+            </div>
+            <h4 style="color:var(--hud-green)">Divergent</h4>
+            <p>Plates move apart. New oceanic crust forms from magma welling up, creating mid-ocean ridges and rift valleys.</p>
+            <div class="boundary-examples">
+                <span class="example-tag">Mid-Atlantic Ridge</span>
+                <span class="example-tag">East African Rift</span>
+                <span class="example-tag">Iceland</span>
+            </div>
+        </div>
+
+        <!-- Transform -->
+        <div class="boundary-card reveal" style="--bc-color:rgba(255,215,0,0.3)">
+            <div class="boundary-anim transform">
+                <div class="plate plate-a">PLATE A</div>
+                <div class="plate plate-b">PLATE B</div>
+            </div>
+            <h4 style="color:var(--hud-gold)">Transform</h4>
+            <p>Plates grind past each other horizontally. No crust is created or destroyed — but massive earthquakes occur.</p>
+            <div class="boundary-examples">
+                <span class="example-tag">San Andreas Fault</span>
+                <span class="example-tag">Alpine Fault NZ</span>
+                <span class="example-tag">Dead Sea Fault</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plate facts -->
+    <div style="max-width:800px;margin:50px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" class="reveal">
+        <div class="dc" style="text-align:center;border-color:rgba(255,255,255,0.06)">
+            <span class="dc-icon">🗺️</span>
+            <h5>Major Plates</h5>
+            <div class="dc-val" style="color:var(--hud-cyan)">7</div>
+            <div class="dc-sub">+ 12 minor plates</div>
+        </div>
+        <div class="dc" style="text-align:center;border-color:rgba(255,255,255,0.06)">
+            <span class="dc-icon">🚀</span>
+            <h5>Speed</h5>
+            <div class="dc-val" style="color:var(--hud-cyan)">2–15 cm/yr</div>
+            <div class="dc-sub">About as fast as nails grow</div>
+        </div>
+        <div class="dc" style="text-align:center;border-color:rgba(255,255,255,0.06)">
+            <span class="dc-icon">🌍</span>
+            <h5>Pangaea</h5>
+            <div class="dc-val" style="color:var(--hud-cyan)">335 MYA</div>
+            <div class="dc-sub">Last supercontinent</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ROCKS ===== -->
+<div id="section-rocks" class="rocks-section">
+    <div class="section-head reveal">
+        <div class="section-num">Module 04</div>
+        <h2 class="section-title">Rocks & The Rock Cycle</h2>
+        <p class="section-sub">Nothing is permanent — every rock transforms over millions of years in an endless cycle</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <!-- Animated Rock Cycle SVG -->
+    <div class="rock-cycle-container reveal">
+        <svg class="rock-cycle-svg" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background circle -->
+            <circle cx="300" cy="200" r="160" stroke="rgba(0,245,255,0.05)" stroke-width="2" stroke-dasharray="8 4"/>
+
+            <!-- IGNEOUS top -->
+            <circle cx="300" cy="60" r="40" fill="rgba(255,107,0,0.1)" stroke="rgba(255,107,0,0.4)" stroke-width="1.5"/>
+            <text x="300" y="55" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="9" fill="#FF6B00">IGNEOUS</text>
+            <text x="300" y="67" text-anchor="middle" font-family="Space Mono,sans-serif" font-size="6" fill="rgba(255,107,0,0.5)">Granite · Basalt</text>
+
+            <!-- SEDIMENTARY bottom-left -->
+            <circle cx="120" cy="300" r="40" fill="rgba(139,115,85,0.1)" stroke="rgba(139,115,85,0.4)" stroke-width="1.5"/>
+            <text x="120" y="295" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="8" fill="#8B7355">SEDIMENTARY</text>
+            <text x="120" y="308" text-anchor="middle" font-family="Space Mono,sans-serif" font-size="6" fill="rgba(139,115,85,0.5)">Sandstone·Limestone</text>
+
+            <!-- METAMORPHIC bottom-right -->
+            <circle cx="480" cy="300" r="40" fill="rgba(155,89,182,0.1)" stroke="rgba(155,89,182,0.4)" stroke-width="1.5"/>
+            <text x="480" y="295" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="8" fill="#9b59b6">METAMORPHIC</text>
+            <text x="480" y="308" text-anchor="middle" font-family="Space Mono,sans-serif" font-size="6" fill="rgba(155,89,182,0.5)">Marble · Quartzite</text>
+
+            <!-- Arrows with animated dashes -->
+            <!-- Igneous → Sedimentary (weathering) -->
+            <path d="M 265 90 Q 190 180 155 270" stroke="rgba(139,115,85,0.4)" stroke-width="1.5" stroke-dasharray="6 4">
+                <animate attributeName="stroke-dashoffset" values="200;0" dur="4s" repeatCount="indefinite"/>
+            </path>
+            <text x="185" y="185" font-family="Space Mono,sans-serif" font-size="6" fill="rgba(255,255,255,0.2)" text-anchor="middle">Weathering</text>
+
+            <!-- Sedimentary → Metamorphic (heat/pressure) -->
+            <path d="M 160 300 Q 300 330 440 300" stroke="rgba(155,89,182,0.4)" stroke-width="1.5" stroke-dasharray="6 4">
+                <animate attributeName="stroke-dashoffset" values="200;0" dur="5s" repeatCount="indefinite"/>
+            </path>
+            <text x="300" y="345" font-family="Space Mono,sans-serif" font-size="6" fill="rgba(255,255,255,0.2)" text-anchor="middle">Heat &amp; Pressure</text>
+
+            <!-- Metamorphic → Igneous (melting) -->
+            <path d="M 445 270 Q 400 180 335 90" stroke="rgba(255,107,0,0.4)" stroke-width="1.5" stroke-dasharray="6 4">
+                <animate attributeName="stroke-dashoffset" values="200;0" dur="3.5s" repeatCount="indefinite"/>
+            </path>
+            <text x="415" y="185" font-family="Space Mono,sans-serif" font-size="6" fill="rgba(255,255,255,0.2)" text-anchor="middle">Melting</text>
+
+            <!-- Center label -->
+            <text x="300" y="196" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="11" fill="rgba(0,245,255,0.3)">ROCK</text>
+            <text x="300" y="212" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="11" fill="rgba(0,245,255,0.3)">CYCLE</text>
+        </svg>
+    </div>
+
+    <div class="rock-nodes reveal">
+        <div class="rock-node" style="--rn-color:#FF6B00">
+            <div class="rn-icon" style="background:rgba(255,107,0,0.05)">🔥</div>
+            <h4>Igneous</h4>
+            <p>Formed from cooling magma or lava. <strong>Intrusive</strong> (slow cool = large crystals) vs <strong>Extrusive</strong> (fast cool = fine texture).</p>
+            <div class="rock-examples">
+                <span class="rock-tag">Granite</span>
+                <span class="rock-tag">Basalt</span>
+                <span class="rock-tag">Obsidian</span>
+                <span class="rock-tag">Pumice</span>
+                <span class="rock-tag">Gabbro</span>
+            </div>
+        </div>
+        <div class="rock-node" style="--rn-color:#8B7355">
+            <div class="rn-icon" style="background:rgba(139,115,85,0.05)">🪨</div>
+            <h4>Sedimentary</h4>
+            <p>Formed by compaction of sediments over millions of years. Contains <strong>fossils</strong>. Covers 75% of Earth's surface.</p>
+            <div class="rock-examples">
+                <span class="rock-tag">Sandstone</span>
+                <span class="rock-tag">Limestone</span>
+                <span class="rock-tag">Shale</span>
+                <span class="rock-tag">Coal</span>
+                <span class="rock-tag">Chalk</span>
+            </div>
+        </div>
+        <div class="rock-node" style="--rn-color:#9b59b6">
+            <div class="rn-icon" style="background:rgba(155,89,182,0.05)">💎</div>
+            <h4>Metamorphic</h4>
+            <p>Existing rocks transformed by extreme <strong>heat and pressure</strong> without melting. Foliated or non-foliated.</p>
+            <div class="rock-examples">
+                <span class="rock-tag">Marble</span>
+                <span class="rock-tag">Quartzite</span>
+                <span class="rock-tag">Slate</span>
+                <span class="rock-tag">Schist</span>
+                <span class="rock-tag">Gneiss</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ATMOSPHERE ===== -->
+<div id="section-atmo" class="atmo-section">
+    <div class="section-head reveal">
+        <div class="section-num">Module 05</div>
+        <h2 class="section-title">Layers of the Atmosphere</h2>
+        <p class="section-sub">From the air you breathe to the edge of space — Earth wears a layered invisible cloak</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <div class="atmo-stack reveal">
+        <!-- Exosphere -->
+        <div class="atmo-layer exo">
+            <div class="atmo-grad-bar" style="background:linear-gradient(to bottom,#FFD700,#FF9900)"></div>
+            <div class="atmo-alt">700+ km</div>
+            <div>
+                <div class="atmo-name">Exosphere</div>
+                <div class="atmo-info">Transition to space · Satellites & GPS · Hydrogen & Helium</div>
+            </div>
+            <div class="atmo-features">
+                <span class="atmo-tag">Space Begins</span>
+                <span class="atmo-tag">GPS Satellites</span>
+                <span class="atmo-tag">No defined boundary</span>
+            </div>
+        </div>
+        <!-- Thermosphere -->
+        <div class="atmo-layer thermo">
+            <div class="atmo-grad-bar" style="background:linear-gradient(to bottom,#FF9900,#FF6B00)"></div>
+            <div class="atmo-alt">80–700 km</div>
+            <div>
+                <div class="atmo-name">Thermosphere</div>
+                <div class="atmo-info">Aurora Borealis/Australis · ISS orbits here · Temp rises sharply</div>
+            </div>
+            <div class="atmo-features">
+                <span class="atmo-tag">ISS @ 400km</span>
+                <span class="atmo-tag">Aurora Lights</span>
+                <span class="atmo-tag">Up to 2,500°C</span>
+                <span class="atmo-tag">Ionosphere</span>
+            </div>
+        </div>
+        <!-- Mesosphere -->
+        <div class="atmo-layer meso">
+            <div class="atmo-grad-bar" style="background:linear-gradient(to bottom,#8B4FC8,#6B30A0)"></div>
+            <div class="atmo-alt">50–80 km</div>
+            <div>
+                <div class="atmo-name">Mesosphere</div>
+                <div class="atmo-info">Meteors burn up here · Coldest layer (−90°C) · Temp decreases</div>
+            </div>
+            <div class="atmo-features">
+                <span class="atmo-tag">Meteors Burn</span>
+                <span class="atmo-tag">−90°C</span>
+                <span class="atmo-tag">Noctilucent Clouds</span>
+            </div>
+        </div>
+        <!-- Stratosphere -->
+        <div class="atmo-layer strato">
+            <div class="atmo-grad-bar" style="background:linear-gradient(to bottom,#27ae60,#1e8449)"></div>
+            <div class="atmo-alt">12–50 km</div>
+            <div>
+                <div class="atmo-name">Stratosphere</div>
+                <div class="atmo-info">Ozone layer absorbs UV radiation · Jets fly here · Temp increases</div>
+            </div>
+            <div class="atmo-features">
+                <span class="atmo-tag">Ozone Layer</span>
+                <span class="atmo-tag">UV Protection</span>
+                <span class="atmo-tag">Jet Planes</span>
+                <span class="atmo-tag">Stable Air</span>
+            </div>
+        </div>
+        <!-- Troposphere -->
+        <div class="atmo-layer tropo">
+            <div class="atmo-grad-bar" style="background:linear-gradient(to bottom,#5dade2,#2e86c1)"></div>
+            <div class="atmo-alt">0–12 km</div>
+            <div>
+                <div class="atmo-name">Troposphere</div>
+                <div class="atmo-info">All weather happens here · 75% of atmosphere's mass · Temp decreases with altitude</div>
+            </div>
+            <div class="atmo-features">
+                <span class="atmo-tag">All Weather</span>
+                <span class="atmo-tag">N₂ 78% · O₂ 21%</span>
+                <span class="atmo-tag">−60°C at top</span>
+                <span class="atmo-tag">We live here</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HYDROSPHERE ===== -->
+<div id="section-hydro" class="hydro-section">
+    <div class="section-head reveal">
+        <div class="section-num">Module 06</div>
+        <h2 class="section-title">The Hydrosphere</h2>
+        <p class="section-sub">71% of Earth's surface is water — from mountain glaciers to ocean trenches 11 km deep</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <!-- Animated ocean visual -->
+    <div class="ocean-visual reveal">
+        <div class="ocean-surface">
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+        <!-- SVG ocean floor profile -->
+        <svg style="position:absolute;bottom:0;left:0;width:100%;height:70%" viewBox="0 0 1000 200" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(30,80,150,0.5)"/>
+                    <stop offset="100%" stop-color="rgba(5,20,60,0.9)"/>
+                </linearGradient>
+            </defs>
+            <!-- Continental shelf, slope, abyssal plain, trench -->
+            <path d="M0,0 L0,20 L100,22 L180,25 L220,50 L260,90 L300,95 L500,100 L600,105 L680,130 L720,195 L740,195 L760,130 L900,100 L1000,95 L1000,0 Z"
+                fill="url(#seaGrad)" stroke="rgba(0,245,255,0.15)" stroke-width="1"/>
+            <!-- Labels -->
+            <text x="80" y="18" font-family="Space Mono,sans-serif" font-size="9" fill="rgba(0,245,255,0.5)">Continental Shelf</text>
+            <text x="240" y="75" font-family="Space Mono,sans-serif" font-size="9" fill="rgba(0,245,255,0.4)">Slope</text>
+            <text x="380" y="90" font-family="Space Mono,sans-serif" font-size="9" fill="rgba(0,245,255,0.4)">Abyssal Plain</text>
+            <text x="695" y="185" font-family="Space Mono,sans-serif" font-size="9" fill="rgba(0,245,255,0.6)">Trench</text>
+            <text x="850" y="90" font-family="Space Mono,sans-serif" font-size="9" fill="rgba(0,245,255,0.4)">Mid-Ocean Ridge</text>
+        </svg>
+    </div>
+
+    <div class="water-stats reveal">
+        <div class="water-stat">
+            <span class="ws-val">71%</span>
+            <span class="ws-lbl">Earth's surface covered by water</span>
+        </div>
+        <div class="water-stat">
+            <span class="ws-val">97%</span>
+            <span class="ws-lbl">Saline (ocean water)</span>
+        </div>
+        <div class="water-stat">
+            <span class="ws-val">3%</span>
+            <span class="ws-lbl">Fresh water (2% ice, 1% liquid)</span>
+        </div>
+        <div class="water-stat">
+            <span class="ws-val">11 km</span>
+            <span class="ws-lbl">Deepest point — Mariana Trench</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== EARTHQUAKES ===== -->
+<div id="section-quakes" class="quake-section">
+    <div class="section-head reveal">
+        <div class="section-num">Module 07</div>
+        <h2 class="section-title">Earthquakes & Seismic Waves</h2>
+        <p class="section-sub">Earth speaks through vibrations — and we've learned to listen</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <div class="quake-grid">
+        <div class="wave-types reveal-left">
+            <h4 style="font-family:Orbitron,sans-serif;margin-bottom:20px;color:var(--hud-cyan)">Seismic Wave Types</h4>
+
+            <div class="wave-type-card">
+                <div class="wave-anim-wrap">
+                    <svg width="80" height="40" viewBox="0 0 80 40">
+                        <path d="M0,20 L80,20" stroke="rgba(0,245,255,0.1)" stroke-width="1"/>
+                        <circle r="4" fill="var(--hud-cyan)" opacity="0.7">
+                            <animateMotion dur="1.5s" repeatCount="indefinite" path="M0,20 L80,20"/>
+                        </circle>
+                        <circle r="3" fill="var(--hud-cyan)" opacity="0.4">
+                            <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.3s" path="M0,20 L80,20"/>
+                        </circle>
+                        <circle r="2" fill="var(--hud-cyan)" opacity="0.2">
+                            <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.6s" path="M0,20 L80,20"/>
+                        </circle>
+                    </svg>
+                </div>
+                <div class="wave-type-info">
+                    <h5 style="color:var(--hud-cyan)">P-Waves (Primary)</h5>
+                    <p>Compression waves — fastest, travel through solids AND liquids. First to arrive. Speed: ~6-8 km/s in crust.</p>
+                </div>
+            </div>
+
+            <div class="wave-type-card">
+                <div class="wave-anim-wrap">
+                    <svg width="80" height="40" viewBox="0 0 80 40">
+                        <path class="s-wave-path" d="M0,20 Q10,5 20,20 T40,20 T60,20 T80,20" stroke="var(--hud-orange)" stroke-width="2" fill="none">
+                            <animate attributeName="stroke-dashoffset" values="200;0;-200" dur="2s" repeatCount="indefinite"/>
+                        </path>
+                    </svg>
+                </div>
+                <div class="wave-type-info">
+                    <h5 style="color:var(--hud-orange)">S-Waves (Secondary)</h5>
+                    <p>Shear waves — slower, travel ONLY through solids. Stop at liquid outer core → reveals its liquid state.</p>
+                </div>
+            </div>
+
+            <div class="wave-type-card">
+                <div class="wave-anim-wrap">
+                    <svg width="80" height="40" viewBox="0 0 80 40">
+                        <path d="M0,20 Q20,0 40,20 T80,20" stroke="var(--hud-red)" stroke-width="2" fill="none" opacity="0.7">
+                            <animate attributeName="d" values="M0,20 Q20,0 40,20 T80,20;M0,20 Q20,40 40,20 T80,20;M0,20 Q20,0 40,20 T80,20" dur="2s" repeatCount="indefinite"/>
+                        </path>
+                    </svg>
+                </div>
+                <div class="wave-type-info">
+                    <h5 style="color:var(--hud-red)">Surface Waves (L & R)</h5>
+                    <p>Slowest but most destructive. Love waves (horizontal shaking) and Rayleigh waves (rolling motion).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="richter-visual reveal-right">
+            <div class="richter-title">🌍 Richter Magnitude Scale</div>
+            <div class="richter-scale">
+                <div class="richter-row">
+                    <span class="richter-mag" style="color:#00FF88">1-2</span>
+                    <div class="richter-bar-wrap"><div class="richter-bar" style="background:rgba(0,255,136,0.3);width:0%" data-w="8">Imperceptible</div></div>
+                </div>
+                <div class="richter-row">
+                    <span class="richter-mag" style="color:#8BFF00">3</span>
+                    <div class="richter-bar-wrap"><div class="richter-bar" style="background:rgba(139,255,0,0.3);width:0%" data-w="18">Felt indoors</div></div>
+                </div>
+                <div class="richter-row">
+                    <span class="richter-mag" style="color:#CCFF00">4</span>
+                    <div class="richter-bar-wrap"><div class="richter-bar" style="background:rgba(204,255,0,0.3);width:0%" data-w="32">Windows rattle</div></div>
+                </div>
+                <div class="richter-row">
+                    <span class="richter-mag" style="color:#FFD700">5</span>
+                    <div class="richter-bar-wrap"><div class="richter-bar" style="background:rgba(255,215,0,0.3);width:0%" data-w="50">Minor damage</div></div>
+                </div>
+                <div class="richter-row">
+                    <span class="richter-mag" style="color:#FFA500">6</span>
+                    <div class="richter-bar-wrap"><div class="richter-bar" style="background:rgba(255,165,0,0.3);width:0%" data-w="65">Major damage</div></div>
+                </div>
+                <div class="richter-row">
+                    <span class="richter-mag" style="color:#FF6B00">7</span>
+                    <div class="richter-bar-wrap"><div class="richter-bar" style="background:rgba(255,107,0,0.3);width:0%" data-w="80">Widespread destruction</div></div>
+                </div>
+                <div class="richter-row">
+                    <span class="richter-mag" style="color:#FF3300">8+</span>
+                    <div class="richter-bar-wrap"><div class="richter-bar" style="background:rgba(255,51,0,0.3);width:0%" data-w="100">Total devastation</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== VOLCANOES ===== -->
+<div id="section-volcanoes" class="volcano-section">
+    <div class="section-head reveal">
+        <div class="section-num">Module 08</div>
+        <h2 class="section-title">Volcanoes</h2>
+        <p class="section-sub">Windows into Earth's interior — where the planet bleeds fire</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <div class="volcano-cards">
+        <div class="volcano-card reveal">
+            <div class="vc-icon">🛡️</div>
+            <div class="vc-info">
+                <h5>Shield Volcano</h5>
+                <p>Broad, gently sloping dome formed by low-viscosity basaltic lava flows. Non-explosive but continuous eruptions. Largest volcanoes on Earth.</p>
+                <div class="vc-examples">
+                    <span class="vc-tag">Mauna Loa, Hawaii</span>
+                    <span class="vc-tag">Olympus Mons (Mars)</span>
+                    <span class="vc-tag">Skjaldbreiður, Iceland</span>
+                </div>
+            </div>
+        </div>
+        <div class="volcano-card reveal">
+            <div class="vc-icon">🌋</div>
+            <div class="vc-info">
+                <h5>Composite (Stratovolcano)</h5>
+                <p>Steep, cone-shaped, alternating layers of lava and pyroclastic material. Most violent eruptions. Classic "volcano" shape.</p>
+                <div class="vc-examples">
+                    <span class="vc-tag">Mt. Fuji, Japan</span>
+                    <span class="vc-tag">Mt. Vesuvius, Italy</span>
+                    <span class="vc-tag">Mt. Pinatubo</span>
+                </div>
+            </div>
+        </div>
+        <div class="volcano-card reveal">
+            <div class="vc-icon">💥</div>
+            <div class="vc-info">
+                <h5>Cinder Cone</h5>
+                <p>Smallest and most common type. Built from ejected lava fragments (cinders). Steep sides and bowl-shaped crater at summit.</p>
+                <div class="vc-examples">
+                    <span class="vc-tag">Paricutín, Mexico</span>
+                    <span class="vc-tag">Sunset Crater, USA</span>
+                    <span class="vc-tag">Mt. Etna cones</span>
+                </div>
+            </div>
+        </div>
+        <div class="volcano-card reveal">
+            <div class="vc-icon">🕳️</div>
+            <div class="vc-info">
+                <h5>Caldera & Supervolcano</h5>
+                <p>When a massive magma chamber empties and collapses. Supervolcanoes can alter global climate when they erupt.</p>
+                <div class="vc-examples">
+                    <span class="vc-tag">Yellowstone, USA</span>
+                    <span class="vc-tag">Toba, Indonesia</span>
+                    <span class="vc-tag">Krakatoa</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ring of Fire note -->
+    <div style="max-width:700px;margin:40px auto 0;text-align:center;padding:30px;background:rgba(255,107,0,0.04);border:1px solid rgba(255,107,0,0.15);border-radius:16px;" class="reveal">
+        <div style="font-size:2rem;margin-bottom:10px">🔥</div>
+        <h4 style="font-family:Orbitron,sans-serif;color:var(--outer-core-color);margin-bottom:10px">Ring of Fire</h4>
+        <p style="color:rgba(255,255,255,0.45);font-size:0.9rem;line-height:1.7">
+            A 40,000 km horseshoe-shaped zone around the Pacific Ocean containing <strong>75% of Earth's volcanoes</strong>
+            and <strong>90% of earthquakes</strong>. Runs through New Zealand, Philippines, Japan, Alaska, and the Americas.
+        </p>
+    </div>
+</div>
+
+<!-- ===== LANDFORMS ===== -->
+<div id="section-landforms" class="landforms-section">
+    <div class="section-head reveal">
+        <div class="section-num">Module 09</div>
+        <h2 class="section-title">Landforms</h2>
+        <p class="section-sub">Carved by wind, water, ice, and fire — the face of our planet</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <div class="landform-tabs reveal">
+        <div class="lf-tab active" data-tab="fluvial">🌊 Fluvial</div>
+        <div class="lf-tab" data-tab="glacial">🧊 Glacial</div>
+        <div class="lf-tab" data-tab="aeolian">💨 Aeolian</div>
+        <div class="lf-tab" data-tab="karst">🕳️ Karst</div>
+        <div class="lf-tab" data-tab="coastal">🏖️ Coastal</div>
+        <div class="lf-tab" data-tab="mountains">⛰️ Mountains</div>
+    </div>
+
+    <div class="lf-content active" id="tab-fluvial">
+        <div class="lf-item"><span class="lf-emoji">〽️</span><h5>V-Valley</h5><p>Young river cuts steep sides. Narrow, V-shaped cross-section.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🌀</span><h5>Meander</h5><p>S-shaped river bends on flat floodplains.</p></div>
+        <div class="lf-item"><span class="lf-emoji">⭕</span><h5>Oxbow Lake</h5><p>Meander cut off from river, forms crescent lake.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🔺</span><h5>Delta</h5><p>Triangular sediment deposit at river mouth. E.g., Ganges Delta.</p></div>
+        <div class="lf-item"><span class="lf-emoji">💧</span><h5>Waterfall</h5><p>River drops over hard rock ledge. E.g., Niagara, Angel Falls.</p></div>
+        <div class="lf-item"><span class="lf-emoji">〰️</span><h5>Floodplain</h5><p>Flat fertile land around river, built from deposited silt.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🏞️</span><h5>Gorge/Canyon</h5><p>Deep, narrow valley with steep sides. E.g., Grand Canyon.</p></div>
+        <div class="lf-item"><span class="lf-emoji">↔️</span><h5>Levees</h5><p>Natural embankments built by repeated flooding along riverbanks.</p></div>
+    </div>
+
+    <div class="lf-content" id="tab-glacial">
+        <div class="lf-item"><span class="lf-emoji">🏔️</span><h5>U-Valley</h5><p>Glacier scoops wide, U-shaped valley. E.g., Yosemite Valley.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🪣</span><h5>Cirque</h5><p>Armchair-shaped hollow where glacier originates.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🏝️</span><h5>Arête</h5><p>Sharp rocky ridge between two cirques.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🔺</span><h5>Horn/Pyramidal Peak</h5><p>Sharp peak formed by 3+ cirques meeting. E.g., Matterhorn.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🌊</span><h5>Fjord</h5><p>U-valley flooded by sea. E.g., Norwegian fjords.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🫘</span><h5>Drumlin</h5><p>Streamlined hill of glacial debris, shaped like an egg.</p></div>
+        <div class="lf-item"><span class="lf-emoji">〰️</span><h5>Esker</h5><p>Long winding ridge of sand/gravel deposited by subglacial streams.</p></div>
+        <div class="lf-item"><span class="lf-emoji">💎</span><h5>Moraine</h5><p>Accumulation of rock debris carried and deposited by glacier.</p></div>
+    </div>
+
+    <div class="lf-content" id="tab-aeolian">
+        <div class="lf-item"><span class="lf-emoji">🌙</span><h5>Barchan Dune</h5><p>Crescent-shaped sand dune with horns pointing downwind.</p></div>
+        <div class="lf-item"><span class="lf-emoji">〰️</span><h5>Seif Dune</h5><p>Long, sharp-crested longitudinal dune parallel to wind.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🍄</span><h5>Mushroom Rock</h5><p>Wind erosion at base creates pedestal/mushroom shape.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🏜️</span><h5>Loess</h5><p>Wind-deposited fine silt/dust, forms thick fertile deposits.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🌀</span><h5>Deflation Hollow</h5><p>Depression formed by wind removing loose particles.</p></div>
+        <div class="lf-item"><span class="lf-emoji">💨</span><h5>Yardang</h5><p>Wind-sculpted ridge of soft rock, aligned to wind direction.</p></div>
+    </div>
+
+    <div class="lf-content" id="tab-karst">
+        <div class="lf-item"><span class="lf-emoji">🕳️</span><h5>Sinkhole</h5><p>Ground collapses into underground cavity dissolved by water.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🦇</span><h5>Caves</h5><p>Underground chambers formed by dissolving limestone.</p></div>
+        <div class="lf-item"><span class="lf-emoji">⬇️</span><h5>Stalactite</h5><p>Mineral deposits hanging from cave ceiling. (Stick TIGHT to ceiling)</p></div>
+        <div class="lf-item"><span class="lf-emoji">⬆️</span><h5>Stalagmite</h5><p>Mineral deposits growing upward from cave floor. (Might reach ceiling)</p></div>
+        <div class="lf-item"><span class="lf-emoji">🌉</span><h5>Natural Bridge</h5><p>Rock arch formed by water dissolving the rock below.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🏊</span><h5>Karst Lake (Polje)</h5><p>Flat-floored depression in karst, sometimes flooded seasonally.</p></div>
+    </div>
+
+    <div class="lf-content" id="tab-coastal">
+        <div class="lf-item"><span class="lf-emoji">🪨</span><h5>Sea Cliff</h5><p>Steep rock face where waves undercut the coast.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🌊</span><h5>Wave-cut Platform</h5><p>Flat rock surface exposed at low tide below a cliff.</p></div>
+        <div class="lf-item"><span class="lf-emoji">⛩️</span><h5>Sea Arch</h5><p>Rock bridge formed when waves erode both sides of headland.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🗼</span><h5>Sea Stack</h5><p>Isolated rock pillar when arch collapses. E.g., Twelve Apostles, AU.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🏖️</span><h5>Beach & Bar</h5><p>Sand/pebble accumulation by wave deposition.</p></div>
+        <div class="lf-item"><span class="lf-emoji">↪️</span><h5>Spit & Tombolo</h5><p>Spit = narrow sand strip. Tombolo = connects island to mainland.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🪸</span><h5>Lagoon</h5><p>Shallow water body separated from sea by barrier/reef.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🌺</span><h5>Atoll</h5><p>Ring-shaped coral reef around a sunken volcanic island.</p></div>
+    </div>
+
+    <div class="lf-content" id="tab-mountains">
+        <div class="lf-item"><span class="lf-emoji">🏔️</span><h5>Fold Mountains</h5><p>Formed by compressional forces crumpling rock. E.g., Himalayas, Alps, Andes.</p></div>
+        <div class="lf-item"><span class="lf-emoji">⛰️</span><h5>Block Mountains (Horst)</h5><p>Uplifted block between parallel faults. E.g., Black Forest, Vosges.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🌋</span><h5>Volcanic Mountains</h5><p>Built by lava/ash accumulation. E.g., Kilimanjaro, Fuji.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🪨</span><h5>Residual Mountains</h5><p>Old mountains worn down by erosion. E.g., Aravalli, Eastern Ghats (India).</p></div>
+        <div class="lf-item"><span class="lf-emoji">🔽</span><h5>Rift Valley (Graben)</h5><p>Sunken block between faults. E.g., Great Rift Valley, Africa.</p></div>
+        <div class="lf-item"><span class="lf-emoji">🗻</span>
+            <h5>Dome Mountains</h5><p>Formed by magma pushing upward without erupting. E.g., Black Hills.</p></div>
+    </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="quiz-section" id="section-quiz">
+    <div class="section-head reveal">
+        <div class="section-num">Test Your Knowledge</div>
+        <h2 class="section-title">Core Challenge</h2>
+        <p class="section-sub">Have you survived the descent?</p>
+        <div class="section-rule"></div>
+    </div>
+
+    <div class="quiz-wrap reveal">
+        <div class="quiz-h">
+            <h3>🌍 Earth Structure Quiz</h3>
+            <p>6 questions — can you reach the inner core?</p>
+        </div>
+        <div class="quiz-progress" id="qProg"></div>
+        <div id="qContainer">
+            <div class="quiz-q" id="qText"></div>
+            <div class="quiz-opts" id="qOpts"></div>
+            <button class="quiz-next-btn" id="qNext" style="display:none">Next →</button>
+        </div>
+        <div class="quiz-result" id="qResult">
+            <p>Your Score</p>
+            <div class="qr-score" id="qScore"></div>
+            <p id="qMsg"></p>
+            <button class="quiz-next-btn" id="qRestart">Retry Mission</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+    <div class="footer-nav">
+        <a href="earth-astronomy.html">← Earth Astronomy</a>
+        <a href="#">Home</a>
+        <a href="celestial-effects.html">Celestial Effects →</a>
+    </div>
+    <p class="footer-copy">© 2026 DharaVerse | Journey to the Core — Earth Structure Explorer</p>
+    <p style="color:rgba(255,255,255,0.06);font-size:0.6rem;margin-top:8px;">Data: USGS · BGS · NAS · ESA (Public Domain)</p>
+</footer>
+
+<!-- ============================================================
+     SCRIPTS
+============================================================ -->
+<script>
+/* ===== BOOT SEQUENCE ===== */
+const bootLines = [
+    { text: '> DHARAVERSE DRILL SYSTEM v4.2.1 — INITIALIZED', delay: 0 },
+    { text: '> Loading geological database...', delay: 300 },
+    { text: '> Crust module: OK', delay: 500 },
+    { text: '> Mantle convection engine: OK', delay: 700 },
+    { text: '> Outer core liquid iron simulator: OK', delay: 900 },
+    { text: '> WARNING: Temperature exceeds 5,500°C at inner core', delay: 1100, cls: 'warn' },
+    { text: '> Pressure shielding: ACTIVE', delay: 1300 },
+    { text: '> Seismic wave analyzers: ONLINE', delay: 1500 },
+    { text: '> Tectonic plate tracker: SYNCED', delay: 1700 },
+    { text: '> All systems nominal. Beginning descent...', delay: 1900 },
+];
+const bootContainer = document.getElementById('bootLines');
+const bootFill = document.getElementById('bootFill');
+bootLines.forEach((line, i) => {
+    setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'boot-line' + (line.cls ? ' ' + line.cls : '');
+        el.textContent = line.text;
+        bootContainer.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('show'));
+        bootFill.style.width = ((i + 1) / bootLines.length * 100) + '%';
+    }, line.delay);
+});
+setTimeout(() => document.getElementById('bootScreen').classList.add('gone'), 2800);
+
+/* ===== CURSOR ===== */
+const ring = document.getElementById('cursorRing');
+document.addEventListener('mousemove', e => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+});
+
+/* ===== SCROLL REVEAL ===== */
+function checkReveal() {
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .layer-section').forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.85) {
+            el.classList.add('visible');
+            // trigger gauge fills
+            el.querySelectorAll('.gauge-fill').forEach(g => {
+                if (!g.dataset.triggered) {
+                    g.dataset.triggered = '1';
+                    setTimeout(() => { g.style.width = g.dataset.w + '%'; }, 200);
+                }
+            });
+            // trigger richter bars
+            el.querySelectorAll('.richter-bar').forEach(b => {
+                if (!b.dataset.triggered) {
+                    b.dataset.triggered = '1';
+                    setTimeout(() => { b.style.width = b.dataset.w + '%'; }, 300);
+                }
+            });
+        }
+    });
+}
+window.addEventListener('scroll', checkReveal);
+checkReveal();
+
+/* Also trigger on load for richter (in quiz section which might be in view) */
+setTimeout(() => {
+    document.querySelectorAll('.richter-bar').forEach(b => {
+        if (!b.dataset.triggered && b.getBoundingClientRect().top < window.innerHeight) {
+            b.dataset.triggered = '1';
+            b.style.width = b.dataset.w + '%';
+        }
+    });
+}, 3000);
+
+/* ===== SIDE NAV ===== */
+const layerNavItems = document.querySelectorAll('.layer-nav-item');
+layerNavItems.forEach(item => {
+    item.addEventListener('click', () => {
+        const t = document.getElementById(item.dataset.target);
+        if (t) t.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+
+function updateSideNav() {
+    const targets = ['hero','layer-crust','layer-mantle','layer-outer-core','layer-inner-core','section-disco','section-tectonics','section-rocks','section-atmo'];
+    targets.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.5 && rect.bottom >= 0) {
+            layerNavItems.forEach(n => n.classList.remove('active'));
+            if (layerNavItems[i]) layerNavItems[i].classList.add('active');
+        }
+    });
+}
+window.addEventListener('scroll', updateSideNav);
+
+/* ===== HUD DEPTH METER ===== */
+const depthData = {
+    'hero': { depth: '0 km', temp: '15°C', pressure: '1 atm', layer: 'Surface', tempClass: '', pressClass: '' },
+    'layer-crust': { depth: '35 km', temp: '~300°C', pressure: '1 GPa', layer: 'CRUST', tempClass: '', pressClass: '' },
+    'layer-mantle': { depth: '1,500 km', temp: '~2,000°C', pressure: '70 GPa', layer: 'MANTLE', tempClass: 'orange', pressClass: 'orange' },
+    'layer-outer-core': { depth: '3,500 km', temp: '~4,500°C', pressure: '250 GPa', layer: 'OUTER CORE', tempClass: 'red', pressClass: 'red' },
+    'layer-inner-core': { depth: '6,000 km', temp: '~5,500°C', pressure: '360 GPa', layer: 'INNER CORE', tempClass: 'red', pressClass: 'red' }
+};
+
+function updateHUD() {
+    const sections = Object.keys(depthData);
+    sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 70 && rect.bottom > 70) {
+            const d = depthData[id];
+            document.getElementById('hDepth').textContent = d.depth;
+            const tempEl = document.getElementById('hTemp');
+            tempEl.textContent = d.temp;
+            tempEl.className = 'value ' + (d.tempClass || '');
+            const pressEl = document.getElementById('hPressure');
+            pressEl.textContent = d.pressure;
+            pressEl.className = 'value ' + (d.pressClass || '');
+            document.getElementById('hLayer').textContent = d.layer;
+        }
+    });
+}
+window.addEventListener('scroll', updateHUD);
+
+/* ===== SEISMIC WAVE CANVAS ANIMATIONS ===== */
+function initSeismic(canvasId, color, speed, amplitude) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    let offset = 0;
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = color;
+        for (let x = 0; x < canvas.width; x++) {
+            const y = canvas.height / 2 +
+                Math.sin((x + offset) * 0.04 * speed) * amplitude +
+                Math.sin((x + offset) * 0.08 * speed) * (amplitude * 0.4) +
+                Math.sin((x + offset) * 0.02 * speed) * (amplitude * 0.2);
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        offset += 2;
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// Init after boot
+setTimeout(() => {
+    initSeismic('seismic-crust', 'rgba(139,115,85,0.7)', 1, 8);
+    initSeismic('seismic-mantle', 'rgba(204,74,0,0.7)', 1.5, 15);
+    initSeismic('seismic-ocore', 'rgba(255,107,0,0.7)', 2, 20);
+    initSeismic('seismic-icore', 'rgba(255,215,0,0.8)', 2.5, 25);
+}, 3000);
+
+window.addEventListener('resize', () => {
+    ['seismic-crust','seismic-mantle','seismic-ocore','seismic-icore'].forEach(id => {
+        const c = document.getElementById(id);
+        if (c) { c.width = c.offsetWidth; }
+    });
+});
+
+/* ===== LANDFORM TABS ===== */
+document.querySelectorAll('.lf-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.lf-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.lf-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab)?.classList.add('active');
+    });
+});
+
+/* ===== QUIZ ===== */
+const quizQ = [
+    { q: "What is the thickest layer of the Earth?", opts: ["Crust","Mantle","Outer Core","Inner Core"], ans: 1 },
+    { q: "Which discontinuity separates the crust from the mantle?", opts: ["Gutenberg","Lehmann","Conrad","Mohorovičić"], ans: 3 },
+    { q: "Why is the inner core solid despite extreme temperatures?", opts: ["It is cooling down","Immense pressure prevents melting","It is made of diamonds","Magnetic forces hold it"], ans: 1 },
+    { q: "Which seismic wave CANNOT travel through the liquid outer core?", opts: ["P-waves","S-waves","Love waves","Rayleigh waves"], ans: 1 },
+    { q: "The geodynamo effect in the outer core generates:", opts: ["Tides","Volcanic eruptions","Earth's magnetic field","Earthquakes"], ans: 2 },
+    { q: "Fold mountains like the Himalayas are formed at which plate boundary?", opts: ["Divergent","Transform","Convergent","Passive margin"], ans: 2 },
+];
+
+let qCur = 0, qScore = 0, qAns = false;
+const qProg = document.getElementById('qProg');
+const qText = document.getElementById('qText');
+const qOpts = document.getElementById('qOpts');
+const qNext = document.getElementById('qNext');
+
+function buildProg() {
+    qProg.innerHTML = '';
+    quizQ.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'qp-dot' + (i === qCur ? ' active' : '');
+        qProg.appendChild(d);
+    });
+}
+
+function loadQ() {
+    qAns = false;
+    buildProg();
+    const q = quizQ[qCur];
+    qText.textContent = `Q${qCur + 1}. ${q.q}`;
+    qOpts.innerHTML = q.opts.map((o, i) =>
+        `<div class="qopt" data-i="${i}">${o}</div>`).join('');
+    qNext.style.display = 'none';
+
+    qOpts.querySelectorAll('.qopt').forEach(opt => {
+        opt.addEventListener('click', () => {
+            if (qAns) return;
+            qAns = true;
+            const sel = parseInt(opt.dataset.i);
+            const correct = q.ans;
+            qOpts.querySelectorAll('.qopt').forEach(o => {
+                if (parseInt(o.dataset.i) === correct) o.classList.add('correct-ans');
+                if (parseInt(o.dataset.i) === sel && sel !== correct) o.classList.add('wrong-ans');
+            });
+            const dots = qProg.querySelectorAll('.qp-dot');
+            if (sel === correct) { qScore++; dots[qCur]?.classList.add('correct'); }
+            else { dots[qCur]?.classList.add('wrong'); }
+
+            if (qCur < quizQ.length - 1) qNext.style.display = 'block';
+            else setTimeout(showResult, 1000);
+        });
+    });
+}
+
+function showResult() {
+    document.getElementById('qContainer').style.display = 'none';
+    const res = document.getElementById('qResult');
+    res.style.display = 'block';
+    document.getElementById('qScore').textContent = `${qScore} / ${quizQ.length}`;
+    const msgs = ['Keep drilling! 🔩', 'Getting warmer... 🌡️', 'Halfway to the core! 🌋', 'Deep knowledge! 💎', 'Core expertise! 🔥', 'You ARE the inner core! ⭐'];
+    document.getElementById('qMsg').textContent = msgs[qScore] || msgs[0];
+}
+
+qNext.addEventListener('click', () => { qCur++; loadQ(); });
+document.getElementById('qRestart').addEventListener('click', () => {
+    qCur = 0; qScore = 0; qAns = false;
+    document.getElementById('qContainer').style.display = 'block';
+    document.getElementById('qResult').style.display = 'none';
+    loadQ();
+});
+
+loadQ();
+
+console.log('🌍 DharaVerse — Journey to the Core | Earth Structure Loaded');
+</script>
+</body>
+</html>
