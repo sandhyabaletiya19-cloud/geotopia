@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Water Cycle, Watersheds & Drainage Systems - Geotopia Encyclopedia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0077b6 0%, #00b4d8 50%, #90e0ef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #023e8a 0%, #0077b6 50%, #0096c7 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .water-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-bar {
+            background: #2c3e50;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #00b4d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: #e67e22;
+        }
+
+        .tabs-container {
+            background: #f8f9fa;
+            padding: 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: #ecf0f1;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: #ecf0f1;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            min-width: 150px;
+        }
+
+        .tab-btn:hover {
+            background: #d5dbdb;
+        }
+
+        .tab-btn.active {
+            background: white;
+            border-bottom: 3px solid #0077b6;
+            color: #0077b6;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-filter-bar {
+            padding: 15px 20px;
+            background: #ecf0f1;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #0077b6;
+            box-shadow: 0 0 10px rgba(0, 119, 182, 0.2);
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box.green {
+            background: linear-gradient(135deg, #1e8449 0%, #27ae60 100%);
+        }
+
+        .stat-box.purple {
+            background: linear-gradient(135deg, #6c3483 0%, #9b59b6 100%);
+        }
+
+        .stat-box.orange {
+            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+        }
+
+        .stat-box h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 0;
+        }
+
+        #map {
+            height: 650px;
+        }
+
+        .data-panel {
+            height: 650px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-left: 1px solid #ddd;
+        }
+
+        .section-header {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .item-card {
+            background: white;
+            margin: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .item-card-header {
+            padding: 15px;
+            color: white;
+        }
+
+        .item-card-header.watershed {
+            background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
+        }
+
+        .item-card-header.drainage {
+            background: linear-gradient(135deg, #1e8449 0%, #27ae60 100%);
+        }
+
+        .item-card-header.cycle {
+            background: linear-gradient(135deg, #6c3483 0%, #9b59b6 100%);
+        }
+
+        .item-card-header h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .item-card-header .subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .item-card-body {
+            padding: 15px;
+        }
+
+        .item-card-body p {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        .badge-blue {
+            background: #0077b6;
+            color: white;
+        }
+
+        .badge-green {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-purple {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .badge-orange {
+            background: #e67e22;
+            color: white;
+        }
+
+        /* Water Cycle Diagram */
+        .water-cycle-diagram {
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 50%, #8B4513 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+            min-height: 400px;
+        }
+
+        .cycle-element {
+            position: absolute;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .cycle-element:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .cycle-element h4 {
+            color: #0077b6;
+            margin-bottom: 5px;
+        }
+
+        .cycle-element p {
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .cycle-element .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 950px;
+            margin: 40px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);
+            color: white;
+            padding: 25px;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            padding-right: 50px;
+        }
+
+        .modal-header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #0077b6;
+        }
+
+        .detail-item label {
+            font-weight: bold;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+
+        .detail-item span {
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            margin: 20px 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #0077b6;
+        }
+
+        .info-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .info-box.blue {
+            background: #d6eaf8;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-box.green {
+            background: #d5f5e3;
+            border-left: 4px solid #27ae60;
+        }
+
+        .info-box.orange {
+            background: #fdebd0;
+            border-left: 4px solid #e67e22;
+        }
+
+        .info-box.red {
+            background: #fadbd8;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .info-box.purple {
+            background: #e8daef;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .river-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .river-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #0077b6;
+        }
+
+        .drainage-pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .drainage-pattern-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .drainage-pattern-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .pattern-icon {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
+            color: white;
+        }
+
+        .pattern-info {
+            padding: 15px;
+        }
+
+        .pattern-info h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .pattern-info p {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .data-panel {
+                height: 400px;
+            }
+
+            #map {
+                height: 450px;
+            }
+
+            .detail-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tab-btn {
+                font-size: 0.85em;
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="water-icon">💧</div>
+            <h1>Global Water Cycle & Watersheds</h1>
+            <p>Comprehensive Encyclopedia of Earth's Hydrological Systems</p>
+        </header>
+
+        <div class="nav-bar">
+            <a href="hydrology.html" class="nav-btn" style="text-decoration: none;">← Back to Hydrology</a>
+            <a href="glaciers-ice.html" class="nav-btn" style="text-decoration: none;">🧊 Glaciers</a>
+            <a href="groundwater.html" class="nav-btn" style="text-decoration: none;">💧 Groundwater</a>
+            <a href="wetlands.html" class="nav-btn" style="text-decoration: none;">🌿 Wetlands</a>
+            <a href="ramsar.html" class="nav-btn" style="text-decoration: none;">🦆 Ramsar Sites</a>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('watersheds')">🌊 Major Watersheds</button>
+                <button class="tab-btn" onclick="switchTab('water-cycle')">🔄 Water Cycle</button>
+                <button class="tab-btn" onclick="switchTab('drainage')">🌿 Drainage Patterns</button>
+                <button class="tab-btn" onclick="switchTab('rivers')">🏞️ Major Rivers</button>
+            </div>
+        </div>
+
+        <!-- Tab 1: Watersheds -->
+        <div class="tab-content active" id="tab-watersheds">
+            <div class="search-filter-bar">
+                <input type="text" class="search-box" id="searchWatershed" placeholder="🔍 Search watersheds, rivers, regions..." onkeyup="searchWatersheds()">
+                <select class="filter-select" id="continentFilter" onchange="filterByContinent()">
+                    <option value="">All Continents</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Asia">Asia</option>
+                    <option value="Europe">Europe</option>
+                    <option value="North America">North America</option>
+                    <option value="South America">South America</option>
+                    <option value="Oceania">Oceania</option>
+                </select>
+                <select class="filter-select" id="oceanFilter" onchange="filterByOcean()">
+                    <option value="">All Ocean Basins</option>
+                    <option value="Atlantic">Atlantic Ocean</option>
+                    <option value="Pacific">Pacific Ocean</option>
+                    <option value="Indian">Indian Ocean</option>
+                    <option value="Arctic">Arctic Ocean</option>
+                    <option value="Endorheic">Endorheic (Inland)</option>
+                </select>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>263</h3>
+                    <p>Transboundary River Basins</p>
+                </div>
+                <div class="stat-box green">
+                    <h3>148</h3>
+                    <p>Countries Share Water</p>
+                </div>
+                <div class="stat-box purple">
+                    <h3>40%</h3>
+                    <p>Population in Shared Basins</p>
+                </div>
+                <div class="stat-box orange">
+                    <h3>60%</h3>
+                    <p>Freshwater in Rivers</p>
+                </div>
+            </div>
+
+            <div class="content-wrapper">
+                <div id="map"></div>
+                <div class="data-panel" id="watershedPanel"></div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Water Cycle -->
+        <div class="tab-content" id="tab-water-cycle">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>1.386B</h3>
+                    <p>km³ Total Water on Earth</p>
+                </div>
+                <div class="stat-box green">
+                    <h3>2.5%</h3>
+                    <p>Freshwater Available</p>
+                </div>
+                <div class="stat-box purple">
+                    <h3>505,000</h3>
+                    <p>km³ Annual Evaporation</p>
+                </div>
+                <div class="stat-box orange">
+                    <h3>~9 Days</h3>
+                    <p>Avg. Atmospheric Residence</p>
+                </div>
+            </div>
+
+            <div style="padding: 20px;">
+                <h2 style="color: #2c3e50; margin-bottom: 20px; text-align: center;">🔄 The Global Hydrological Cycle</h2>
+                
+                <div class="water-cycle-diagram" id="waterCycleDiagram">
+                    <!-- Elements positioned absolutely -->
+                    <div class="cycle-element" style="top: 10px; left: 50%; transform: translateX(-50%);" onclick="showCycleDetail('solar')">
+                        <div class="icon">☀️</div>
+                        <h4>Solar Energy</h4>
+                        <p>Drives the entire water cycle</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="top: 80px; left: 10%;" onclick="showCycleDetail('evaporation')">
+                        <div class="icon">💨</div>
+                        <h4>Evaporation</h4>
+                        <p>505,000 km³/year from oceans</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="top: 80px; right: 10%;" onclick="showCycleDetail('transpiration')">
+                        <div class="icon">🌳</div>
+                        <h4>Transpiration</h4>
+                        <p>65,000 km³/year from plants</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="top: 180px; left: 30%;" onclick="showCycleDetail('condensation')">
+                        <div class="icon">☁️</div>
+                        <h4>Condensation</h4>
+                        <p>Forms clouds and fog</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="top: 180px; right: 30%;" onclick="showCycleDetail('precipitation')">
+                        <div class="icon">🌧️</div>
+                        <h4>Precipitation</h4>
+                        <p>505,000 km³/year globally</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="bottom: 100px; left: 15%;" onclick="showCycleDetail('runoff')">
+                        <div class="icon">🌊</div>
+                        <h4>Surface Runoff</h4>
+                        <p>40,000 km³/year to oceans</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="bottom: 100px; left: 50%; transform: translateX(-50%);" onclick="showCycleDetail('infiltration')">
+                        <div class="icon">⬇️</div>
+                        <h4>Infiltration</h4>
+                        <p>Recharges groundwater</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="bottom: 100px; right: 15%;" onclick="showCycleDetail('groundwater')">
+                        <div class="icon">💧</div>
+                        <h4>Groundwater Flow</h4>
+                        <p>Slow movement to oceans</p>
+                    </div>
+                    
+                    <div class="cycle-element" style="bottom: 10px; left: 50%; transform: translateX(-50%);" onclick="showCycleDetail('storage')">
+                        <div class="icon">🏔️</div>
+                        <h4>Storage</h4>
+                        <p>Ice, lakes, soil, aquifers</p>
+                    </div>
+                </div>
+
+                <h3 style="color: #2c3e50; margin: 30px 0 20px;">📊 Water Distribution on Earth</h3>
+                <div class="drainage-pattern-grid">
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('oceans')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);">🌊</div>
+                        <div class="pattern-info">
+                            <h4>Oceans (96.5%)</h4>
+                            <p>1,338,000,000 km³ of saline water in Earth's oceans</p>
+                        </div>
+                    </div>
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('glaciers')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #5dade2 0%, #aed6f1 100%);">🧊</div>
+                        <div class="pattern-info">
+                            <h4>Glaciers & Ice (1.74%)</h4>
+                            <p>24,064,000 km³ frozen in ice caps, glaciers, permanent snow</p>
+                        </div>
+                    </div>
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('groundwater')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #1e8449 0%, #27ae60 100%);">💧</div>
+                        <div class="pattern-info">
+                            <h4>Groundwater (1.69%)</h4>
+                            <p>23,400,000 km³ stored in aquifers underground</p>
+                        </div>
+                    </div>
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('lakes')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #2874a6 0%, #5499c7 100%);">🏞️</div>
+                        <div class="pattern-info">
+                            <h4>Lakes (0.013%)</h4>
+                            <p>176,400 km³ in freshwater and saline lakes</p>
+                        </div>
+                    </div>
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('soil')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #6e2c00 0%, #a04000 100%);">🌱</div>
+                        <div class="pattern-info">
+                            <h4>Soil Moisture (0.001%)</h4>
+                            <p>16,500 km³ in soil for plant uptake</p>
+                        </div>
+                    </div>
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('atmosphere')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #7fb3d5 0%, #d4e6f1 100%);">☁️</div>
+                        <div class="pattern-info">
+                            <h4>Atmosphere (0.001%)</h4>
+                            <p>12,900 km³ as water vapor in the air</p>
+                        </div>
+                    </div>
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('rivers')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);">🏞️</div>
+                        <div class="pattern-info">
+                            <h4>Rivers (0.0002%)</h4>
+                            <p>2,120 km³ flowing in rivers at any time</p>
+                        </div>
+                    </div>
+                    <div class="drainage-pattern-card" onclick="showWaterStorage('biota')">
+                        <div class="pattern-icon" style="background: linear-gradient(135deg, #145a32 0%, #1e8449 100%);">🌿</div>
+                        <div class="pattern-info">
+                            <h4>Living Organisms (0.0001%)</h4>
+                            <p>1,120 km³ in plants, animals, humans</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: #2c3e50; margin: 30px 0 20px;">⏱️ Water Residence Times</h3>
+                <div class="info-box blue">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="border-bottom: 1px solid #aed6f1;">
+                            <td style="padding: 10px;"><strong>🌊 Oceans</strong></td>
+                            <td style="padding: 10px;">~3,200 years</td>
+                            <td style="padding: 10px; color: #666;">Slowest turnover, deep ocean circulation</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #aed6f1;">
+                            <td style="padding: 10px;"><strong>🧊 Glaciers</strong></td>
+                            <td style="padding: 10px;">20-100 years (surface) to 1,000,000+ years (deep ice)</td>
+                            <td style="padding: 10px; color: #666;">Varies greatly by location</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #aed6f1;">
+                            <td style="padding: 10px;"><strong>💧 Deep Groundwater</strong></td>
+                            <td style="padding: 10px;">10,000+ years</td>
+                            <td style="padding: 10px; color: #666;">Fossil water, essentially non-renewable</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #aed6f1;">
+                            <td style="padding: 10px;"><strong>💧 Shallow Groundwater</strong></td>
+                            <td style="padding: 10px;">100-200 years</td>
+                            <td style="padding: 10px; color: #666;">Actively recharged aquifers</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #aed6f1;">
+                            <td style="padding: 10px;"><strong>🏞️ Lakes</strong></td>
+                            <td style="padding: 10px;">~17 years (average)</td>
+                            <td style="padding: 10px; color: #666;">Varies from days to centuries</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #aed6f1;">
+                            <td style="padding: 10px;"><strong>🌱 Soil Moisture</strong></td>
+                            <td style="padding: 10px;">1-2 months</td>
+                            <td style="padding: 10px; color: #666;">Rapid uptake by plants and evaporation</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #aed6f1;">
+                            <td style="padding: 10px;"><strong>🏞️ Rivers</strong></td>
+                            <td style="padding: 10px;">~2-6 weeks</td>
+                            <td style="padding: 10px; color: #666;">Continuous flow to oceans</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>☁️ Atmosphere</strong></td>
+                            <td style="padding: 10px;">~9 days</td>
+                            <td style="padding: 10px; color: #666;">Fastest turnover in the cycle</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Drainage Patterns -->
+        <div class="tab-content" id="tab-drainage">
+            <div style="padding: 20px;">
+                <h2 style="color: #2c3e50; margin-bottom: 20px; text-align: center;">🌿 Drainage Patterns of the World</h2>
+                <p style="text-align: center; color: #666; margin-bottom: 30px;">Drainage patterns are determined by topography, rock structure, and climate. Click on each pattern to learn more.</p>
+
+                <div class="drainage-pattern-grid" id="drainagePatternGrid"></div>
+
+                <h3 style="color: #2c3e50; margin: 40px 0 20px;">🗺️ Global Drainage Basins</h3>
+                <div class="info-box blue">
+                    <p><strong>Atlantic Ocean Basin:</strong> Drains ~47% of global land area including Amazon, Congo, Mississippi, Niger, St. Lawrence, Rhine, Danube</p>
+                </div>
+                <div class="info-box green">
+                    <p><strong>Pacific Ocean Basin:</strong> Drains ~13% of global land area including Yangtze, Mekong, Columbia, Colorado, Murray-Darling</p>
+                </div>
+                <div class="info-box orange">
+                    <p><strong>Indian Ocean Basin:</strong> Drains ~13% of global land area including Ganges, Indus, Zambezi, Irrawaddy, Tigris-Euphrates</p>
+                </div>
+                <div class="info-box purple">
+                    <p><strong>Arctic Ocean Basin:</strong> Drains ~17% of global land area including Ob, Yenisei, Lena, Mackenzie</p>
+                </div>
+                <div class="info-box red">
+                    <p><strong>Endorheic (Inland) Basins:</strong> ~18% of global land area with no outlet to ocean including Caspian Sea, Aral Sea, Great Basin, Lake Chad</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Major Rivers -->
+        <div class="tab-content" id="tab-rivers">
+            <div class="search-filter-bar">
+                <input type="text" class="search-box" id="searchRiver" placeholder="🔍 Search rivers..." onkeyup="searchRivers()">
+                <select class="filter-select" id="riverContinentFilter" onchange="filterRivers()">
+                    <option value="">All Continents</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Asia">Asia</option>
+                    <option value="Europe">Europe</option>
+                    <option value="North America">North America</option>
+                    <option value="South America">South America</option>
+                    <option value="Oceania">Oceania</option>
+                </select>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>6,650 km</h3>
+                    <p>Nile - Longest River</p>
+                </div>
+                <div class="stat-box green">
+                    <h3>209,000</h3>
+                    <p>m³/s Amazon Discharge</p>
+                </div>
+                <div class="stat-box purple">
+                    <h3>7.05M</h3>
+                    <p>km² Amazon Basin</p>
+                </div>
+                <div class="stat-box orange">
+                    <h3>~165</h3>
+                    <p>Major World Rivers</p>
+                </div>
+            </div>
+
+            <div id="riversListContainer" style="padding: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <p class="subtitle" id="modalSubtitle"></p>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script>
+        // Major Watersheds Data
+        const watershedData = [
+            // AFRICA
+            {
+                name: "Nile Basin",
+                continent: "Africa",
+                oceanBasin: "Atlantic",
+                lat: 15.0,
+                lon: 30.0,
+                area: 3254555,
+                countries: ["Egypt", "Sudan", "South Sudan", "Ethiopia", "Uganda", "Kenya", "Tanzania", "Rwanda", "Burundi", "DR Congo", "Eritrea"],
+                mainRiver: "Nile",
+                riverLength: 6650,
+                discharge: 2830,
+                population: 257000000,
+                description: "The Nile Basin is shared by 11 countries and is the longest river basin in the world. It has been the cradle of ancient civilizations.",
+                tributaries: ["Blue Nile", "White Nile", "Atbara", "Sobat", "Bahr el Ghazal"],
+                keyFeatures: "Two main tributaries (Blue and White Nile), Sudd wetland, Lake Victoria source, Aswan High Dam",
+                challenges: "Water allocation disputes, dam construction (Grand Ethiopian Renaissance Dam), population growth, climate change",
+                significance: "Supports 257 million people, 10 countries depend on its waters, agricultural lifeline for Egypt and Sudan"
+            },
+            {
+                name: "Congo Basin",
+                continent: "Africa",
+                oceanBasin: "Atlantic",
+                lat: -2.0,
+                lon: 20.0,
+                area: 4014500,
+                countries: ["DR Congo", "Central African Republic", "Angola", "Republic of Congo", "Zambia", "Tanzania", "Cameroon", "Burundi", "Rwanda", "Gabon"],
+                mainRiver: "Congo",
+                riverLength: 4700,
+                discharge: 41000,
+                population: 120000000,
+                description: "Second largest rainforest basin after Amazon, containing one of Earth's most biodiverse regions.",
+                tributaries: ["Ubangi", "Kasai", "Sangha", "Lomami", "Lualaba"],
+                keyFeatures: "Second largest rainforest, peatlands storing 30 billion tons of carbon, Inga Falls (highest discharge waterfall)",
+                challenges: "Deforestation, mining, civil conflicts, dam proposals (Grand Inga)",
+                significance: "Contains 10% of global tropical forest, critical carbon sink, extraordinary biodiversity"
+            },
+            {
+                name: "Niger Basin",
+                continent: "Africa",
+                oceanBasin: "Atlantic",
+                lat: 12.0,
+                lon: 3.0,
+                area: 2117700,
+                countries: ["Guinea", "Mali", "Niger", "Benin", "Nigeria", "Burkina Faso", "Cameroon", "Ivory Coast", "Chad"],
+                mainRiver: "Niger",
+                riverLength: 4180,
+                discharge: 6000,
+                population: 160000000,
+                description: "Third longest river in Africa, featuring the unique Inner Niger Delta where the river spreads into a vast wetland.",
+                tributaries: ["Bani", "Benue", "Sokoto", "Kaduna"],
+                keyFeatures: "Inner Niger Delta (largest wetland in West Africa), unusual boomerang course, oil-rich delta",
+                challenges: "Desertification, dams reducing delta flooding, oil pollution in Niger Delta, water scarcity",
+                significance: "Supports 100+ million people, critical for Sahelian agriculture, major fishery"
+            },
+            {
+                name: "Zambezi Basin",
+                continent: "Africa",
+                oceanBasin: "Indian",
+                lat: -15.0,
+                lon: 25.0,
+                area: 1390000,
+                countries: ["Zambia", "Angola", "Zimbabwe", "Mozambique", "Malawi", "Botswana", "Namibia", "Tanzania"],
+                mainRiver: "Zambezi",
+                riverLength: 2574,
+                discharge: 3400,
+                population: 40000000,
+                description: "Fourth longest river in Africa, famous for Victoria Falls (largest curtain of falling water).",
+                tributaries: ["Kafue", "Cuando", "Luangwa", "Shire", "Kabompo"],
+                keyFeatures: "Victoria Falls (UNESCO), Kariba Dam (largest man-made lake by volume), Cahora Bassa Dam",
+                challenges: "Climate variability, dam impacts, wetland degradation, invasive species",
+                significance: "Major hydropower producer, critical wildlife corridor, Victoria Falls tourism"
+            },
+            {
+                name: "Lake Chad Basin",
+                continent: "Africa",
+                oceanBasin: "Endorheic",
+                lat: 13.0,
+                lon: 14.0,
+                area: 2434000,
+                countries: ["Chad", "Niger", "Nigeria", "Cameroon", "Central African Republic", "Algeria", "Sudan", "Libya"],
+                mainRiver: "Chari",
+                riverLength: 1400,
+                discharge: 1200,
+                population: 50000000,
+                description: "Endorheic basin feeding Lake Chad, which has shrunk by 90% since 1960s.",
+                tributaries: ["Chari", "Logone", "Komadugu Yobe"],
+                keyFeatures: "Dramatic lake shrinkage (26,000 km² to 1,500 km²), Sahara-Sahel transition zone, critical oasis",
+                challenges: "Severe water scarcity, lake shrinkage, climate change, Boko Haram conflict, transboundary tensions",
+                significance: "30 million people depend directly, ecological disaster unfolding, international rescue plans"
+            },
+            {
+                name: "Orange-Senqu Basin",
+                continent: "Africa",
+                oceanBasin: "Atlantic",
+                lat: -29.0,
+                lon: 22.0,
+                area: 896368,
+                countries: ["South Africa", "Lesotho", "Namibia", "Botswana"],
+                mainRiver: "Orange",
+                riverLength: 2200,
+                discharge: 365,
+                population: 19000000,
+                description: "Largest river basin in southern Africa, vital for water-scarce region.",
+                tributaries: ["Vaal", "Caledon", "Senqu", "Fish"],
+                keyFeatures: "Lesotho Highlands Water Project (inter-basin transfer), Augrabies Falls, semi-arid climate",
+                challenges: "Water scarcity, acid mine drainage, inter-basin transfers, drought vulnerability",
+                significance: "Supplies water to Gauteng (South Africa's economic hub), major inter-basin transfers"
+            },
+
+            // ASIA
+            {
+                name: "Ganges-Brahmaputra-Meghna Basin",
+                continent: "Asia",
+                oceanBasin: "Indian",
+                lat: 25.0,
+                lon: 85.0,
+                area: 1720000,
+                countries: ["India", "Bangladesh", "Nepal", "Bhutan", "China"],
+                mainRiver: "Ganges",
+                riverLength: 2525,
+                discharge: 38000,
+                population: 700000000,
+                description: "One of the most densely populated river basins, sacred to Hindus, forming the world's largest delta.",
+                tributaries: ["Yamuna", "Brahmaputra", "Meghna", "Kosi", "Gandak", "Son"],
+                keyFeatures: "Ganges-Brahmaputra Delta (largest in world), Sundarbans mangroves, holy river pilgrimages",
+                challenges: "Extreme pollution, flooding, arsenic contamination, water disputes, glacier melt, sea level rise",
+                significance: "Supports 10% of world population, holiest river in Hinduism, largest river delta"
+            },
+            {
+                name: "Yangtze Basin",
+                continent: "Asia",
+                oceanBasin: "Pacific",
+                lat: 31.0,
+                lon: 115.0,
+                area: 1800000,
+                countries: ["China"],
+                mainRiver: "Yangtze (Chang Jiang)",
+                riverLength: 6300,
+                discharge: 30000,
+                population: 400000000,
+                description: "Longest river in Asia and third longest globally, economic heartland of China.",
+                tributaries: ["Yalong", "Min", "Jialing", "Han", "Wu"],
+                keyFeatures: "Three Gorges Dam (world's largest hydropower), Yangtze River Economic Belt, endemic species (baiji dolphin - functionally extinct)",
+                challenges: "Severe pollution, Three Gorges Dam impacts, overfishing, extinction of baiji dolphin",
+                significance: "40% of China's freshwater, 35% of China's GDP, critical shipping corridor"
+            },
+            {
+                name: "Yellow River (Huang He) Basin",
+                continent: "Asia",
+                oceanBasin: "Pacific",
+                lat: 37.0,
+                lon: 110.0,
+                area: 752443,
+                countries: ["China"],
+                mainRiver: "Yellow River",
+                riverLength: 5464,
+                discharge: 2571,
+                population: 107000000,
+                description: "China's 'Mother River' and cradle of Chinese civilization, carries massive sediment load.",
+                tributaries: ["Fen", "Wei", "Luo", "Qin"],
+                keyFeatures: "Loess Plateau (massive sediment source), elevated riverbed, frequent historic flooding, 'China's Sorrow'",
+                challenges: "Water scarcity, pollution, sediment management, ecosystem degradation, sometimes fails to reach sea",
+                significance: "Cradle of Chinese civilization, 12% of China's population, vital irrigation source"
+            },
+            {
+                name: "Mekong Basin",
+                continent: "Asia",
+                oceanBasin: "Pacific",
+                lat: 15.0,
+                lon: 105.0,
+                area: 810000,
+                countries: ["China", "Myanmar", "Laos", "Thailand", "Cambodia", "Vietnam"],
+                mainRiver: "Mekong",
+                riverLength: 4350,
+                discharge: 16000,
+                population: 60000000,
+                description: "One of the world's great rivers, supporting extraordinary fisheries and the Tonle Sap system.",
+                tributaries: ["Tonle Sap", "Mun", "Chi", "Nam Ou", "Se Kong"],
+                keyFeatures: "Tonle Sap (reverses flow seasonally), Mekong Delta (rice bowl), world's largest inland fishery",
+                challenges: "Cascade of dams reducing sediment and fish, delta sinking, saline intrusion, water diversions",
+                significance: "World's largest inland fishery, feeds 60+ million people, Mekong Delta rice production"
+            },
+            {
+                name: "Indus Basin",
+                continent: "Asia",
+                oceanBasin: "Indian",
+                lat: 30.0,
+                lon: 72.0,
+                area: 1165000,
+                countries: ["Pakistan", "India", "China", "Afghanistan"],
+                mainRiver: "Indus",
+                riverLength: 3180,
+                discharge: 6600,
+                population: 300000000,
+                description: "Cradle of ancient Indus Valley Civilization, lifeblood of Pakistan.",
+                tributaries: ["Jhelum", "Chenab", "Ravi", "Beas", "Sutlej"],
+                keyFeatures: "World's largest canal irrigation system, Tarbela Dam, Indus Waters Treaty (1960)",
+                challenges: "Glacier melt, water scarcity, transboundary disputes, pollution, soil salinization",
+                significance: "Supports entire Pakistani agriculture, Indus Valley Civilization, strategic water source"
+            },
+            {
+                name: "Tigris-Euphrates Basin",
+                continent: "Asia",
+                oceanBasin: "Indian",
+                lat: 34.0,
+                lon: 42.0,
+                area: 879790,
+                countries: ["Turkey", "Syria", "Iraq", "Iran", "Saudi Arabia", "Jordan", "Kuwait"],
+                mainRiver: "Euphrates",
+                riverLength: 2800,
+                discharge: 856,
+                population: 60000000,
+                description: "Cradle of Mesopotamian civilization, the 'Fertile Crescent' where agriculture began.",
+                tributaries: ["Tigris", "Greater Zab", "Lesser Zab", "Diyala", "Khabur"],
+                keyFeatures: "Mesopotamian Marshes (UNESCO), GAP Project (Turkey), ancient irrigation",
+                challenges: "Upstream damming by Turkey, marsh drainage (partially restored), water scarcity, conflict",
+                significance: "Birthplace of agriculture and writing, critical for Iraq's survival, geopolitical tensions"
+            },
+            {
+                name: "Ob-Irtysh Basin",
+                continent: "Asia",
+                oceanBasin: "Arctic",
+                lat: 60.0,
+                lon: 75.0,
+                area: 2990000,
+                countries: ["Russia", "Kazakhstan", "China", "Mongolia"],
+                mainRiver: "Ob",
+                riverLength: 5410,
+                discharge: 12500,
+                population: 30000000,
+                description: "Longest river system draining to Arctic, vast Siberian wilderness.",
+                tributaries: ["Irtysh", "Tom", "Chulym", "Ket", "Vakh"],
+                keyFeatures: "Ob Gulf (world's longest estuary), West Siberian Plain, permafrost, oil/gas reserves",
+                challenges: "Oil spills, nuclear contamination legacy, permafrost thaw, shipping season limits",
+                significance: "Major oil/gas production, Arctic shipping route, pristine ecosystems"
+            },
+            {
+                name: "Yenisei Basin",
+                continent: "Asia",
+                oceanBasin: "Arctic",
+                lat: 65.0,
+                lon: 90.0,
+                area: 2580000,
+                countries: ["Russia", "Mongolia"],
+                mainRiver: "Yenisei",
+                riverLength: 5539,
+                discharge: 19600,
+                population: 5000000,
+                description: "Largest river system flowing to Arctic Ocean by discharge, divides Western and Eastern Siberia.",
+                tributaries: ["Angara", "Selenga", "Lower Tunguska", "Stony Tunguska", "Abakan"],
+                keyFeatures: "Lake Baikal (world's deepest lake) via Angara, Krasnoyarsk Dam, pristine taiga",
+                challenges: "Dam impacts on ecosystems, nuclear waste legacy, permafrost thaw, pollution",
+                significance: "Major hydropower, connects to Lake Baikal, vast wilderness"
+            },
+            {
+                name: "Lena Basin",
+                continent: "Asia",
+                oceanBasin: "Arctic",
+                lat: 68.0,
+                lon: 125.0,
+                area: 2490000,
+                countries: ["Russia"],
+                mainRiver: "Lena",
+                riverLength: 4400,
+                discharge: 17100,
+                population: 2000000,
+                description: "One of the world's largest rivers, flowing entirely within Russia through permafrost regions.",
+                tributaries: ["Aldan", "Vilyuy", "Vitim", "Olekma"],
+                keyFeatures: "Lena Delta (largest Arctic delta), Lena Pillars (UNESCO), extreme cold",
+                challenges: "Permafrost thaw, brief navigation season, sparse population, climate change",
+                significance: "Pristine Arctic ecosystem, Lena Pillars World Heritage, permafrost research"
+            },
+            {
+                name: "Amur Basin",
+                continent: "Asia",
+                oceanBasin: "Pacific",
+                lat: 50.0,
+                lon: 130.0,
+                area: 1855000,
+                countries: ["Russia", "China", "Mongolia"],
+                mainRiver: "Amur",
+                riverLength: 4444,
+                discharge: 10900,
+                population: 75000000,
+                description: "Tenth longest river, forms natural border between Russia and China.",
+                tributaries: ["Songhua", "Ussuri", "Zeya", "Bureya", "Shilka"],
+                keyFeatures: "Russia-China border river, Amur tiger habitat, relatively undammed",
+                challenges: "Transboundary pollution, flooding, wetland drainage, development pressure",
+                significance: "One of last great free-flowing rivers in Asia, critical tiger habitat"
+            },
+
+            // EUROPE
+            {
+                name: "Danube Basin",
+                continent: "Europe",
+                oceanBasin: "Atlantic",
+                lat: 46.0,
+                lon: 20.0,
+                area: 817000,
+                countries: ["Germany", "Austria", "Slovakia", "Hungary", "Croatia", "Serbia", "Romania", "Bulgaria", "Moldova", "Ukraine"],
+                mainRiver: "Danube",
+                riverLength: 2850,
+                discharge: 6500,
+                population: 81000000,
+                description: "Second longest river in Europe, flowing through more countries than any other river.",
+                tributaries: ["Inn", "Drava", "Tisza", "Sava", "Morava", "Prut"],
+                keyFeatures: "Danube Delta (UNESCO), Iron Gates gorge, connects 4 capital cities, Blue Danube Waltz",
+                challenges: "Pollution, navigation impacts, invasive species, dam impacts, wetland loss",
+                significance: "Most international river basin, major European shipping corridor, cultural icon"
+            },
+            {
+                name: "Volga Basin",
+                continent: "Europe",
+                oceanBasin: "Endorheic",
+                lat: 52.0,
+                lon: 45.0,
+                area: 1380000,
+                countries: ["Russia"],
+                mainRiver: "Volga",
+                riverLength: 3530,
+                discharge: 8060,
+                population: 60000000,
+                description: "Longest river in Europe, draining to the Caspian Sea (endorheic basin), Russia's 'Mother River'.",
+                tributaries: ["Kama", "Oka", "Vetluga", "Sura", "Samara"],
+                keyFeatures: "Cascade of reservoirs, Volga-Don Canal, Volga-Baltic Waterway, Caspian drainage",
+                challenges: "Heavy damming, pollution, invasive species, Caspian Sea level changes, industrial legacy",
+                significance: "40% of Russia's population, major industrial waterway, cultural heartland"
+            },
+            {
+                name: "Rhine Basin",
+                continent: "Europe",
+                oceanBasin: "Atlantic",
+                lat: 50.0,
+                lon: 7.0,
+                area: 185000,
+                countries: ["Switzerland", "Liechtenstein", "Austria", "Germany", "France", "Luxembourg", "Belgium", "Netherlands"],
+                mainRiver: "Rhine",
+                riverLength: 1230,
+                discharge: 2300,
+                population: 58000000,
+                description: "One of Europe's most important rivers, major shipping corridor and industrial heartland.",
+                tributaries: ["Aare", "Neckar", "Main", "Moselle", "Ruhr"],
+                keyFeatures: "Rhine-Main-Danube Canal, Rhine Gorge (UNESCO), major industrial waterway, wine regions",
+                challenges: "Historic pollution (now improved), low water during droughts, flood risk, navigation",
+                significance: "Europe's busiest waterway, major economic corridor, successful pollution cleanup model"
+            },
+            {
+                name: "Dnieper Basin",
+                continent: "Europe",
+                oceanBasin: "Atlantic",
+                lat: 50.0,
+                lon: 32.0,
+                area: 504000,
+                countries: ["Russia", "Belarus", "Ukraine"],
+                mainRiver: "Dnieper",
+                riverLength: 2285,
+                discharge: 1670,
+                population: 32000000,
+                description: "Third longest river in Europe, flowing through Ukraine to Black Sea.",
+                tributaries: ["Berezina", "Pripyat", "Desna", "Sozh"],
+                keyFeatures: "Cascade of 6 reservoirs, Kyiv Reservoir, Chernobyl exclusion zone, major hydropower",
+                challenges: "Reservoir eutrophication, pollution, Chernobyl contamination, conflict impacts",
+                significance: "Vital for Ukraine's water supply and energy, current conflict zone"
+            },
+
+            // NORTH AMERICA
+            {
+                name: "Mississippi-Missouri Basin",
+                continent: "North America",
+                oceanBasin: "Atlantic",
+                lat: 38.0,
+                lon: -92.0,
+                area: 3220000,
+                countries: ["United States", "Canada"],
+                mainRiver: "Mississippi",
+                riverLength: 6275,
+                discharge: 16800,
+                population: 75000000,
+                description: "Largest river basin in North America, draining 31 US states and 2 Canadian provinces.",
+                tributaries: ["Missouri", "Ohio", "Arkansas", "Red", "Tennessee", "Platte"],
+                keyFeatures: "Mississippi Delta, New Madrid Seismic Zone, Old Man River, Mark Twain's river",
+                challenges: "Severe flooding, delta land loss, Dead Zone in Gulf (hypoxia), levee system, sediment starvation",
+                significance: "Agricultural heartland, major shipping corridor, 92% of US agricultural exports"
+            },
+            {
+                name: "St. Lawrence Basin",
+                continent: "North America",
+                oceanBasin: "Atlantic",
+                lat: 47.0,
+                lon: -72.0,
+                area: 1600000,
+                countries: ["Canada", "United States"],
+                mainRiver: "St. Lawrence",
+                riverLength: 1197,
+                discharge: 10400,
+                population: 30000000,
+                description: "Drains the Great Lakes (21% of world's surface freshwater) to Atlantic Ocean.",
+                tributaries: ["Ottawa", "Saguenay", "Saint-Maurice", "Richelieu"],
+                keyFeatures: "Great Lakes (Superior, Michigan, Huron, Erie, Ontario), St. Lawrence Seaway, Niagara Falls",
+                challenges: "Invasive species (zebra mussels, sea lamprey), water level fluctuations, shipping impacts",
+                significance: "Contains 21% of world's surface freshwater, major shipping corridor to Great Lakes"
+            },
+            {
+                name: "Colorado River Basin",
+                continent: "North America",
+                oceanBasin: "Pacific",
+                lat: 36.0,
+                lon: -112.0,
+                area: 637000,
+                countries: ["United States", "Mexico"],
+                mainRiver: "Colorado",
+                riverLength: 2330,
+                discharge: 637,
+                population: 40000000,
+                description: "Most controlled river in the world, heavily dammed and diverted, now rarely reaches sea.",
+                tributaries: ["Green", "San Juan", "Gila", "Little Colorado", "Virgin"],
+                keyFeatures: "Grand Canyon, Hoover Dam, Lake Mead, Lake Powell, Glen Canyon Dam",
+                challenges: "Chronic overallocation, drought, climate change, declining reservoir levels, no flow to sea",
+                significance: "Supplies 40 million people, irrigates 5.5 million acres, severe water crisis unfolding"
+            },
+            {
+                name: "Columbia Basin",
+                continent: "North America",
+                oceanBasin: "Pacific",
+                lat: 47.0,
+                lon: -118.0,
+                area: 668000,
+                countries: ["United States", "Canada"],
+                mainRiver: "Columbia",
+                riverLength: 2000,
+                discharge: 7500,
+                population: 8000000,
+                description: "Largest river flowing to Pacific from North America, heavily developed for hydropower.",
+                tributaries: ["Snake", "Willamette", "Kootenay", "Pend Oreille", "Okanogan"],
+                keyFeatures: "Grand Coulee Dam (largest US dam), 14 major dams on mainstem, salmon runs (depleted)",
+                challenges: "Dam impacts on salmon, endangered species, tribal fishing rights, Canadian treaty",
+                significance: "Provides 40% of US hydropower, critical salmon habitat (declining), Columbia River Treaty"
+            },
+            {
+                name: "Mackenzie Basin",
+                continent: "North America",
+                oceanBasin: "Arctic",
+                lat: 65.0,
+                lon: -125.0,
+                area: 1805200,
+                countries: ["Canada"],
+                mainRiver: "Mackenzie",
+                riverLength: 4241,
+                discharge: 10300,
+                population: 500000,
+                description: "Longest river in Canada, flowing through pristine northern wilderness to Arctic Ocean.",
+                tributaries: ["Peace", "Athabasca", "Liard", "Great Bear", "Slave"],
+                keyFeatures: "Peace-Athabasca Delta (UNESCO), Great Slave Lake, Great Bear Lake, relatively undeveloped",
+                challenges: "Oil sands development (Athabasca), climate change, permafrost thaw, Indigenous rights",
+                significance: "Largely pristine Arctic watershed, critical for Indigenous peoples, oil sands controversy"
+            },
+            {
+                name: "Rio Grande Basin",
+                continent: "North America",
+                oceanBasin: "Atlantic",
+                lat: 30.0,
+                lon: -104.0,
+                area: 472000,
+                countries: ["United States", "Mexico"],
+                mainRiver: "Rio Grande",
+                riverLength: 3051,
+                discharge: 82,
+                population: 13000000,
+                description: "Forms US-Mexico border, heavily depleted, sometimes fails to reach Gulf of Mexico.",
+                tributaries: ["Pecos", "Rio Conchos", "Devils River", "Rio Salado"],
+                keyFeatures: "US-Mexico border river, Big Bend National Park, extensive irrigation diversions",
+                challenges: "Severe water scarcity, overallocation, transboundary disputes, barely reaches sea",
+                significance: "International border, critical for both countries, symbol of water scarcity"
+            },
+
+            // SOUTH AMERICA
+            {
+                name: "Amazon Basin",
+                continent: "South America",
+                oceanBasin: "Atlantic",
+                lat: -5.0,
+                lon: -60.0,
+                area: 7050000,
+                countries: ["Brazil", "Peru", "Bolivia", "Colombia", "Ecuador", "Venezuela", "Guyana", "Suriname", "French Guiana"],
+                mainRiver: "Amazon",
+                riverLength: 6400,
+                discharge: 209000,
+                population: 30000000,
+                description: "Largest river basin in the world by area and discharge, containing world's largest rainforest.",
+                tributaries: ["Negro", "Madeira", "Tapajós", "Xingu", "Tocantins", "Japurá", "Purus"],
+                keyFeatures: "Amazon Rainforest (50% of remaining rainforest), 20% of world's river discharge, Pororoca tidal bore",
+                challenges: "Deforestation, dam construction, mining, climate change, fires, Indigenous rights",
+                significance: "20% of world's freshwater discharge, 10% of global species, critical climate regulator"
+            },
+            {
+                name: "La Plata Basin",
+                continent: "South America",
+                oceanBasin: "Atlantic",
+                lat: -30.0,
+                lon: -58.0,
+                area: 3100000,
+                countries: ["Brazil", "Argentina", "Paraguay", "Uruguay", "Bolivia"],
+                mainRiver: "Paraná",
+                riverLength: 4880,
+                discharge: 22000,
+                population: 100000000,
+                description: "Second largest basin in South America, containing Iguazu Falls and major agricultural areas.",
+                tributaries: ["Paraguay", "Uruguay", "Iguazu", "Tietê", "Pilcomayo"],
+                keyFeatures: "Iguazu Falls (UNESCO), Itaipu Dam (2nd largest hydropower), Pantanal wetland, Guarani Aquifer",
+                challenges: "Dam cascade impacts, sediment trapping, deforestation, flooding, water quality",
+                significance: "Contains Pantanal (world's largest wetland), Guarani Aquifer, 5 country cooperation"
+            },
+            {
+                name: "Orinoco Basin",
+                continent: "South America",
+                oceanBasin: "Atlantic",
+                lat: 8.0,
+                lon: -64.0,
+                area: 880000,
+                countries: ["Venezuela", "Colombia"],
+                mainRiver: "Orinoco",
+                riverLength: 2140,
+                discharge: 30000,
+                population: 27000000,
+                description: "Third largest river in South America, featuring unique Casiquiare canal connecting to Amazon.",
+                tributaries: ["Caroní", "Meta", "Apure", "Ventuari", "Casiquiare"],
+                keyFeatures: "Casiquiare canal (natural Amazon connection), Angel Falls (tributary), Orinoco Delta, llanos grasslands",
+                challenges: "Heavy oil exploitation (Orinoco Belt), deforestation, mining, political instability",
+                significance: "Connected to Amazon via Casiquiare, major oil reserves, biodiversity hotspot"
+            },
+            {
+                name: "São Francisco Basin",
+                continent: "South America",
+                oceanBasin: "Atlantic",
+                lat: -10.0,
+                lon: -42.0,
+                area: 641000,
+                countries: ["Brazil"],
+                mainRiver: "São Francisco",
+                riverLength: 2914,
+                discharge: 2943,
+                population: 14000000,
+                description: "Major Brazilian river, known as 'River of National Integration', flowing through semi-arid northeast.",
+                tributaries: ["Grande", "Paracatu", "Carinhanha", "Verde Grande"],
+                keyFeatures: "Paulo Afonso Falls, Sobradinho Reservoir, transposition project to northeast Brazil",
+                challenges: "Water scarcity, dam impacts, transposition controversy, drought, pollution",
+                significance: "Lifeline for semi-arid Northeast Brazil, major transposition project"
+            },
+
+            // OCEANIA
+            {
+                name: "Murray-Darling Basin",
+                continent: "Oceania",
+                oceanBasin: "Indian",
+                lat: -33.0,
+                lon: 143.0,
+                area: 1061000,
+                countries: ["Australia"],
+                mainRiver: "Murray",
+                riverLength: 2508,
+                discharge: 767,
+                population: 3000000,
+                description: "Australia's most important agricultural basin, severely stressed by drought and overallocation.",
+                tributaries: ["Darling", "Murrumbidgee", "Lachlan", "Goulburn", "Loddon"],
+                keyFeatures: "Australia's food bowl, Coorong wetland, severe water scarcity, Murray Mouth often closed",
+                challenges: "Chronic overallocation, millennium drought, climate change, environmental degradation, water buybacks",
+                significance: "Produces 40% of Australia's food, $22 billion agricultural output, Basin Plan reform"
+            },
+            {
+                name: "Lake Eyre Basin",
+                continent: "Oceania",
+                oceanBasin: "Endorheic",
+                lat: -26.0,
+                lon: 139.0,
+                area: 1200000,
+                countries: ["Australia"],
+                mainRiver: "Georgina",
+                riverLength: 1400,
+                discharge: "Highly variable",
+                population: 60000,
+                description: "World's largest endorheic basin in terms of drainage area, Lake Eyre fills completely only ~4 times per century.",
+                tributaries: ["Diamantina", "Georgina", "Cooper Creek", "Warburton"],
+                keyFeatures: "Lake Eyre (lowest point in Australia, -15m), episodic flooding, waterbird breeding explosions",
+                challenges: "Extreme variability, mining impacts, climate change, feral animals",
+                significance: "Australia's largest lake when full, spectacular waterbird breeding events"
+            }
+        ];
+
+        // Drainage Patterns Data
+        const drainagePatterns = [
+            {
+                name: "Dendritic",
+                icon: "🌳",
+                description: "Tree-like branching pattern, most common drainage type. Develops on homogeneous rock with uniform resistance to erosion.",
+                characteristics: ["Random branching pattern", "Branches at acute angles", "Resembles tree branches", "Most common type globally"],
+                examples: ["Mississippi tributaries", "Most rivers in flat terrain", "Amazon tributaries"],
+                geology: "Develops on flat-lying sedimentary rocks, volcanic rocks, or crystalline rocks with uniform resistance",
+                significance: "Indicates uniform rock structure, efficient drainage of precipitation"
+            },
+            {
+                name: "Trellis",
+                icon: "🪟",
+                description: "Grid-like pattern with main rivers joined by tributaries at right angles. Develops in folded mountain regions.",
+                characteristics: ["Rectangular pattern", "Tributaries join at ~90°", "Main streams in valleys", "Parallel ridges and valleys"],
+                examples: ["Appalachian Mountains rivers", "Zagros Mountains drainage", "Jura Mountains streams"],
+                geology: "Develops in folded mountains with alternating hard and soft rock layers (Ridge and Valley terrain)",
+                significance: "Indicates folded sedimentary rocks, parallel ridges and valleys"
+            },
+            {
+                name: "Rectangular",
+                icon: "📐",
+                description: "Angular pattern with streams making sharp bends. Develops in jointed or fractured rock with intersecting faults.",
+                characteristics: ["Right-angle bends", "Fault-controlled", "Angular tributaries", "Follows joint patterns"],
+                examples: ["Colorado Plateau streams", "Scandinavian rivers", "Many glaciated shield areas"],
+                geology: "Develops where joints and faults create zones of weakness at right angles",
+                significance: "Indicates jointed or faulted bedrock, structural control"
+            },
+            {
+                name: "Radial",
+                icon: "☀️",
+                description: "Streams radiating outward from a central high point like spokes of a wheel. Develops on volcanic cones and domes.",
+                characteristics: ["Spokes from center", "Volcanic or dome structure", "Outward flow", "Symmetrical pattern"],
+                examples: ["Mount Rainier", "Mount Kilimanjaro", "Mount Fuji", "Mount Egmont (Taranaki)"],
+                geology: "Develops on volcanic cones, structural domes, and isolated mountains",
+                significance: "Indicates volcanic cone, dome, or isolated uplift"
+            },
+            {
+                name: "Centripetal",
+                icon: "🎯",
+                description: "Streams flowing inward toward a central depression. Opposite of radial pattern.",
+                characteristics: ["Inward flow to center", "Converging streams", "Basin or depression", "Often endorheic"],
+                examples: ["Lake Titicaca", "Lake Chad Basin", "Great Basin (Nevada)", "Death Valley"],
+                geology: "Develops in basins, craters, calderas, and structural depressions",
+                significance: "Indicates closed basin, possible endorheic drainage"
+            },
+            {
+                name: "Parallel",
+                icon: "≡",
+                description: "Streams flowing nearly parallel to each other. Develops on steep slopes or where structure creates parallel valleys.",
+                characteristics: ["Parallel main streams", "Steep slopes", "Uniform gradient", "Coastal plain rivers"],
+                examples: ["Rivers of South Atlantic US coast", "Eastern Himalayan rivers", "Namibian coastal rivers"],
+                geology: "Develops on steep slopes, tilted fault blocks, or parallel structural features",
+                significance: "Indicates steep uniform slopes or parallel structures"
+            },
+            {
+                name: "Annular",
+                icon: "⭕",
+                description: "Ring-like pattern where streams follow circular weak rock belts. Develops on eroded domes with alternating rock types.",
+                characteristics: ["Circular/ring pattern", "Follows weak rock belts", "Radial tributaries", "Dome structure"],
+                examples: ["Red Hills of Devon", "Black Hills (South Dakota)", "Vredefort Crater drainage"],
+                geology: "Develops on eroded domes where concentric belts of hard and soft rock are exposed",
+                significance: "Indicates eroded structural dome with alternating rock resistance"
+            },
+            {
+                name: "Deranged",
+                icon: "🔀",
+                description: "Chaotic, disorganized pattern with lakes, swamps, and irregular channels. Develops on recently glaciated terrain.",
+                characteristics: ["No clear pattern", "Many lakes and swamps", "Irregular channels", "Poor integration"],
+                examples: ["Canadian Shield", "Northern Minnesota lakes", "Finnish Lakeland", "Scottish Highlands"],
+                geology: "Develops on recently glaciated terrain before drainage has organized",
+                significance: "Indicates recent glaciation, immature drainage system"
+            }
+        ];
+
+        // Major Rivers Data
+        const majorRivers = [
+            { name: "Nile", continent: "Africa", length: 6650, discharge: 2830, countries: 11, basin: 3254555 },
+            { name: "Amazon", continent: "South America", length: 6400, discharge: 209000, countries: 9, basin: 7050000 },
+            { name: "Yangtze", continent: "Asia", length: 6300, discharge: 30000, countries: 1, basin: 1800000 },
+            { name: "Mississippi-Missouri", continent: "North America", length: 6275, discharge: 16800, countries: 2, basin: 3220000 },
+            { name: "Yenisei-Angara", continent: "Asia", length: 5539, discharge: 19600, countries: 2, basin: 2580000 },
+            { name: "Yellow River (Huang He)", continent: "Asia", length: 5464, discharge: 2571, countries: 1, basin: 752443 },
+            { name: "Ob-Irtysh", continent: "Asia", length: 5410, discharge: 12500, countries: 4, basin: 2990000 },
+            { name: "Paraná", continent: "South America", length: 4880, discharge: 22000, countries: 5, basin: 3100000 },
+            { name: "Congo", continent: "Africa", length: 4700, discharge: 41000, countries: 10, basin: 4014500 },
+            { name: "Amur", continent: "Asia", length: 4444, discharge: 10900, countries: 3, basin: 1855000 },
+            { name: "Lena", continent: "Asia", length: 4400, discharge: 17100, countries: 1, basin: 2490000 },
+            { name: "Mekong", continent: "Asia", length: 4350, discharge: 16000, countries: 6, basin: 810000 },
+            { name: "Mackenzie", continent: "North America", length: 4241, discharge: 10300, countries: 1, basin: 1805200 },
+            { name: "Niger", continent: "Africa", length: 4180, discharge: 6000, countries: 9, basin: 2117700 },
+            { name: "Murray-Darling", continent: "Oceania", length: 3672, discharge: 767, countries: 1, basin: 1061000 },
+            { name: "Volga", continent: "Europe", length: 3530, discharge: 8060, countries: 1, basin: 1380000 },
+            { name: "Indus", continent: "Asia", length: 3180, discharge: 6600, countries: 4, basin: 1165000 },
+            { name: "Rio Grande", continent: "North America", length: 3051, discharge: 82, countries: 2, basin: 472000 },
+            { name: "Danube", continent: "Europe", length: 2850, discharge: 6500, countries: 10, basin: 817000 },
+            { name: "Euphrates", continent: "Asia", length: 2800, discharge: 856, countries: 3, basin: 879790 },
+            { name: "Zambezi", continent: "Africa", length: 2574, discharge: 3400, countries: 8, basin: 1390000 },
+            { name: "Ganges", continent: "Asia", length: 2525, discharge: 38000, countries: 3, basin: 1720000 },
+            { name: "Colorado", continent: "North America", length: 2330, discharge: 637, countries: 2, basin: 637000 },
+            { name: "Rhine", continent: "Europe", length: 1230, discharge: 2300, countries: 8, basin: 185000 }
+        ];
+
+        // Water Cycle Components Data
+        const waterCycleComponents = {
+            solar: {
+                title: "Solar Energy",
+                subtitle: "The Engine of the Water Cycle",
+                description: "Solar radiation provides the energy that drives the entire hydrological cycle. The sun heats water in oceans, lakes, and rivers, providing the energy for evaporation.",
+                facts: [
+                    "Sun provides 99.97% of energy driving climate",
+                    "~30% of solar radiation reflected back to space",
+                    "Tropics receive most energy, driving evaporation",
+                    "Seasonal variation affects water cycle intensity"
+                ],
+                process: "Solar energy heats water bodies and land surfaces, providing the latent heat required for water to change from liquid to vapor. This energy is later released when water condenses, fueling atmospheric circulation."
+            },
+            evaporation: {
+                title: "Evaporation",
+                subtitle: "Water to Vapor from Surfaces",
+                description: "The process by which liquid water transforms into water vapor. Approximately 505,000 km³ evaporates annually, with 86% from oceans.",
+                facts: [
+                    "505,000 km³/year total evaporation",
+                    "434,000 km³/year from oceans (86%)",
+                    "71,000 km³/year from land (14%)",
+                    "Higher rates in tropics and summer"
+                ],
+                process: "Water molecules at the surface gain enough energy to escape into the atmosphere. Rate depends on temperature, humidity, wind speed, and surface area."
+            },
+            transpiration: {
+                title: "Transpiration",
+                subtitle: "Water Released by Plants",
+                description: "Plants absorb water through roots and release it through leaf stomata. Combined with evaporation, this is called evapotranspiration.",
+                facts: [
+                    "~65,000 km³/year from vegetation",
+                    "A large tree can transpire 1,000 liters/day",
+                    "Amazon rainforest creates its own rainfall",
+                    "Critical for regional climate regulation"
+                ],
+                process: "Water travels from soil through plant roots, up through stems and leaves, then evaporates through stomata. This process helps cool plants and moves nutrients."
+            },
+            condensation: {
+                title: "Condensation",
+                subtitle: "Vapor to Liquid in Atmosphere",
+                description: "Water vapor cools and transforms back into liquid droplets, forming clouds and fog. Requires condensation nuclei (dust, pollen, sea salt).",
+                facts: [
+                    "Occurs when air cools below dew point",
+                    "Forms clouds, fog, and dew",
+                    "Releases latent heat, warming atmosphere",
+                    "Cloud condensation nuclei essential"
+                ],
+                process: "Rising air cools adiabatically. When temperature drops to dew point, water vapor condenses onto tiny particles. Billions of droplets form clouds."
+            },
+            precipitation: {
+                title: "Precipitation",
+                subtitle: "Water Falls to Earth's Surface",
+                description: "When water droplets or ice crystals become too heavy, they fall as precipitation (rain, snow, sleet, hail).",
+                facts: [
+                    "505,000 km³/year total precipitation",
+                    "398,000 km³/year over oceans",
+                    "107,000 km³/year over land",
+                    "Uneven distribution globally"
+                ],
+                process: "Cloud droplets grow by collision and coalescence (warm clouds) or ice crystal process (cold clouds) until gravity overcomes air resistance."
+            },
+            runoff: {
+                title: "Surface Runoff",
+                subtitle: "Water Flowing Over Land",
+                description: "Water that flows over land surface toward streams, rivers, lakes, and eventually oceans. Critical for erosion and sediment transport.",
+                facts: [
+                    "~40,000 km³/year reaches oceans",
+                    "Creates rivers and streams",
+                    "Major agent of erosion",
+                    "Carries nutrients and pollutants"
+                ],
+                process: "When precipitation exceeds infiltration capacity or soil is saturated, water flows downhill over the surface, collecting in channels that form rivers."
+            },
+            infiltration: {
+                title: "Infiltration",
+                subtitle: "Water Entering the Ground",
+                description: "Water seeping into soil and rock, recharging groundwater aquifers. Rate depends on soil type, saturation, and vegetation.",
+                facts: [
+                    "Recharges groundwater aquifers",
+                    "Sandy soils: fast infiltration",
+                    "Clay soils: slow infiltration",
+                    "Vegetation increases infiltration"
+                ],
+                process: "Water moves downward through soil pores and rock fractures under gravity, eventually reaching the water table and recharging aquifers."
+            },
+            groundwater: {
+                title: "Groundwater Flow",
+                subtitle: "Underground Water Movement",
+                description: "Slow movement of water through aquifers toward discharge points (springs, rivers, oceans). Can take days to millions of years.",
+                facts: [
+                    "Contains 30% of global freshwater",
+                    "Flow rates: meters/day to meters/year",
+                    "Some groundwater is 10,000+ years old",
+                    "Discharges to springs, rivers, ocean"
+                ],
+                process: "Water moves through pores and fractures in rocks, flowing from recharge areas to discharge zones. Flow rate depends on hydraulic gradient and permeability."
+            },
+            storage: {
+                title: "Water Storage",
+                subtitle: "Reservoirs in the Cycle",
+                description: "Water is stored in various reservoirs: oceans, glaciers, groundwater, lakes, soil, atmosphere, and living organisms.",
+                facts: [
+                    "Oceans hold 96.5% of all water",
+                    "Glaciers hold 68.7% of freshwater",
+                    "Groundwater holds 30.1% of freshwater",
+                    "Storage times vary enormously"
+                ],
+                process: "Water continuously moves between storage reservoirs, with residence times ranging from ~9 days (atmosphere) to millions of years (deep groundwater)."
+            }
+        };
+
+        let map;
+        let markers = L.markerClusterGroup({
+            chunkedLoading: true,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: true,
+            zoomToBoundsOnClick: true,
+            maxClusterRadius: 60
+        });
+
+        let filteredWatersheds = [...watershedData];
+
+        // Initialize
+        function init() {
+            initMap();
+            displayWatershedPanel(watershedData);
+            displayDrainagePatterns();
+            displayRivers(majorRivers);
+        }
+
+        function initMap() {
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                maxZoom: 18
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            loadWatershedMarkers(watershedData);
+        }
+
+        function getWatershedIcon(continent) {
+            const colors = {
+                'Africa': '#e74c3c',
+                'Asia': '#f39c12',
+                'Europe': '#3498db',
+                'North America': '#27ae60',
+                'South America': '#9b59b6',
+                'Oceania': '#1abc9c'
+            };
+
+            return L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background: ${colors[continent] || '#0077b6'}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">💧</div>`,
+                iconSize: [28, 28]
+            });
+        }
+
+        function loadWatershedMarkers(data) {
+            markers.clearLayers();
+
+            data.forEach(watershed => {
+                const marker = L.marker([watershed.lat, watershed.lon], {
+                    icon: getWatershedIcon(watershed.continent)
+                });
+
+                marker.bindPopup(`
+                    <div style="min-width: 250px;">
+                        <h3 style="color: #0077b6; margin-bottom: 10px;">${watershed.name}</h3>
+                        <p><strong>Main River:</strong> ${watershed.mainRiver}</p>
+                        <p><strong>Area:</strong> ${watershed.area.toLocaleString()} km²</p>
+                        <p><strong>Countries:</strong> ${watershed.countries.length}</p>
+                        <p><strong>Population:</strong> ${watershed.population.toLocaleString()}</p>
+                        <button onclick="showWatershedDetails('${watershed.name}')" style="width: 100%; margin-top: 10px; padding: 10px; background: #0077b6; color: white; border: none; border-radius: 5px; cursor: pointer;">View Full Details</button>
+                    </div>
+                `, { maxWidth: 300 });
+
+                marker.on('click', function() {
+                    map.setView([watershed.lat, watershed.lon], 5);
+                });
+
+                markers.addLayer(marker);
+            });
+
+            map.addLayer(markers);
+        }
+
+        function displayWatershedPanel(data) {
+            const panel = document.getElementById('watershedPanel');
+            const grouped = {};
+
+            data.forEach(w => {
+                if (!grouped[w.continent]) {
+                    grouped[w.continent] = [];
+                }
+                grouped[w.continent].push(w);
+            });
+
+            let html = '';
+
+            Object.keys(grouped).sort().forEach(continent => {
+                html += `<div class="section-header">${continent} (${grouped[continent].length} basins)</div>`;
+
+                grouped[continent].forEach(w => {
+                    html += `
+                        <div class="item-card" onclick="showWatershedDetails('${w.name}')">
+                            <div class="item-card-header watershed">
+                                <h3>${w.name}</h3>
+                                <div class="subtitle">${w.mainRiver} River System</div>
+                            </div>
+                            <div class="item-card-body">
+                                <p><strong>Area:</strong> ${w.area.toLocaleString()} km²</p>
+                                <p><strong>Countries:</strong> ${w.countries.length} nations</p>
+                                <p>${w.description.substring(0, 100)}...</p>
+                                <span class="badge badge-blue">${w.oceanBasin} Basin</span>
+                                <span class="badge badge-green">${w.countries.length} Countries</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            panel.innerHTML = html;
+        }
+
+        function showWatershedDetails(name) {
+            const w = watershedData.find(ws => ws.name === name);
+            if (!w) return;
+
+            document.getElementById('modalTitle').textContent = w.name;
+            document.getElementById('modalSubtitle').textContent = `${w.mainRiver} River System • ${w.continent}`;
+
+            const countriesList = w.countries.map(c => `<span class="badge badge-blue">${c}</span>`).join(' ');
+            const tributariesList = w.tributaries.map(t => `<div class="river-item">${t}</div>`).join('');
+
+            let bodyHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Basin Area</label>
+                        <span>${w.area.toLocaleString()} km²</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Main River</label>
+                        <span>${w.mainRiver}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>River Length</label>
+                        <span>${w.riverLength.toLocaleString()} km</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Discharge</label>
+                        <span>${w.discharge.toLocaleString()} m³/s</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Population</label>
+                        <span>${w.population.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Ocean Basin</label>
+                        <span>${w.oceanBasin}</span>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Countries (${w.countries.length})</h3>
+                <div style="line-height: 2;">${countriesList}</div>
+
+                <h3 class="section-title">Description</h3>
+                <p style="line-height: 1.7; color: #555;">${w.description}</p>
+
+                <h3 class="section-title">Major Tributaries</h3>
+                <div class="river-list">${tributariesList}</div>
+
+                <div class="info-box blue">
+                    <h4 style="color: #2980b9; margin-bottom: 8px;">🌊 Key Features</h4>
+                    <p>${w.keyFeatures}</p>
+                </div>
+
+                <div class="info-box orange">
+                    <h4 style="color: #e67e22; margin-bottom: 8px;">⚠️ Challenges</h4>
+                    <p>${w.challenges}</p>
+                </div>
+
+                <div class="info-box green">
+                    <h4 style="color: #27ae60; margin-bottom: 8px;">🌍 Significance</h4>
+                    <p>${w.significance}</p>
+                </div>
+
+                <div class="info-box purple">
+                    <h4 style="color: #9b59b6; margin-bottom: 8px;">📍 Location</h4>
+                    <p><strong>Coordinates:</strong> ${w.lat.toFixed(2)}°, ${w.lon.toFixed(2)}°</p>
+                    <p><strong>Continent:</strong> ${w.continent}</p>
+                </div>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="zoomToLocation(${w.lat}, ${w.lon})" style="padding: 12px 25px; background: #0077b6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">
+                        📍 View on Map
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = bodyHTML;
+            document.getElementById('detailModal').style.display = 'block';
+            map.setView([w.lat, w.lon], 5);
+        }
+
+        function displayDrainagePatterns() {
+            const container = document.getElementById('drainagePatternGrid');
+            let html = '';
+
+            drainagePatterns.forEach(pattern => {
+                html += `
+                    <div class="drainage-pattern-card" onclick="showDrainageDetails('${pattern.name}')">
+                        <div class="pattern-icon">${pattern.icon}</div>
+                        <div class="pattern-info">
+                            <h4>${pattern.name} Drainage</h4>
+                            <p>${pattern.description.substring(0, 80)}...</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function showDrainageDetails(name) {
+            const pattern = drainagePatterns.find(p => p.name === name);
+            if (!pattern) return;
+
+            document.getElementById('modalTitle').textContent = `${pattern.name} Drainage Pattern`;
+            document.getElementById('modalSubtitle').textContent = 'Drainage Pattern Type';
+
+            const characteristicsList = pattern.characteristics.map(c => `<li>${c}</li>`).join('');
+            const examplesList = pattern.examples.map(e => `<span class="badge badge-blue">${e}</span>`).join(' ');
+
+            let bodyHTML = `
+                <div style="text-align: center; font-size: 5em; margin: 20px 0;">
+                    ${pattern.icon}
+                </div>
+
+                <h3 class="section-title">Description</h3>
+                <p style="line-height: 1.7; color: #555;">${pattern.description}</p>
+
+                <h3 class="section-title">Characteristics</h3>
+                <ul style="line-height: 2; color: #555; margin-left: 20px;">
+                    ${characteristicsList}
+                </ul>
+
+                <h3 class="section-title">Examples</h3>
+                <div style="line-height: 2;">${examplesList}</div>
+
+                <div class="info-box blue">
+                    <h4 style="color: #2980b9; margin-bottom: 8px;">🪨 Geology</h4>
+                    <p>${pattern.geology}</p>
+                </div>
+
+                <div class="info-box green">
+                    <h4 style="color: #27ae60; margin-bottom: 8px;">🌍 Significance</h4>
+                    <p>${pattern.significance}</p>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = bodyHTML;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function displayRivers(rivers) {
+            const container = document.getElementById('riversListContainer');
+            const sorted = [...rivers].sort((a, b) => b.length - a.length);
+
+            let html = `
+                <h2 style="color: #2c3e50; margin-bottom: 20px;">🏞️ World's Major Rivers (By Length)</h2>
+                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%); color: white;">
+                            <th style="padding: 15px; text-align: left;">#</th>
+                            <th style="padding: 15px; text-align: left;">River</th>
+                            <th style="padding: 15px; text-align: left;">Continent</th>
+                            <th style="padding: 15px; text-align: right;">Length (km)</th>
+                            <th style="padding: 15px; text-align: right;">Discharge (m³/s)</th>
+                            <th style="padding: 15px; text-align: right;">Basin (km²)</th>
+                            <th style="padding: 15px; text-align: center;">Countries</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            sorted.forEach((river, index) => {
+                const bgColor = index % 2 === 0 ? '#f8f9fa' : 'white';
+                html += `
+                    <tr style="background: ${bgColor}; border-bottom: 1px solid #eee; cursor: pointer;" onclick="showRiverDetails('${river.name}')" onmouseover="this.style.background='#e8f4f8'" onmouseout="this.style.background='${bgColor}'">
+                        <td style="padding: 12px 15px; font-weight: bold; color: #0077b6;">${index + 1}</td>
+                        <td style="padding: 12px 15px; font-weight: bold;">${river.name}</td>
+                        <td style="padding: 12px 15px;">${river.continent}</td>
+                        <td style="padding: 12px 15px; text-align: right;">${river.length.toLocaleString()}</td>
+                        <td style="padding: 12px 15px; text-align: right;">${river.discharge.toLocaleString()}</td>
+                        <td style="padding: 12px 15px; text-align: right;">${river.basin.toLocaleString()}</td>
+                        <td style="padding: 12px 15px; text-align: center;">${river.countries}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showRiverDetails(riverName) {
+            const river = majorRivers.find(r => r.name === riverName);
+            const watershed = watershedData.find(w => w.mainRiver === riverName || w.name.includes(riverName));
+
+            if (watershed) {
+                showWatershedDetails(watershed.name);
+            } else if (river) {
+                document.getElementById('modalTitle').textContent = river.name;
+                document.getElementById('modalSubtitle').textContent = `${river.continent} River`;
+
+                let bodyHTML = `
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Length</label>
+                            <span>${river.length.toLocaleString()} km</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Discharge</label>
+                            <span>${river.discharge.toLocaleString()} m³/s</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Basin Area</label>
+                            <span>${river.basin.toLocaleString()} km²</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Countries</label>
+                            <span>${river.countries} nations</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Continent</label>
+                            <span>${river.continent}</span>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('modalBody').innerHTML = bodyHTML;
+                document.getElementById('detailModal').style.display = 'block';
+            }
+        }
+
+        function showCycleDetail(component) {
+            const data = waterCycleComponents[component];
+            if (!data) return;
+
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalSubtitle').textContent = data.subtitle;
+
+            const factsList = data.facts.map(f => `<li style="margin-bottom: 8px;">${f}</li>`).join('');
+
+            let bodyHTML = `
+                <h3 class="section-title">Description</h3>
+                <p style="line-height: 1.7; color: #555;">${data.description}</p>
+
+                <h3 class="section-title">Key Facts</h3>
+                <ul style="line-height: 1.8; color: #555; margin-left: 20px;">
+                    ${factsList}
+                </ul>
+
+                <div class="info-box blue">
+                    <h4 style="color: #2980b9; margin-bottom: 8px;">🔄 Process</h4>
+                    <p>${data.process}</p>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = bodyHTML;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function showWaterStorage(type) {
+            const storageData = {
+                oceans: { title: "Oceans", amount: "1,338,000,000 km³", percent: "96.5%", description: "The vast majority of Earth's water is saline ocean water. The oceans drive the water cycle through evaporation and regulate global climate." },
+                glaciers: { title: "Glaciers & Ice Caps", amount: "24,064,000 km³", percent: "1.74%", description: "Frozen water in ice caps, glaciers, and permanent snow. Contains 68.7% of Earth's freshwater. Melting due to climate change." },
+                groundwater: { title: "Groundwater", amount: "23,400,000 km³", percent: "1.69%", description: "Water stored in aquifers underground. Contains 30.1% of freshwater. Critical for drinking water and irrigation globally." },
+                lakes: { title: "Lakes", amount: "176,400 km³", percent: "0.013%", description: "Surface freshwater and saline lakes. Lake Baikal alone contains 20% of unfrozen freshwater. Critical ecosystems and water sources." },
+                soil: { title: "Soil Moisture", amount: "16,500 km³", percent: "0.001%", description: "Water held in soil, available for plant uptake. Critical for agriculture and ecosystems. Quickly cycles through evapotranspiration." },
+                atmosphere: { title: "Atmosphere", amount: "12,900 km³", percent: "0.001%", description: "Water vapor in the atmosphere. Though small amount, it cycles rapidly (~9 days) and is critical for precipitation and weather." },
+                rivers: { title: "Rivers", amount: "2,120 km³", percent: "0.0002%", description: "Water flowing in rivers at any moment. Very small storage but high throughput. Essential for ecosystems and human use." },
+                biota: { title: "Living Organisms", amount: "1,120 km³", percent: "0.0001%", description: "Water contained in plants, animals, and humans. Small amount but essential for all life on Earth." }
+            };
+
+            const data = storageData[type];
+            if (!data) return;
+
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalSubtitle').textContent = 'Water Storage Reservoir';
+
+            let bodyHTML = `
+                <div class="detail-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="detail-item">
+                        <label>Volume</label>
+                        <span>${data.amount}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Percentage of Total</label>
+                        <span>${data.percent}</span>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Description</h3>
+                <p style="line-height: 1.7; color: #555;">${data.description}</p>
+            `;
+
+            document.getElementById('modalBody').innerHTML = bodyHTML;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // Filters
+        function searchWatersheds() {
+            const term = document.getElementById('searchWatershed').value.toLowerCase();
+            const filtered = watershedData.filter(w =>
+                w.name.toLowerCase().includes(term) ||
+                w.mainRiver.toLowerCase().includes(term) ||
+                w.countries.some(c => c.toLowerCase().includes(term)) ||
+                w.description.toLowerCase().includes(term)
+            );
+
+            loadWatershedMarkers(filtered);
+            displayWatershedPanel(filtered);
+        }
+
+        function filterByContinent() {
+            const continent = document.getElementById('continentFilter').value;
+            let filtered = watershedData;
+
+            if (continent) {
+                filtered = watershedData.filter(w => w.continent === continent);
+            }
+
+            const ocean = document.getElementById('oceanFilter').value;
+            if (ocean) {
+                filtered = filtered.filter(w => w.oceanBasin === ocean);
+            }
+
+            loadWatershedMarkers(filtered);
+            displayWatershedPanel(filtered);
+        }
+
+        function filterByOcean() {
+            filterByContinent();
+        }
+
+        function searchRivers() {
+            const term = document.getElementById('searchRiver').value.toLowerCase();
+            const continent = document.getElementById('riverContinentFilter').value;
+
+            let filtered = majorRivers.filter(r =>
+                r.name.toLowerCase().includes(term)
+            );
+
+            if (continent) {
+                filtered = filtered.filter(r => r.continent === continent);
+            }
+
+            displayRivers(filtered);
+        }
+
+        function filterRivers() {
+            searchRivers();
+        }
+
+        function zoomToLocation(lat, lon) {
+            closeModal();
+            map.setView([lat, lon], 6);
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Close modal events
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>
