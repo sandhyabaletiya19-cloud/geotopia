@@ -171,15 +171,7 @@
         [data-theme="light"] .solar-layer { opacity: 1; }
 
         /* ==================== HERO GLOBE (Three.js) ==================== */
-.earth-container {
-    position: absolute;
-    bottom: -30%;
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-    z-index: 1;
-}
-
+/* ==================== HERO GLOBE (Three.js Sky Blue) ==================== */
 .hero-globe-wrapper {
     position: relative;
     width: clamp(350px, 60vw, 550px);
@@ -204,7 +196,12 @@
     position: absolute;
     inset: -40px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(74, 144, 217, 0.35) 0%, rgba(74,144,217,0.1) 50%, transparent 70%);
+    background: radial-gradient(
+        circle,
+        rgba(135, 206, 235, 0.4) 0%,
+        rgba(79, 195, 247, 0.15) 50%,
+        transparent 70%
+    );
     animation: heroGlowPulse 4s ease-in-out infinite;
     pointer-events: none;
     z-index: -1;
@@ -212,32 +209,35 @@
 
 @keyframes heroGlowPulse {
     0%, 100% { transform: scale(1); opacity: 0.7; }
-    50% { transform: scale(1.1); opacity: 1; }
+    50% { transform: scale(1.12); opacity: 1; }
 }
 
 .hero-globe-ring {
     position: absolute;
     inset: -15px;
     border-radius: 50%;
-    border: 1px solid rgba(74, 144, 217, 0.25);
+    border: 1px solid rgba(135, 206, 235, 0.35);
     pointer-events: none;
     z-index: -1;
+    animation: heroRingRotate 25s linear infinite;
 }
 
-@media (max-width: 768px) {
-    .hero-globe-wrapper {
-        width: 280px;
-        height: 280px;
-    }
-    .earth-container { bottom: -18%; }
+.hero-globe-ring::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #ffffff, rgba(135, 206, 235, 0.9));
+    border-radius: 50%;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 8px rgba(135, 206, 235, 0.9);
 }
 
-@media (max-width: 480px) {
-    .hero-globe-wrapper {
-        width: 240px;
-        height: 240px;
-    }
-    .earth-container { bottom: -15%; }
+@keyframes heroRingRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
         /* ==================== SUN (LIGHT MODE ONLY) ==================== */
@@ -1622,11 +1622,10 @@
 
             .hero { min-height: 85vh; }
 
-            /* Earth responsive */
-            .earth-wrapper {
-                width: 280px; height: 280px;
-            }
-            .earth-container { bottom: -20%; }
+            .hero-globe-wrapper {
+    width: 280px; height: 280px;
+}
+.earth-container { bottom: -12%; }
 
             .globe-wrapper { flex-direction: column; gap: 40px; }
             .real-globe-container { width: 280px; height: 280px; }
@@ -1662,7 +1661,7 @@
             .continent-circle { width: 55px; height: 55px; }
             .categories-grid, .continents-row { gap: 16px; }
 
-            .earth-wrapper { width: 240px; height: 240px; }
+            .hero-globe-wrapper { width: 240px; height: 240px; }
 
             .footer-main {
                 grid-template-columns: 1fr;
@@ -2592,14 +2591,167 @@ const countries = [
         document.getElementById('countryModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
+// ==================== HERO GLOBE (Sky Blue) ====================
+let heroScene, heroCamera, heroRenderer, heroGlobe;
 
+function initHeroGlobe() {
+    var canvas = document.getElementById('heroGlobeCanvas');
+    if (!canvas) return;
+
+    try {
+        heroScene = new THREE.Scene();
+
+        heroCamera = new THREE.PerspectiveCamera(
+            45,
+            canvas.offsetWidth / canvas.offsetHeight,
+            0.1,
+            1000
+        );
+        heroCamera.position.z = 2.5;
+
+        heroRenderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            antialias: true,
+            alpha: true
+        });
+        heroRenderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+        heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        var geometry = new THREE.SphereGeometry(1, 64, 64);
+
+        // Sky blue globe material
+        var material = new THREE.MeshPhongMaterial({
+            color: 0x87CEEB,
+            emissive: 0x1a6b9e,
+            emissiveIntensity: 0.3,
+            shininess: 80,
+            specular: 0xffffff
+        });
+
+        heroGlobe = new THREE.Mesh(geometry, material);
+        heroScene.add(heroGlobe);
+
+        // Continent patches
+        var continentMaterial = new THREE.MeshPhongMaterial({
+            color: 0x5bb8d4,
+            emissive: 0x2a8aaa,
+            emissiveIntensity: 0.2,
+            shininess: 40,
+            transparent: true,
+            opacity: 0.85
+        });
+
+        var whiteMaterial = new THREE.MeshPhongMaterial({
+            color: 0xddeeff,
+            emissive: 0xaaccee,
+            emissiveIntensity: 0.2,
+            shininess: 60,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        var continentPositions = [
+            { lat: 50,  lng: -100, sx: 0.35, sy: 0.28, sz: 0.05, w: false },
+            { lat: 30,  lng: -95,  sx: 0.28, sy: 0.22, sz: 0.05, w: false },
+            { lat: -15, lng: -60,  sx: 0.22, sy: 0.32, sz: 0.05, w: false },
+            { lat: 50,  lng: 15,   sx: 0.18, sy: 0.15, sz: 0.05, w: false },
+            { lat: 5,   lng: 20,   sx: 0.22, sy: 0.30, sz: 0.05, w: false },
+            { lat: 40,  lng: 80,   sx: 0.40, sy: 0.25, sz: 0.05, w: false },
+            { lat: 20,  lng: 100,  sx: 0.22, sy: 0.18, sz: 0.05, w: false },
+            { lat: -25, lng: 135,  sx: 0.18, sy: 0.14, sz: 0.05, w: false },
+            { lat: -85, lng: 0,    sx: 0.50, sy: 0.12, sz: 0.05, w: true },
+            { lat: 85,  lng: 0,    sx: 0.40, sy: 0.10, sz: 0.05, w: true }
+        ];
+
+        continentPositions.forEach(function(pos) {
+            var patchGeo = new THREE.SphereGeometry(0.5, 16, 16);
+            var patchMat = pos.w ? whiteMaterial : continentMaterial;
+            var patch = new THREE.Mesh(patchGeo, patchMat);
+
+            var phi   = (90 - pos.lat) * (Math.PI / 180);
+            var theta = (pos.lng + 180) * (Math.PI / 180);
+
+            patch.position.set(
+                -1.01 * Math.sin(phi) * Math.cos(theta),
+                1.01 * Math.cos(phi),
+                1.01 * Math.sin(phi) * Math.sin(theta)
+            );
+
+            patch.scale.set(pos.sx, pos.sy, pos.sz);
+            patch.lookAt(0, 0, 0);
+            patch.rotateX(Math.PI / 2);
+
+            heroGlobe.add(patch);
+        });
+
+        // Atmosphere glow
+        var glowGeo = new THREE.SphereGeometry(1.06, 64, 64);
+        var glowMat = new THREE.MeshBasicMaterial({
+            color: 0x87CEEB,
+            transparent: true,
+            opacity: 0.12,
+            side: THREE.BackSide
+        });
+        heroScene.add(new THREE.Mesh(glowGeo, glowMat));
+
+        // Second atmosphere
+        var glow2Geo = new THREE.SphereGeometry(1.12, 64, 64);
+        var glow2Mat = new THREE.MeshBasicMaterial({
+            color: 0x4fc3f7,
+            transparent: true,
+            opacity: 0.06,
+            side: THREE.BackSide
+        });
+        heroScene.add(new THREE.Mesh(glow2Geo, glow2Mat));
+
+        // Lights - sky blue tint
+        heroScene.add(new THREE.AmbientLight(0xb3e5fc, 0.8));
+
+        var sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        sunLight.position.set(5, 5, 5);
+        heroScene.add(sunLight);
+
+        var rimLight = new THREE.DirectionalLight(0x4fc3f7, 0.8);
+        rimLight.position.set(-5, -2, -3);
+        heroScene.add(rimLight);
+
+        var fillLight = new THREE.DirectionalLight(0x87CEEB, 0.5);
+        fillLight.position.set(0, -5, 2);
+        heroScene.add(fillLight);
+
+        animateHeroGlobe();
+
+        window.addEventListener('resize', function() {
+            if (canvas && heroCamera && heroRenderer) {
+                heroCamera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+                heroCamera.updateProjectionMatrix();
+                heroRenderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            }
+        });
+
+    } catch(err) {
+        console.error('Hero globe error:', err);
+    }
+}
+
+function animateHeroGlobe() {
+    requestAnimationFrame(animateHeroGlobe);
+    if (heroGlobe) {
+        heroGlobe.rotation.y += 0.0015;
+        heroGlobe.rotation.x = 0.1;
+    }
+    if (heroRenderer && heroScene && heroCamera) {
+        heroRenderer.render(heroScene, heroCamera);
+    }
+}
+        
         // ==================== INIT ====================
-        updateDashboard();
+updateDashboard();
 
-       function waitForThree() {
+function waitForThree() {
     if (typeof THREE !== 'undefined') {
-        initGlobe();       // Spin globe (bottom section)
-        initHeroGlobe();   // Hero globe (top section)
+        initGlobe();
+        initHeroGlobe();
     } else {
         setTimeout(waitForThree, 100);
     }
