@@ -170,6 +170,76 @@
         }
         [data-theme="light"] .solar-layer { opacity: 1; }
 
+        /* ==================== HERO GLOBE (Three.js) ==================== */
+.earth-container {
+    position: absolute;
+    bottom: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-globe-wrapper {
+    position: relative;
+    width: clamp(350px, 60vw, 550px);
+    height: clamp(350px, 60vw, 550px);
+    animation: heroGlobeFloat 15s ease-in-out infinite;
+}
+
+@keyframes heroGlobeFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-18px); }
+}
+
+#heroGlobeCanvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+    pointer-events: none;
+}
+
+.hero-globe-glow {
+    position: absolute;
+    inset: -40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74, 144, 217, 0.35) 0%, rgba(74,144,217,0.1) 50%, transparent 70%);
+    animation: heroGlowPulse 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes heroGlowPulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.hero-globe-ring {
+    position: absolute;
+    inset: -15px;
+    border-radius: 50%;
+    border: 1px solid rgba(74, 144, 217, 0.25);
+    pointer-events: none;
+    z-index: -1;
+}
+
+@media (max-width: 768px) {
+    .hero-globe-wrapper {
+        width: 280px;
+        height: 280px;
+    }
+    .earth-container { bottom: -18%; }
+}
+
+@media (max-width: 480px) {
+    .hero-globe-wrapper {
+        width: 240px;
+        height: 240px;
+    }
+    .earth-container { bottom: -15%; }
+}
+
         /* ==================== SUN (LIGHT MODE ONLY) ==================== */
         .sun-object {
             position: absolute;
@@ -1775,18 +1845,13 @@
         </div>
 
         <!-- PURE CSS ANIMATED EARTH - No external image, no clouds -->
-        <div class="earth-container">
-            <div class="earth-wrapper">
-                <div class="earth-outer-glow"></div>
-                <div class="earth-orbit-ring"></div>
-                <div class="css-earth">
-                    <div class="earth-ocean"></div>
-                    <div class="earth-continents"></div>
-                    <div class="earth-shimmer"></div>
-                </div>
-                <div class="earth-halo"></div>
-            </div>
-        </div>
+        <<div class="earth-container">
+    <div class="hero-globe-wrapper">
+        <div class="hero-globe-glow"></div>
+        <canvas id="heroGlobeCanvas"></canvas>
+        <div class="hero-globe-ring"></div>
+    </div>
+</div>
     </section>
 
     <!-- Categories -->
@@ -2531,10 +2596,14 @@ const countries = [
         // ==================== INIT ====================
         updateDashboard();
 
-        function waitForThree() {
-            if (typeof THREE !== 'undefined') initGlobe();
-            else setTimeout(waitForThree, 100);
-        }
+       function waitForThree() {
+    if (typeof THREE !== 'undefined') {
+        initGlobe();       // Spin globe (bottom section)
+        initHeroGlobe();   // Hero globe (top section)
+    } else {
+        setTimeout(waitForThree, 100);
+    }
+}
 
         // Scroll animations
         var scrollObserver = new IntersectionObserver(function(entries) {
@@ -2558,6 +2627,107 @@ const countries = [
         document.addEventListener('keydown', function(e) {
             if (e.code === 'Escape') closeModal();
         });
+
+        // ==================== HERO GLOBE (separate Three.js instance) ====================
+let heroScene, heroCamera, heroRenderer, heroGlobe;
+
+function initHeroGlobe() {
+    const canvas = document.getElementById('heroGlobeCanvas');
+    if (!canvas) return;
+
+    try {
+        // Scene
+        heroScene = new THREE.Scene();
+
+        // Camera
+        heroCamera = new THREE.PerspectiveCamera(
+            45,
+            canvas.offsetWidth / canvas.offsetHeight,
+            0.1,
+            1000
+        );
+        heroCamera.position.z = 2.5;
+
+        // Renderer
+        heroRenderer = new THREE.WebGLRenderer({
+            canvas,
+            antialias: true,
+            alpha: true
+        });
+        heroRenderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+        heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Globe geometry
+        const geometry = new THREE.SphereGeometry(1, 64, 64);
+
+        // Load same Earth texture
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load(
+            'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+            function() { console.log('Hero globe texture loaded'); },
+            undefined,
+            function() {
+                // Fallback color if texture fails
+                heroGlobe.material = new THREE.MeshPhongMaterial({
+                    color: 0x4A90D9,
+                    shininess: 25
+                });
+            }
+        );
+
+        const material = new THREE.MeshPhongMaterial({
+            map: texture,
+            shininess: 25
+        });
+
+        heroGlobe = new THREE.Mesh(geometry, material);
+        heroScene.add(heroGlobe);
+
+        // Atmosphere glow
+        const glowGeometry = new THREE.SphereGeometry(1.03, 64, 64);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x4A90D9,
+            transparent: true,
+            opacity: 0.08
+        });
+        heroScene.add(new THREE.Mesh(glowGeometry, glowMaterial));
+
+        // Lights
+        heroScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(5, 3, 5);
+        heroScene.add(dirLight);
+
+        // Animate
+        animateHeroGlobe();
+
+        // Handle resize
+        window.addEventListener('resize', function() {
+            if (canvas && heroCamera && heroRenderer) {
+                heroCamera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+                heroCamera.updateProjectionMatrix();
+                heroRenderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            }
+        });
+
+        console.log('Hero globe initialized!');
+
+    } catch(err) {
+        console.error('Hero globe error:', err);
+    }
+}
+
+function animateHeroGlobe() {
+    requestAnimationFrame(animateHeroGlobe);
+    // Slow gentle rotation for hero globe
+    if (heroGlobe) {
+        heroGlobe.rotation.y += 0.0015;
+        heroGlobe.rotation.x = 0.1; // Slight tilt like real Earth
+    }
+    if (heroRenderer && heroScene && heroCamera) {
+        heroRenderer.render(heroScene, heroCamera);
+    }
+}
     </script>
 
     <!-- Three.js loaded non-blocking -->
