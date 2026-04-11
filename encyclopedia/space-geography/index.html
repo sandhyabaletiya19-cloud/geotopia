@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Geography — DharaVerse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@200;300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --hud:#00f5ff;--gold:#FFD700;--red:#FF4444;
+            --orange:#FF8C00;--green:#00FF88;--purple:#8B00FF;
+            --bg:#000010;--panel:rgba(0,0,16,0.85);
+            --border:rgba(0,245,255,0.12);
+        }
+        html{scroll-behavior:smooth;}
+        body{
+            font-family:'Exo 2',sans-serif;
+            background:var(--bg);color:#fff;
+            overflow-x:hidden;cursor:none;
+        }
+
+        /* CURSOR */
+        .cur-ring{
+            position:fixed;width:30px;height:30px;
+            border:1.5px solid rgba(0,245,255,0.6);
+            border-radius:50%;pointer-events:none;
+            z-index:999999;transform:translate(-50%,-50%);
+            transition:left .1s ease,top .1s ease,
+                        width .3s ease,height .3s ease,
+                        border-color .3s ease;
+        }
+        .cur-dot{
+            position:fixed;width:4px;height:4px;
+            background:var(--hud);border-radius:50%;
+            pointer-events:none;z-index:999999;
+            transform:translate(-50%,-50%);
+            box-shadow:0 0 8px var(--hud);
+        }
+        a:hover~.cur-ring,button:hover~.cur-ring{width:50px;height:50px;}
+
+        /* STARS CANVAS */
+        #starsBg{position:fixed;inset:0;z-index:-5;}
+
+        /* NEBULA */
+        .nebula{
+            position:fixed;inset:-50%;width:200%;height:200%;
+            z-index:-4;opacity:0.07;
+            background:
+                radial-gradient(ellipse at 20% 30%,rgba(80,0,200,.6) 0%,transparent 40%),
+                radial-gradient(ellipse at 80% 70%,rgba(0,100,200,.5) 0%,transparent 35%),
+                radial-gradient(ellipse at 50% 50%,rgba(200,50,0,.2) 0%,transparent 50%);
+            animation:nebFloat 120s linear infinite;
+        }
+        @keyframes nebFloat{
+            0%{transform:translate(0,0) rotate(0);}
+            100%{transform:translate(-4%,-2%) rotate(1deg);}
+        }
+
+        /* HEADER */
+        header{
+            position:fixed;top:0;left:0;width:100%;height:60px;
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 40px;background:rgba(0,0,16,.92);
+            border-bottom:1px solid var(--border);
+            backdrop-filter:blur(20px);z-index:1000;
+        }
+        .logo{
+            font-family:'Orbitron',sans-serif;font-size:1.1rem;
+            color:var(--hud);text-decoration:none;
+            display:flex;align-items:center;gap:10px;letter-spacing:2px;
+        }
+        .logo-ball{
+            width:28px;height:28px;border-radius:50%;
+            background:radial-gradient(circle at 35% 35%,
+                #5dade2,#2d8b4e,#1a6fc4);
+            box-shadow:0 0 15px rgba(0,245,255,.4);
+            animation:lSpin 10s linear infinite;
+        }
+        @keyframes lSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+        .hnav{display:flex;gap:12px;}
+        .hnav a{
+            padding:6px 16px;border:1px solid var(--border);
+            color:var(--hud);font-family:'Space Mono',monospace;
+            font-size:.7rem;text-decoration:none;border-radius:4px;
+            transition:all .3s ease;letter-spacing:1px;
+        }
+        .hnav a:hover{background:rgba(0,245,255,.08);border-color:var(--hud);}
+
+        /* HERO */
+        .hero{
+            height:100vh;display:flex;align-items:center;
+            justify-content:center;position:relative;overflow:hidden;
+        }
+        .hero-text{
+            position:relative;z-index:20;text-align:center;
+            max-width:800px;padding:0 20px;
+        }
+        .hero-eyebrow{
+            font-family:'Space Mono',monospace;font-size:.7rem;
+            color:var(--green);letter-spacing:8px;text-transform:uppercase;
+            margin-bottom:20px;display:flex;align-items:center;
+            justify-content:center;gap:12px;
+        }
+        .hero-eyebrow::before,.hero-eyebrow::after{
+            content:'';flex:1;max-width:50px;height:1px;background:var(--green);
+        }
+        .hero-h1{
+            font-family:'Orbitron',sans-serif;
+            font-size:clamp(2.5rem,7vw,6rem);
+            font-weight:900;line-height:1;margin-bottom:15px;
+        }
+        .hero-h1 .t1{
+            display:block;font-size:clamp(1rem,2.5vw,1.8rem);
+            font-weight:400;color:rgba(255,255,255,.4);
+            letter-spacing:6px;margin-bottom:10px;
+        }
+        .hero-h1 .t2{
+            display:block;
+            background:linear-gradient(135deg,var(--hud),#0080ff,var(--purple));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            filter:drop-shadow(0 0 30px rgba(0,245,255,.3));
+        }
+        .hero-sub{
+            font-size:1.05rem;color:rgba(255,255,255,.4);
+            letter-spacing:2px;margin-bottom:40px;
+        }
+        .hero-cta{
+            display:flex;gap:15px;justify-content:center;flex-wrap:wrap;
+        }
+        .cta-btn{
+            padding:12px 30px;border-radius:8px;
+            font-family:'Orbitron',sans-serif;font-size:.8rem;
+            text-decoration:none;letter-spacing:2px;
+            transition:all .3s ease;cursor:pointer;border:none;
+        }
+        .cta-primary{
+            background:linear-gradient(135deg,rgba(0,245,255,.15),rgba(0,245,255,.05));
+            border:1px solid var(--hud);color:var(--hud);
+        }
+        .cta-primary:hover{background:rgba(0,245,255,.2);box-shadow:0 0 25px rgba(0,245,255,.2);}
+        .cta-secondary{
+            background:rgba(255,255,255,.03);
+            border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);
+        }
+        .cta-secondary:hover{border-color:rgba(255,255,255,.3);color:#fff;}
+
+        .scroll-hint{
+            position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+            display:flex;flex-direction:column;align-items:center;gap:8px;
+            animation:sh 2s ease-in-out infinite;z-index:20;
+        }
+        @keyframes sh{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(8px);}}
+        .scroll-hint span{font-family:'Space Mono',monospace;font-size:.6rem;color:rgba(255,255,255,.25);letter-spacing:3px;}
+        .scroll-hint i{color:var(--gold);font-size:1rem;}
+
+        /* ============================================================
+           SOLAR SYSTEM GAME
+        ============================================================ */
+        .game-section{
+            padding:80px 0 100px;position:relative;overflow:hidden;
+        }
+        .game-header{
+            text-align:center;margin-bottom:30px;padding:0 40px;
+        }
+        .game-title{
+            font-family:'Orbitron',sans-serif;
+            font-size:clamp(1.8rem,4vw,3rem);font-weight:700;
+            background:linear-gradient(135deg,var(--gold),var(--orange));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            margin-bottom:10px;
+        }
+        .game-sub{
+            color:rgba(255,255,255,.35);font-size:.95rem;
+            font-family:'Space Mono',monospace;letter-spacing:1px;
+        }
+
+        /* Game controls bar */
+        .game-controls{
+            display:flex;align-items:center;justify-content:center;
+            gap:12px;margin-bottom:20px;flex-wrap:wrap;padding:0 20px;
+        }
+        .gc-btn{
+            padding:8px 20px;border-radius:30px;
+            font-family:'Space Mono',monospace;font-size:.7rem;
+            border:1px solid rgba(255,255,255,.1);
+            background:rgba(255,255,255,.03);
+            color:rgba(255,255,255,.5);
+            cursor:pointer;transition:all .3s ease;letter-spacing:1px;
+        }
+        .gc-btn:hover,.gc-btn.on{
+            border-color:var(--hud);color:var(--hud);
+            background:rgba(0,245,255,.06);
+        }
+        .gc-btn.danger:hover,.gc-btn.danger.on{
+            border-color:var(--red);color:var(--red);
+            background:rgba(255,68,68,.06);
+        }
+        .gc-btn.gold:hover,.gc-btn.gold.on{
+            border-color:var(--gold);color:var(--gold);
+            background:rgba(255,215,0,.06);
+        }
+        .speed-display{
+            font-family:'Space Mono',monospace;font-size:.75rem;
+            color:var(--hud);padding:6px 15px;
+            border:1px solid var(--border);border-radius:20px;
+            background:rgba(0,245,255,.04);
+        }
+
+        /* Main game canvas */
+        #gameCanvas{
+            display:block;margin:0 auto;
+            cursor:none;
+            border-top:1px solid rgba(0,245,255,.05);
+            border-bottom:1px solid rgba(0,245,255,.05);
+        }
+
+        /* Planet info panel */
+        .planet-panel{
+            position:fixed;left:20px;top:50%;transform:translateY(-50%);
+            width:280px;background:rgba(0,0,16,.95);
+            border:1px solid var(--border);border-radius:16px;
+            padding:20px;z-index:500;
+            backdrop-filter:blur(20px);
+            transition:all .4s cubic-bezier(.23,1,.32,1);
+            opacity:0;pointer-events:none;
+            transform:translateY(-50%) translateX(-320px);
+        }
+        .planet-panel.show{
+            opacity:1;pointer-events:all;
+            transform:translateY(-50%) translateX(0);
+        }
+        .pp-close{
+            position:absolute;top:12px;right:12px;
+            background:none;border:none;color:rgba(255,255,255,.3);
+            cursor:pointer;font-size:1.1rem;transition:color .3s ease;
+        }
+        .pp-close:hover{color:var(--red);}
+        .pp-planet-visual{
+            width:80px;height:80px;border-radius:50%;
+            margin:0 auto 15px;position:relative;
+        }
+        .pp-name{
+            font-family:'Orbitron',sans-serif;font-size:1.2rem;
+            text-align:center;margin-bottom:4px;
+        }
+        .pp-type{
+            font-family:'Space Mono',monospace;font-size:.65rem;
+            color:rgba(255,255,255,.3);text-align:center;
+            letter-spacing:2px;margin-bottom:15px;
+        }
+        .pp-stats{display:flex;flex-direction:column;gap:6px;margin-bottom:15px;}
+        .pp-stat{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:6px 10px;background:rgba(255,255,255,.03);
+            border-radius:6px;font-size:.75rem;
+        }
+        .pp-stat .sl{color:rgba(255,255,255,.35);}
+        .pp-stat .sv{font-family:'Space Mono',monospace;color:var(--hud);}
+        .pp-fact{
+            font-size:.78rem;color:rgba(255,255,255,.45);
+            line-height:1.6;padding:10px;
+            background:rgba(255,255,255,.02);
+            border:1px solid rgba(255,255,255,.05);border-radius:8px;
+        }
+        .pp-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+        .pp-action{
+            padding:8px;border-radius:8px;
+            font-family:'Space Mono',monospace;font-size:.65rem;
+            border:1px solid rgba(255,255,255,.1);
+            background:rgba(255,255,255,.02);
+            color:rgba(255,255,255,.5);cursor:pointer;
+            transition:all .3s ease;letter-spacing:1px;text-align:center;
+        }
+        .pp-action:hover{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,.05);}
+        .pp-action.red:hover{border-color:var(--red);color:var(--red);background:rgba(255,68,68,.05);}
+
+        /* SCENARIO MODAL */
+        .scenario-overlay{
+            position:fixed;inset:0;background:rgba(0,0,0,.85);
+            z-index:10000;display:flex;align-items:center;justify-content:center;
+            opacity:0;pointer-events:none;transition:opacity .4s ease;
+            backdrop-filter:blur(10px);
+        }
+        .scenario-overlay.show{opacity:1;pointer-events:all;}
+        .scenario-modal{
+            max-width:650px;width:90%;
+            background:rgba(0,0,16,.98);
+            border:1px solid rgba(0,245,255,.15);
+            border-radius:20px;padding:40px;
+            transform:scale(.9);transition:transform .4s ease;
+            max-height:80vh;overflow-y:auto;position:relative;
+        }
+        .scenario-overlay.show .scenario-modal{transform:scale(1);}
+        .scenario-modal::-webkit-scrollbar{width:3px;}
+        .scenario-modal::-webkit-scrollbar-thumb{background:rgba(0,245,255,.2);border-radius:2px;}
+        .sm-close{
+            position:absolute;top:15px;right:15px;
+            background:none;border:none;color:rgba(255,255,255,.3);
+            font-size:1.4rem;cursor:pointer;transition:color .3s ease;
+        }
+        .sm-close:hover{color:var(--red);}
+        .sm-icon{font-size:3rem;text-align:center;margin-bottom:15px;display:block;}
+        .sm-title{
+            font-family:'Orbitron',sans-serif;font-size:1.3rem;
+            text-align:center;margin-bottom:8px;
+        }
+        .sm-planet{
+            font-family:'Space Mono',monospace;font-size:.7rem;
+            color:rgba(255,255,255,.3);text-align:center;
+            letter-spacing:3px;margin-bottom:20px;
+        }
+        .sm-scenario-title{
+            font-family:'Orbitron',sans-serif;font-size:.9rem;
+            color:var(--gold);margin-bottom:12px;
+        }
+        .sm-text{
+            font-size:.9rem;color:rgba(255,255,255,.6);
+            line-height:1.8;margin-bottom:15px;
+        }
+        .sm-effects{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+        .sm-effect{
+            display:flex;gap:12px;align-items:flex-start;
+            padding:10px 14px;border-radius:8px;
+            font-size:.82rem;line-height:1.5;
+        }
+        .sm-effect.bad{background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.15);}
+        .sm-effect.warn{background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.15);}
+        .sm-effect.good{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);}
+        .sm-effect.neutral{background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.1);}
+        .sm-effect .eicon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+        .sm-drama{
+            padding:15px;background:rgba(255,50,0,.08);
+            border:1px solid rgba(255,50,0,.2);border-radius:10px;
+            font-family:'Space Mono',monospace;font-size:.75rem;
+            color:rgba(255,100,50,.8);text-align:center;line-height:1.6;
+            margin-bottom:20px;
+        }
+        .sm-restore{
+            display:block;width:100%;padding:12px;
+            background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);
+            color:var(--green);font-family:'Orbitron',sans-serif;font-size:.8rem;
+            border-radius:8px;cursor:pointer;letter-spacing:2px;
+            transition:all .3s ease;
+        }
+        .sm-restore:hover{background:rgba(0,255,136,.15);}
+
+        /* SIZE CHANGE MODAL */
+        .size-modal{
+            max-width:550px;
+        }
+
+        /* NOTIFICATION TOAST */
+        .toast{
+            position:fixed;top:80px;left:50%;
+            transform:translateX(-50%) translateY(-20px);
+            background:rgba(0,0,16,.95);border:1px solid var(--hud);
+            border-radius:10px;padding:12px 25px;
+            font-family:'Space Mono',monospace;font-size:.75rem;
+            color:var(--hud);z-index:20000;
+            opacity:0;pointer-events:none;
+            transition:all .4s ease;white-space:nowrap;
+            backdrop-filter:blur(20px);
+        }
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+        /* GAME MODE INDICATOR */
+        .game-mode{
+            position:fixed;bottom:20px;left:50%;
+            transform:translateX(-50%);
+            background:rgba(0,0,16,.9);
+            border:1px solid var(--border);border-radius:30px;
+            padding:8px 25px;font-family:'Space Mono',monospace;
+            font-size:.65rem;color:rgba(255,255,255,.3);
+            z-index:500;letter-spacing:2px;
+            transition:all .4s ease;
+        }
+        .game-mode.active{
+            border-color:var(--gold);color:var(--gold);
+            box-shadow:0 0 20px rgba(255,215,0,.1);
+        }
+
+        /* ============================================================
+           MODULE CARDS
+        ============================================================ */
+        .modules-section{
+            padding:100px 60px;
+        }
+        .modules-header{text-align:center;margin-bottom:60px;}
+        .modules-num{
+            font-family:'Space Mono',monospace;font-size:.65rem;
+            color:rgba(0,245,255,.35);letter-spacing:5px;
+            text-transform:uppercase;margin-bottom:12px;
+        }
+        .modules-title{
+            font-family:'Orbitron',sans-serif;
+            font-size:clamp(1.8rem,4vw,3rem);font-weight:700;
+            margin-bottom:12px;
+        }
+        .modules-sub{
+            color:rgba(255,255,255,.35);font-size:.95rem;
+            max-width:550px;margin:0 auto;line-height:1.8;
+        }
+        .m-rule{
+            width:60px;height:2px;margin:20px auto 0;
+            background:linear-gradient(90deg,transparent,var(--hud),transparent);
+        }
+
+        .cards-grid{
+            display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+            gap:25px;max-width:1400px;margin:0 auto;
+        }
+
+        /* Individual module card */
+        .mcard{
+            background:rgba(255,255,255,.02);
+            border:1px solid rgba(255,255,255,.06);
+            border-radius:20px;overflow:hidden;
+            transition:all .5s cubic-bezier(.23,1,.32,1);
+            position:relative;cursor:pointer;
+            text-decoration:none;color:inherit;
+            display:block;
+        }
+        .mcard::before{
+            content:'';position:absolute;inset:0;
+            background:var(--card-glow);opacity:0;
+            transition:opacity .5s ease;border-radius:20px;
+        }
+        .mcard:hover::before{opacity:1;}
+        .mcard:hover{
+            border-color:var(--card-border);
+            transform:translateY(-8px) scale(1.01);
+            box-shadow:0 25px 60px rgba(0,0,0,.5),
+                       0 0 40px var(--card-shadow);
+        }
+
+        /* Card visual area */
+        .card-visual{
+            height:200px;position:relative;overflow:hidden;
+            display:flex;align-items:center;justify-content:center;
+        }
+        .card-planet-wrap{
+            position:relative;
+            display:flex;align-items:center;justify-content:center;
+        }
+
+        /* Card body */
+        .card-body{padding:25px;}
+        .card-num{
+            font-family:'Space Mono',monospace;font-size:.6rem;
+            color:rgba(255,255,255,.2);letter-spacing:4px;
+            text-transform:uppercase;margin-bottom:8px;
+        }
+        .card-title{
+            font-family:'Orbitron',sans-serif;font-size:1.2rem;
+            font-weight:700;margin-bottom:8px;
+        }
+        .card-desc{
+            font-size:.85rem;color:rgba(255,255,255,.45);
+            line-height:1.7;margin-bottom:20px;
+        }
+        .card-topics{
+            display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;
+        }
+        .topic-tag{
+            font-family:'Space Mono',monospace;font-size:.6rem;
+            padding:4px 10px;border-radius:20px;
+            background:rgba(255,255,255,.04);
+            border:1px solid rgba(255,255,255,.08);
+            color:rgba(255,255,255,.35);
+        }
+        .card-link{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:12px 15px;border-radius:10px;
+            border:1px solid rgba(255,255,255,.08);
+            font-family:'Orbitron',sans-serif;font-size:.75rem;
+            letter-spacing:2px;transition:all .3s ease;
+        }
+        .mcard:hover .card-link{
+            border-color:var(--card-border);
+            background:rgba(255,255,255,.03);
+        }
+        .card-link i{transition:transform .3s ease;}
+        .mcard:hover .card-link i{transform:translateX(5px);}
+
+        /* CARD 1 - Earth Astronomy */
+        .card-1{
+            --card-glow:radial-gradient(ellipse at 50% 0%,rgba(0,245,255,.08) 0%,transparent 60%);
+            --card-border:rgba(0,245,255,.3);
+            --card-shadow:rgba(0,245,255,.08);
+        }
+        .card-1 .card-title,.card-1 .card-link{color:var(--hud);}
+        .card-1 .card-link{border-color:rgba(0,245,255,.15);}
+        .card-1 .card-visual{background:radial-gradient(ellipse at center,rgba(0,20,60,.8) 0%,rgba(0,0,16,.9) 100%);}
+
+        /* Animated Earth in card */
+        .card-earth-anim{
+            width:100px;height:100px;border-radius:50%;
+            background:radial-gradient(circle at 35% 35%,#5dade2,#2d8b4e,#1a6fc4);
+            box-shadow:0 0 30px rgba(74,144,217,.4),0 0 60px rgba(74,144,217,.15);
+            animation:ceSpin 20s linear infinite;
+            position:relative;overflow:hidden;
+        }
+        .card-earth-anim::after{
+            content:'';position:absolute;
+            width:200%;height:100%;top:0;left:0;
+            background:radial-gradient(ellipse at 30% 35%,rgba(255,255,255,.25) 0%,transparent 15%),
+                       radial-gradient(ellipse at 60% 60%,rgba(255,255,255,.15) 0%,transparent 12%);
+            animation:cloudAnim 15s linear infinite;
+        }
+        @keyframes ceSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+        @keyframes cloudAnim{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+        /* Card 2 - Earth Structure */
+        .card-2{
+            --card-glow:radial-gradient(ellipse at 50% 0%,rgba(255,107,0,.08) 0%,transparent 60%);
+            --card-border:rgba(255,107,0,.3);
+            --card-shadow:rgba(255,107,0,.06);
+        }
+        .card-2 .card-title,.card-2 .card-link{color:#FF6B00;}
+        .card-2 .card-link{border-color:rgba(255,107,0,.15);}
+        .card-2 .card-visual{background:radial-gradient(ellipse at center,rgba(60,10,0,.8) 0%,rgba(0,0,16,.9) 100%);}
+
+        /* Animated cross-section in card */
+        .card-core-anim{position:relative;width:100px;height:100px;}
+        .core-ring{
+            position:absolute;border-radius:50%;top:50%;left:50%;
+            transform:translate(-50%,-50%);
+        }
+
+        /* Card 3 - Celestial Effects */
+        .card-3{
+            --card-glow:radial-gradient(ellipse at 50% 0%,rgba(253,184,19,.08) 0%,transparent 60%);
+            --card-border:rgba(253,184,19,.3);
+            --card-shadow:rgba(253,184,19,.06);
+        }
+        .card-3 .card-title,.card-3 .card-link{color:var(--gold);}
+        .card-3 .card-link{border-color:rgba(253,184,19,.15);}
+        .card-3 .card-visual{background:radial-gradient(ellipse at center,rgba(30,15,0,.9) 0%,rgba(0,0,16,.9) 100%);}
+
+        /* Mini Sun-Earth-Moon system */
+        .mini-system{position:relative;width:160px;height:160px;}
+        .ms-sun{
+            position:absolute;width:40px;height:40px;border-radius:50%;
+            background:radial-gradient(circle at 38% 38%,#fff,#FDB813,#E8890C);
+            top:50%;left:50%;transform:translate(-50%,-50%);
+            box-shadow:0 0 30px rgba(253,184,19,.6),0 0 60px rgba(253,184,19,.2);
+            animation:msSun 4s ease-in-out infinite;
+        }
+        @keyframes msSun{0%,100%{box-shadow:0 0 30px rgba(253,184,19,.6);}50%{box-shadow:0 0 50px rgba(253,184,19,.9);}}
+        .ms-earth-orbit{
+            position:absolute;width:100%;height:100%;top:0;left:0;
+            animation:msEOrbit 8s linear infinite;
+        }
+        .ms-earth{
+            position:absolute;width:18px;height:18px;border-radius:50%;
+            background:radial-gradient(circle at 35% 35%,#5dade2,#1a6fc4);
+            top:50%;left:50%;
+            transform:translate(-50%,-50%) translateX(55px);
+        }
+        @keyframes msEOrbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+        .ms-moon-orbit{
+            position:absolute;width:100%;height:100%;top:0;left:0;
+            animation:msMOrbit 3s linear infinite;
+        }
+        .ms-moon{
+            position:absolute;width:8px;height:8px;border-radius:50%;
+            background:radial-gradient(circle at 35% 35%,#ddd,#aaa);
+            top:50%;left:50%;
+            transform:translate(-50%,-50%) translateX(80px);
+        }
+        @keyframes msMOrbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+        /* Card 4 - Solar System */
+        .card-4{
+            --card-glow:radial-gradient(ellipse at 50% 0%,rgba(255,215,0,.08) 0%,transparent 60%);
+            --card-border:rgba(255,215,0,.3);
+            --card-shadow:rgba(255,215,0,.06);
+        }
+        .card-4 .card-title,.card-4 .card-link{color:var(--gold);}
+        .card-4 .card-link{border-color:rgba(255,215,0,.15);}
+        .card-4 .card-visual{background:radial-gradient(ellipse at center,rgba(20,10,0,.9) 0%,rgba(0,0,16,.9) 100%);}
+
+        /* Mini orrery */
+        .mini-orrery{position:relative;width:180px;height:180px;}
+        .mo-sun{
+            position:absolute;width:30px;height:30px;border-radius:50%;
+            background:radial-gradient(circle at 38% 38%,#fff,#FDB813);
+            top:50%;left:50%;transform:translate(-50%,-50%);
+            box-shadow:0 0 20px rgba(253,184,19,.6);
+        }
+        .mo-planet{
+            position:absolute;border-radius:50%;
+            top:50%;left:50%;
+            animation:moPlanet var(--ms) linear infinite;
+            transform:translate(-50%,-50%) rotate(0deg) translateX(var(--mr));
+        }
+        @keyframes moPlanet{
+            from{transform:translate(-50%,-50%) rotate(var(--start)) translateX(var(--mr));}
+            to{transform:translate(-50%,-50%) rotate(calc(var(--start) + 360deg)) translateX(var(--mr));}
+        }
+        .mo-ring{
+            position:absolute;border-radius:50%;
+            border:1px solid rgba(255,255,255,.06);
+            top:50%;left:50%;transform:translate(-50%,-50%);
+        }
+
+        /* Card 5 - Space Objects */
+        .card-5{
+            --card-glow:radial-gradient(ellipse at 50% 0%,rgba(0,255,136,.06) 0%,transparent 60%);
+            --card-border:rgba(0,255,136,.3);
+            --card-shadow:rgba(0,255,136,.05);
+        }
+        .card-5 .card-title,.card-5 .card-link{color:var(--green);}
+        .card-5 .card-link{border-color:rgba(0,255,136,.15);}
+        .card-5 .card-visual{background:radial-gradient(ellipse at center,rgba(0,10,20,.9) 0%,rgba(0,0,16,.9) 100%);}
+
+        /* JWST hexagon */
+        .jwst-hex{
+            width:80px;height:92px;position:relative;
+            display:flex;align-items:center;justify-content:center;
+            animation:jwstRotate 15s linear infinite;
+        }
+        @keyframes jwstRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+        .hex-seg{
+            position:absolute;
+            width:28px;height:28px;
+            background:rgba(255,215,0,.15);
+            border:1px solid rgba(255,215,0,.3);
+            clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+            box-shadow:0 0 10px rgba(255,215,0,.2);
+        }
+
+        /* ============================================================
+           STATS BAR
+        ============================================================ */
+        .stats-bar{
+            padding:40px 60px;
+            border-top:1px solid rgba(255,255,255,.04);
+            border-bottom:1px solid rgba(255,255,255,.04);
+        }
+        .stats-inner{
+            display:flex;justify-content:space-around;
+            max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:20px;
+        }
+        .stat-item{text-align:center;}
+        .stat-val{
+            font-family:'Orbitron',sans-serif;font-size:2rem;
+            font-weight:700;color:var(--hud);display:block;
+        }
+        .stat-lbl{
+            font-family:'Space Mono',monospace;font-size:.65rem;
+            color:rgba(255,255,255,.25);letter-spacing:2px;
+            text-transform:uppercase;margin-top:5px;
+        }
+
+        /* ============================================================
+           FOOTER
+        ============================================================ */
+        footer{padding:50px 40px;text-align:center;}
+        .footer-links{display:flex;justify-content:center;gap:25px;margin-bottom:20px;flex-wrap:wrap;}
+        .footer-links a{
+            font-family:'Space Mono',monospace;font-size:.7rem;
+            color:rgba(255,255,255,.2);text-decoration:none;
+            letter-spacing:1px;transition:color .3s ease;
+        }
+        .footer-links a:hover{color:var(--hud);}
+        .footer-copy{
+            font-family:'Space Mono',monospace;font-size:.6rem;
+            color:rgba(255,255,255,.08);
+        }
+
+        /* SCROLL REVEAL */
+        .rev{opacity:0;transform:translateY(35px);transition:opacity .9s ease,transform .9s ease;}
+        .rev.vis{opacity:1;transform:translateY(0);}
+
+        /* RESPONSIVE */
+        @media(max-width:1024px){
+            .modules-section{padding:80px 30px;}
+            .planet-panel{left:10px;width:250px;}
+        }
+        @media(max-width:768px){
+            .game-controls{gap:8px;}
+            .gc-btn{padding:6px 12px;font-size:.6rem;}
+            header{padding:0 15px;}
+            .modules-section{padding:80px 20px;}
+            .stats-bar{padding:40px 20px;}
+            .planet-panel{width:calc(100% - 20px);left:10px;top:auto;bottom:20px;
+                transform:none;max-height:300px;overflow-y:auto;}
+            .planet-panel.show{transform:none;}
+            .cards-grid{grid-template-columns:1fr;}
+        }
+    </style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cur-ring" id="curRing"></div>
+<div class="cur-dot" id="curDot"></div>
+
+<!-- BG -->
+<canvas id="starsBg"></canvas>
+<div class="nebula"></div>
+
+<!-- HEADER -->
+<header>
+    <a href="#" class="logo">
+        <div class="logo-ball"></div>
+        DharaVerse
+    </a>
+    <div class="hnav">
+        <a href="#">← Encyclopedia</a>
+        <a href="#">Home</a>
+    </div>
+</header>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- PLANET INFO PANEL -->
+<div class="planet-panel" id="planetPanel">
+    <button class="pp-close" id="ppClose">✕</button>
+    <div class="pp-planet-visual" id="ppVisual"></div>
+    <div class="pp-name" id="ppName"></div>
+    <div class="pp-type" id="ppType"></div>
+    <div class="pp-stats" id="ppStats"></div>
+    <div class="pp-fact" id="ppFact"></div>
+    <div class="pp-actions">
+        <button class="pp-action" id="ppGrow">📏 Increase Size — See Effects</button>
+        <button class="pp-action" id="ppShrink">🔬 Decrease Size — See Effects</button>
+        <button class="pp-action" id="ppOrbit">🔄 Change Orbit Path — See Effects</button>
+        <button class="pp-action red" id="ppRemove">💥 Remove Planet — See Effects</button>
+    </div>
+</div>
+
+<!-- SCENARIO MODAL -->
+<div class="scenario-overlay" id="scenarioOverlay">
+    <div class="scenario-modal" id="scenarioModal">
+        <button class="sm-close" id="smClose">✕</button>
+        <span class="sm-icon" id="smIcon"></span>
+        <div class="sm-title" id="smTitle"></div>
+        <div class="sm-planet" id="smPlanet"></div>
+        <div class="sm-scenario-title" id="smScTitle"></div>
+        <div class="sm-text" id="smText"></div>
+        <div class="sm-effects" id="smEffects"></div>
+        <div class="sm-drama" id="smDrama"></div>
+        <button class="sm-restore" id="smRestore">🔄 Restore Normal Universe</button>
+    </div>
+</div>
+
+<!-- GAME MODE INDICATOR -->
+<div class="game-mode" id="gameModeBar">🎮 Click any planet to interact</div>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="heroSection">
+    <div class="hero-text">
+        <div class="hero-eyebrow">DharaVerse · Space Geography</div>
+        <h1 class="hero-h1">
+            <span class="t1">Explore the Universe</span>
+            <span class="t2">SPACE GEOGRAPHY</span>
+        </h1>
+        <p class="hero-sub">From Earth's core to the edge of the cosmos</p>
+        <div class="hero-cta">
+            <a href="#game" class="cta-btn cta-primary">🎮 Play Solar System</a>
+            <a href="#modules" class="cta-btn cta-secondary">📚 Browse Modules</a>
+        </div>
+    </div>
+    <div class="scroll-hint">
+        <span>Scroll Down</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- ============================================================
+     SOLAR SYSTEM GAME
+============================================================ -->
+<section class="game-section" id="game">
+    <div class="game-header">
+        <h2 class="game-title">🪐 Interactive Solar System</h2>
+        <p class="game-sub">Click planets to interact · Change their size, orbit & see what happens to Earth!</p>
+    </div>
+
+    <div class="game-controls">
+        <button class="gc-btn on" id="btnPlay">▶ Play</button>
+        <button class="gc-btn" id="btnPause">⏸ Pause</button>
+        <button class="gc-btn gold" id="btnSlow">🐢 Slow</button>
+        <button class="gc-btn gold" id="btnFast">⚡ Fast</button>
+        <button class="gc-btn" id="btnReset">↺ Reset All</button>
+        <button class="gc-btn danger" id="btnChaos">💥 CHAOS MODE</button>
+        <span class="speed-display" id="speedDisplay">Speed: 1×</span>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+</section>
+
+<!-- ============================================================
+     STATS
+============================================================ -->
+<div class="stats-bar rev">
+    <div class="stats-inner">
+        <div class="stat-item">
+            <span class="stat-val">5</span>
+            <span class="stat-lbl">Learning Modules</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-val">8</span>
+            <span class="stat-lbl">Planets Explorable</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-val">50+</span>
+            <span class="stat-lbl">Interactive Scenarios</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-val">∞</span>
+            <span class="stat-lbl">Cosmic Curiosity</span>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODULE CARDS
+============================================================ -->
+<section class="modules-section" id="modules">
+    <div class="modules-header rev">
+        <div class="modules-num">Space Geography</div>
+        <h2 class="modules-title">Choose Your Journey</h2>
+        <p class="modules-sub">Five immersive modules — from Earth's position in the cosmos to the edge of the observable universe</p>
+        <div class="m-rule"></div>
+    </div>
+
+    <div class="cards-grid">
+
+        <!-- CARD 1 — Earth Astronomy -->
+        <a href="earth-astronomy.html" class="mcard card-1 rev" style="transition-delay:.05s">
+            <div class="card-visual">
+                <!-- Stars in card bg -->
+                <canvas class="card-stars-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+                <!-- Moon orbit -->
+                <div style="position:relative;width:160px;height:160px;display:flex;align-items:center;justify-content:center;">
+                    <!-- Orbit ring -->
+                    <div style="position:absolute;width:140px;height:140px;border-radius:50%;border:1px dashed rgba(0,245,255,.15);"></div>
+                    <!-- Earth -->
+                    <div class="card-earth-anim"></div>
+                    <!-- Moon orbiting -->
+                    <div style="position:absolute;width:140px;height:140px;top:50%;left:50%;transform:translate(-50%,-50%);animation:msEOrbit 6s linear infinite;">
+                        <div style="position:absolute;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ddd,#aaa);top:0;left:50%;transform:translateX(-50%);box-shadow:0 0 10px rgba(255,255,255,.2);"></div>
+                    </div>
+                    <!-- Sun glow off screen -->
+                    <div style="position:absolute;right:-80px;top:50%;transform:translateY(-50%);width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(253,184,19,.4),transparent);"></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-num">Module 01</div>
+                <div class="card-title">Earth Astronomy</div>
+                <p class="card-desc">Earth's position in the solar system, rotations, revolutions, coordinate system, magnetic field, time zones & seasons.</p>
+                <div class="card-topics">
+                    <span class="topic-tag">Goldilocks Zone</span>
+                    <span class="topic-tag">Axial Tilt 23.5°</span>
+                    <span class="topic-tag">Coordinates</span>
+                    <span class="topic-tag">Time Zones</span>
+                    <span class="topic-tag">Seasons</span>
+                </div>
+                <div class="card-link" style="color:var(--hud)">
+                    <span>Explore Module</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 2 — Earth Structure -->
+        <a href="earth-structure.html" class="mcard card-2 rev" style="transition-delay:.1s">
+            <div class="card-visual">
+                <div class="card-core-anim" style="position:relative;width:140px;height:140px;display:flex;align-items:center;justify-content:center;">
+                    <!-- Layers from outside in -->
+                    <div style="position:absolute;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,transparent 0%,rgba(139,115,85,.3) 100%);animation:ceSpin 15s linear infinite;"></div>
+                    <div style="position:absolute;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,transparent 0%,rgba(204,74,0,.4) 100%);animation:ceSpin 12s linear infinite reverse;"></div>
+                    <div style="position:absolute;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,.8) 0%,rgba(255,107,0,.6) 60%,transparent 100%);box-shadow:0 0 30px rgba(255,107,0,.5),0 0 60px rgba(255,215,0,.2);animation:ceSpin 8s linear infinite;"></div>
+                    <div style="position:absolute;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff,var(--gold),#FF6B00);box-shadow:0 0 20px rgba(255,215,0,.8);"></div>
+                    <!-- Seismic wave lines -->
+                    <div style="position:absolute;width:160px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,0,.3),transparent);transform:rotate(30deg);"></div>
+                    <div style="position:absolute;width:160px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,0,.2),transparent);transform:rotate(-45deg);"></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-num">Module 02</div>
+                <div class="card-title" style="color:#FF6B00">Earth Structure</div>
+                <p class="card-desc">Journey to Earth's core — crust, mantle, outer & inner core, plate tectonics, earthquakes, volcanoes & landforms.</p>
+                <div class="card-topics">
+                    <span class="topic-tag">Plate Tectonics</span>
+                    <span class="topic-tag">Mohorovičić Disc.</span>
+                    <span class="topic-tag">Rock Cycle</span>
+                    <span class="topic-tag">Atmosphere</span>
+                    <span class="topic-tag">Hydrosphere</span>
+                </div>
+                <div class="card-link" style="color:#FF6B00;border-color:rgba(255,107,0,.15)">
+                    <span>Begin Descent</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 3 — Celestial Effects -->
+        <a href="celestial-effects.html" class="mcard card-3 rev" style="transition-delay:.15s">
+            <div class="card-visual">
+                <div style="position:relative;width:200px;height:180px;overflow:hidden;border-radius:12px;">
+                    <!-- Aurora background in card -->
+                    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#000818,#001030);"></div>
+                    <!-- Aurora curtains -->
+                    <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(180deg,transparent,rgba(0,255,136,.3),rgba(0,191,255,.2));animation:auroraWave1 4s ease-in-out infinite;border-radius:50%;"></div>
+                    <div style="position:absolute;bottom:0;left:0;right:0;height:90px;background:linear-gradient(180deg,transparent,rgba(139,0,255,.2),rgba(0,255,136,.15));animation:auroraWave2 6s ease-in-out infinite;border-radius:50%;"></div>
+                    <!-- Mini sun-earth-moon -->
+                    <div class="mini-system" style="position:absolute;top:5px;left:50%;transform:translateX(-50%);">
+                        <div class="ms-sun"></div>
+                        <div class="ms-earth-orbit"><div class="ms-earth"></div></div>
+                        <div class="ms-moon-orbit"><div class="ms-moon"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-num">Module 03</div>
+                <div class="card-title">Celestial Effects</div>
+                <p class="card-desc">Eclipses, tides, moon phases, solar activity, aurora borealis, Milankovitch cycles & space weather phenomena.</p>
+                <div class="card-topics">
+                    <span class="topic-tag">Solar Eclipse</span>
+                    <span class="topic-tag">Spring & Neap Tides</span>
+                    <span class="topic-tag">Aurora</span>
+                    <span class="topic-tag">Ice Ages</span>
+                    <span class="topic-tag">Space Weather</span>
+                </div>
+                <div class="card-link">
+                    <span>Watch the Show</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 4 — Solar System -->
+        <a href="solar-system.html" class="mcard card-4 rev" style="transition-delay:.2s">
+            <div class="card-visual">
+                <div class="mini-orrery">
+                    <div class="mo-sun"></div>
+                    <!-- Orbit rings -->
+                    <div class="mo-ring" style="width:60px;height:60px;"></div>
+                    <div class="mo-ring" style="width:85px;height:85px;"></div>
+                    <div class="mo-ring" style="width:110px;height:110px;"></div>
+                    <div class="mo-ring" style="width:135px;height:135px;"></div>
+                    <div class="mo-ring" style="width:160px;height:160px;"></div>
+                    <!-- Planets -->
+                    <div class="mo-planet" style="width:6px;height:6px;background:radial-gradient(circle,#e0e0e0,#909090);--ms:4s;--mr:30px;--start:0deg;margin-left:-3px;margin-top:-3px;"></div>
+                    <div class="mo-planet" style="width:8px;height:8px;background:radial-gradient(circle,#c7a94f,#8B7030);--ms:7s;--mr:42px;--start:45deg;margin-left:-4px;margin-top:-4px;"></div>
+                    <div class="mo-planet" style="width:9px;height:9px;background:radial-gradient(circle,#5dade2,#1a6fc4);--ms:10s;--mr:55px;--start:90deg;margin-left:-4.5px;margin-top:-4.5px;box-shadow:0 0 5px rgba(74,144,217,.5);"></div>
+                    <div class="mo-planet" style="width:7px;height:7px;background:radial-gradient(circle,#c1440e,#8B2000);--ms:15s;--mr:67px;--start:135deg;margin-left:-3.5px;margin-top:-3.5px;"></div>
+                    <div class="mo-planet" style="width:16px;height:16px;background:radial-gradient(circle,#c88b3a,#8B5E1A);--ms:25s;--mr:80px;--start:180deg;margin-left:-8px;margin-top:-8px;box-shadow:0 0 8px rgba(200,139,58,.3);"></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-num">Module 04</div>
+                <div class="card-title">Solar System</div>
+                <p class="card-desc">All 8 planets in immersive detail — surface textures, atmospheres, moons, missions & what it feels like to stand on each world.</p>
+                <div class="card-topics">
+                    <span class="topic-tag">8 Planets</span>
+                    <span class="topic-tag">Dwarf Planets</span>
+                    <span class="topic-tag">H-R Diagram</span>
+                    <span class="topic-tag">Space Missions</span>
+                    <span class="topic-tag">Kuiper Belt</span>
+                </div>
+                <div class="card-link">
+                    <span>Grand Tour</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 5 — Space Objects -->
+        <a href="space-objects.html" class="mcard card-5 rev" style="transition-delay:.25s">
+            <div class="card-visual">
+                <div style="position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;">
+                    <!-- Deep field dots (mini) -->
+                    <canvas id="deepFieldMini" style="position:absolute;inset:0;width:100%;height:100%;border-radius:12px;"></canvas>
+                    <!-- JWST hexagon -->
+                    <div class="jwst-hex">
+                        <!-- 7 hexagons (1 center + 6 surrounding) -->
+                        <div class="hex-seg" style="transform:translate(0,-30px)"></div>
+                        <div class="hex-seg" style="transform:translate(26px,-15px)"></div>
+                        <div class="hex-seg" style="transform:translate(26px,15px)"></div>
+                        <div class="hex-seg" style="transform:translate(0,30px)"></div>
+                        <div class="hex-seg" style="transform:translate(-26px,15px)"></div>
+                        <div class="hex-seg" style="transform:translate(-26px,-15px)"></div>
+                        <div class="hex-seg" style="background:rgba(255,215,0,.25);box-shadow:0 0 20px rgba(255,215,0,.4)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-num">Module 05</div>
+                <div class="card-title" style="color:var(--green)">Space Objects</div>
+                <p class="card-desc">Stars, nebulae, black holes, galaxies, the Big Bang & the fate of the universe — through the eyes of James Webb Space Telescope.</p>
+                <div class="card-topics">
+                    <span class="topic-tag">Black Holes</span>
+                    <span class="topic-tag">Nebulae</span>
+                    <span class="topic-tag">Galaxies</span>
+                    <span class="topic-tag">Big Bang</span>
+                    <span class="topic-tag">ISRO Missions</span>
+                </div>
+                <div class="card-link" style="color:var(--green);border-color:rgba(0,255,136,.15)">
+                    <span>Deep Field View</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-links">
+        <a href="earth-astronomy.html">Earth Astronomy</a>
+        <a href="earth-structure.html">Earth Structure</a>
+        <a href="celestial-effects.html">Celestial Effects</a>
+        <a href="solar-system.html">Solar System</a>
+        <a href="space-objects.html">Space Objects</a>
+    </div>
+    <p class="footer-copy">© 2026 DharaVerse | Space Geography Explorer — Made with 🌌 for curious minds</p>
+</footer>
+
+<style>
+@keyframes auroraWave1{0%,100%{transform:scaleX(1) translateY(0);}50%{transform:scaleX(1.1) translateY(-15px);}}
+@keyframes auroraWave2{0%,100%{transform:scaleX(.9) translateY(0);}50%{transform:scaleX(1.15) translateY(-20px);}}
+</style>
+
+<script>
+/* ============================================================
+   CURSOR
+============================================================ */
+const ring=document.getElementById('curRing'),dot=document.getElementById('curDot');
+document.addEventListener('mousemove',e=>{
+    ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';
+    dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
+});
+document.addEventListener('mousedown',()=>{ring.style.transform='translate(-50%,-50%) scale(.6)';});
+document.addEventListener('mouseup',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';});
+
+/* ============================================================
+   STAR BACKGROUND CANVAS
+============================================================ */
+const bgCanvas=document.getElementById('starsBg');
+bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;
+const bgCtx=bgCanvas.getContext('2d');
+const bgStars=[];
+for(let i=0;i<700;i++){
+    bgStars.push({
+        x:Math.random()*bgCanvas.width,
+        y:Math.random()*bgCanvas.height,
+        r:Math.random()*1.8+.3,
+        a:Math.random(),
+        da:Math.random()*.008-.004,
+        c:['#ffffff','#aaddff','#ffeeaa','#ffaaaa','#aaffaa'][Math.floor(Math.random()*5)]
+    });
+}
+function drawBgStars(){
+    bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+    bgStars.forEach(s=>{
+        s.a+=s.da;if(s.a<.1||s.a>1)s.da*=-1;
+        bgCtx.beginPath();bgCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        bgCtx.fillStyle=s.c;bgCtx.globalAlpha=s.a;bgCtx.fill();
+    });
+    bgCtx.globalAlpha=1;
+    requestAnimationFrame(drawBgStars);
+}
+drawBgStars();
+window.addEventListener('resize',()=>{
+    bgCanvas.width=window.innerWidth;
+    bgCanvas.height=window.innerHeight;
+});
+
+/* ============================================================
+   DEEP FIELD MINI (Card 5)
+============================================================ */
+setTimeout(()=>{
+    const dc=document.getElementById('deepFieldMini');
+    if(!dc)return;
+    dc.width=dc.offsetWidth;dc.height=dc.offsetHeight;
+    const dctx=dc.getContext('2d');
+    for(let i=0;i<150;i++){
+        const x=Math.random()*dc.width,y=Math.random()*dc.height;
+        const r=Math.random()*3+.5;
+        const colors=['rgba(255,200,150,','rgba(150,180,255,','rgba(255,255,200,','rgba(200,255,200,','rgba(255,150,150,'];
+        const c=colors[Math.floor(Math.random()*colors.length)];
+        dctx.beginPath();
+        dctx.ellipse(x,y,r,r*(.5+Math.random()*.5),Math.random()*Math.PI,0,Math.PI*2);
+        dctx.fillStyle=c+(Math.random()*.8+.2)+')';
+        dctx.fill();
+    }
+},500);
+
+/* ============================================================
+   TOAST
+============================================================ */
+function showToast(msg,duration=2500){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+/* ============================================================
+   SCROLL REVEAL
+============================================================ */
+function checkRev(){
+    document.querySelectorAll('.rev').forEach(el=>{
+        if(el.getBoundingClientRect().top<window.innerHeight*.85)el.classList.add('vis');
+    });
+}
+window.addEventListener('scroll',checkRev);checkRev();
+
+/* ============================================================
+   PLANET DATA
+============================================================ */
+const PLANETS=[
+    {
+        name:'Mercury',type:'Terrestrial · Innermost Planet',
+        color:'#9e9e9e',glow:'rgba(158,158,158,.4)',
+        r:5,orbitR:90,speed:.04,angle:0,
+        size:4879,mass:'0.055',gravity:3.7,moons:0,
+        period:'88 days',distance:'0.39 AU',
+        fact:'A day on Mercury (176 Earth days) is longer than its year (88 days)! It has extreme temperature swings from -180°C to 430°C.',
+        surfaceStyle:'radial-gradient(circle at 35% 35%,#d0d0d0,#909090,#606060)',
+        scenarios:{
+            grow:{icon:'🔥',title:'Mercury Grows Giant',text:'If Mercury grew to Earth\'s size, its gravity would increase dramatically — but since it has almost no atmosphere, it still couldn\'t retain one. The extra mass would slightly alter gravitational interactions with Venus.',effects:[{type:'neutral',icon:'🌡️',text:'Temperature extremes remain — still no atmosphere to retain heat'},{type:'warn',icon:'🌊',text:'Slightly stronger tidal effects on Earth from Mercury\'s increased mass'},{type:'good',icon:'🎯',text:'Not much changes for Earth — Mercury is too far and too small even enlarged'}],drama:'The universe breathes a sigh of relief. Nothing catastrophic — Mercury is too far away to matter much even when big!'},
+            shrink:{icon:'💨',title:'Mercury Vanishes',text:'If Mercury shrank to nothing, its gravitational influence on other planets (already tiny) would disappear. Venus\'s orbit could very slightly shift over millions of years.',effects:[{type:'neutral',icon:'🌌',text:'Almost zero direct effect on Earth\'s daily life'},{type:'warn',icon:'🔭',text:'Loss of a natural laboratory for studying planetary science'},{type:'neutral',icon:'🛸',text:'Orbital resonances in inner solar system shift imperceptibly'}],drama:'You\'d barely notice. Mercury is the solar system\'s wallflower.'},
+            orbit:{icon:'☄️',title:'Mercury\'s Orbit Changes',text:'If Mercury moved into an elliptical orbit that crossed Venus\'s path, gravitational chaos would slowly propagate through the inner solar system. Over millions of years, this could send Mercury on a collision course with Venus — or even Earth!',effects:[{type:'bad',icon:'🌍',text:'Earth\'s orbit could become slightly eccentric over millions of years'},{type:'bad',icon:'❄️',text:'Increased eccentricity = more extreme seasons on Earth — potential ice ages'},{type:'bad',icon:'💥',text:'Mercury could eventually collide with Venus, sending debris toward Earth'}],drama:'Scientists actually calculated this! There\'s a 1% chance Mercury\'s orbit will destabilize in 5 billion years. Sleep tight! 😰'},
+            remove:{icon:'🌑',title:'Mercury Removed',text:'Mercury\'s gravity helps stabilize the inner solar system\'s orbital resonances. Without it, Venus and Earth\'s orbits could slowly shift over millions of years.',effects:[{type:'neutral',icon:'📅',text:'No immediate effect on Earth — removal is barely noticeable short-term'},{type:'warn',icon:'🔄',text:'Inner solar system becomes slightly less stable over geological timescales'},{type:'bad',icon:'🌊',text:'No more Mercury transits — one less spectacular celestial event'}],drama:'The solar system shrugs. Mercury was always the quiet one.'}
+        }
+    },
+    {
+        name:'Venus',type:'Terrestrial · Earth\'s Evil Twin',
+        color:'#c7a94f',glow:'rgba(199,169,79,.4)',
+        r:9,orbitR:135,speed:.025,angle:1,
+        size:12104,mass:'0.815',gravity:8.87,moons:0,
+        period:'225 days',distance:'0.72 AU',
+        fact:'Venus spins backwards and so slowly that a day on Venus (243 Earth days) is longer than its year! Surface temperature is 462°C — hotter than Mercury despite being farther from the Sun.',
+        surfaceStyle:'radial-gradient(circle at 40% 40%,#edd59f,#c7a94f,#8B6927)',
+        scenarios:{
+            grow:{icon:'☁️',title:'Venus Becomes Massive',text:'If Venus grew to Jupiter\'s size, its massive gravity would drastically alter Earth\'s orbit. Venus and Earth are already orbital neighbors — a super-Venus would be catastrophic.',effects:[{type:'bad',icon:'🌍',text:'Earth\'s orbit becomes highly elliptical — extreme climate swings every year'},{type:'bad',icon:'🌊',text:'Tidal forces from super-Venus would create mega-tides on Earth'},{type:'bad',icon:'❄️',text:'Parts of Earth freeze in winter, boil in summer — agriculture collapses'},{type:'bad',icon:'💫',text:'Earth could eventually be ejected from solar system entirely'}],drama:'Say goodbye to stable seasons. Venus as a gas giant would be Earth\'s worst nightmare.'},
+            shrink:{icon:'🔬',title:'Venus Shrinks',text:'A smaller Venus would reduce its gravitational influence on Earth slightly. The 8-year Venus transit cycle that helped ancient astronomers measure the solar system would disappear.',effects:[{type:'good',icon:'📅',text:'Earth\'s orbit becomes very slightly more circular and stable'},{type:'neutral',icon:'🔭',text:'No more Venus transits — a beautiful astronomical event lost forever'},{type:'neutral',icon:'🌌',text:'Inner solar system slightly less dynamically complex'}],drama:'Earth\'s atmosphere actually becomes marginally more stable. Tiny Venus, tiny difference.'},
+            orbit:{icon:'🔥',title:'Venus Crosses Earth\'s Path',text:'If Venus moved into an orbit that crossed Earth\'s — every few years Venus would come VERY close to Earth. The gravitational perturbations would be violent.',effects:[{type:'bad',icon:'🌊',text:'Mega-tidal events when Venus passes close — tsunamis kilometers high'},{type:'bad',icon:'🌡️',text:'Earth\'s axial tilt destabilizes — wild, unpredictable seasons'},{type:'bad',icon:'💥',text:'Eventually (millions of years) Venus and Earth could collide — goodbye humanity'},{type:'bad',icon:'🌍',text:'All life on Earth ends within millions of years of orbital crossing'}],drama:'DEFCON 1 for the solar system. If Venus crossed Earth\'s orbit, we\'d have maybe millions of years before the inevitable. Start building arks!'},
+            remove:{icon:'🌑',title:'Venus Removed',text:'Venus is Earth\'s primary "stabilizer" in the inner solar system. Without it, Earth\'s orbit could drift more over millions of years. Also — no more Venus in our night sky!',effects:[{type:'neutral',icon:'🌟',text:'The brightest object in our night sky after the Moon disappears'},{type:'warn',icon:'🔄',text:'Earth\'s orbital eccentricity increases slightly over geological time'},{type:'bad',icon:'❄️',text:'Potential for more ice ages as Earth\'s orbit becomes less stable'},{type:'good',icon:'🔭',text:'Ironically, without Venus\'s glare, fainter stars become easier to observe'}],drama:'Earth misses its evil twin. The night sky feels emptier. And over eons, our orbit gets just a little... wobblier.'}
+        }
+    },
+    {
+        name:'Earth',type:'Terrestrial · Our Home',
+        color:'#4A90D9',glow:'rgba(74,144,217,.5)',
+        r:10,orbitR:185,speed:.017,angle:2,
+        size:12742,mass:'1.000',gravity:9.81,moons:1,
+        period:'365.25 days',distance:'1.00 AU',
+        fact:'Earth is the only known planet with plate tectonics, liquid water oceans, and life. Its magnetic field and ozone layer shield life from deadly radiation. The Moon stabilizes Earth\'s axial tilt!',
+        surfaceStyle:'radial-gradient(circle at 35% 35%,#5dade2,#2d8b4e,#1a6fc4)',
+        isEarth:true,
+        scenarios:{
+            grow:{icon:'🌍',title:'Earth Grows Larger',text:'If Earth doubled in size but kept the same composition, surface gravity would roughly double. Humans couldn\'t walk. Most land animals would collapse under their own weight.',effects:[{type:'bad',icon:'🚶',text:'Surface gravity ~2g — humans could barely stand, heart failure becomes common'},{type:'bad',icon:'🌋',text:'More internal heat = more volcanic activity, frequent massive eruptions'},{type:'bad',icon:'✈️',text:'Reaching escape velocity becomes much harder — space exploration nearly impossible'},{type:'bad',icon:'☁️',text:'Thicker atmosphere traps more heat — runaway greenhouse effect possible'}],drama:'Super-Earth = super-problems. Civilization would be stuck on the ground forever, unable to even think about space travel.'},
+            shrink:{icon:'🔬',title:'Earth Shrinks',text:'A smaller Earth would have weaker gravity — atmosphere bleeds into space, oceans evaporate, magnetic field weakens. Earth becomes Mars.',effects:[{type:'bad',icon:'💨',text:'Atmosphere slowly escapes — within millions of years, barely breathable'},{type:'bad',icon:'🌊',text:'Oceans partially evaporate as atmospheric pressure drops'},{type:'bad',icon:'🧲',text:'Weaker magnetic field — more cosmic radiation reaching surface'},{type:'bad',icon:'❄️',text:'Planet cools faster — plate tectonics stop, killing the carbon cycle'}],drama:'Earth slowly becomes Mars. Red, cold, dry, dead. This is literally what happened to Mars — it was once Earth-like!'},
+            orbit:{icon:'💫',title:'Earth\'s Orbit Changes',text:'Move Earth slightly closer to the Sun (toward Venus) or farther (toward Mars) and you change everything about life on our planet.',effects:[{type:'bad',icon:'🔥',text:'10% closer to Sun: temperatures rise ~30°C on average — most of Earth becomes uninhabitable'},{type:'bad',icon:'❄️',text:'10% farther: temperatures drop ~30°C — global glaciation, Snowball Earth'},{type:'bad',icon:'🌾',text:'Either change: agriculture collapses within years, mass starvation'},{type:'bad',icon:'💧',text:'Closer: oceans evaporate. Farther: oceans freeze solid'}],drama:'The Goldilocks Zone isn\'t just a name. Earth is in the PERFECT spot. Move us 5% in either direction and complex life ends within centuries.'},
+            remove:{icon:'💀',title:'Earth... Removed',text:'Without Earth, the Moon goes rogue, drifting through the solar system. The asteroid belt becomes slightly less stable. And of course — every single human and living thing ceases to exist.',effects:[{type:'bad',icon:'🌙',text:'Moon becomes a rogue body — eventually gets captured by Jupiter or Sun'},{type:'bad',icon:'💀',text:'All 8.1 billion humans, all life — gone in an instant'},{type:'bad',icon:'🔄',text:'Venus\'s orbit shifts very slightly without Earth\'s gravitational influence'},{type:'neutral',icon:'🌌',text:'The universe continues for 13+ billion more years, completely indifferent'}],drama:'The universe does not care. The Sun keeps burning. The Milky Way keeps spinning. We are precious, fragile, and utterly replaceable from the cosmos\'s perspective. Treasure Earth. 🌍'}
+        }
+    },
+    {
+        name:'Mars',type:'Terrestrial · The Red Planet',
+        color:'#C1440E',glow:'rgba(193,68,14,.4)',
+        r:7,orbitR:240,speed:.013,angle:3,
+        size:6779,mass:'0.107',gravity:3.72,moons:2,
+        period:'687 days',distance:'1.52 AU',
+        fact:'Mars has the largest volcano in the solar system (Olympus Mons — 22 km high!) and the longest canyon (Valles Marineris — 4000 km long). Its thin atmosphere is 95% CO₂.',
+        surfaceStyle:'radial-gradient(circle at 35% 35%,#e07c54,#C1440E,#8B2800)',
+        scenarios:{
+            grow:{icon:'🔴',title:'Mars Grows to Earth\'s Size',text:'A larger Mars with more mass could retain an atmosphere and liquid water — potentially becoming a second habitable world! But it also means stronger gravitational pull on Earth.',effects:[{type:'good',icon:'🌱',text:'Mars might retain atmosphere and liquid water — a second habitable planet!'},{type:'warn',icon:'🌊',text:'Slightly stronger tidal effects on Earth — longer tides'},{type:'warn',icon:'☄️',text:'Mars gravity pulls more asteroids from belt — more asteroid impacts on Earth'},{type:'good',icon:'🚀',text:'A habitable Mars would be humanity\'s greatest gift — backup civilization'}],drama:'Giant Mars is actually... good? A bigger Mars might be the second Earth we\'ve always dreamed of. The asteroid belt becomes a bit more excited though.'},
+            shrink:{icon:'💨',title:'Mars Shrinks Further',text:'Mars is already too small to hold an atmosphere. Shrinking it further removes its (already minimal) gravitational influence on the asteroid belt.',effects:[{type:'bad',icon:'☄️',text:'Less Mars gravity = more asteroids escape belt toward inner solar system'},{type:'bad',icon:'🌍',text:'Earth faces MORE asteroid impacts over geological time'},{type:'neutral',icon:'🔭',text:'Mars becomes even less interesting for future colonization'},{type:'warn',icon:'🛸',text:'Phobos and Deimos drift away from Mars\'s weakened gravity'}],drama:'Without Mars acting as a partial gravitational shield, Earth gets bombarded more. Jupiter does most of the heavy lifting but Mars matters too!'},
+            orbit:{icon:'🔴',title:'Mars Moves Toward Earth',text:'If Mars drifted into Earth\'s orbital neighborhood, the gravitational dance between them would destabilize both orbits over millions of years.',effects:[{type:'bad',icon:'🌍',text:'Earth\'s orbit shifts — seasons become unpredictable'},{type:'bad',icon:'☄️',text:'Mars stirs up the asteroid belt as it passes through, sending rocks toward Earth'},{type:'bad',icon:'💥',text:'Close Mars passes would cause devastating tidal disruptions on Earth'},{type:'warn',icon:'🌡️',text:'Climate on Earth becomes extremely variable — ice ages and heat waves alternate rapidly'}],drama:'Mars moving toward us would be the first sign that something has gone horribly wrong with our solar system. Astronomers would spend years in panic mode.'},
+            remove:{icon:'🌑',title:'Mars Removed',text:'Without Mars, the asteroid belt becomes less gravitationally constrained. Jupiter\'s gravity has more direct influence on Earth. We lose our most hopeful target for human colonization.',effects:[{type:'bad',icon:'☄️',text:'More asteroids escape the belt toward inner solar system — Earth hit more often'},{type:'bad',icon:'🌍',text:'Earth\'s orbit very slightly shifts over millions of years — minor climate effects'},{type:'bad',icon:'🚀',text:'Humanity loses its most realistic backup home — existential risk increases'},{type:'neutral',icon:'🔭',text:'Olympus Mons, Valles Marineris, Curiosity rover — all gone. Science weeps.'}],drama:'Losing Mars is losing hope. It\'s not just a planet — it\'s humanity\'s lifeboat plan. Without it, we\'re one asteroid away from extinction with nowhere to go.'}
+        }
+    },
+    {
+        name:'Jupiter',type:'Gas Giant · Solar System\'s Guardian',
+        color:'#C88B3A',glow:'rgba(200,139,58,.4)',
+        r:28,orbitR:320,speed:.008,angle:4,
+        size:139820,mass:'317.8',gravity:24.79,moons:95,
+        period:'11.86 years',distance:'5.20 AU',
+        fact:'Jupiter is Earth\'s cosmic bodyguard — its massive gravity attracts and deflects asteroids and comets that might otherwise hit Earth. Without Jupiter, Earth would be bombarded 1000× more often!',
+        surfaceStyle:'linear-gradient(180deg,#c88b3a 0%,#d4a24e 15%,#8b6327 25%,#e0c48c 35%,#c88b3a 50%,#8b6327 65%,#c88b3a 100%)',
+        scenarios:{
+            grow:{icon:'☀️',title:'Jupiter Becomes a Star',text:'If Jupiter was ~80× more massive, it would ignite as a brown dwarf or even a true star. We\'d have TWO suns. Earth would orbit in a binary star system!',effects:[{type:'warn',icon:'☀️',text:'A second sun! Nights disappear or become very short depending on orbital alignment'},{type:'bad',icon:'🌡️',text:'Extra solar radiation — Earth temperatures rise 20-50°C on average'},{type:'bad',icon:'🌾',text:'Agriculture completely disrupted — plants evolved for one sun\'s spectrum'},{type:'bad',icon:'🌍',text:'All inner planet orbits destabilize as binary star system evolves chaotically'}],drama:'Two suns sounds amazing until you realize it means no proper night, overheating oceans, and an unstable solar system. Tatooine isn\'t as romantic in real life.'},
+            shrink:{icon:'💀',title:'Jupiter Shrinks — DISASTER',text:'This is the most catastrophic change possible. Jupiter\'s gravity shields Earth from 99% of potentially lethal asteroid and comet impacts. Without it, Earth gets bombarded into a sterile rock.',effects:[{type:'bad',icon:'☄️',text:'Asteroid impacts on Earth increase by 1000-10,000× — civilization-ending impacts every few thousand years'},{type:'bad',icon:'💀',text:'Complex life on Earth would have been wiped out repeatedly — we probably wouldn\'t exist'},{type:'bad',icon:'🌋',text:'Constant bombardment creates massive volcanic upheaval and climate chaos'},{type:'bad',icon:'🧬',text:'No time for evolution to develop intelligence between extinction events'}],drama:'JUPITER IS THE REASON YOU EXIST. Without its gravity catching comets and asteroids, Earth would look like the Moon — cratered, sterile, dead. Every human alive should thank Jupiter every single day.'},
+            orbit:{icon:'🌀',title:'Jupiter Moves Inward',text:'If Jupiter drifted toward the inner solar system (called "Jupiter migration" — it may have happened early in solar history!), it would eject or destroy all inner planets. Earth would be obliterated.',effects:[{type:'bad',icon:'💥',text:'Earth\'s orbit becomes violently unstable within millions of years'},{type:'bad',icon:'🌍',text:'Earth could be ejected from solar system entirely as a rogue planet — frozen at -270°C'},{type:'bad',icon:'☄️',text:'Asteroid belt shredded — inner system bombarded catastrophically'},{type:'bad',icon:'🌑',text:'Mars and Venus both ejected or destroyed. Only Jupiter remains, moving ever inward.'}],drama:'This actually happened in early solar history (the Grand Tack hypothesis)! Jupiter briefly moved inward then back out. That migration shaped everything. If it had kept going... we wouldn\'t be here.'},
+            remove:{icon:'💀',title:'Jupiter Removed — Mass Extinction Guaranteed',text:'Remove Jupiter and remove Earth\'s shield. Within a few million years, the unprotected Earth would be struck by enough asteroids and comets to sterilize all complex life repeatedly.',effects:[{type:'bad',icon:'☄️',text:'Chicxulub-scale impacts (dinosaur killer) happen every few thousand years instead of every few hundred million'},{type:'bad',icon:'💀',text:'No complex multicellular life survives long enough to become intelligent'},{type:'bad',icon:'🌌',text:'The asteroid belt spreads chaotically through the solar system'},{type:'bad',icon:'🔭',text:'From outside, our solar system becomes a chaotic debris field'}],drama:'Remove Jupiter = Remove humanity. We literally owe our existence to this gas giant. It\'s not just a planet — it\'s our cosmic guardian angel, silently taking hits for us every century.'}
+        }
+    },
+    {
+        name:'Saturn',type:'Gas Giant · Lord of the Rings',
+        color:'#EAD6B8',glow:'rgba(234,214,184,.35)',
+        r:23,orbitR:410,speed:.006,angle:5,
+        hasRings:true,
+        size:116460,mass:'95.2',gravity:10.44,moons:146,
+        period:'29.46 years',distance:'9.58 AU',
+        fact:'Saturn\'s rings are made of ice and rock, spanning 282,000 km but only 10 meters thick! Saturn is so light (density less than water) that it would FLOAT if you had an ocean big enough.',
+        surfaceStyle:'radial-gradient(circle at 35% 35%,#f5e6c8,#ead6b8,#c8a97e)',
+        scenarios:{
+            grow:{icon:'💫',title:'Saturn Grows Massive',text:'A larger Saturn with stronger gravity would distort the outer solar system dramatically. Uranus and Neptune could be flung out of their current orbits.',effects:[{type:'bad',icon:'🌌',text:'Uranus and Neptune\'s orbits destabilize — outer solar system becomes chaotic'},{type:'warn',icon:'☄️',text:'Kuiper Belt objects scattered inward — more comets visiting inner solar system'},{type:'warn',icon:'🌊',text:'Increased comet flux past Earth — beautiful but dangerous'},{type:'neutral',icon:'💍',text:'Saturn\'s own rings get denser and more spectacular as gravity pulls in more debris'}],drama:'Super-Saturn would be a magnificent monster — gorgeous rings, but an outer solar system in total chaos sending comets raining down on Earth.'},
+            shrink:{icon:'💍',title:'Saturn Loses Its Rings',text:'As Saturn shrinks, its gravity weakens and those magnificent rings — already disappearing (they\'ll be gone in 100 million years!) — disperse faster.',effects:[{type:'neutral',icon:'💍',text:'Rings disperse — one of the most beautiful sights in the solar system is lost'},{type:'neutral',icon:'🌌',text:'Outer solar system becomes slightly less gravitationally complex'},{type:'neutral',icon:'🔭',text:'Saturn becomes less scientifically interesting without its ring dynamics'},{type:'good',icon:'🛸',text:'Ironically, ring-less Saturn is slightly safer for future spacecraft navigation'}],drama:'Saturn without rings is like the Eiffel Tower without its top. Still impressive, but something magical is irreversibly gone.'},
+            orbit:{icon:'🌀',title:'Saturn Drifts Inward',text:'Saturn moving toward Jupiter would trigger a gravitational 2-body dance between two giant planets, destabilizing the entire outer solar system and eventually the inner planets too.',effects:[{type:'bad',icon:'🌌',text:'Jupiter and Saturn enter orbital resonance — amplifying each other\'s effects'},{type:'bad',icon:'☄️',text:'Kuiper Belt and asteroid belt shredded — comet storm hits inner solar system'},{type:'bad',icon:'🌍',text:'Earth battered by comets repeatedly — Late Heavy Bombardment 2.0'},{type:'bad',icon:'💀',text:'Any life on Earth at the time would face near-certain extinction'}],drama:'The Late Heavy Bombardment (3.9 billion years ago) was possibly caused by Saturn and Jupiter moving into orbital resonance. It was ALREADY catastrophic. A repeat would be apocalyptic.'},
+            remove:{icon:'🌑',title:'Saturn Removed',text:'Saturn plays a crucial role in the outer solar system\'s gravitational architecture. Without it, Jupiter\'s influence extends further and the Kuiper Belt becomes less stable.',effects:[{type:'warn',icon:'☄️',text:'More Kuiper Belt objects destabilized — slightly more comets sent toward Earth'},{type:'neutral',icon:'💍',text:'The most photogenic planet disappears from our telescopes and imagination'},{type:'warn',icon:'🌌',text:'Uranus and Neptune orbits shift slightly without Saturn\'s gravitational counterbalance'},{type:'neutral',icon:'🔭',text:'Cassini mission never happens. Titan\'s methane lakes unexplored. Science loses.'}],drama:'Losing Saturn is losing the crown jewel of our solar system. Not immediately catastrophic for Earth, but the outer solar system becomes a rougher neighborhood over millions of years.'}
+        }
+    },
+    {
+        name:'Uranus',type:'Ice Giant · The Tilted World',
+        color:'#5BACAC',glow:'rgba(91,172,172,.35)',
+        r:16,orbitR:490,speed:.004,angle:6,
+        size:50724,mass:'14.5',gravity:8.87,moons:28,
+        period:'84.01 years',distance:'19.22 AU',
+        fact:'Uranus rotates on its side — its axial tilt is 98°, likely from a massive collision long ago. It basically rolls around the Sun like a bowling ball. Its rings are vertical!',
+        surfaceStyle:'radial-gradient(circle at 35% 35%,#8fd4d4,#5bacac,#3d8e8e)',
+        scenarios:{
+            grow:{icon:'💫',title:'Uranus Grows to Gas Giant Size',text:'A larger Uranus would have stronger gravity, potentially capturing more moons from the Kuiper Belt and altering Neptune\'s orbit significantly.',effects:[{type:'neutral',icon:'🌌',text:'Neptune\'s orbit shifts — outer solar system configuration changes'},{type:'warn',icon:'☄️',text:'More Kuiper Belt destabilization — more comets sent inward'},{type:'neutral',icon:'🔭',text:'Uranus becomes visible to naked eye more easily — changes ancient astronomy history'},{type:'good',icon:'🌑',text:'More moons captured — a more dynamic, interesting Uranian system'}],drama:'Big Uranus is mostly an outer solar system problem. Earth barely notices, but astronomers throughout history would have seen it very differently.'},
+            shrink:{icon:'💨',title:'Uranus Fades',text:'A smaller Uranus has less effect on Neptune\'s orbit and the Kuiper Belt. The outer solar system becomes slightly less gravitationally complex.',effects:[{type:'neutral',icon:'🌌',text:'Neptune\'s orbit becomes very slightly more circular'},{type:'neutral',icon:'💨',text:'Uranus was already barely studied — smaller makes it even less significant'},{type:'neutral',icon:'🔭',text:'Already borderline visible to naked eye — smaller makes it invisible entirely'},{type:'warn',icon:'🛸',text:'Voyager 2 flyby (1986) reveals even less — major gap in our outer solar system knowledge'}],drama:'Honestly? The solar system barely notices. Uranus is the most underappreciated planet even at full size.'},
+            orbit:{icon:'🔵',title:'Uranus Moves',text:'If Uranus changed orbit to come closer to Saturn, the two ice/gas giants would interact gravitationally, potentially being ejected from the solar system entirely in extreme scenarios.',effects:[{type:'bad',icon:'🌌',text:'Neptune left without a "companion" — its Kuiper Belt interactions change dramatically'},{type:'warn',icon:'☄️',text:'Possible increase in long-period comets reaching inner solar system'},{type:'neutral',icon:'🔭',text:'Uranus\'s unique tilted rotation might change if close passes alter its spin axis'},{type:'neutral',icon:'🌍',text:'Earth\'s sky changes — Uranus appears in different constellations through history'}],drama:'Moving Uranus mostly reshuffles the outer solar system deck. Earth only notices through very slightly changed comet frequencies over eons.'},
+            remove:{icon:'🌑',title:'Uranus Removed',text:'The outer solar system loses one of its two ice giants. Neptune\'s orbit shifts very slightly. The Kuiper Belt becomes marginally less stable.',effects:[{type:'neutral',icon:'🌌',text:'Neptune\'s orbit adjusts to Uranus\'s absence — very slight shift'},{type:'warn',icon:'☄️',text:'Kuiper Belt slightly less gravitationally contained over millions of years'},{type:'neutral',icon:'🔭',text:'We lose a world with a unique tilted ring system and 28 moons'},{type:'neutral',icon:'🛸',text:'Voyager 2 has one fewer flyby target in 1986'}],drama:'Uranus quietly disappears. Most humans wouldn\'t notice for weeks. The outer solar system adjusts. Earth is fine. Uranus just... wasn\'t dramatic enough even in its own removal.'}
+        }
+    },
+    {
+        name:'Neptune',type:'Ice Giant · Farthest World',
+        color:'#3366CC',glow:'rgba(51,102,204,.4)',
+        r:15,orbitR:560,speed:.003,angle:7,
+        size:49244,mass:'17.1',gravity:11.15,moons:16,
+        period:'164.8 years',distance:'30.05 AU',
+        fact:'Neptune was discovered in 1846 by mathematics — astronomers predicted its location by calculating Uranus\'s orbital anomalies BEFORE they saw it. Wind speeds on Neptune reach 2,100 km/h — fastest in the solar system!',
+        surfaceStyle:'radial-gradient(circle at 35% 35%,#5b8dd9,#3366cc,#1a3d7a)',
+        scenarios:{
+            grow:{icon:'🌊',title:'Neptune Grows Massive',text:'A much larger Neptune would significantly destabilize the Kuiper Belt. Pluto and thousands of KBOs would be scattered, sending a fresh comet storm toward the inner solar system.',effects:[{type:'bad',icon:'☄️',text:'Kuiper Belt objects scattered — new wave of comets hits inner solar system over millions of years'},{type:'warn',icon:'🌍',text:'Earth faces increased comet bombardment — potential mass extinctions'},{type:'bad',icon:'🌌',text:'Outer solar system enters new chaotic configuration — unpredictable effects for eons'},{type:'good',icon:'💧',text:'Paradoxically, some comets bring water and organics to planets — possible seeding of life elsewhere'}],drama:'Giant Neptune becomes the Kuiper Belt\'s disruptor. Every time it passes through the belt, it\'s like a giant spoon stirring a comet soup aimed at Earth.'},
+            shrink:{icon:'❄️',title:'Neptune Shrinks',text:'A smaller Neptune has less influence over the Kuiper Belt. Pluto\'s orbit shifts. Long-period comets become slightly less frequent visitors to the inner solar system.',effects:[{type:'good',icon:'☄️',text:'Fewer comets destabilized from Kuiper Belt — slightly safer for Earth long-term'},{type:'neutral',icon:'🔭',text:'Triton (Neptune\'s largest moon, orbiting backwards!) might escape Neptune\'s weakened gravity'},{type:'neutral',icon:'🌌',text:'Outer solar system becomes slightly calmer and more ordered'},{type:'neutral',icon:'❄️',text:'Pluto and other dwarf planets have marginally more stable orbits'}],drama:'Smaller Neptune = fewer cosmic missiles sent our way. For once, a planet shrinking is actually good news for Earth!'},
+            orbit:{icon:'🌊',title:'Neptune Moves',text:'Neptune is the gravitational shepherd of the Kuiper Belt. If its orbit changes, the entire outer solar system demographic shifts — thousands of icy objects get new trajectories.',effects:[{type:'bad',icon:'☄️',text:'Kuiper Belt reshuffled — different pattern of long-period comets heading inward'},{type:'neutral',icon:'🌌',text:'Pluto and other Plutinos (in 2:3 resonance with Neptune) flung into new orbits'},{type:'warn',icon:'🌍',text:'Earth\'s long-period comet flux changes over millions of years — different extinction risk profile'},{type:'neutral',icon:'🔭',text:'Voyager 2 flyby in 1989 would observe a completely different planet in a new location'}],drama:'Neptune is the Kuiper Belt\'s gatekeeper. Move it, and you change which icy debris gets aimed at the inner solar system. Earth\'s fate over geological time depends partly on where Neptune sits.'},
+            remove:{icon:'🌑',title:'Neptune Removed',text:'The Kuiper Belt loses its primary shepherd. Within millions of years, the Belt destabilizes significantly. New long-period comets arrive at Earth more frequently.',effects:[{type:'bad',icon:'☄️',text:'Kuiper Belt gradually destabilizes — more comets sent to inner solar system over millions of years'},{type:'warn',icon:'🌍',text:'Earth faces slowly increasing comet bombardment rate over geological time'},{type:'neutral',icon:'🌌',text:'Uranus shifts orbit slightly to partly fill Neptune\'s gravitational role'},{type:'bad',icon:'🔭',text:'We never discover Neptune by mathematics in 1846 — a triumph of science lost'}],drama:'Neptune\'s absence starts a slow-motion chain reaction. The Kuiper Belt unleashes its frozen contents over millions of years. Earth eventually faces a new comet era. We\'d have billions of years warning though — plenty of time to build a planetary defense system!'}
+        }
+    }
+];
+
+/* ============================================================
+   GAME STATE
+============================================================ */
+let gameRunning=true,gameSpeed=1,selectedPlanet=null;
+let planets=PLANETS.map(p=>({...p,currentR:p.r,currentOrbit:p.orbitR}));
+let chaosMode=false;
+let animFrame;
+
+/* ============================================================
+   GAME CANVAS SETUP
+============================================================ */
+const gc=document.getElementById('gameCanvas');
+const ctx=gc.getContext('2d');
+
+function resizeCanvas(){
+    gc.width=window.innerWidth;
+    gc.height=Math.min(window.innerHeight*.75,700);
+}
+resizeCanvas();
+window.addEventListener('resize',resizeCanvas);
+
+const CX=()=>gc.width/2;
+const CY=()=>gc.height/2;
+
+/* ============================================================
+   DRAW SUN
+============================================================ */
+function drawSun(){
+    const cx=CX(),cy=CY();
+    // Outer corona
+    const corona=ctx.createRadialGradient(cx,cy,20,cx,cy,80);
+    corona.addColorStop(0,'rgba(253,184,19,.3)');
+    corona.addColorStop(1,'rgba(253,184,19,0)');
+    ctx.beginPath();ctx.arc(cx,cy,80,0,Math.PI*2);
+    ctx.fillStyle=corona;ctx.fill();
+
+    // Mid glow
+    const glow=ctx.createRadialGradient(cx,cy,10,cx,cy,50);
+    glow.addColorStop(0,'rgba(255,255,220,.8)');
+    glow.addColorStop(.4,'rgba(253,184,19,.6)');
+    glow.addColorStop(1,'rgba(253,184,19,0)');
+    ctx.beginPath();ctx.arc(cx,cy,50,0,Math.PI*2);
+    ctx.fillStyle=glow;ctx.fill();
+
+    // Sun surface
+    const sunGrad=ctx.createRadialGradient(cx-8,cy-8,0,cx,cy,30);
+    sunGrad.addColorStop(0,'#FFFFFF');
+    sunGrad.addColorStop(.15,'#FFF5E1');
+    sunGrad.addColorStop(.4,'#FDB813');
+    sunGrad.addColorStop(.7,'#F5A623');
+    sunGrad.addColorStop(1,'#E8890C');
+    ctx.beginPath();ctx.arc(cx,cy,30,0,Math.PI*2);
+    ctx.fillStyle=sunGrad;ctx.fill();
+
+    // Sunspots
+    ctx.globalAlpha=.25;
+    [[cx-10,cy-5,4],[cx+8,cy+8,5],[cx-5,cy+10,3]].forEach(([x,y,r])=>{
+        ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+        ctx.fillStyle='#8B4500';ctx.fill();
+    });
+    ctx.globalAlpha=1;
+}
+
+/* ============================================================
+   DRAW ORBIT RING
+============================================================ */
+function drawOrbit(p){
+    const cx=CX(),cy=CY();
+    ctx.beginPath();
+    ctx.arc(cx,cy,p.currentOrbit,0,Math.PI*2);
+    ctx.strokeStyle=p.isEarth?'rgba(74,144,217,.2)':'rgba(255,255,255,.06)';
+    ctx.lineWidth=p.isEarth?1.5:1;
+    if(chaosMode){
+        ctx.strokeStyle='rgba(255,100,0,.15)';
+        ctx.setLineDash([5,5]);
+    } else {
+        ctx.setLineDash([]);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+/* ============================================================
+   DRAW PLANET
+============================================================ */
+function drawPlanet(p,t){
+    const cx=CX(),cy=CY();
+    p.angle+=p.speed*gameSpeed*(chaosMode?2:1);
+    const x=cx+Math.cos(p.angle)*p.currentOrbit;
+    const y=cy+Math.sin(p.angle)*p.currentOrbit;
+    p._x=x;p._y=y;
+
+    const radius=p.currentR;
+
+    // Saturn rings (behind planet)
+    if(p.hasRings){
+        ctx.beginPath();
+        ctx.ellipse(x,y,radius*2.2,radius*.7,0,0,Math.PI*2);
+        ctx.strokeStyle='rgba(234,214,184,.35)';
+        ctx.lineWidth=radius*.5;ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(x,y,radius*2.5,radius*.8,0,0,Math.PI*2);
+        ctx.strokeStyle='rgba(210,190,160,.2)';
+        ctx.lineWidth=radius*.3;ctx.stroke();
+    }
+
+    // Planet body
+    const grad=ctx.createRadialGradient(x-radius*.3,y-radius*.3,0,x,y,radius);
+
+    // Color per planet
+    const colors={
+        Mercury:['#d0d0d0','#909090','#505050'],
+        Venus:['#edd59f','#c7a94f','#8B6927'],
+        Earth:['#5dade2','#2d8b4e','#1a5276'],
+        Mars:['#e07c54','#C1440E','#6B1500'],
+        Jupiter:['#e0c48c','#c88b3a','#6B4010'],
+        Saturn:['#f5e6c8','#ead6b8','#a07840'],
+        Uranus:['#8fd4d4','#5bacac','#2d7070'],
+        Neptune:['#5b8dd9','#3366cc','#1a2d7a']
+    };
+    const [c1,c2,c3]=colors[p.name]||['#aaa','#666','#333'];
+    grad.addColorStop(0,c1);grad.addColorStop(.5,c2);grad.addColorStop(1,c3);
+
+    ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);
+    ctx.fillStyle=grad;ctx.fill();
+
+    // Glow
+    const glowGrad=ctx.createRadialGradient(x,y,radius*.5,x,y,radius*2);
+    glowGrad.addColorStop(0,p.glow);glowGrad.addColorStop(1,'transparent');
+    ctx.beginPath();ctx.arc(x,y,radius*2,0,Math.PI*2);
+    ctx.fillStyle=glowGrad;ctx.fill();
+
+    // Earth atmosphere
+    if(p.name==='Earth'){
+        const atmo=ctx.createRadialGradient(x,y,radius,x,y,radius*1.2);
+        atmo.addColorStop(0,'rgba(74,144,217,.15)');
+        atmo.addColorStop(1,'transparent');
+        ctx.beginPath();ctx.arc(x,y,radius*1.2,0,Math.PI*2);
+        ctx.fillStyle=atmo;ctx.fill();
+    }
+
+    // Jupiter bands
+    if(p.name==='Jupiter'){
+        ctx.save();ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.clip();
+        const bColors=['rgba(200,139,58,.4)','rgba(240,200,140,.3)','rgba(160,100,40,.35)'];
+        for(let i=0;i<3;i++){
+            ctx.fillStyle=bColors[i];
+            ctx.fillRect(x-radius,(y-radius+i*radius*.7),radius*2,radius*.25);
+        }
+        // GRS
+        ctx.beginPath();ctx.ellipse(x+radius*.2,y+radius*.2,radius*.25,radius*.15,0,0,Math.PI*2);
+        ctx.fillStyle='rgba(180,50,30,.5)';ctx.fill();
+        ctx.restore();
+    }
+
+    // Highlight
+    ctx.beginPath();ctx.arc(x-radius*.3,y-radius*.3,radius*.35,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,.12)';ctx.fill();
+
+    // Selected glow
+    if(selectedPlanet&&selectedPlanet.name===p.name){
+        ctx.beginPath();ctx.arc(x,y,radius+4,0,Math.PI*2);
+        ctx.strokeStyle='rgba(255,215,0,.8)';ctx.lineWidth=2;
+        ctx.setLineDash([5,3]);ctx.stroke();ctx.setLineDash([]);
+
+        // Pulse ring
+        const pulseR=radius+8+Math.sin(t*.05)*4;
+        ctx.beginPath();ctx.arc(x,y,pulseR,0,Math.PI*2);
+        ctx.strokeStyle='rgba(255,215,0,.3)';ctx.lineWidth=1;ctx.stroke();
+    }
+
+    // "You are here" on Earth
+    if(p.name==='Earth'){
+        ctx.save();
+        ctx.font=`${Math.max(9,radius*.5)}px Space Mono`;
+        ctx.fillStyle='rgba(0,245,255,.7)';
+        ctx.fillText('◀ YOU',x+radius+4,y+4);
+        ctx.restore();
+    }
+
+    // Name label
+    ctx.save();
+    ctx.font=`${Math.max(8,10)}px Exo 2`;
+    ctx.fillStyle=p.name===selectedPlanet?.name?'rgba(255,215,0,.9)':'rgba(255,255,255,.45)';
+    ctx.textAlign='center';
+    ctx.fillText(p.name,x,y+radius+14);
+    ctx.restore();
+}
+
+/* ============================================================
+   CHAOS MODE VISUALS
+============================================================ */
+function drawChaos(t){
+    if(!chaosMode)return;
+    ctx.save();
+    ctx.font='bold 18px Orbitron';
+    ctx.fillStyle=`rgba(255,100,0,${.5+.3*Math.sin(t*.05)})`;
+    ctx.textAlign='center';
+    ctx.fillText('⚠ CHAOS MODE ACTIVE ⚠',CX(),30);
+    ctx.restore();
+    // Random asteroids flying
+    for(let i=0;i<3;i++){
+        const ax=(t*(.5+i*.2))%gc.width;
+        const ay=100+i*120;
+        ctx.beginPath();ctx.arc(ax,ay,2,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,150,50,.6)';ctx.fill();
+    }
+}
+
+/* ============================================================
+   MAIN ANIMATION LOOP
+============================================================ */
+let tick=0;
+function animate(){
+    animFrame=requestAnimationFrame(animate);
+    if(!gameRunning)return;
+    ctx.clearRect(0,0,gc.width,gc.height);
+    tick++;
+
+    // Draw orbits
+    planets.forEach(p=>drawOrbit(p));
+    // Draw sun
+    drawSun();
+    // Draw planets
+    planets.forEach(p=>drawPlanet(p,tick));
+    // Chaos overlay
+    drawChaos(tick);
+}
+animate();
+
+/* ============================================================
+   CANVAS CLICK — SELECT PLANET
+============================================================ */
+gc.addEventListener('click',e=>{
+    const rect=gc.getBoundingClientRect();
+    const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    let found=null;
+    planets.forEach(p=>{
+        if(!p._x||!p._y)return;
+        const dx=mx-p._x,dy=my-p._y;
+        if(Math.sqrt(dx*dx+dy*dy)<p.currentR+12)found=p;
+    });
+    if(found){
+        selectedPlanet=found;
+        showPlanetPanel(found);
+    } else {
+        selectedPlanet=null;
+        hidePlanetPanel();
+    }
+});
+
+/* ============================================================
+   PLANET PANEL
+============================================================ */
+function showPlanetPanel(p){
+    const panel=document.getElementById('planetPanel');
+    // Visual
+    document.getElementById('ppVisual').style.cssText=
+        `background:${p.surfaceStyle};animation:ceSpin 10s linear infinite;` +
+        `box-shadow:0 0 25px ${p.glow},0 0 50px ${p.glow.replace('.4',',.15')};`;
+    document.getElementById('ppName').textContent=p.name;
+    document.getElementById('ppName').style.color=p.color;
+    document.getElementById('ppType').textContent=p.type;
+    document.getElementById('ppStats').innerHTML=`
+        <div class="pp-stat"><span class="sl">Diameter</span><span class="sv">${p.size.toLocaleString()} km</span></div>
+        <div class="pp-stat"><span class="sl">Mass (×Earth)</span><span class="sv">${p.mass}</span></div>
+        <div class="pp-stat"><span class="sl">Gravity</span><span class="sv">${p.gravity} m/s²</span></div>
+        <div class="pp-stat"><span class="sl">Moons</span><span class="sv">${p.moons}</span></div>
+        <div class="pp-stat"><span class="sl">Period</span><span class="sv">${p.period}</span></div>
+        <div class="pp-stat"><span class="sl">Distance</span><span class="sv">${p.distance}</span></div>
+    `;
+    document.getElementById('ppFact').textContent=p.fact;
+    panel.classList.add('show');
+    document.getElementById('gameModeBar').textContent=`🎯 ${p.name} selected — choose an action below!`;
+    document.getElementById('gameModeBar').classList.add('active');
+}
+
+function hidePlanetPanel(){
+    document.getElementById('planetPanel').classList.remove('show');
+    document.getElementById('gameModeBar').textContent='🎮 Click any planet to interact';
+    document.getElementById('gameModeBar').classList.remove('active');
+}
+
+document.getElementById('ppClose').addEventListener('click',()=>{
+    selectedPlanet=null;hidePlanetPanel();
+});
+
+/* ============================================================
+   SCENARIO SYSTEM
+============================================================ */
+function showScenario(planet,type){
+    const sc=planet.scenarios[type];
+    if(!sc)return;
+    document.getElementById('smIcon').textContent=sc.icon;
+    document.getElementById('smTitle').textContent=sc.title;
+    document.getElementById('smPlanet').textContent=`${planet.name} · ${type.toUpperCase()} SCENARIO`;
+    document.getElementById('smScTitle').textContent='🌍 What happens to Earth & the Solar System?';
+    document.getElementById('smText').textContent=sc.text;
+    // Effects
+    const efEl=document.getElementById('smEffects');
+    efEl.innerHTML=sc.effects.map(e=>`
+        <div class="sm-effect ${e.type}">
+            <span class="eicon">${e.icon}</span>
+            <span>${e.text}</span>
+        </div>
+    `).join('');
+    document.getElementById('smDrama').textContent='⚡ '+sc.drama;
+    document.getElementById('scenarioOverlay').classList.add('show');
+    // Apply visual change
+    applyScenarioVisual(planet,type);
+}
+
+function applyScenarioVisual(planet,type){
+    const p=planets.find(pl=>pl.name===planet.name);
+    if(!p)return;
+    if(type==='grow'){
+        p.currentR=Math.min(planet.r*2.5,gc.height/4);
+        showToast(`🔴 ${planet.name} is growing!`);
+    } else if(type==='shrink'){
+        p.currentR=Math.max(2,planet.r*.4);
+        showToast(`🔵 ${planet.name} is shrinking!`);
+    } else if(type==='orbit'){
+        p.currentOrbit=planet.orbitR*(Math.random()>.5?1.5:.6);
+        p.speed=planet.speed*(Math.random()>.5?2:.5);
+        showToast(`🌀 ${planet.name}'s orbit has changed!`);
+    } else if(type==='remove'){
+        p.currentR=0;p._x=-999;p._y=-999;
+        showToast(`💥 ${planet.name} removed from solar system!`);
+    }
+}
+
+function restoreAll(){
+    planets=PLANETS.map(p=>({...p,currentR:p.r,currentOrbit:p.orbitR,speed:p.speed}));
+    document.getElementById('scenarioOverlay').classList.remove('show');
+    selectedPlanet=null;hidePlanetPanel();
+    showToast('✅ Solar system restored to normal!');
+    chaosMode=false;
+    document.getElementById('btnChaos').classList.remove('on','danger');
+    gameSpeed=1;
+    document.getElementById('speedDisplay').textContent='Speed: 1×';
+}
+
+document.getElementById('smClose').addEventListener('click',()=>{
+    document.getElementById('scenarioOverlay').classList.remove('show');
+});
+document.getElementById('smRestore').addEventListener('click',restoreAll);
+
+/* Action buttons */
+document.getElementById('ppGrow').addEventListener('click',()=>{
+    if(!selectedPlanet)return;
+    showScenario(selectedPlanet,'grow');
+});
+document.getElementById('ppShrink').addEventListener('click',()=>{
+    if(!selectedPlanet)return;
+    showScenario(selectedPlanet,'shrink');
+});
+document.getElementById('ppOrbit').addEventListener('click',()=>{
+    if(!selectedPlanet)return;
+    showScenario(selectedPlanet,'orbit');
+});
+document.getElementById('ppRemove').addEventListener('click',()=>{
+    if(!selectedPlanet)return;
+    showScenario(selectedPlanet,'remove');
+});
+
+/* ============================================================
+   GAME CONTROLS
+============================================================ */
+document.getElementById('btnPlay').addEventListener('click',()=>{
+    gameRunning=true;
+    document.getElementById('btnPlay').classList.add('on');
+    document.getElementById('btnPause').classList.remove('on');
+    showToast('▶ Solar system running');
+});
+document.getElementById('btnPause').addEventListener('click',()=>{
+    gameRunning=false;
+    document.getElementById('btnPause').classList.add('on');
+    document.getElementById('btnPlay').classList.remove('on');
+    showToast('⏸ Solar system paused');
+});
+document.getElementById('btnSlow').addEventListener('click',()=>{
+    gameSpeed=Math.max(.1,gameSpeed*.5);
+    document.getElementById('speedDisplay').textContent=`Speed: ${gameSpeed.toFixed(1)}×`;
+    showToast(`🐢 Slowed to ${gameSpeed.toFixed(1)}×`);
+});
+document.getElementById('btnFast').addEventListener('click',()=>{
+    gameSpeed=Math.min(10,gameSpeed*2);
+    document.getElementById('speedDisplay').textContent=`Speed: ${gameSpeed.toFixed(1)}×`;
+    showToast(`⚡ Speed ${gameSpeed.toFixed(1)}×`);
+});
+document.getElementById('btnReset').addEventListener('click',restoreAll);
+
+document.getElementById('btnChaos').addEventListener('click',()=>{
+    chaosMode=!chaosMode;
+    const btn=document.getElementById('btnChaos');
+    btn.classList.toggle('on');btn.classList.toggle('danger');
+    if(chaosMode){
+        gameSpeed=3;
+        planets.forEach(p=>{
+            p.speed=p.speed*(Math.random()*3+.5);
+            p.currentOrbit=p.orbitR*(Math.random()*.6+.7);
+        });
+        document.getElementById('speedDisplay').textContent='Speed: CHAOS';
+        showToast('💥 CHAOS MODE! The solar system is unstable!',3000);
+    } else {
+        restoreAll();
+    }
+});
+
+/* ============================================================
+   TOUCH SUPPORT
+============================================================ */
+gc.addEventListener('touchstart',e=>{
+    e.preventDefault();
+    const touch=e.touches[0];
+    const rect=gc.getBoundingClientRect();
+    const mx=touch.clientX-rect.left,my=touch.clientY-rect.top;
+    let found=null;
+    planets.forEach(p=>{
+        if(!p._x||!p._y)return;
+        const dx=mx-p._x,dy=my-p._y;
+        if(Math.sqrt(dx*dx+dy*dy)<p.currentR+20)found=p;
+    });
+    if(found){selectedPlanet=found;showPlanetPanel(found);}
+    else{selectedPlanet=null;hidePlanetPanel();}
+},{passive:false});
+
+/* ============================================================
+   SCROLL HINT — GAME MODE BAR
+============================================================ */
+document.addEventListener('scroll',()=>{
+    const gameSection=document.getElementById('game');
+    const rect=gameSection.getBoundingClientRect();
+    if(rect.top<100&&rect.bottom>100){
+        document.getElementById('gameModeBar').style.display='flex';
+    }
+},{ passive:true});
+
+console.log('🌌 DharaVerse Space Geography Index — Initialized');
+console.log('🪐 Solar System Game: 8 planets, 4 actions each, 32 unique scenarios');
+console.log('📚 5 Learning Modules loaded');
+</script>
+</body>
+</html>
