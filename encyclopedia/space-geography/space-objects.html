@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DharaVerse — JWST Deep Space Catalog</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#000010;--cyan:#00f5ff;--gold:#FFD700;
+--asteroid:#8B7355;--comet:#87CEEB;--star:#FDB813;
+--remnant:#9B59B6;--nebula:#E74C3C;--galaxy:#3498DB;
+--universe:#2C3E50;--explore:#00FF88;
+--glass:rgba(255,255,255,0.05);
+--glass-border:rgba(255,255,255,0.1);
+}
+html{scroll-behavior:smooth}
+body{
+background:var(--bg);color:#e0e0e0;
+font-family:'Exo 2',sans-serif;
+overflow-x:hidden;
+cursor:none;
+line-height:1.6;
+}
+/* Custom Cursor */
+#cursor-outer,#cursor-inner,#cursor-dot{
+position:fixed;pointer-events:none;z-index:100000;
+border-radius:50%;transition:transform .1s;
+}
+#cursor-outer{
+width:32px;height:32px;
+border:1.5px solid var(--cyan);
+transform:translate(-50%,-50%);
+}
+#cursor-inner{
+width:0;height:32px;
+border-left:1px solid var(--cyan);
+transform:translate(-50%,-50%);
+}
+#cursor-cross{
+position:fixed;pointer-events:none;z-index:100000;
+width:32px;height:0;
+border-top:1px solid var(--cyan);
+transform:translate(-50%,-50%);
+}
+#cursor-dot{
+width:4px;height:4px;background:var(--cyan);
+transform:translate(-50%,-50%);
+}
+body.cursor-hover #cursor-outer{border-color:var(--gold);transform:translate(-50%,-50%) scale(1.3)}
+body.cursor-hover #cursor-dot{background:var(--gold)}
+body.cursor-hover #cursor-inner{border-color:var(--gold)}
+body.cursor-hover #cursor-cross{border-color:var(--gold)}
+
+/* Scroll Progress */
+#scroll-progress{
+position:fixed;top:0;left:0;height:3px;z-index:10001;
+background:linear-gradient(90deg,var(--cyan),var(--gold));
+width:0;transition:width .1s;
+}
+
+/* Boot Screen */
+#boot-screen{
+position:fixed;inset:0;z-index:99999;
+background:var(--bg);
+display:flex;align-items:center;justify-content:center;
+flex-direction:column;
+font-family:'Space Mono',monospace;
+color:var(--cyan);font-size:14px;
+}
+#boot-lines{max-width:600px;padding:20px}
+#boot-lines div{opacity:0;margin:6px 0;white-space:nowrap}
+#boot-lines div.show{opacity:1}
+.boot-bar{
+width:300px;height:6px;background:rgba(255,255,255,0.1);
+border-radius:3px;margin-top:20px;overflow:hidden;
+}
+.boot-bar-fill{height:100%;width:0;background:var(--cyan);border-radius:3px;transition:width .5s}
+
+/* Header */
+#header{
+position:fixed;top:0;left:0;right:0;height:58px;
+background:rgba(0,0,16,0.85);
+backdrop-filter:blur(20px);
+border-bottom:1px solid var(--glass-border);
+z-index:10000;display:flex;align-items:center;
+padding:0 20px;justify-content:space-between;
+font-family:'Orbitron',sans-serif;
+transform:translateY(-100%);
+transition:transform .5s;
+}
+#header.visible{transform:translateY(0)}
+#header .brand{
+display:flex;align-items:center;gap:10px;font-size:12px;
+color:var(--cyan);letter-spacing:2px;
+}
+#header .brand i{color:var(--gold);font-size:18px}
+#header .stats{display:flex;gap:20px;font-size:11px;color:rgba(255,255,255,0.7)}
+#header .stats span{color:var(--gold);font-weight:700}
+#header .target{
+font-size:10px;color:var(--cyan);
+letter-spacing:3px;text-transform:uppercase;
+max-width:200px;text-align:right;
+overflow:hidden;white-space:nowrap;
+text-overflow:ellipsis;
+}
+
+/* Side Nav */
+#side-nav{
+position:fixed;right:15px;top:50%;transform:translateY(-50%);
+z-index:10000;display:flex;flex-direction:column;gap:12px;
+opacity:0;transition:opacity .5s;
+}
+#side-nav.visible{opacity:1}
+#side-nav a{
+display:block;width:10px;height:10px;
+border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);
+background:transparent;transition:all .3s;
+position:relative;
+}
+#side-nav a.active{background:var(--cyan);border-color:var(--cyan);transform:scale(1.3)}
+#side-nav a:hover{border-color:var(--gold)}
+#side-nav a .tip{
+position:absolute;right:20px;top:50%;transform:translateY(-50%);
+font-size:10px;font-family:'Space Mono',monospace;
+color:var(--cyan);white-space:nowrap;
+opacity:0;pointer-events:none;transition:opacity .2s;
+background:rgba(0,0,16,0.9);padding:2px 8px;border-radius:3px;
+}
+#side-nav a:hover .tip{opacity:1}
+
+/* Canvas backgrounds */
+#star-canvas,#deepfield-canvas{
+position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;
+}
+#deepfield-canvas{z-index:1;opacity:0;transition:opacity 1s}
+
+/* Main Content */
+main{position:relative;z-index:2}
+
+/* Section Styles */
+.section{
+min-height:100vh;padding:80px 20px 60px;
+position:relative;
+}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-title{
+font-family:'Orbitron',sans-serif;
+font-size:clamp(1.5rem,4vw,2.5rem);
+font-weight:900;margin-bottom:8px;
+background:linear-gradient(90deg,var(--cyan),var(--gold));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+background-clip:text;
+}
+.section-subtitle{
+font-family:'Space Mono',monospace;
+font-size:11px;letter-spacing:3px;
+color:rgba(255,255,255,0.5);text-transform:uppercase;
+margin-bottom:30px;
+}
+.section-tag{
+display:inline-block;padding:3px 12px;
+border:1px solid;border-radius:20px;
+font-size:10px;font-family:'Space Mono',monospace;
+letter-spacing:2px;margin-bottom:15px;
+}
+
+/* Cards */
+.card{
+background:var(--glass);
+border:1px solid var(--glass-border);
+border-radius:12px;padding:20px;
+margin-bottom:16px;
+backdrop-filter:blur(10px);
+transition:transform .3s,border-color .3s;
+}
+.card:hover{transform:translateY(-2px);border-color:var(--cyan)}
+.card h3{
+font-family:'Orbitron',sans-serif;
+font-size:14px;color:var(--cyan);margin-bottom:10px;
+}
+.card p,.card li{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.8)}
+.card ul{list-style:none;padding-left:0}
+.card ul li::before{content:"▸ ";color:var(--gold)}
+
+/* Grid layouts */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:768px){
+.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+}
+
+/* Tables */
+.data-table{
+width:100%;border-collapse:collapse;font-size:12px;
+font-family:'Space Mono',monospace;
+}
+.data-table th{
+background:rgba(0,245,255,0.1);color:var(--cyan);
+padding:8px 10px;text-align:left;font-size:10px;
+letter-spacing:1px;border-bottom:1px solid var(--glass-border);
+}
+.data-table td{
+padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.05);
+color:rgba(255,255,255,0.7);
+}
+.data-table tr:hover td{background:rgba(255,255,255,0.03)}
+
+/* HERO SECTION */
+#hero{
+min-height:100vh;display:flex;align-items:center;
+justify-content:center;text-align:center;
+position:relative;overflow:hidden;
+}
+#hero-canvas{position:absolute;inset:0;z-index:0}
+.hero-content{position:relative;z-index:2}
+
+/* JWST Hexagon Mirror */
+.jwst-mirror{
+width:160px;height:160px;margin:0 auto 30px;
+position:relative;animation:jwstSpin 30s linear infinite;
+}
+@keyframes jwstSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hex-seg{
+position:absolute;width:48px;height:28px;
+background:linear-gradient(135deg,#C8A84E,#FFD700,#B8941F);
+clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);
+opacity:0.85;
+}
+.hex-seg:nth-child(odd){animation:shimmer 3s ease-in-out infinite alternate}
+.hex-seg:nth-child(even){animation:shimmer 3s ease-in-out infinite alternate-reverse}
+@keyframes shimmer{0%{opacity:0.7}100%{opacity:1}}
+
+.hero-title{
+font-family:'Orbitron',sans-serif;
+font-size:clamp(2.5rem,8vw,5rem);
+font-weight:900;letter-spacing:8px;
+background:linear-gradient(180deg,#fff,var(--cyan));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+background-clip:text;margin-bottom:10px;
+}
+.hero-sub{
+font-family:'Exo 2',sans-serif;font-size:clamp(0.9rem,2vw,1.2rem);
+color:rgba(255,255,255,0.6);max-width:600px;margin:0 auto 30px;
+}
+.hero-stats{
+display:flex;gap:30px;justify-content:center;flex-wrap:wrap;
+font-family:'Space Mono',monospace;font-size:11px;
+}
+.hero-stats div{text-align:center}
+.hero-stats .val{color:var(--gold);font-size:16px;font-weight:700;display:block}
+.hero-stats .lbl{color:rgba(255,255,255,0.4);font-size:9px;letter-spacing:1px}
+
+/* Telescope beam */
+.telescope-beam{
+position:absolute;top:0;left:-100%;width:2px;height:100%;
+background:linear-gradient(180deg,transparent,var(--cyan),transparent);
+opacity:0.3;animation:scanBeam 6s linear infinite;
+z-index:1;
+}
+@keyframes scanBeam{0%{left:-5%}100%{left:105%}}
+
+.acquiring{
+font-family:'Space Mono',monospace;
+font-size:12px;color:var(--cyan);
+margin-top:30px;letter-spacing:3px;
+}
+.acquiring::after{content:"";animation:dots 1.5s steps(3) infinite}
+@keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
+
+/* Visual Panels */
+.visual-panel{
+width:100%;height:300px;border-radius:12px;
+border:1px solid var(--glass-border);
+position:relative;overflow:hidden;
+margin-bottom:20px;
+background:rgba(0,0,0,0.3);
+}
+.visual-panel canvas{width:100%;height:100%}
+
+/* Asteroid visual */
+.asteroid-scene{display:flex;align-items:center;justify-content:center}
+.asteroid-obj{
+width:80px;height:60px;
+background:linear-gradient(135deg,#6B5B3E,#8B7355,#5C4A2F,#9C8B6E);
+clip-path:polygon(20% 0%,70% 5%,100% 30%,90% 70%,60% 100%,10% 80%,0% 40%);
+animation:tumble 8s linear infinite;
+position:relative;
+box-shadow:0 0 30px rgba(139,115,85,0.3);
+}
+@keyframes tumble{
+0%{transform:rotate(0) rotateY(0)}
+100%{transform:rotate(360deg) rotateY(360deg)}
+}
+.debris{
+position:absolute;width:4px;height:4px;
+background:#8B7355;border-radius:50%;
+}
+
+/* Comet visual */
+.comet-scene{display:flex;align-items:center;justify-content:center;position:relative}
+.comet-nucleus{
+width:20px;height:20px;border-radius:50%;
+background:radial-gradient(circle,#aaa,#555);
+position:absolute;z-index:3;
+animation:cometTumble 4s linear infinite;
+}
+@keyframes cometTumble{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.comet-coma{
+width:60px;height:60px;border-radius:50%;
+background:radial-gradient(circle,rgba(200,200,255,0.3),transparent);
+position:absolute;z-index:2;
+}
+.comet-ion-tail{
+position:absolute;z-index:1;
+width:200px;height:4px;
+background:linear-gradient(90deg,rgba(100,150,255,0.6),transparent);
+transform:translateX(30px);
+}
+.comet-dust-tail{
+position:absolute;z-index:1;
+width:180px;height:20px;
+background:linear-gradient(90deg,rgba(255,220,150,0.3),transparent);
+transform:translateX(20px) rotate(15deg);
+border-radius:0 50% 50% 0;
+}
+.sun-glow{
+position:absolute;left:20px;top:50%;transform:translateY(-50%);
+width:40px;height:40px;border-radius:50%;
+background:radial-gradient(circle,rgba(255,200,0,0.8),rgba(255,150,0,0.3),transparent);
+}
+
+/* Star visual */
+.star-sphere{
+width:50px;height:50px;border-radius:50%;
+display:inline-block;margin:5px;
+box-shadow:0 0 20px currentColor;
+}
+
+/* Remnant visuals */
+.remnant-panels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.remnant-panels{grid-template-columns:1fr}}
+.remnant-viz{
+height:200px;border-radius:12px;
+border:1px solid var(--glass-border);
+display:flex;align-items:center;justify-content:center;
+position:relative;overflow:hidden;
+background:rgba(0,0,0,0.4);
+}
+.wd-sphere{
+width:40px;height:40px;border-radius:50%;
+background:radial-gradient(circle,#fff,#ffd,#ffa);
+box-shadow:0 0 30px rgba(255,255,255,0.5);
+animation:wdCool 10s ease-in-out infinite alternate;
+}
+@keyframes wdCool{0%{box-shadow:0 0 30px rgba(255,255,255,0.6)}100%{box-shadow:0 0 20px rgba(255,200,100,0.3)}}
+
+.pulsar-sphere{
+width:16px;height:16px;border-radius:50%;
+background:radial-gradient(circle,#fff,#aaf);
+box-shadow:0 0 20px rgba(150,150,255,0.8);
+position:relative;
+}
+.pulsar-beam{
+position:absolute;width:3px;height:120px;
+background:linear-gradient(0deg,rgba(100,150,255,0.8),transparent);
+left:50%;transform:translateX(-50%);
+animation:pulsarSpin 0.7s linear infinite;
+transform-origin:50% 0%;
+}
+.pulsar-beam.b2{animation-delay:0.35s;transform:translateX(-50%) rotate(180deg)}
+@keyframes pulsarSpin{from{transform:translateX(-50%) rotate(0)}to{transform:translateX(-50%) rotate(360deg)}}
+
+.bh-container{position:relative}
+.bh-disk{
+width:100px;height:30px;
+border:2px solid rgba(255,150,0,0.6);
+border-radius:50%;
+animation:bhDisk 4s linear infinite;
+position:relative;
+}
+@keyframes bhDisk{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.bh-event{
+width:30px;height:30px;border-radius:50%;
+background:radial-gradient(circle,#000,#000 70%,rgba(255,100,0,0.3));
+position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+box-shadow:0 0 15px rgba(255,100,0,0.4);
+}
+
+/* Nebula visual */
+.nebula-art{
+width:100%;height:300px;border-radius:12px;
+position:relative;overflow:hidden;
+background:
+radial-gradient(ellipse at 30% 40%,rgba(231,76,60,0.4),transparent 50%),
+radial-gradient(ellipse at 70% 60%,rgba(142,68,173,0.3),transparent 50%),
+radial-gradient(ellipse at 50% 30%,rgba(52,152,219,0.3),transparent 40%),
+radial-gradient(ellipse at 40% 70%,rgba(0,255,100,0.1),transparent 40%),
+radial-gradient(ellipse at 80% 20%,rgba(255,200,0,0.15),transparent 30%);
+animation:nebulaShift 20s ease-in-out infinite alternate;
+}
+@keyframes nebulaShift{
+0%{filter:hue-rotate(0deg) brightness(1)}
+50%{filter:hue-rotate(20deg) brightness(1.1)}
+100%{filter:hue-rotate(-10deg) brightness(0.9)}
+}
+.nebula-star{
+position:absolute;width:3px;height:3px;
+background:#fff;border-radius:50%;
+}
+
+/* Galaxy visual */
+#galaxy-canvas{width:100%;height:300px;border-radius:12px;border:1px solid var(--glass-border)}
+
+/* Cosmic web canvas */
+#cosmic-web-canvas{width:100%;height:300px;border-radius:12px;border:1px solid var(--glass-border)}
+
+/* Timeline */
+.timeline{position:relative;padding-left:30px;border-left:2px solid var(--glass-border)}
+.timeline-item{
+position:relative;margin-bottom:20px;padding-left:20px;
+}
+.timeline-item::before{
+content:"";position:absolute;left:-37px;top:5px;
+width:12px;height:12px;border-radius:50%;
+border:2px solid var(--cyan);background:var(--bg);
+}
+.timeline-item .year{
+font-family:'Orbitron',sans-serif;
+font-size:12px;color:var(--gold);
+}
+.timeline-item .event{font-size:13px;color:rgba(255,255,255,0.7)}
+
+/* HR Diagram */
+#hr-canvas{width:100%;height:350px;border-radius:12px;border:1px solid var(--glass-border)}
+
+/* EM Spectrum */
+.em-spectrum{
+height:40px;border-radius:8px;
+background:linear-gradient(90deg,#800000,#ff0000,#ff6600,#ffff00,#00ff00,#0066ff,#4400aa,#6600cc);
+margin:10px 0;position:relative;
+}
+.em-spectrum .label{
+position:absolute;bottom:-18px;font-size:9px;
+font-family:'Space Mono',monospace;color:rgba(255,255,255,0.5);
+}
+
+/* Quiz */
+.quiz-container{max-width:700px;margin:0 auto}
+.quiz-q{
+background:var(--glass);border:1px solid var(--glass-border);
+border-radius:12px;padding:20px;margin-bottom:16px;
+}
+.quiz-q h4{
+font-family:'Orbitron',sans-serif;font-size:13px;
+color:var(--cyan);margin-bottom:12px;
+}
+.quiz-opt{
+display:block;width:100%;text-align:left;
+padding:10px 14px;margin:6px 0;
+background:rgba(255,255,255,0.03);
+border:1px solid var(--glass-border);
+border-radius:8px;color:#e0e0e0;
+font-family:'Exo 2',sans-serif;font-size:13px;
+cursor:none;transition:all .2s;
+}
+.quiz-opt:hover{border-color:var(--cyan);background:rgba(0,245,255,0.05)}
+.quiz-opt.correct{border-color:#00ff88;background:rgba(0,255,136,0.1);color:#00ff88}
+.quiz-opt.wrong{border-color:#ff4444;background:rgba(255,68,68,0.1);color:#ff4444}
+.quiz-opt:disabled{cursor:none;opacity:0.7}
+#quiz-result{
+text-align:center;padding:30px;
+font-family:'Orbitron',sans-serif;
+}
+#quiz-result .score{font-size:48px;color:var(--gold)}
+#quiz-result .msg{font-size:14px;color:var(--cyan);margin-top:10px}
+#quiz-submit{
+display:block;margin:20px auto;padding:12px 40px;
+background:linear-gradient(135deg,var(--cyan),var(--gold));
+border:none;border-radius:8px;
+font-family:'Orbitron',sans-serif;font-size:14px;
+color:#000;cursor:none;font-weight:700;
+transition:transform .2s;
+}
+#quiz-submit:hover{transform:scale(1.05)}
+
+/* Glossary */
+#glossary-btn{
+position:fixed;bottom:80px;right:20px;
+width:44px;height:44px;border-radius:50%;
+background:rgba(0,245,255,0.15);
+border:1px solid var(--cyan);
+color:var(--cyan);font-size:18px;
+cursor:none;z-index:9999;
+display:flex;align-items:center;justify-content:center;
+transition:all .3s;
+}
+#glossary-btn:hover{background:rgba(0,245,255,0.3);transform:scale(1.1)}
+#glossary-panel{
+position:fixed;right:-400px;top:0;bottom:0;width:380px;
+background:rgba(0,0,16,0.95);backdrop-filter:blur(20px);
+border-left:1px solid var(--glass-border);
+z-index:99998;transition:right .4s;
+overflow-y:auto;padding:70px 20px 20px;
+}
+#glossary-panel.open{right:0}
+#glossary-close{
+position:absolute;top:15px;right:15px;
+background:none;border:none;color:var(--cyan);
+font-size:20px;cursor:none;
+}
+.gloss-item{margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.gloss-item .term{
+font-family:'Orbitron',sans-serif;font-size:12px;
+color:var(--gold);margin-bottom:4px;
+}
+.gloss-item .def{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5}
+
+/* Random Fact */
+#fact-btn{
+position:fixed;bottom:20px;right:20px;
+padding:8px 16px;border-radius:20px;
+background:rgba(255,215,0,0.15);
+border:1px solid var(--gold);
+color:var(--gold);font-size:12px;
+cursor:none;z-index:9999;
+font-family:'Space Mono',monospace;
+transition:all .3s;
+}
+#fact-btn:hover{background:rgba(255,215,0,0.3);transform:scale(1.05)}
+#fact-toast{
+position:fixed;bottom:70px;right:20px;
+max-width:340px;padding:14px 18px;
+background:rgba(0,0,16,0.95);
+border:1px solid var(--gold);border-radius:10px;
+color:rgba(255,255,255,0.8);font-size:12px;
+z-index:9999;opacity:0;transform:translateY(20px);
+transition:all .4s;pointer-events:none;
+font-family:'Exo 2',sans-serif;line-height:1.6;
+}
+#fact-toast.show{opacity:1;transform:translateY(0)}
+
+/* Footer */
+footer{
+padding:40px 20px;text-align:center;
+border-top:1px solid var(--glass-border);
+position:relative;z-index:2;
+}
+footer a{
+color:var(--cyan);text-decoration:none;
+margin:0 10px;font-size:13px;
+transition:color .2s;
+}
+footer a:hover{color:var(--gold)}
+footer .copy{
+font-size:10px;color:rgba(255,255,255,0.3);
+margin-top:15px;font-family:'Space Mono',monospace;
+}
+
+/* Animate In */
+.animate-in{opacity:0;transform:translateY(30px);transition:all .6s}
+.animate-in.visible{opacity:1;transform:translateY(0)}
+
+/* Scale comparison */
+.scale-bar{
+display:flex;align-items:center;gap:8px;
+margin:8px 0;font-size:11px;
+font-family:'Space Mono',monospace;
+}
+.scale-bar .bar{
+flex:1;height:6px;border-radius:3px;
+background:linear-gradient(90deg,var(--cyan),var(--gold));
+position:relative;
+}
+.scale-bar .bar .fill{
+height:100%;border-radius:3px;
+background:var(--cyan);
+}
+.scale-multiplier{
+display:inline-block;padding:2px 8px;
+background:rgba(255,215,0,0.15);
+border-radius:4px;font-size:10px;
+color:var(--gold);font-family:'Space Mono',monospace;
+}
+
+/* Misc */
+.highlight{color:var(--cyan);font-weight:600}
+.gold{color:var(--gold)}
+.tag-pill{
+display:inline-block;padding:2px 10px;
+background:rgba(0,245,255,0.1);
+border:1px solid rgba(0,245,255,0.2);
+border-radius:12px;font-size:10px;
+color:var(--cyan);margin:2px 4px;
+font-family:'Space Mono',monospace;
+}
+.stat-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+gap:10px;margin:15px 0;
+}
+.stat-box{
+text-align:center;padding:15px 10px;
+background:var(--glass);border:1px solid var(--glass-border);
+border-radius:10px;
+}
+.stat-box .val{
+font-family:'Orbitron',sans-serif;
+font-size:18px;color:var(--gold);
+display:block;margin-bottom:4px;
+}
+.stat-box .lbl{
+font-size:10px;color:rgba(255,255,255,0.5);
+font-family:'Space Mono',monospace;
+}
+
+/* Torino scale */
+.torino{display:flex;gap:2px;margin:10px 0}
+.torino-cell{
+flex:1;height:24px;display:flex;align-items:center;justify-content:center;
+font-size:9px;font-weight:700;color:#000;
+border-radius:3px;
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor-outer"></div>
+<div id="cursor-inner"></div>
+<div id="cursor-cross"></div>
+<div id="cursor-dot"></div>
+
+<!-- Scroll Progress -->
+<div id="scroll-progress"></div>
+
+<!-- Boot Screen -->
+<div id="boot-screen">
+<div id="boot-lines">
+<div>> JWST DEEP FIELD OBSERVATION SYSTEM v4.2.1</div>
+<div>> Initializing mirror array... 18/18 segments OK</div>
+<div>> NIRCam calibration... NOMINAL</div>
+<div>> MIRI cooling system... 6.7K STABLE</div>
+<div>> L2 orbit confirmed — 1.5M km from Earth</div>
+<div>> Solar shield deployment... 5/5 layers OK</div>
+<div>> Target acquisition: COMPLETE</div>
+<div>> Loading cosmic catalog...</div>
+</div>
+<div class="boot-bar"><div class="boot-bar-fill" id="boot-fill"></div></div>
+</div>
+
+<!-- Header -->
+<div id="header">
+<div class="brand"><i class="fas fa-satellite"></i> JWST MISSION CONTROL — DharaVerse</div>
+<div class="stats">Objects catalogued: <span id="obj-counter">0</span></div>
+<div class="target" id="target-name">STANDBY</div>
+</div>
+
+<!-- Side Nav -->
+<nav id="side-nav">
+<a href="#hero" data-idx="0"><span class="tip">Home</span></a>
+<a href="#asteroids" data-idx="1"><span class="tip">Asteroids</span></a>
+<a href="#comets" data-idx="2"><span class="tip">Comets</span></a>
+<a href="#stars" data-idx="3"><span class="tip">Stars</span></a>
+<a href="#remnants" data-idx="4"><span class="tip">Remnants</span></a>
+<a href="#nebulae" data-idx="5"><span class="tip">Nebulae</span></a>
+<a href="#galaxies" data-idx="6"><span class="tip">Galaxies</span></a>
+<a href="#universe" data-idx="7"><span class="tip">Universe</span></a>
+<a href="#exploration" data-idx="8"><span class="tip">Exploration</span></a>
+<a href="#fundamentals" data-idx="9"><span class="tip">Fundamentals</span></a>
+<a href="#quiz" data-idx="10"><span class="tip">Quiz</span></a>
+<a href="#footer-sec" data-idx="11"><span class="tip">Footer</span></a>
+</nav>
+
+<!-- Star Canvas -->
+<canvas id="star-canvas"></canvas>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<!-- HERO SECTION -->
+<section id="hero" class="section" data-target="DEEP FIELD SURVEY" data-objects="0">
+<canvas id="hero-canvas"></canvas>
+<div class="telescope-beam"></div>
+<div class="hero-content">
+<div class="jwst-mirror" id="jwst-hex"></div>
+<h1 class="hero-title">THE UNIVERSE</h1>
+<p class="hero-sub">From asteroids to galaxy clusters — the complete cosmic catalog. Operate the James Webb Space Telescope and explore every object in existence.</p>
+<div class="hero-stats">
+<div><span class="val">93B ly</span><span class="lbl">OBSERVABLE DIAMETER</span></div>
+<div><span class="val">2T+</span><span class="lbl">ESTIMATED GALAXIES</span></div>
+<div><span class="val">13.8B yr</span><span class="lbl">AGE OF UNIVERSE</span></div>
+<div><span class="val">299,792</span><span class="lbl">km/s LIGHT SPEED</span></div>
+</div>
+<div class="acquiring">ACQUIRING TARGET</div>
+</div>
+</section>
+
+<!-- SECTION 1: ASTEROIDS -->
+<section id="asteroids" class="section" data-target="ASTEROID BELT — 2.7 AU" data-objects="47">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--asteroid);color:var(--asteroid)">OBSERVATION 01</div>
+<h2 class="section-title animate-in">Asteroids & Meteoroids</h2>
+<p class="section-subtitle animate-in">ROCKY REMNANTS OF PLANETARY FORMATION</p>
+
+<div class="visual-panel asteroid-scene animate-in" id="asteroid-viz">
+<div class="asteroid-obj"></div>
+</div>
+
+<div class="grid-2 animate-in">
+<div class="card">
+<h3><i class="fas fa-meteor"></i> Meteoroid → Meteor → Meteorite</h3>
+<ul>
+<li><strong class="highlight">Meteoroid:</strong> Small rocky/metallic body in space (grain to ~1m)</li>
+<li><strong class="highlight">Meteor:</strong> Light streak when it enters atmosphere ("shooting star")</li>
+<li><strong class="highlight">Meteorite:</strong> The piece that survives and hits Earth's surface</li>
+</ul>
+<p style="margin-top:8px;font-size:11px;color:var(--gold)">Remember: OID (space) → OR (atmosphere) → ITE (ground)</p>
+</div>
+<div class="card">
+<h3><i class="fas fa-ring"></i> The Asteroid Belt</h3>
+<ul>
+<li>Location: Between Mars & Jupiter (2.1–3.3 AU)</li>
+<li>Contains millions of asteroids</li>
+<li>Total mass: Less than Earth's Moon!</li>
+<li>Mostly empty space — sci-fi gets this wrong</li>
+<li>Shaped by Jupiter's immense gravity</li>
+</ul>
+</div>
+</div>
+
+<div class="grid-3 animate-in" style="margin-top:16px">
+<div class="card" style="border-left:3px solid #666">
+<h3>C-type (Carbonaceous)</h3>
+<p>Most common (~75%). Dark, carbon-rich. Found in outer belt. Primitive composition — oldest material in solar system.</p>
+</div>
+<div class="card" style="border-left:3px solid #cca">
+<h3>S-type (Silicaceous)</h3>
+<p>Second most common (~17%). Rocky, silicate minerals + nickel-iron. Found in inner belt. Moderately bright.</p>
+</div>
+<div class="card" style="border-left:3px solid #aaa">
+<h3>M-type (Metallic)</h3>
+<p>Rare but valuable. Mostly nickel-iron. May be exposed cores of destroyed protoplanets. 16 Psyche = $10 quintillion!</p>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-star"></i> Famous Asteroids</h3>
+<div style="overflow-x:auto">
+<table class="data-table">
+<tr><th>Name</th><th>Type</th><th>Diameter</th><th>Notable Fact</th></tr>
+<tr><td>Ceres</td><td>C-type</td><td>940 km</td><td>Largest asteroid, classified as dwarf planet</td></tr>
+<tr><td>Vesta</td><td>V-type</td><td>525 km</td><td>Brightest asteroid, has differentiated interior</td></tr>
+<tr><td>Apophis</td><td>Sq-type</td><td>370 m</td><td>Will pass within 31,000 km of Earth in 2029!</td></tr>
+<tr><td>Bennu</td><td>B-type</td><td>490 m</td><td>Sample returned by OSIRIS-REx (2023)</td></tr>
+<tr><td>16 Psyche</td><td>M-type</td><td>226 km</td><td>Metallic — worth ~$10 quintillion. NASA mission launched 2023</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-shield-alt"></i> Near-Earth Objects & Torino Scale</h3>
+<p>NEOs are asteroids/comets with orbits near Earth. PHAs (Potentially Hazardous Asteroids): >140m diameter, pass within 7.5M km.</p>
+<p style="margin:8px 0;font-size:12px;color:var(--cyan)">Torino Impact Hazard Scale (0-10):</p>
+<div class="torino">
+<div class="torino-cell" style="background:#fff">0</div>
+<div class="torino-cell" style="background:#0f0">1</div>
+<div class="torino-cell" style="background:#ff0">2</div>
+<div class="torino-cell" style="background:#ff0">3</div>
+<div class="torino-cell" style="background:#ff0">4</div>
+<div class="torino-cell" style="background:#f80">5</div>
+<div class="torino-cell" style="background:#f80">6</div>
+<div class="torino-cell" style="background:#f80">7</div>
+<div class="torino-cell" style="background:#f00;color:#fff">8</div>
+<div class="torino-cell" style="background:#f00;color:#fff">9</div>
+<div class="torino-cell" style="background:#f00;color:#fff">10</div>
+</div>
+<p style="font-size:10px;color:rgba(255,255,255,0.4)">0=No hazard | 1-4=Normal monitoring | 5-7=Threatening | 8-10=Certain impact</p>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-calendar-alt"></i> Major Meteor Showers</h3>
+<div style="overflow-x:auto">
+<table class="data-table">
+<tr><th>Name</th><th>Parent Body</th><th>Peak</th><th>Rate/hr</th><th>Best Direction</th></tr>
+<tr><td>Quadrantids</td><td>2003 EH1</td><td>Jan 3-4</td><td>~120</td><td>NE (Boötes)</td></tr>
+<tr><td>Perseids</td><td>109P/Swift-Tuttle</td><td>Aug 12-13</td><td>~100</td><td>NE (Perseus)</td></tr>
+<tr><td>Orionids</td><td>1P/Halley</td><td>Oct 21-22</td><td>~20</td><td>SE (Orion)</td></tr>
+<tr><td>Leonids</td><td>55P/Tempel-Tuttle</td><td>Nov 17-18</td><td>~15</td><td>E (Leo)</td></tr>
+<tr><td>Geminids</td><td>3200 Phaethon</td><td>Dec 13-14</td><td>~150</td><td>Overhead (Gemini)</td></tr>
+<tr><td>Ursids</td><td>8P/Tuttle</td><td>Dec 22-23</td><td>~10</td><td>N (Ursa Minor)</td></tr>
+</table>
+</div>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card" style="border-left:3px solid var(--cyan)">
+<h3><i class="fas fa-rocket"></i> DART Mission</h3>
+<p>Double Asteroid Redirection Test — humanity's first planetary defense test. On Sept 26, 2022, NASA deliberately crashed a spacecraft into Dimorphos (moon of asteroid Didymos) at 22,530 km/h. Successfully changed its orbital period by 33 minutes! Proved kinetic impact can deflect asteroids.</p>
+</div>
+<div class="card">
+<h3><i class="fas fa-circle"></i> Impact Craters on Earth</h3>
+<ul>
+<li><strong>Chicxulub</strong> (Mexico) — 180 km, 66 Mya, killed dinosaurs</li>
+<li><strong>Vredefort</strong> (S. Africa) — 300 km, 2 Bya, largest known</li>
+<li><strong>Sudbury</strong> (Canada) — 130 km, 1.85 Bya</li>
+<li><strong>Lonar Lake</strong> (India) — 1.8 km, ~50,000 years, basalt crater</li>
+<li><strong>Barringer</strong> (USA) — 1.2 km, 50,000 years, best-preserved</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 2: COMETS -->
+<section id="comets" class="section" data-target="COMET C/2020 F3 NEOWISE" data-objects="93">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--comet);color:var(--comet)">OBSERVATION 02</div>
+<h2 class="section-title animate-in">Comets</h2>
+<p class="section-subtitle animate-in">DIRTY SNOWBALLS FROM THE OUTER SOLAR SYSTEM</p>
+
+<div class="visual-panel comet-scene animate-in">
+<div class="sun-glow"></div>
+<div class="comet-dust-tail"></div>
+<div class="comet-ion-tail"></div>
+<div class="comet-coma"></div>
+<div class="comet-nucleus"></div>
+</div>
+
+<div class="grid-2 animate-in">
+<div class="card">
+<h3><i class="fas fa-snowflake"></i> Comet Anatomy</h3>
+<ul>
+<li><strong class="highlight">Nucleus:</strong> Solid core, ice + rock + dust (1-50 km)</li>
+<li><strong class="highlight">Coma:</strong> Fuzzy gas envelope as ice sublimes (~100,000 km)</li>
+<li><strong class="highlight">Hydrogen envelope:</strong> Huge, invisible hydrogen cloud</li>
+<li><strong class="highlight">Ion tail:</strong> Straight, blue — charged particles pushed by solar wind</li>
+<li><strong class="highlight">Dust tail:</strong> Curved, white/yellow — heavier dust particles lag behind</li>
+</ul>
+<p style="margin-top:8px;font-size:11px;color:var(--gold)">Both tails ALWAYS point away from the Sun!</p>
+</div>
+<div class="card">
+<h3><i class="fas fa-globe-americas"></i> Where Comets Come From</h3>
+<ul>
+<li><strong class="highlight">Kuiper Belt</strong> (30-50 AU): Source of short-period comets (&lt;200 years). Beyond Neptune's orbit. Contains Pluto.</li>
+<li><strong class="highlight">Oort Cloud</strong> (2,000-100,000 AU): Source of long-period comets (&gt;200 years). Spherical shell around entire solar system. ~1 trillion icy bodies.</li>
+</ul>
+<p style="margin-top:8px">Comets get "activated" when gravitational perturbations send them toward the inner solar system and the Sun's heat sublimes their ices.</p>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-list"></i> Famous Comets</h3>
+<div style="overflow-x:auto">
+<table class="data-table">
+<tr><th>Name</th><th>Period</th><th>Notable Fact</th></tr>
+<tr><td>Halley's Comet</td><td>~75 years</td><td>Most famous. Recorded since 240 BCE. Next return: 2061</td></tr>
+<tr><td>Hale-Bopp</td><td>~2,520 years</td><td>Spectacular 1997 appearance, visible for 18 months</td></tr>
+<tr><td>Shoemaker-Levy 9</td><td>N/A</td><td>Crashed into Jupiter in 1994! Broke into 21 fragments</td></tr>
+<tr><td>Lovejoy (C/2011 W3)</td><td>~622 years</td><td>Survived passing through Sun's corona!</td></tr>
+<tr><td>NEOWISE (C/2020 F3)</td><td>~6,800 years</td><td>Beautiful naked-eye comet during COVID-19 pandemic</td></tr>
+<tr><td>'Oumuamua</td><td>Interstellar!</td><td>First confirmed interstellar visitor (2017). Cigar-shaped, debated origin</td></tr>
+</table>
+</div>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>"Dirty Snowball" vs "Icy Dirtball"</h3>
+<p>Fred Whipple (1950) proposed the "dirty snowball" model — mostly ice with embedded rock/dust. But missions like Rosetta revealed comets have more rock/dust than expected, leading some scientists to prefer "icy dirtball." Reality: varies comet by comet.</p>
+</div>
+<div class="card">
+<h3><i class="fas fa-tint"></i> Comets & Life on Earth</h3>
+<p>Comets may have delivered significant amounts of water to early Earth, contributing to our oceans. They also carry complex organic molecules (amino acids found on comet 67P by Rosetta). Comets may have seeded Earth with life's building blocks!</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 3: STARS -->
+<section id="stars" class="section" data-target="STELLAR CLASSIFICATION ARRAY" data-objects="186">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--star);color:var(--star)">OBSERVATION 03</div>
+<h2 class="section-title animate-in">Stars</h2>
+<p class="section-subtitle animate-in">NUCLEAR FURNACES LIGHTING THE COSMOS</p>
+
+<canvas id="hr-canvas" class="animate-in"></canvas>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-fire"></i> Star Formation</h3>
+<p>Nebula (cold gas cloud) → gravity causes collapse → protostar forms (hot, dense core) → when core reaches ~10 million K, hydrogen fusion ignites → Main Sequence star is born! A star spends ~90% of its life on the Main Sequence.</p>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-palette"></i> Spectral Classification: O B A F G K M</h3>
+<p style="color:var(--gold);font-size:11px;margin-bottom:10px">"Oh Be A Fine Girl/Guy, Kiss Me"</p>
+<div style="overflow-x:auto">
+<table class="data-table">
+<tr><th>Type</th><th>Color</th><th>Temp (K)</th><th>Example</th></tr>
+<tr><td style="color:#9bb0ff">O</td><td>Blue</td><td>30,000-50,000+</td><td>Naos, 10 Lacertae</td></tr>
+<tr><td style="color:#aabfff">B</td><td>Blue-white</td><td>10,000-30,000</td><td>Rigel, Spica</td></tr>
+<tr><td style="color:#cad7ff">A</td><td>White</td><td>7,500-10,000</td><td>Sirius, Vega</td></tr>
+<tr><td style="color:#f8f7ff">F</td><td>Yellow-white</td><td>6,000-7,500</td><td>Procyon, Canopus</td></tr>
+<tr><td style="color:#fff4ea">G</td><td>Yellow</td><td>5,200-6,000</td><td>Sun ☀️, Alpha Centauri A</td></tr>
+<tr><td style="color:#ffd2a1">K</td><td>Orange</td><td>3,700-5,200</td><td>Arcturus, Aldebaran</td></tr>
+<tr><td style="color:#ffcc6f">M</td><td>Red</td><td>2,400-3,700</td><td>Betelgeuse, Proxima Centauri</td></tr>
+</table>
+</div>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>Low Mass Star Life Cycle</h3>
+<p>Main Sequence → Red Giant → Planetary Nebula → <strong class="highlight">White Dwarf</strong></p>
+<p style="font-size:11px;margin-top:6px;color:rgba(255,255,255,0.5)">Stars like our Sun (&lt;8 solar masses). Gentle death — outer layers blown off as beautiful planetary nebula. Core remains as white dwarf.</p>
+</div>
+<div class="card">
+<h3>High Mass Star Life Cycle</h3>
+<p>Main Sequence → Red Supergiant → <strong style="color:var(--nebula)">Supernova</strong> → <strong class="highlight">Neutron Star / Black Hole</strong></p>
+<p style="font-size:11px;margin-top:6px;color:rgba(255,255,255,0.5)">Stars &gt;8 solar masses. Violent death — core collapses, outer layers explode in supernova. Remnant depends on mass.</p>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-star"></i> Notable Stars</h3>
+<div class="grid-3">
+<div><span class="tag-pill">Proxima Centauri</span><br><small>Nearest star — 4.24 ly</small></div>
+<div><span class="tag-pill">Sirius</span><br><small>Brightest in sky — 8.6 ly</small></div>
+<div><span class="tag-pill">Betelgeuse</span><br><small>Red supergiant — may supernova "soon"</small></div>
+<div><span class="tag-pill">Polaris</span><br><small>North Star — Cepheid variable</small></div>
+<div><span class="tag-pill">Rigel</span><br><small>Blue supergiant — 120,000× Sun's luminosity</small></div>
+<div><span class="tag-pill">VY Canis Majoris</span><br><small>One of largest known — ~1,400× Sun radius</small></div>
+</div>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>Cepheid Variable Stars</h3>
+<p>Stars that pulsate with a regular period. The period is directly related to their intrinsic luminosity (period-luminosity relation). This makes them "standard candles" — compare apparent brightness with known luminosity to calculate distance. Henrietta Leavitt discovered this in 1912.</p>
+</div>
+<div class="card">
+<h3>Star Clusters</h3>
+<ul>
+<li><strong class="highlight">Open Clusters:</strong> Loose groups, 100-1000 young stars. Found in galactic disk. Ex: Pleiades (M45), Hyades.</li>
+<li><strong class="highlight">Globular Clusters:</strong> Dense spheres, 100,000-1M ancient stars. Orbit galaxy's halo. Ex: Omega Centauri, M13 (Hercules).</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 4: STELLAR REMNANTS -->
+<section id="remnants" class="section" data-target="COMPACT OBJECTS — HIGH ENERGY SCAN" data-objects="274">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--remnant);color:var(--remnant)">OBSERVATION 04</div>
+<h2 class="section-title animate-in">Stellar Remnants</h2>
+<p class="section-subtitle animate-in">WHITE DWARFS • NEUTRON STARS • BLACK HOLES</p>
+
+<div class="remnant-panels animate-in">
+<div class="remnant-viz">
+<div class="wd-sphere"></div>
+<div style="position:absolute;bottom:10px;font-size:10px;color:rgba(255,255,255,0.5);font-family:'Space Mono',monospace">WHITE DWARF</div>
+</div>
+<div class="remnant-viz">
+<div class="pulsar-sphere">
+<div class="pulsar-beam"></div>
+<div class="pulsar-beam b2"></div>
+</div>
+<div style="position:absolute;bottom:10px;font-size:10px;color:rgba(255,255,255,0.5);font-family:'Space Mono',monospace">PULSAR</div>
+</div>
+<div class="remnant-viz">
+<div class="bh-container">
+<div class="bh-disk"></div>
+<div class="bh-event"></div>
+</div>
+<div style="position:absolute;bottom:10px;font-size:10px;color:rgba(255,255,255,0.5);font-family:'Space Mono',monospace">BLACK HOLE</div>
+</div>
+</div>
+
+<div class="grid-3 animate-in" style="margin-top:20px">
+<div class="card">
+<h3 style="color:#ffd">White Dwarfs</h3>
+<ul>
+<li>Size of Earth, mass of Sun</li>
+<li>No more fusion — slowly cooling</li>
+<li>Made of degenerate electron matter</li>
+<li>Chandrasekhar limit: <strong class="gold">1.4 M☉</strong></li>
+<li>Above this → collapses further</li>
+<li>Type Ia supernovae: white dwarf in binary exceeds limit → explodes</li>
+</ul>
+</div>
+<div class="card">
+<h3 style="color:#aaf">Neutron Stars</h3>
+<ul>
+<li>~20 km diameter, 1.4-2.1 M☉</li>
+<li>Density: 1 teaspoon = 10M tons!</li>
+<li><strong class="highlight">Pulsars:</strong> Rotating NS with beams from magnetic poles</li>
+<li><strong class="highlight">Magnetars:</strong> Extreme magnetic fields (10¹⁵ gauss)</li>
+<li>Spin rate: up to 716 times/sec!</li>
+<li>Jocelyn Bell Burnell discovered first pulsar (1967)</li>
+</ul>
+</div>
+<div class="card">
+<h3 style="color:#f80">Black Holes</h3>
+<ul>
+<li><strong>Stellar:</strong> 3-20 M☉</li>
+<li><strong>Intermediate:</strong> 100-10,000 M☉</li>
+<li><strong>Supermassive:</strong> Millions-Billions M☉ (Sgr A*: 4M M☉)</li>
+<li><strong>Primordial:</strong> Theoretical, from Big Bang</li>
+<li>Event horizon: point of no return</li>
+<li>Singularity: infinite density center</li>
+</ul>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-eye"></i> Black Hole Physics</h3>
+<div class="grid-2">
+<div>
+<p><strong class="highlight">Schwarzschild Radius:</strong> r = 2GM/c²</p>
+<p style="margin:8px 0"><strong class="highlight">Spaghettification:</strong> Tidal forces stretch objects into long thin strands as they approach. Difference in gravitational pull between your head and feet becomes infinite.</p>
+<p><strong class="highlight">Gravitational Lensing:</strong> Light bends around massive objects. Einstein ring visible when source, lens, and observer align.</p>
+</div>
+<div>
+<p><strong class="highlight">First Images:</strong></p>
+<ul>
+<li>M87* — April 10, 2019 (Event Horizon Telescope)</li>
+<li>Sagittarius A* — May 12, 2022 (our own galactic center!)</li>
+</ul>
+<p style="margin-top:8px"><strong class="highlight">Gravitational Waves:</strong> Ripples in spacetime. First detected by LIGO on Sept 14, 2015 — two black holes merging 1.3B ly away.</p>
+<p style="margin-top:8px"><strong class="highlight">Hawking Radiation:</strong> Black holes slowly evaporate by emitting quantum particles at event horizon. Tiny ones evaporate faster.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 5: NEBULAE -->
+<section id="nebulae" class="section" data-target="EMISSION NEBULA M42 — ORION" data-objects="362">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--nebula);color:var(--nebula)">OBSERVATION 05</div>
+<h2 class="section-title animate-in">Nebulae</h2>
+<p class="section-subtitle animate-in">STELLAR NURSERIES AND COSMIC ART</p>
+
+<div class="nebula-art animate-in" id="nebula-viz"></div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card" style="border-left:3px solid #e74c3c">
+<h3>Emission Nebulae</h3>
+<p>Hot young stars ionize surrounding gas, which emits light (H-alpha red glow). Star-forming regions. Ex: Orion Nebula (M42).</p>
+</div>
+<div class="card" style="border-left:3px solid #3498db">
+<h3>Reflection Nebulae</h3>
+<p>Dust particles scatter/reflect light from nearby stars. Appear blue (shorter wavelengths scatter more — same reason sky is blue). Ex: Witch Head Nebula.</p>
+</div>
+<div class="card" style="border-left:3px solid #333">
+<h3>Dark Nebulae</h3>
+<p>Dense clouds of dust that block light from objects behind them. Appear as silhouettes. Cold gas. Ex: Horsehead Nebula, Coal Sack.</p>
+</div>
+<div class="card" style="border-left:3px solid #9b59b6">
+<h3>Planetary Nebulae</h3>
+<p>Shell of gas expelled by dying low-mass star. Central white dwarf illuminates it. NOT related to planets! Ex: Ring Nebula (M57), Cat's Eye.</p>
+</div>
+<div class="card" style="border-left:3px solid #e67e22">
+<h3>Supernova Remnants</h3>
+<p>Expanding shockwave from supernova explosion. Contains heavy elements forged in the explosion. Ex: Crab Nebula (M1, from 1054 CE supernova).</p>
+</div>
+<div class="card">
+<h3>Composition</h3>
+<p>Nebulae are mostly hydrogen (~90%) and helium (~10%) with trace amounts of heavier elements and microscopic dust grains. Stellar nurseries: nebulae collapse to form new stars.</p>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-image"></i> Famous Nebulae Gallery</h3>
+<div class="grid-3">
+<div class="stat-box"><span class="val" style="font-size:14px">M42</span><span class="lbl">Orion Nebula — Stellar nursery, 1,344 ly</span></div>
+<div class="stat-box"><span class="val" style="font-size:14px">M16</span><span class="lbl">Eagle Nebula — Pillars of Creation</span></div>
+<div class="stat-box"><span class="val" style="font-size:14px">M1</span><span class="lbl">Crab Nebula — Supernova remnant, pulsar inside</span></div>
+<div class="stat-box"><span class="val" style="font-size:14px">M57</span><span class="lbl">Ring Nebula — Perfect planetary nebula</span></div>
+<div class="stat-box"><span class="val" style="font-size:14px">NGC 3372</span><span class="lbl">Carina Nebula — JWST's most iconic image</span></div>
+<div class="stat-box"><span class="val" style="font-size:14px">B33</span><span class="lbl">Horsehead — Iconic dark nebula in Orion</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 6: GALAXIES -->
+<section id="galaxies" class="section" data-target="GALAXY MORPHOLOGY SURVEY" data-objects="481">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--galaxy);color:var(--galaxy)">OBSERVATION 06</div>
+<h2 class="section-title animate-in">Galaxies</h2>
+<p class="section-subtitle animate-in">ISLAND UNIVERSES OF BILLIONS OF STARS</p>
+
+<canvas id="galaxy-canvas" class="animate-in"></canvas>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-project-diagram"></i> Hubble's Tuning Fork Classification</h3>
+<div style="overflow-x:auto">
+<table class="data-table">
+<tr><th>Type</th><th>Shape</th><th>Gas Content</th><th>Star Formation</th><th>Example</th></tr>
+<tr><td>Elliptical (E0-E7)</td><td>Spherical to elongated</td><td>Very little</td><td>Old, red stars, minimal</td><td>M87, IC 1101</td></tr>
+<tr><td>Lenticular (S0)</td><td>Disk + bulge, no arms</td><td>Moderate</td><td>Low</td><td>NGC 3115</td></tr>
+<tr><td>Spiral (Sa-Sd)</td><td>Disk + arms + bulge</td><td>Rich</td><td>Active in arms</td><td>M31 (Andromeda)</td></tr>
+<tr><td>Barred Spiral (SBa-SBd)</td><td>Bar through center + arms</td><td>Rich</td><td>Active</td><td>Milky Way! NGC 1300</td></tr>
+<tr><td>Irregular (Irr)</td><td>No defined shape</td><td>Very rich</td><td>Very active, chaotic</td><td>LMC, SMC</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px;border-left:3px solid var(--gold)">
+<h3><i class="fas fa-home"></i> The Milky Way — Our Galaxy</h3>
+<div class="grid-2">
+<div>
+<ul>
+<li><strong>Type:</strong> Barred Spiral (SBbc)</li>
+<li><strong>Diameter:</strong> ~100,000 light-years</li>
+<li><strong>Thickness:</strong> ~1,000 light-years (disk)</li>
+<li><strong>Stars:</strong> 100-400 billion</li>
+<li><strong>Age:</strong> ~13.6 billion years</li>
+<li><strong>Center:</strong> Sagittarius A* (4M M☉ black hole)</li>
+</ul>
+</div>
+<div>
+<ul>
+<li><strong>Our location:</strong> Orion Arm, 26,000 ly from center</li>
+<li><strong>Orbital period:</strong> 225-250 million years (= 1 Galactic Year / Cosmic Year)</li>
+<li><strong>Arms:</strong> Perseus, Orion (local), Sagittarius, Centaurus, Norma</li>
+<li><strong>Halo:</strong> Spherical, contains globular clusters and dark matter</li>
+</ul>
+</div>
+</div>
+<p style="text-align:center;margin-top:10px;font-size:11px;color:var(--cyan)">📍 YOU ARE HERE — Orion Arm, 26,000 ly from galactic center</p>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>The Local Group</h3>
+<ul>
+<li><strong class="highlight">Milky Way</strong> — Our home</li>
+<li><strong class="highlight">Andromeda (M31)</strong> — Largest, 2.5M ly away, approaching at 110 km/s!</li>
+<li><strong class="highlight">Triangulum (M33)</strong> — Third largest, 2.7M ly</li>
+<li><strong>Large Magellanic Cloud</strong> — Satellite galaxy, visible from Southern Hemisphere</li>
+<li><strong>Small Magellanic Cloud</strong> — Companion to LMC</li>
+<li>~80+ galaxies total in our Local Group</li>
+</ul>
+<p style="margin-top:8px;color:var(--gold);font-size:11px">Milky Way + Andromeda will merge in ~4.5 billion years → "Milkomeda" or "Milkdromeda"!</p>
+</div>
+<div class="card">
+<h3>Larger Structures</h3>
+<ul>
+<li><strong class="highlight">Virgo Cluster:</strong> ~1,300 galaxies, center of our supercluster</li>
+<li><strong class="highlight">Coma Cluster:</strong> ~1,000 galaxies</li>
+<li><strong class="highlight">Perseus Cluster:</strong> One of most massive known</li>
+<li><strong class="highlight">Laniakea Supercluster:</strong> Our home supercluster! 520 million ly across, contains 100,000+ galaxies including Virgo Cluster</li>
+</ul>
+<p style="margin-top:10px"><strong>Active Galaxies:</strong></p>
+<ul>
+<li><strong>Quasars:</strong> Brightest objects — supermassive BH feeding</li>
+<li><strong>Seyfert galaxies:</strong> Active nuclei, nearby</li>
+<li><strong>Blazars:</strong> Jets pointed directly at us</li>
+<li><strong>Radio galaxies:</strong> Huge radio-emitting lobes</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 7: THE UNIVERSE -->
+<section id="universe" class="section" data-target="COSMIC MICROWAVE BACKGROUND — ALL SKY" data-objects="612">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--universe);color:var(--universe)">OBSERVATION 07</div>
+<h2 class="section-title animate-in">The Universe Itself</h2>
+<p class="section-subtitle animate-in">FROM THE BIG BANG TO THE FATE OF EVERYTHING</p>
+
+<canvas id="cosmic-web-canvas" class="animate-in"></canvas>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-explosion"></i> The Big Bang</h3>
+<p>13.8 billion years ago, the universe began — not as an explosion <em>in</em> space, but as a rapid expansion <em>of</em> space itself. All matter, energy, space, and time emerged from an incredibly hot, dense singularity. Evidence: Cosmic Microwave Background (CMB) radiation — the afterglow, discovered 1965. Universe was opaque for first 380,000 years.</p>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-timeline"></i> Timeline of the Universe</h3>
+<div style="overflow-x:auto">
+<table class="data-table">
+<tr><th>Time After Big Bang</th><th>Event</th><th>Description</th></tr>
+<tr><td>0</td><td>Big Bang</td><td>All forces unified, infinite temperature</td></tr>
+<tr><td>10⁻³⁶ s</td><td>Inflation</td><td>Universe expands 10²⁶ times in a fraction of a second</td></tr>
+<tr><td>10⁻⁶ s</td><td>Quark epoch ends</td><td>Quarks combine into protons and neutrons</td></tr>
+<tr><td>10 s - 20 min</td><td>Nucleosynthesis</td><td>First atomic nuclei form (H, He, trace Li)</td></tr>
+<tr><td>380,000 yr</td><td>Recombination</td><td>Atoms form, universe becomes transparent. CMB released</td></tr>
+<tr><td>100-400 Myr</td><td>Dark Ages end</td><td>First stars ignite — "Cosmic Dawn"</td></tr>
+<tr><td>~1 Byr</td><td>First galaxies</td><td>JWST is observing these!</td></tr>
+<tr><td>9.2 Byr</td><td>Solar System forms</td><td>Our Sun and planets from nebula</td></tr>
+<tr><td>9.8 Byr</td><td>Life on Earth</td><td>First single-celled organisms</td></tr>
+<tr><td>13.8 Byr</td><td>Now</td><td>You reading this on a screen</td></tr>
+</table>
+</div>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>Dark Matter & Dark Energy</h3>
+<div class="stat-grid">
+<div class="stat-box"><span class="val">68%</span><span class="lbl">Dark Energy</span></div>
+<div class="stat-box"><span class="val">27%</span><span class="lbl">Dark Matter</span></div>
+<div class="stat-box"><span class="val">5%</span><span class="lbl">Ordinary Matter</span></div>
+</div>
+<p>We can only see 5% of the universe! Dark matter provides gravity holding galaxies together. Dark energy drives accelerating expansion. Neither has been directly detected — we infer them from their effects.</p>
+</div>
+<div class="card">
+<h3>Fate of the Universe</h3>
+<ul>
+<li><strong class="highlight">Big Freeze (Heat Death):</strong> Most likely. Expansion continues forever, stars die, entropy maximizes. Cold, dark, empty. ~10¹⁰⁰ years.</li>
+<li><strong style="color:var(--nebula)">Big Rip:</strong> If dark energy increases, it tears apart galaxies, stars, atoms. ~22 billion years from now.</li>
+<li><strong style="color:var(--galaxy)">Big Crunch:</strong> If gravity wins, universe collapses back. Currently ruled out.</li>
+<li><strong style="color:var(--gold)">Big Bounce:</strong> Cyclic — crunch then new Big Bang. Elegant but speculative.</li>
+</ul>
+</div>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>Large Scale Structure</h3>
+<p>The universe has a "cosmic web" structure: galaxy clusters connected by filaments (threads of dark matter and gas), with vast empty voids between them. Filaments can be hundreds of millions of light-years long. The observable universe is 93 billion light-years in diameter (expansion makes it larger than 13.8B ly).</p>
+</div>
+<div class="card">
+<h3><i class="fas fa-users"></i> Fermi Paradox & Drake Equation</h3>
+<p><strong class="gold">"If aliens exist, where is everyone?"</strong></p>
+<p style="margin:8px 0;font-size:12px">N = R* × fp × ne × fl × fi × fc × L</p>
+<p style="font-size:11px;color:rgba(255,255,255,0.6)">Where N = communicating civilizations. Even conservative estimates suggest thousands should exist — yet we've found zero evidence. Possible explanations: Great Filter, Zoo hypothesis, rare Earth, we're early/alone, or they use technology we can't detect.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 8: SPACE EXPLORATION -->
+<section id="exploration" class="section" data-target="MISSION ARCHIVE — ALL SPACE AGENCIES" data-objects="724">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--explore);color:var(--explore)">OBSERVATION 08</div>
+<h2 class="section-title animate-in">Space Exploration</h2>
+<p class="section-subtitle animate-in">HUMANITY'S JOURNEY BEYOND EARTH</p>
+
+<div class="card animate-in">
+<h3><i class="fas fa-rocket"></i> Milestones Timeline</h3>
+<div class="timeline">
+<div class="timeline-item"><span class="year">1957</span><span class="event"> — Sputnik 1: First artificial satellite (USSR)</span></div>
+<div class="timeline-item"><span class="year">1959</span><span class="event"> — Luna 2: First object to reach Moon (USSR)</span></div>
+<div class="timeline-item"><span class="year">1961</span><span class="event"> — Yuri Gagarin: First human in space (USSR)</span></div>
+<div class="timeline-item"><span class="year">1963</span><span class="event"> — Valentina Tereshkova: First woman in space</span></div>
+<div class="timeline-item"><span class="year">1969</span><span class="event"> — Apollo 11: Neil Armstrong walks on Moon 🌕</span></div>
+<div class="timeline-item"><span class="year">1971</span><span class="event"> — Salyut 1: First space station (USSR)</span></div>
+<div class="timeline-item"><span class="year">1977</span><span class="event"> — Voyager 1 & 2 launched (still active!)</span></div>
+<div class="timeline-item"><span class="year">1990</span><span class="event"> — Hubble Space Telescope deployed</span></div>
+<div class="timeline-item"><span class="year">1998</span><span class="event"> — ISS construction begins</span></div>
+<div class="timeline-item"><span class="year">2003</span><span class="event"> — Columbia disaster | China's first taikonaut</span></div>
+<div class="timeline-item"><span class="year">2006</span><span class="event"> — Pluto reclassified as dwarf planet (IAU)</span></div>
+<div class="timeline-item"><span class="year">2012</span><span class="event"> — Curiosity rover lands on Mars</span></div>
+<div class="timeline-item"><span class="year">2015</span><span class="event"> — New Horizons flies past Pluto | LIGO detects gravitational waves</span></div>
+<div class="timeline-item"><span class="year">2019</span><span class="event"> — First black hole image (M87*) by EHT</span></div>
+<div class="timeline-item"><span class="year">2021</span><span class="event"> — James Webb Space Telescope launched (Dec 25)</span></div>
+<div class="timeline-item"><span class="year">2022</span><span class="event"> — DART asteroid deflection | Sgr A* imaged</span></div>
+<div class="timeline-item"><span class="year">2023</span><span class="event"> — Chandrayaan-3 lands on Moon's south pole! 🇮🇳</span></div>
+<div class="timeline-item"><span class="year">Future</span><span class="event"> — Artemis lunar missions, Mars crewed missions, Europa Clipper</span></div>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px">
+<h3><i class="fas fa-satellite-dish"></i> Currently Active Missions</h3>
+<div class="grid-3">
+<div class="stat-box"><span class="val" style="font-size:12px">JWST</span><span class="lbl">L2 orbit, infrared astronomy</span></div>
+<div class="stat-box"><span class="val" style="font-size:12px">Voyager 1</span><span class="lbl">Interstellar space — 24B+ km away</span></div>
+<div class="stat-box"><span class="val" style="font-size:12px">Curiosity</span><span class="lbl">Mars since 2012, Gale Crater</span></div>
+<div class="stat-box"><span class="val" style="font-size:12px">Perseverance</span><span class="lbl">Mars since 2021, sample caching</span></div>
+<div class="stat-box"><span class="val" style="font-size:12px">Chandrayaan-3</span><span class="lbl">Lunar south pole lander/rover 🇮🇳</span></div>
+<div class="stat-box"><span class="val" style="font-size:12px">Europa Clipper</span><span class="lbl">Launched 2024, Jupiter's moon Europa</span></div>
+</div>
+</div>
+
+<div class="card animate-in" style="margin-top:16px;border-left:3px solid #FF9933">
+<h3>🇮🇳 ISRO — India's Space Program</h3>
+<div class="grid-2">
+<div>
+<p style="font-weight:600;color:var(--gold);margin-bottom:8px">Launch Vehicles:</p>
+<ul>
+<li><strong>SLV</strong> — First Indian launcher (1980)</li>
+<li><strong>PSLV</strong> — Workhorse, launched 104 satellites in one mission (2017 record!)</li>
+<li><strong>GSLV</strong> — Geosynchronous launches, cryogenic engine</li>
+<li><strong>GSLV Mk III (LVM3)</strong> — Heavy-lift, launched Chandrayaan missions</li>
+</ul>
+</div>
+<div>
+<p style="font-weight:600;color:var(--gold);margin-bottom:8px">Key Missions:</p>
+<ul>
+<li><strong>Chandrayaan-1 (2008)</strong> — Discovered water molecules on Moon!</li>
+<li><strong>Chandrayaan-2 (2019)</strong> — Orbiter still active and productive</li>
+<li><strong>Chandrayaan-3 (2023)</strong> — Vikram lander + Pragyan rover, south pole success! India = 4th country on Moon</li>
+<li><strong>Mangalyaan (2014)</strong> — Mars orbit on FIRST attempt! Cheapest Mars mission ever ($74M — less than the movie Gravity!)</li>
+<li><strong>Aditya-L1 (2023)</strong> — India's first solar observation mission at L1</li>
+<li><strong>Gaganyaan</strong> — Upcoming crewed orbital mission</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 9: FUNDAMENTALS -->
+<section id="fundamentals" class="section" data-target="PHYSICS CALIBRATION DATABASE" data-objects="803">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--cyan);color:var(--cyan)">OBSERVATION 09</div>
+<h2 class="section-title animate-in">Space Fundamentals</h2>
+<p class="section-subtitle animate-in">KEY CONCEPTS FOR UNDERSTANDING THE COSMOS</p>
+
+<div class="card animate-in">
+<h3><i class="fas fa-wave-square"></i> Electromagnetic Spectrum</h3>
+<div class="em-spectrum">
+<span class="label" style="left:2%">Radio</span>
+<span class="label" style="left:16%">Micro</span>
+<span class="label" style="left:28%">IR</span>
+<span class="label" style="left:42%">Visible</span>
+<span class="label" style="left:58%">UV</span>
+<span class="label" style="left:72%">X-ray</span>
+<span class="label" style="left:88%">Gamma</span>
+</div>
+<p style="margin-top:25px">Radio → Microwave → Infrared → <strong class="highlight">Visible</strong> → Ultraviolet → X-ray → Gamma ray</p>
+<p>Longer wavelength → lower energy. JWST primarily observes in <strong class="gold">infrared</strong> — perfect for seeing through dust and observing very distant (redshifted) objects.</p>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>Distance Units in Space</h3>
+<ul>
+<li><strong class="highlight">Speed of light:</strong> 299,792,458 m/s (≈300,000 km/s)</li>
+<li><strong class="highlight">Light-year:</strong> Distance light travels in 1 year ≈ 9.46 trillion km</li>
+<li><strong class="highlight">AU (Astronomical Unit):</strong> Earth-Sun distance ≈ 149.6 million km</li>
+<li><strong class="highlight">Parsec:</strong> 3.26 light-years (parallax angle of 1 arcsecond)</li>
+<li><strong class="highlight">Megaparsec (Mpc):</strong> 1 million parsecs — used for galaxy distances</li>
+</ul>
+</div>
+<div class="card">
+<h3>Cosmic Distance Ladder</h3>
+<ul>
+<li><strong class="gold">Radar ranging</strong> — Solar system distances (bounce signals off planets)</li>
+<li><strong class="gold">Parallax</strong> — Nearby stars, up to ~1,000 ly (measure angle shift)</li>
+<li><strong class="gold">Cepheid variables</strong> — Up to ~100 million ly (period-luminosity relation)</li>
+<li><strong class="gold">Type Ia supernovae</strong> — Distant galaxies (standard candles)</li>
+<li><strong class="gold">Hubble's Law / Redshift</strong> — Entire observable universe (v = H₀ × d)</li>
+</ul>
+</div>
+</div>
+
+<div class="grid-2 animate-in" style="margin-top:16px">
+<div class="card">
+<h3>Doppler Effect in Space</h3>
+<ul>
+<li><strong style="color:#ff6666">Redshift:</strong> Object moving away — wavelength stretches (red). Almost all galaxies are redshifted → universe is expanding!</li>
+<li><strong style="color:#6666ff">Blueshift:</strong> Object moving toward us — wavelength compresses (blue). Andromeda is blueshifted — it's approaching!</li>
+<li><strong class="highlight">Hubble constant:</strong> H₀ ≈ 70 km/s/Mpc</li>
+<li>For every megaparsec of distance, galaxies recede 70 km/s faster</li>
+</ul>
+</div>
+<div class="card">
+<h3>Orbital Mechanics</h3>
+<ul>
+<li><strong class="highlight">Kepler's 1st Law:</strong> Orbits are ellipses with Sun at one focus</li>
+<li><strong class="highlight">Kepler's 2nd Law:</strong> Equal areas in equal times (faster when closer)</li>
+<li><strong class="highlight">Kepler's 3rd Law:</strong> T² ∝ a³ (period² proportional to semi-major axis³)</li>
+<li><strong class="highlight">Escape velocity:</strong> v = √(2GM/r)</li>
+<li><strong class="highlight">Lagrange Points L1-L5:</strong> Gravitational balance points. JWST orbits Earth-Sun L2 (1.5M km from Earth, away from Sun)</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 10: QUIZ -->
+<section id="quiz" class="section" data-target="MISSION DEBRIEF — KNOWLEDGE CHECK" data-objects="847">
+<div class="section-inner">
+<div class="section-tag" style="border-color:var(--gold);color:var(--gold)">MISSION DEBRIEF</div>
+<h2 class="section-title animate-in">Mission Debrief</h2>
+<p class="section-subtitle animate-in">10 QUESTIONS — PROVE YOUR COSMIC KNOWLEDGE</p>
+
+<div class="quiz-container animate-in" id="quiz-container"></div>
+<div id="quiz-result" style="display:none"></div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<section id="footer-sec" data-target="MISSION COMPLETE" data-objects="847">
+<footer>
+<div style="margin-bottom:15px">
+<a href="#"><i class="fas fa-arrow-left"></i> Celestial Effects</a>
+<a href="#">Solar System</a>
+<a href="#">Earth Astronomy</a>
+<a href="#">Earth Structure</a>
+<a href="#"><i class="fas fa-home"></i> DharaVerse Home</a>
+</div>
+<p class="copy">© 2025 DharaVerse — Space Geography Education Platform</p>
+<p class="copy" style="margin-top:5px">Data sources: NASA, ESA, ISRO, IAU, JWST Science Team (Public Domain)</p>
+</footer>
+</section>
+</main>
+
+<!-- Glossary Button -->
+<button id="glossary-btn" title="Glossary"><i class="fas fa-book"></i></button>
+
+<!-- Glossary Panel -->
+<div id="glossary-panel">
+<button id="glossary-close"><i class="fas fa-times"></i></button>
+<h3 style="font-family:'Orbitron',sans-serif;color:var(--gold);font-size:14px;margin-bottom:20px">COSMIC GLOSSARY</h3>
+<div id="glossary-content"></div>
+</div>
+
+<!-- Random Fact Button -->
+<button id="fact-btn">🎲 Cosmic Fact</button>
+<div id="fact-toast"></div>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+["Light-year","Distance light travels in one year ≈ 9.46 trillion km. Used for stellar/galactic distances."],
+["Parsec","3.26 light-years. Derived from parallax angle of 1 arcsecond. Professional astronomers' preferred unit."],
+["AU (Astronomical Unit)","Mean Earth-Sun distance ≈ 149.6 million km. Used for solar system distances."],
+["Redshift","Increase in wavelength of light from objects moving away. Evidence of expanding universe."],
+["Blueshift","Decrease in wavelength from approaching objects. Andromeda galaxy is blueshifted toward us."],
+["Event Horizon","Boundary around a black hole beyond which nothing — not even light — can escape."],
+["Singularity","Point of theoretically infinite density at a black hole's center. Physics breaks down here."],
+["Chandrasekhar Limit","1.4 solar masses — maximum mass for a white dwarf. Above this → collapse to neutron star."],
+["Main Sequence","Band on H-R Diagram where stars spend ~90% of their lives fusing hydrogen to helium."],
+["H-R Diagram","Hertzsprung-Russell Diagram. Plots stars by luminosity vs temperature. Key tool for stellar classification."],
+["Cepheid Variable","Pulsating star whose period directly relates to luminosity. Used as 'standard candle' for distance measurement."],
+["Hubble Constant","H₀ ≈ 70 km/s/Mpc. Rate of universe's expansion. Galaxies recede faster with distance."],
+["CMB","Cosmic Microwave Background — thermal radiation from 380,000 years after Big Bang. Strongest evidence for Big Bang theory."],
+["Dark Matter","Invisible matter (~27% of universe) detected only by gravitational effects. Holds galaxies together."],
+["Dark Energy","Mysterious force (~68% of universe) driving accelerating expansion. Nature completely unknown."],
+["Cosmic Web","Large-scale structure of universe — filaments of galaxies connecting clusters with vast voids between them."],
+["Laniakea","Our home supercluster, ~520 million ly across, containing ~100,000 galaxies. Name means 'immense heaven' in Hawaiian."],
+["Galactic Year","Time for Sun to orbit Milky Way center once ≈ 225-250 million years. Also called Cosmic Year."],
+["Spaghettification","Stretching of objects into thin strands by extreme tidal forces near a black hole."],
+["Hawking Radiation","Theoretical radiation emitted by black holes due to quantum effects at event horizon. Causes slow evaporation."],
+["Roche Limit","Minimum distance a celestial body can approach a larger one before tidal forces tear it apart."],
+["Gravitational Lensing","Bending of light by massive objects (per general relativity). Used to detect dark matter and distant galaxies."],
+["Pulsar","Rapidly rotating neutron star emitting beams of radiation from magnetic poles. Appears to pulse like lighthouse."],
+["Magnetar","Neutron star with extremely powerful magnetic field (~10¹⁵ gauss). Can emit intense bursts of X-rays/gamma rays."],
+["Quasar","Quasi-stellar object — extremely luminous active galactic nucleus powered by supermassive black hole accreting matter."],
+["Blazar","Active galactic nucleus with relativistic jet pointed directly toward Earth. Appears extremely variable and bright."]
+];
+
+const spaceFacts = [
+"A day on Venus (243 Earth days) is longer than its year (225 Earth days).",
+"Neutron stars are so dense that a teaspoon of material weighs about 10 million tons.",
+"There are more stars in the universe than grains of sand on all Earth's beaches.",
+"The Voyager 1 spacecraft is the most distant human-made object — over 24 billion km from Earth.",
+"If you could fold a piece of paper 42 times, it would reach the Moon.",
+"The Sun makes up 99.86% of the total mass of our solar system.",
+"Space is completely silent — no medium for sound waves to travel through.",
+"A year on Mercury is just 88 Earth days, but a day is 59 Earth days.",
+"The footprints on the Moon will last for 100 million years — no wind or water to erode them.",
+"There's a planet made of diamonds — 55 Cancri e, twice Earth's size.",
+"The largest known star, UY Scuti, could fit 5 billion Suns inside it.",
+"The observable universe contains about 2 trillion galaxies.",
+"Light from the Sun takes 8 minutes 20 seconds to reach Earth.",
+"There's a giant cloud of alcohol in space (Sagittarius B2) — enough to fill 400 trillion pints.",
+"Saturn would float in water — its density is less than water's.",
+"One million Earths could fit inside the Sun.",
+"The International Space Station travels at 27,600 km/h — orbiting Earth every 90 minutes.",
+"Astronauts grow up to 5 cm taller in space due to spinal decompression.",
+"There are more trees on Earth (~3 trillion) than stars in the Milky Way (~200 billion).",
+"A black hole the mass of Earth would be only 1.7 cm in diameter.",
+"The coldest known place in the universe is the Boomerang Nebula at -272.15°C.",
+"Jupiter's Great Red Spot is a storm that has raged for over 400 years.",
+"Mars has the tallest mountain in the solar system — Olympus Mons (21.9 km high).",
+"If two pieces of the same metal touch in space, they permanently bond (cold welding).",
+"The Milky Way and Andromeda galaxies are approaching each other at 110 km/s.",
+"Pluto is smaller than Russia in surface area.",
+"There may be a planet made entirely of water — GJ 1214b.",
+"The Hubble Space Telescope can see objects 13.4 billion light-years away.",
+"One spoonful of a neutron star weighs about 6 billion tons.",
+"The space between galaxies is expanding faster than the speed of light.",
+"ISRO's Mangalyaan Mars mission cost less than making the movie 'The Martian'.",
+"A photon takes ~100,000 years to travel from the Sun's core to surface, then 8 min to Earth.",
+"There are rogue planets wandering through space without orbiting any star.",
+"The universe is beige — the average color is called 'Cosmic Latte'.",
+"If the Sun were a front door, Earth would be a nickel 50 meters away.",
+"Olympus Mons on Mars is so large that you can't see its peak from its base — it extends past the horizon.",
+"White dwarfs can become diamond-like as they cool — there may be a diamond star (BPM 37093, 'Lucy').",
+"The cosmic microwave background radiation has a temperature of 2.725 Kelvin.",
+"GPS satellites must account for Einstein's relativity — clocks tick faster in weaker gravity.",
+"The Andromeda Galaxy is the farthest object visible to the naked eye at 2.5 million light-years.",
+"Sound would take about 14 years to travel from Earth to the Sun if space had air.",
+"An astronaut's heart actually changes shape in space, becoming more spherical.",
+"There's a supermassive black hole (TON 618) with 66 billion solar masses.",
+"The Pillars of Creation in the Eagle Nebula may have already been destroyed by a supernova — we just can't see it yet.",
+"Io, Jupiter's moon, has over 400 active volcanoes — the most volcanically active body in the solar system.",
+"The Edge of the observable universe is about 46.5 billion light-years away in any direction.",
+"Chandrayaan-1 was the first mission to discover water molecules on the Moon's surface.",
+"JWST's sunshield is the size of a tennis court and has an SPF of about 1 million.",
+"Proxima Centauri b, the nearest exoplanet, would take ~6,300 years to reach with current technology.",
+"The largest known structure is the Hercules-Corona Borealis Great Wall — 10 billion light-years across."
+];
+
+const quizData = [
+{q:"What is the Chandrasekhar limit?",opts:["Maximum mass of a neutron star","Maximum mass of a white dwarf (1.4 M☉)","Minimum mass for a black hole","Maximum size of a galaxy"],ans:1},
+{q:"Which comet famously crashed into Jupiter in 1994?",opts:["Halley's Comet","Hale-Bopp","Shoemaker-Levy 9","NEOWISE"],ans:2},
+{q:"What type of galaxy is the Milky Way?",opts:["Elliptical","Irregular","Spiral","Barred Spiral"],ans:3},
+{q:"What does JWST primarily observe in?",opts:["Visible light","X-rays","Infrared","Radio waves"],ans:2},
+{q:"What is the correct order: meteoroid, meteor, meteorite?",opts:["Space → Ground → Atmosphere","Atmosphere → Space → Ground","Space → Atmosphere → Ground","Ground → Atmosphere → Space"],ans:2},
+{q:"Which ISRO mission was the cheapest Mars mission ever?",opts:["Chandrayaan-1","Mangalyaan (MOM)","Gaganyaan","Aditya-L1"],ans:1},
+{q:"What makes up 68% of the universe?",opts:["Dark matter","Ordinary matter","Dark energy","Radiation"],ans:2},
+{q:"Where does JWST orbit?",opts:["Low Earth Orbit","Geostationary orbit","Sun-Earth Lagrange Point L2","Mars orbit"],ans:2},
+{q:"What is a pulsar?",opts:["A dying star","A rapidly rotating neutron star emitting beams","A type of black hole","A variable star"],ans:1},
+{q:"What did the DART mission demonstrate?",opts:["Mars landing","Asteroid deflection by kinetic impact","Comet sample return","Moon south pole landing"],ans:1}
+];
+
+// ===== CURSOR =====
+const co=document.getElementById('cursor-outer'),ci=document.getElementById('cursor-inner'),
+cc=document.getElementById('cursor-cross'),cd=document.getElementById('cursor-dot');
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{
+mx=e.clientX;my=e.clientY;
+co.style.left=ci.style.left=cc.style.left=cd.style.left=mx+'px';
+co.style.top=ci.style.top=cc.style.top=cd.style.top=my+'px';
+});
+document.addEventListener('mouseover',e=>{
+if(e.target.closest('a,button,.quiz-opt,.card,.tag-pill,#side-nav a'))
+document.body.classList.add('cursor-hover');
+else document.body.classList.remove('cursor-hover');
+});
+
+// ===== STAR CANVAS =====
+const starCvs=document.getElementById('star-canvas');
+const starCtx=starCvs.getContext('2d');
+let stars=[];
+function initStars(){
+starCvs.width=window.innerWidth;
+starCvs.height=window.innerHeight;
+stars=[];
+const colors=['#fff','#ffd','#adf','#faa','#aff','#ffa','#ddf'];
+for(let i=0;i<800;i++){
+stars.push({
+x:Math.random()*starCvs.width,
+y:Math.random()*starCvs.height,
+r:Math.random()*1.5+0.3,
+c:colors[Math.floor(Math.random()*colors.length)],
+tw:Math.random()*Math.PI*2,
+ts:Math.random()*0.03+0.01
+});
+}
+}
+function drawStars(){
+starCtx.clearRect(0,0,starCvs.width,starCvs.height);
+stars.forEach(s=>{
+s.tw+=s.ts;
+const a=0.4+Math.sin(s.tw)*0.6;
+starCtx.globalAlpha=a;
+starCtx.fillStyle=s.c;
+starCtx.beginPath();
+starCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+starCtx.fill();
+});
+starCtx.globalAlpha=1;
+requestAnimationFrame(drawStars);
+}
+initStars();drawStars();
+window.addEventListener('resize',initStars);
+
+// ===== HERO DEEP FIELD CANVAS =====
+(function(){
+const c=document.getElementById('hero-canvas');
+const ctx=c.getContext('2d');
+let dots=[];
+function init(){
+c.width=c.parentElement.offsetWidth;
+c.height=c.parentElement.offsetHeight;
+dots=[];
+const colors=['#ff6655','#ffaa44','#ffdd66','#aaddff','#ffffff','#ff88aa','#88aaff','#ffcc88','#aaffaa'];
+for(let i=0;i<2000;i++){
+dots.push({
+x:Math.random()*c.width,
+y:Math.random()*c.height,
+r:Math.random()*2.5+0.5,
+c:colors[Math.floor(Math.random()*colors.length)],
+a:Math.random()*0.6+0.1
+});
+}
+}
+function draw(){
+ctx.clearRect(0,0,c.width,c.height);
+dots.forEach(d=>{
+ctx.globalAlpha=d.a;
+ctx.fillStyle=d.c;
+ctx.beginPath();
+ctx.ellipse(d.x,d.y,d.r,d.r*0.7,Math.random()*Math.PI,0,Math.PI*2);
+ctx.fill();
+});
+ctx.globalAlpha=1;
+}
+init();draw();
+window.addEventListener('resize',()=>{init();draw()});
+})();
+
+// ===== JWST HEXAGON MIRROR =====
+(function(){
+const container=document.getElementById('jwst-hex');
+const positions=[
+[56,10],[26,27],[86,27],[10,55],[56,55],[100,55],
+[26,73],[86,73],[56,90],[40,38],[72,38],[56,65],
+[40,82],[72,82],[26,55],[86,55],[56,28],[56,0]
+];
+for(let i=0;i<18&&i<positions.length;i++){
+const h=document.createElement('div');
+h.className='hex-seg';
+h.style.left=positions[i][0]+'px';
+h.style.top=positions[i][1]+'px';
+container.appendChild(h);
+}
+})();
+
+// ===== NEBULA STARS =====
+(function(){
+const nv=document.getElementById('nebula-viz');
+for(let i=0;i<60;i++){
+const s=document.createElement('div');
+s.className='nebula-star';
+s.style.left=Math.random()*100+'%';
+s.style.top=Math.random()*100+'%';
+s.style.width=(Math.random()*3+1)+'px';
+s.style.height=s.style.width;
+s.style.opacity=Math.random()*0.8+0.2;
+nv.appendChild(s);
+}
+})();
+
+// ===== HR DIAGRAM CANVAS =====
+(function(){
+const c=document.getElementById('hr-canvas');
+if(!c)return;
+const ctx=c.getContext('2d');
+function draw(){
+c.width=c.offsetWidth;c.height=c.offsetHeight;
+const w=c.width,h=c.height;
+const pad=50;
+// Background
+ctx.fillStyle='rgba(0,0,16,0.9)';
+ctx.fillRect(0,0,w,h);
+// Axes
+ctx.strokeStyle='rgba(255,255,255,0.3)';
+ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,h-pad);ctx.lineTo(w-pad,h-pad);ctx.stroke();
+// Labels
+ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='10px "Space Mono"';
+ctx.fillText('LUMINOSITY ↑',5,pad-10);
+ctx.fillText('← HOT           TEMPERATURE           COOL →',w/2-120,h-10);
+// Spectral types
+const types=['O','B','A','F','G','K','M'];
+const typeColors=['#9bb0ff','#aabfff','#cad7ff','#f8f7ff','#fff4ea','#ffd2a1','#ffcc6f'];
+types.forEach((t,i)=>{
+const x=pad+i*((w-2*pad)/6);
+ctx.fillStyle=typeColors[i];
+ctx.fillText(t,x,h-pad+15);
+});
+ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='9px "Space Mono"';
+ctx.fillText('Bright',5,pad+10);
+ctx.fillText('Dim',5,h-pad-10);
+// Main Sequence band
+ctx.globalAlpha=0.15;
+ctx.fillStyle='#fff';
+ctx.beginPath();
+ctx.moveTo(pad+10,pad+10);
+ctx.lineTo(pad+50,pad+10);
+ctx.lineTo(w-pad-10,h-pad-40);
+ctx.lineTo(w-pad-50,h-pad-40);
+ctx.closePath();ctx.fill();
+ctx.globalAlpha=1;
+// Label MS
+ctx.fillStyle='rgba(0,245,255,0.7)';ctx.font='11px "Orbitron"';
+ctx.fillText('MAIN SEQUENCE',w/2-50,h/2);
+// Plot stars
+const starData=[
+{n:'Sun',x:0.6,y:0.55,c:'#fff4ea',r:4},
+{n:'Sirius',x:0.35,y:0.4,c:'#cad7ff',r:4},
+{n:'Betelgeuse',x:0.85,y:0.1,c:'#ffcc6f',r:7},
+{n:'Rigel',x:0.15,y:0.08,c:'#aabfff',r:6},
+{n:'Proxima',x:0.9,y:0.85,c:'#ffcc6f',r:2},
+{n:'Vega',x:0.3,y:0.35,c:'#cad7ff',r:4},
+{n:'Polaris',x:0.5,y:0.2,c:'#fff4ea',r:5},
+{n:'White Dwarfs',x:0.2,y:0.8,c:'#fff',r:3},
+];
+starData.forEach(s=>{
+const sx=pad+(w-2*pad)*s.x;
+const sy=pad+(h-2*pad)*s.y;
+ctx.fillStyle=s.c;
+ctx.shadowColor=s.c;ctx.shadowBlur=10;
+ctx.beginPath();ctx.arc(sx,sy,s.r,0,Math.PI*2);ctx.fill();
+ctx.shadowBlur=0;
+ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='8px "Space Mono"';
+ctx.fillText(s.n,sx+s.r+3,sy+3);
+});
+// Giant branch label
+ctx.fillStyle='rgba(231,76,60,0.5)';ctx.font='9px "Orbitron"';
+ctx.fillText('GIANTS',w-pad-80,pad+50);
+// WD region label
+ctx.fillStyle='rgba(255,255,255,0.4)';
+ctx.fillText('WHITE DWARFS',pad+10,h-pad-50);
+}
+draw();
+window.addEventListener('resize',draw);
+})();
+
+// ===== GALAXY SPIRAL CANVAS =====
+(function(){
+const c=document.getElementById('galaxy-canvas');
+if(!c)return;
+const ctx=c.getContext('2d');
+let angle=0;
+function draw(){
+c.width=c.offsetWidth;c.height=c.offsetHeight;
+const cx=c.width/2,cy=c.height/2;
+ctx.fillStyle='rgba(0,0,16,0.95)';
+ctx.fillRect(0,0,c.width,c.height);
+// Bulge
+const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,40);
+bg.addColorStop(0,'rgba(255,220,150,0.6)');
+bg.addColorStop(1,'transparent');
+ctx.fillStyle=bg;
+ctx.beginPath();ctx.arc(cx,cy,40,0,Math.PI*2);ctx.fill();
+// Spiral arms
+const arms=4;
+const colors=['rgba(100,150,255,','rgba(255,200,100,','rgba(200,150,255,','rgba(150,200,255,'];
+for(let a=0;a<arms;a++){
+const baseAngle=(Math.PI*2/arms)*a+angle;
+for(let i=0;i<300;i++){
+const t=i*0.04;
+const r=t*25+10;
+const theta=baseAngle+t*1.2;
+const scatter=(Math.random()-0.5)*15;
+const x=cx+Math.cos(theta)*(r+scatter);
+const y=cy+Math.sin(theta)*(r*0.5+scatter*0.5);
+if(x<0||x>c.width||y<0||y>c.height)continue;
+const alpha=Math.max(0,0.7-t*0.03);
+const size=Math.random()*1.5+0.3;
+ctx.fillStyle=colors[a%4]+alpha+')';
+ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);ctx.fill();
+}
+}
+// Scattered field stars
+for(let i=0;i<200;i++){
+const x=Math.random()*c.width;
+const y=Math.random()*c.height;
+const dx=x-cx,dy=y-cy;
+const dist=Math.sqrt(dx*dx+dy*dy);
+if(dist<150){
+ctx.fillStyle='rgba(255,255,255,'+(Math.random()*0.3)+')';
+ctx.beginPath();ctx.arc(x,y,Math.random()+0.3,0,Math.PI*2);ctx.fill();
+}
+}
+angle+=0.002;
+requestAnimationFrame(draw);
+}
+draw();
+})();
+
+// ===== COSMIC WEB CANVAS =====
+(function(){
+const c=document.getElementById('cosmic-web-canvas');
+if(!c)return;
+const ctx=c.getContext('2d');
+let nodes=[];
+function init(){
+c.width=c.offsetWidth;c.height=c.offsetHeight;
+nodes=[];
+for(let i=0;i<80;i++){
+nodes.push({
+x:Math.random()*c.width,
+y:Math.random()*c.height,
+r:Math.random()*3+1,
+vx:(Math.random()-0.5)*0.2,
+vy:(Math.random()-0.5)*0.2
+});
+}
+}
+function draw(){
+ctx.fillStyle='rgba(0,0,16,0.15)';
+ctx.fillRect(0,0,c.width,c.height);
+// Filaments
+ctx.strokeStyle='rgba(0,245,255,0.08)';
+ctx.lineWidth=0.5;
+for(let i=0;i<nodes.length;i++){
+for(let j=i+1;j<nodes.length;j++){
+const dx=nodes[i].x-nodes[j].x;
+const dy=nodes[i].y-nodes[j].y;
+const d=Math.sqrt(dx*dx+dy*dy);
+if(d<120){
+ctx.globalAlpha=1-d/120;
+ctx.beginPath();
+ctx.moveTo(nodes[i].x,nodes[i].y);
+ctx.lineTo(nodes[j].x,nodes[j].y);
+ctx.stroke();
+}
+}
+}
+ctx.globalAlpha=1;
+// Nodes
+nodes.forEach(n=>{
+n.x+=n.vx;n.y+=n.vy;
+if(n.x<0||n.x>c.width)n.vx*=-1;
+if(n.y<0||n.y>c.height)n.vy*=-1;
+ctx.fillStyle='rgba(0,245,255,0.6)';
+ctx.shadowColor='rgba(0,245,255,0.5)';ctx.shadowBlur=8;
+ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
+ctx.shadowBlur=0;
+});
+requestAnimationFrame(draw);
+}
+init();draw();
+window.addEventListener('resize',init);
+})();
+
+// ===== BOOT SEQUENCE =====
+(function(){
+const bootScreen=document.getElementById('boot-screen');
+const lines=document.querySelectorAll('#boot-lines div');
+const fill=document.getElementById('boot-fill');
+let i=0;
+function showLine(){
+if(i<lines.length){
+lines[i].classList.add('show');
+fill.style.width=((i+1)/lines.length*100)+'%';
+i++;
+setTimeout(showLine,400);
+}else{
+setTimeout(()=>{
+bootScreen.style.opacity='0';
+bootScreen.style.transition='opacity 0.8s';
+setTimeout(()=>{
+bootScreen.style.display='none';
+document.getElementById('header').classList.add('visible');
+document.getElementById('side-nav').classList.add('visible');
+},800);
+},600);
+}
+}
+setTimeout(showLine,500);
+})();
+
+// ===== SCROLL HANDLING =====
+const sections=document.querySelectorAll('.section,[data-target]');
+const sideLinks=document.querySelectorAll('#side-nav a');
+const header=document.getElementById('header');
+const targetName=document.getElementById('target-name');
+const objCounter=document.getElementById('obj-counter');
+const scrollProg=document.getElementById('scroll-progress');
+
+function onScroll(){
+const st=window.scrollY;
+const sh=document.body.scrollHeight-window.innerHeight;
+const prog=Math.min(st/sh*100,100);
+scrollProg.style.width=prog+'%';
+
+// Find current section
+let currentIdx=0;
+let currentObj=0;
+let currentTarget='STANDBY';
+sections.forEach((s,i)=>{
+const rect=s.getBoundingClientRect();
+if(rect.top<window.innerHeight*0.5){
+currentIdx=i;
+if(s.dataset.target)currentTarget=s.dataset.target;
+if(s.dataset.objects)currentObj=parseInt(s.dataset.objects);
+}
+});
+targetName.textContent=currentTarget;
+// Animate counter
+const cur=parseInt(objCounter.textContent);
+if(cur!==currentObj){
+const diff=currentObj-cur;
+const step=Math.max(1,Math.abs(Math.ceil(diff/10)));
+objCounter.textContent=Math.min(cur+(diff>0?step:-step),currentObj);
+}
+
+// Side nav active
+sideLinks.forEach((l,i)=>{
+l.classList.toggle('active',i===currentIdx);
+});
+
+// Animate in elements
+document.querySelectorAll('.animate-in').forEach(el=>{
+const rect=el.getBoundingClientRect();
+if(rect.top<window.innerHeight*0.85){
+el.classList.add('visible');
+}
+});
+}
+window.addEventListener('scroll',onScroll);
+onScroll();
+
+// Keep updating counter smoothly
+setInterval(()=>{
+const sections2=document.querySelectorAll('[data-objects]');
+let target=0;
+sections2.forEach(s=>{
+if(s.getBoundingClientRect().top<window.innerHeight*0.5)
+target=parseInt(s.dataset.objects)||0;
+});
+const cur=parseInt(objCounter.textContent)||0;
+if(cur<target)objCounter.textContent=Math.min(cur+Math.ceil((target-cur)/5),target);
+else if(cur>target)objCounter.textContent=Math.max(cur-Math.ceil((cur-target)/5),target);
+},50);
+
+// ===== GLOSSARY =====
+(function(){
+const panel=document.getElementById('glossary-panel');
+const content=document.getElementById('glossary-content');
+const btn=document.getElementById('glossary-btn');
+const close=document.getElementById('glossary-close');
+glossaryData.forEach(([term,def])=>{
+const d=document.createElement('div');
+d.className='gloss-item';
+d.innerHTML=`<div class="term">${term}</div><div class="def">${def}</div>`;
+content.appendChild(d);
+});
+btn.addEventListener('click',()=>panel.classList.toggle('open'));
+close.addEventListener('click',()=>panel.classList.remove('open'));
+})();
+
+// ===== RANDOM FACT =====
+(function(){
+const btn=document.getElementById('fact-btn');
+const toast=document.getElementById('fact-toast');
+let timeout;
+btn.addEventListener('click',()=>{
+const fact=spaceFacts[Math.floor(Math.random()*spaceFacts.length)];
+toast.textContent='🌌 '+fact;
+toast.classList.add('show');
+clearTimeout(timeout);
+timeout=setTimeout(()=>toast.classList.remove('show'),5000);
+});
+})();
+
+// ===== QUIZ =====
+(function(){
+const container=document.getElementById('quiz-container');
+const result=document.getElementById('quiz-result');
+let answers=new Array(quizData.length).fill(-1);
+
+quizData.forEach((q,qi)=>{
+const div=document.createElement('div');
+div.className='quiz-q';
+div.innerHTML=`<h4>Q${qi+1}. ${q.q}</h4>`;
+q.opts.forEach((opt,oi)=>{
+const btn=document.createElement('button');
+btn.className='quiz-opt';
+btn.textContent=opt;
+btn.addEventListener('click',()=>{
+answers[qi]=oi;
+div.querySelectorAll('.quiz-opt').forEach((b,bi)=>{
+b.disabled=true;
+if(bi===q.ans)b.classList.add('correct');
+else if(bi===oi&&oi!==q.ans)b.classList.add('wrong');
+});
+});
+div.appendChild(btn);
+});
+container.appendChild(div);
+});
+
+const submitBtn=document.createElement('button');
+submitBtn.id='quiz-submit';
+submitBtn.textContent='COMPLETE MISSION DEBRIEF';
+submitBtn.addEventListener('click',()=>{
+let score=0;
+quizData.forEach((q,i)=>{if(answers[i]===q.ans)score++});
+let msg='';
+if(score<=3)msg='Mission aborted — study harder, cadet.';
+else if(score<=6)msg='Partial mission success. Review weak areas.';
+else if(score<=8)msg='Mission accomplished! Excellent work.';
+else msg='You belong at NASA/ISRO! Perfect score! 🚀';
+result.style.display='block';
+result.innerHTML=`<div class="score">${score}/10</div><div class="msg">${msg}</div>`;
+submitBtn.style.display='none';
+});
+container.appendChild(submitBtn);
+})();
+
+// ===== SIDE NAV SMOOTH SCROLL =====
+sideLinks.forEach(l=>{
+l.addEventListener('click',e=>{
+e.preventDefault();
+const target=document.querySelector(l.getAttribute('href'));
+if(target)target.scrollIntoView({behavior:'smooth'});
+});
+});
+</script>
+</body>
+</html>
