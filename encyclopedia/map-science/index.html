@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Science & Techniques | GEOTOPIA Encyclopedia</title>
+    <style>
+        /* ===================================
+           ROOT VARIABLES & RESET
+        =================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0a0a1a;
+            --secondary: #1a1a3e;
+            --accent1: #4f8ef7;
+            --accent2: #7c3aed;
+            --accent3: #06b6d4;
+            --accent4: #10b981;
+            --accent5: #f59e0b;
+            --gold: #fbbf24;
+            --text-light: #e2e8f0;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(255,255,255,0.04);
+            --card-border: rgba(255,255,255,0.08);
+            --glow1: #4f8ef7;
+            --glow2: #7c3aed;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--primary);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===================================
+           ANIMATED BACKGROUND
+        =================================== */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Grid lines */
+        .bg-canvas::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,142,247,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,142,247,0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 60px; }
+        }
+
+        /* Gradient orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(79,142,247,0.15), transparent);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(124,58,237,0.12), transparent);
+            top: 30%;
+            right: -100px;
+            animation-delay: -3s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6,182,212,0.1), transparent);
+            bottom: 10%;
+            left: 20%;
+            animation-delay: -6s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-40px) scale(1.05); }
+        }
+
+        /* Floating map markers */
+        .map-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(79,142,247,0.4);
+            animation: particleFloat linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ===================================
+           NAVIGATION BAR
+        =================================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0 40px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10,10,26,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .navbar-logo {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .navbar-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent1), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-sep {
+            opacity: 0.4;
+        }
+
+        .breadcrumb-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb-link:hover {
+            color: var(--accent1);
+        }
+
+        .breadcrumb-current {
+            color: var(--accent1);
+            font-weight: 600;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border: 1px solid rgba(79,142,247,0.3);
+            border-radius: 25px;
+            color: var(--accent1);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: rgba(79,142,247,0.05);
+        }
+
+        .back-btn:hover {
+            background: rgba(79,142,247,0.15);
+            border-color: var(--accent1);
+            transform: translateX(-3px);
+            box-shadow: 0 0 20px rgba(79,142,247,0.2);
+        }
+
+        .back-btn svg {
+            transition: transform 0.3s;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-3px);
+        }
+
+        /* ===================================
+           HERO SECTION
+        =================================== */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 40px 60px;
+            text-align: center;
+        }
+
+        /* Animated globe SVG */
+        .hero-globe {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .globe-ring {
+            animation: globeSpin 12s linear infinite;
+            transform-origin: center;
+        }
+
+        .globe-ring-2 {
+            animation: globeSpinReverse 8s linear infinite;
+            transform-origin: center;
+        }
+
+        .globe-pin {
+            animation: pinBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes globeSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes globeSpinReverse {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        @keyframes pinBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(79,142,247,0.1);
+            border: 1px solid rgba(79,142,247,0.25);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent1);
+            margin-bottom: 25px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hero-badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent1);
+            border-radius: 50%;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        .hero-title-line1 {
+            display: block;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title-line2 {
+            display: block;
+            background: linear-gradient(135deg, var(--accent1) 0%, var(--accent2) 50%, var(--accent3) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            line-height: 1.8;
+            margin-bottom: 50px;
+        }
+
+        /* Hero stats */
+        .hero-stats {
+            display: flex;
+            gap: 50px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent1), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+        }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .hero-scroll {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            animation: scrollBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(10px); opacity: 1; }
+        }
+
+        /* ===================================
+           MAIN CONTENT AREA
+        =================================== */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px 100px;
+        }
+
+        /* Section title */
+        .section-label {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-label-text {
+            font-size: 0.8rem;
+            color: var(--accent1);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .section-label h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .section-label p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ===================================
+           CARDS GRID
+        =================================== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        /* Card 1 - Cartography (featured large) */
+        .card:nth-child(1) {
+            grid-column: span 7;
+        }
+
+        /* Card 2 - Map Projections */
+        .card:nth-child(2) {
+            grid-column: span 5;
+        }
+
+        /* Card 3 - GIS Remote Sensing */
+        .card:nth-child(3) {
+            grid-column: span 4;
+        }
+
+        /* Card 4 - Coordinates */
+        .card:nth-child(4) {
+            grid-column: span 4;
+        }
+
+        /* Card 5 - Time Zones */
+        .card:nth-child(5) {
+            grid-column: span 4;
+        }
+
+        /* ===================================
+           CARD STYLES
+        =================================== */
+        .card {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: block;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            min-height: 280px;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        /* Card gradient overlay (unique per card) */
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            border-radius: 24px;
+        }
+
+        .card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        /* Card 1 - Blue gradient */
+        .card:nth-child(1) .card-overlay {
+            background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,58,237,0.05));
+        }
+
+        .card:nth-child(1):hover {
+            box-shadow: 0 0 0 1px rgba(79,142,247,0.3), 0 30px 80px rgba(79,142,247,0.15);
+        }
+
+        /* Card 2 - Purple gradient */
+        .card:nth-child(2) .card-overlay {
+            background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.05));
+        }
+
+        .card:nth-child(2):hover {
+            box-shadow: 0 0 0 1px rgba(124,58,237,0.3), 0 30px 80px rgba(124,58,237,0.15);
+        }
+
+        /* Card 3 - Cyan gradient */
+        .card:nth-child(3) .card-overlay {
+            background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(16,185,129,0.05));
+        }
+
+        .card:nth-child(3):hover {
+            box-shadow: 0 0 0 1px rgba(6,182,212,0.3), 0 30px 80px rgba(6,182,212,0.15);
+        }
+
+        /* Card 4 - Green gradient */
+        .card:nth-child(4) .card-overlay {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(245,158,11,0.05));
+        }
+
+        .card:nth-child(4):hover {
+            box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 30px 80px rgba(16,185,129,0.15);
+        }
+
+        /* Card 5 - Amber gradient */
+        .card:nth-child(5) .card-overlay {
+            background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05));
+        }
+
+        .card:nth-child(5):hover {
+            box-shadow: 0 0 0 1px rgba(245,158,11,0.3), 0 30px 80px rgba(245,158,11,0.15);
+        }
+
+        /* Card visual area (top decorative section) */
+        .card-visual {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card:nth-child(1) .card-visual { height: 220px; }
+
+        .card-visual-bg {
+            position: absolute;
+            inset: 0;
+        }
+
+        /* Visual backgrounds per card */
+        .card:nth-child(1) .card-visual-bg {
+            background: linear-gradient(135deg, #0f1b3d 0%, #1a1040 50%, #0d2040 100%);
+        }
+
+        .card:nth-child(2) .card-visual-bg {
+            background: linear-gradient(135deg, #1a0f3d 0%, #2d1065 50%, #1a0d40 100%);
+        }
+
+        .card:nth-child(3) .card-visual-bg {
+            background: linear-gradient(135deg, #0f2d3d 0%, #065a73 50%, #0d3040 100%);
+        }
+
+        .card:nth-child(4) .card-visual-bg {
+            background: linear-gradient(135deg, #0f2d1a 0%, #065a30 50%, #0d400d 100%);
+        }
+
+        .card:nth-child(5) .card-visual-bg {
+            background: linear-gradient(135deg, #2d1f0f 0%, #654010 50%, #401a0d 100%);
+        }
+
+        /* SVG illustration in card */
+        .card-svg {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-svg svg {
+            filter: drop-shadow(0 0 20px currentColor);
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover .card-svg svg {
+            transform: scale(1.08) rotate(2deg);
+        }
+
+        /* Card number badge */
+        .card-number {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+            z-index: 5;
+            letter-spacing: 0.5px;
+        }
+
+        .card:nth-child(1) .card-number {
+            background: rgba(79,142,247,0.2);
+            border: 1px solid rgba(79,142,247,0.4);
+            color: var(--accent1);
+        }
+
+        .card:nth-child(2) .card-number {
+            background: rgba(124,58,237,0.2);
+            border: 1px solid rgba(124,58,237,0.4);
+            color: #a78bfa;
+        }
+
+        .card:nth-child(3) .card-number {
+            background: rgba(6,182,212,0.2);
+            border: 1px solid rgba(6,182,212,0.4);
+            color: var(--accent3);
+        }
+
+        .card:nth-child(4) .card-number {
+            background: rgba(16,185,129,0.2);
+            border: 1px solid rgba(16,185,129,0.4);
+            color: var(--accent4);
+        }
+
+        .card:nth-child(5) .card-number {
+            background: rgba(245,158,11,0.2);
+            border: 1px solid rgba(245,158,11,0.4);
+            color: var(--accent5);
+        }
+
+        /* New badge */
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        .badge-featured {
+            background: rgba(251,191,36,0.2);
+            border: 1px solid rgba(251,191,36,0.4);
+            color: var(--gold);
+        }
+
+        .badge-new {
+            background: rgba(16,185,129,0.2);
+            border: 1px solid rgba(16,185,129,0.4);
+            color: var(--accent4);
+        }
+
+        /* Card body (text content) */
+        .card-body {
+            padding: 28px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .card-category {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .card:nth-child(1) .card-category { color: var(--accent1); }
+        .card:nth-child(2) .card-category { color: #a78bfa; }
+        .card:nth-child(3) .card-category { color: var(--accent3); }
+        .card:nth-child(4) .card-category { color: var(--accent4); }
+        .card:nth-child(5) .card-category { color: var(--accent5); }
+
+        .card-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.5;
+        }
+
+        .card-read-time {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+            line-height: 1.3;
+            transition: color 0.3s;
+        }
+
+        .card:nth-child(1) .card-title { font-size: 1.8rem; }
+
+        .card:hover .card-title { color: #f0f4ff; }
+
+        .card-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        /* Card tags */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 22px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .card:hover .tag {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        /* Card footer / CTA */
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-cta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            transition: gap 0.3s;
+        }
+
+        .card:nth-child(1) .card-cta { color: var(--accent1); }
+        .card:nth-child(2) .card-cta { color: #a78bfa; }
+        .card:nth-child(3) .card-cta { color: var(--accent3); }
+        .card:nth-child(4) .card-cta { color: var(--accent4); }
+        .card:nth-child(5) .card-cta { color: var(--accent5); }
+
+        .card:hover .card-cta {
+            gap: 12px;
+        }
+
+        .cta-arrow {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .card:nth-child(1) .cta-arrow {
+            background: rgba(79,142,247,0.15);
+            border: 1px solid rgba(79,142,247,0.3);
+        }
+
+        .card:nth-child(2) .cta-arrow {
+            background: rgba(124,58,237,0.15);
+            border: 1px solid rgba(124,58,237,0.3);
+        }
+
+        .card:nth-child(3) .cta-arrow {
+            background: rgba(6,182,212,0.15);
+            border: 1px solid rgba(6,182,212,0.3);
+        }
+
+        .card:nth-child(4) .cta-arrow {
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+
+        .card:nth-child(5) .cta-arrow {
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+
+        .card:hover .cta-arrow {
+            transform: rotate(45deg);
+        }
+
+        /* Topics count */
+        .card-topics {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Divider line in card visual */
+        .card-visual-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+        }
+
+        /* ===================================
+           BOTTOM SECTION - QUICK LINKS
+        =================================== */
+        .quick-section {
+            margin-top: 80px;
+            padding: 50px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(79,142,247,0.4), transparent);
+        }
+
+        .quick-section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 22px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .quick-link:hover {
+            color: white;
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .quick-link-icon {
+            font-size: 1.1rem;
+        }
+
+        /* ===================================
+           LOADING ANIMATION
+        =================================== */
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--primary);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-globe {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(79,142,247,0.2);
+            border-top-color: var(--accent1);
+            border-right-color: var(--accent2);
+            border-radius: 50%;
+            animation: loaderSpin 1s linear infinite;
+        }
+
+        @keyframes loaderSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ===================================
+           SCROLL PROGRESS BAR
+        =================================== */
+        .scroll-progress {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+            z-index: 999;
+            transition: width 0.1s;
+            box-shadow: 0 0 8px var(--accent1);
+        }
+
+        /* ===================================
+           BACK TO TOP
+        =================================== */
+        .back-to-top {
+            position: fixed;
+            bottom: 35px;
+            right: 35px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(79,142,247,0.3);
+            font-size: 1.1rem;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 8px 30px rgba(79,142,247,0.5);
+        }
+
+        /* ===================================
+           RESPONSIVE
+        =================================== */
+        @media (max-width: 1100px) {
+            .card:nth-child(1),
+            .card:nth-child(2) {
+                grid-column: span 12;
+            }
+
+            .card:nth-child(3),
+            .card:nth-child(4),
+            .card:nth-child(5) {
+                grid-column: span 4;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+
+            .card:nth-child(1) {
+                grid-column: span 2;
+            }
+
+            .card:nth-child(2),
+            .card:nth-child(3),
+            .card:nth-child(4),
+            .card:nth-child(5) {
+                grid-column: span 1;
+            }
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .navbar-breadcrumb {
+                display: none;
+            }
+
+            .hero {
+                padding: 90px 20px 40px;
+            }
+
+            .main-content {
+                padding: 20px 20px 80px;
+            }
+
+            .hero-stats {
+                gap: 30px;
+            }
+
+            .quick-section {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card:nth-child(n) {
+                grid-column: span 1;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .hero-globe {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Page Loader -->
+    <div class="page-loader" id="loader">
+        <div class="loader-globe"></div>
+        <p class="loader-text">Loading Map Science...</p>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Animated Background -->
+    <div class="bg-canvas">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="navbar-logo">🌍</div>
+            <span class="navbar-title">GEOTOPIA</span>
+        </a>
+
+        <div class="navbar-breadcrumb">
+            <a href="/" class="breadcrumb-link">Home</a>
+            <span class="breadcrumb-sep">›</span>
+            <a href="/encyclopedia/" class="breadcrumb-link">Encyclopedia</a>
+            <span class="breadcrumb-sep">›</span>
+            <span class="breadcrumb-current">Map Science</span>
+        </div>
+
+        <a href="/encyclopedia/" class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Back to Encyclopedia
+        </a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Animated Globe -->
+        <div class="hero-globe">
+            <svg viewBox="0 0 180 180" fill="none">
+                <!-- Globe base -->
+                <circle cx="90" cy="90" r="75" fill="rgba(79,142,247,0.06)" stroke="rgba(79,142,247,0.3)" stroke-width="1.5"/>
+
+                <!-- Latitude lines -->
+                <ellipse cx="90" cy="90" rx="75" ry="25" stroke="rgba(79,142,247,0.15)" stroke-width="1" fill="none"/>
+                <ellipse cx="90" cy="90" rx="75" ry="50" stroke="rgba(79,142,247,0.1)" stroke-width="1" fill="none"/>
+
+                <!-- Longitude lines rotating -->
+                <g class="globe-ring">
+                    <ellipse cx="90" cy="90" rx="30" ry="75" stroke="rgba(124,58,237,0.2)" stroke-width="1" fill="none"/>
+                    <ellipse cx="90" cy="90" rx="60" ry="75" stroke="rgba(79,142,247,0.15)" stroke-width="1" fill="none"/>
+                </g>
+
+                <!-- Equator (highlight) -->
+                <ellipse cx="90" cy="90" rx="75" ry="18" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" fill="none"/>
+
+                <!-- Continent blobs -->
+                <g class="globe-ring-2" opacity="0.6">
+                    <ellipse cx="75" cy="78" rx="18" ry="12" fill="rgba(16,185,129,0.25)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+                    <ellipse cx="110" cy="75" rx="22" ry="14" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.35)" stroke-width="1"/>
+                    <ellipse cx="90" cy="105" rx="14" ry="9" fill="rgba(16,185,129,0.18)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+                </g>
+
+                <!-- Map pin -->
+                <g class="globe-pin" transform="translate(90,40)">
+                    <circle cx="0" cy="0" r="8" fill="rgba(239,68,68,0.9)" stroke="white" stroke-width="2"/>
+                    <line x1="0" y1="8" x2="0" y2="20" stroke="rgba(239,68,68,0.7)" stroke-width="2"/>
+                    <circle cx="0" cy="0" r="4" fill="white" opacity="0.6"/>
+                </g>
+
+                <!-- Glow rings -->
+                <circle cx="90" cy="90" r="75" stroke="rgba(79,142,247,0.1)" stroke-width="8" fill="none"/>
+                <circle cx="90" cy="90" r="85" stroke="rgba(79,142,247,0.05)" stroke-width="4" fill="none"/>
+            </svg>
+        </div>
+
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            GEOTOPIA Encyclopedia
+            <span class="hero-badge-dot"></span>
+        </div>
+
+        <h1 class="hero-title">
+            <span class="hero-title-line1">Map Science &</span>
+            <span class="hero-title-line2">Techniques</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            From ancient cave paintings to satellite imagery — explore the complete science of cartography, 
+            projections, GIS technology, coordinate systems, and global time zones.
+        </p>
+
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-number">5</span>
+                <span class="hero-stat-label">In-Depth Topics</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">197</span>
+                <span class="hero-stat-label">Countries Covered</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">60+</span>
+                <span class="hero-stat-label">Map Projections</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">16K</span>
+                <span class="hero-stat-label">BCE to Present</span>
+            </div>
+        </div>
+
+        <div class="hero-scroll">
+            <span>Explore Topics</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <div class="section-label">
+            <p class="section-label-text">Browse Topics</p>
+            <h2>Choose Your Map Science Journey</h2>
+            <p>Five comprehensive guides covering every aspect of cartography and spatial science</p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="cards-grid">
+
+            <!-- CARD 1: Cartography (Featured) -->
+            <a href="cartography.html" class="card">
+                <div class="card-overlay"></div>
+                <div class="card-number">79</div>
+                <span class="card-badge badge-featured">⭐ Featured</span>
+
+                <div class="card-visual">
+                    <div class="card-visual-bg"></div>
+                    <div class="card-svg">
+                        <svg viewBox="0 0 320 180" width="100%" height="100%">
+                            <!-- Ancient parchment map -->
+                            <rect x="20" y="15" width="280" height="150" rx="8" fill="rgba(245,222,179,0.08)" stroke="rgba(245,222,179,0.15)" stroke-width="1.5"/>
+
+                            <!-- Grid lines -->
+                            <g stroke="rgba(79,142,247,0.12)" stroke-width="0.8">
+                                <line x1="80" y1="15" x2="80" y2="165"/>
+                                <line x1="140" y1="15" x2="140" y2="165"/>
+                                <line x1="200" y1="15" x2="200" y2="165"/>
+                                <line x1="260" y1="15" x2="260" y2="165"/>
+                                <line x1="20" y1="55" x2="300" y2="55"/>
+                                <line x1="20" y1="95" x2="300" y2="95"/>
+                                <line x1="20" y1="135" x2="300" y2="135"/>
+                            </g>
+
+                            <!-- Continents -->
+                            <path d="M40,40 Q70,30 100,45 L110,75 Q90,85 60,78 Z" fill="rgba(16,185,129,0.25)" stroke="rgba(16,185,129,0.5)" stroke-width="1.5"/>
+                            <path d="M130,30 Q180,25 220,40 L230,80 Q200,90 165,85 Q140,80 130,60 Z" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.45)" stroke-width="1.5"/>
+                            <path d="M240,35 Q275,28 295,50 L290,90 Q270,95 250,80 Z" fill="rgba(16,185,129,0.22)" stroke="rgba(16,185,129,0.45)" stroke-width="1.5"/>
+                            <path d="M50,110 Q90,100 130,115 L125,150 Q90,158 55,148 Z" fill="rgba(16,185,129,0.18)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5"/>
+                            <path d="M180,105 Q220,98 260,112 L255,148 Q220,155 185,145 Z" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5"/>
+
+                            <!-- Routes/paths -->
+                            <path d="M80,65 Q120,50 160,70 Q200,85 240,65" stroke="rgba(245,158,11,0.6)" stroke-width="2" fill="none" stroke-dasharray="6,4"/>
+                            <path d="M60,130 Q140,110 220,135" stroke="rgba(79,142,247,0.5)" stroke-width="1.5" fill="none" stroke-dasharray="4,3"/>
+
+                            <!-- Map markers -->
+                            <g fill="rgba(239,68,68,0.9)">
+                                <circle cx="85" cy="62" r="4"/>
+                                <circle cx="160" cy="68" r="4"/>
+                                <circle cx="240" cy="62" r="4"/>
+                                <circle cx="145" cy="130" r="4"/>
+                            </g>
+
+                            <!-- Compass rose -->
+                            <g transform="translate(275,145)" opacity="0.8">
+                                <circle cx="0" cy="0" r="14" fill="none" stroke="rgba(79,142,247,0.3)" stroke-width="1"/>
+                                <path d="M0,-13 L3,-5 L0,0 L-3,-5 Z" fill="rgba(239,68,68,0.8)"/>
+                                <path d="M0,13 L3,5 L0,0 L-3,5 Z" fill="rgba(255,255,255,0.3)"/>
+                                <text x="0" y="-17" text-anchor="middle" fill="rgba(239,68,68,0.9)" font-size="9" font-weight="bold">N</text>
+                            </g>
+
+                            <!-- Scale bar -->
+                            <g transform="translate(30,155)">
+                                <rect x="0" y="0" width="40" height="6" fill="rgba(79,142,247,0.5)"/>
+                                <rect x="40" y="0" width="40" height="6" fill="rgba(255,255,255,0.1)" stroke="rgba(79,142,247,0.3)" stroke-width="1"/>
+                                <text x="0" y="15" fill="rgba(255,255,255,0.4)" font-size="7">0</text>
+                                <text x="80" y="15" fill="rgba(255,255,255,0.4)" font-size="7">500 km</text>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="card-visual-line"></div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-category">Cartography</span>
+                        <span class="card-dot"></span>
+                        <span class="card-read-time">45 min read</span>
+                    </div>
+
+                    <h3 class="card-title">The Complete Art & Science of Mapmaking</h3>
+                    <p class="card-desc">
+                        Journey from 16,500 BCE cave maps to modern digital cartography. 
+                        Explore ancient techniques, medieval portolan charts, Age of Exploration discoveries, 
+                        all map types from topographic to thematic, and master scale, direction & symbols.
+                    </p>
+
+                    <div class="card-tags">
+                        <span class="tag">🏺 Ancient Maps</span>
+                        <span class="tag">⚔️ Medieval Cartography</span>
+                        <span class="tag">🌊 Age of Exploration</span>
+                        <span class="tag">🗺️ All Map Types</span>
+                        <span class="tag">📏 Scale & Reading</span>
+                        <span class="tag">🧭 Direction</span>
+                        <span class="tag">📍 Symbols</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="card-cta">
+                            Explore Cartography
+                            <div class="cta-arrow">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="card-topics">16+ Topics Inside</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 2: Map Projections -->
+            <a href="map-projections.html" class="card">
+                <div class="card-overlay"></div>
+                <div class="card-number">80</div>
+
+                <div class="card-visual">
+                    <div class="card-visual-bg"></div>
+                    <div class="card-svg">
+                        <svg viewBox="0 0 220 160" width="100%" height="100%">
+                            <!-- Globe -->
+                            <circle cx="60" cy="80" r="50" fill="rgba(124,58,237,0.08)" stroke="rgba(124,58,237,0.3)" stroke-width="1.5"/>
+                            <ellipse cx="60" cy="80" rx="50" ry="17" fill="none" stroke="rgba(124,58,237,0.2)" stroke-width="1"/>
+                            <ellipse cx="60" cy="80" rx="17" ry="50" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1"/>
+                            <path d="M30,60 Q60,50 90,65 L85,100 Q60,108 35,95 Z" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+
+                            <!-- Arrow (projection) -->
+                            <g opacity="0.7">
+                                <line x1="115" y1="80" x2="130" y2="80" stroke="rgba(167,139,250,0.8)" stroke-width="2"/>
+                                <polygon points="130,76 138,80 130,84" fill="rgba(167,139,250,0.8)"/>
+                                <line x1="95" y1="55" x2="115" y2="70" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" stroke-dasharray="3,2"/>
+                                <line x1="95" y1="105" x2="115" y2="90" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" stroke-dasharray="3,2"/>
+                            </g>
+
+                            <!-- Flat map result -->
+                            <rect x="142" y="30" width="70" height="100" rx="4" fill="rgba(124,58,237,0.06)" stroke="rgba(124,58,237,0.25)" stroke-width="1.5"/>
+                            <g stroke="rgba(167,139,250,0.15)" stroke-width="0.8">
+                                <line x1="142" y1="55" x2="212" y2="55"/>
+                                <line x1="142" y1="80" x2="212" y2="80"/>
+                                <line x1="142" y1="105" x2="212" y2="105"/>
+                                <line x1="165" y1="30" x2="165" y2="130"/>
+                                <line x1="188" y1="30" x2="188" y2="130"/>
+                            </g>
+                            <!-- Distorted continents on flat map -->
+                            <path d="M148,40 Q162,37 172,43 L170,65 Q158,68 149,62 Z" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+                            <path d="M175,38 Q190,34 205,42 L203,68 Q190,72 176,66 Z" fill="rgba(16,185,129,0.18)" stroke="rgba(16,185,129,0.35)" stroke-width="1"/>
+                            <path d="M148,85 Q165,80 180,88 L178,115 Q162,120 149,112 Z" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+
+                            <!-- Distortion indicators (Tissot circles) -->
+                            <ellipse cx="155" cy="50" rx="5" ry="5" fill="none" stroke="rgba(239,68,68,0.6)" stroke-width="1"/>
+                            <ellipse cx="195" cy="45" rx="7" ry="5" fill="none" stroke="rgba(239,68,68,0.6)" stroke-width="1"/>
+                            <ellipse cx="155" cy="100" rx="5" ry="6" fill="none" stroke="rgba(239,68,68,0.6)" stroke-width="1"/>
+                            <ellipse cx="200" cy="95" rx="9" ry="5.5" fill="none" stroke="rgba(239,68,68,0.6)" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <div class="card-visual-line"></div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-category">Map Projections</span>
+                        <span class="card-dot"></span>
+                        <span class="card-read-time">35 min read</span>
+                    </div>
+
+                    <h3 class="card-title">All Projections, Distortions & Uses</h3>
+                    <p class="card-desc">
+                        Why can't you flatten a sphere without distortion? Discover all major map projections — 
+                        Mercator, Robinson, Peters, Winkel Tripel — with interactive distortion comparisons.
+                    </p>
+
+                    <div class="card-tags">
+                        <span class="tag">🌐 15+ Projections</span>
+                        <span class="tag">📐 Tissot's Indicatrix</span>
+                        <span class="tag">🔄 Cylindrical</span>
+                        <span class="tag">🔺 Conic</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="card-cta">
+                            Explore Projections
+                            <div class="cta-arrow">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="card-topics">12+ Topics</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 3: GIS & Remote Sensing -->
+            <a href="gis-remote-sensing.html" class="card">
+                <div class="card-overlay"></div>
+                <div class="card-number">81</div>
+                <span class="card-badge badge-new">🛰️ Tech</span>
+
+                <div class="card-visual">
+                    <div class="card-visual-bg"></div>
+                    <div class="card-svg">
+                        <svg viewBox="0 0 200 150" width="100%" height="100%">
+                            <!-- Satellite orbit -->
+                            <ellipse cx="100" cy="80" rx="85" ry="55" fill="none" stroke="rgba(6,182,212,0.2)" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                            <!-- Earth -->
+                            <circle cx="100" cy="80" r="30" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.35)" stroke-width="1.5"/>
+                            <path d="M82,68 Q100,62 118,72 L115,95 Q100,100 85,92 Z" fill="rgba(16,185,129,0.3)" stroke="rgba(16,185,129,0.5)" stroke-width="1"/>
+
+                            <!-- Satellite -->
+                            <g transform="translate(185,30)">
+                                <rect x="-8" y="-5" width="16" height="10" rx="2" fill="rgba(6,182,212,0.4)" stroke="rgba(6,182,212,0.8)" stroke-width="1.5"/>
+                                <rect x="-20" y="-3" width="12" height="6" fill="rgba(245,158,11,0.5)" stroke="rgba(245,158,11,0.8)" stroke-width="1"/>
+                                <rect x="8" y="-3" width="12" height="6" fill="rgba(245,158,11,0.5)" stroke="rgba(245,158,11,0.8)" stroke-width="1"/>
+                            </g>
+
+                            <!-- Signal beams from satellite to Earth -->
+                            <line x1="177" y1="38" x2="115" y2="68" stroke="rgba(6,182,212,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+                            <line x1="177" y1="42" x2="110" y2="80" stroke="rgba(6,182,212,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+
+                            <!-- GIS layers stack -->
+                            <g transform="translate(10,25)">
+                                <rect x="0" y="30" width="55" height="18" rx="3" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+                                <text x="28" y="43" text-anchor="middle" fill="rgba(16,185,129,0.9)" font-size="7">🌱 Vegetation</text>
+
+                                <rect x="0" y="17" width="55" height="18" rx="3" fill="rgba(79,142,247,0.15)" stroke="rgba(79,142,247,0.4)" stroke-width="1"/>
+                                <text x="28" y="30" text-anchor="middle" fill="rgba(79,142,247,0.9)" font-size="7">💧 Water</text>
+
+                                <rect x="0" y="4" width="55" height="18" rx="3" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.4)" stroke-width="1"/>
+                                <text x="28" y="17" text-anchor="middle" fill="rgba(245,158,11,0.9)" font-size="7">🛣️ Roads</text>
+
+                                <rect x="0" y="-9" width="55" height="18" rx="3" fill="rgba(239,68,68,0.15)" stroke="rgba(239,68,68,0.4)" stroke-width="1"/>
+                                <text x="28" y="4" text-anchor="middle" fill="rgba(239,68,68,0.9)" font-size="7">🏙️ Buildings</text>
+                            </g>
+
+                            <!-- GPS signals -->
+                            <circle cx="100" cy="130" r="3" fill="rgba(6,182,212,0.8)"/>
+                            <circle cx="100" cy="130" r="8" fill="none" stroke="rgba(6,182,212,0.3)" stroke-width="1.5"/>
+                            <circle cx="100" cy="130" r="14" fill="none" stroke="rgba(6,182,212,0.15)" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <div class="card-visual-line"></div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-category">GIS & Remote Sensing</span>
+                        <span class="card-dot"></span>
+                        <span class="card-read-time">40 min read</span>
+                    </div>
+
+                    <h3 class="card-title">GIS, GPS & Satellite Imagery</h3>
+                    <p class="card-desc">
+                        Master GIS data layers, GPS satellite systems, LiDAR technology, 
+                        multispectral imagery, NDVI vegetation analysis, and real-world applications.
+                    </p>
+
+                    <div class="card-tags">
+                        <span class="tag">🛰️ Satellites</span>
+                        <span class="tag">📡 GPS/GNSS</span>
+                        <span class="tag">🔲 GIS Layers</span>
+                        <span class="tag">🌡️ NDVI</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="card-cta">
+                            Explore GIS
+                            <div class="cta-arrow">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="card-topics">14+ Topics</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 4: Coordinates -->
+            <a href="coordinates.html" class="card">
+                <div class="card-overlay"></div>
+                <div class="card-number">82</div>
+
+                <div class="card-visual">
+                    <div class="card-visual-bg"></div>
+                    <div class="card-svg">
+                        <svg viewBox="0 0 200 150" width="100%" height="100%">
+                            <!-- Globe with grid -->
+                            <circle cx="100" cy="75" r="60" fill="rgba(16,185,129,0.06)" stroke="rgba(16,185,129,0.25)" stroke-width="1.5"/>
+
+                            <!-- Latitude lines -->
+                            <ellipse cx="100" cy="75" rx="60" ry="20" fill="none" stroke="rgba(16,185,129,0.15)" stroke-width="1"/>
+                            <ellipse cx="100" cy="75" rx="60" ry="40" fill="none" stroke="rgba(16,185,129,0.1)" stroke-width="1"/>
+                            <!-- Equator highlighted -->
+                            <ellipse cx="100" cy="75" rx="60" ry="15" fill="none" stroke="rgba(239,68,68,0.5)" stroke-width="2"/>
+                            <text x="168" y="79" fill="rgba(239,68,68,0.7)" font-size="7">0°</text>
+
+                            <!-- Longitude lines -->
+                            <ellipse cx="100" cy="75" rx="20" ry="60" fill="none" stroke="rgba(16,185,129,0.12)" stroke-width="1"/>
+                            <ellipse cx="100" cy="75" rx="40" ry="60" fill="none" stroke="rgba(16,185,129,0.1)" stroke-width="1"/>
+                            <!-- Prime meridian -->
+                            <line x1="100" y1="15" x2="100" y2="135" stroke="rgba(79,142,247,0.5)" stroke-width="2"/>
+                            <text x="103" y="13" fill="rgba(79,142,247,0.7)" font-size="7">0°</text>
+
+                            <!-- UTM zones indication -->
+                            <rect x="30" y="120" width="140" height="18" rx="3" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+                            <g font-size="6" fill="rgba(255,255,255,0.4)">
+                                <text x="38" y="131">18T</text>
+                                <text x="55" y="131">19T</text>
+                                <text x="72" y="131">20T</text>
+                                <text x="89" y="131">21T</text>
+                                <text x="106" y="131">22T</text>
+                                <text x="123" y="131">23T</text>
+                                <text x="140" y="131">24T</text>
+                                <text x="157" y="131">25T</text>
+                            </g>
+
+                            <!-- Coordinates callout -->
+                            <circle cx="125" cy="52" r="5" fill="rgba(245,158,11,0.8)" stroke="white" stroke-width="1.5"/>
+                            <rect x="135" y="40" width="55" height="25" rx="4" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.4)" stroke-width="1"/>
+                            <line x1="130" y1="52" x2="135" y2="52" stroke="rgba(245,158,11,0.5)" stroke-width="1"/>
+                            <text x="138" y="51" fill="rgba(245,158,11,0.9)" font-size="6">40.7128° N</text>
+                            <text x="138" y="60" fill="rgba(245,158,11,0.9)" font-size="6">74.0060° W</text>
+                        </svg>
+                    </div>
+                    <div class="card-visual-line"></div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-category">Coordinate Systems</span>
+                        <span class="card-dot"></span>
+                        <span class="card-read-time">30 min read</span>
+                    </div>
+
+                    <h3 class="card-title">Lat-Long, Navigation & Grid Systems</h3>
+                    <p class="card-desc">
+                        Complete guide to geographic coordinates, UTM, MGRS, WGS84 datum, 
+                        navigation methods, interactive converters and coordinate calculations.
+                    </p>
+
+                    <div class="card-tags">
+                        <span class="tag">📐 Lat/Long</span>
+                        <span class="tag">🗺️ UTM Zones</span>
+                        <span class="tag">🎯 MGRS</span>
+                        <span class="tag">🧮 Calculators</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="card-cta">
+                            Explore Coordinates
+                            <div class="cta-arrow">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="card-topics">11+ Topics</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 5: Time Zones -->
+            <a href="time-zones.html" class="card">
+                <div class="card-overlay"></div>
+                <div class="card-number">83</div>
+                <span class="card-badge badge-new">🌍 197 Countries</span>
+
+                <div class="card-visual">
+                    <div class="card-visual-bg"></div>
+                    <div class="card-svg">
+                        <svg viewBox="0 0 200 150" width="100%" height="100%">
+                            <!-- World map outline (simplified) -->
+                            <rect x="10" y="20" width="180" height="110" rx="4" fill="rgba(245,158,11,0.04)" stroke="rgba(245,158,11,0.15)" stroke-width="1"/>
+
+                            <!-- Time zone vertical bands -->
+                            <g opacity="0.3">
+                                <rect x="10" y="20" width="15" height="110" fill="rgba(79,142,247,0.3)"/>
+                                <rect x="40" y="20" width="15" height="110" fill="rgba(124,58,237,0.3)"/>
+                                <rect x="70" y="20" width="15" height="110" fill="rgba(6,182,212,0.3)"/>
+                                <rect x="100" y="20" width="15" height="110" fill="rgba(16,185,129,0.3)"/>
+                                <rect x="130" y="20" width="15" height="110" fill="rgba(245,158,11,0.3)"/>
+                                <rect x="160" y="20" width="15" height="110" fill="rgba(239,68,68,0.3)"/>
+                            </g>
+
+                            <!-- Continent shapes (very simplified) -->
+                            <path d="M20,45 Q45,38 65,50 L62,80 Q45,85 22,75 Z" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+                            <path d="M75,38 Q115,32 135,48 L130,90 Q110,95 78,85 Z" fill="rgba(16,185,129,0.18)" stroke="rgba(16,185,129,0.35)" stroke-width="1"/>
+                            <path d="M145,42 Q170,38 188,55 L185,82 Q168,88 147,75 Z" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+                            <path d="M30,95 Q55,90 70,100 L68,118 Q52,122 32,115 Z" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+                            <path d="M145,95 Q165,90 185,98 L183,118 Q165,122 147,115 Z" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.28)" stroke-width="1"/>
+
+                            <!-- Clock faces -->
+                            <g transform="translate(35,55)">
+                                <circle cx="0" cy="0" r="12" fill="rgba(79,142,247,0.15)" stroke="rgba(79,142,247,0.5)" stroke-width="1.5"/>
+                                <line x1="0" y1="0" x2="0" y2="-8" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="0" y1="0" x2="6" y2="3" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
+                                <circle cx="0" cy="0" r="1.5" fill="white"/>
+                                <text x="0" y="20" text-anchor="middle" fill="rgba(79,142,247,0.8)" font-size="6">UTC-5</text>
+                            </g>
+
+                            <g transform="translate(105,55)">
+                                <circle cx="0" cy="0" r="12" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.5)" stroke-width="1.5"/>
+                                <line x1="0" y1="0" x2="5" y2="-6" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="0" y1="0" x2="8" y2="2" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
+                                <circle cx="0" cy="0" r="1.5" fill="white"/>
+                                <text x="0" y="20" text-anchor="middle" fill="rgba(6,182,212,0.8)" font-size="6">UTC+0</text>
+                            </g>
+
+                            <g transform="translate(170,55)">
+                                <circle cx="0" cy="0" r="12" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.5)" stroke-width="1.5"/>
+                                <line x1="0" y1="0" x2="-3" y2="-8" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="0" y1="0" x2="7" y2="4" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
+                                <circle cx="0" cy="0" r="1.5" fill="white"/>
+                                <text x="0" y="20" text-anchor="middle" fill="rgba(245,158,11,0.8)" font-size="6">UTC+9</text>
+                            </g>
+
+                            <!-- IDL line -->
+                            <line x1="190" y1="20" x2="190" y2="130" stroke="rgba(239,68,68,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <text x="192" y="30" fill="rgba(239,68,68,0.7)" font-size="5">IDL</text>
+
+                            <!-- Day/Night divider -->
+                            <path d="M100,20 Q95,75 100,130" stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="rgba(0,0,0,0.15)" stroke-dasharray="6,3"/>
+                        </svg>
+                    </div>
+                    <div class="card-visual-line"></div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-category">Time Zones</span>
+                        <span class="card-dot"></span>
+                        <span class="card-read-time">25 min read</span>
+                    </div>
+
+                    <h3 class="card-title">All Time Zones & 197 Countries</h3>
+                    <p class="card-desc">
+                        Complete world time zone atlas — every country's UTC offset, DST practices, 
+                        International Date Line, anomalies like Nepal's UTC+5:45, and interactive clock tools.
+                    </p>
+
+                    <div class="card-tags">
+                        <span class="tag">⏰ UTC/GMT</span>
+                        <span class="tag">🕛 All 197 Countries</span>
+                        <span class="tag">📅 DST Guide</span>
+                        <span class="tag">📍 IDL</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="card-cta">
+                            Explore Time Zones
+                            <div class="cta-arrow">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="card-topics">13+ Topics</span>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-section">
+            <h3 class="quick-section-title">🔗 Quick Access — Jump to a Topic</h3>
+            <div class="quick-links">
+                <a href="cartography.html#evolution" class="quick-link">
+                    <span class="quick-link-icon">🏺</span> History of Cartography
+                </a>
+                <a href="cartography.html#types" class="quick-link">
+                    <span class="quick-link-icon">🗺️</span> All Map Types
+                </a>
+                <a href="cartography.html#reading" class="quick-link">
+                    <span class="quick-link-icon">📏</span> Map Reading Skills
+                </a>
+                <a href="map-projections.html#mercator" class="quick-link">
+                    <span class="quick-link-icon">🌐</span> Mercator Projection
+                </a>
+                <a href="map-projections.html#comparison" class="quick-link">
+                    <span class="quick-link-icon">📊</span> Projection Comparison
+                </a>
+                <a href="gis-remote-sensing.html#gis" class="quick-link">
+                    <span class="quick-link-icon">🖥️</span> GIS Fundamentals
+                </a>
+                <a href="gis-remote-sensing.html#gps" class="quick-link">
+                    <span class="quick-link-icon">📡</span> How GPS Works
+                </a>
+                <a href="gis-remote-sensing.html#lidar" class="quick-link">
+                    <span class="quick-link-icon">✈️</span> LiDAR Technology
+                </a>
+                <a href="coordinates.html#latlong" class="quick-link">
+                    <span class="quick-link-icon">📍</span> Lat/Long Guide
+                </a>
+                <a href="coordinates.html#utm" class="quick-link">
+                    <span class="quick-link-icon">🗺️</span> UTM System
+                </a>
+                <a href="coordinates.html#calculator" class="quick-link">
+                    <span class="quick-link-icon">🧮</span> Coordinate Calculator
+                </a>
+                <a href="time-zones.html#countries" class="quick-link">
+                    <span class="quick-link-icon">🌍</span> Country Time Zones
+                </a>
+                <a href="time-zones.html#dst" class="quick-link">
+                    <span class="quick-link-icon">⏰</span> DST World Guide
+                </a>
+                <a href="time-zones.html#idl" class="quick-link">
+                    <span class="quick-link-icon">📅</span> Date Line Explained
+                </a>
+                <a href="time-zones.html#converter" class="quick-link">
+                    <span class="quick-link-icon">🔄</span> Time Zone Converter
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        ↑
+    </button>
+
+    <!-- JavaScript -->
+    <script>
+        // ===================================
+        // PAGE LOADER
+        // ===================================
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 800);
+        });
+
+        // ===================================
+        // FLOATING PARTICLES
+        // ===================================
+        function createParticles() {
+            const canvas = document.querySelector('.bg-canvas');
+            const count = 25;
+
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'map-particle';
+
+                const size = Math.random() * 4 + 2;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 20 + 15;
+                const delay = Math.random() * 15;
+                const colors = [
+                    'rgba(79,142,247,0.4)',
+                    'rgba(124,58,237,0.3)',
+                    'rgba(6,182,212,0.35)',
+                    'rgba(16,185,129,0.3)',
+                ];
+
+                particle.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${left}%;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation-duration: ${duration}s;
+                    animation-delay: ${delay}s;
+                    box-shadow: 0 0 ${size * 2}px currentColor;
+                `;
+
+                canvas.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // ===================================
+        // SCROLL PROGRESS BAR
+        // ===================================
+        const scrollProgress = document.getElementById('scrollProgress');
+
+        window.addEventListener('scroll', () => {
+            const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / windowHeight) * 100;
+            scrollProgress.style.width = `${scrolled}%`;
+        });
+
+        // ===================================
+        // BACK TO TOP BUTTON
+        // ===================================
+        const backToTop = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // ===================================
+        // CARD HOVER RIPPLE EFFECT
+        // ===================================
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // ===================================
+        // ANIMATED NUMBER COUNTER
+        // ===================================
+        function animateCounters() {
+            const counters = document.querySelectorAll('.hero-stat-number');
+
+            counters.forEach(counter => {
+                const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
+                const suffix = counter.textContent.replace(/[0-9]/g, '');
+                let current = 0;
+                const increment = target / 60;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target + suffix;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current) + suffix;
+                    }
+                }, 25);
+            });
+        }
+
+        // Trigger counters when hero is in view
+        const heroObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    heroObserver.disconnect();
+                }
+            });
+        }, { threshold: 0.3 });
+
+        const heroStats = document.querySelector('.hero-stats');
+        if (heroStats) heroObserver.observe(heroStats);
+
+        // ===================================
+        // CARD ENTRANCE ANIMATIONS
+        // ===================================
+        const cards = document.querySelectorAll('.card');
+
+        const cardObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 120);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            cardObserver.observe(card);
+        });
+
+        // ===================================
+        // KEYBOARD NAVIGATION
+        // ===================================
+        document.addEventListener('keydown', (e) => {
+            const files = ['cartography.html', 'map-projections.html', 'gis-remote-sensing.html', 'coordinates.html', 'time-zones.html'];
+
+            if (e.key >= '1' && e.key <= '5') {
+                window.location.href = files[parseInt(e.key) - 1];
+            }
+
+            if (e.key === 'Escape') {
+                window.location.href = '/encyclopedia/';
+            }
+        });
+
+        // ===================================
+        // TOOLTIP FOR KEYBOARD SHORTCUT HINT
+        // ===================================
+        setTimeout(() => {
+            const hint = document.createElement('div');
+            hint.innerHTML = `
+                <div style="
+                    position: fixed;
+                    bottom: 35px;
+                    left: 35px;
+                    padding: 12px 18px;
+                    background: rgba(10,10,26,0.9);
+                    border: 1px solid rgba(79,142,247,0.3);
+                    border-radius: 12px;
+                    font-size: 0.78rem;
+                    color: rgba(255,255,255,0.5);
+                    z-index: 100;
+                    backdrop-filter: blur(10px);
+                    transition: opacity 0.5s;
+                ">
+                    ⌨️ Press <strong style="color: rgba(79,142,247,0.9);">1-5</strong> to open topics · <strong style="color: rgba(79,142,247,0.9);">Esc</strong> to go back
+                </div>
+            `;
+            document.body.appendChild(hint);
+
+            setTimeout(() => {
+                hint.style.opacity = '0';
+                setTimeout(() => hint.remove(), 500);
+            }, 4000);
+        }, 1500);
+
+        // ===================================
+        // QUICK LINK ACTIVE STATE
+        // ===================================
+        document.querySelectorAll('.quick-link').forEach(link => {
+            link.addEventListener('click', function () {
+                this.style.background = 'rgba(79,142,247,0.15)';
+                this.style.color = 'white';
+            });
+        });
+
+        // ===================================
+        // CONSOLE MESSAGE
+        // ===================================
+        console.log('%c🗺️ GEOTOPIA — Map Science & Techniques', 'font-size:20px; font-weight:bold; color:#4f8ef7;');
+        console.log('%c5 Topics | 197 Countries | 60+ Projections | 16,500 BCE to Present', 'color:#94a3b8; font-size:12px;');
+        console.log('%cPress 1-5 to navigate topics quickly!', 'color:#7c3aed; font-size:12px;');
+    </script>
+
+</body>
+</html>
