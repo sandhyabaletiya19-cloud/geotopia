@@ -186,6 +186,17 @@ function loginUser(user) {
 
 // ── CHECK AUTH ──
 function requireAuth() {
+    // Admin bypasses auth
+    const isAdmin   = localStorage.getItem('dv_admin');
+    const loginTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+    const elapsed   = Date.now() - loginTime;
+    const SESSION   = 24 * 60 * 60 * 1000;
+
+    if (isAdmin === 'true' && elapsed < SESSION) {
+        return true; // Admin always allowed
+    }
+
+    // Normal user check
     const loggedIn = localStorage.getItem('dv_user_loggedin');
     if (loggedIn !== 'true') {
         sessionStorage.setItem('dv_redirect_after_login', window.location.href);
