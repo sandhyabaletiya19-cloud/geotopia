@@ -1,3 +1,10 @@
+
+// ============================================
+// DHARAVERSE - SUBSCRIPTION EXPIRY CHECKER
+// Add to every page: <script src="/js/expiry-check.js"></script>
+// Checks if subscription expired or expiring soon
+// ============================================
+
 // Skip expiry check for admin
 (function() {
     const isAdmin   = localStorage.getItem('dv_admin');
@@ -11,13 +18,6 @@
         throw new Error('ADMIN_SKIP');
     }
 })();
-
-
-// ============================================
-// DHARAVERSE - SUBSCRIPTION EXPIRY CHECKER
-// Add to every page: <script src="/js/expiry-check.js"></script>
-// Checks if subscription expired or expiring soon
-// ============================================
 
 (function() {
     'use strict';
