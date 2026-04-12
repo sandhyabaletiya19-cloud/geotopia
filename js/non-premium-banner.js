@@ -1,10 +1,3 @@
-
-// ============================================
-// DHARAVERSE - NON-PREMIUM BANNER
-// Shows a friendly banner for free users
-// Add to every page: <script src="/js/non-premium-banner.js"></script>
-// ============================================
-
 // Skip banner for admin
 (function() {
     const isAdmin   = localStorage.getItem('dv_admin');
@@ -15,6 +8,13 @@
         throw new Error('ADMIN_SKIP');
     }
 })();
+
+
+// ============================================
+// DHARAVERSE - NON-PREMIUM BANNER
+// Shows a friendly banner for free users
+// Add to every page: <script src="/js/non-premium-banner.js"></script>
+// ============================================
 
 (function() {
     'use strict';
