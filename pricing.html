@@ -1349,6 +1349,7 @@
 <script src="/js/payment.js"></script>
 <script src="/js/premium.js"></script>
 <script src="/js/expiry-check.js"></script>
+<script src="/js/non-premium-banner.js"></script>
 
 <script>
 // ═══════════════════════════════════════════
@@ -1573,22 +1574,194 @@ function initEarlyBird() {
 
 // ── HANDLE PLAN CLICK ──
 function handlePlanClick(planId) {
-    // Check if logged in
-    const loggedIn = localStorage.getItem('dv_user_loggedin');
-    if (loggedIn !== 'true') {
-        sessionStorage.setItem('dv_redirect_after_login', '/pricing.html');
-        sessionStorage.setItem('dv_selected_plan', planId);
-        sessionStorage.setItem('dv_selected_period', currentPeriod);
-        window.location.href = '/auth.html';
+
+    // ── ADMIN BYPASS ──
+    const isAdmin   = localStorage.getItem('dv_admin');
+    const adminTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+    const adminOk   = isAdmin === 'true' &&
+                      (Date.now() - adminTime) < 24 * 60 * 60 * 1000;
+
+    if (adminOk) {
+        showEncouragePopup(planId, () => {
+            if (window.DVPayment) {
+                DVPayment.initPayment(planId, currentPeriod);
+            }
+        });
         return;
     }
 
-    // Show encouraging message before payment
+    // ── CHECK LOGIN ──
+    const loggedIn = localStorage.getItem('dv_user_loggedin');
+
+    if (loggedIn !== 'true') {
+        // Save what they were trying to buy
+        sessionStorage.setItem('dv_redirect_after_login', '/pricing.html');
+        sessionStorage.setItem('dv_selected_plan',   planId);
+        sessionStorage.setItem('dv_selected_period', currentPeriod);
+
+        // Show message before redirecting
+        showLoginPrompt(planId, () => {
+            window.location.href = '/auth.html';
+        });
+        return;
+    }
+
+    // ── ALREADY HAS THIS PLAN? ──
+    const currentPlan = localStorage.getItem('dv_plan') || 'basic';
+    if (currentPlan === planId) {
+        showAlreadyHave(planId);
+        return;
+    }
+
+    // ── PROCEED TO PAYMENT ──
     showEncouragePopup(planId, () => {
         if (window.DVPayment) {
             DVPayment.initPayment(planId, currentPeriod);
+        } else {
+            console.error('DVPayment not loaded!');
+            alert('Payment system loading... please try again in 2 seconds.');
         }
     });
+}
+
+// ── LOGIN PROMPT (before redirecting to auth) ──
+function showLoginPrompt(planId, onConfirm) {
+    const names = {
+        games:   '🎮 Games Plan',
+        upsc:    '📚 UPSC Plan',
+        pro:     '⭐ Pro Plan',
+        ultimate:'👑 Ultimate Plan'
+    };
+
+    const existing = document.getElementById('dv-login-prompt');
+    if (existing) existing.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'dv-login-prompt';
+    popup.innerHTML = `
+        <div style="
+            position:fixed;inset:0;
+            background:rgba(10,10,20,0.92);
+            backdrop-filter:blur(16px);
+            z-index:99999;
+            display:flex;align-items:center;justify-content:center;
+            font-family:'Inter',sans-serif;
+            padding:20px;
+        ">
+            <div style="
+                max-width:420px;width:100%;
+                background:rgba(255,255,255,0.04);
+                border:1px solid rgba(100,65,165,0.3);
+                border-radius:24px;
+                padding:40px 32px;
+                text-align:center;
+            ">
+                <div style="font-size:52px;margin-bottom:16px;">🔐</div>
+
+                <h2 style="
+                    font-size:22px;font-weight:800;
+                    margin-bottom:10px;color:#fff;
+                ">Quick Sign In Needed</h2>
+
+                <p style="
+                    font-size:14px;
+                    color:rgba(255,255,255,0.6);
+                    line-height:1.7;
+                    margin-bottom:24px;
+                ">
+                    You're getting <strong style="color:#9B59B6;">
+                    ${names[planId] || 'a premium plan'}</strong>! 🎉<br>
+                    Just create a free account first so we know where to
+                    save your access. Takes 30 seconds!
+                </p>
+
+                <button onclick="(${onConfirm.toString()})()" style="
+                    width:100%;padding:14px;
+                    background:linear-gradient(135deg,#6441A5,#4A2D7A);
+                    border:none;border-radius:12px;
+                    color:#fff;font-size:15px;font-weight:700;
+                    cursor:pointer;font-family:'Inter',sans-serif;
+                    margin-bottom:12px;
+                    box-shadow:0 8px 30px rgba(100,65,165,0.3);
+                ">
+                    <i class="fas fa-user-plus"></i>
+                    Sign Up & Continue to Payment
+                </button>
+
+                <button onclick="document.getElementById('dv-login-prompt').remove()" style="
+                    background:none;border:none;
+                    color:rgba(255,255,255,0.3);
+                    font-size:13px;cursor:pointer;
+                    font-family:'Inter',sans-serif;
+                ">Cancel</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+}
+
+// ── ALREADY HAVE THIS PLAN ──
+function showAlreadyHave(planId) {
+    const names = {
+        games:   '🎮 Games',
+        upsc:    '📚 UPSC',
+        pro:     '⭐ Pro',
+        ultimate:'👑 Ultimate'
+    };
+
+    const existing = document.getElementById('dv-already-popup');
+    if (existing) existing.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'dv-already-popup';
+    popup.innerHTML = `
+        <div style="
+            position:fixed;inset:0;
+            background:rgba(10,10,20,0.88);
+            backdrop-filter:blur(12px);
+            z-index:99999;
+            display:flex;align-items:center;justify-content:center;
+            font-family:'Inter',sans-serif;padding:20px;
+        ">
+            <div style="
+                max-width:380px;width:100%;
+                background:rgba(76,175,80,0.08);
+                border:1px solid rgba(76,175,80,0.25);
+                border-radius:22px;
+                padding:36px 28px;text-align:center;
+            ">
+                <div style="font-size:52px;margin-bottom:14px;">✅</div>
+                <h2 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:10px;">
+                    You Already Have This!
+                </h2>
+                <p style="font-size:14px;color:rgba(255,255,255,0.6);
+                           line-height:1.7;margin-bottom:22px;">
+                    You already have the <strong style="color:#4CAF50;">
+                    ${names[planId] || ''} Plan</strong> active. 💜
+                    Go enjoy all your premium features!
+                </p>
+                <a href="/" style="
+                    display:inline-flex;align-items:center;gap:8px;
+                    padding:12px 28px;
+                    background:linear-gradient(135deg,#4CAF50,#2E7D32);
+                    color:#fff;text-decoration:none;border-radius:12px;
+                    font-size:14px;font-weight:700;margin-bottom:12px;
+                ">
+                    <i class="fas fa-home"></i> Go to Home
+                </a>
+                <br>
+                <button onclick="document.getElementById('dv-already-popup').remove()" style="
+                    background:none;border:none;
+                    color:rgba(255,255,255,0.3);
+                    font-size:13px;cursor:pointer;
+                    font-family:'Inter',sans-serif;margin-top:8px;
+                ">Close</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
 }
 
 // ── ENCOURAGE POPUP ──
