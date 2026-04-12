@@ -1,4 +1,49 @@
 // ============================================
+// DHARAVERSE - ADMIN OVERRIDE
+// If admin is logged in → unlock EVERYTHING
+// ============================================
+
+(function adminOverride() {
+    const isAdmin   = localStorage.getItem('dv_admin');
+    const loginTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+    const SESSION   = 24 * 60 * 60 * 1000;
+    const elapsed   = Date.now() - loginTime;
+
+    // If admin session is valid
+    if (isAdmin === 'true' && elapsed < SESSION) {
+
+        // Give ultimate access silently
+        localStorage.setItem('dv_plan', 'ultimate');
+        localStorage.setItem('dv_premium', 'true');
+        localStorage.setItem('dv_plan_expiry',
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+        );
+
+        const ultimateFeatures = {
+            games:           Infinity,
+            upsc:            Infinity,
+            landscapes:      Infinity,
+            continents:      Infinity,
+            encyclopedia:    Infinity,
+            atlas:           Infinity,
+            exploreCountries:Infinity,
+            bharat:          Infinity,
+            spinGlobe:       Infinity,
+            timeline:        Infinity,
+            earthSystems:    Infinity,
+            earthSimulator:  Infinity,
+            adfree:          true
+        };
+
+        localStorage.setItem('dv_plan_features',
+            JSON.stringify(ultimateFeatures)
+        );
+
+        console.log('👑 Admin detected → All features unlocked');
+    }
+})();
+
+// ============================================
 // DHARAVERSE - PREMIUM ACCESS CONTROL
 // js/premium.js
 // Add to EVERY page: <script src="/js/premium.js"></script>
