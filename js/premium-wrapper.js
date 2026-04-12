@@ -1,5 +1,5 @@
 // ========================================
-// 💜 PREMIUM WRAPPER - NUCLEAR FIX v2
+// 💜 PREMIUM WRAPPER - NUCLEAR FIX v3
 // ========================================
 
 (function() {
@@ -11,11 +11,12 @@
     // CONFIG
     // ==========================================
     
+    // Keep old variable for backward compatibility
     var FREE_LIMITS = {
-        mountains: 7, rivers: 7, lakes: 7, oceans: 7,
+        mountains: 7, rivers: 7, lakes: 7, oceans: 2,
         forests: 7, deserts: 7, volcanoes: 7, islands: 7,
-        coralReefs: 7, encyclopedia: 7, upsc: 7, games: 3,
-        atlas: 7, waterfalls: 7, glaciers: 7, caves: 7, parks: 7
+        coralReefs: 7, encyclopedia: 2, upsc: 3, games: 3,
+        atlas: 7, waterfalls: 7, glaciers: 7, caves: 3, parks: 3
     };
 
     var BTS_MESSAGES = [
@@ -23,7 +24,12 @@
         { title: "Dream, Believe, Achieve! ✨", subtitle: "Unlock your potential 💜" },
         { title: "Purple You! 보라해 💜", subtitle: "We believe in your dreams" },
         { title: "Magic Shop Awaits! ✨", subtitle: "Unlock all wonders 💜" },
-        { title: "Beyond The Scene! 🌟", subtitle: "Go beyond with premium 💜" }
+        { title: "Beyond The Scene! 🌟", subtitle: "Go beyond with premium 💜" },
+        { title: "You Are The Best! 🌸", subtitle: "Best comes with premium 💜" },
+        { title: "Life Goes On! 🌿", subtitle: "Keep exploring, go premium 💜" },
+        { title: "Dynamite! 💥", subtitle: "Explode into full knowledge 💜" },
+        { title: "Butter! 🧈", subtitle: "Smooth access to everything 💜" },
+        { title: "Run BTS! 🏃", subtitle: "Run towards all knowledge 💜" }
     ];
 
     var state = {
@@ -42,10 +48,6 @@
     function getBasePath() {
         var path = window.location.pathname;
         return path.includes('/geotopia/') ? '/geotopia/' : '/';
-    }
-
-    function isPremium() {
-        return localStorage.getItem('geo_premium') === 'true';
     }
 
     function detectCategory() {
@@ -76,16 +78,114 @@
     }
 
     // ==========================================
+    // ✅ NEW: PLAN-AWARE isPremium()
+    // ==========================================
+
+    function isPremium() {
+        // New payment system
+        var plan = localStorage.getItem('dv_plan') || 'basic';
+
+        // Admin override
+        var isAdmin   = localStorage.getItem('dv_admin');
+        var adminTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+        var adminOk   = isAdmin === 'true' && (Date.now() - adminTime) < 86400000;
+        if (adminOk) return true;
+
+        // Check expiry
+        var expiry = localStorage.getItem('dv_plan_expiry');
+        if (expiry && new Date(expiry) < new Date()) {
+            // Expired - reset
+            localStorage.setItem('dv_plan', 'basic');
+            localStorage.removeItem('dv_premium');
+            return false;
+        }
+
+        // Check based on plan + current page
+        var category = detectCategory();
+
+        // Ultimate = everything unlocked
+        if (plan === 'ultimate') return true;
+
+        // Pro = everything except UPSC
+        if (plan === 'pro') {
+            if (category === 'upsc') return false;
+            return true;
+        }
+
+        // Games plan = only games unlocked
+        if (plan === 'games' && category === 'games') return true;
+
+        // UPSC plan = only UPSC unlocked
+        if (plan === 'upsc' && category === 'upsc') return true;
+
+        // Old system fallback
+        if (localStorage.getItem('geo_premium') === 'true') return true;
+        if (localStorage.getItem('dv_premium') === 'true' && plan !== 'basic') return true;
+
+        return false;
+    }
+
+    // ==========================================
+    // ✅ NEW: DYNAMIC FREE LIMITS
+    // ==========================================
+
+    function getFreeLimit(category) {
+        var plan = localStorage.getItem('dv_plan') || 'basic';
+
+        // Admin = unlimited
+        var isAdmin   = localStorage.getItem('dv_admin');
+        var adminTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+        if (isAdmin === 'true' && (Date.now() - adminTime) < 86400000) {
+            return 9999;
+        }
+
+        // Plan-specific limits
+        var PLAN_LIMITS = {
+            basic: {
+                mountains: 7, rivers: 7, lakes: 7, oceans: 2,
+                forests: 7, deserts: 7, volcanoes: 7, islands: 7,
+                coralReefs: 7, encyclopedia: 2, upsc: 3, games: 3,
+                atlas: 7, waterfalls: 7, glaciers: 7, caves: 3, parks: 3
+            },
+            games: {
+                mountains: 7, rivers: 7, lakes: 7, oceans: 2,
+                forests: 7, deserts: 7, volcanoes: 7, islands: 7,
+                coralReefs: 7, encyclopedia: 2, upsc: 3, games: 9999,
+                atlas: 7, waterfalls: 7, glaciers: 7, caves: 3, parks: 3
+            },
+            upsc: {
+                mountains: 7, rivers: 7, lakes: 7, oceans: 2,
+                forests: 7, deserts: 7, volcanoes: 7, islands: 7,
+                coralReefs: 7, encyclopedia: 2, upsc: 9999, games: 3,
+                atlas: 7, waterfalls: 7, glaciers: 7, caves: 3, parks: 3
+            },
+            pro: {
+                mountains: 9999, rivers: 9999, lakes: 9999, oceans: 9999,
+                forests: 9999, deserts: 9999, volcanoes: 9999, islands: 9999,
+                coralReefs: 9999, encyclopedia: 9999, upsc: 0, games: 9999,
+                atlas: 9999, waterfalls: 9999, glaciers: 9999, caves: 9999, parks: 9999
+            },
+            ultimate: {
+                mountains: 9999, rivers: 9999, lakes: 9999, oceans: 9999,
+                forests: 9999, deserts: 9999, volcanoes: 9999, islands: 9999,
+                coralReefs: 9999, encyclopedia: 9999, upsc: 9999, games: 9999,
+                atlas: 9999, waterfalls: 9999, glaciers: 9999, caves: 9999, parks: 9999
+            }
+        };
+
+        var limits = PLAN_LIMITS[plan] || PLAN_LIMITS.basic;
+        return limits[category] || 7;
+    }
+
+    // ==========================================
     // GLOBAL CLICK BLOCKER - RUNS FIRST
     // ==========================================
     
     function installGlobalClickBlocker() {
-        if (state.globalClickHandler) return; // Already installed
+        if (state.globalClickHandler) return;
         
         state.globalClickHandler = function(e) {
             var target = e.target;
-            
-            // Walk up to find if this is inside a locked card
             var card = target.closest('.geo-locked-card');
             
             if (card) {
@@ -98,7 +198,6 @@
             }
         };
         
-        // Install on capture phase (runs BEFORE other handlers)
         document.addEventListener('click', state.globalClickHandler, true);
         console.log('💜 Global click blocker installed');
     }
@@ -113,43 +212,113 @@
         var style = document.createElement('style');
         style.id = 'geo-premium-styles';
         style.textContent = `
-            .geo-sash {
+
+            /* ── Horizontal ribbon across the card ── */
+            .geo-ribbon-wrap {
                 position: absolute !important;
-                top: 0 !important;
-                left: -30% !important;
-                width: 160% !important;
-                height: 28px !important;
-                background: linear-gradient(90deg, #7c3aed, #a855f7, #7c3aed) !important;
-                transform: rotate(-35deg) translateY(20px) !important;
+                top: 50% !important;
+                left: 0 !important;
+                width: 100% !important;
+                transform: translateY(-50%) !important;
+                z-index: 998 !important;
+                pointer-events: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+            }
+
+            /* Top ribbon strip */
+            .geo-ribbon-top {
+                width: 100% !important;
+                height: 6px !important;
+                background: linear-gradient(90deg,
+                    #4c1d95, #7c3aed, #a855f7, #c084fc, #a855f7, #7c3aed, #4c1d95
+                ) !important;
+                box-shadow: 0 2px 8px rgba(124,58,237,0.6) !important;
+            }
+
+            /* Center band with label */
+            .geo-ribbon-center {
+                width: 100% !important;
+                background: linear-gradient(90deg,
+                    rgba(76,29,149,0.92),
+                    rgba(124,58,237,0.96),
+                    rgba(168,85,247,0.98),
+                    rgba(124,58,237,0.96),
+                    rgba(76,29,149,0.92)
+                ) !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                color: white !important;
-                font-size: 10px !important;
-                font-weight: bold !important;
-                letter-spacing: 1px !important;
-                box-shadow: 0 2px 10px rgba(124,58,237,0.5) !important;
-                z-index: 999 !important;
-                pointer-events: none !important;
+                gap: 10px !important;
+                padding: 8px 0 !important;
+                box-shadow:
+                    0 4px 18px rgba(124,58,237,0.55),
+                    0 -4px 18px rgba(124,58,237,0.55) !important;
             }
-            
-            .geo-heart {
-                position: absolute !important;
-                bottom: 8px !important;
-                right: 8px !important;
-                width: 32px !important;
-                height: 32px !important;
-                background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+
+            /* Earth icon knot */
+            .geo-ribbon-earth {
+                width: 34px !important;
+                height: 34px !important;
+                background: linear-gradient(135deg, #1e3a5f, #2563eb, #1e40af) !important;
                 border-radius: 50% !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                font-size: 16px !important;
-                box-shadow: 0 3px 12px rgba(124,58,237,0.5) !important;
+                font-size: 20px !important;
+                box-shadow:
+                    0 0 0 3px rgba(255,255,255,0.25),
+                    0 0 12px rgba(37,99,235,0.7) !important;
+                flex-shrink: 0 !important;
+            }
+
+            .geo-ribbon-text {
+                color: white !important;
+                font-size: 11px !important;
+                font-weight: 800 !important;
+                letter-spacing: 2px !important;
+                text-transform: uppercase !important;
+                text-shadow: 0 1px 4px rgba(0,0,0,0.4) !important;
+            }
+
+            /* Bottom ribbon strip */
+            .geo-ribbon-bottom {
+                width: 100% !important;
+                height: 6px !important;
+                background: linear-gradient(90deg,
+                    #4c1d95, #7c3aed, #a855f7, #c084fc, #a855f7, #7c3aed, #4c1d95
+                ) !important;
+                box-shadow: 0 -2px 8px rgba(124,58,237,0.6) !important;
+            }
+
+            /* Subtle overlay — still shows card content */
+            .geo-ribbon-overlay {
+                position: absolute !important;
+                inset: 0 !important;
+                background: rgba(109, 40, 217, 0.12) !important;
+                z-index: 996 !important;
+                pointer-events: none !important;
+                border-radius: inherit !important;
+            }
+
+            /* Corner shimmer dots */
+            .geo-ribbon-dot {
+                position: absolute !important;
+                width: 8px !important;
+                height: 8px !important;
+                background: radial-gradient(circle, #c084fc, #7c3aed) !important;
+                border-radius: 50% !important;
+                box-shadow: 0 0 6px rgba(192,132,252,0.8) !important;
                 z-index: 999 !important;
                 pointer-events: none !important;
             }
-            
+            .geo-ribbon-dot.tl { top: 6px !important; left: 6px !important; }
+            .geo-ribbon-dot.tr { top: 6px !important; right: 6px !important; }
+            .geo-ribbon-dot.bl { bottom: 6px !important; left: 6px !important; }
+            .geo-ribbon-dot.br { bottom: 6px !important; right: 6px !important; }
+
+            /* Free badge */
             .geo-free-badge {
                 position: absolute !important;
                 top: 8px !important;
@@ -163,24 +332,25 @@
                 z-index: 999 !important;
                 pointer-events: none !important;
             }
-            
-            /* CRITICAL: Lock the entire card */
+
+            /* LOCKED CARD */
             .geo-locked-card {
                 position: relative !important;
                 cursor: pointer !important;
                 pointer-events: auto !important;
+                overflow: hidden !important;
             }
-            
+
             /* Disable ALL clicks inside locked cards */
             .geo-locked-card * {
                 pointer-events: none !important;
             }
-            
+
+            /* FREE CARD */
             .geo-free-card {
                 position: relative !important;
             }
-            
-            /* Ensure free cards remain clickable */
+
             .geo-free-card * {
                 pointer-events: auto !important;
             }
@@ -197,7 +367,6 @@
     
     function loadFreeItems() {
         if (!state.category) return;
-        
         var key = 'geo_free_' + state.category;
         var saved = sessionStorage.getItem(key);
         state.freeItems = saved ? JSON.parse(saved) : [];
@@ -206,7 +375,6 @@
 
     function saveFreeItems() {
         if (!state.category) return;
-        
         var key = 'geo_free_' + state.category;
         sessionStorage.setItem(key, JSON.stringify(state.freeItems));
     }
@@ -217,15 +385,15 @@
         return state.freeItems.indexOf(normalized) !== -1;
     }
 
+    // ✅ NEW: Uses getFreeLimit() instead of FREE_LIMITS
     function addFreeItem(name) {
         if (!name) return false;
-        
         var normalized = name.toLowerCase().trim();
-        var limit = FREE_LIMITS[state.category] || 7;
-        
+        var limit = getFreeLimit(state.category);
+
         if (state.freeItems.length >= limit) return false;
         if (state.freeItems.indexOf(normalized) !== -1) return false;
-        
+
         state.freeItems.push(normalized);
         saveFreeItems();
         return true;
@@ -237,24 +405,12 @@
     
     function findContainer() {
         var selectors = [
-            '.rivers-grid',
-            '.mountains-grid',
-            '.lakes-grid',
-            '.forests-grid',
-            '.deserts-grid',
-            '.volcanoes-grid',
-            '.islands-grid',
-            '.oceans-grid',
-            '.games-grid',
-            '.atlas-grid',
-            '.reefs-grid',
-            '.coral-grid',
-            '.cards-grid',
-            '.items-grid',
-            '.grid',
-            '#grid',
-            '#cardsGrid',
-            '[class*="-grid"]'
+            '.rivers-grid', '.mountains-grid', '.lakes-grid',
+            '.forests-grid', '.deserts-grid', '.volcanoes-grid',
+            '.islands-grid', '.oceans-grid', '.games-grid',
+            '.atlas-grid', '.reefs-grid', '.coral-grid',
+            '.cards-grid', '.items-grid', '.grid',
+            '#grid', '#cardsGrid', '[class*="-grid"]'
         ];
         
         for (var i = 0; i < selectors.length; i++) {
@@ -270,38 +426,26 @@
     }
 
     function getCardName(card) {
-        // Try data attributes first
         var name = card.getAttribute('data-name') || 
                    card.getAttribute('data-title') ||
                    card.getAttribute('data-item');
-        
         if (name) return name.trim();
         
-        // Try direct child headings
         var headings = card.querySelectorAll(':scope > h1, :scope > h2, :scope > h3, :scope > .title, :scope > .name');
-        if (headings.length > 0) {
-            return headings[0].textContent.trim();
-        }
+        if (headings.length > 0) return headings[0].textContent.trim();
         
-        // Try any heading
         var anyHeading = card.querySelector('h1, h2, h3, h4, h5');
-        if (anyHeading) {
-            return anyHeading.textContent.trim();
-        }
+        if (anyHeading) return anyHeading.textContent.trim();
         
-        // Fallback
         return card.textContent.trim().substring(0, 30);
     }
 
     function isValidCard(element) {
         if (!element || !element.tagName) return false;
-        
         var tag = element.tagName.toUpperCase();
         if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK') return false;
-        
         if (element.classList.contains('geo-upgrade-cta')) return false;
         if (element.classList.contains('geo-processed')) return false;
-        
         return true;
     }
 
@@ -310,17 +454,18 @@
     // ==========================================
     
     function makeCardFree(card) {
-        // Remove any existing locks first
         card.classList.remove('geo-locked-card');
-        var oldSash = card.querySelector('.geo-sash');
-        var oldHeart = card.querySelector('.geo-heart');
-        if (oldSash) oldSash.remove();
-        if (oldHeart) oldHeart.remove();
-        
-        if (card.querySelector('.geo-free-badge')) return; // Already done
-        
+
+        // Remove any ribbon elements if re-processing
+        var toRemove = card.querySelectorAll(
+            '.geo-ribbon-wrap, .geo-ribbon-overlay, .geo-ribbon-dot'
+        );
+        toRemove.forEach(function(el) { el.remove(); });
+
+        if (card.querySelector('.geo-free-badge')) return;
+
         card.classList.add('geo-free-card', 'geo-processed');
-        
+
         var badge = document.createElement('div');
         badge.className = 'geo-free-badge';
         badge.textContent = '✨ Free';
@@ -331,26 +476,66 @@
         // Remove free badge if exists
         var oldBadge = card.querySelector('.geo-free-badge');
         if (oldBadge) oldBadge.remove();
-        
-        if (card.querySelector('.geo-sash')) return; // Already done
-        
+
+        if (card.querySelector('.geo-ribbon-wrap')) return; // Already done
+
         card.classList.add('geo-locked-card', 'geo-processed');
-        
+
         // Remove href to prevent navigation
         if (card.tagName === 'A') {
             card.removeAttribute('href');
             card.style.cursor = 'pointer';
         }
-        
-        var sash = document.createElement('div');
-        sash.className = 'geo-sash';
-        sash.textContent = '💜 PREMIUM 💜';
-        card.appendChild(sash);
-        
-        var heart = document.createElement('div');
-        heart.className = 'geo-heart';
-        heart.textContent = '💜';
-        card.appendChild(heart);
+
+        // Subtle purple overlay (card still visible)
+        var overlay = document.createElement('div');
+        overlay.className = 'geo-ribbon-overlay';
+        card.appendChild(overlay);
+
+        // ── Corner shimmer dots ──
+        ['tl','tr','bl','br'].forEach(function(pos) {
+            var dot = document.createElement('div');
+            dot.className = 'geo-ribbon-dot ' + pos;
+            card.appendChild(dot);
+        });
+
+        // ── Ribbon wrapper ──
+        var ribbonWrap = document.createElement('div');
+        ribbonWrap.className = 'geo-ribbon-wrap';
+
+        // Top strip
+        var topStrip = document.createElement('div');
+        topStrip.className = 'geo-ribbon-top';
+
+        // Center band
+        var center = document.createElement('div');
+        center.className = 'geo-ribbon-center';
+
+        var earth = document.createElement('div');
+        earth.className = 'geo-ribbon-earth';
+        earth.textContent = '🌍';
+
+        var text = document.createElement('span');
+        text.className = 'geo-ribbon-text';
+        text.textContent = 'Premium';
+
+        var earth2 = document.createElement('div');
+        earth2.className = 'geo-ribbon-earth';
+        earth2.textContent = '🌍';
+
+        center.appendChild(earth);
+        center.appendChild(text);
+        center.appendChild(earth2);
+
+        // Bottom strip
+        var bottomStrip = document.createElement('div');
+        bottomStrip.className = 'geo-ribbon-bottom';
+
+        ribbonWrap.appendChild(topStrip);
+        ribbonWrap.appendChild(center);
+        ribbonWrap.appendChild(bottomStrip);
+
+        card.appendChild(ribbonWrap);
     }
 
     // ==========================================
@@ -367,7 +552,6 @@
         var validCards = children.filter(isValidCard);
         
         console.log('💜 Valid cards:', validCards.length);
-        
         if (validCards.length === 0) return;
         
         var stats = { free: 0, locked: 0 };
@@ -389,7 +573,6 @@
         
         console.log('💜 Results:', stats.free, 'free,', stats.locked, 'locked');
         
-        // Add CTA if needed
         if (stats.locked > 0) {
             addUpgradeCTA(container, stats.locked, stats.free, validCards.length);
         }
@@ -400,7 +583,6 @@
     // ==========================================
     
     function addUpgradeCTA(container, locked, free, total) {
-        // Remove old CTA
         var oldCTA = container.querySelector('.geo-upgrade-cta');
         if (oldCTA) oldCTA.remove();
         
@@ -466,9 +648,10 @@
         modal.addEventListener('click', function(e) {
             if (e.target === modal) modal.remove();
         });
-        
+
+        // ✅ Updated to absolute /pricing.html
         document.getElementById('geo-pricing-btn').addEventListener('click', function() {
-            window.location.href = getBasePath() + 'pricing.html';
+            window.location.href = '/pricing.html';
         });
     }
 
@@ -519,6 +702,13 @@
             console.log('💜 Premium user - no locks needed');
             return;
         }
+
+        // ✅ Special case: Pro plan — UPSC fully locked (0 items)
+        var plan = localStorage.getItem('dv_plan') || 'basic';
+        if (plan === 'pro' && state.category === 'upsc') {
+            console.log('💜 Pro plan — UPSC fully locked');
+            FREE_LIMITS.upsc = 0;
+        }
         
         // CRITICAL: Install click blocker FIRST
         installGlobalClickBlocker();
@@ -526,7 +716,7 @@
         injectStyles();
         loadFreeItems();
         
-        // Process immediately (before any clicks possible)
+        // Process immediately
         processCards();
         
         // Then start watching
