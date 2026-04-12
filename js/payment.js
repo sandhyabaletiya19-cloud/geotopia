@@ -1,64 +1,108 @@
 // ============================================
-// DHARAVERSE - PAYMENT SYSTEM
+// DHARAVERSE - PAYMENT SYSTEM v2
 // js/payment.js
+// NO wrappers - everything is GLOBAL
 // ============================================
 
-const RAZORPAY_KEY = 'rzp_live_ScXeEzlZJLvNTL'; // ← Replace with your actual key
+var RAZORPAY_KEY = 'rzp_live_ScXeEzlZJLvNTL'; // ← Replace with your actual key
 
 // ── PLAN CONFIG ──
-const PLANS = {
+var PLANS = {
     games: {
         name: 'Games Plan',
+        icon: '🎮',
         description: 'All geography games unlocked',
-        amount_inr: 29900,   // paise (₹299)
-        amount_usd: 700,     // cents ($7)
         color: '#06B6D4',
-        icon: '🎮'
+        monthly: { inr: 4900,  usd: 200 },
+        yearly:  { inr: 29900, usd: 700 },
+        indiaOnly: false
     },
     upsc: {
         name: 'UPSC Plan',
-        description: 'Complete UPSC geography preparation',
-        amount_inr: 79900,   // ₹799
-        amount_usd: 1400,    // $14
-        color: '#8B5CF6',
-        icon: '📚'
+        icon: '📚',
+        description: 'Complete UPSC geography - India Only',
+        color: '#6441A5',
+        monthly: { inr: 9900,  usd: null },
+        yearly:  { inr: 79900, usd: null },
+        indiaOnly: true
     },
     pro: {
         name: 'Pro Plan',
-        description: 'Everything except UPSC — full explorer access',
-        amount_inr: 119900,  // ₹1,199
-        amount_usd: 2200,    // $22
-        color: '#EC4899',
-        icon: '⭐'
+        icon: '⭐',
+        description: 'Everything except UPSC',
+        color: '#D63384',
+        monthly: { inr: 14900,  usd: 500 },
+        yearly:  { inr: 119900, usd: 2200 },
+        indiaOnly: false
     },
     ultimate: {
         name: 'Ultimate Plan',
+        icon: '👑',
         description: 'Everything DharaVerse has to offer',
-        amount_inr: 210000,  // ₹2,100
-        amount_usd: 3000,    // $30
         color: '#FFD700',
-        icon: '👑'
+        monthly: { inr: 39900,  usd: 700 },
+        yearly:  { inr: 210000, usd: 3000 },
+        indiaOnly: false
     }
 };
 
-// ── GET ULTIMATE PRICE (early bird check) ──
-function getUltimateAmount() {
-    const count = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
-    return count < 11 ? 200000 : 210000; // ₹2,000 or ₹2,100
+// ── GET AMOUNT ──
+function getAmount(planId, period, currency) {
+    var plan = PLANS[planId];
+    if (!plan) return 0;
+
+    var pricing = (period === 'monthly') ? plan.monthly : plan.yearly;
+
+    // Early bird for ultimate yearly INR
+    if (planId === 'ultimate' && period === 'yearly' && currency === 'inr') {
+        var ebCount = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
+        if (ebCount < 11) return 200000; // ₹2000
+    }
+
+    return pricing[currency] || 0;
 }
 
-// ── INIT PAYMENT ──
-function initPayment(planId, period = 'yearly') {
+// ── MAIN PAYMENT FUNCTION ──
+function initPayment(planId, period) {
+    period = period || 'yearly';
 
-    // ── CHECK AUTH ──
-    const isAdmin   = localStorage.getItem('dv_admin');
-    const adminTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
-    const adminOk   = isAdmin === 'true' &&
-                      (Date.now() - adminTime) < 24 * 60 * 60 * 1000;
+    console.log('💳 initPayment called | Plan:', planId, '| Period:', period);
 
-    const loggedIn = localStorage.getItem('dv_user_loggedin') === 'true';
+    // ── ADMIN CHECK ──
+    var isAdmin   = localStorage.getItem('dv_admin');
+    var adminTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+    var adminOk   = (isAdmin === 'true') &&
+                    ((Date.now() - adminTime) < 24 * 60 * 60 * 1000);
 
-    if (!adminOk && !loggedIn) {
+    if (adminOk) {
+        console.log('👑 Admin detected - simulating payment');
+        var testAmount = {
+            games: 299, upsc: 799, pro: 1199, ultimate: 2100
+        }[planId] || 299;
+
+        if (confirm(
+            '👑 ADMIN TEST MODE\n\n' +
+            'Plan: ' + (PLANS[planId] ? PLANS[planId].icon + ' ' + PLANS[planId].name : planId) + '\n' +
+            'Period: ' + period + '\n' +
+            'Amount: ₹' + testAmount + '\n\n' +
+            'Click OK to simulate successful payment'
+        )) {
+            onPaymentSuccess(
+                'ADMIN_TEST_' + Date.now(),
+                planId,
+                period,
+                testAmount,
+                'INR',
+                'admin_test'
+            );
+        }
+        return;
+    }
+
+    // ── AUTH CHECK ──
+    var loggedIn = localStorage.getItem('dv_user_loggedin') === 'true';
+    if (!loggedIn) {
+        console.log('User not logged in - redirecting to auth');
         sessionStorage.setItem('dv_redirect_after_login', '/pricing.html');
         sessionStorage.setItem('dv_selected_plan', planId);
         sessionStorage.setItem('dv_selected_period', period);
@@ -66,261 +110,316 @@ function initPayment(planId, period = 'yearly') {
         return;
     }
 
-    const plan = PLANS[planId];
+    // ── PLAN EXISTS? ──
+    var plan = PLANS[planId];
     if (!plan) {
-        console.error('Unknown plan:', planId);
+        console.error('❌ Unknown plan:', planId);
+        alert('Error: Unknown plan selected. Please refresh and try again.');
         return;
     }
 
-    // ── CHECK INDIA ──
-    const isIndia = localStorage.getItem('dv_user_isIndia') === 'true';
+    // ── INDIA CHECK ──
+    var isIndia = localStorage.getItem('dv_user_isIndia') === 'true';
+    console.log('Is India user:', isIndia);
 
-    // India-only plan check
-    if (plan.indiaOnly && !isIndia && !adminOk) {
+    if (plan.indiaOnly && !isIndia) {
         showPaymentToast('This plan is available for India only 🇮🇳', 'warning');
         return;
     }
 
-    // ── ALREADY ON SAME PLAN? ──
-    const currentPlan = localStorage.getItem('dv_plan') || 'basic';
-    if (currentPlan === planId && !adminOk) {
-        showPaymentToast('You already have this plan! 💜', 'info');
-        return;
-    }
-
-    // ── FOR ADMIN: simulate success directly ──
-    if (adminOk) {
-        const testId = 'ADMIN_TEST_' + Date.now();
-        const amount = planId === 'ultimate' ? 2100 : 
-                       planId === 'pro' ? 1199 :
-                       planId === 'upsc' ? 799 : 299;
-
-        if (confirm(`Admin Test Mode 🧪\n\nSimulate payment for:\n${plan.icon} ${plan.name} (${period})\n\nClick OK to simulate success.`)) {
-            onPaymentSuccess(testId, planId, period, amount, 'INR', 'admin_test');
-        }
+    // ── ALREADY ON THIS PLAN? ──
+    var currentPlan = localStorage.getItem('dv_plan') || 'basic';
+    if (currentPlan === planId) {
+        showPaymentToast('You already have this plan active! 💜', 'info');
         return;
     }
 
     // ── ROUTE TO GATEWAY ──
     if (isIndia) {
+        console.log('→ Opening Razorpay');
         payWithRazorpay(planId, period);
     } else {
+        console.log('→ Opening PayPal');
         payWithPayPal(planId, period);
     }
 }
 
-    // Get amount
-    const amount = planId === 'ultimate' ? getUltimateAmount() : plan.amount_inr;
+// ── RAZORPAY PAYMENT ──
+function payWithRazorpay(planId, period) {
+    var plan   = PLANS[planId];
+    var amount = getAmount(planId, period, 'inr');
 
-    // Razorpay options
-    const options = {
-        key: RAZORPAY_KEY,
-        amount: amount,
-        currency: 'INR',
-        name: 'DharaVerse',
-        description: plan.description,
-        image: 'https://dharaverse.com/logo.png',
+    console.log('Razorpay | Amount (paise):', amount);
+
+    // Check Razorpay loaded
+    if (typeof Razorpay === 'undefined') {
+        console.error('❌ Razorpay SDK not loaded!');
+        alert('Payment gateway is loading. Please wait 3 seconds and try again.');
+        return;
+    }
+
+    // Check key is set
+    if (!RAZORPAY_KEY || RAZORPAY_KEY.includes('YOUR_ACTUAL_KEY')) {
+        console.error('❌ Razorpay key not set!');
+        alert('Payment not configured yet. Please contact support.');
+        return;
+    }
+
+    var options = {
+        key:         RAZORPAY_KEY,
+        amount:      amount,
+        currency:    'INR',
+        name:        'DharaVerse',
+        description: plan.name + ' - ' + period,
+        image:       'https://dharaverse.com/logo.png',
+
         handler: function(response) {
-            onPaymentSuccess(response, planId, amount);
+            console.log('✅ Razorpay payment success:', response);
+            onPaymentSuccess(
+                response.razorpay_payment_id,
+                planId,
+                period,
+                amount / 100,
+                'INR',
+                'razorpay'
+            );
         },
+
         prefill: {
-            name:  localStorage.getItem('dv_user_name')  || '',
-            email: localStorage.getItem('dv_user_email') || ''
+            name:    localStorage.getItem('dv_user_name')  || '',
+            email:   localStorage.getItem('dv_user_email') || '',
+            contact: localStorage.getItem('dv_user_phone') || ''
         },
+
         notes: {
-            plan: planId,
-            plan_name: plan.name
+            plan:   planId,
+            period: period
         },
+
         theme: {
-            color: plan.color
+            color: plan.color || '#6441A5'
         },
+
         modal: {
             confirm_close: true,
-            animation: true,
+            animation:     true,
             ondismiss: function() {
-                console.log('DharaVerse: Payment modal closed by user');
+                console.log('Razorpay modal closed by user');
             }
         }
     };
 
     try {
-        const rzp = new Razorpay(options);
+        var rzp = new Razorpay(options);
+
         rzp.on('payment.failed', function(response) {
-            onPaymentFailed(response, planId);
+            console.error('❌ Payment failed:', response.error);
+            onPaymentFailed(
+                planId,
+                response.error.description,
+                response.error.code
+            );
         });
+
         rzp.open();
+        console.log('✅ Razorpay popup opened');
+
     } catch (err) {
-        console.error('Razorpay Error:', err);
-        showToast('Payment gateway error. Please try again.', 'error');
+        console.error('❌ Razorpay error:', err);
+        alert('Payment error: ' + err.message);
     }
+}
+
+// ── PAYPAL PAYMENT ──
+function payWithPayPal(planId, period) {
+    var plan      = PLANS[planId];
+    var amount    = getAmount(planId, period, 'usd');
+    var amountUSD = (amount / 100).toFixed(2);
+
+    if (!amount) {
+        showPaymentToast('This plan is not available internationally.', 'warning');
+        return;
+    }
+
+    var paypalUrl = 'https://www.paypal.com/paypalme/dharaverse/' + amountUSD + 'USD';
+    window.open(paypalUrl, '_blank');
+
+    setTimeout(function() {
+        var confirmed = confirm(
+            '💳 PayPal Payment\n\n' +
+            'Plan: ' + plan.icon + ' ' + plan.name + '\n' +
+            'Period: ' + period + '\n' +
+            'Amount: $' + amountUSD + ' USD\n\n' +
+            'Did you complete the PayPal payment?\n' +
+            'Click OK if payment was successful'
+        );
+
+        if (confirmed) {
+            var txnId = 'PP_' + Date.now() + '_' +
+                        Math.random().toString(36).substr(2, 6).toUpperCase();
+            onPaymentSuccess(
+                txnId, planId, period,
+                parseFloat(amountUSD), 'USD', 'paypal'
+            );
+        }
+    }, 3000);
 }
 
 // ── PAYMENT SUCCESS ──
-function onPaymentSuccess(response, planId, amount) {
-    const plan = PLANS[planId];
+function onPaymentSuccess(paymentId, planId, period, amount, currency, gateway) {
+    console.log('🎉 Payment Success! Saving data...');
 
-    // Define what each plan unlocks
-    const PLAN_FEATURES = {
-        games: {
-            games: 'all',
-            upsc: 3,
-            landscapes: 7,
-            continents: 'all',
-            encyclopedia: 2,
-            atlas: 7,
-            exploreCountries: 7,
-            bharat: 3,
-            adfree: false,
-            spinGlobe: 'all',
-            timeline: 'all',
-            earthSystems: 'all',
-            earthSimulator: 'all'
-        },
-        upsc: {
-            games: 3,
-            upsc: 'all',
-            landscapes: 7,
-            continents: 'all',
-            encyclopedia: 2,
-            atlas: 7,
-            exploreCountries: 7,
-            bharat: 3,
-            adfree: false,
-            spinGlobe: 'all',
-            timeline: 'all',
-            earthSystems: 'all',
-            earthSimulator: 'all'
-        },
-        pro: {
-            games: 'all',
-            upsc: 0,           // LOCKED
-            landscapes: 'all',
-            continents: 'all',
-            encyclopedia: 'all',
-            atlas: 'all',
-            exploreCountries: 'all',
-            bharat: 'all',
-            adfree: true,
-            spinGlobe: 'all',
-            timeline: 'all',
-            earthSystems: 'all',
-            earthSimulator: 'all'
-        },
-        ultimate: {
-            games: 'all',
-            upsc: 'all',
-            landscapes: 'all',
-            continents: 'all',
-            encyclopedia: 'all',
-            atlas: 'all',
-            exploreCountries: 'all',
-            bharat: 'all',
-            adfree: true,
-            spinGlobe: 'all',
-            timeline: 'all',
-            earthSystems: 'all',
-            earthSimulator: 'all'
-        }
-    };
+    var plan   = PLANS[planId];
+    var now    = new Date();
+    var expiry = new Date();
 
-    // Save plan to localStorage
-    const features = PLAN_FEATURES[planId];
-    localStorage.setItem('dv_plan', planId);
-    localStorage.setItem('dv_payment_id', response.razorpay_payment_id);
-    localStorage.setItem('dv_plan_features', JSON.stringify(features));
-    localStorage.setItem('dv_premium', 'true');
-    localStorage.setItem('dv_purchase_date', new Date().toISOString());
-
-    // Save payment history
-    const history = JSON.parse(localStorage.getItem('dv_payment_history') || '[]');
-    history.push({
-        planId,
-        planName: plan.name,
-        paymentId: response.razorpay_payment_id,
-        amount: amount / 100,
-        date: new Date().toISOString()
-    });
-    localStorage.setItem('dv_payment_history', JSON.stringify(history));
-
-    // Update early bird count for ultimate
-    if (planId === 'ultimate') {
-        const count = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
-        localStorage.setItem('dv_earlybird_count', (count + 1).toString());
+    // Calculate expiry date
+    if (period === 'monthly') {
+        expiry.setMonth(expiry.getMonth() + 1);
+    } else {
+        expiry.setFullYear(expiry.getFullYear() + 1);
     }
 
+    // Payment data object
+    var planData = {
+        planId:       planId,
+        planName:     plan ? plan.name : planId,
+        period:       period,
+        paymentId:    paymentId,
+        amount:       amount,
+        currency:     currency,
+        gateway:      gateway,
+        purchaseDate: now.toISOString(),
+        expiryDate:   expiry.toISOString()
+    };
+
+    // Save everything to localStorage
+    localStorage.setItem('dv_plan',          planId);
+    localStorage.setItem('dv_plan_data',     JSON.stringify(planData));
+    localStorage.setItem('dv_plan_period',   period);
+    localStorage.setItem('dv_plan_expiry',   expiry.toISOString());
+    localStorage.setItem('dv_premium',       'true');
+    localStorage.setItem('dv_payment_id',    paymentId);
+    localStorage.setItem('dv_purchase_date', now.toISOString());
+
+    // Update plan features
+    var ultimateFeatures = {
+        games:            Infinity,
+        upsc:             planId === 'upsc' || planId === 'ultimate' ? Infinity : (planId === 'pro' ? 0 : 3),
+        landscapes:       planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
+        continents:       Infinity,
+        encyclopedia:     planId === 'pro' || planId === 'ultimate' ? Infinity : 2,
+        atlas:            planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
+        exploreCountries: planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
+        bharat:           planId === 'pro' || planId === 'ultimate' ? Infinity : 3,
+        spinGlobe:        Infinity,
+        timeline:         Infinity,
+        earthSystems:     Infinity,
+        earthSimulator:   Infinity,
+        adfree:           planId === 'pro' || planId === 'ultimate'
+    };
+
+    localStorage.setItem('dv_plan_features', JSON.stringify(ultimateFeatures));
+
+    // Early bird counter
+    if (planId === 'ultimate' && period === 'yearly') {
+        var ebCount = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
+        localStorage.setItem('dv_earlybird_count', String(ebCount + 1));
+    }
+
+    // Payment history
+    var history = [];
+    try {
+        history = JSON.parse(localStorage.getItem('dv_payment_history') || '[]');
+    } catch (e) {
+        history = [];
+    }
+    history.push(planData);
+    localStorage.setItem('dv_payment_history', JSON.stringify(history));
+
+    // Update user profile
+    try {
+        var user = JSON.parse(localStorage.getItem('dv_user') || '{}');
+        user.plan       = planId;
+        user.planExpiry = expiry.toISOString();
+        localStorage.setItem('dv_user', JSON.stringify(user));
+    } catch (e) {}
+
+    console.log('✅ All data saved. Redirecting to success page...');
+
     // Redirect to success page
-    window.location.href = `/payment-success.html?plan=${planId}&id=${response.razorpay_payment_id}&amount=${amount / 100}`;
+    window.location.href = '/payment-success.html?' +
+        'plan='     + planId +
+        '&period='  + period +
+        '&id='      + paymentId +
+        '&amount='  + amount +
+        '&currency='+ currency +
+        '&gateway=' + gateway;
 }
 
 // ── PAYMENT FAILED ──
-function onPaymentFailed(response, planId) {
-    const params = new URLSearchParams({
-        plan:   planId,
-        reason: response.error.description || 'Payment could not be processed',
-        code:   response.error.code || 'UNKNOWN'
-    });
-    window.location.href = `/payment-failed.html?${params}`;
+function onPaymentFailed(planId, reason, code) {
+    console.error('Payment Failed:', planId, reason, code);
+
+    window.location.href = '/payment-failed.html?' +
+        'plan='   + (planId || 'unknown') +
+        '&reason='+ encodeURIComponent(reason || 'Payment could not be processed') +
+        '&code='  + encodeURIComponent(code   || 'UNKNOWN');
 }
 
 // ── TOAST NOTIFICATION ──
-function showToast(message, type = 'info') {
-    const existing = document.querySelector('.dv-toast');
+function showPaymentToast(message, type) {
+    type = type || 'info';
+
+    var existing = document.querySelector('.dv-pay-toast');
     if (existing) existing.remove();
 
-    const colors = {
-        info:    '#3B82F6',
+    var colors = {
+        info:    '#6441A5',
         success: '#4CAF50',
         error:   '#EF4444',
         warning: '#F59E0B'
     };
 
-    const icons = {
-        info:    'fa-info-circle',
-        success: 'fa-check-circle',
-        error:   'fa-exclamation-circle',
-        warning: 'fa-exclamation-triangle'
-    };
+    var toast       = document.createElement('div');
+    toast.className = 'dv-pay-toast';
+    toast.textContent = message;
+    toast.style.cssText =
+        'position:fixed;top:20px;right:20px;z-index:99999;' +
+        'padding:14px 22px;' +
+        'background:' + (colors[type] || '#6441A5') + ';' +
+        'color:#fff;border-radius:12px;' +
+        'font-family:Inter,sans-serif;' +
+        'font-size:14px;font-weight:600;' +
+        'box-shadow:0 8px 30px rgba(0,0,0,0.3);' +
+        'max-width:360px;cursor:pointer;';
 
-    const toast = document.createElement('div');
-    toast.className = 'dv-toast';
-    toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${message}`;
-
-    Object.assign(toast.style, {
-        position:   'fixed',
-        top:        '24px',
-        right:      '24px',
-        zIndex:     '99999',
-        padding:    '14px 22px',
-        background: colors[type],
-        color:      '#fff',
-        borderRadius: '12px',
-        fontFamily: "'Inter', sans-serif",
-        fontSize:   '14px',
-        fontWeight: '600',
-        display:    'flex',
-        alignItems: 'center',
-        gap:        '10px',
-        boxShadow:  '0 8px 30px rgba(0,0,0,0.3)',
-        maxWidth:   '360px',
-        animation:  'dvSlideIn 0.3s ease'
-    });
-
-    const style = document.createElement('style');
-    style.textContent = `@keyframes dvSlideIn { from { transform:translateX(110%); opacity:0; } to { transform:translateX(0); opacity:1; } }`;
-    document.head.appendChild(style);
-
+    toast.onclick = function() { toast.remove(); };
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
+    setTimeout(function() {
+        if (toast.parentElement) toast.remove();
+    }, 5000);
 }
 
-// ── UTILITIES (usable from any page) ──
-window.DVPayment = {
-    initPayment,
-    showToast,
-    getCurrentPlan: () => localStorage.getItem('dv_plan') || 'basic',
-    isPremium: () => localStorage.getItem('dv_premium') === 'true',
-    getPaymentId: () => localStorage.getItem('dv_payment_id') || null,
-    getPurchaseDate: () => localStorage.getItem('dv_purchase_date') || null
+// ============================================
+// MAKE EVERYTHING GLOBALLY ACCESSIBLE
+// This is the most important part!
+// ============================================
+window.initPayment      = initPayment;
+window.payWithRazorpay  = payWithRazorpay;
+window.payWithPayPal    = payWithPayPal;
+window.onPaymentSuccess = onPaymentSuccess;
+window.onPaymentFailed  = onPaymentFailed;
+window.showPaymentToast = showPaymentToast;
+window.getAmount        = getAmount;
+window.PLANS            = PLANS;
+window.DVPayment        = {
+    initPayment:      initPayment,
+    PLANS:            PLANS,
+    getAmount:        getAmount,
+    showPaymentToast: showPaymentToast
 };
 
-console.log('💳 DharaVerse Payment System Ready');
+console.log('💳 DharaVerse Payment System READY');
+console.log('✅ initPayment:', typeof window.initPayment);
+console.log('✅ Razorpay SDK:', typeof Razorpay);
