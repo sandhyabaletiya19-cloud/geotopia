@@ -180,33 +180,28 @@
     // ==========================================
     // GLOBAL CLICK BLOCKER - RUNS FIRST
     // ==========================================
-
-    if (target.closest('.geo-free-card')) return;
+function installGlobalClickBlocker() {
+    if (state.globalClickHandler) return;
+    
     state.globalClickHandler = function(e) {
-    var target = e.target;
-    
-    // ✅ FREE CARD — always let through
-    if (target.closest('.geo-free-card')) {
-        return;
-    }
-    
-    // Walk up to find if this is inside a locked card
-    var card = target.closest('.geo-locked-card');
-    
-    if (card) {
-        console.log('💜 BLOCKED: Click on locked card');
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        showUpgradeModal();
-        return false;
-    }
-};
+        var target = e.target;
         
-        document.addEventListener('click', state.globalClickHandler, true);
-        console.log('💜 Global click blocker installed');
-    }
-
+        // Walk up to find if this is inside a locked card
+        var card = target.closest('.geo-locked-card');
+        
+        if (card) {
+            console.log('💜 BLOCKED: Click on locked card');
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            showUpgradeModal();
+            return false;
+        }
+    };
+    
+    document.addEventListener('click', state.globalClickHandler, true);
+    console.log('💜 Global click blocker installed');
+}
     // ==========================================
     // STYLES - INJECTED ONCE
     // ==========================================
