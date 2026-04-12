@@ -687,15 +687,13 @@ function installGlobalClickBlocker() {
     // ==========================================
     
     function initialize() {
-        console.log('💜 Initializing...');
-        
-        state.category = detectCategory();
-        
-        if (!state.category) {
-            console.log('💜 No category detected - exiting');
-            return;
-        }
-        
+    console.log('💜 Initializing...');
+    
+    // ✅ Clear stale session data on every page load
+    var cat = detectCategory();
+    if (cat) {
+        sessionStorage.removeItem('geo_free_' + cat);
+    }
         console.log('💜 Category:', state.category);
         
         if (isPremium()) {
