@@ -1,7 +1,6 @@
 // ============================================
 // DHARAVERSE - AUTH SYSTEM
 // js/auth.js
-// Simple localStorage auth (upgrade to Firebase later)
 // ============================================
 
 // ── TAB SWITCH ──
@@ -16,14 +15,13 @@ function switchTab(tab) {
         document.querySelectorAll('.auth-tab')[1].classList.add('active');
         document.getElementById('signupForm').classList.add('active');
     }
-
     hideError();
 }
 
 // ── TOGGLE PASSWORD ──
 function togglePassword(inputId, btn) {
-    const input = document.getElementById(inputId);
-    const isHidden = input.type === 'password';
+    var input = document.getElementById(inputId);
+    var isHidden = input.type === 'password';
     input.type = isHidden ? 'text' : 'password';
     btn.innerHTML = isHidden
         ? '<i class="fas fa-eye-slash"></i>'
@@ -32,9 +30,9 @@ function togglePassword(inputId, btn) {
 
 // ── REGION CHANGE ──
 function onRegionChange() {
-    const region = document.getElementById('signupRegion').value;
-    const infoEl = document.getElementById('regionInfo');
-    const infoText = document.getElementById('regionInfoText');
+    var region   = document.getElementById('signupRegion').value;
+    var infoEl   = document.getElementById('regionInfo');
+    var infoText = document.getElementById('regionInfoText');
 
     if (region === 'IN') {
         infoText.textContent = 'Payments via Razorpay (UPI, Cards, Net Banking)';
@@ -49,17 +47,16 @@ function onRegionChange() {
 
 // ── ERROR HANDLING ──
 function showError(msg) {
-    const el = document.getElementById('authError');
+    var el = document.getElementById('authError');
     document.getElementById('authErrorText').textContent = msg;
     el.classList.add('show');
 
-    const form = document.querySelector('.auth-form.active');
+    var form = document.querySelector('.auth-form.active');
     if (form) {
         form.classList.add('shake');
-        setTimeout(() => form.classList.remove('shake'), 400);
+        setTimeout(function() { form.classList.remove('shake'); }, 400);
     }
-
-    setTimeout(() => hideError(), 5000);
+    setTimeout(function() { hideError(); }, 5000);
 }
 
 function hideError() {
@@ -70,119 +67,84 @@ function hideError() {
 function handleSignup(e) {
     e.preventDefault();
 
-    const name     = document.getElementById('signupName').value.trim();
-    const email    = document.getElementById('signupEmail').value.trim().toLowerCase();
-    const phone    = document.getElementById('signupPhone').value.trim();
-    const region   = document.getElementById('signupRegion').value;
-    const password = document.getElementById('signupPassword').value;
+    var name     = document.getElementById('signupName').value.trim();
+    var email    = document.getElementById('signupEmail').value.trim().toLowerCase();
+    var phone    = document.getElementById('signupPhone').value.trim();
+    var region   = document.getElementById('signupRegion').value;
+    var password = document.getElementById('signupPassword').value;
 
-    // Validation
     if (!name || name.length < 2) {
         showError('Please enter your full name');
         return;
     }
-
     if (!email || !email.includes('@')) {
         showError('Please enter a valid email address');
         return;
     }
-
     if (!phone || phone.length < 8) {
         showError('Please enter a valid phone number');
         return;
     }
-
     if (!region) {
         showError('Please select your region/country');
         return;
     }
-
     if (password.length < 6) {
         showError('Password must be at least 6 characters');
         return;
     }
 
     // Check if user already exists
-    const users = JSON.parse(localStorage.getItem('dv_users') || '{}');
+    var users = {};
+    try {
+        users = JSON.parse(localStorage.getItem('dv_users') || '{}');
+    } catch(e) {
+        users = {};
+    }
+
     if (users[email]) {
         showError('This email is already registered. Please sign in.');
         return;
     }
 
     // Create user
-    const userData = {
-        name,
-        email,
-        phone,
-        region,
-        password: btoa(password),  // base64 encode (NOT secure, just obfuscation)
-        plan: 'basic',
+    var userData = {
+        name:      name,
+        email:     email,
+        phone:     phone,
+        region:    region,
+        password:  btoa(password),
+        plan:      'basic',
         createdAt: new Date().toISOString(),
-        isIndia: region === 'IN'
+        isIndia:   region === 'IN'
     };
 
-    // Save user
     users[email] = userData;
     localStorage.setItem('dv_users', JSON.stringify(users));
 
-   // ── LOGIN USER ──
-function loginUser(user) {
-    // Save all user data
-    localStorage.setItem('dv_user', JSON.stringify(user));
-    localStorage.setItem('dv_user_name', user.name);
-    localStorage.setItem('dv_user_email', user.email);
-    localStorage.setItem('dv_user_phone', user.phone || '');
-    localStorage.setItem('dv_user_region', user.region);
-    localStorage.setItem('dv_user_loggedin', 'true');
-    localStorage.setItem('dv_user_isIndia',
-        user.region === 'IN' ? 'true' : 'false'
-    );
-    localStorage.setItem('dv_login_time', Date.now().toString());
-
-    // Show success on button
-    const btn = document.querySelector('.auth-form.active .auth-btn');
-    if (btn) {
-        btn.innerHTML = '<i class="fas fa-check-circle"></i> Welcome! Redirecting...';
-        btn.style.background = 'linear-gradient(135deg,#4CAF50,#2E7D32)';
-    }
-
-    // Get redirect destination
-    const redirectTo = sessionStorage.getItem('dv_redirect_after_login')
-        || '/pricing.html';
-    const selectedPlan   = sessionStorage.getItem('dv_selected_plan');
-    const selectedPeriod = sessionStorage.getItem('dv_selected_period') || 'yearly';
-
-    sessionStorage.removeItem('dv_redirect_after_login');
-
-    // If they were trying to buy a plan
-    // Pass plan info in URL so pricing page auto-opens payment
-    let finalRedirect = redirectTo;
-    if (selectedPlan) {
-        finalRedirect = `/pricing.html?autoplan=${selectedPlan}&autoperiod=${selectedPeriod}`;
-        sessionStorage.removeItem('dv_selected_plan');
-        sessionStorage.removeItem('dv_selected_period');
-    }
-
-    setTimeout(() => {
-        window.location.href = finalRedirect;
-    }, 800);
+    loginUser(userData);
 }
 
 // ── LOGIN ──
 function handleLogin(e) {
     e.preventDefault();
 
-    const email    = document.getElementById('loginEmail').value.trim().toLowerCase();
-    const password = document.getElementById('loginPassword').value;
+    var email    = document.getElementById('loginEmail').value.trim().toLowerCase();
+    var password = document.getElementById('loginPassword').value;
 
     if (!email || !password) {
         showError('Please enter email and password');
         return;
     }
 
-    // Find user
-    const users = JSON.parse(localStorage.getItem('dv_users') || '{}');
-    const user  = users[email];
+    var users = {};
+    try {
+        users = JSON.parse(localStorage.getItem('dv_users') || '{}');
+    } catch(e) {
+        users = {};
+    }
+
+    var user = users[email];
 
     if (!user) {
         showError('No account found with this email. Please sign up.');
@@ -194,7 +156,6 @@ function handleLogin(e) {
         return;
     }
 
-    // Success
     loginUser(user);
 }
 
@@ -203,40 +164,49 @@ function loginUser(user) {
     localStorage.setItem('dv_user', JSON.stringify(user));
     localStorage.setItem('dv_user_name', user.name);
     localStorage.setItem('dv_user_email', user.email);
-    localStorage.setItem('dv_user_phone', user.phone);
+    localStorage.setItem('dv_user_phone', user.phone || '');
     localStorage.setItem('dv_user_region', user.region);
     localStorage.setItem('dv_user_loggedin', 'true');
     localStorage.setItem('dv_user_isIndia', user.isIndia ? 'true' : 'false');
     localStorage.setItem('dv_login_time', Date.now().toString());
 
-    // Redirect
-    const redirectTo = sessionStorage.getItem('dv_redirect_after_login') || '/pricing.html';
-    sessionStorage.removeItem('dv_redirect_after_login');
-
-    // Show success briefly
-    const btn = document.querySelector('.auth-form.active .auth-btn');
-    btn.innerHTML = '<i class="fas fa-check-circle"></i> Welcome!';
-    btn.style.background = 'linear-gradient(135deg,#4CAF50,#2E7D32)';
-
-    setTimeout(() => {
-        window.location.href = redirectTo;
-    }, 600);
-}
-
-// ── CHECK AUTH ──
-function requireAuth() {
-    // Admin bypasses auth
-    const isAdmin   = localStorage.getItem('dv_admin');
-    const loginTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
-    const elapsed   = Date.now() - loginTime;
-    const SESSION   = 24 * 60 * 60 * 1000;
-
-    if (isAdmin === 'true' && elapsed < SESSION) {
-        return true; // Admin always allowed
+    var btn = document.querySelector('.auth-form.active .auth-btn');
+    if (btn) {
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Welcome! Redirecting...';
+        btn.style.background = 'linear-gradient(135deg,#4CAF50,#2E7D32)';
     }
 
-    // Normal user check
-    const loggedIn = localStorage.getItem('dv_user_loggedin');
+    var redirectTo     = sessionStorage.getItem('dv_redirect_after_login') || '/pricing.html';
+    var selectedPlan   = sessionStorage.getItem('dv_selected_plan');
+    var selectedPeriod = sessionStorage.getItem('dv_selected_period') || 'yearly';
+
+    sessionStorage.removeItem('dv_redirect_after_login');
+
+    var finalRedirect = redirectTo;
+    if (selectedPlan) {
+        finalRedirect = '/pricing.html?autoplan=' + selectedPlan + '&autoperiod=' + selectedPeriod;
+        sessionStorage.removeItem('dv_selected_plan');
+        sessionStorage.removeItem('dv_selected_period');
+    }
+
+    setTimeout(function() {
+        window.location.href = finalRedirect;
+    }, 800);
+}
+
+// ── REQUIRE AUTH ──
+function requireAuth() {
+    // Admin bypass
+    var isAdmin   = localStorage.getItem('dv_admin');
+    var loginTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+    var elapsed   = Date.now() - loginTime;
+    var SESSION   = 24 * 60 * 60 * 1000;
+
+    if (isAdmin === 'true' && elapsed < SESSION) {
+        return true;
+    }
+
+    var loggedIn = localStorage.getItem('dv_user_loggedin');
     if (loggedIn !== 'true') {
         sessionStorage.setItem('dv_redirect_after_login', window.location.href);
         window.location.href = '/auth.html';
@@ -253,10 +223,10 @@ function logoutUser() {
     window.location.href = '/auth.html';
 }
 
-// ── AUTO REDIRECT IF LOGGED IN ──
+// ── AUTO REDIRECT IF ALREADY LOGGED IN ──
 (function() {
     if (localStorage.getItem('dv_user_loggedin') === 'true') {
-        const redirect = sessionStorage.getItem('dv_redirect_after_login');
+        var redirect = sessionStorage.getItem('dv_redirect_after_login');
         if (redirect) {
             sessionStorage.removeItem('dv_redirect_after_login');
             window.location.href = redirect;
@@ -266,12 +236,12 @@ function logoutUser() {
 
 // ── EXPORT ──
 window.DVAuth = {
-    requireAuth,
-    logoutUser,
-    isLoggedIn: () => localStorage.getItem('dv_user_loggedin') === 'true',
-    getUser: () => JSON.parse(localStorage.getItem('dv_user') || 'null'),
-    getUserName: () => localStorage.getItem('dv_user_name') || 'Explorer',
-    isIndia: () => localStorage.getItem('dv_user_isIndia') === 'true'
+    requireAuth:  requireAuth,
+    logoutUser:   logoutUser,
+    isLoggedIn:   function() { return localStorage.getItem('dv_user_loggedin') === 'true'; },
+    getUser:      function() { try { return JSON.parse(localStorage.getItem('dv_user') || 'null'); } catch(e) { return null; } },
+    getUserName:  function() { return localStorage.getItem('dv_user_name') || 'Explorer'; },
+    isIndia:      function() { return localStorage.getItem('dv_user_isIndia') === 'true'; }
 };
 
 console.log('🔐 DharaVerse Auth System Ready');
