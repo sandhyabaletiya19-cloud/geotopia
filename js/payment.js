@@ -3,7 +3,7 @@
 // js/payment.js
 // ============================================
 
-const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // ← Replace with your actual key
+const RAZORPAY_KEY = 'rzp_live_ScXeEzlZJLvNTL'; // ← Replace with your actual key
 
 // ── PLAN CONFIG ──
 const PLANS = {
