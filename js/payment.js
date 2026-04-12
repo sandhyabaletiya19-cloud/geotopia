@@ -48,23 +48,66 @@ function getUltimateAmount() {
 }
 
 // ── INIT PAYMENT ──
-function initPayment(planId) {
+function initPayment(planId, period = 'yearly') {
+
+    // ── CHECK AUTH ──
+    const isAdmin   = localStorage.getItem('dv_admin');
+    const adminTime = parseInt(localStorage.getItem('dv_admin_time') || '0');
+    const adminOk   = isAdmin === 'true' &&
+                      (Date.now() - adminTime) < 24 * 60 * 60 * 1000;
+
+    const loggedIn = localStorage.getItem('dv_user_loggedin') === 'true';
+
+    if (!adminOk && !loggedIn) {
+        sessionStorage.setItem('dv_redirect_after_login', '/pricing.html');
+        sessionStorage.setItem('dv_selected_plan', planId);
+        sessionStorage.setItem('dv_selected_period', period);
+        window.location.href = '/auth.html';
+        return;
+    }
+
     const plan = PLANS[planId];
-    if (!plan) return;
+    if (!plan) {
+        console.error('Unknown plan:', planId);
+        return;
+    }
 
-    // Already on same or higher plan?
+    // ── CHECK INDIA ──
+    const isIndia = localStorage.getItem('dv_user_isIndia') === 'true';
+
+    // India-only plan check
+    if (plan.indiaOnly && !isIndia && !adminOk) {
+        showPaymentToast('This plan is available for India only 🇮🇳', 'warning');
+        return;
+    }
+
+    // ── ALREADY ON SAME PLAN? ──
     const currentPlan = localStorage.getItem('dv_plan') || 'basic';
-    const hierarchy = { basic: 0, games: 1, upsc: 1, pro: 2, ultimate: 3 };
-
-    if (currentPlan === planId) {
-        showToast('You already have this plan! 🎉', 'info');
+    if (currentPlan === planId && !adminOk) {
+        showPaymentToast('You already have this plan! 💜', 'info');
         return;
     }
 
-    if (hierarchy[currentPlan] >= hierarchy[planId] && currentPlan !== 'basic') {
-        showToast('You already have a higher plan! 👑', 'info');
+    // ── FOR ADMIN: simulate success directly ──
+    if (adminOk) {
+        const testId = 'ADMIN_TEST_' + Date.now();
+        const amount = planId === 'ultimate' ? 2100 : 
+                       planId === 'pro' ? 1199 :
+                       planId === 'upsc' ? 799 : 299;
+
+        if (confirm(`Admin Test Mode 🧪\n\nSimulate payment for:\n${plan.icon} ${plan.name} (${period})\n\nClick OK to simulate success.`)) {
+            onPaymentSuccess(testId, planId, period, amount, 'INR', 'admin_test');
+        }
         return;
     }
+
+    // ── ROUTE TO GATEWAY ──
+    if (isIndia) {
+        payWithRazorpay(planId, period);
+    } else {
+        payWithPayPal(planId, period);
+    }
+}
 
     // Get amount
     const amount = planId === 'ultimate' ? getUltimateAmount() : plan.amount_inr;
