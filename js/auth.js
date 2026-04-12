@@ -125,8 +125,47 @@ function handleSignup(e) {
     users[email] = userData;
     localStorage.setItem('dv_users', JSON.stringify(users));
 
-    // Login the user
-    loginUser(userData);
+   // ── LOGIN USER ──
+function loginUser(user) {
+    // Save all user data
+    localStorage.setItem('dv_user', JSON.stringify(user));
+    localStorage.setItem('dv_user_name', user.name);
+    localStorage.setItem('dv_user_email', user.email);
+    localStorage.setItem('dv_user_phone', user.phone || '');
+    localStorage.setItem('dv_user_region', user.region);
+    localStorage.setItem('dv_user_loggedin', 'true');
+    localStorage.setItem('dv_user_isIndia',
+        user.region === 'IN' ? 'true' : 'false'
+    );
+    localStorage.setItem('dv_login_time', Date.now().toString());
+
+    // Show success on button
+    const btn = document.querySelector('.auth-form.active .auth-btn');
+    if (btn) {
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Welcome! Redirecting...';
+        btn.style.background = 'linear-gradient(135deg,#4CAF50,#2E7D32)';
+    }
+
+    // Get redirect destination
+    const redirectTo = sessionStorage.getItem('dv_redirect_after_login')
+        || '/pricing.html';
+    const selectedPlan   = sessionStorage.getItem('dv_selected_plan');
+    const selectedPeriod = sessionStorage.getItem('dv_selected_period') || 'yearly';
+
+    sessionStorage.removeItem('dv_redirect_after_login');
+
+    // If they were trying to buy a plan
+    // Pass plan info in URL so pricing page auto-opens payment
+    let finalRedirect = redirectTo;
+    if (selectedPlan) {
+        finalRedirect = `/pricing.html?autoplan=${selectedPlan}&autoperiod=${selectedPeriod}`;
+        sessionStorage.removeItem('dv_selected_plan');
+        sessionStorage.removeItem('dv_selected_period');
+    }
+
+    setTimeout(() => {
+        window.location.href = finalRedirect;
+    }, 800);
 }
 
 // ── LOGIN ──
