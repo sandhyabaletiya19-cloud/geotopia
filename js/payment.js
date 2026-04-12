@@ -1,92 +1,75 @@
 // ============================================
-// DHARAVERSE PAYMENT SYSTEM
-// Razorpay Integration
+// DHARAVERSE - PAYMENT SYSTEM
+// js/payment.js
 // ============================================
 
-const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // Replace with your actual key
+const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // ← Replace with your actual key
 
-// Plan Configuration
+// ── PLAN CONFIG ──
 const PLANS = {
     games: {
         name: 'Games Plan',
-        description: 'All games unlimited access',
-        amount_inr: 29900,     // Amount in paise (₹299 × 100)
-        amount_usd: 700,       // Amount in cents ($7 × 100)
+        description: 'All geography games unlocked',
+        amount_inr: 29900,   // paise (₹299)
+        amount_usd: 700,     // cents ($7)
         color: '#06B6D4',
-        icon: '🎮',
-        features: ['games']
+        icon: '🎮'
     },
     upsc: {
         name: 'UPSC Plan',
-        description: 'Complete UPSC geography content',
-        amount_inr: 79900,     // ₹799
-        amount_usd: 1400,      // $14
+        description: 'Complete UPSC geography preparation',
+        amount_inr: 79900,   // ₹799
+        amount_usd: 1400,    // $14
         color: '#8B5CF6',
-        icon: '📚',
-        features: ['upsc']
+        icon: '📚'
     },
     pro: {
         name: 'Pro Plan',
-        description: 'Everything except UPSC - Full explorer access',
-        amount_inr: 119900,    // ₹1,199
-        amount_usd: 2200,      // $22
+        description: 'Everything except UPSC — full explorer access',
+        amount_inr: 119900,  // ₹1,199
+        amount_usd: 2200,    // $22
         color: '#EC4899',
-        icon: '⭐',
-        features: ['games', 'encyclopedia', 'landscapes', 'continents', 'atlas', 'adfree']
+        icon: '⭐'
     },
     ultimate: {
         name: 'Ultimate Plan',
         description: 'Everything DharaVerse has to offer',
-        amount_inr: 210000,    // ₹2,100
-        amount_usd: 3000,      // $30
+        amount_inr: 210000,  // ₹2,100
+        amount_usd: 3000,    // $30
         color: '#FFD700',
-        icon: '👑',
-        features: ['games', 'upsc', 'encyclopedia', 'landscapes', 'continents', 'atlas', 'adfree', 'priority']
+        icon: '👑'
     }
 };
 
-// ===== CHECK EARLY BIRD DISCOUNT =====
-function getUltimatePrice() {
-    const earlyBirdCount = parseInt(localStorage.getItem('dharaverse_earlybird_count') || '0');
-    if (earlyBirdCount < 11) {
-        return 200000; // ₹2,000 (early bird)
-    }
-    return 210000; // ₹2,100 (regular)
+// ── GET ULTIMATE PRICE (early bird check) ──
+function getUltimateAmount() {
+    const count = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
+    return count < 11 ? 200000 : 210000; // ₹2,000 or ₹2,100
 }
 
-// ===== INITIALIZE PAYMENT =====
+// ── INIT PAYMENT ──
 function initPayment(planId) {
     const plan = PLANS[planId];
-    if (!plan) {
-        alert('Invalid plan selected');
+    if (!plan) return;
+
+    // Already on same or higher plan?
+    const currentPlan = localStorage.getItem('dv_plan') || 'basic';
+    const hierarchy = { basic: 0, games: 1, upsc: 1, pro: 2, ultimate: 3 };
+
+    if (currentPlan === planId) {
+        showToast('You already have this plan! 🎉', 'info');
         return;
     }
 
-    // Check if already purchased
-    const currentPlan = localStorage.getItem('dharaverse_plan');
-    if (currentPlan) {
-        const planHierarchy = { games: 1, upsc: 1, pro: 2, ultimate: 3 };
-        const currentLevel = planHierarchy[currentPlan] || 0;
-        const newLevel = planHierarchy[planId] || 0;
-
-        if (currentPlan === planId) {
-            showNotification('You already have this plan! 🎉', 'info');
-            return;
-        }
-
-        if (newLevel < currentLevel) {
-            showNotification('You already have a higher plan! 👑', 'info');
-            return;
-        }
+    if (hierarchy[currentPlan] >= hierarchy[planId] && currentPlan !== 'basic') {
+        showToast('You already have a higher plan! 👑', 'info');
+        return;
     }
 
-    // Get amount (check early bird for ultimate)
-    let amount = plan.amount_inr;
-    if (planId === 'ultimate') {
-        amount = getUltimatePrice();
-    }
+    // Get amount
+    const amount = planId === 'ultimate' ? getUltimateAmount() : plan.amount_inr;
 
-    // Create Razorpay options
+    // Razorpay options
     const options = {
         key: RAZORPAY_KEY,
         amount: amount,
@@ -95,11 +78,11 @@ function initPayment(planId) {
         description: plan.description,
         image: 'https://dharaverse.com/logo.png',
         handler: function(response) {
-            handlePaymentSuccess(response, planId, amount);
+            onPaymentSuccess(response, planId, amount);
         },
         prefill: {
-            name: localStorage.getItem('dharaverse_user_name') || '',
-            email: localStorage.getItem('dharaverse_user_email') || '',
+            name:  localStorage.getItem('dv_user_name')  || '',
+            email: localStorage.getItem('dv_user_email') || ''
         },
         notes: {
             plan: planId,
@@ -109,189 +92,192 @@ function initPayment(planId) {
             color: plan.color
         },
         modal: {
-            ondismiss: function() {
-                console.log('Payment modal closed');
-            },
             confirm_close: true,
-            escape: true,
-            animation: true
+            animation: true,
+            ondismiss: function() {
+                console.log('DharaVerse: Payment modal closed by user');
+            }
         }
     };
 
-    // Open Razorpay
     try {
         const rzp = new Razorpay(options);
-
         rzp.on('payment.failed', function(response) {
-            handlePaymentFailure(response, planId);
+            onPaymentFailed(response, planId);
         });
-
         rzp.open();
-    } catch (error) {
-        console.error('Razorpay Error:', error);
-        showNotification('Payment gateway error. Please try again.', 'error');
+    } catch (err) {
+        console.error('Razorpay Error:', err);
+        showToast('Payment gateway error. Please try again.', 'error');
     }
 }
 
-// ===== PAYMENT SUCCESS =====
-function handlePaymentSuccess(response, planId, amount) {
+// ── PAYMENT SUCCESS ──
+function onPaymentSuccess(response, planId, amount) {
     const plan = PLANS[planId];
 
-    // Save to localStorage
-    const paymentData = {
-        plan: planId,
+    // Define what each plan unlocks
+    const PLAN_FEATURES = {
+        games: {
+            games: 'all',
+            upsc: 3,
+            landscapes: 7,
+            continents: 'all',
+            encyclopedia: 2,
+            atlas: 7,
+            exploreCountries: 7,
+            bharat: 3,
+            adfree: false,
+            spinGlobe: 'all',
+            timeline: 'all',
+            earthSystems: 'all',
+            earthSimulator: 'all'
+        },
+        upsc: {
+            games: 3,
+            upsc: 'all',
+            landscapes: 7,
+            continents: 'all',
+            encyclopedia: 2,
+            atlas: 7,
+            exploreCountries: 7,
+            bharat: 3,
+            adfree: false,
+            spinGlobe: 'all',
+            timeline: 'all',
+            earthSystems: 'all',
+            earthSimulator: 'all'
+        },
+        pro: {
+            games: 'all',
+            upsc: 0,           // LOCKED
+            landscapes: 'all',
+            continents: 'all',
+            encyclopedia: 'all',
+            atlas: 'all',
+            exploreCountries: 'all',
+            bharat: 'all',
+            adfree: true,
+            spinGlobe: 'all',
+            timeline: 'all',
+            earthSystems: 'all',
+            earthSimulator: 'all'
+        },
+        ultimate: {
+            games: 'all',
+            upsc: 'all',
+            landscapes: 'all',
+            continents: 'all',
+            encyclopedia: 'all',
+            atlas: 'all',
+            exploreCountries: 'all',
+            bharat: 'all',
+            adfree: true,
+            spinGlobe: 'all',
+            timeline: 'all',
+            earthSystems: 'all',
+            earthSimulator: 'all'
+        }
+    };
+
+    // Save plan to localStorage
+    const features = PLAN_FEATURES[planId];
+    localStorage.setItem('dv_plan', planId);
+    localStorage.setItem('dv_payment_id', response.razorpay_payment_id);
+    localStorage.setItem('dv_plan_features', JSON.stringify(features));
+    localStorage.setItem('dv_premium', 'true');
+    localStorage.setItem('dv_purchase_date', new Date().toISOString());
+
+    // Save payment history
+    const history = JSON.parse(localStorage.getItem('dv_payment_history') || '[]');
+    history.push({
+        planId,
         planName: plan.name,
         paymentId: response.razorpay_payment_id,
         amount: amount / 100,
-        currency: 'INR',
-        date: new Date().toISOString(),
-        features: plan.features
-    };
-
-    // Store plan
-    localStorage.setItem('dharaverse_plan', planId);
-    localStorage.setItem('dharaverse_payment_id', response.razorpay_payment_id);
-    localStorage.setItem('dharaverse_plan_data', JSON.stringify(paymentData));
-    localStorage.setItem('dharaverse_premium', 'true');
-    localStorage.setItem('dharaverse_premium_date', new Date().toISOString());
-
-    // Store features
-    plan.features.forEach(feature => {
-        localStorage.setItem(`dharaverse_feature_${feature}`, 'true');
+        date: new Date().toISOString()
     });
+    localStorage.setItem('dv_payment_history', JSON.stringify(history));
 
-    // Update early bird counter for ultimate
+    // Update early bird count for ultimate
     if (planId === 'ultimate') {
-        const earlyBirdCount = parseInt(localStorage.getItem('dharaverse_earlybird_count') || '0');
-        localStorage.setItem('dharaverse_earlybird_count', (earlyBirdCount + 1).toString());
+        const count = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
+        localStorage.setItem('dv_earlybird_count', (count + 1).toString());
     }
-
-    // Save payment history
-    const history = JSON.parse(localStorage.getItem('dharaverse_payment_history') || '[]');
-    history.push(paymentData);
-    localStorage.setItem('dharaverse_payment_history', JSON.stringify(history));
 
     // Redirect to success page
     window.location.href = `/payment-success.html?plan=${planId}&id=${response.razorpay_payment_id}&amount=${amount / 100}`;
 }
 
-// ===== PAYMENT FAILURE =====
-function handlePaymentFailure(response, planId) {
-    const errorData = {
-        code: response.error.code,
-        description: response.error.description,
-        source: response.error.source,
-        step: response.error.step,
-        reason: response.error.reason,
-        plan: planId,
-        date: new Date().toISOString()
-    };
-
-    console.error('Payment Failed:', errorData);
-
-    // Redirect to failure page
+// ── PAYMENT FAILED ──
+function onPaymentFailed(response, planId) {
     const params = new URLSearchParams({
-        plan: planId,
-        reason: response.error.description || 'Payment failed',
-        code: response.error.code || 'UNKNOWN'
+        plan:   planId,
+        reason: response.error.description || 'Payment could not be processed',
+        code:   response.error.code || 'UNKNOWN'
     });
-
-    window.location.href = `/payment-failed.html?${params.toString()}`;
+    window.location.href = `/payment-failed.html?${params}`;
 }
 
-// ===== NOTIFICATION SYSTEM =====
-function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existing = document.querySelector('.dv-notification');
+// ── TOAST NOTIFICATION ──
+function showToast(message, type = 'info') {
+    const existing = document.querySelector('.dv-toast');
     if (existing) existing.remove();
 
     const colors = {
-        info: '#3B82F6',
+        info:    '#3B82F6',
         success: '#4CAF50',
-        error: '#EF4444',
+        error:   '#EF4444',
         warning: '#F59E0B'
     };
 
     const icons = {
-        info: 'fa-info-circle',
+        info:    'fa-info-circle',
         success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
+        error:   'fa-exclamation-circle',
         warning: 'fa-exclamation-triangle'
     };
 
-    const notification = document.createElement('div');
-    notification.className = 'dv-notification';
-    notification.innerHTML = `
-        <i class="fas ${icons[type]}"></i>
-        <span>${message}</span>
-    `;
+    const toast = document.createElement('div');
+    toast.className = 'dv-toast';
+    toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${message}`;
 
-    Object.assign(notification.style, {
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        zIndex: '10000',
-        padding: '16px 24px',
+    Object.assign(toast.style, {
+        position:   'fixed',
+        top:        '24px',
+        right:      '24px',
+        zIndex:     '99999',
+        padding:    '14px 22px',
         background: colors[type],
-        color: '#fff',
+        color:      '#fff',
         borderRadius: '12px',
         fontFamily: "'Inter', sans-serif",
-        fontSize: '15px',
+        fontSize:   '14px',
         fontWeight: '600',
-        display: 'flex',
+        display:    'flex',
         alignItems: 'center',
-        gap: '10px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-        animation: 'slideIn 0.3s ease',
-        maxWidth: '400px'
+        gap:        '10px',
+        boxShadow:  '0 8px 30px rgba(0,0,0,0.3)',
+        maxWidth:   '360px',
+        animation:  'dvSlideIn 0.3s ease'
     });
 
-    // Add animation
     const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-    `;
+    style.textContent = `@keyframes dvSlideIn { from { transform:translateX(110%); opacity:0; } to { transform:translateX(0); opacity:1; } }`;
     document.head.appendChild(style);
 
-    document.body.appendChild(notification);
-
-    // Auto remove after 4 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideIn 0.3s ease reverse';
-        setTimeout(() => notification.remove(), 300);
-    }, 4000);
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
 }
 
-// ===== UTILITY: Check if user has specific feature =====
-function hasFeature(feature) {
-    return localStorage.getItem(`dharaverse_feature_${feature}`) === 'true';
-}
+// ── UTILITIES (usable from any page) ──
+window.DVPayment = {
+    initPayment,
+    showToast,
+    getCurrentPlan: () => localStorage.getItem('dv_plan') || 'basic',
+    isPremium: () => localStorage.getItem('dv_premium') === 'true',
+    getPaymentId: () => localStorage.getItem('dv_payment_id') || null,
+    getPurchaseDate: () => localStorage.getItem('dv_purchase_date') || null
+};
 
-// ===== UTILITY: Get current plan =====
-function getCurrentPlan() {
-    return localStorage.getItem('dharaverse_plan') || 'basic';
-}
-
-// ===== UTILITY: Check if premium =====
-function isPremium() {
-    return localStorage.getItem('dharaverse_premium') === 'true';
-}
-
-// ===== UTILITY: Get plan display name =====
-function getPlanDisplayName() {
-    const plan = getCurrentPlan();
-    const names = {
-        basic: 'Basic (Free)',
-        games: '🎮 Games',
-        upsc: '📚 UPSC',
-        pro: '⭐ Pro',
-        ultimate: '👑 Ultimate'
-    };
-    return names[plan] || 'Basic (Free)';
-}
-
-console.log('💳 DharaVerse Payment System loaded');
-console.log('📋 Current Plan:', getPlanDisplayName());
+console.log('💳 DharaVerse Payment System Ready');
