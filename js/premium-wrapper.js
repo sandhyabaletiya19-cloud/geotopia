@@ -9,9 +9,6 @@
 
     // ==========================================
     // FREE IDs FOR PROFILE PAGES
-    // First N items from each category
-    // These MUST match exactly what appears in
-    // the ?id= parameter of profile URLs
     // ==========================================
 
     var FREE_PROFILE_IDS = {
@@ -91,25 +88,23 @@
     // ==========================================
 
     var state = {
-    pageType:           null,
-    category:           null,
-    freeItems:          [],
-    observer:           null,
-    styleInjected:      false,
-    globalClickHandler: null,
-    blurApplied:        false,
-    lockingDone:        false  // ✅ ADD THIS
-};
+        pageType:           null,
+        category:           null,
+        freeItems:          [],
+        observer:           null,
+        styleInjected:      false,
+        globalClickHandler: null,
+        blurApplied:        false,
+        lockingDone:        false,
+        filterClickBound:   false
+    };
 
     // ==========================================
-    // STEP 1: DETECT PAGE TYPE
-    // This is the most important function.
-    // It reads the URL and decides what to do.
+    // DETECT PAGE TYPE
     // ==========================================
 
     function detectPageType() {
         var path = window.location.pathname.toLowerCase();
-        var url  = window.location.href.toLowerCase();
 
         // ── GRID PAGES ──
         if (path.endsWith('/mountains/mountains.html'))       return 'grid';
@@ -125,21 +120,12 @@
         if (path.endsWith('/upsc/upsc.html'))                 return 'grid';
         if (path.endsWith('/atlas/atlas.html'))               return 'grid';
         if (path.endsWith('/encyclopedia/encyclopedia.html')) return 'grid';
+        if (path.endsWith('/volcanoes/volcanoes.html'))       return 'grid';
 
         // ── PROFILE PAGES ──
-        if (path.endsWith('/mountains/mountains-profile.html'))       return 'profile';
-        if (path.endsWith('/rivers/rivers-profile.html'))             return 'profile';
-        if (path.endsWith('/lakes/lakes-profile.html'))               return 'profile';
-        if (path.endsWith('/oceans/oceans-profile.html'))             return 'profile';
-        if (path.endsWith('/oceans/seas-profile.html'))               return 'profile';
-        if (path.endsWith('/coral-reefs/coral-reefs-profile.html'))   return 'profile';
-        if (path.endsWith('/deserts/deserts-profile.html'))           return 'profile';
-        if (path.endsWith('/islands/islands-profile.html'))           return 'profile';
-        if (path.endsWith('/forests/forests-profile.html'))           return 'profile';
-        if (path.endsWith('/upsc/upsc-profile.html'))                 return 'profile';
+        if (path.endsWith('-profile.html'))                   return 'profile';
 
-        // ── ENCYCLOPEDIA BLUR PAGES ──
-        // Everything inside /encyclopedia/ EXCEPT encyclopedia.html itself
+        // ── ENCYCLOPEDIA SUB-PAGES (country pages, map pages etc) ──
         if (path.includes('/encyclopedia/') &&
             !path.endsWith('/encyclopedia/encyclopedia.html')) {
             return 'encyc-blur';
@@ -150,8 +136,7 @@
     }
 
     // ==========================================
-    // STEP 2: DETECT CATEGORY
-    // Works for both grid and profile pages
+    // DETECT CATEGORY
     // ==========================================
 
     function detectCategory() {
@@ -165,6 +150,7 @@
         if (path.includes('/deserts/'))     return 'deserts';
         if (path.includes('/islands/'))     return 'islands';
         if (path.includes('/forests/'))     return 'forests';
+        if (path.includes('/volcanoes/'))   return 'volcanoes';
         if (path.includes('/games/'))       return 'games';
         if (path.includes('/upsc/'))        return 'upsc';
         if (path.includes('/atlas/'))       return 'atlas';
@@ -174,7 +160,7 @@
     }
 
     // ==========================================
-    // STEP 3: CHECK PREMIUM STATUS
+    // CHECK PREMIUM STATUS
     // ==========================================
 
     function isPremium() {
@@ -185,7 +171,6 @@
                        (Date.now() - adminTime) < 86400000;
         if (adminOk) return true;
 
-        // Check expiry
         var expiry = localStorage.getItem('dv_plan_expiry');
         if (expiry && new Date(expiry) < new Date()) {
             localStorage.setItem('dv_plan', 'basic');
@@ -196,17 +181,13 @@
         var cat = detectCategory();
 
         if (plan === 'ultimate') return true;
-
         if (plan === 'pro') {
-            // Pro = everything EXCEPT upsc
             if (cat === 'upsc') return false;
             return true;
         }
-
         if (plan === 'games' && cat === 'games') return true;
         if (plan === 'upsc'  && cat === 'upsc')  return true;
 
-        // Old system fallback
         if (localStorage.getItem('geo_premium') === 'true') return true;
         if (localStorage.getItem('dv_premium') === 'true' &&
             plan !== 'basic') return true;
@@ -215,7 +196,7 @@
     }
 
     // ==========================================
-    // STEP 4: GET FREE LIMIT FOR CATEGORY
+    // GET FREE LIMIT FOR CATEGORY
     // ==========================================
 
     function getFreeLimit(category) {
@@ -263,7 +244,7 @@
     }
 
     // ==========================================
-    // STEP 5: CHECK IF PROFILE ID IS FREE
+    // CHECK IF PROFILE ID IS FREE
     // ==========================================
 
     function isProfileFree() {
@@ -278,7 +259,7 @@
     }
 
     // ==========================================
-    // STEP 6: GLOBAL CLICK BLOCKER
+    // GLOBAL CLICK BLOCKER
     // ==========================================
 
     function installGlobalClickBlocker() {
@@ -300,7 +281,7 @@
     }
 
     // ==========================================
-    // STEP 7: INJECT ALL STYLES
+    // INJECT ALL STYLES
     // ==========================================
 
     function injectStyles() {
@@ -574,7 +555,7 @@
     }
 
     // ==========================================
-    // STEP 8: GRID CARD FUNCTIONS
+    // GRID CARD HELPERS
     // ==========================================
 
     function findContainer() {
@@ -616,18 +597,19 @@
         var tag = el.tagName.toUpperCase();
         if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK') return false;
         if (el.classList.contains('geo-upgrade-cta')) return false;
-        if (el.classList.contains('geo-processed'))  return false;
         return true;
     }
 
-    function makeCardFree(card) {
-        card.classList.remove('geo-locked-card');
+    function stripCardLockUI(card) {
+        card.classList.remove('geo-locked-card', 'geo-free-card', 'geo-processed');
         card.querySelectorAll(
             '.geo-gift-overlay,.geo-ribbon-v,' +
-            '.geo-ribbon-h,.geo-ribbon-knot,.geo-ribbon-dot'
+            '.geo-ribbon-h,.geo-ribbon-knot,.geo-ribbon-dot,.geo-free-badge'
         ).forEach(function(el) { el.remove(); });
+    }
 
-        if (card.querySelector('.geo-free-badge')) return;
+    function makeCardFree(card) {
+        stripCardLockUI(card);
         card.classList.add('geo-free-card', 'geo-processed');
 
         var badge         = document.createElement('div');
@@ -637,10 +619,7 @@
     }
 
     function makeCardLocked(card) {
-        var old = card.querySelector('.geo-free-badge');
-        if (old) old.remove();
-        if (card.querySelector('.geo-ribbon-knot')) return;
-
+        stripCardLockUI(card);
         card.classList.add('geo-locked-card', 'geo-processed');
 
         if (card.tagName === 'A') {
@@ -648,28 +627,23 @@
             card.style.cursor = 'pointer';
         }
 
-        // Overlay
         var ov         = document.createElement('div');
         ov.className   = 'geo-gift-overlay';
         card.appendChild(ov);
 
-        // Vertical ribbon
         var rv         = document.createElement('div');
         rv.className   = 'geo-ribbon-v';
         card.appendChild(rv);
 
-        // Horizontal ribbon
         var rh         = document.createElement('div');
         rh.className   = 'geo-ribbon-h';
         card.appendChild(rh);
 
-        // Earth knot
         var knot           = document.createElement('div');
         knot.className     = 'geo-ribbon-knot';
         knot.textContent   = '🌍';
         card.appendChild(knot);
 
-        // Corner dots
         ['tl','tr','bl','br'].forEach(function(pos) {
             var dot       = document.createElement('div');
             dot.className = 'geo-ribbon-dot ' + pos;
@@ -678,59 +652,69 @@
     }
 
     // ==========================================
-    // STEP 9: PROCESS GRID CARDS
+    // ✅ PROCESS GRID CARDS - FIXED
+    // 
+    // KEY FIX: We count ALL cards in the grid 
+    // toward the free limit, NOT per-filter.
+    // We use a GLOBAL index counter that persists
+    // across filter clicks. The first N cards by
+    // DOM order are always free.
     // ==========================================
 
     function processCards() {
-    var container = findContainer();
-    if (!container) {
-        console.log('💜 No container found');
-        return;
-    }
-
-    var validCards = Array.from(container.children).filter(isValidCard);
-    console.log('💜 Cards found:', validCards.length);
-    if (validCards.length === 0) return;
-
-    // ✅ If locking already done, only lock NEW cards
-    // Don't reset freeItems - keep existing free list
-    if (!state.lockingDone) {
-        state.freeItems = []; // Fresh count only on first run
-    }
-    
-    var limit = getFreeLimit(state.category);
-    var stats = { free: 0, locked: 0 };
-
-    validCards.forEach(function(card) {
-        var name       = getCardName(card);
-        var normalized = name.toLowerCase().trim();
-
-        // Already processed - skip
-        if (card.classList.contains('geo-processed')) return;
-
-        if (state.freeItems.length < limit &&
-            state.freeItems.indexOf(normalized) === -1) {
-            state.freeItems.push(normalized);
-            makeCardFree(card);
-            stats.free++;
-        } else {
-            makeCardLocked(card);
-            stats.locked++;
+        var container = findContainer();
+        if (!container) {
+            console.log('💜 No container found, retrying...');
+            return;
         }
-    });
 
-    console.log('💜 Free:', stats.free, '| Locked:', stats.locked);
-    
-    // ✅ Mark locking as done
-    state.lockingDone = true;
+        var limit = getFreeLimit(state.category);
+        
+        // ✅ Get ALL cards in the container (not just visible)
+        var allCards = Array.from(container.children).filter(isValidCard);
+        console.log('💜 Total cards in grid:', allCards.length, '| Free limit:', limit);
 
-    if (stats.locked > 0) {
-        addUpgradeCTA(container, stats.locked, stats.free, validCards.length);
+        if (allCards.length === 0) return;
+
+        // ✅ KEY FIX: Build the free list ONCE from the FIRST N cards 
+        // in the original DOM order. This list NEVER changes on filter.
+        if (!state.lockingDone) {
+            state.freeItems = [];
+            for (var i = 0; i < allCards.length && state.freeItems.length < limit; i++) {
+                var name = getCardName(allCards[i]).toLowerCase().trim();
+                if (state.freeItems.indexOf(name) === -1) {
+                    state.freeItems.push(name);
+                }
+            }
+            state.lockingDone = true;
+            console.log('💜 Free items locked:', state.freeItems);
+        }
+
+        // ✅ Now apply free/locked to ALL cards based on the fixed list
+        var stats = { free: 0, locked: 0 };
+
+        allCards.forEach(function(card) {
+            var name       = getCardName(card).toLowerCase().trim();
+            var isFree     = state.freeItems.indexOf(name) !== -1;
+
+            if (isFree) {
+                makeCardFree(card);
+                stats.free++;
+            } else {
+                makeCardLocked(card);
+                stats.locked++;
+            }
+        });
+
+        console.log('💜 Free:', stats.free, '| Locked:', stats.locked);
+
+        if (stats.locked > 0) {
+            addUpgradeCTA(container, stats.locked, stats.free, allCards.length);
+        }
     }
-}
 
     // ==========================================
-    // STEP 10: UPGRADE CTA (grid pages)
+    // UPGRADE CTA (grid pages)
     // ==========================================
 
     function addUpgradeCTA(container, locked, free, total) {
@@ -776,69 +760,133 @@
     }
 
     // ==========================================
-    // STEP 11: BLUR LOCK (encyclopedia + profile)
-    // Splits page: first 1/8 visible, rest blurred
+    // ✅ ENCYCLOPEDIA BLUR LOCK - COMPLETELY REWRITTEN
+    //
+    // This finds ALL content on the page and
+    // blurs 7/8 of it. Works with ANY structure:
+    // tables, cards, maps, lists, sections, etc.
     // ==========================================
 
     function applyBlurLock() {
         if (state.blurApplied) return;
         state.blurApplied = true;
 
-        console.log('💜 Applying blur lock...');
+        console.log('💜 Applying encyclopedia blur lock...');
 
-        // Find main content wrapper
+        // ─── Strategy: Find the best content wrapper ───
+        // Try increasingly broad selectors
+        var contentEl = null;
         var contentSelectors = [
-            'main', 'article', '.content-main',
-            '.main-content', '.page-content',
-            '.article-body', '#content', '#main',
-            '.container', '.wrapper', 'body'
+            'main',
+            'article',
+            '.content-main',
+            '.main-content',
+            '.page-content',
+            '.article-body',
+            '.content-wrapper',
+            '.content',
+            '#content',
+            '#main',
+            '.container',
+            '.wrapper'
         ];
 
-        var contentEl = null;
         for (var i = 0; i < contentSelectors.length; i++) {
             var el = document.querySelector(contentSelectors[i]);
             if (el && el.children.length > 1) {
                 contentEl = el;
+                console.log('💜 Found content wrapper:', contentSelectors[i], 
+                           'with', el.children.length, 'children');
                 break;
             }
         }
 
+        // ─── Fallback: use document.body ───
         if (!contentEl) {
-            console.log('💜 No content element found');
+            contentEl = document.body;
+            console.log('💜 Using body as content wrapper');
+        }
+
+        // ─── Collect ALL direct children that are actual content ───
+        var children = Array.from(contentEl.children).filter(function(child) {
+            var tag = child.tagName.toUpperCase();
+            // Skip scripts, styles, nav, header, footer, our own elements
+            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || 
+                tag === 'META' || tag === 'NOSCRIPT') return false;
+            if (child.id === 'geo-premium-styles') return false;
+            if (child.id === 'geo-fullpage-lock') return false;
+            if (child.id === 'geo-premium-modal') return false;
+            if (child.classList.contains('geo-blur-fade')) return false;
+            if (child.classList.contains('geo-blur-section')) return false;
+            // Skip if it's invisible
+            var style = window.getComputedStyle(child);
+            if (style.display === 'none') return false;
+            return true;
+        });
+
+        console.log('💜 Content children found:', children.length);
+
+        if (children.length < 2) {
+            console.log('💜 Not enough children to blur, trying deeper...');
+            // Try going one level deeper
+            var deeper = contentEl.querySelector('div, section, article');
+            if (deeper && deeper.children.length > 2) {
+                contentEl = deeper;
+                children = Array.from(contentEl.children).filter(function(child) {
+                    var tag = child.tagName.toUpperCase();
+                    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK') return false;
+                    return true;
+                });
+                console.log('💜 Deeper children found:', children.length);
+            }
+        }
+
+        if (children.length < 2) {
+            console.log('💜 Still not enough children, applying body-level blur');
+            applyBodyBlur();
             return;
         }
 
-        var children = Array.from(contentEl.children);
-        if (children.length < 2) return;
-
-        // First 1/8 of children are free
-        var freeCount  = Math.max(1, Math.floor(children.length / 8));
-        var lockedKids = children.slice(freeCount);
-
-        if (lockedKids.length === 0) return;
+        // ─── Calculate 1/8 free, 7/8 locked ───
+        var freeCount = Math.max(1, Math.floor(children.length / 8));
+        var freeChildren  = children.slice(0, freeCount);
+        var lockedChildren = children.slice(freeCount);
 
         console.log('💜 Free sections:', freeCount,
-                    '| Locked sections:', lockedKids.length);
+                    '| Locked sections:', lockedChildren.length);
 
-        // Fade line
-        var fade       = document.createElement('div');
+        if (lockedChildren.length === 0) {
+            console.log('💜 Nothing to lock');
+            return;
+        }
+
+        // ─── Create the blur wrapper ───
+        var blurWrapper = document.createElement('div');
+        blurWrapper.className = 'geo-blur-section';
+        blurWrapper.style.position = 'relative';
+
+        // ─── Create fade divider ───
+        var fade = document.createElement('div');
         fade.className = 'geo-blur-fade';
 
-        // Locked wrapper
-        var wrapper         = document.createElement('div');
-        wrapper.style.cssText = 'position:relative;';
-        wrapper.classList.add('geo-blur-section');
+        // ─── Insert fade BEFORE the first locked child ───
+        var firstLocked = lockedChildren[0];
+        contentEl.insertBefore(fade, firstLocked);
 
-        // Move locked children into wrapper
-        lockedKids.forEach(function(child) {
-            wrapper.appendChild(child);
+        // ─── Move all locked children into blur wrapper ───
+        lockedChildren.forEach(function(child) {
+            blurWrapper.appendChild(child);
         });
 
-        // Build overlay
+        // ─── Insert blur wrapper after fade ───
+        contentEl.insertBefore(blurWrapper, fade.nextSibling);
+
+        // ─── Build overlay ───
         var overlay       = document.createElement('div');
         overlay.className = 'geo-blur-overlay';
+        overlay.style.position = 'absolute';
 
-        // Purple ribbon inside overlay
+        // Purple ribbon
         var ribbon       = document.createElement('div');
         ribbon.className = 'geo-blur-ribbon';
 
@@ -874,11 +922,16 @@
 
         overlay.appendChild(ribbon);
         overlay.appendChild(box);
-        wrapper.appendChild(overlay);
 
-        // Insert into page
-        contentEl.insertBefore(fade, lockedKids[0] || null);
-        contentEl.appendChild(wrapper);
+        // ─── Append overlay OUTSIDE the blur wrapper (so it's not blurred) ───
+        // We need a container that holds both
+        var outerWrapper = document.createElement('div');
+        outerWrapper.style.position = 'relative';
+        
+        // Replace blurWrapper in DOM with outerWrapper
+        contentEl.insertBefore(outerWrapper, blurWrapper);
+        outerWrapper.appendChild(blurWrapper);
+        outerWrapper.appendChild(overlay);
 
         // Button events
         document.getElementById('geo-blur-unlock')
@@ -891,12 +944,88 @@
             if (e.target === overlay) showUpgradeModal();
         });
 
-        console.log('💜 Blur lock applied!');
+        console.log('💜 Encyclopedia blur lock applied!');
+    }
+
+    // ─── Fallback: blur everything below viewport ───
+    function applyBodyBlur() {
+        console.log('💜 Applying body-level blur fallback');
+
+        var msg = BTS_MESSAGES[Math.floor(Math.random() * BTS_MESSAGES.length)];
+
+        // Create a fixed overlay at the bottom portion of the page
+        var overlay = document.createElement('div');
+        overlay.style.cssText =
+            'position:fixed;bottom:0;left:0;right:0;height:75vh;' +
+            'z-index:99999;pointer-events:auto;cursor:pointer;' +
+            'background:linear-gradient(to bottom,' +
+                'transparent 0%,' +
+                'rgba(10,10,20,0.5) 10%,' +
+                'rgba(10,10,20,0.85) 30%,' +
+                'rgba(10,10,20,0.95) 100%);' +
+            'display:flex;align-items:center;justify-content:center;' +
+            'flex-direction:column;';
+
+        // Ribbon
+        var ribbon = document.createElement('div');
+        ribbon.style.cssText =
+            'position:absolute;top:40px;left:0;right:0;height:50px;' +
+            'background:linear-gradient(90deg,' +
+                '#4c1d95,#7c3aed,#a855f7,#c084fc,#a855f7,#7c3aed,#4c1d95);' +
+            'display:flex;align-items:center;justify-content:center;gap:16px;' +
+            'box-shadow:0 4px 20px rgba(124,58,237,0.6);pointer-events:none;';
+        ribbon.innerHTML =
+            '<div style="width:36px;height:36px;background:linear-gradient(' +
+                '135deg,#1e3a5f,#2563eb,#1e40af);border-radius:50%;' +
+                'display:flex;align-items:center;justify-content:center;' +
+                'font-size:20px;box-shadow:0 0 0 2px white;">🌍</div>' +
+            '<span style="color:white;font-size:13px;font-weight:800;' +
+                'letter-spacing:2px;text-transform:uppercase;">' +
+                '✦ Premium Content ✦</span>' +
+            '<div style="width:36px;height:36px;background:linear-gradient(' +
+                '135deg,#1e3a5f,#2563eb,#1e40af);border-radius:50%;' +
+                'display:flex;align-items:center;justify-content:center;' +
+                'font-size:20px;box-shadow:0 0 0 2px white;">🌍</div>';
+
+        var box = document.createElement('div');
+        box.className = 'geo-blur-box';
+        box.style.marginTop = '100px';
+        box.innerHTML =
+            '<div style="font-size:48px;">💜</div>' +
+            '<h3 style="color:white;font-size:22px;font-weight:800;margin:12px 0 10px;">' + 
+                msg.title + '</h3>' +
+            '<p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin:0 0 20px;">' + 
+                msg.subtitle + '<br><br>Unlock the full content with Premium!</p>' +
+            '<button id="geo-blur-unlock" style="background:linear-gradient(135deg,#a855f7,#7c3aed);' +
+                'color:white;border:none;padding:13px 32px;border-radius:30px;font-size:15px;' +
+                'font-weight:700;cursor:pointer;width:100%;">' +
+                '💜 Unlock Full Access</button>' +
+            '<p style="color:rgba(255,255,255,0.35);font-size:11px;margin-top:10px;">' +
+                '보라해 💜 · Plans from ₹299/year</p>';
+
+        overlay.appendChild(ribbon);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        // Prevent scrolling past the free portion
+        document.body.style.overflow = 'hidden';
+        document.body.style.maxHeight = '100vh';
+
+        document.getElementById('geo-blur-unlock')
+            .addEventListener('click', function(e) {
+                e.stopPropagation();
+                showUpgradeModal();
+            });
+
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) showUpgradeModal();
+        });
+
+        console.log('💜 Body blur fallback applied');
     }
 
     // ==========================================
-    // STEP 12: FULL PAGE LOCK (profile - locked)
-    // Shows a full page overlay for locked profiles
+    // FULL PAGE LOCK (profile - locked)
     // ==========================================
 
     function applyFullPageLock() {
@@ -904,14 +1033,12 @@
 
         var msg = BTS_MESSAGES[Math.floor(Math.random() * BTS_MESSAGES.length)];
 
-        // Blur the whole body
         document.body.style.cssText +=
             'filter:blur(8px);' +
             'pointer-events:none;' +
             'user-select:none;' +
             'overflow:hidden;';
 
-        // Full screen overlay
         var overlay           = document.createElement('div');
         overlay.id            = 'geo-fullpage-lock';
         overlay.style.cssText =
@@ -921,7 +1048,6 @@
             'backdrop-filter:blur(4px);' +
             'pointer-events:auto;';
 
-        // Purple ribbon across overlay
         var ribbon           = document.createElement('div');
         ribbon.style.cssText =
             'position:absolute;top:0;left:0;right:0;height:55px;' +
@@ -943,6 +1069,20 @@
                 'display:flex;align-items:center;justify-content:center;' +
                 'font-size:20px;box-shadow:0 0 0 2px white;">🌍</div>';
 
+        // Determine back URL
+        var path = window.location.pathname;
+        var backUrl = '/';
+        if (path.includes('/mountains/'))   backUrl = '/mountains/mountains.html';
+        else if (path.includes('/rivers/'))      backUrl = '/rivers/rivers.html';
+        else if (path.includes('/lakes/'))       backUrl = '/lakes/lakes.html';
+        else if (path.includes('/deserts/'))     backUrl = '/deserts/deserts.html';
+        else if (path.includes('/forests/'))     backUrl = '/forests/forests.html';
+        else if (path.includes('/islands/'))     backUrl = '/islands/islands.html';
+        else if (path.includes('/oceans/'))      backUrl = '/oceans/oceans.html';
+        else if (path.includes('/coral-reefs/')) backUrl = '/coral-reefs/coral-reefs.html';
+        else if (path.includes('/upsc/'))        backUrl = '/upsc/upsc.html';
+        else if (path.includes('/volcanoes/'))   backUrl = '/volcanoes/volcanoes.html';
+
         var box           = document.createElement('div');
         box.style.cssText =
             'background:linear-gradient(145deg,#1e1b4b,#312e81);' +
@@ -963,28 +1103,9 @@
                 'padding:14px 32px;border-radius:30px;font-size:15px;' +
                 'font-weight:700;cursor:pointer;width:100%;' +
                 'margin-bottom:12px;">💜 Unlock Full Access</button>' +
-            '<a href="' + (window.location.pathname.includes('/mountains/')
-                ? '/mountains/mountains.html'
-                : window.location.pathname.includes('/rivers/')
-                ? '/rivers/rivers.html'
-                : window.location.pathname.includes('/lakes/')
-                ? '/lakes/lakes.html'
-                : window.location.pathname.includes('/deserts/')
-                ? '/deserts/deserts.html'
-                : window.location.pathname.includes('/forests/')
-                ? '/forests/forests.html'
-                : window.location.pathname.includes('/islands/')
-                ? '/islands/islands.html'
-                : window.location.pathname.includes('/oceans/')
-                ? '/oceans/oceans.html'
-                : window.location.pathname.includes('/coral-reefs/')
-                ? '/coral-reefs/coral-reefs.html'
-                : window.location.pathname.includes('/upsc/')
-                ? '/upsc/upsc.html'
-                : '/') +
-            '" style="display:inline-block;color:rgba(255,255,255,0.4);' +
-                'font-size:12px;text-decoration:none;pointer-events:auto;">' +
-                '← Go Back</a>' +
+            '<a href="' + backUrl + '" style="display:inline-block;' +
+                'color:rgba(255,255,255,0.4);font-size:12px;' +
+                'text-decoration:none;pointer-events:auto;">← Go Back</a>' +
             '<p style="color:rgba(255,255,255,0.3);font-size:11px;' +
                 'margin-top:10px;">보라해 💜</p>';
 
@@ -999,7 +1120,7 @@
     }
 
     // ==========================================
-    // STEP 13: UPGRADE MODAL
+    // UPGRADE MODAL
     // ==========================================
 
     function showUpgradeModal() {
@@ -1046,48 +1167,81 @@
     }
 
     // ==========================================
-    // STEP 14: OBSERVER (grid pages only)
+    // ✅ OBSERVER - FIXED (limited runs)
     // ==========================================
 
     function startObserver() {
-    if (state.observer) state.observer.disconnect();
+        if (state.observer) state.observer.disconnect();
 
-    var timer;
-    var processCount = 0; // ✅ Count how many times we process
+        var timer;
+        var processCount = 0;
 
-    state.observer = new MutationObserver(function() {
-        clearTimeout(timer);
-        timer = setTimeout(function() {
-            
-            // ✅ Only process MAX 2 times total
-            if (processCount >= 2) {
-                console.log('💜 Observer: max runs reached, stopping');
-                state.observer.disconnect();
-                return;
-            }
-            
-            processCount++;
-            console.log('💜 Observer run #' + processCount);
-            
-            // Reset processed flags so cards can be re-evaluated
-            document.querySelectorAll('.geo-processed').forEach(function(el) {
-                el.classList.remove('geo-processed');
-            });
-            
-            processCards();
-            
-        }, 500); // ✅ Increased delay to 500ms
-    });
+        state.observer = new MutationObserver(function() {
+            clearTimeout(timer);
+            timer = setTimeout(function() {
+                if (processCount >= 3) {
+                    console.log('💜 Observer: max runs reached, stopping');
+                    state.observer.disconnect();
+                    return;
+                }
+                processCount++;
+                console.log('💜 Observer run #' + processCount);
+                processCards();
+            }, 600);
+        });
 
-    state.observer.observe(document.body, {
-        childList: true, subtree: true
-    });
-}
+        state.observer.observe(document.body, {
+            childList: true, subtree: true
+        });
+    }
 
     // ==========================================
-    // STEP 15: MAIN INITIALIZE
-    // This is the entry point. Reads page type
-    // and routes to correct handler.
+    // ✅ FILTER HANDLER - FIXED
+    //
+    // When a filter/category button is clicked,
+    // we DON'T reset freeItems. We just re-apply
+    // the same free/locked state to whatever 
+    // cards are now visible.
+    // ==========================================
+
+    function bindFilterHandler() {
+        if (state.filterClickBound) return;
+        state.filterClickBound = true;
+
+        document.addEventListener('click', function(e) {
+            // Check if clicked element is a filter/tab button
+            var isFilter = e.target.matches(
+                '[data-filter],[data-category],.filter-btn,.tab-btn,' +
+                '.category-btn,.cat-btn,[data-tab],.tab,[role="tab"],' +
+                'button[class*="filter"],button[class*="tab"],' +
+                'a[class*="filter"],a[class*="tab"],' +
+                '.filter-item,.category-item,.nav-pill,.nav-tab'
+            ) || e.target.closest(
+                '[data-filter],[data-category],.filter-btn,.tab-btn,' +
+                '.category-btn,.cat-btn,[data-tab]'
+            );
+
+            if (isFilter) {
+                console.log('💜 Filter clicked - re-applying locks (NOT resetting freeItems)');
+                
+                // ✅ KEY: We do NOT reset state.freeItems or state.lockingDone
+                // We just wait for DOM to update, then re-apply same free/locked
+                setTimeout(function() {
+                    processCards();
+                }, 300);
+
+                // Second pass in case of animation delay
+                setTimeout(function() {
+                    processCards();
+                }, 800);
+            }
+        });
+
+        console.log('💜 Filter handler bound');
+    }
+
+    // ==========================================
+    // MAIN INITIALIZE
     // ==========================================
 
     function initialize() {
@@ -1099,13 +1253,13 @@
         console.log('💜 Page type:', state.pageType);
         console.log('💜 Category:', state.category);
 
-        // ── FREE PAGE - do nothing ──
+        // ── FREE PAGE ──
         if (state.pageType === 'free') {
             console.log('💜 Free page - exiting');
             return;
         }
 
-        // ── PREMIUM USER - no locks ──
+        // ── PREMIUM USER ──
         if (isPremium()) {
             console.log('💜 Premium user - no locks');
             return;
@@ -1115,7 +1269,6 @@
         if (state.pageType === 'grid') {
             console.log('💜 Grid page - applying card locks');
 
-            // Pro plan UPSC = fully locked
             var plan = localStorage.getItem('dv_plan') || 'basic';
             if (plan === 'pro' && state.category === 'upsc') {
                 FREE_LIMITS.upsc = 0;
@@ -1123,24 +1276,23 @@
 
             injectStyles();
             installGlobalClickBlocker();
-            state.freeItems = [];
+
+            // ✅ Reset state for fresh page load
+            state.freeItems   = [];
+            state.lockingDone = false;
+
+            // Initial processing
             processCards();
+
+            // Observer for dynamically loaded cards
             startObserver();
 
-            // Filter click handler
-            document.addEventListener('click', function(e) {
-                if (e.target.matches(
-                    '[data-filter],[data-category],.filter-btn,.tab-btn'
-                )) {
-                    setTimeout(function() {
-                        document.querySelectorAll('.geo-processed')
-                            .forEach(function(el) {
-                                el.classList.remove('geo-processed');
-                            });
-                        processCards();
-                    }, 400);
-                }
-            });
+            // ✅ Bind filter handler (does NOT reset freeItems)
+            bindFilterHandler();
+
+            // ✅ Retry in case cards load late
+            setTimeout(processCards, 1000);
+            setTimeout(processCards, 2500);
 
             return;
         }
@@ -1150,12 +1302,11 @@
             console.log('💜 Profile page - checking if free...');
 
             if (isProfileFree()) {
-                console.log('💜 Profile is in free list - showing full page');
-                return; // Show full page - no lock
+                console.log('💜 Profile is in free list');
+                return;
             } else {
-                console.log('💜 Profile is locked - applying full page lock');
+                console.log('💜 Profile is locked');
                 injectStyles();
-                // Wait for page to load then lock
                 if (document.readyState === 'complete') {
                     applyFullPageLock();
                 } else {
@@ -1167,14 +1318,26 @@
 
         // ── ENCYCLOPEDIA BLUR PAGE ──
         if (state.pageType === 'encyc-blur') {
-            console.log('💜 Encyclopedia page - applying blur lock');
+            console.log('💜 Encyclopedia sub-page - applying blur lock');
             injectStyles();
 
+            // ✅ Must wait for page to fully load
             if (document.readyState === 'complete') {
-                applyBlurLock();
+                setTimeout(applyBlurLock, 500); // Small delay for JS-rendered content
             } else {
-                window.addEventListener('load', applyBlurLock);
+                window.addEventListener('load', function() {
+                    setTimeout(applyBlurLock, 500);
+                });
             }
+
+            // ✅ Fallback retry
+            setTimeout(function() {
+                if (!state.blurApplied) {
+                    console.log('💜 Blur retry...');
+                    applyBlurLock();
+                }
+            }, 3000);
+
             return;
         }
 
@@ -1196,7 +1359,8 @@
         showUpgrade:  showUpgradeModal,
         reprocess:    processCards,
         reset: function() {
-            state.freeItems = [];
+            state.freeItems   = [];
+            state.lockingDone = false;
             processCards();
         }
     };
