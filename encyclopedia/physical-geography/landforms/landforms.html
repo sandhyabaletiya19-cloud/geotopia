@@ -6,12 +6,6 @@
     <title>Landforms Encyclopedia | DharaVerse - Complete Global Guide</title>
     <meta name="description" content="Comprehensive encyclopedia of Earth's landforms - Valleys, Canyons, Deserts, Islands, Caves, Glacial, Volcanic, Coastal, Aeolian & Fluvial landforms with interactive maps for 197 countries">
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-fullscreen/dist/leaflet.fullscreen.css" />>
@@ -24,6 +18,11 @@
            ROOT VARIABLES & THEME
         ============================================ */
         :root {
+
+    --font-serif: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Georgia', serif;
+    --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'Courier New', Courier, monospace;
+            
             /* Physical Geography Theme - Ocean Blues to Teal */
             --primary-start: #0a4d68;
             --primary-mid: #1a7f9e;
@@ -8395,7 +8394,13 @@
         </div>
     </div>
 
-    <!-- <!-- ADD THIS SCRIPT BEFORE THE CLOSING </body> TAG - REPLACING THE EXISTING SCRIPT -->
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+    <!-- SCRIPT 2: AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
 
 <script>
 // ============================================
@@ -9141,6 +9146,203 @@ const fluvialData = [
     { id: 15, name: "Lake Chicot", country: "United States", type: "Oxbow Lake", lat: 33.3439, lng: -91.3139, length: "32 km", river: "Mississippi (former)", famous_for: "Largest oxbow lake in N. America", age: "600 years" }
 ];
 
+    // ============================================
+        // SECTION B: UI FUNCTIONS (ADD THESE NEW)
+        // ============================================
+
+        // --- B1: Counter Animation ---
+        function animateCounter(element, target) {
+            const duration = 2000;
+            const start = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                element.textContent = Math.floor(eased * target).toLocaleString();
+                if (progress < 1) requestAnimationFrame(update);
+                else element.textContent = target.toLocaleString();
+            }
+            requestAnimationFrame(update);
+        }
+
+        // --- B2: Particles ---
+        function createParticles() {
+            const container = document.getElementById('particles');
+            if (!container) return;
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    animation-duration: ${Math.random() * 10 + 10}s;
+                    animation-delay: ${Math.random() * 10}s;
+                    width: ${Math.random() * 4 + 2}px;
+                    height: ${Math.random() * 4 + 2}px;
+                `;
+                container.appendChild(particle);
+            }
+        }
+
+    // ============================================
+        // SECTION C: QUIZ (ADD THESE NEW)
+        // ============================================
+        const quizQuestions = [
+            {
+                question: "What is the deepest canyon on Earth?",
+                options: ["Grand Canyon, USA", "Fish River Canyon, Namibia", "Yarlung Tsangpo Canyon, Tibet", "Copper Canyon, Mexico"],
+                correct: 2
+            },
+            {
+                question: "Which is the world's largest hot desert?",
+                options: ["Arabian Desert", "Sahara Desert", "Gobi Desert", "Kalahari Desert"],
+                correct: 1
+            },
+            {
+                question: "What type of valley has a U-shaped profile?",
+                options: ["River Valley", "Glacial Valley", "Rift Valley", "Desert Valley"],
+                correct: 1
+            },
+            {
+                question: "Which country has the most islands?",
+                options: ["Philippines", "Japan", "Indonesia", "Sweden"],
+                correct: 3
+            },
+            {
+                question: "What is the world's longest cave system?",
+                options: ["Carlsbad Caverns", "Mammoth Cave", "Son Doong", "Postojna Cave"],
+                correct: 1
+            },
+            {
+                question: "Which is the largest desert on Earth?",
+                options: ["Sahara Desert", "Arabian Desert", "Antarctic Desert", "Gobi Desert"],
+                correct: 2
+            },
+            {
+                question: "What causes a rift valley to form?",
+                options: ["River erosion", "Glacial erosion", "Tectonic plates moving apart", "Wind erosion"],
+                correct: 2
+            },
+            {
+                question: "What is an atoll?",
+                options: ["A type of canyon", "A ring-shaped coral island", "A glacial landform", "A desert dune"],
+                correct: 1
+            },
+            {
+                question: "Which aeolian landform is crescent-shaped?",
+                options: ["Star dune", "Linear dune", "Barchan dune", "Transverse dune"],
+                correct: 2
+            },
+            {
+                question: "What is the world's largest river delta?",
+                options: ["Nile Delta", "Mississippi Delta", "Ganges-Brahmaputra Delta", "Niger Delta"],
+                correct: 2
+            }
+        ];
+    let currentQuestion = 0;
+        let selectedAnswers = [];
+        let quizCompleted = false;
+
+        function initQuiz() {
+            updateQuizDisplay();
+            const options = document.querySelectorAll('.quiz-option');
+            const nextBtn = document.getElementById('quizNext');
+            const prevBtn = document.getElementById('quizPrev');
+            if (!options.length || !nextBtn) return;
+
+            options.forEach((option, index) => {
+                option.addEventListener('click', function() {
+                    if (quizCompleted) return;
+                    options.forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedAnswers[currentQuestion] = index;
+                });
+            });
+
+            nextBtn.addEventListener('click', function() {
+                if (currentQuestion < quizQuestions.length - 1) {
+                    currentQuestion++;
+                    updateQuizDisplay();
+                } else {
+                    showQuizResults();
+                }
+            });
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function() {
+                    if (currentQuestion > 0) {
+                        currentQuestion--;
+                        updateQuizDisplay();
+                    }
+                });
+            }
+        }
+
+        function updateQuizDisplay() {
+            const question = quizQuestions[currentQuestion];
+            const questionNum = document.querySelector('.quiz-question-number');
+            const questionText = document.querySelector('.quiz-question-text');
+            const options = document.querySelectorAll('.quiz-option');
+            const dots = document.querySelectorAll('.quiz-progress-dot');
+            const prevBtn = document.getElementById('quizPrev');
+            const nextBtn = document.getElementById('quizNext');
+
+            if (questionNum) questionNum.textContent = `Question ${currentQuestion + 1} of ${quizQuestions.length}`;
+            if (questionText) questionText.textContent = question.question;
+
+            options.forEach((option, index) => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+                const spans = option.querySelectorAll('span');
+                if (spans[0]) spans[0].textContent = String.fromCharCode(65 + index);
+                if (spans[1]) spans[1].textContent = question.options[index];
+                if (selectedAnswers[currentQuestion] === index) {
+                    option.classList.add('selected');
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index === currentQuestion) dot.classList.add('active');
+                else if (index < currentQuestion) dot.classList.add('completed');
+            });
+
+            if (prevBtn) prevBtn.disabled = currentQuestion === 0;
+            if (nextBtn) {
+                nextBtn.innerHTML = currentQuestion === quizQuestions.length - 1
+                    ? 'Submit <i class="fas fa-check"></i>'
+                    : 'Next <i class="fas fa-arrow-right"></i>';
+            }
+        }
+
+        function showQuizResults() {
+            let score = 0;
+            quizQuestions.forEach((q, i) => {
+                if (selectedAnswers[i] === q.correct) score++;
+            });
+            const percentage = Math.round((score / quizQuestions.length) * 100);
+            const emoji = percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '📚';
+            const quizContainer = document.querySelector('.quiz-container');
+            if (!quizContainer) return;
+
+            quizContainer.innerHTML = `
+                <div style="text-align:center; padding:40px;">
+                    <div style="font-size:4rem; margin-bottom:20px;">${emoji}</div>
+                    <h3 style="font-size:2rem; color:var(--primary-end); margin-bottom:15px;">
+                        ${score}/${quizQuestions.length} Correct!
+                    </h3>
+                    <p style="font-size:1.2rem; color:var(--text-secondary); margin-bottom:30px;">
+                        ${percentage}% — ${
+                            percentage >= 80 ? "Excellent! You're a landform expert!" :
+                            percentage >= 60 ? "Good job! Keep exploring!" :
+                            "Keep learning about Earth's amazing landforms!"
+                        }
+                    </p>
+                    <button class="btn btn-primary" onclick="location.reload()">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            `;
+            quizCompleted = true;
+        }
 // ============================================
 // UTILITY FUNCTIONS - ADD THIS BEFORE initializeAllData()
 // ============================================
@@ -9674,7 +9876,17 @@ function setupModalEvents() {
 // UPDATED initializeAllData FUNCTION
 // ============================================
 function initializeAllData() {
-    console.log('🚀 Initializing GeoTopia Landforms Encyclopedia...');
+            console.log('🚀 Initializing...');
+            setupModalEvents();
+            setupTableSearch();
+            setupContinentFilter();
+            setupTableSorting();
+            if (document.getElementById('masterTableBody')) {
+                populateMasterTable(allCountriesData);
+            }
+            initializeAllMaps();
+            console.log('✅ Done!');
+        }
     
     // Setup modal events
     setupModalEvents();
@@ -9712,45 +9924,7 @@ function initializeAllData() {
     console.log('✅ Initialization complete!');
 }
 
-// ============================================
-// MAP INITIALIZATION FUNCTIONS
-// ============================================
-function initializeAllMaps() {
-    // Map configuration for each landform type
-    const mapConfigs = [
-        { id: 'valleyMap', data: valleysData, color: '#22c55e', icon: '⛰️' },
-        { id: 'canyonMap', data: canyonsData, color: '#f97316', icon: '🏜️' },
-        { id: 'gorgeMap', data: [], color: '#ef4444', icon: '🏞️' },
-        { id: 'hotDesertMap', data: desertsData.filter(d => d.type === 'Hot'), color: '#fbbf24', icon: '☀️' },
-        { id: 'coldDesertMap', data: desertsData.filter(d => d.type === 'Cold'), color: '#38bdf8', icon: '❄️' },
-        { id: 'coastalDesertMap', data: desertsData.filter(d => d.type === 'Coastal'), color: '#fb923c', icon: '🌊' },
-        { id: 'islandsMap', data: islandsData, color: '#06b6d4', icon: '🏝️' },
-        { id: 'archipelagoMap', data: [], color: '#0891b2', icon: '🗺️' },
-        { id: 'peninsulasMap', data: [], color: '#0d9488', icon: '🗺️' },
-        { id: 'cavesMap', data: cavesData, color: '#8b5cf6', icon: '🕳️' },
-        { id: 'glacialMap', data: glacialData, color: '#67e8f9', icon: '🧊' },
-        { id: 'volcanicMap', data: volcanicData, color: '#dc2626', icon: '🌋' },
-        { id: 'coastalMap', data: coastalData, color: '#3b82f6', icon: '🏖️' },
-        { id: 'aeolianMap', data: aeolianData, color: '#d97706', icon: '💨' },
-        { id: 'fluvialMap', data: fluvialData, color: '#2563eb', icon: '🌊' }
-    ];
-
-    // Initialize each map when visible using Intersection Observer
-    mapConfigs.forEach(config => {
-        const container = document.getElementById(config.id);
-        if (container && !window[config.id + 'Instance']) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        console.log(`🗺️ Initializing map: ${config.id}`);
-                        initMapWithData(config.id, config.data, config.color);
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
-            observer.observe(container);
-        }
-    });
+ function setupModalEvents() {
 
     // Initialize master map
     const masterMapContainer = document.getElementById('masterMap');
@@ -9776,19 +9950,69 @@ function initMapWithData(mapId, data) {
         setTimeout(() => initMapWithData(mapId, data), 1000);
         return;
     }
-        };
 
-        // Add tile layer
+    // Prevent duplicate initialization
+    if (window[mapId + 'Instance']) {
+        console.warn(`⚠️ Map ${mapId} already initialized`);
+        return;
+    }
+
+    const container = document.getElementById(mapId);
+    if (!container) {
+        console.warn(`⚠️ Container ${mapId} not found`);
+        return;
+    }
+
+    try {
+        // Get marker color from mapConfigs
+        const colorMap = {
+            'valleyMap': '#22c55e',
+            'canyonMap': '#f97316',
+            'gorgeMap': '#ef4444',
+            'hotDesertMap': '#fbbf24',
+            'coldDesertMap': '#38bdf8',
+            'coastalDesertMap': '#fb923c',
+            'islandsMap': '#06b6d4',
+            'archipelagoMap': '#0891b2',
+            'peninsulasMap': '#0d9488',
+            'cavesMap': '#8b5cf6',
+            'glacialMap': '#67e8f9',
+            'volcanicMap': '#dc2626',
+            'coastalMap': '#3b82f6',
+            'aeolianMap': '#d97706',
+            'fluvialMap': '#2563eb'
+        };
+        
+        const markerColor = colorMap[mapId] || '#57c5b6';
+
+        // Initialize map
+        const map = L.map(mapId, {
+            center: [20, 0],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 18,
+            worldCopyJump: true
+        });
+
+        // Add default tile layer
         L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenTopoMap contributors'
         }).addTo(map);
 
         // Store base layers for switching
         map.baseLayers = {
-            terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'),
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
-            street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
+            terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenTopoMap contributors'
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri'
+            }),
+            street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }),
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© CartoDB'
+            })
         };
 
         // Add markers for each data point
@@ -9828,8 +10052,51 @@ function initMapWithData(mapId, data) {
         // Store map instance
         window[mapId + 'Instance'] = map;
 
-        // Add fullscreen control if available
-        if (L.Control.Fullscreen) {
+        // Setup layer switcher buttons
+        const mapWrapper = container.closest('.map-container-wrapper');
+        if (mapWrapper) {
+            const layerBtns = mapWrapper.querySelectorAll('.layer-btn');
+            layerBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    layerBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const layerName = this.dataset.layer || this.textContent.toLowerCase().trim();
+                    
+                    // Remove current tile layer
+                    map.eachLayer(layer => {
+                        if (layer instanceof L.TileLayer) {
+                            map.removeLayer(layer);
+                        }
+                    });
+
+                    // Add new tile layer
+                    if (map.baseLayers[layerName]) {
+                        map.baseLayers[layerName].addTo(map);
+                    } else {
+                        map.baseLayers.terrain.addTo(map);
+                    }
+                });
+            });
+
+            // Setup fullscreen button
+            const fullscreenBtn = mapWrapper.querySelector('.map-control-btn');
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function() {
+                    if (container.classList.contains('fullscreen-active')) {
+                        container.classList.remove('fullscreen-active');
+                        this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                    } else {
+                        container.classList.add('fullscreen-active');
+                        this.innerHTML = '<i class="fas fa-compress"></i> Exit';
+                    }
+                    map.invalidateSize();
+                });
+            }
+        }
+
+        // Add fullscreen control if Leaflet plugin available
+        if (L.Control && L.Control.Fullscreen) {
             map.addControl(new L.Control.Fullscreen());
         }
 
@@ -10022,30 +10289,124 @@ function initMasterMap() {
     }
 }
 
-// ============================================
-// DOM READY & WINDOW LOAD EVENTS
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM Content Loaded');
-    initializeAllData();
-});
+ document.addEventListener('DOMContentLoaded', function() {
 
-window.addEventListener('load', function() {
-    console.log('🪟 Window Loaded');
-    // Re-initialize if not already done
-    setTimeout(function() {
-        if (!window.masterMapInstance) {
-            console.log('🔄 Re-initializing maps...');
-            initializeAllMaps();
-        }
-    }, 1000);
-});
+            // AOS Animation
+            if (typeof AOS !== 'undefined') {
+                AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 100 });
+            }
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-  crossorigin=""></script>
-    
-</script>
+            // Hide Loading Screen
+            setTimeout(function() {
+                const ls = document.getElementById('loadingScreen');
+                if (ls) ls.classList.add('hidden');
+            }, 2500);
+
+            // Navbar scroll
+            const navbar = document.getElementById('navbar');
+            if (navbar) {
+                window.addEventListener('scroll', function() {
+                    navbar.classList.toggle('scrolled', window.scrollY > 50);
+                });
+            }
+
+            // Reading Progress Bar
+            window.addEventListener('scroll', function() {
+                const winScroll = document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const bar = document.getElementById('readingProgress');
+                if (bar) bar.style.width = ((winScroll / height) * 100) + '%';
+            });
+
+            // Back to Top
+            const backToTop = document.getElementById('backToTop');
+            if (backToTop) {
+                window.addEventListener('scroll', function() {
+                    backToTop.classList.toggle('visible', window.scrollY > 500);
+                });
+                backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            }
+
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const isLight = document.body.getAttribute('data-theme') === 'light';
+                    document.body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+                    this.innerHTML = isLight ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                });
+            }
+
+            // Animated Counters
+            const counterObserver = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target, parseInt(entry.target.getAttribute('data-count')));
+                        counterObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+
+            // TOC Active State
+            const tocLinks = document.querySelectorAll('.toc-link');
+            window.addEventListener('scroll', function() {
+                let current = '';
+                document.querySelectorAll('section[id]').forEach(section => {
+                    if (window.scrollY >= section.offsetTop - 200) current = section.id;
+                });
+                tocLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+                });
+            });
+
+            // Island Tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    const tab = document.getElementById(tabId);
+                    if (tab) tab.classList.add('active');
+                });
+            });
+
+            // Filter Buttons
+            document.querySelectorAll('.examples-section').forEach(section => {
+                const btns = section.querySelectorAll('.filter-btn');
+                btns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        btns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        const filter = this.dataset.filter;
+                        section.querySelectorAll('.example-card').forEach(card => {
+                            card.style.display = (filter === 'all' || card.dataset.type === filter) ? 'block' : 'none';
+                        });
+                    });
+                });
+            });
+
+            // Particles
+            createParticles();
+
+            // Quiz
+            initQuiz();
+
+            // Initialize Data & Maps
+            initializeAllData();
+        });
+
+        // Window load fallback
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (!window.masterMapInstance) {
+                    initializeAllMaps();
+                }
+            }, 1000);
+        });
+
+    </script>
+
 </body>
 </html>
