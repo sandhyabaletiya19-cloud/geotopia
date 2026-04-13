@@ -91,14 +91,15 @@
     // ==========================================
 
     var state = {
-        pageType:           null,
-        category:           null,
-        freeItems:          [],
-        observer:           null,
-        styleInjected:      false,
-        globalClickHandler: null,
-        blurApplied:        false
-    };
+    pageType:           null,
+    category:           null,
+    freeItems:          [],
+    observer:           null,
+    styleInjected:      false,
+    globalClickHandler: null,
+    blurApplied:        false,
+    lockingDone:        false  // ✅ ADD THIS
+};
 
     // ==========================================
     // STEP 1: DETECT PAGE TYPE
@@ -681,42 +682,52 @@
     // ==========================================
 
     function processCards() {
-        var container = findContainer();
-        if (!container) {
-            console.log('💜 No container found');
-            return;
-        }
-
-        var validCards = Array.from(container.children).filter(isValidCard);
-        console.log('💜 Cards found:', validCards.length);
-        if (validCards.length === 0) return;
-
-        // Fresh count every time - NO sessionStorage
-        state.freeItems = [];
-        var limit  = getFreeLimit(state.category);
-        var stats  = { free: 0, locked: 0 };
-
-        validCards.forEach(function(card) {
-            var name = getCardName(card);
-            var normalized = name.toLowerCase().trim();
-
-            if (state.freeItems.length < limit &&
-                state.freeItems.indexOf(normalized) === -1) {
-                state.freeItems.push(normalized);
-                makeCardFree(card);
-                stats.free++;
-            } else {
-                makeCardLocked(card);
-                stats.locked++;
-            }
-        });
-
-        console.log('💜 Free:', stats.free, '| Locked:', stats.locked);
-
-        if (stats.locked > 0) {
-            addUpgradeCTA(container, stats.locked, stats.free, validCards.length);
-        }
+    var container = findContainer();
+    if (!container) {
+        console.log('💜 No container found');
+        return;
     }
+
+    var validCards = Array.from(container.children).filter(isValidCard);
+    console.log('💜 Cards found:', validCards.length);
+    if (validCards.length === 0) return;
+
+    // ✅ If locking already done, only lock NEW cards
+    // Don't reset freeItems - keep existing free list
+    if (!state.lockingDone) {
+        state.freeItems = []; // Fresh count only on first run
+    }
+    
+    var limit = getFreeLimit(state.category);
+    var stats = { free: 0, locked: 0 };
+
+    validCards.forEach(function(card) {
+        var name       = getCardName(card);
+        var normalized = name.toLowerCase().trim();
+
+        // Already processed - skip
+        if (card.classList.contains('geo-processed')) return;
+
+        if (state.freeItems.length < limit &&
+            state.freeItems.indexOf(normalized) === -1) {
+            state.freeItems.push(normalized);
+            makeCardFree(card);
+            stats.free++;
+        } else {
+            makeCardLocked(card);
+            stats.locked++;
+        }
+    });
+
+    console.log('💜 Free:', stats.free, '| Locked:', stats.locked);
+    
+    // ✅ Mark locking as done
+    state.lockingDone = true;
+
+    if (stats.locked > 0) {
+        addUpgradeCTA(container, stats.locked, stats.free, validCards.length);
+    }
+}
 
     // ==========================================
     // STEP 10: UPGRADE CTA (grid pages)
@@ -1039,18 +1050,39 @@
     // ==========================================
 
     function startObserver() {
-        if (state.observer) state.observer.disconnect();
+    if (state.observer) state.observer.disconnect();
 
-        var timer;
-        state.observer = new MutationObserver(function() {
-            clearTimeout(timer);
-            timer = setTimeout(processCards, 300);
-        });
+    var timer;
+    var processCount = 0; // ✅ Count how many times we process
 
-        state.observer.observe(document.body, {
-            childList: true, subtree: true
-        });
-    }
+    state.observer = new MutationObserver(function() {
+        clearTimeout(timer);
+        timer = setTimeout(function() {
+            
+            // ✅ Only process MAX 2 times total
+            if (processCount >= 2) {
+                console.log('💜 Observer: max runs reached, stopping');
+                state.observer.disconnect();
+                return;
+            }
+            
+            processCount++;
+            console.log('💜 Observer run #' + processCount);
+            
+            // Reset processed flags so cards can be re-evaluated
+            document.querySelectorAll('.geo-processed').forEach(function(el) {
+                el.classList.remove('geo-processed');
+            });
+            
+            processCards();
+            
+        }, 500); // ✅ Increased delay to 500ms
+    });
+
+    state.observer.observe(document.body, {
+        childList: true, subtree: true
+    });
+}
 
     // ==========================================
     // STEP 15: MAIN INITIALIZE
