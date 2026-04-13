@@ -46,43 +46,29 @@
     // ==========================================
 
     function detectPageType() {
-        var url = window.location.href.toLowerCase();
-        var path = window.location.pathname.toLowerCase();
+    var path = window.location.pathname.toLowerCase();
 
-        // ── Comparative geography = fully free ──
-        if (path.includes('/encyclopedia/comparative-geography')) {
-            return 'encyc-free';
-        }
-
-        // ── Encyclopedia MAIN page ──
-        if (path.match(/\/encyclopedia\/encyclopedia\.html$/) ||
-            path.match(/\/encyclopedia\/?$/)) {
-            return 'encyc-main';
-        }
-
-        // ── Encyclopedia CATEGORY index pages ──
-        // Pattern: /encyclopedia/[category]/index.html
-        // or /encyclopedia/[category]/ 
-        if (path.includes('/encyclopedia/')) {
-            var afterEncyc = path.split('/encyclopedia/')[1] || '';
-            var parts = afterEncyc.replace(/\/$/, '').split('/');
-
-            // Only one level deep AND ends with index = category page
-            if (parts.length === 1 ||
-               (parts.length === 2 && (parts[1] === 'index.html' || parts[1] === ''))) {
-                return 'encyc-index';
-            }
-
-            // Deeper = content page
-            return 'encyc-content';
-        }
-
-        // ── Grid category pages ──
-        var category = detectCategory();
-        if (category) return 'grid';
-
-        return null;
+    // ── Comparative geography = fully free ──
+    if (path.includes('/encyclopedia/comparative-geography')) {
+        return 'encyc-free';
     }
+
+    // ── Encyclopedia MAIN page ONLY ──
+    if (path.match(/\/encyclopedia\/encyclopedia\.html$/)) {
+        return 'encyc-main';
+    }
+
+    // ── Everything else inside encyclopedia = content page ──
+    if (path.includes('/encyclopedia/')) {
+        return 'encyc-content';
+    }
+
+    // ── Grid category pages ──
+    var category = detectCategory();
+    if (category) return 'grid';
+
+    return null;
+}
 
     function detectCategory() {
         var url = window.location.href.toLowerCase();
