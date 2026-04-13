@@ -9147,9 +9147,12 @@ const fluvialData = [
 ];
 
    // ============================================
-// SECTION B: UI FUNCTIONS
+// COMPLETE FIXED JAVASCRIPT - REPLACE ALL JS
 // ============================================
 
+// ============================================
+// SECTION 1: COUNTER ANIMATION
+// ============================================
 function animateCounter(element, target) {
     const duration = 2000;
     const start = performance.now();
@@ -9164,6 +9167,9 @@ function animateCounter(element, target) {
     requestAnimationFrame(update);
 }
 
+// ============================================
+// SECTION 2: PARTICLES
+// ============================================
 function createParticles() {
     const container = document.getElementById('particles');
     if (!container) return;
@@ -9182,9 +9188,8 @@ function createParticles() {
 }
 
 // ============================================
-// SECTION C: QUIZ
+// SECTION 3: QUIZ
 // ============================================
-
 const quizQuestions = [
     {
         question: "What is the deepest canyon on Earth?",
@@ -9243,14 +9248,19 @@ let selectedAnswers = [];
 let quizCompleted = false;
 
 function initQuiz() {
+    const quizContainer = document.querySelector('.quiz-container');
+    if (!quizContainer) return;
+
     updateQuizDisplay();
+
     const options = document.querySelectorAll('.quiz-option');
     const nextBtn = document.getElementById('quizNext');
     const prevBtn = document.getElementById('quizPrev');
+
     if (!options.length || !nextBtn) return;
 
     options.forEach((option, index) => {
-        option.addEventListener('click', function() {
+        option.addEventListener('click', function () {
             if (quizCompleted) return;
             options.forEach(o => o.classList.remove('selected'));
             this.classList.add('selected');
@@ -9258,7 +9268,7 @@ function initQuiz() {
         });
     });
 
-    nextBtn.addEventListener('click', function() {
+    nextBtn.addEventListener('click', function () {
         if (currentQuestion < quizQuestions.length - 1) {
             currentQuestion++;
             updateQuizDisplay();
@@ -9268,7 +9278,7 @@ function initQuiz() {
     });
 
     if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
+        prevBtn.addEventListener('click', function () {
             if (currentQuestion > 0) {
                 currentQuestion--;
                 updateQuizDisplay();
@@ -9279,6 +9289,8 @@ function initQuiz() {
 
 function updateQuizDisplay() {
     const question = quizQuestions[currentQuestion];
+    if (!question) return;
+
     const questionNum = document.querySelector('.quiz-question-number');
     const questionText = document.querySelector('.quiz-question-text');
     const options = document.querySelectorAll('.quiz-option');
@@ -9330,11 +9342,9 @@ function showQuizResults() {
                 ${score}/${quizQuestions.length} Correct!
             </h3>
             <p style="font-size:1.2rem; color:var(--text-secondary); margin-bottom:30px;">
-                ${percentage}% — ${
-                    percentage >= 80 ? "Excellent! You're a landform expert!" :
-                    percentage >= 60 ? "Good job! Keep exploring!" :
-                    "Keep learning about Earth's amazing landforms!"
-                }
+                ${percentage}% — ${percentage >= 80 ? "Excellent! You're a landform expert!" :
+            percentage >= 60 ? "Good job! Keep exploring!" :
+                "Keep learning about Earth's amazing landforms!"}
             </p>
             <button class="btn btn-primary" onclick="location.reload()">
                 <i class="fas fa-redo"></i> Try Again
@@ -9345,15 +9355,18 @@ function showQuizResults() {
 }
 
 // ============================================
-// SECTION D: UTILITY FUNCTIONS
+// SECTION 4: TABLE FUNCTIONS
 // ============================================
+let currentTableData = [];
+let currentPage = 1;
+const perPage = 20;
 
-function populateMasterTable(data = allCountriesData, page = 1, perPage = 20) {
+function populateMasterTable(data, page = 1) {
+    currentTableData = data;
+    currentPage = page;
+
     const tbody = document.getElementById('masterTableBody');
-    if (!tbody) {
-        console.warn('masterTableBody not found');
-        return;
-    }
+    if (!tbody) return;
 
     tbody.innerHTML = '';
 
@@ -9361,115 +9374,280 @@ function populateMasterTable(data = allCountriesData, page = 1, perPage = 20) {
     const endIndex = startIndex + perPage;
     const paginatedData = data.slice(startIndex, endIndex);
 
+    if (paginatedData.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="13" style="text-align:center; padding:40px; color:var(--text-secondary);">
+                    <i class="fas fa-search" style="font-size:2rem; margin-bottom:10px; display:block;"></i>
+                    No countries found matching your search.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
     paginatedData.forEach((country, index) => {
         const continentClass = country.continent.toLowerCase().replace(/\s+/g, '-');
         const row = document.createElement('tr');
+        row.style.animation = `fadeIn 0.3s ease ${index * 0.05}s both`;
         row.innerHTML = `
-            <td>${startIndex + index + 1}</td>
+            <td><strong>${startIndex + index + 1}</strong></td>
             <td>
-                <div class="country-cell">
-                    <span style="font-size: 1.5rem;">${country.flag}</span>
-                    <span class="country-name">${country.name}</span>
+                <div class="country-cell" style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.8rem; line-height:1;">${country.flag || '🏳️'}</span>
+                    <span class="country-name" style="font-weight:600;">${country.name}</span>
                 </div>
             </td>
             <td><span class="continent-badge continent-${continentClass}">${country.continent}</span></td>
-            <td>${country.valleys || 0}</td>
-            <td>${country.canyons || 0}</td>
-            <td>${country.deserts || 0}</td>
+            <td>${(country.valleys || 0).toLocaleString()}</td>
+            <td>${(country.canyons || 0).toLocaleString()}</td>
+            <td>${(country.deserts || 0).toLocaleString()}</td>
             <td>${(country.islands || 0).toLocaleString()}</td>
             <td>${(country.caves || 0).toLocaleString()}</td>
             <td>${(country.glacial || 0).toLocaleString()}</td>
-            <td>${country.volcanic || 0}</td>
-            <td>${country.coastal || 0}</td>
-            <td><strong>${(country.total || 0).toLocaleString()}</strong></td>
+            <td>${(country.volcanic || 0).toLocaleString()}</td>
+            <td>${(country.coastal || 0).toLocaleString()}</td>
+            <td><strong style="color:var(--primary-end);">${(country.total || 0).toLocaleString()}</strong></td>
             <td>
-                <button class="view-details-btn" onclick="openCountryModal('${country.code}')">
-                    <i class="fas fa-expand"></i>
-                    View
+                <button 
+                    class="view-details-btn" 
+                    onclick="openCountryModal('${country.code}')"
+                    style="
+                        background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+                        color: white;
+                        border: none;
+                        padding: 6px 14px;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        white-space: nowrap;
+                        transition: all 0.2s;
+                    "
+                    onmouseover="this.style.transform='scale(1.05)'"
+                    onmouseout="this.style.transform='scale(1)'"
+                >
+                    <i class="fas fa-eye"></i> View
                 </button>
             </td>
         `;
         tbody.appendChild(row);
     });
 
-    const paginationInfo = document.querySelector('.pagination-info');
-    if (paginationInfo) {
-        paginationInfo.innerHTML = `Showing <strong>${startIndex + 1}-${Math.min(endIndex, data.length)}</strong> of <strong>${data.length}</strong> countries`;
-    }
-
-    generatePaginationButtons(data.length, page, perPage);
+    updatePaginationInfo(data.length, page);
+    generatePaginationButtons(data.length, page);
 }
 
-function generatePaginationButtons(totalItems, currentPage, perPage) {
-    const paginationContainer = document.getElementById('masterPagination');
-    if (!paginationContainer) return;
+function updatePaginationInfo(total, page) {
+    const startIndex = (page - 1) * perPage;
+    const endIndex = Math.min(startIndex + perPage, total);
+    const info = document.querySelector('.pagination-info');
+    if (info) {
+        info.innerHTML = `Showing <strong>${startIndex + 1}–${endIndex}</strong> of <strong>${total}</strong> countries`;
+    }
+}
+
+function generatePaginationButtons(totalItems, currentPage) {
+    const container = document.getElementById('masterPagination');
+    if (!container) return;
 
     const totalPages = Math.ceil(totalItems / perPage);
-    paginationContainer.innerHTML = '';
+    container.innerHTML = '';
 
+    // Previous
     const prevBtn = document.createElement('button');
-    prevBtn.className = 'pagination-btn';
+    prevBtn.className = `pagination-btn ${currentPage === 1 ? 'disabled' : ''}`;
     prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
     prevBtn.disabled = currentPage === 1;
-    prevBtn.onclick = () => populateMasterTable(allCountriesData, currentPage - 1, perPage);
-    paginationContainer.appendChild(prevBtn);
+    prevBtn.onclick = () => populateMasterTable(currentTableData, currentPage - 1);
+    container.appendChild(prevBtn);
 
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage < maxVisiblePages - 1) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
+    // Page numbers
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
 
     if (startPage > 1) {
-        const firstBtn = document.createElement('button');
-        firstBtn.className = 'pagination-btn';
-        firstBtn.textContent = '1';
-        firstBtn.onclick = () => populateMasterTable(allCountriesData, 1, perPage);
-        paginationContainer.appendChild(firstBtn);
-
-        if (startPage > 2) {
-            const dots = document.createElement('span');
-            dots.className = 'pagination-btn';
-            dots.textContent = '...';
-            dots.style.cursor = 'default';
-            paginationContainer.appendChild(dots);
-        }
+        addPageBtn(container, 1, currentPage);
+        if (startPage > 2) addDots(container);
     }
 
     for (let i = startPage; i <= endPage; i++) {
-        const pageBtn = document.createElement('button');
-        pageBtn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
-        pageBtn.textContent = i;
-        pageBtn.onclick = () => populateMasterTable(allCountriesData, i, perPage);
-        paginationContainer.appendChild(pageBtn);
+        addPageBtn(container, i, currentPage);
     }
 
     if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            const dots = document.createElement('span');
-            dots.className = 'pagination-btn';
-            dots.textContent = '...';
-            dots.style.cursor = 'default';
-            paginationContainer.appendChild(dots);
-        }
-
-        const lastBtn = document.createElement('button');
-        lastBtn.className = 'pagination-btn';
-        lastBtn.textContent = totalPages;
-        lastBtn.onclick = () => populateMasterTable(allCountriesData, totalPages, perPage);
-        paginationContainer.appendChild(lastBtn);
+        if (endPage < totalPages - 1) addDots(container);
+        addPageBtn(container, totalPages, currentPage);
     }
 
+    // Next
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'pagination-btn';
+    nextBtn.className = `pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`;
     nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
     nextBtn.disabled = currentPage === totalPages;
-    nextBtn.onclick = () => populateMasterTable(allCountriesData, currentPage + 1, perPage);
-    paginationContainer.appendChild(nextBtn);
+    nextBtn.onclick = () => populateMasterTable(currentTableData, currentPage + 1);
+    container.appendChild(nextBtn);
 }
 
+function addPageBtn(container, pageNum, currentPage) {
+    const btn = document.createElement('button');
+    btn.className = `pagination-btn ${pageNum === currentPage ? 'active' : ''}`;
+    btn.textContent = pageNum;
+    btn.onclick = () => populateMasterTable(currentTableData, pageNum);
+    container.appendChild(btn);
+}
+
+function addDots(container) {
+    const span = document.createElement('span');
+    span.className = 'pagination-btn';
+    span.textContent = '...';
+    span.style.cssText = 'cursor:default; pointer-events:none; opacity:0.5;';
+    container.appendChild(span);
+}
+
+// ============================================
+// SECTION 5: TABLE SEARCH & FILTER
+// ============================================
+function setupTableSearch() {
+    const searchInput = document.getElementById('masterTableSearch');
+    if (!searchInput) return;
+
+    let searchTimeout;
+    searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            applyTableFilters();
+        }, 300);
+    });
+}
+
+function setupContinentFilter() {
+    const filterSelect = document.getElementById('continentFilter');
+    if (!filterSelect) return;
+    filterSelect.addEventListener('change', applyTableFilters);
+}
+
+function applyTableFilters() {
+    const searchInput = document.getElementById('masterTableSearch');
+    const filterSelect = document.getElementById('continentFilter');
+
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const continent = filterSelect ? filterSelect.value : 'all';
+
+    const continentMap = {
+        'africa': 'Africa',
+        'asia': 'Asia',
+        'europe': 'Europe',
+        'north-america': 'North America',
+        'south-america': 'South America',
+        'oceania': 'Oceania',
+        'antarctica': 'Antarctica'
+    };
+
+    let filtered = [...allCountriesData];
+
+    if (continent !== 'all' && continentMap[continent]) {
+        filtered = filtered.filter(c => c.continent === continentMap[continent]);
+    }
+
+    if (searchTerm) {
+        filtered = filtered.filter(c =>
+            c.name.toLowerCase().includes(searchTerm) ||
+            c.continent.toLowerCase().includes(searchTerm) ||
+            c.code.toLowerCase().includes(searchTerm) ||
+            (c.famous && c.famous.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    populateMasterTable(filtered, 1);
+}
+
+// ============================================
+// SECTION 6: TABLE SORTING
+// ============================================
+function setupTableSorting() {
+    const table = document.getElementById('masterTable');
+    if (!table) return;
+
+    let sortState = { column: null, direction: 'asc' };
+    const headers = table.querySelectorAll('th[data-sort]');
+
+    headers.forEach(header => {
+        header.style.cursor = 'pointer';
+        header.style.userSelect = 'none';
+
+        header.addEventListener('click', function () {
+            const column = this.dataset.sort;
+
+            if (sortState.column === column) {
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortState.column = column;
+                sortState.direction = 'asc';
+            }
+
+            const sorted = [...currentTableData].sort((a, b) => {
+                let valA = a[column] ?? 0;
+                let valB = b[column] ?? 0;
+
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = (valB || '').toLowerCase();
+                }
+
+                if (sortState.direction === 'asc') return valA > valB ? 1 : valA < valB ? -1 : 0;
+                else return valA < valB ? 1 : valA > valB ? -1 : 0;
+            });
+
+            // Update icons
+            headers.forEach(h => {
+                const icon = h.querySelector('i');
+                if (icon) icon.className = 'fas fa-sort';
+            });
+            const icon = this.querySelector('i');
+            if (icon) icon.className = sortState.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+
+            populateMasterTable(sorted, 1);
+        });
+    });
+}
+
+// ============================================
+// SECTION 7: EXPORT
+// ============================================
+function exportMasterTable() {
+    const headers = ['Rank', 'Country', 'Code', 'Continent', 'Valleys', 'Canyons',
+        'Deserts', 'Islands', 'Caves', 'Glacial', 'Volcanic', 'Coastal', 'Total', 'Famous Landforms'];
+
+    const rows = allCountriesData.map((c, i) => [
+        i + 1, `"${c.name}"`, c.code, c.continent,
+        c.valleys || 0, c.canyons || 0, c.deserts || 0,
+        c.islands || 0, c.caves || 0, c.glacial || 0,
+        c.volcanic || 0, c.coastal || 0, c.total || 0,
+        `"${(c.famous || '').replace(/"/g, "''")}"`
+    ]);
+
+    let csv = headers.join(',') + '\n';
+    rows.forEach(row => csv += row.join(',') + '\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `geotopia_landforms_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+// ============================================
+// SECTION 8: MODAL
+// ============================================
 function openCountryModal(countryCode) {
     const country = allCountriesData.find(c => c.code === countryCode);
     if (!country) {
@@ -9481,536 +9659,485 @@ function openCountryModal(countryCode) {
     const header = document.getElementById('modalHeader');
     const body = document.getElementById('modalBody');
 
-    if (!modal || !header || !body) {
-        console.warn('Modal elements not found');
+    if (!modal) {
+        console.warn('Modal not found');
         return;
     }
 
-    header.innerHTML = `
-        <span style="font-size: 4rem;">${country.flag}</span>
-        <div class="modal-country-info">
-            <h2>${country.name}</h2>
-            <p>
-                <span><i class="fas fa-globe"></i> ${country.continent}</span>
-                <span><i class="fas fa-map-marker-alt"></i> Code: ${country.code}</span>
-            </p>
-        </div>
-    `;
+    if (header) {
+        header.innerHTML = `
+            <span style="font-size:4rem; line-height:1;">${country.flag || '🏳️'}</span>
+            <div class="modal-country-info" style="flex:1;">
+                <h2 style="margin:0 0 8px 0; font-size:1.8rem;">${country.name}</h2>
+                <p style="margin:0; opacity:0.8; display:flex; gap:15px; flex-wrap:wrap;">
+                    <span><i class="fas fa-globe"></i> ${country.continent}</span>
+                    <span><i class="fas fa-tag"></i> Code: ${country.code}</span>
+                    <span><i class="fas fa-mountain"></i> ${(country.total || 0).toLocaleString()} Total Landforms</span>
+                </p>
+            </div>
+        `;
+    }
 
-    body.innerHTML = `
-        <div class="modal-stats-grid">
-            <div class="modal-stat-card">
-                <span class="icon">⛰️</span>
-                <span class="value">${(country.valleys || 0).toLocaleString()}</span>
-                <span class="label">Valleys</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🏜️</span>
-                <span class="value">${(country.canyons || 0).toLocaleString()}</span>
-                <span class="label">Canyons</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🏔️</span>
-                <span class="value">${(country.gorges || 0).toLocaleString()}</span>
-                <span class="label">Gorges</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">☀️</span>
-                <span class="value">${(country.deserts || 0).toLocaleString()}</span>
-                <span class="label">Deserts</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🏝️</span>
-                <span class="value">${(country.islands || 0).toLocaleString()}</span>
-                <span class="label">Islands</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🕳️</span>
-                <span class="value">${(country.caves || 0).toLocaleString()}</span>
-                <span class="label">Caves</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🧊</span>
-                <span class="value">${(country.glacial || 0).toLocaleString()}</span>
-                <span class="label">Glacial</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🌋</span>
-                <span class="value">${(country.volcanic || 0).toLocaleString()}</span>
-                <span class="label">Volcanic</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🏖️</span>
-                <span class="value">${(country.coastal || 0).toLocaleString()}</span>
-                <span class="label">Coastal</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">💨</span>
-                <span class="value">${(country.aeolian || 0).toLocaleString()}</span>
-                <span class="label">Aeolian</span>
-            </div>
-            <div class="modal-stat-card">
-                <span class="icon">🌊</span>
-                <span class="value">${(country.fluvial || 0).toLocaleString()}</span>
-                <span class="label">Fluvial</span>
-            </div>
-            <div class="modal-stat-card" style="background: linear-gradient(135deg, var(--primary-start), var(--primary-end));">
-                <span class="icon">🌍</span>
-                <span class="value" style="color: white;">${(country.total || 0).toLocaleString()}</span>
-                <span class="label" style="color: rgba(255,255,255,0.8);">Total</span>
-            </div>
-        </div>
+    if (body) {
+        const statCards = [
+            { icon: '⛰️', value: country.valleys || 0, label: 'Valleys' },
+            { icon: '🏜️', value: country.canyons || 0, label: 'Canyons' },
+            { icon: '🏔️', value: country.gorges || 0, label: 'Gorges' },
+            { icon: '☀️', value: country.deserts || 0, label: 'Deserts' },
+            { icon: '🏝️', value: country.islands || 0, label: 'Islands' },
+            { icon: '🕳️', value: country.caves || 0, label: 'Caves' },
+            { icon: '🧊', value: country.glacial || 0, label: 'Glacial' },
+            { icon: '🌋', value: country.volcanic || 0, label: 'Volcanic' },
+            { icon: '🏖️', value: country.coastal || 0, label: 'Coastal' },
+            { icon: '💨', value: country.aeolian || 0, label: 'Aeolian' },
+            { icon: '🌊', value: country.fluvial || 0, label: 'Fluvial' },
+            { icon: '🌍', value: country.total || 0, label: 'Total', highlight: true }
+        ];
 
-        ${country.famous ? `
-        <div class="modal-landforms-list">
-            <h3><i class="fas fa-star"></i> Famous Landforms</h3>
-            <p style="color: var(--text-secondary); line-height: 1.8;">${country.famous}</p>
-        </div>
-        ` : ''}
+        body.innerHTML = `
+            <div class="modal-stats-grid" style="
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 15px;
+                margin-bottom: 25px;
+            ">
+                ${statCards.map(card => `
+                    <div class="modal-stat-card" style="
+                        background: ${card.highlight
+                ? 'linear-gradient(135deg, var(--primary-start), var(--primary-end))'
+                : 'var(--card-bg)'};
+                        border: 1px solid var(--border-color);
+                        border-radius: 12px;
+                        padding: 15px;
+                        text-align: center;
+                        transition: transform 0.2s;
+                    "
+                    onmouseover="this.style.transform='translateY(-3px)'"
+                    onmouseout="this.style.transform='translateY(0)'"
+                    >
+                        <div style="font-size:1.8rem; margin-bottom:5px;">${card.icon}</div>
+                        <div style="
+                            font-size:1.3rem; 
+                            font-weight:700; 
+                            color:${card.highlight ? 'white' : 'var(--primary-end)'};
+                        ">${card.value.toLocaleString()}</div>
+                        <div style="
+                            font-size:0.75rem; 
+                            color:${card.highlight ? 'rgba(255,255,255,0.8)' : 'var(--text-secondary)'};
+                            margin-top:3px;
+                        ">${card.label}</div>
+                    </div>
+                `).join('')}
+            </div>
 
-        <div style="text-align: center; margin-top: 30px;">
-            <button class="btn btn-primary" onclick="focusCountryOnMap('${country.code}')">
-                <i class="fas fa-map-marked-alt"></i>
-                View on Map
-            </button>
-        </div>
-    `;
+            ${country.famous ? `
+            <div style="
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 20px;
+            ">
+                <h3 style="margin:0 0 12px 0; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-star" style="color:#f59e0b;"></i>
+                    Famous Landforms
+                </h3>
+                <p style="margin:0; color:var(--text-secondary); line-height:1.8;">${country.famous}</p>
+            </div>
+            ` : ''}
 
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <button 
+                    class="btn btn-primary" 
+                    onclick="focusCountryOnMap('${country.code}')"
+                    style="display:flex; align-items:center; gap:8px;"
+                >
+                    <i class="fas fa-map-marked-alt"></i>
+                    View on Map
+                </button>
+                <button 
+                    class="btn" 
+                    onclick="closeCountryModal()"
+                    style="
+                        display:flex; 
+                        align-items:center; 
+                        gap:8px;
+                        background: var(--card-bg);
+                        border: 1px solid var(--border-color);
+                        color: var(--text-primary);
+                        padding: 10px 20px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                    "
+                >
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+        `;
+    }
+
+    // Show modal
+    modal.style.display = 'flex';
     modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // Animate in
+    requestAnimationFrame(() => {
+        modal.style.opacity = '1';
+    });
 }
 
 function closeCountryModal() {
     const modal = document.getElementById('countryModal');
     if (modal) {
         modal.classList.remove('active');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
     }
 }
 
-function focusCountryOnMap(countryCode) {
-    const country = allCountriesData.find(c => c.code === countryCode);
-    if (!country) return;
+function setupModalEvents() {
+    // Close button
+    const closeBtn = document.getElementById('modalClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeCountryModal);
 
+    // Click outside
+    const modal = document.getElementById('countryModal');
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeCountryModal();
+        });
+    }
+
+    // ESC key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeCountryModal();
+    });
+}
+
+// ============================================
+// SECTION 9: MAP FOCUS
+// ============================================
+function focusCountryOnMap(countryCode) {
     closeCountryModal();
 
-    const masterMap = document.getElementById('master-map');
-    if (masterMap) {
-        masterMap.scrollIntoView({ behavior: 'smooth' });
+    // Find the master map section and scroll to it
+    const masterMapSection = document.getElementById('masterMap') ||
+        document.querySelector('.master-map-section') ||
+        document.querySelector('[id*="master"]');
+
+    if (masterMapSection) {
+        masterMapSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    if (window.masterMapInstance) {
-        const countryCoords = getCountryCoordinates(countryCode);
-        if (countryCoords) {
-            window.masterMapInstance.setView(countryCoords, 5);
+    // Wait for scroll then pan map
+    setTimeout(() => {
+        const coords = getCountryCoordinates(countryCode);
+        if (coords && window.masterMapInstance) {
+            window.masterMapInstance.flyTo(coords, 5, {
+                animate: true,
+                duration: 1.5
+            });
+
+            // Add a temporary highlight marker
+            const highlightMarker = L.circleMarker(coords, {
+                radius: 20,
+                fillColor: '#f59e0b',
+                color: '#fff',
+                weight: 3,
+                opacity: 1,
+                fillOpacity: 0.6
+            }).addTo(window.masterMapInstance);
+
+            setTimeout(() => {
+                window.masterMapInstance.removeLayer(highlightMarker);
+            }, 3000);
         }
-    }
+    }, 800);
 }
 
 function getCountryCoordinates(code) {
     const coords = {
-        'US': [39.8283, -98.5795],
-        'CN': [35.8617, 104.1954],
-        'IN': [20.5937, 78.9629],
-        'BR': [-14.2350, -51.9253],
-        'AU': [-25.2744, 133.7751],
-        'ID': [-0.7893, 113.9213],
-        'RU': [61.5240, 105.3188],
-        'CA': [56.1304, -106.3468],
-        'MX': [23.6345, -102.5528],
-        'JP': [36.2048, 138.2529],
-        'DE': [51.1657, 10.4515],
-        'FR': [46.2276, 2.2137],
-        'GB': [55.3781, -3.4360],
-        'IT': [41.8719, 12.5674],
-        'ES': [40.4637, -3.7492],
-        'NP': [28.3949, 84.1240],
-        'CH': [46.8182, 8.2275],
-        'NZ': [-40.9006, 174.8860],
-        'ZA': [-30.5595, 22.9375],
-        'EG': [26.8206, 30.8025],
-        'PE': [-9.1900, -75.0152],
-        'AR': [-38.4161, -63.6167],
-        'CL': [-35.6751, -71.5430],
-        'NO': [60.4720, 8.4689],
-        'IS': [64.9631, -19.0208],
-        'GR': [39.0742, 21.8243],
-        'TR': [38.9637, 35.2433],
-        'TH': [15.8700, 100.9925],
-        'VN': [14.0583, 108.2772],
-        'PH': [12.8797, 121.7740],
-        'MY': [4.2105, 101.9758],
-        'PK': [30.3753, 69.3451],
-        'BD': [23.6850, 90.3563],
-        'LK': [7.8731, 80.7718],
-        'MM': [21.9162, 95.9560],
-        'KH': [12.5657, 104.9910],
-        'LA': [19.8563, 102.4955],
-        'BT': [27.5142, 90.4336],
-        'MN': [46.8625, 103.8467],
-        'KZ': [48.0196, 66.9237],
-        'UZ': [41.3775, 64.5853],
-        'TJ': [38.8610, 71.2761],
-        'KG': [41.2044, 74.7661],
-        'AF': [33.9391, 67.7100],
-        'IR': [32.4279, 53.6880],
-        'IQ': [33.2232, 43.6793],
-        'SA': [23.8859, 45.0792],
-        'AE': [23.4241, 53.8478],
-        'OM': [21.4735, 55.9754],
-        'YE': [15.5527, 48.5164],
-        'JO': [30.5852, 36.2384],
-        'IL': [31.0461, 34.8516],
-        'LB': [33.8547, 35.8623],
-        'SY': [34.8021, 38.9968],
-        'GE': [42.3154, 43.3569],
-        'AM': [40.0691, 45.0382],
-        'AZ': [40.1431, 47.5769]
+        'US': [39.8283, -98.5795], 'CN': [35.8617, 104.1954],
+        'IN': [20.5937, 78.9629], 'BR': [-14.2350, -51.9253],
+        'AU': [-25.2744, 133.7751], 'ID': [-0.7893, 113.9213],
+        'RU': [61.5240, 105.3188], 'CA': [56.1304, -106.3468],
+        'MX': [23.6345, -102.5528], 'JP': [36.2048, 138.2529],
+        'DE': [51.1657, 10.4515], 'FR': [46.2276, 2.2137],
+        'GB': [55.3781, -3.4360], 'IT': [41.8719, 12.5674],
+        'ES': [40.4637, -3.7492], 'NP': [28.3949, 84.1240],
+        'CH': [46.8182, 8.2275], 'NZ': [-40.9006, 174.8860],
+        'ZA': [-30.5595, 22.9375], 'EG': [26.8206, 30.8025],
+        'PE': [-9.1900, -75.0152], 'AR': [-38.4161, -63.6167],
+        'CL': [-35.6751, -71.5430], 'NO': [60.4720, 8.4689],
+        'IS': [64.9631, -19.0208], 'GR': [39.0742, 21.8243],
+        'TR': [38.9637, 35.2433], 'TH': [15.8700, 100.9925],
+        'VN': [14.0583, 108.2772], 'PH': [12.8797, 121.7740],
+        'MY': [4.2105, 101.9758], 'PK': [30.3753, 69.3451],
+        'AF': [33.9391, 67.7100], 'GE': [42.3154, 43.3569],
+        'KZ': [48.0196, 66.9237], 'MN': [46.8625, 103.8467],
+        'SA': [23.8859, 45.0792], 'IR': [32.4279, 53.6880],
+        'MM': [21.9162, 95.9560], 'PT': [39.3999, -8.2245]
     };
     return coords[code] || null;
 }
 
-function setupTableSearch() {
-    const searchInput = document.getElementById('masterTableSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase().trim();
-
-            if (searchTerm === '') {
-                populateMasterTable(allCountriesData);
-                return;
-            }
-
-            const filteredData = allCountriesData.filter(country =>
-                country.name.toLowerCase().includes(searchTerm) ||
-                country.continent.toLowerCase().includes(searchTerm) ||
-                country.code.toLowerCase().includes(searchTerm) ||
-                (country.famous && country.famous.toLowerCase().includes(searchTerm))
-            );
-
-            populateMasterTable(filteredData);
-        });
-    }
-}
-
-function setupContinentFilter() {
-    const filterSelect = document.getElementById('continentFilter');
-    if (filterSelect) {
-        filterSelect.addEventListener('change', function(e) {
-            const continent = e.target.value;
-
-            if (continent === 'all') {
-                populateMasterTable(allCountriesData);
-                return;
-            }
-
-            const continentMap = {
-                'africa': 'Africa',
-                'asia': 'Asia',
-                'europe': 'Europe',
-                'north-america': 'North America',
-                'south-america': 'South America',
-                'oceania': 'Oceania',
-                'antarctica': 'Antarctica'
-            };
-
-            const filteredData = allCountriesData.filter(country =>
-                country.continent === continentMap[continent]
-            );
-
-            populateMasterTable(filteredData);
-        });
-    }
-}
-
-function exportTableToCSV(type) {
-    const headers = [
-        'Rank', 'Country', 'Code', 'Continent', 'Valleys', 'Canyons', 'Gorges',
-        'Deserts', 'Islands', 'Caves', 'Glacial', 'Volcanic', 'Coastal',
-        'Aeolian', 'Fluvial', 'Total', 'Famous Landforms'
-    ];
-
-    const rows = allCountriesData.map(c => [
-        c.rank,
-        `"${c.name}"`,
-        c.code,
-        c.continent,
-        c.valleys || 0,
-        c.canyons || 0,
-        c.gorges || 0,
-        c.deserts || 0,
-        c.islands || 0,
-        c.caves || 0,
-        c.glacial || 0,
-        c.volcanic || 0,
-        c.coastal || 0,
-        c.aeolian || 0,
-        c.fluvial || 0,
-        c.total || 0,
-        `"${c.famous || ''}"`
-    ]);
-
-    let csv = headers.join(',') + '\n';
-    rows.forEach(row => {
-        csv += row.join(',') + '\n';
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `geotopia_landforms_${type}_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-function exportMasterTable() {
-    exportTableToCSV('all_countries');
-}
-
-function setupTableSorting() {
-    const table = document.getElementById('masterTable');
-    if (!table) return;
-
-    const headers = table.querySelectorAll('th[data-sort]');
-    let currentSort = { column: null, direction: 'asc' };
-
-    headers.forEach(header => {
-        header.style.cursor = 'pointer';
-        header.addEventListener('click', function() {
-            const column = this.dataset.sort;
-
-            if (currentSort.column === column) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 'asc';
-            }
-
-            const sortedData = [...allCountriesData].sort((a, b) => {
-                let valA = a[column];
-                let valB = b[column];
-
-                if (typeof valA === 'string') {
-                    valA = valA.toLowerCase();
-                    valB = valB.toLowerCase();
-                }
-
-                if (currentSort.direction === 'asc') {
-                    return valA > valB ? 1 : -1;
-                } else {
-                    return valA < valB ? 1 : -1;
-                }
-            });
-
-            populateMasterTable(sortedData);
-
-            headers.forEach(h => {
-                const icon = h.querySelector('i');
-                if (icon) icon.className = 'fas fa-sort';
-            });
-
-            const currentIcon = this.querySelector('i');
-            if (currentIcon) {
-                currentIcon.className = currentSort.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
-            }
-        });
-    });
-}
-
-function setupModalEvents() {
-    const closeBtn = document.getElementById('modalClose');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeCountryModal);
-    }
-
-    const modal = document.getElementById('countryModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeCountryModal();
-            }
-        });
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeCountryModal();
-        }
-    });
-}
-
 // ============================================
-// SECTION E: MAP FUNCTIONS
+// SECTION 10: MAP INITIALIZATION
 // ============================================
+
+// Store all map instances
+window.mapInstances = {};
+
+function waitForLeaflet(callback, attempts = 0) {
+    if (typeof L !== 'undefined') {
+        callback();
+    } else if (attempts < 20) {
+        setTimeout(() => waitForLeaflet(callback, attempts + 1), 500);
+    } else {
+        console.error('Leaflet failed to load after 10 seconds');
+    }
+}
 
 function initMapWithData(mapId, data) {
-    console.log(`🗺️ Initializing map: ${mapId}`);
+    if (!mapId || !data) return null;
 
-    if (typeof L === 'undefined') {
-        console.error('❌ Leaflet not loaded yet. Retrying in 1s...');
-        setTimeout(() => initMapWithData(mapId, data), 1000);
-        return;
-    }
-
-    if (window[mapId + 'Instance']) {
-        console.warn(`⚠️ Map ${mapId} already initialized`);
-        return;
+    // Already initialized
+    if (window.mapInstances[mapId]) {
+        console.log(`Map ${mapId} already initialized`);
+        return window.mapInstances[mapId];
     }
 
     const container = document.getElementById(mapId);
     if (!container) {
-        console.warn(`⚠️ Container ${mapId} not found`);
-        return;
+        console.warn(`Container #${mapId} not found`);
+        return null;
     }
 
+    // Fix container height if not set
+    if (!container.style.height && container.offsetHeight < 100) {
+        container.style.height = '450px';
+    }
+
+    const colorMap = {
+        'valleyMap': '#22c55e',
+        'canyonMap': '#f97316',
+        'gorgeMap': '#ef4444',
+        'hotDesertMap': '#fbbf24',
+        'coldDesertMap': '#38bdf8',
+        'coastalDesertMap': '#fb923c',
+        'islandsMap': '#06b6d4',
+        'archipelagoMap': '#0891b2',
+        'peninsulasMap': '#0d9488',
+        'cavesMap': '#8b5cf6',
+        'glacialMap': '#67e8f9',
+        'volcanicMap': '#dc2626',
+        'coastalMap': '#3b82f6',
+        'aeolianMap': '#d97706',
+        'fluvialMap': '#2563eb',
+        'masterMap': '#57c5b6'
+    };
+
+    const markerColor = colorMap[mapId] || '#57c5b6';
+
     try {
-        const colorMap = {
-            'valleyMap': '#22c55e',
-            'canyonMap': '#f97316',
-            'gorgeMap': '#ef4444',
-            'hotDesertMap': '#fbbf24',
-            'coldDesertMap': '#38bdf8',
-            'coastalDesertMap': '#fb923c',
-            'islandsMap': '#06b6d4',
-            'archipelagoMap': '#0891b2',
-            'peninsulasMap': '#0d9488',
-            'cavesMap': '#8b5cf6',
-            'glacialMap': '#67e8f9',
-            'volcanicMap': '#dc2626',
-            'coastalMap': '#3b82f6',
-            'aeolianMap': '#d97706',
-            'fluvialMap': '#2563eb'
-        };
-
-        const markerColor = colorMap[mapId] || '#57c5b6';
-
         const map = L.map(mapId, {
             center: [20, 0],
             zoom: 2,
-            minZoom: 2,
+            minZoom: 1,
             maxZoom: 18,
-            worldCopyJump: true
+            worldCopyJump: true,
+            zoomControl: true
         });
 
-        map.baseLayers = {
+        // Base layers
+        const baseLayers = {
             terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenTopoMap contributors'
+                attribution: '© <a href="https://opentopomap.org">OpenTopoMap</a>',
+                maxZoom: 17
             }),
             satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: '© Esri'
             }),
             street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
             }),
             dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© CartoDB'
+                attribution: '© <a href="https://carto.com">CartoDB</a>'
             })
         };
 
-        // Add default tile layer
-        map.baseLayers.terrain.addTo(map);
+        // Add default layer
+        baseLayers.terrain.addTo(map);
+        map.baseLayers = baseLayers;
+        map.currentBaseLayer = baseLayers.terrain;
 
+        // Add markers
+        let markersAdded = 0;
         if (data && data.length > 0) {
             data.forEach(item => {
-                if (item.lat && item.lng) {
+                if (item.lat !== undefined && item.lng !== undefined) {
                     const marker = L.circleMarker([item.lat, item.lng], {
-                        radius: 8,
+                        radius: 7,
                         fillColor: markerColor,
-                        color: '#fff',
+                        color: '#ffffff',
                         weight: 2,
                         opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(map);
+                        fillOpacity: 0.85
+                    });
 
-                    const popupContent = `
-                        <div style="min-width: 220px; font-family: 'Inter', sans-serif;">
-                            <h4 style="margin: 0 0 10px 0; color: ${markerColor}; font-size: 1.1rem;">${item.name}</h4>
-                            <div style="font-size: 0.85rem; color: #555; line-height: 1.6;">
-                                <p style="margin: 5px 0;"><strong>📍 Country:</strong> ${item.country}</p>
-                                ${item.type ? `<p style="margin: 5px 0;"><strong>📋 Type:</strong> ${item.type}</p>` : ''}
-                                ${item.length ? `<p style="margin: 5px 0;"><strong>📏 Length:</strong> ${item.length}</p>` : ''}
-                                ${item.depth ? `<p style="margin: 5px 0;"><strong>⬇️ Depth:</strong> ${item.depth}</p>` : ''}
-                                ${item.area ? `<p style="margin: 5px 0;"><strong>📐 Area:</strong> ${item.area}</p>` : ''}
-                                ${item.height ? `<p style="margin: 5px 0;"><strong>⬆️ Height:</strong> ${item.height}</p>` : ''}
-                                ${item.famous_for ? `<p style="margin: 5px 0;"><strong>⭐ Famous for:</strong> ${item.famous_for}</p>` : ''}
-                                ${item.unesco ? '<p style="margin: 10px 0 0 0;"><span style="background: #0ea5e9; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">🏛️ UNESCO Site</span></p>' : ''}
-                            </div>
+                    // Build popup
+                    let popupRows = `<p style="margin:4px 0;"><strong>📍</strong> ${item.country || 'Unknown'}</p>`;
+                    if (item.type) popupRows += `<p style="margin:4px 0;"><strong>📋 Type:</strong> ${item.type}</p>`;
+                    if (item.depth) popupRows += `<p style="margin:4px 0;"><strong>⬇️ Depth:</strong> ${item.depth}</p>`;
+                    if (item.length) popupRows += `<p style="margin:4px 0;"><strong>📏 Length:</strong> ${item.length}</p>`;
+                    if (item.area) popupRows += `<p style="margin:4px 0;"><strong>📐 Area:</strong> ${item.area}</p>`;
+                    if (item.height) popupRows += `<p style="margin:4px 0;"><strong>⬆️ Height:</strong> ${item.height}</p>`;
+                    if (item.famous_for) popupRows += `<p style="margin:4px 0;"><strong>⭐</strong> ${item.famous_for}</p>`;
+                    if (item.unesco) popupRows += `<p style="margin:8px 0 0;"><span style="background:#0ea5e9;color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;">🏛️ UNESCO World Heritage</span></p>`;
+
+                    marker.bindPopup(`
+                        <div style="min-width:200px; font-family:'Inter',sans-serif; font-size:0.85rem;">
+                            <h4 style="margin:0 0 8px;color:${markerColor};font-size:1rem;border-bottom:2px solid ${markerColor};padding-bottom:5px;">
+                                ${item.name}
+                            </h4>
+                            ${popupRows}
                         </div>
-                    `;
-                    marker.bindPopup(popupContent);
+                    `, { maxWidth: 280 });
+
+                    marker.addTo(map);
+                    markersAdded++;
                 }
             });
         }
 
-        window[mapId + 'Instance'] = map;
+        // Store instance
+        window.mapInstances[mapId] = map;
 
-        const mapWrapper = container.closest('.map-container-wrapper');
-        if (mapWrapper) {
-            const layerBtns = mapWrapper.querySelectorAll('.layer-btn');
-            layerBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    layerBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
+        // Setup layer switcher buttons
+        setupMapLayerButtons(mapId, map, baseLayers);
 
-                    const layerName = this.dataset.layer || this.textContent.toLowerCase().trim();
+        // Setup fullscreen
+        setupMapFullscreen(mapId, map);
 
-                    map.eachLayer(layer => {
-                        if (layer instanceof L.TileLayer) {
-                            map.removeLayer(layer);
-                        }
-                    });
+        // Invalidate size after init
+        setTimeout(() => map.invalidateSize(), 300);
 
-                    if (map.baseLayers[layerName]) {
-                        map.baseLayers[layerName].addTo(map);
-                    } else {
-                        map.baseLayers.terrain.addTo(map);
-                    }
-                });
-            });
-
-            const fullscreenBtn = mapWrapper.querySelector('.map-control-btn');
-            if (fullscreenBtn) {
-                fullscreenBtn.addEventListener('click', function() {
-                    if (container.classList.contains('fullscreen-active')) {
-                        container.classList.remove('fullscreen-active');
-                        this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
-                    } else {
-                        container.classList.add('fullscreen-active');
-                        this.innerHTML = '<i class="fas fa-compress"></i> Exit';
-                    }
-                    map.invalidateSize();
-                });
-            }
-        }
-
-        console.log(`✅ Map initialized: ${mapId} with ${data ? data.length : 0} markers`);
+        console.log(`✅ Map ${mapId}: ${markersAdded} markers`);
         return map;
 
-    } catch (error) {
-        console.error(`❌ Error initializing map ${mapId}:`, error);
+    } catch (err) {
+        console.error(`❌ Error initializing map ${mapId}:`, err);
         return null;
     }
 }
 
+function setupMapLayerButtons(mapId, map, baseLayers) {
+    const container = document.getElementById(mapId);
+    if (!container) return;
+
+    const wrapper = container.closest('.map-wrapper') ||
+        container.closest('.map-container-wrapper') ||
+        container.parentElement;
+
+    if (!wrapper) return;
+
+    const layerBtns = wrapper.querySelectorAll('[data-layer]');
+    layerBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const layerName = this.dataset.layer;
+            if (!baseLayers[layerName]) return;
+
+            // Remove all base layers
+            Object.values(baseLayers).forEach(l => {
+                if (map.hasLayer(l)) map.removeLayer(l);
+            });
+
+            // Add selected
+            baseLayers[layerName].addTo(map);
+
+            // Update active state
+            layerBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+}
+
+function setupMapFullscreen(mapId, map) {
+    const container = document.getElementById(mapId);
+    if (!container) return;
+
+    const wrapper = container.closest('.map-wrapper') ||
+        container.closest('.map-container-wrapper') ||
+        container.parentElement;
+
+    if (!wrapper) return;
+
+    const fsBtn = wrapper.querySelector('.fullscreen-btn') ||
+        wrapper.querySelector('[data-action="fullscreen"]') ||
+        wrapper.querySelector('.map-control-btn');
+
+    if (!fsBtn) return;
+
+    fsBtn.addEventListener('click', function () {
+        const isFullscreen = container.classList.toggle('map-fullscreen');
+
+        if (isFullscreen) {
+            container.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                z-index: 9999 !important;
+                border-radius: 0 !important;
+            `;
+            this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+            document.body.style.overflow = 'hidden';
+        } else {
+            container.style.cssText = '';
+            this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+            document.body.style.overflow = '';
+        }
+
+        setTimeout(() => map.invalidateSize(), 100);
+    });
+
+    // ESC to exit fullscreen
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && container.classList.contains('map-fullscreen')) {
+            fsBtn.click();
+        }
+    });
+}
+
+// ============================================
+// SECTION 11: MASTER MAP
+// ============================================
 function initMasterMap() {
+    if (window.mapInstances['masterMap']) return;
+
     const container = document.getElementById('masterMap');
-    if (!container || window.masterMapInstance) return;
+    if (!container) return;
+
+    if (!container.style.height) container.style.height = '600px';
 
     try {
         const map = L.map('masterMap', {
             center: [20, 0],
             zoom: 2,
-            minZoom: 2,
+            minZoom: 1,
             maxZoom: 18,
             worldCopyJump: true
         });
 
         L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenTopoMap contributors'
+            attribution: '© OpenTopoMap'
         }).addTo(map);
 
-        const layers = {
+        // Layer groups
+        const layerGroups = {
             valleys: L.layerGroup(),
             canyons: L.layerGroup(),
             deserts: L.layerGroup(),
@@ -10023,284 +10150,465 @@ function initMasterMap() {
             fluvial: L.layerGroup()
         };
 
-        const colors = {
-            valleys: '#22c55e',
-            canyons: '#f97316',
-            deserts: '#fbbf24',
-            islands: '#06b6d4',
-            caves: '#8b5cf6',
-            glacial: '#67e8f9',
-            volcanic: '#dc2626',
-            coastal: '#3b82f6',
-            aeolian: '#d97706',
+        const layerColors = {
+            valleys: '#22c55e', canyons: '#f97316', deserts: '#fbbf24',
+            islands: '#06b6d4', caves: '#8b5cf6', glacial: '#67e8f9',
+            volcanic: '#dc2626', coastal: '#3b82f6', aeolian: '#d97706',
             fluvial: '#2563eb'
         };
 
-        // Helper function to add markers
-        function addMarkersToLayer(dataArray, layerName, emoji, typeName) {
-            if (!dataArray) return;
-            dataArray.forEach(item => {
-                if (item.lat && item.lng) {
+        const layerEmojis = {
+            valleys: '⛰️', canyons: '🏜️', deserts: '☀️',
+            islands: '🏝️', caves: '🕳️', glacial: '🧊',
+            volcanic: '🌋', coastal: '🏖️', aeolian: '💨', fluvial: '🌊'
+        };
+
+        const dataMap = {
+            valleys: typeof valleysData !== 'undefined' ? valleysData : [],
+            canyons: typeof canyonsData !== 'undefined' ? canyonsData : [],
+            deserts: typeof desertsData !== 'undefined' ? desertsData : [],
+            islands: typeof islandsData !== 'undefined' ? islandsData : [],
+            caves: typeof cavesData !== 'undefined' ? cavesData : [],
+            glacial: typeof glacialData !== 'undefined' ? glacialData : [],
+            volcanic: typeof volcanicData !== 'undefined' ? volcanicData : [],
+            coastal: typeof coastalData !== 'undefined' ? coastalData : [],
+            aeolian: typeof aeolianData !== 'undefined' ? aeolianData : [],
+            fluvial: typeof fluvialData !== 'undefined' ? fluvialData : []
+        };
+
+        // Add markers to layer groups
+        Object.entries(dataMap).forEach(([layerName, data]) => {
+            const color = layerColors[layerName];
+            const emoji = layerEmojis[layerName];
+
+            data.forEach(item => {
+                if (item.lat !== undefined && item.lng !== undefined) {
                     L.circleMarker([item.lat, item.lng], {
-                        radius: 5,
-                        fillColor: colors[layerName],
+                        radius: 6,
+                        fillColor: color,
                         color: '#fff',
-                        weight: 1,
-                        fillOpacity: 0.7
+                        weight: 1.5,
+                        opacity: 1,
+                        fillOpacity: 0.8
                     })
-                    .bindPopup(`<strong>${emoji} ${item.name}</strong><br>${item.country}<br><em>${item.type || typeName}</em>`)
-                    .addTo(layers[layerName]);
+                        .bindPopup(`
+                        <div style="font-family:'Inter',sans-serif; min-width:180px;">
+                            <h4 style="margin:0 0 6px;color:${color};font-size:0.95rem;">
+                                ${emoji} ${item.name}
+                            </h4>
+                            <p style="margin:3px 0;font-size:0.82rem;color:#555;">
+                                📍 ${item.country || ''}
+                            </p>
+                            ${item.famous_for ? `<p style="margin:3px 0;font-size:0.82rem;color:#555;">⭐ ${item.famous_for}</p>` : ''}
+                        </div>
+                    `)
+                        .addTo(layerGroups[layerName]);
                 }
             });
-        }
 
-        addMarkersToLayer(valleysData, 'valleys', '⛰️', 'Valley');
-        addMarkersToLayer(canyonsData, 'canyons', '🏜️', 'Canyon');
-        addMarkersToLayer(desertsData, 'deserts', '☀️', 'Desert');
-        addMarkersToLayer(islandsData, 'islands', '🏝️', 'Island');
-        addMarkersToLayer(cavesData, 'caves', '🕳️', 'Cave');
-        addMarkersToLayer(glacialData, 'glacial', '🧊', 'Glacial');
-        addMarkersToLayer(volcanicData, 'volcanic', '🌋', 'Volcanic');
-        addMarkersToLayer(coastalData, 'coastal', '🏖️', 'Coastal');
-        addMarkersToLayer(aeolianData, 'aeolian', '💨', 'Aeolian');
-        addMarkersToLayer(fluvialData, 'fluvial', '🌊', 'Fluvial');
-
-        // Add all layers to map
-        Object.values(layers).forEach(layer => layer.addTo(map));
+            // Add all layers to map by default
+            layerGroups[layerName].addTo(map);
+        });
 
         window.masterMapInstance = map;
-        window.masterMapLayers = layers;
+        window.masterMapLayers = layerGroups;
+        window.mapInstances['masterMap'] = map;
 
-        // Setup layer toggle buttons
-        document.querySelectorAll('.layer-toggle').forEach(toggle => {
-            toggle.addEventListener('click', function() {
+        // Setup layer toggles
+        document.querySelectorAll('.layer-toggle[data-layer]').forEach(toggle => {
+            // Set initial active state
+            toggle.classList.add('active');
+
+            toggle.addEventListener('click', function () {
                 const layerName = this.dataset.layer;
-                this.classList.toggle('active');
+                if (!layerGroups[layerName]) return;
 
-                if (layers[layerName]) {
-                    if (this.classList.contains('active')) {
-                        map.addLayer(layers[layerName]);
-                    } else {
-                        map.removeLayer(layers[layerName]);
-                    }
+                const isActive = this.classList.toggle('active');
+                if (isActive) {
+                    map.addLayer(layerGroups[layerName]);
+                } else {
+                    map.removeLayer(layerGroups[layerName]);
                 }
             });
         });
 
-        console.log('✅ Master map initialized with all layers');
+        setTimeout(() => map.invalidateSize(), 300);
+        console.log('✅ Master map initialized');
 
-    } catch (error) {
-        console.error('❌ Error initializing master map:', error);
+    } catch (err) {
+        console.error('❌ Master map error:', err);
     }
 }
 
 // ============================================
-// SECTION F: INITIALIZE ALL MAPS
+// SECTION 12: INITIALIZE ALL MAPS
 // ============================================
-
 function initializeAllMaps() {
-    console.log('🗺️ Initializing all maps...');
+    waitForLeaflet(() => {
+        console.log('🗺️ Setting up map observers...');
 
-    // Use IntersectionObserver for lazy loading maps
-    const mapConfigs = [
-        { id: 'valleyMap', data: 'valleysData' },
-        { id: 'canyonMap', data: 'canyonsData' },
-        { id: 'gorgeMap', data: 'gorgesData' },
-        { id: 'hotDesertMap', data: 'hotDesertsData' },
-        { id: 'coldDesertMap', data: 'coldDesertsData' },
-        { id: 'coastalDesertMap', data: 'coastalDesertsData' },
-        { id: 'islandsMap', data: 'islandsData' },
-        { id: 'archipelagoMap', data: 'archipelagoData' },
-        { id: 'peninsulasMap', data: 'peninsulasData' },
-        { id: 'cavesMap', data: 'cavesData' },
-        { id: 'glacialMap', data: 'glacialData' },
-        { id: 'volcanicMap', data: 'volcanicData' },
-        { id: 'coastalMap', data: 'coastalData' },
-        { id: 'aeolianMap', data: 'aeolianData' },
-        { id: 'fluvialMap', data: 'fluvialData' }
-    ];
+        const mapConfigs = [
+            { id: 'valleyMap', data: () => typeof valleysData !== 'undefined' ? valleysData : [] },
+            { id: 'canyonMap', data: () => typeof canyonsData !== 'undefined' ? canyonsData : [] },
+            { id: 'gorgeMap', data: () => typeof gorgesData !== 'undefined' ? gorgesData : [] },
+            { id: 'hotDesertMap', data: () => typeof hotDesertsData !== 'undefined' ? hotDesertsData : [] },
+            { id: 'coldDesertMap', data: () => typeof coldDesertsData !== 'undefined' ? coldDesertsData : [] },
+            { id: 'coastalDesertMap', data: () => typeof coastalDesertsData !== 'undefined' ? coastalDesertsData : [] },
+            { id: 'islandsMap', data: () => typeof islandsData !== 'undefined' ? islandsData : [] },
+            { id: 'archipelagoMap', data: () => typeof archipelagoData !== 'undefined' ? archipelagoData : [] },
+            { id: 'peninsulasMap', data: () => typeof peninsulasData !== 'undefined' ? peninsulasData : [] },
+            { id: 'cavesMap', data: () => typeof cavesData !== 'undefined' ? cavesData : [] },
+            { id: 'glacialMap', data: () => typeof glacialData !== 'undefined' ? glacialData : [] },
+            { id: 'volcanicMap', data: () => typeof volcanicData !== 'undefined' ? volcanicData : [] },
+            { id: 'coastalMap', data: () => typeof coastalData !== 'undefined' ? coastalData : [] },
+            { id: 'aeolianMap', data: () => typeof aeolianData !== 'undefined' ? aeolianData : [] },
+            { id: 'fluvialMap', data: () => typeof fluvialData !== 'undefined' ? fluvialData : [] }
+        ];
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
+        // Use IntersectionObserver for lazy loading
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+
                 const mapId = entry.target.id;
                 const config = mapConfigs.find(c => c.id === mapId);
-                if (config && !window[mapId + 'Instance']) {
-                    const data = window[config.data];
-                    if (data) {
-                        initMapWithData(mapId, data);
-                    }
-                }
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
 
-    // Observe all map containers
-    mapConfigs.forEach(config => {
-        const container = document.getElementById(config.id);
-        if (container) {
-            observer.observe(container);
+                if (config && !window.mapInstances[mapId]) {
+                    const data = config.data();
+                    console.log(`👁️ Loading map: ${mapId} (${data.length} items)`);
+                    initMapWithData(mapId, data);
+                }
+
+                observer.unobserve(entry.target);
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '100px'
+        });
+
+        // Observe each map
+        mapConfigs.forEach(config => {
+            const el = document.getElementById(config.id);
+            if (el) observer.observe(el);
+        });
+
+        // Master map observer
+        const masterEl = document.getElementById('masterMap');
+        if (masterEl) {
+            const masterObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    initMasterMap();
+                    masterObserver.disconnect();
+                }
+            }, { threshold: 0.1, rootMargin: '100px' });
+            masterObserver.observe(masterEl);
         }
     });
-
-    // Handle master map separately
-    const masterMapContainer = document.getElementById('masterMap');
-    if (masterMapContainer && !window.masterMapInstance) {
-        const masterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    initMasterMap();
-                    masterObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-        masterObserver.observe(masterMapContainer);
-    }
-
-    console.log('✅ Map observers set up');
 }
 
 // ============================================
-// SECTION G: MAIN INITIALIZATION
+// SECTION 13: TABS - FIXED
 // ============================================
+function setupAllTabs() {
+    // Method 1: data-tab attribute tabs
+    document.querySelectorAll('[data-tab]').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const tabId = this.dataset.tab;
+            const tabGroup = this.closest('.tab-container') ||
+                this.closest('.tabs-wrapper') ||
+                this.parentElement.closest('[class*="tab"]') ||
+                this.parentElement;
 
+            // Deactivate all tab buttons in this group
+            const allBtns = tabGroup.querySelectorAll('[data-tab]');
+            allBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Find tab content - look in parent containers
+            const searchRoot = tabGroup.closest('section') ||
+                tabGroup.closest('.card') ||
+                document;
+
+            searchRoot.querySelectorAll('.tab-content, [class*="tab-panel"]').forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
+
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                targetTab.style.display = 'block';
+            }
+        });
+    });
+
+    // Method 2: Tab buttons with tab-btn class
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const tabId = this.dataset.tab || this.getAttribute('href')?.replace('#', '');
+            if (!tabId) return;
+
+            // Find sibling buttons
+            const parent = this.closest('.tab-buttons') ||
+                this.closest('.tabs') ||
+                this.parentElement;
+
+            parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Find content area
+            const section = this.closest('section') || document;
+            section.querySelectorAll('.tab-content').forEach(c => {
+                c.classList.remove('active');
+                c.style.display = 'none';
+            });
+
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.add('active');
+                target.style.display = 'block';
+            }
+        });
+    });
+
+    // Activate first tab in each group
+    document.querySelectorAll('.tab-buttons, .tabs').forEach(group => {
+        const firstBtn = group.querySelector('.tab-btn');
+        if (firstBtn && !group.querySelector('.tab-btn.active')) {
+            firstBtn.click();
+        }
+    });
+}
+
+// ============================================
+// SECTION 14: FILTER BUTTONS
+// ============================================
+function setupFilterButtons() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const filterGroup = this.closest('.filter-buttons') ||
+                this.closest('.filters') ||
+                this.parentElement;
+
+            filterGroup.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.dataset.filter || 'all';
+            const section = this.closest('section') || this.closest('.card') || document;
+
+            section.querySelectorAll('.example-card, [data-type]').forEach(card => {
+                if (filter === 'all' || card.dataset.type === filter) {
+                    card.style.display = '';
+                    card.style.animation = 'fadeIn 0.3s ease';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+}
+
+// ============================================
+// SECTION 15: LOAD MORE BUTTON - FIXED
+// ============================================
+function setupLoadMoreButtons() {
+    document.querySelectorAll('.load-more-btn, [data-action="load-more"]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const targetId = this.dataset.target;
+            const batchSize = parseInt(this.dataset.batch) || 6;
+
+            if (targetId) {
+                const container = document.getElementById(targetId);
+                if (container) {
+                    const hiddenCards = container.querySelectorAll('.example-card[style*="none"], .card[style*="none"]');
+                    let shown = 0;
+                    hiddenCards.forEach(card => {
+                        if (shown < batchSize) {
+                            card.style.display = '';
+                            card.style.animation = 'fadeIn 0.4s ease';
+                            shown++;
+                        }
+                    });
+
+                    // Hide button if no more cards
+                    const remaining = container.querySelectorAll('.example-card[style*="none"]').length;
+                    if (remaining === 0) {
+                        this.style.display = 'none';
+                    }
+                }
+            }
+        });
+    });
+
+    // Alternative: cards with data-page attribute
+    document.querySelectorAll('[data-load-more]').forEach(btn => {
+        let currentlyShown = parseInt(btn.dataset.initialShow) || 6;
+        const batchSize = parseInt(btn.dataset.batch) || 6;
+        const container = document.querySelector(btn.dataset.loadMore);
+
+        if (!container) return;
+
+        // Initially hide extra cards
+        const cards = container.querySelectorAll('.example-card, .card');
+        cards.forEach((card, i) => {
+            if (i >= currentlyShown) card.style.display = 'none';
+        });
+
+        btn.addEventListener('click', function () {
+            const allCards = container.querySelectorAll('.example-card, .card');
+            let shown = 0;
+
+            allCards.forEach((card, i) => {
+                if (i >= currentlyShown && shown < batchSize) {
+                    card.style.display = '';
+                    card.style.animation = 'fadeIn 0.4s ease';
+                    shown++;
+                }
+            });
+
+            currentlyShown += shown;
+
+            if (currentlyShown >= allCards.length) {
+                this.style.display = 'none';
+            }
+        });
+    });
+}
+
+// ============================================
+// SECTION 16: MAIN INIT
+// ============================================
 function initializeAllData() {
-    console.log('🚀 Initializing all data and UI...');
+    console.log('🚀 Starting initialization...');
 
-    setupModalEvents();
-    setupTableSearch();
-    setupContinentFilter();
-    setupTableSorting();
-
-    if (document.getElementById('masterTableBody')) {
-        populateMasterTable(allCountriesData);
-        console.log('✅ Country table populated');
+    // Table
+    if (typeof allCountriesData !== 'undefined' && allCountriesData.length) {
+        currentTableData = [...allCountriesData];
+        populateMasterTable(allCountriesData, 1);
+        setupTableSearch();
+        setupContinentFilter();
+        setupTableSorting();
+        console.log(`✅ Table: ${allCountriesData.length} countries`);
+    } else {
+        console.warn('⚠️ allCountriesData not found');
     }
 
+    // Modal
+    setupModalEvents();
+
+    // Maps
     initializeAllMaps();
 
-    console.log('🌍 Complete landform database loaded:');
-    console.log(`   📊 ${allCountriesData ? allCountriesData.length : 0} countries`);
-    console.log(`   ⛰️ ${valleysData ? valleysData.length : 0} valleys`);
-    console.log(`   🏜️ ${canyonsData ? canyonsData.length : 0} canyons`);
-    console.log(`   ☀️ ${desertsData ? desertsData.length : 0} deserts`);
-    console.log(`   🏝️ ${islandsData ? islandsData.length : 0} islands`);
-    console.log(`   🕳️ ${cavesData ? cavesData.length : 0} caves`);
-    console.log(`   🧊 ${glacialData ? glacialData.length : 0} glaciers`);
-    console.log(`   🌋 ${volcanicData ? volcanicData.length : 0} volcanic features`);
-    console.log(`   🏖️ ${coastalData ? coastalData.length : 0} coastal features`);
-    console.log(`   💨 ${aeolianData ? aeolianData.length : 0} aeolian features`);
-    console.log(`   🌊 ${fluvialData ? fluvialData.length : 0} fluvial features`);
+    // Tabs
+    setupAllTabs();
+
+    // Filter buttons
+    setupFilterButtons();
+
+    // Load more
+    setupLoadMoreButtons();
+
     console.log('✅ Initialization complete!');
 }
 
 // ============================================
-// SECTION H: EVENT LISTENERS
+// SECTION 17: DOM READY
 // ============================================
+document.addEventListener('DOMContentLoaded', function () {
 
-document.addEventListener('DOMContentLoaded', function() {
-
-    // AOS Animation
+    // AOS
     if (typeof AOS !== 'undefined') {
-        AOS.init({
-            duration: 800,
-            easing: 'ease-out-cubic',
-            once: true,
-            offset: 100
-        });
+        AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 100 });
     }
 
-    // Hide Loading Screen
-    setTimeout(function() {
+    // Loading screen
+    setTimeout(() => {
         const ls = document.getElementById('loadingScreen');
-        if (ls) ls.classList.add('hidden');
-    }, 2500);
+        if (ls) {
+            ls.style.opacity = '0';
+            setTimeout(() => ls.classList.add('hidden'), 500);
+        }
+    }, 2000);
 
-    // Navbar scroll
+    // Navbar
     const navbar = document.getElementById('navbar');
     if (navbar) {
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', () => {
             navbar.classList.toggle('scrolled', window.scrollY > 50);
-        });
+        }, { passive: true });
     }
 
-    // Reading Progress Bar
-    window.addEventListener('scroll', function() {
-        const winScroll = document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const bar = document.getElementById('readingProgress');
-        if (bar) bar.style.width = ((winScroll / height) * 100) + '%';
-    });
+    // Reading progress
+    const progressBar = document.getElementById('readingProgress');
+    if (progressBar) {
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const percent = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            progressBar.style.width = percent + '%';
+        }, { passive: true });
+    }
 
-    // Back to Top
+    // Back to top
     const backToTop = document.getElementById('backToTop');
     if (backToTop) {
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', () => {
             backToTop.classList.toggle('visible', window.scrollY > 500);
+        }, { passive: true });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 
-    // Theme Toggle
+    // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
+        themeToggle.addEventListener('click', function () {
             const isLight = document.body.getAttribute('data-theme') === 'light';
             document.body.setAttribute('data-theme', isLight ? 'dark' : 'light');
-            this.innerHTML = isLight ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+            this.innerHTML = isLight
+                ? '<i class="fas fa-moon"></i>'
+                : '<i class="fas fa-sun"></i>';
+            localStorage.setItem('theme', isLight ? 'dark' : 'light');
         });
+
+        // Restore saved theme
+        const saved = localStorage.getItem('theme');
+        if (saved) {
+            document.body.setAttribute('data-theme', saved);
+            themeToggle.innerHTML = saved === 'dark'
+                ? '<i class="fas fa-sun"></i>'
+                : '<i class="fas fa-moon"></i>';
+        }
     }
 
-    // Animated Counters
+    // Animated counters
     const counterObserver = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                animateCounter(entry.target, parseInt(entry.target.getAttribute('data-count')));
+                const target = parseInt(entry.target.getAttribute('data-count'));
+                if (!isNaN(target)) animateCounter(entry.target, target);
                 counterObserver.unobserve(entry.target);
             }
         });
     }, { threshold: 0.5 });
+
     document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
 
-    // TOC Active State
+    // TOC active
     const tocLinks = document.querySelectorAll('.toc-link');
-    window.addEventListener('scroll', function() {
-        let current = '';
-        document.querySelectorAll('section[id]').forEach(section => {
-            if (window.scrollY >= section.offsetTop - 200) current = section.id;
-        });
-        tocLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === '#' + current);
-        });
-    });
-
-    // Island Tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const tabId = this.dataset.tab;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            const tab = document.getElementById(tabId);
-            if (tab) tab.classList.add('active');
-        });
-    });
-
-    // Filter Buttons
-    document.querySelectorAll('.examples-section').forEach(section => {
-        const btns = section.querySelectorAll('.filter-btn');
-        btns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                btns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const filter = this.dataset.filter;
-                section.querySelectorAll('.example-card').forEach(card => {
-                    card.style.display = (filter === 'all' || card.dataset.type === filter) ? 'block' : 'none';
-                });
+    if (tocLinks.length) {
+        window.addEventListener('scroll', () => {
+            let current = '';
+            document.querySelectorAll('section[id]').forEach(section => {
+                if (window.scrollY >= section.offsetTop - 200) current = section.id;
             });
-        });
-    });
+            tocLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+            });
+        }, { passive: true });
+    }
 
     // Particles
     createParticles();
@@ -10308,18 +10616,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Quiz
     initQuiz();
 
-    // Initialize all data and maps
+    // Main data init
     initializeAllData();
 });
 
-// Window load fallback
-window.addEventListener('load', function() {
-    setTimeout(function() {
-        if (!window.masterMapInstance) {
-            console.log('🔄 Fallback: initializing maps...');
-            initializeAllMaps();
+// Fallback on window load
+window.addEventListener('load', function () {
+    // Re-check maps that might have been missed
+    setTimeout(() => {
+        if (!window.mapInstances['masterMap']) {
+            console.log('🔄 Retrying master map...');
+            waitForLeaflet(() => initMasterMap());
         }
-    }, 1000);
+    }, 2000);
 });
 // to check what's loaded
 window.addEventListener('DOMContentLoaded', function() {
