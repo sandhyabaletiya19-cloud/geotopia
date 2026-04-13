@@ -1,0 +1,2912 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Western Ghats - सह्याद्रि | UNESCO World Heritage</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    :root {
+        --forest-deep: #0B3D2E;
+        --forest-mid: #145A3C;
+        --forest-light: #1E7A52;
+        --canopy: #2D9B6A;
+        --leaf-fresh: #3DBF7E;
+        --leaf-light: #6FD9A0;
+        --mist: #E8F5EE;
+        --cloud: #F0F7F4;
+        --water-deep: #0A4C6E;
+        --water-mid: #1A7AAE;
+        --water-light: #4BA3D4;
+        --gold: #D4A843;
+        --gold-light: #E8C96A;
+        --earth: #8B6914;
+        --bark: #5C4A1E;
+        --sunset: #E8734A;
+        --orchid: #C75BAE;
+        --text-primary: #1A2E23;
+        --text-secondary: #3A5A48;
+        --text-muted: #6A8A78;
+        --shadow-soft: 0 4px 24px rgba(11, 61, 46, 0.08);
+        --shadow-mid: 0 8px 40px rgba(11, 61, 46, 0.12);
+        --shadow-strong: 0 16px 64px rgba(11, 61, 46, 0.18);
+        --radius-sm: 8px;
+        --radius-md: 16px;
+        --radius-lg: 24px;
+        --radius-xl: 32px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        font-size: 16px;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+        background: var(--cloud);
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--mist); }
+    ::-webkit-scrollbar-thumb { background: var(--canopy); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--forest-mid); }
+
+    /* ===== HERO SECTION ===== */
+    .hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: linear-gradient(160deg, #061F16 0%, #0B3D2E 25%, #145A3C 50%, #0A4C6E 100%);
+    }
+
+    .hero-bg-layers {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .mountain-layer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .mountain-layer svg {
+        width: 100%;
+        display: block;
+    }
+
+    .mist-particles {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+    }
+
+    .mist-particle {
+        position: absolute;
+        background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: mistFloat linear infinite;
+    }
+
+    @keyframes mistFloat {
+        0% { transform: translateX(-100%) translateY(0); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translateX(100vw) translateY(-50px); opacity: 0; }
+    }
+
+    .firefly {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: var(--gold-light);
+        border-radius: 50%;
+        box-shadow: 0 0 8px var(--gold), 0 0 20px var(--gold);
+        animation: fireflyGlow ease-in-out infinite;
+    }
+
+    @keyframes fireflyGlow {
+        0%, 100% { opacity: 0; transform: translate(0, 0); }
+        25% { opacity: 1; }
+        50% { opacity: 0.6; transform: translate(30px, -20px); }
+        75% { opacity: 1; transform: translate(-10px, -40px); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 2rem;
+        max-width: 900px;
+    }
+
+    .unesco-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(212, 168, 67, 0.15);
+        border: 1px solid rgba(212, 168, 67, 0.4);
+        padding: 8px 24px;
+        border-radius: 40px;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(212, 168, 67, 0.1); }
+        50% { box-shadow: 0 0 40px rgba(212, 168, 67, 0.25); }
+    }
+
+    .unesco-badge span {
+        color: var(--gold-light);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
+
+    .unesco-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .hero-title {
+        font-size: clamp(3rem, 8vw, 7rem);
+        font-weight: 800;
+        color: white;
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 4px 40px rgba(0,0,0,0.3);
+    }
+
+    .hero-title-sanskrit {
+        font-size: clamp(1.5rem, 4vw, 3rem);
+        color: var(--gold-light);
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        letter-spacing: 4px;
+    }
+
+    .hero-subtitle {
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        color: rgba(255,255,255,0.7);
+        max-width: 600px;
+        margin: 0 auto 3rem;
+        font-weight: 300;
+    }
+
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: rgba(255,255,255,0.1);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        backdrop-filter: blur(20px);
+    }
+
+    .hero-stat {
+        padding: 1.5rem 1rem;
+        background: rgba(255,255,255,0.05);
+        transition: background 0.3s;
+    }
+
+    .hero-stat:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .hero-stat-value {
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+        font-weight: 800;
+        color: white;
+        display: block;
+    }
+
+    .hero-stat-unit {
+        font-size: 0.8rem;
+        color: var(--gold-light);
+        font-weight: 600;
+    }
+
+    .hero-stat-label {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+    }
+
+    .scroll-indicator {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255,255,255,0.4);
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        animation: scrollBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollBounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(10px); }
+    }
+
+    .scroll-line {
+        width: 1px;
+        height: 40px;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    }
+
+    /* ===== NAVIGATION ===== */
+    .nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(11, 61, 46, 0.08);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .nav-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        padding: 0 2rem;
+        overflow-x: auto;
+        gap: 0;
+        scrollbar-width: none;
+    }
+
+    .nav-inner::-webkit-scrollbar { display: none; }
+
+    .nav-brand {
+        font-weight: 800;
+        color: var(--forest-deep);
+        font-size: 1rem;
+        white-space: nowrap;
+        padding: 1rem 1.5rem 1rem 0;
+        border-right: 1px solid rgba(11, 61, 46, 0.1);
+        margin-right: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .nav-tree {
+        font-size: 1.3rem;
+    }
+
+    .nav-link {
+        padding: 1rem 1.1rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 600;
+        white-space: nowrap;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .nav-link:hover, .nav-link.active {
+        color: var(--forest-deep);
+    }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: var(--canopy);
+        transition: width 0.3s;
+        border-radius: 2px;
+    }
+
+    .nav-link:hover::after, .nav-link.active::after {
+        width: 60%;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--canopy);
+        margin-bottom: 1rem;
+    }
+
+    .section-tag-line {
+        width: 30px;
+        height: 2px;
+        background: var(--canopy);
+        border-radius: 2px;
+    }
+
+    .section-title {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 800;
+        color: var(--forest-deep);
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .section-desc {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    /* ===== MAP SECTION ===== */
+    .map-section {
+        padding: 5rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .map-container {
+        position: relative;
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-strong);
+        overflow: hidden;
+    }
+
+    .map-main {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        min-height: 700px;
+    }
+
+    #mainMap {
+        height: 700px;
+        width: 100%;
+    }
+
+    .map-sidebar {
+        background: var(--forest-deep);
+        color: white;
+        padding: 2rem;
+        overflow-y: auto;
+        max-height: 700px;
+    }
+
+    .map-sidebar-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .map-sidebar-desc {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .map-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 2rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.8);
+        padding: 6px 0;
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .map-filter-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .map-filter-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 0.7rem;
+    }
+
+    .map-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .map-filter-btn {
+        padding: 6px 14px;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.7);
+        border-radius: 20px;
+        font-size: 0.72rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+    }
+
+    .map-filter-btn:hover, .map-filter-btn.active {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border-color: rgba(255,255,255,0.4);
+    }
+
+    .map-info-card {
+        background: rgba(255,255,255,0.08);
+        border-radius: var(--radius-md);
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .map-info-card h4 {
+        font-size: 0.85rem;
+        margin-bottom: 0.3rem;
+        color: var(--gold-light);
+    }
+
+    .map-info-card p {
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.6);
+        line-height: 1.5;
+    }
+
+    .map-info-stat {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        font-size: 0.8rem;
+    }
+
+    .map-info-stat:last-child { border: none; }
+
+    .map-info-stat-label {
+        color: rgba(255,255,255,0.5);
+    }
+
+    .map-info-stat-value {
+        color: white;
+        font-weight: 700;
+    }
+
+    /* Custom Leaflet Popups */
+    .custom-popup .leaflet-popup-content-wrapper {
+        background: var(--forest-deep);
+        color: white;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-strong);
+        padding: 0;
+    }
+
+    .custom-popup .leaflet-popup-tip {
+        background: var(--forest-deep);
+    }
+
+    .custom-popup .leaflet-popup-content {
+        margin: 0;
+        min-width: 220px;
+    }
+
+    .popup-card {
+        padding: 16px 20px;
+    }
+
+    .popup-type {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--gold-light);
+        margin-bottom: 4px;
+    }
+
+    .popup-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .popup-detail {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        padding: 4px 0;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .popup-detail-label {
+        color: rgba(255,255,255,0.5);
+    }
+
+    .popup-detail-value {
+        font-weight: 600;
+        color: var(--leaf-light);
+    }
+
+    /* ===== ELEVATION PROFILE ===== */
+    .elevation-section {
+        background: white;
+        padding: 4rem 0;
+    }
+
+    .elevation-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .elevation-chart {
+        position: relative;
+        height: 400px;
+        background: linear-gradient(to bottom, #E8F4FD 0%, #DEEFD8 50%, #C8DEC0 100%);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-top: 2rem;
+    }
+
+    .elevation-svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .peak-marker {
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+
+    .peak-marker:hover {
+        transform: scale(1.2);
+    }
+
+    /* ===== PEAKS TABLE ===== */
+    .peaks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .peak-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.8rem;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(11, 61, 46, 0.06);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .peak-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(to right, var(--forest-mid), var(--canopy));
+        transform: scaleX(0);
+        transition: transform 0.4s;
+        transform-origin: left;
+    }
+
+    .peak-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .peak-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .peak-rank {
+        position: absolute;
+        top: 1.2rem;
+        right: 1.2rem;
+        width: 36px;
+        height: 36px;
+        background: var(--mist);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--forest-mid);
+    }
+
+    .peak-rank.gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; }
+    .peak-rank.silver { background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: white; }
+    .peak-rank.bronze { background: linear-gradient(135deg, #CD7F32, #B8860B); color: white; }
+
+    .peak-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+        margin-bottom: 0.3rem;
+    }
+
+    .peak-state {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .peak-height {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .peak-height-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--forest-deep);
+    }
+
+    .peak-height-unit {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .peak-bar {
+        height: 6px;
+        background: var(--mist);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .peak-bar-fill {
+        height: 100%;
+        background: linear-gradient(to right, var(--canopy), var(--leaf-fresh));
+        border-radius: 3px;
+        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .peak-info {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.8rem;
+        line-height: 1.5;
+    }
+
+    /* ===== RIVERS SECTION ===== */
+    .rivers-section {
+        background: linear-gradient(180deg, var(--cloud) 0%, #E0EFF8 100%);
+    }
+
+    .rivers-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+
+    .river-group {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .river-group-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .river-group-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .river-group-west .river-group-icon {
+        background: linear-gradient(135deg, #1A7AAE, #4BA3D4);
+    }
+
+    .river-group-east .river-group-icon {
+        background: linear-gradient(135deg, #0A4C6E, #1A7AAE);
+    }
+
+    .river-group-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+    }
+
+    .river-group-count {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+    }
+
+    .river-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(11, 61, 46, 0.06);
+        transition: all 0.3s;
+    }
+
+    .river-item:last-child { border: none; }
+
+    .river-item:hover {
+        padding-left: 8px;
+    }
+
+    .river-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+    }
+
+    .river-note {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+    }
+
+    .river-length {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--water-mid);
+        white-space: nowrap;
+    }
+
+    /* ===== WATERFALLS ===== */
+    .waterfalls-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .waterfall-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s;
+    }
+
+    .waterfall-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .waterfall-visual {
+        height: 120px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .waterfall-visual svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .waterfall-height-bar {
+        position: absolute;
+        right: 16px;
+        bottom: 0;
+        width: 40px;
+        background: linear-gradient(to top, rgba(75, 163, 212, 0.8), rgba(26, 122, 174, 0.9));
+        border-radius: 4px 4px 0 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: white;
+        transition: height 1s ease;
+    }
+
+    .waterfall-content {
+        padding: 1.5rem;
+    }
+
+    .waterfall-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+        margin-bottom: 0.3rem;
+    }
+
+    .waterfall-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+    }
+
+    .waterfall-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* ===== BIODIVERSITY ===== */
+    .bio-section {
+        background: linear-gradient(180deg, #E0EFF8 0%, var(--mist) 30%, white 100%);
+    }
+
+    .bio-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .bio-stat-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(11, 61, 46, 0.06);
+        transition: all 0.3s;
+    }
+
+    .bio-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .bio-stat-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .bio-stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--forest-deep);
+        line-height: 1;
+        margin-bottom: 0.3rem;
+    }
+
+    .bio-stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .bio-stat-endemic {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--canopy);
+        background: var(--mist);
+        padding: 4px 12px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .species-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .species-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s;
+        border: 1px solid rgba(11, 61, 46, 0.04);
+    }
+
+    .species-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .species-emoji {
+        font-size: 2rem;
+        line-height: 1;
+    }
+
+    .species-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--forest-deep);
+        margin-bottom: 2px;
+    }
+
+    .species-sci {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-style: italic;
+        margin-bottom: 6px;
+    }
+
+    .species-status {
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-endangered { background: #FEE2E2; color: #DC2626; }
+    .status-endemic { background: #DBEAFE; color: #2563EB; }
+    .status-vulnerable { background: #FEF3C7; color: #D97706; }
+    .status-unique { background: #F3E8FF; color: #7C3AED; }
+
+    /* ===== VEGETATION ZONES ===== */
+    .veg-timeline {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .veg-zones {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .veg-zone {
+        position: relative;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        overflow: hidden;
+        color: white;
+        transition: all 0.4s;
+        cursor: default;
+    }
+
+    .veg-zone:hover {
+        transform: translateY(-6px);
+    }
+
+    .veg-zone-1 { background: linear-gradient(160deg, #0B3D2E, #145A3C); }
+    .veg-zone-2 { background: linear-gradient(160deg, #2D6B22, #4A8B3E); }
+    .veg-zone-3 { background: linear-gradient(160deg, #5B3A8C, #7B5BAE); }
+    .veg-zone-4 { background: linear-gradient(160deg, #6B8E23, #8FBC43); }
+
+    .veg-altitude {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.6;
+        margin-bottom: 0.5rem;
+    }
+
+    .veg-zone-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+    }
+
+    .veg-zone-desc {
+        font-size: 0.82rem;
+        opacity: 0.8;
+        line-height: 1.6;
+    }
+
+    .veg-species-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 1rem;
+    }
+
+    .veg-species-tag {
+        padding: 4px 10px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 12px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* ===== GAPS/PASSES ===== */
+    .gaps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .gap-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(11, 61, 46, 0.06);
+        position: relative;
+        transition: all 0.3s;
+    }
+
+    .gap-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .gap-card-accent {
+        position: absolute;
+        top: 0;
+        left: 2rem;
+        right: 2rem;
+        height: 3px;
+        background: linear-gradient(to right, var(--sunset), var(--gold));
+        border-radius: 0 0 3px 3px;
+    }
+
+    .gap-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+        margin-bottom: 0.3rem;
+    }
+
+    .gap-alt-name {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .gap-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+    }
+
+    .gap-detail {
+        background: var(--mist);
+        padding: 0.8rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .gap-detail-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+
+    .gap-detail-value {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+    }
+
+    /* ===== UNESCO SITES ===== */
+    .unesco-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .unesco-site-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s;
+        border-left: 3px solid transparent;
+    }
+
+    .unesco-site-card:hover {
+        transform: translateX(4px);
+        border-left-color: var(--gold);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .unesco-site-name {
+        font-weight: 600;
+        font-size: 0.88rem;
+        color: var(--forest-deep);
+    }
+
+    .unesco-site-state {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+    }
+
+    .unesco-site-area {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--canopy);
+        white-space: nowrap;
+    }
+
+    /* ===== NATIONAL PARKS ===== */
+    .parks-carousel {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .park-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s;
+    }
+
+    .park-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .park-card-header {
+        padding: 2rem 2rem 1rem;
+        position: relative;
+    }
+
+    .park-card-emoji {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .park-card-name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+        margin-bottom: 0.3rem;
+    }
+
+    .park-card-state {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+    }
+
+    .park-card-body {
+        padding: 0 2rem 2rem;
+    }
+
+    .park-highlight {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--mist);
+    }
+
+    .park-highlight:last-child { border: none; }
+
+    .park-highlight-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--canopy);
+        flex-shrink: 0;
+    }
+
+    /* ===== CLIMATE ===== */
+    .climate-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .climate-main {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .rainfall-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        height: 200px;
+        margin-top: 2rem;
+        padding: 0 1rem;
+    }
+
+    .rainfall-bar-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        justify-content: flex-end;
+    }
+
+    .rainfall-bar {
+        width: 100%;
+        max-width: 40px;
+        background: linear-gradient(to top, var(--water-deep), var(--water-light));
+        border-radius: 4px 4px 0 0;
+        transition: height 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        min-height: 4px;
+    }
+
+    .rainfall-bar-value {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: var(--water-deep);
+        white-space: nowrap;
+    }
+
+    .rainfall-month {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        margin-top: 8px;
+        font-weight: 600;
+    }
+
+    .climate-side {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .climate-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-soft);
+        flex: 1;
+    }
+
+    .climate-card-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+        margin-bottom: 0.5rem;
+    }
+
+    .climate-card-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--water-mid);
+    }
+
+    .climate-card-desc {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 0.3rem;
+    }
+
+    /* ===== COMPARISON TABLE ===== */
+    .comparison-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .comparison-table thead {
+        background: var(--forest-deep);
+        color: white;
+    }
+
+    .comparison-table th {
+        padding: 1.2rem 1.5rem;
+        text-align: left;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .comparison-table td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--mist);
+        font-size: 0.88rem;
+    }
+
+    .comparison-table tr:last-child td { border: none; }
+
+    .comparison-table tbody tr:hover {
+        background: var(--mist);
+    }
+
+    .comparison-table .feature-col {
+        font-weight: 600;
+        color: var(--text-secondary);
+        width: 180px;
+    }
+
+    .comparison-table .wg-col {
+        color: var(--forest-deep);
+        font-weight: 600;
+    }
+
+    .comparison-table .eg-col {
+        color: var(--text-muted);
+    }
+
+    .check-yes { color: var(--canopy); font-weight: 700; }
+    .check-no { color: #DC2626; }
+
+    /* ===== THREATS & CONSERVATION ===== */
+    .threats-conservation {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .threat-card, .conservation-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .threat-list, .conservation-list {
+        list-style: none;
+        margin-top: 1.5rem;
+    }
+
+    .threat-list li, .conservation-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--mist);
+        font-size: 0.88rem;
+    }
+
+    .threat-list li:last-child, .conservation-list li:last-child { border: none; }
+
+    .threat-icon { color: #DC2626; font-size: 1.1rem; flex-shrink: 0; }
+    .conservation-icon { color: var(--canopy); font-size: 1.1rem; flex-shrink: 0; }
+
+    /* ===== CULTURAL SECTION ===== */
+    .cultural-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .cultural-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(11, 61, 46, 0.06);
+        transition: all 0.3s;
+    }
+
+    .cultural-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .cultural-card-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .cultural-card-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+        margin-bottom: 0.5rem;
+    }
+
+    .cultural-card-desc {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+    }
+
+    /* ===== NOMENCLATURE ===== */
+    .nomenclature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .nomen-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s;
+    }
+
+    .nomen-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .nomen-lang {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .nomen-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+    }
+
+    /* ===== HILL STATIONS ===== */
+    .hillstations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .hillstation-chip {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.2rem;
+        text-align: center;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s;
+        cursor: default;
+        border: 1px solid rgba(11, 61, 46, 0.06);
+    }
+
+    .hillstation-chip:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-mid);
+        border-color: var(--canopy);
+    }
+
+    .hillstation-emoji {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .hillstation-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--forest-deep);
+        margin-bottom: 0.2rem;
+    }
+
+    .hillstation-state {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+        background: var(--forest-deep);
+        color: white;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .footer-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-sanskrit {
+        font-size: 1.2rem;
+        color: var(--gold-light);
+        margin-bottom: 2rem;
+    }
+
+    .footer-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .footer-stat {
+        text-align: center;
+    }
+
+    .footer-stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .footer-stat-label {
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.5);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .footer-note {
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.3);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    /* ===== SEPARATOR ===== */
+    .section-sep {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .section-sep-line {
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(11, 61, 46, 0.1), transparent);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+        .map-main { grid-template-columns: 1fr; }
+        .map-sidebar { max-height: 400px; }
+        #mainMap { height: 500px; }
+        .climate-grid { grid-template-columns: 1fr; }
+        .rivers-grid { grid-template-columns: 1fr; }
+        .threats-conservation { grid-template-columns: 1fr; }
+        .veg-zones { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .hero-stats { grid-template-columns: repeat(2, 1fr); }
+        .bio-stats { grid-template-columns: repeat(2, 1fr); }
+        .veg-zones { grid-template-columns: 1fr; }
+        .section { padding: 3rem 1rem; }
+        .map-section { padding: 3rem 1rem; }
+        .peaks-grid { grid-template-columns: 1fr; }
+        .nav-link { padding: 1rem 0.7rem; font-size: 0.7rem; }
+    }
+
+    @media (max-width: 480px) {
+        .hero-stats { grid-template-columns: 1fr 1fr; }
+        .gaps-grid { grid-template-columns: 1fr; }
+        .gap-details { grid-template-columns: 1fr; }
+    }
+
+    /* ===== ANIMATIONS ===== */
+    .animate-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    /* ===== HYDRO SECTION ===== */
+    .hydro-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .hydro-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-soft);
+        border-left: 4px solid var(--water-mid);
+        transition: all 0.3s;
+    }
+
+    .hydro-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-mid);
+    }
+
+    .hydro-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--forest-deep);
+        margin-bottom: 0.3rem;
+    }
+
+    .hydro-state {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .hydro-detail {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+    }
+
+    /* State colors for map markers */
+    .state-maharashtra { --state-color: #E8734A; }
+    .state-karnataka { --state-color: #C75BAE; }
+    .state-kerala { --state-color: #2D9B6A; }
+    .state-tamilnadu { --state-color: #4BA3D4; }
+    .state-goa { --state-color: #D4A843; }
+    .state-gujarat { --state-color: #8B6914; }
+
+    /* Leaflet custom */
+    .leaflet-control-attribution { font-size: 0.6rem !important; }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+    <div class="hero-bg-layers">
+        <div class="mist-particles" id="mistParticles"></div>
+        <div id="fireflies"></div>
+        <!-- Mountain Silhouettes -->
+        <div class="mountain-layer" style="bottom: 0; z-index: 3;">
+            <svg viewBox="0 0 1440 320" preserveAspectRatio="none" style="height: 320px;">
+                <path fill="rgba(11,61,46,0.6)" d="M0,224 C120,180,240,140,360,160 C480,180,520,120,640,128 C760,136,800,100,920,112 C1040,124,1120,90,1200,96 C1280,102,1360,140,1440,160 L1440,320 L0,320 Z"/>
+            </svg>
+        </div>
+        <div class="mountain-layer" style="bottom: 0; z-index: 4;">
+            <svg viewBox="0 0 1440 280" preserveAspectRatio="none" style="height: 280px;">
+                <path fill="rgba(11,61,46,0.8)" d="M0,200 C160,160,240,190,400,170 C560,150,600,120,720,140 C840,160,900,110,1020,130 C1140,150,1280,120,1440,140 L1440,280 L0,280 Z"/>
+            </svg>
+        </div>
+        <div class="mountain-layer" style="bottom: 0; z-index: 5;">
+            <svg viewBox="0 0 1440 200" preserveAspectRatio="none" style="height: 200px;">
+                <path fill="var(--forest-deep)" d="M0,160 C180,130,300,170,480,140 C660,110,720,150,900,130 C1080,110,1200,150,1440,120 L1440,200 L0,200 Z"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="hero-content">
+        <div class="unesco-badge">
+            <svg class="unesco-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--gold-light);">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                <path d="M2 12h20"/>
+            </svg>
+            <span>UNESCO World Heritage Site · 2012</span>
+        </div>
+        <h1 class="hero-title">Western Ghats</h1>
+        <div class="hero-title-sanskrit">सह्याद्रि · Sahyadri</div>
+        <p class="hero-subtitle">
+            One of the eight hottest biodiversity hotspots of the world, older than the Himalayas, 
+            stretching 1,600 km along India's western coast
+        </p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-value">1,600<span class="hero-stat-unit"> km</span></span>
+                <div class="hero-stat-label">Length</div>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value">6<span class="hero-stat-unit"> states</span></span>
+                <div class="hero-stat-label">Coverage</div>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value">2,695<span class="hero-stat-unit"> m</span></span>
+                <div class="hero-stat-label">Highest Peak</div>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value">150<span class="hero-stat-unit"> M yrs</span></span>
+                <div class="hero-stat-label">Age</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <span>Explore</span>
+        <div class="scroll-line"></div>
+    </div>
+</section>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav" id="mainNav">
+    <div class="nav-inner">
+        <div class="nav-brand"><span class="nav-tree">🌲</span> Sahyadri</div>
+        <a class="nav-link active" href="#map-section">Map</a>
+        <a class="nav-link" href="#names">Names</a>
+        <a class="nav-link" href="#peaks">Peaks</a>
+        <a class="nav-link" href="#rivers">Rivers</a>
+        <a class="nav-link" href="#waterfalls">Waterfalls</a>
+        <a class="nav-link" href="#gaps">Passes</a>
+        <a class="nav-link" href="#biodiversity">Biodiversity</a>
+        <a class="nav-link" href="#vegetation">Vegetation</a>
+        <a class="nav-link" href="#climate">Climate</a>
+        <a class="nav-link" href="#unesco-sites">UNESCO Sites</a>
+        <a class="nav-link" href="#parks">Parks</a>
+        <a class="nav-link" href="#compare">Compare</a>
+        <a class="nav-link" href="#threats">Conservation</a>
+    </div>
+</nav>
+
+<!-- ===== INTERACTIVE MAP ===== -->
+<section class="map-section" id="map-section">
+    <div class="section-header">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Interactive Map
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Explore the Western Ghats</h2>
+        <p class="section-desc">
+            Click on markers to discover peaks, national parks, waterfalls, hill stations, and gaps across the mountain range
+        </p>
+    </div>
+    <div class="map-container">
+        <div class="map-main">
+            <div id="mainMap"></div>
+            <div class="map-sidebar">
+                <h3 class="map-sidebar-title">Western Ghats Atlas</h3>
+                <p class="map-sidebar-desc">Spanning 1,600 km through 6 states, covering 1,60,000 km² — one of Earth's most vital ecological regions.</p>
+                
+                <div class="map-filter-group">
+                    <div class="map-filter-label">Filter by Type</div>
+                    <div class="map-filters" id="mapFilters">
+                        <button class="map-filter-btn active" data-filter="all">All</button>
+                        <button class="map-filter-btn" data-filter="peak">⛰ Peaks</button>
+                        <button class="map-filter-btn" data-filter="park">🦁 Parks</button>
+                        <button class="map-filter-btn" data-filter="waterfall">💧 Waterfalls</button>
+                        <button class="map-filter-btn" data-filter="hillstation">🏔 Hill Stations</button>
+                        <button class="map-filter-btn" data-filter="gap">🚂 Passes</button>
+                        <button class="map-filter-btn" data-filter="river">🌊 Rivers</button>
+                    </div>
+                </div>
+
+                <div class="map-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#E8734A"></div> Peaks</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#2D9B6A"></div> National Parks</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#4BA3D4"></div> Waterfalls</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#C75BAE"></div> Hill Stations</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#D4A843"></div> Passes/Gaps</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#1A7AAE"></div> River Origins</div>
+                </div>
+
+                <div class="map-info-card" id="mapInfoCard">
+                    <h4>Click a marker</h4>
+                    <p>Select any marker on the map to see detailed information about that location.</p>
+                </div>
+
+                <div class="map-info-card">
+                    <div class="map-info-stat">
+                        <span class="map-info-stat-label">Total Area</span>
+                        <span class="map-info-stat-value">1,60,000 km²</span>
+                    </div>
+                    <div class="map-info-stat">
+                        <span class="map-info-stat-label">Avg Width</span>
+                        <span class="map-info-stat-value">50-80 km</span>
+                    </div>
+                    <div class="map-info-stat">
+                        <span class="map-info-stat-label">Direction</span>
+                        <span class="map-info-stat-value">N → S</span>
+                    </div>
+                    <div class="map-info-stat">
+                        <span class="map-info-stat-label">Rock Type</span>
+                        <span class="map-info-stat-value">Basaltic</span>
+                    </div>
+                    <div class="map-info-stat">
+                        <span class="map-info-stat-label">UNESCO Sites</span>
+                        <span class="map-info-stat-value">39</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== NOMENCLATURE ===== -->
+<section class="section" id="names">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Nomenclature
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Names Across Languages</h2>
+        <p class="section-desc">Known by many names across India's diverse linguistic landscape</p>
+    </div>
+    <div class="nomenclature-grid">
+        <div class="nomen-card animate-in delay-1">
+            <div class="nomen-lang">Sanskrit</div>
+            <div class="nomen-name">सह्याद्रि</div>
+        </div>
+        <div class="nomen-card animate-in delay-2">
+            <div class="nomen-lang">Marathi</div>
+            <div class="nomen-name">सह्याद्री</div>
+        </div>
+        <div class="nomen-card animate-in delay-3">
+            <div class="nomen-lang">Kannada</div>
+            <div class="nomen-name">ಪಶ್ಚಿಮ ಘಟ್ಟಗಳು</div>
+        </div>
+        <div class="nomen-card animate-in delay-4">
+            <div class="nomen-lang">Malayalam</div>
+            <div class="nomen-name">പശ്ചിമഘട്ടം</div>
+        </div>
+        <div class="nomen-card animate-in delay-1">
+            <div class="nomen-lang">Tamil</div>
+            <div class="nomen-name">மேற்குத் தொடர்ச்சி மலை</div>
+        </div>
+        <div class="nomen-card animate-in delay-2">
+            <div class="nomen-lang">English</div>
+            <div class="nomen-name">Western Ghats</div>
+        </div>
+    </div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== PEAKS ===== -->
+<section class="section" id="peaks">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Major Peaks
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Towering Summits</h2>
+        <p class="section-desc">From the mighty Anamudi to the rugged Kudremukh, the Western Ghats harbor some of South India's tallest peaks</p>
+    </div>
+    <div class="peaks-grid" id="peaksGrid"></div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== RIVERS ===== -->
+<section class="section rivers-section" id="rivers">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Rivers
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Cradle of Rivers</h2>
+        <p class="section-desc">The Western Ghats form the watershed of Peninsular India, giving birth to rivers flowing both east and west</p>
+    </div>
+    <div class="rivers-grid">
+        <div class="river-group river-group-west animate-in">
+            <div class="river-group-header">
+                <div class="river-group-icon">🌊</div>
+                <div>
+                    <div class="river-group-title">West-Flowing Rivers</div>
+                    <div class="river-group-count">Shorter, swifter, into Arabian Sea</div>
+                </div>
+            </div>
+            <div class="river-item"><div><div class="river-name">Sharavathi</div><div class="river-note">Jog Falls (253m)</div></div><span class="river-length">128 km</span></div>
+            <div class="river-item"><div><div class="river-name">Nethravathi</div><div class="river-note">Karnataka</div></div><span class="river-length">103 km</span></div>
+            <div class="river-item"><div><div class="river-name">Periyar</div><div class="river-note">Longest in Kerala</div></div><span class="river-length">244 km</span></div>
+            <div class="river-item"><div><div class="river-name">Bharathapuzha</div><div class="river-note">Nila River</div></div><span class="river-length">209 km</span></div>
+            <div class="river-item"><div><div class="river-name">Pamba</div><div class="river-note">Sabarimala pilgrimage</div></div><span class="river-length">176 km</span></div>
+            <div class="river-item"><div><div class="river-name">Chaliyar</div><div class="river-note">Kerala</div></div><span class="river-length">169 km</span></div>
+            <div class="river-item"><div><div class="river-name">Mandovi</div><div class="river-note">Goa's lifeline</div></div><span class="river-length">77 km</span></div>
+            <div class="river-item"><div><div class="river-name">Zuari</div><div class="river-note">Longest in Goa</div></div><span class="river-length">34 km</span></div>
+            <div class="river-item"><div><div class="river-name">Savitri</div><div class="river-note">Maharashtra</div></div><span class="river-length">99 km</span></div>
+            <div class="river-item"><div><div class="river-name">Kadalundi</div><div class="river-note">Bird sanctuary</div></div><span class="river-length">130 km</span></div>
+        </div>
+        <div class="river-group river-group-east animate-in delay-2">
+            <div class="river-group-header">
+                <div class="river-group-icon">🏞</div>
+                <div>
+                    <div class="river-group-title">East-Flowing Rivers</div>
+                    <div class="river-group-count">Longer, into Bay of Bengal</div>
+                </div>
+            </div>
+            <div class="river-item"><div><div class="river-name">Godavari</div><div class="river-note">Nasik, Maharashtra</div></div><span class="river-length">1,465 km</span></div>
+            <div class="river-item"><div><div class="river-name">Krishna</div><div class="river-note">Mahabaleshwar</div></div><span class="river-length">1,400 km</span></div>
+            <div class="river-item"><div><div class="river-name">Kaveri</div><div class="river-note">Brahmagiri, Karnataka</div></div><span class="river-length">800 km</span></div>
+            <div class="river-item"><div><div class="river-name">Tungabhadra</div><div class="river-note">Krishna tributary</div></div><span class="river-length">531 km</span></div>
+        </div>
+    </div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== WATERFALLS ===== -->
+<section class="section" id="waterfalls">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Waterfalls
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Cascading Wonders</h2>
+        <p class="section-desc">The steep western escarpment creates some of India's most spectacular waterfalls</p>
+    </div>
+    <div class="waterfalls-grid" id="waterfallsGrid"></div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== MOUNTAIN PASSES ===== -->
+<section class="section" id="gaps">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Mountain Passes
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Gaps & Ghats</h2>
+        <p class="section-desc">Natural passages through the mountain barrier, vital for transportation and climate patterns</p>
+    </div>
+    <div class="gaps-grid" id="gapsGrid"></div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== BIODIVERSITY ===== -->
+<section class="section bio-section" id="biodiversity">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Biodiversity
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">A Living Treasury</h2>
+        <p class="section-desc">One of the world's eight hottest biodiversity hotspots, home to an extraordinary concentration of endemic species</p>
+    </div>
+
+    <div class="bio-stats animate-in">
+        <div class="bio-stat-card">
+            <div class="bio-stat-icon">🐸</div>
+            <div class="bio-stat-number">179</div>
+            <div class="bio-stat-label">Amphibian Species</div>
+            <div class="bio-stat-endemic">87 Endemic</div>
+        </div>
+        <div class="bio-stat-card">
+            <div class="bio-stat-icon">🦎</div>
+            <div class="bio-stat-number">157</div>
+            <div class="bio-stat-label">Reptile Species</div>
+            <div class="bio-stat-endemic">95 Endemic</div>
+        </div>
+        <div class="bio-stat-card">
+            <div class="bio-stat-icon">🐟</div>
+            <div class="bio-stat-number">290</div>
+            <div class="bio-stat-label">Fish Species</div>
+            <div class="bio-stat-endemic">139 Endemic</div>
+        </div>
+        <div class="bio-stat-card">
+            <div class="bio-stat-icon">🌺</div>
+            <div class="bio-stat-number">4,000+</div>
+            <div class="bio-stat-label">Flowering Plants</div>
+            <div class="bio-stat-endemic">1,800 Endemic</div>
+        </div>
+    </div>
+
+    <h3 style="text-align:center; margin-bottom: 2rem; font-size: 1.5rem; color: var(--forest-deep);">Iconic Species</h3>
+    <div class="species-grid" id="speciesGrid"></div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== VEGETATION ZONES ===== -->
+<section class="section" id="vegetation">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Vegetation
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Altitude-Based Vegetation Zones</h2>
+        <p class="section-desc">From tropical evergreen forests at the base to cloud-kissed shola grasslands at the summit</p>
+    </div>
+    <div class="veg-zones animate-in">
+        <div class="veg-zone veg-zone-1">
+            <div class="veg-altitude">Up to 1,000 m</div>
+            <div class="veg-zone-title">Tropical Evergreen</div>
+            <div class="veg-zone-desc">Dense, multilayered forests that never shed leaves. The darkest, most biodiverse zone.</div>
+            <div class="veg-species-tags">
+                <span class="veg-species-tag">Rosewood</span>
+                <span class="veg-species-tag">Mahogany</span>
+                <span class="veg-species-tag">Ebony</span>
+            </div>
+        </div>
+        <div class="veg-zone veg-zone-2">
+            <div class="veg-altitude">1,000 - 1,500 m</div>
+            <div class="veg-zone-title">Moist Deciduous</div>
+            <div class="veg-zone-desc">Trees shed leaves in dry season. Commercial timber zone with mixed canopy.</div>
+            <div class="veg-species-tags">
+                <span class="veg-species-tag">Teak</span>
+                <span class="veg-species-tag">Sal</span>
+                <span class="veg-species-tag">Bamboo</span>
+            </div>
+        </div>
+        <div class="veg-zone veg-zone-3">
+            <div class="veg-altitude">1,500 - 2,500 m</div>
+            <div class="veg-zone-title">Montane Temperate</div>
+            <div class="veg-zone-desc">Cloud forests draped in mosses and ferns. Cool, misty environments year-round.</div>
+            <div class="veg-species-tags">
+                <span class="veg-species-tag">Rhododendron</span>
+                <span class="veg-species-tag">Magnolia</span>
+                <span class="veg-species-tag">Ferns</span>
+            </div>
+        </div>
+        <div class="veg-zone veg-zone-4">
+            <div class="veg-altitude">Above 2,000 m</div>
+            <div class="veg-zone-title">Shola Grasslands</div>
+            <div class="veg-zone-desc">Unique mosaic of grass & forest patches in valleys. Found only in Western Ghats.</div>
+            <div class="veg-species-tags">
+                <span class="veg-species-tag">Shola Forests</span>
+                <span class="veg-species-tag">Grasslands</span>
+                <span class="veg-species-tag">Endemic</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== CLIMATE ===== -->
+<section class="section" id="climate">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Climate
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Monsoon's Wall</h2>
+        <p class="section-desc">The Western Ghats intercept the southwest monsoon, creating one of the wettest regions on Earth on the windward side and a rain shadow on the leeward Deccan</p>
+    </div>
+    <div class="climate-grid animate-in">
+        <div class="climate-main">
+            <h3 style="font-size: 1.1rem; color: var(--forest-deep); margin-bottom: 0.5rem;">Annual Rainfall Pattern (Windward Side, mm)</h3>
+            <p style="font-size: 0.78rem; color: var(--text-muted);">Orographic rainfall peaks during June-September monsoon</p>
+            <div class="rainfall-bars" id="rainfallChart"></div>
+        </div>
+        <div class="climate-side">
+            <div class="climate-card">
+                <div class="climate-card-title">☔ Windward Side</div>
+                <div class="climate-card-value">2,000 - 8,000 mm</div>
+                <div class="climate-card-desc">Annual rainfall, among highest in India</div>
+            </div>
+            <div class="climate-card">
+                <div class="climate-card-title">🏜 Leeward Side</div>
+                <div class="climate-card-value">500 - 1,000 mm</div>
+                <div class="climate-card-desc">Rain shadow effect on Deccan Plateau</div>
+            </div>
+            <div class="climate-card">
+                <div class="climate-card-title">🌡 Temperature</div>
+                <div class="climate-card-value">15° - 30°C</div>
+                <div class="climate-card-desc">Varies with altitude; cooler at heights</div>
+            </div>
+            <div class="climate-card">
+                <div class="climate-card-title">🌀 Monsoon Type</div>
+                <div class="climate-card-value">Orographic</div>
+                <div class="climate-card-desc">SW Monsoon intercepted by Ghats</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== HILL STATIONS ===== -->
+<section class="section" id="hillstations">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Hill Stations
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Mountain Retreats</h2>
+        <p class="section-desc">Cool escapes nestled among the mist-covered peaks of the Sahyadri</p>
+    </div>
+    <div class="hillstations-grid" id="hillstationsGrid"></div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== UNESCO SITES ===== -->
+<section class="section" id="unesco-sites">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            UNESCO Properties
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">39 Protected Properties</h2>
+        <p class="section-desc">The UNESCO World Heritage designation covers 39 serial properties across the Western Ghats</p>
+    </div>
+    <div class="unesco-grid" id="unescoGrid"></div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== NATIONAL PARKS ===== -->
+<section class="section" id="parks">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            National Parks
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Protected Wilderness</h2>
+        <p class="section-desc">Key national parks safeguarding the Western Ghats' extraordinary biodiversity</p>
+    </div>
+    <div class="parks-carousel" id="parksGrid"></div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== HYDROELECTRIC ===== -->
+<section class="section" id="hydro">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Hydroelectric Projects
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Power from the Mountains</h2>
+        <p class="section-desc">Major hydroelectric projects harnessing the steep gradients and heavy rainfall of the Western Ghats</p>
+    </div>
+    <div class="hydro-grid">
+        <div class="hydro-card animate-in"><div class="hydro-name">Sharavathi Project</div><div class="hydro-state">Karnataka</div><div class="hydro-detail">Powers Jog Falls region; major electricity source for Karnataka</div></div>
+        <div class="hydro-card animate-in delay-1"><div class="hydro-name">Idukki Dam</div><div class="hydro-state">Kerala</div><div class="hydro-detail">Arch dam on Periyar River; one of Asia's highest arch dams at 168m</div></div>
+        <div class="hydro-card animate-in delay-2"><div class="hydro-name">Koyna Dam</div><div class="hydro-state">Maharashtra</div><div class="hydro-detail">On Krishna River; largest hydroelectric project in Maharashtra</div></div>
+        <div class="hydro-card animate-in delay-3"><div class="hydro-name">Periyar Project</div><div class="hydro-state">Kerala</div><div class="hydro-detail">Diverts Periyar waters eastward to irrigate Madurai district</div></div>
+    </div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== COMPARISON ===== -->
+<section class="section" id="compare">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Comparison
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Western Ghats vs Eastern Ghats</h2>
+        <p class="section-desc">A side-by-side comparison of India's two great escarpment ranges</p>
+    </div>
+    <div class="animate-in">
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>⛰ Western Ghats</th>
+                    <th>🏔 Eastern Ghats</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="feature-col">Continuity</td><td class="wg-col">Continuous</td><td class="eg-col">Discontinuous</td></tr>
+                <tr><td class="feature-col">Average Height</td><td class="wg-col">~1,500 m</td><td class="eg-col">~600 m</td></tr>
+                <tr><td class="feature-col">Length</td><td class="wg-col">1,600 km</td><td class="eg-col">~1,750 km</td></tr>
+                <tr><td class="feature-col">Rainfall</td><td class="wg-col">2,000–8,000 mm</td><td class="eg-col">1,000–1,500 mm</td></tr>
+                <tr><td class="feature-col">Biodiversity</td><td class="wg-col">Global Hotspot</td><td class="eg-col">Moderate</td></tr>
+                <tr><td class="feature-col">Rivers</td><td class="wg-col">Originate here</td><td class="eg-col">Cut through</td></tr>
+                <tr><td class="feature-col">UNESCO Status</td><td class="wg-col check-yes">✓ Yes (2012)</td><td class="eg-col check-no">✗ No</td></tr>
+                <tr><td class="feature-col">Highest Peak</td><td class="wg-col">Anamudi (2,695 m)</td><td class="eg-col">Jindhagada (1,690 m)</td></tr>
+                <tr><td class="feature-col">Coast</td><td class="wg-col">Arabian Sea (West)</td><td class="eg-col">Bay of Bengal (East)</td></tr>
+                <tr><td class="feature-col">States</td><td class="wg-col">6 States</td><td class="eg-col">4 States</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== THREATS & CONSERVATION ===== -->
+<section class="section" id="threats">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Conservation
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Threats & Protection</h2>
+        <p class="section-desc">Balancing development with preservation of this irreplaceable ecological treasure</p>
+    </div>
+    <div class="threats-conservation animate-in">
+        <div class="threat-card">
+            <h3 style="font-size: 1.3rem; color: #DC2626; margin-bottom: 0.5rem;">⚠ Threats</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Ongoing challenges to the ecosystem</p>
+            <ul class="threat-list">
+                <li><span class="threat-icon">🪓</span><div><strong>Deforestation</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Loss of forest cover for agriculture & settlements</span></div></li>
+                <li><span class="threat-icon">⛏</span><div><strong>Mining</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Iron ore mining (Kudremukh stopped); sand mining</span></div></li>
+                <li><span class="threat-icon">🏗</span><div><strong>Dams & Reservoirs</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Submersion of forest areas; altered water flow</span></div></li>
+                <li><span class="threat-icon">🏘</span><div><strong>Encroachment</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Expanding settlements into protected areas</span></div></li>
+                <li><span class="threat-icon">🌡</span><div><strong>Climate Change</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Shifting rainfall patterns; temperature rise</span></div></li>
+                <li><span class="threat-icon">🌿</span><div><strong>Invasive Species</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Lantana camara spreading aggressively</span></div></li>
+            </ul>
+        </div>
+        <div class="conservation-card">
+            <h3 style="font-size: 1.3rem; color: var(--canopy); margin-bottom: 0.5rem;">🛡 Conservation</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Measures to protect the ecosystem</p>
+            <ul class="conservation-list">
+                <li><span class="conservation-icon">🌍</span><div><strong>UNESCO World Heritage (2012)</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">International recognition & protection mandate</span></div></li>
+                <li><span class="conservation-icon">📋</span><div><strong>Gadgil Committee</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Western Ghats Ecology Expert Panel report</span></div></li>
+                <li><span class="conservation-icon">🗺</span><div><strong>Ecologically Sensitive Areas</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">ESA zones with development restrictions</span></div></li>
+                <li><span class="conservation-icon">🦁</span><div><strong>Protected Areas Network</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">National parks, wildlife sanctuaries, reserves</span></div></li>
+                <li><span class="conservation-icon">🌱</span><div><strong>Sacred Groves</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Traditional community-protected forest patches</span></div></li>
+                <li><span class="conservation-icon">🔬</span><div><strong>Research Stations</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">Ongoing biodiversity monitoring & studies</span></div></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<div class="section-sep"><div class="section-sep-line"></div></div>
+
+<!-- ===== CULTURAL ===== -->
+<section class="section" id="culture">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Culture & Tourism
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Cultural Significance</h2>
+        <p class="section-desc">The Western Ghats are deeply woven into India's spiritual, medicinal, and cultural heritage</p>
+    </div>
+    <div class="cultural-grid">
+        <div class="cultural-card animate-in">
+            <div class="cultural-card-icon">🙏</div>
+            <div class="cultural-card-title">Sacred Groves</div>
+            <div class="cultural-card-desc">Ancient community-protected forest patches preserved through religious beliefs, serving as biodiversity refugia for centuries.</div>
+        </div>
+        <div class="cultural-card animate-in delay-1">
+            <div class="cultural-card-icon">🏕</div>
+            <div class="cultural-card-title">Tribal Habitats</div>
+            <div class="cultural-card-desc">Home to numerous indigenous communities including Toda, Irula, Kurumba, and Paniya, with unique cultures and ecological knowledge.</div>
+        </div>
+        <div class="cultural-card animate-in delay-2">
+            <div class="cultural-card-icon">🌿</div>
+            <div class="cultural-card-title">Ayurveda Medicinal Plants</div>
+            <div class="cultural-card-desc">Over 2,000 medicinal plant species used in traditional Ayurvedic medicine. The Ghats are a living pharmacy.</div>
+        </div>
+        <div class="cultural-card animate-in delay-3">
+            <div class="cultural-card-icon">⛩</div>
+            <div class="cultural-card-title">Pilgrimage Sites</div>
+            <div class="cultural-card-desc">Sabarimala, Kukke Subramanya, Mahabaleshwar (Panch Ganga origin) — spiritual journeys into the mountains.</div>
+        </div>
+        <div class="cultural-card animate-in delay-4">
+            <div class="cultural-card-icon">☕</div>
+            <div class="cultural-card-title">Spice & Coffee Belt</div>
+            <div class="cultural-card-desc">Coorg, Chikmagalur, Wayanad — India's premier coffee, cardamom, pepper, and tea growing regions since centuries.</div>
+        </div>
+        <div class="cultural-card animate-in">
+            <div class="cultural-card-icon">🥾</div>
+            <div class="cultural-card-title">Trekking & Tourism</div>
+            <div class="cultural-card-desc">World-class trekking routes, wildlife safaris, monsoon tourism, and plantation homestays drawing millions annually.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== GEOLOGY ===== -->
+<div class="section-sep"><div class="section-sep-line"></div></div>
+<section class="section" id="geology">
+    <div class="section-header animate-in">
+        <div class="section-tag">
+            <span class="section-tag-line"></span>
+            Geology
+            <span class="section-tag-line"></span>
+        </div>
+        <h2 class="section-title">Ancient Geological Origins</h2>
+        <p class="section-desc">Formed 150 million years ago during the breakup of Gondwana, older than the Himalayas</p>
+    </div>
+    <div class="cultural-grid">
+        <div class="cultural-card animate-in">
+            <div class="cultural-card-icon">🪨</div>
+            <div class="cultural-card-title">Basaltic Rock</div>
+            <div class="cultural-card-desc">The northern section is covered by Deccan Traps — massive basaltic lava flows from volcanic activity 66 million years ago.</div>
+        </div>
+        <div class="cultural-card animate-in delay-1">
+            <div class="cultural-card-icon">⏳</div>
+            <div class="cultural-card-title">150 Million Years Old</div>
+            <div class="cultural-card-desc">Formed during the Cretaceous period when the Indian plate separated from Madagascar. Predates the Himalayan orogeny.</div>
+        </div>
+        <div class="cultural-card animate-in delay-2">
+            <div class="cultural-card-icon">🏔</div>
+            <div class="cultural-card-title">Escarpment Formation</div>
+            <div class="cultural-card-desc">A fault escarpment with steep western face dropping to narrow coastal plain, and gentle eastern slope to the Deccan Plateau.</div>
+        </div>
+        <div class="cultural-card animate-in delay-3">
+            <div class="cultural-card-icon">🟤</div>
+            <div class="cultural-card-title">Laterite Deposits</div>
+            <div class="cultural-card-desc">Tropical weathering created thick laterite caps, rich in iron and aluminum, giving characteristic red soils to the region.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="footer-title">🌲 Western Ghats</div>
+    <div class="footer-sanskrit">सह्याद्रि — The Enduring Mountains</div>
+    <div class="footer-stats">
+        <div class="footer-stat"><div class="footer-stat-value">1,600 km</div><div class="footer-stat-label">Length</div></div>
+        <div class="footer-stat"><div class="footer-stat-value">6 States</div><div class="footer-stat-label">Coverage</div></div>
+        <div class="footer-stat"><div class="footer-stat-value">39 Sites</div><div class="footer-stat-label">UNESCO Properties</div></div>
+        <div class="footer-stat"><div class="footer-stat-value">325</div><div class="footer-stat-label">Threatened Species</div></div>
+        <div class="footer-stat"><div class="footer-stat-value">150 M</div><div class="footer-stat-label">Years Old</div></div>
+    </div>
+    <p class="footer-note">
+        The Western Ghats are a UNESCO World Heritage Site inscribed in 2012 for their outstanding universal value as one of the world's eight hottest biodiversity hotspots. 
+        Protecting this ancient mountain range is crucial for the ecological, hydrological, and cultural well-being of Peninsular India.
+    </p>
+</footer>
+
+<script>
+// ===== MIST & FIREFLY PARTICLES =====
+(function createParticles() {
+    const mistContainer = document.getElementById('mistParticles');
+    const fireflyContainer = document.getElementById('fireflies');
+    
+    for (let i = 0; i < 8; i++) {
+        const mist = document.createElement('div');
+        mist.className = 'mist-particle';
+        mist.style.width = (200 + Math.random() * 400) + 'px';
+        mist.style.height = (100 + Math.random() * 200) + 'px';
+        mist.style.top = (20 + Math.random() * 60) + '%';
+        mist.style.left = (Math.random() * 100) + '%';
+        mist.style.animationDuration = (15 + Math.random() * 25) + 's';
+        mist.style.animationDelay = (-Math.random() * 20) + 's';
+        mistContainer.appendChild(mist);
+    }
+
+    for (let i = 0; i < 15; i++) {
+        const fly = document.createElement('div');
+        fly.className = 'firefly';
+        fly.style.top = (10 + Math.random() * 70) + '%';
+        fly.style.left = (10 + Math.random() * 80) + '%';
+        fly.style.animationDuration = (3 + Math.random() * 5) + 's';
+        fly.style.animationDelay = (-Math.random() * 5) + 's';
+        fireflyContainer.appendChild(fly);
+    }
+})();
+
+// ===== MAP =====
+const map = L.map('mainMap', {
+    zoomControl: false,
+    attributionControl: true
+}).setView([13.5, 75.5], 7);
+
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap, © CARTO',
+    maxZoom: 18
+}).addTo(map);
+
+// Draw Western Ghats extent line
+const ghatsLine = [
+    [21.3, 73.1], [20.5, 73.5], [19.8, 73.5], [19.0, 73.4], [18.0, 73.5],
+    [17.0, 73.7], [16.0, 74.0], [15.5, 74.0], [15.0, 74.3], [14.5, 74.8],
+    [14.0, 75.2], [13.5, 75.3], [13.0, 75.5], [12.5, 75.7], [12.0, 75.8],
+    [11.5, 76.2], [11.0, 76.5], [10.5, 76.7], [10.0, 77.0], [9.5, 77.1],
+    [9.0, 77.2], [8.5, 77.3], [8.3, 77.4]
+];
+
+L.polyline(ghatsLine, {
+    color: '#2D9B6A',
+    weight: 4,
+    opacity: 0.6,
+    dashArray: '10, 8',
+    lineJoin: 'round'
+}).addTo(map);
+
+// Marker data
+const mapData = [
+    // PEAKS
+    { type: 'peak', name: 'Anamudi', lat: 10.1667, lng: 77.0608, height: '2,695 m', state: 'Kerala', note: 'Highest peak in Western Ghats & South India', color: '#E8734A' },
+    { type: 'peak', name: 'Meesapulimala', lat: 10.0994, lng: 77.1128, height: '2,640 m', state: 'Kerala', note: '2nd highest peak', color: '#E8734A' },
+    { type: 'peak', name: 'Doddabetta', lat: 11.4019, lng: 76.7353, height: '2,637 m', state: 'Tamil Nadu', note: 'Highest in Nilgiris', color: '#E8734A' },
+    { type: 'peak', name: 'Mullayanagiri', lat: 13.3917, lng: 75.7250, height: '1,930 m', state: 'Karnataka', note: "Karnataka's highest", color: '#E8734A' },
+    { type: 'peak', name: 'Kudremukh', lat: 13.2500, lng: 75.2500, height: '1,862 m', state: 'Karnataka', note: '"Horse Face" mountain', color: '#E8734A' },
+    { type: 'peak', name: 'Agastyamalai', lat: 8.6167, lng: 77.2333, height: '1,868 m', state: 'Kerala/TN', note: 'Southernmost major peak', color: '#E8734A' },
+    { type: 'peak', name: 'Kalsubai', lat: 19.6017, lng: 73.7108, height: '1,646 m', state: 'Maharashtra', note: "Maharashtra's highest", color: '#E8734A' },
+    { type: 'peak', name: 'Tadiandamol', lat: 12.2500, lng: 75.7333, height: '1,748 m', state: 'Karnataka', note: 'Highest in Coorg', color: '#E8734A' },
+    { type: 'peak', name: 'Chembra Peak', lat: 11.5500, lng: 76.0833, height: '2,100 m', state: 'Kerala', note: 'Heart-shaped lake at summit', color: '#E8734A' },
+    { type: 'peak', name: 'Banasura Hill', lat: 11.6833, lng: 76.0500, height: '2,073 m', state: 'Kerala', note: 'Wayanad district', color: '#E8734A' },
+
+    // NATIONAL PARKS
+    { type: 'park', name: 'Silent Valley NP', lat: 11.0833, lng: 76.4167, area: '237 km²', state: 'Kerala', note: 'Untouched tropical evergreen', color: '#2D9B6A' },
+    { type: 'park', name: 'Eravikulam NP', lat: 10.1833, lng: 77.0333, area: '97 km²', state: 'Kerala', note: 'Home of Nilgiri Tahr', color: '#2D9B6A' },
+    { type: 'park', name: 'Periyar NP', lat: 9.4667, lng: 77.1667, area: '925 km²', state: 'Kerala', note: 'Elephant & Tiger reserve', color: '#2D9B6A' },
+    { type: 'park', name: 'Kudremukh NP', lat: 13.2167, lng: 75.2333, area: '600 km²', state: 'Karnataka', note: 'UNESCO core zone', color: '#2D9B6A' },
+    { type: 'park', name: 'Bandipur NP', lat: 11.6681, lng: 76.6333, area: '874 km²', state: 'Karnataka', note: 'Tiger reserve', color: '#2D9B6A' },
+    { type: 'park', name: 'Nagarhole NP', lat: 12.0333, lng: 76.1500, area: '644 km²', state: 'Karnataka', note: 'Rajiv Gandhi NP', color: '#2D9B6A' },
+    { type: 'park', name: 'Anshi NP', lat: 15.0167, lng: 74.3500, area: '340 km²', state: 'Karnataka', note: 'Western Ghats rainforest', color: '#2D9B6A' },
+    { type: 'park', name: 'Sanjay Gandhi NP', lat: 19.2147, lng: 72.9106, area: '104 km²', state: 'Maharashtra', note: 'Urban national park, Mumbai', color: '#2D9B6A' },
+
+    // WATERFALLS
+    { type: 'waterfall', name: 'Kunchikal Falls', lat: 13.8167, lng: 75.0833, height: '455 m', state: 'Karnataka', note: 'India\'s tallest waterfall (Varahi River)', color: '#4BA3D4' },
+    { type: 'waterfall', name: 'Jog Falls', lat: 14.2292, lng: 74.8128, height: '253 m', state: 'Karnataka', note: 'Sharavathi River, 4 cascades', color: '#4BA3D4' },
+    { type: 'waterfall', name: 'Dudhsagar Falls', lat: 15.3144, lng: 74.3144, height: '310 m', state: 'Goa', note: 'Sea of Milk, Mandovi River', color: '#4BA3D4' },
+    { type: 'waterfall', name: 'Athirappilly Falls', lat: 10.2850, lng: 76.5700, height: '80 m', state: 'Kerala', note: 'Niagara of India, Chalakudy River', color: '#4BA3D4' },
+    { type: 'waterfall', name: 'Meenmutty Falls', lat: 11.6167, lng: 76.0833, height: '300 m', state: 'Kerala', note: 'Largest in Wayanad', color: '#4BA3D4' },
+    { type: 'waterfall', name: 'Thalaiyar Falls', lat: 10.2500, lng: 77.3667, height: '297 m', state: 'Tamil Nadu', note: 'Rat Tail Falls, Palani Hills', color: '#4BA3D4' },
+
+    // HILL STATIONS
+    { type: 'hillstation', name: 'Munnar', lat: 10.0889, lng: 77.0597, elev: '1,532 m', state: 'Kerala', note: 'Tea gardens & misty valleys', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Ooty', lat: 11.4064, lng: 76.6932, elev: '2,240 m', state: 'Tamil Nadu', note: 'Queen of Hill Stations', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Kodaikanal', lat: 10.2381, lng: 77.4892, elev: '2,133 m', state: 'Tamil Nadu', note: 'Princess of Hill Stations', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Mahabaleshwar', lat: 17.9307, lng: 73.6477, elev: '1,438 m', state: 'Maharashtra', note: 'Krishna River origin', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Matheran', lat: 18.9864, lng: 73.2692, elev: '803 m', state: 'Maharashtra', note: 'Asia\'s only automobile-free hill station', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Coorg (Kodagu)', lat: 12.3375, lng: 75.8069, elev: '1,525 m', state: 'Karnataka', note: 'Scotland of India, coffee country', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Wayanad', lat: 11.6854, lng: 76.1320, elev: '700-2,100 m', state: 'Kerala', note: 'Green paradise', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Coonoor', lat: 11.3530, lng: 76.7959, elev: '1,850 m', state: 'Tamil Nadu', note: 'Nilgiri tea estates', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Lonavala', lat: 18.7546, lng: 73.4062, elev: '622 m', state: 'Maharashtra', note: 'Monsoon retreat near Mumbai/Pune', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Panchgani', lat: 17.9244, lng: 73.7991, elev: '1,334 m', state: 'Maharashtra', note: 'Table Land & strawberries', color: '#C75BAE' },
+    { type: 'hillstation', name: 'Chikmagalur', lat: 13.3161, lng: 75.7720, elev: '1,090 m', state: 'Karnataka', note: 'India\'s coffee origin', color: '#C75BAE' },
+
+    // GAPS/PASSES
+    { type: 'gap', name: 'Palghat Gap', lat: 10.7700, lng: 76.6500, width: '40 km', state: 'Kerala/TN', note: 'Largest gap; connects Kerala & TN; 300m elevation', color: '#D4A843' },
+    { type: 'gap', name: 'Bhor Ghat', lat: 18.7500, lng: 73.4000, width: '-', state: 'Maharashtra', note: 'Mumbai-Pune railway route', color: '#D4A843' },
+    { type: 'gap', name: 'Thal Ghat', lat: 19.6167, lng: 73.5500, width: '-', state: 'Maharashtra', note: 'Mumbai-Nashik route (Kasara Ghat)', color: '#D4A843' },
+
+    // RIVER ORIGINS
+    { type: 'river', name: 'Godavari Origin', lat: 19.9375, lng: 73.5311, length: '1,465 km', state: 'Maharashtra', note: 'Trimbakeshwar, Nasik — longest river originating in WG', color: '#1A7AAE' },
+    { type: 'river', name: 'Krishna Origin', lat: 17.9242, lng: 73.6553, length: '1,400 km', state: 'Maharashtra', note: 'Mahabaleshwar — 2nd longest peninsular river', color: '#1A7AAE' },
+    { type: 'river', name: 'Kaveri Origin', lat: 12.4194, lng: 75.7356, length: '800 km', state: 'Karnataka', note: 'Talakaveri, Brahmagiri Hills', color: '#1A7AAE' },
+];
+
+const markerLayers = {};
+const allMarkers = [];
+
+function createIcon(color, type) {
+    const icons = { peak: '⛰', park: '🦁', waterfall: '💧', hillstation: '🏔', gap: '🚂', river: '🌊' };
+    return L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="
+            width: 32px; height: 32px;
+            background: ${color};
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'">${icons[type] || '📍'}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -20]
+    });
+}
+
+function getPopupContent(d) {
+    const labels = {
+        peak: 'Peak',
+        park: 'National Park',
+        waterfall: 'Waterfall',
+        hillstation: 'Hill Station',
+        gap: 'Mountain Pass',
+        river: 'River Origin'
+    };
+
+    let details = '';
+    if (d.height) details += `<div class="popup-detail"><span class="popup-detail-label">Height</span><span class="popup-detail-value">${d.height}</span></div>`;
+    if (d.area) details += `<div class="popup-detail"><span class="popup-detail-label">Area</span><span class="popup-detail-value">${d.area}</span></div>`;
+    if (d.elev) details += `<div class="popup-detail"><span class="popup-detail-label">Elevation</span><span class="popup-detail-value">${d.elev}</span></div>`;
+    if (d.width) details += `<div class="popup-detail"><span class="popup-detail-label">Width</span><span class="popup-detail-value">${d.width}</span></div>`;
+    if (d.length) details += `<div class="popup-detail"><span class="popup-detail-label">Length</span><span class="popup-detail-value">${d.length}</span></div>`;
+    details += `<div class="popup-detail"><span class="popup-detail-label">State</span><span class="popup-detail-value">${d.state}</span></div>`;
+
+    return `<div class="popup-card">
+        <div class="popup-type">${labels[d.type]}</div>
+        <div class="popup-name">${d.name}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:10px;">${d.note || ''}</div>
+        ${details}
+    </div>`;
+}
+
+mapData.forEach(d => {
+    const marker = L.marker([d.lat, d.lng], {
+        icon: createIcon(d.color, d.type)
+    });
+
+    marker.bindPopup(getPopupContent(d), {
+        className: 'custom-popup',
+        maxWidth: 280
+    });
+
+    marker.on('click', function() {
+        const infoCard = document.getElementById('mapInfoCard');
+        infoCard.innerHTML = `<h4 style="color:var(--gold-light)">${d.name}</h4><p style="font-size:0.78rem;color:rgba(255,255,255,0.6)">${d.note || ''}</p>
+        <div style="margin-top:10px">
+        ${d.height ? `<div class="map-info-stat"><span class="map-info-stat-label">Height</span><span class="map-info-stat-value">${d.height}</span></div>` : ''}
+        ${d.area ? `<div class="map-info-stat"><span class="map-info-stat-label">Area</span><span class="map-info-stat-value">${d.area}</span></div>` : ''}
+        ${d.elev ? `<div class="map-info-stat"><span class="map-info-stat-label">Elevation</span><span class="map-info-stat-value">${d.elev}</span></div>` : ''}
+        ${d.length ? `<div class="map-info-stat"><span class="map-info-stat-label">Length</span><span class="map-info-stat-value">${d.length}</span></div>` : ''}
+        <div class="map-info-stat"><span class="map-info-stat-label">State</span><span class="map-info-stat-value">${d.state}</span></div>
+        <div class="map-info-stat"><span class="map-info-stat-label">Type</span><span class="map-info-stat-value" style="text-transform:capitalize">${d.type}</span></div>
+        </div>`;
+    });
+
+    marker.dataType = d.type;
+    marker.addTo(map);
+    allMarkers.push(marker);
+});
+
+// Map filters
+document.getElementById('mapFilters').addEventListener('click', function(e) {
+    const btn = e.target.closest('.map-filter-btn');
+    if (!btn) return;
+
+    document.querySelectorAll('.map-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const filter = btn.dataset.filter;
+    allMarkers.forEach(m => {
+        if (filter === 'all' || m.dataType === filter) {
+            map.addLayer(m);
+        } else {
+            map.removeLayer(m);
+        }
+    });
+});
+
+// ===== PEAKS GRID =====
+const peaksData = [
+    { name: 'Anamudi', height: 2695, state: 'Kerala', info: 'Highest peak in Western Ghats & South India. Located in Eravikulam NP.' },
+    { name: 'Meesapulimala', height: 2640, state: 'Kerala', info: '2nd highest. Name means "Whisker of the leopard mountain".' },
+    { name: 'Doddabetta', height: 2637, state: 'Tamil Nadu', info: 'Highest point of Nilgiri Mountains. Popular tourist viewpoint.' },
+    { name: 'Mullayanagiri', height: 1930, state: 'Karnataka', info: "Karnataka's highest peak. Located in Chikmagalur district." },
+    { name: 'Kudremukh', height: 1862, state: 'Karnataka', info: '"Horse Face" mountain. UNESCO core zone with pristine forests.' },
+    { name: 'Agastyamalai', height: 1868, state: 'Kerala/TN', info: 'Southernmost major peak. Named after sage Agastya.' },
+    { name: 'Tadiandamol', height: 1748, state: 'Karnataka', info: 'Highest peak in Coorg. Popular trekking destination.' },
+    { name: 'Pushpagiri', height: 1712, state: 'Karnataka', info: 'Wildlife sanctuary. Rich in endemic orchids.' },
+    { name: 'Kalsubai', height: 1646, state: 'Maharashtra', info: "Maharashtra's highest. Temple at summit. Popular trek." },
+    { name: 'Salher', height: 1567, state: 'Maharashtra', info: 'Historic fort. Site of Maratha-Mughal battle.' },
+    { name: 'Chembra Peak', height: 2100, state: 'Kerala', info: 'Heart-shaped lake at summit. Wayanad.' },
+    { name: 'Banasura Hill', height: 2073, state: 'Kerala', info: 'Named after demon king Banasura. Near largest earth dam.' },
+];
+
+const peaksGrid = document.getElementById('peaksGrid');
+peaksData.forEach((p, i) => {
+    const pct = (p.height / 2695 * 100).toFixed(0);
+    let rankClass = '';
+    if (i === 0) rankClass = 'gold';
+    else if (i === 1) rankClass = 'silver';
+    else if (i === 2) rankClass = 'bronze';
+
+    peaksGrid.innerHTML += `
+    <div class="peak-card animate-in" style="transition-delay: ${i * 0.05}s">
+        <div class="peak-rank ${rankClass}">${i + 1}</div>
+        <div class="peak-name">${p.name}</div>
+        <div class="peak-state">📍 ${p.state}</div>
+        <div class="peak-height">
+            <span class="peak-height-value">${p.height.toLocaleString()}</span>
+            <span class="peak-height-unit">metres</span>
+        </div>
+        <div class="peak-bar"><div class="peak-bar-fill" style="width: ${pct}%"></div></div>
+        <div class="peak-info">${p.info}</div>
+    </div>`;
+});
+
+// ===== WATERFALLS =====
+const waterfallsData = [
+    { name: 'Kunchikal Falls', height: 455, river: 'Varahi', state: 'Karnataka', note: 'Tallest in India' },
+    { name: 'Dudhsagar Falls', height: 310, river: 'Mandovi', state: 'Goa', note: 'Sea of Milk' },
+    { name: 'Meenmutty Falls', height: 300, river: '-', state: 'Kerala', note: 'Largest in Wayanad' },
+    { name: 'Thalaiyar Falls', height: 297, river: '-', state: 'Tamil Nadu', note: 'Rat Tail Falls' },
+    { name: 'Jog Falls', height: 253, river: 'Sharavathi', state: 'Karnataka', note: '4 distinct cascades' },
+    { name: 'Soochipara Falls', height: 200, river: '-', state: 'Kerala', note: 'Sentinel Rock Falls' },
+    { name: 'Athirappilly Falls', height: 80, river: 'Chalakudy', state: 'Kerala', note: 'Niagara of India' },
+];
+
+const waterfallsGrid = document.getElementById('waterfallsGrid');
+const maxWfH = 455;
+waterfallsData.forEach((w, i) => {
+    const barH = (w.height / maxWfH * 100).toFixed(0);
+    const bgColors = [
+        'linear-gradient(135deg, #0A4C6E, #1A7AAE)',
+        'linear-gradient(135deg, #145A3C, #2D9B6A)',
+        'linear-gradient(135deg, #2D6B22, #4A8B3E)',
+        'linear-gradient(135deg, #5B3A8C, #7B5BAE)',
+        'linear-gradient(135deg, #8B6914, #D4A843)',
+        'linear-gradient(135deg, #1A7AAE, #4BA3D4)',
+        'linear-gradient(135deg, #0B3D2E, #1E7A52)',
+    ];
+
+    waterfallsGrid.innerHTML += `
+    <div class="waterfall-card animate-in" style="transition-delay: ${i * 0.08}s">
+        <div class="waterfall-visual" style="background: ${bgColors[i % bgColors.length]}">
+            <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+                <path d="M0,80 Q40,60 80,70 T160,65 T240,75 T300,60 L300,120 L0,120 Z" fill="rgba(255,255,255,0.08)"/>
+                <path d="M0,95 Q50,85 100,90 T200,88 T300,85 L300,120 L0,120 Z" fill="rgba(255,255,255,0.05)"/>
+            </svg>
+            <div class="waterfall-height-bar" style="height: ${barH}%">${w.height}m</div>
+        </div>
+        <div class="waterfall-content">
+            <div class="waterfall-name">${w.name}</div>
+            <div class="waterfall-meta">
+                <span>📍 ${w.state}</span>
+                ${w.river !== '-' ? `<span>🌊 ${w.river}</span>` : ''}
+            </div>
+            <p style="font-size:0.78rem; color:var(--text-muted); margin-top: 0.5rem;">${w.note}</p>
+        </div>
+    </div>`;
+});
+
+// ===== GAPS =====
+const gapsData = [
+    { name: 'Palghat Gap', alt: 'Palakkad Gap', location: 'Between Nilgiris & Anamalai', width: '40 km', elev: '300 m', importance: 'Kerala-Tamil Nadu connectivity; hot air passage affecting Kerala climate', state: 'Kerala/Tamil Nadu' },
+    { name: 'Bhor Ghat', alt: 'भोर घाट', location: 'Between Mumbai & Pune', width: '-', elev: '~550 m', importance: 'Major Mumbai-Pune railway route; Deccan Queen runs through', state: 'Maharashtra' },
+    { name: 'Thal Ghat', alt: 'Kasara Ghat', location: 'Between Mumbai & Nashik', width: '-', elev: '~600 m', importance: 'Mumbai-Nashik highway & railway connection', state: 'Maharashtra' },
+    { name: 'Goran Ghat', alt: '-', location: 'Maharashtra', width: '-', elev: '-', importance: 'Connects coastal Konkan with Deccan interior', state: 'Maharashtra' },
+];
+
+const gapsGrid = document.getElementById('gapsGrid');
+gapsData.forEach((g, i) => {
+    gapsGrid.innerHTML += `
+    <div class="gap-card animate-in" style="transition-delay: ${i * 0.1}s">
+        <div class="gap-card-accent"></div>
+        <div class="gap-name">${g.name}</div>
+        <div class="gap-alt-name">${g.alt !== '-' ? g.alt : ''} · ${g.state}</div>
+        <div class="gap-details">
+            <div class="gap-detail"><div class="gap-detail-label">Location</div><div class="gap-detail-value">${g.location}</div></div>
+            <div class="gap-detail"><div class="gap-detail-label">Elevation</div><div class="gap-detail-value">${g.elev}</div></div>
+            ${g.width !== '-' ? `<div class="gap-detail"><div class="gap-detail-label">Width</div><div class="gap-detail-value">${g.width}</div></div>` : ''}
+        </div>
+        <p style="font-size:0.78rem; color:var(--text-muted); margin-top: 1rem; line-height: 1.6;">${g.importance}</p>
+    </div>`;
+});
+
+// ===== SPECIES =====
+const speciesData = [
+    { emoji: '🐒', name: 'Lion-tailed Macaque', sci: 'Macaca silenus', status: 'Endangered', statusClass: 'status-endangered' },
+    { emoji: '🐐', name: 'Nilgiri Tahr', sci: 'Nilgiritragus hylocrius', status: 'Endemic', statusClass: 'status-endemic' },
+    { emoji: '🐿', name: 'Malabar Giant Squirrel', sci: 'Ratufa indica', status: 'Vulnerable', statusClass: 'status-vulnerable' },
+    { emoji: '🐒', name: 'Nilgiri Langur', sci: 'Trachypithecus johnii', status: 'Vulnerable', statusClass: 'status-vulnerable' },
+    { emoji: '🐘', name: 'Indian Elephant', sci: 'Elephas maximus', status: 'Endangered', statusClass: 'status-endangered' },
+    { emoji: '🐅', name: 'Bengal Tiger', sci: 'Panthera tigris', status: 'Endangered', statusClass: 'status-endangered' },
+    { emoji: '🐸', name: 'Purple Frog', sci: 'Nasikabatrachus sahyadrensis', status: 'Unique', statusClass: 'status-unique' },
+    { emoji: '🦅', name: 'Malabar Grey Hornbill', sci: 'Ocyceros griseus', status: 'Endemic', statusClass: 'status-endemic' },
+    { emoji: '🦜', name: 'Malabar Parakeet', sci: 'Psittacula columboides', status: 'Endemic', statusClass: 'status-endemic' },
+    { emoji: '🐆', name: 'Indian Leopard', sci: 'Panthera pardus fusca', status: 'Vulnerable', statusClass: 'status-vulnerable' },
+    { emoji: '🐂', name: 'Gaur', sci: 'Bos gaurus', status: 'Vulnerable', statusClass: 'status-vulnerable' },
+    { emoji: '🕊', name: 'Nilgiri Wood Pigeon', sci: 'Columba elphinstonii', status: 'Vulnerable', statusClass: 'status-vulnerable' },
+];
+
+const speciesGrid = document.getElementById('speciesGrid');
+speciesData.forEach((s, i) => {
+    speciesGrid.innerHTML += `
+    <div class="species-card animate-in" style="transition-delay: ${i * 0.05}s">
+        <div class="species-emoji">${s.emoji}</div>
+        <div>
+            <div class="species-name">${s.name}</div>
+            <div class="species-sci">${s.sci}</div>
+            <span class="species-status ${s.statusClass}">${s.status}</span>
+        </div>
+    </div>`;
+});
+
+// ===== UNESCO SITES =====
+const unescoData = [
+    { name: 'Kalakad Mundanthurai', area: '895', state: 'Tamil Nadu' },
+    { name: 'Shendurney', area: '171', state: 'Kerala' },
+    { name: 'Neyyar', area: '128', state: 'Kerala' },
+    { name: 'Peppara', area: '53', state: 'Kerala' },
+    { name: 'Kulathupuzha Range', area: '15', state: 'Kerala' },
+    { name: 'Palani Hills', area: '736', state: 'Tamil Nadu' },
+    { name: 'Anamalai', area: '958', state: 'TN/Kerala' },
+    { name: 'Parambikulam', area: '285', state: 'Kerala' },
+    { name: 'Silent Valley', area: '89', state: 'Kerala' },
+    { name: 'New Amarambalam', area: '247', state: 'Kerala' },
+    { name: 'Pushpagiri', area: '102', state: 'Karnataka' },
+    { name: 'Brahmagiri', area: '181', state: 'Karnataka' },
+    { name: 'Talacauvery', area: '105', state: 'Karnataka' },
+    { name: 'Padinalknad', area: '124', state: 'Karnataka' },
+    { name: 'Someshwara', area: '88', state: 'Karnataka' },
+    { name: 'Agumbe', area: '343', state: 'Karnataka' },
+    { name: 'Kudremukh', area: '600', state: 'Karnataka' },
+    { name: 'Sharavathi Valley', area: '445', state: 'Karnataka' },
+    { name: 'Mookambika', area: '247', state: 'Karnataka' },
+    { name: 'Sahyadri', area: '741', state: 'Maharashtra' },
+    { name: 'Koyna', area: '426', state: 'Maharashtra' },
+    { name: 'Chandoli', area: '317', state: 'Maharashtra' },
+    { name: 'Radhanagari', area: '283', state: 'Maharashtra' },
+    { name: 'Kas Plateau', area: '12', state: 'Maharashtra' },
+];
+
+const unescoGrid = document.getElementById('unescoGrid');
+unescoData.forEach((u, i) => {
+    unescoGrid.innerHTML += `
+    <div class="unesco-site-card animate-in" style="transition-delay: ${i * 0.03}s">
+        <div>
+            <div class="unesco-site-name">${u.name}</div>
+            <div class="unesco-site-state">${u.state}</div>
+        </div>
+        <div class="unesco-site-area">${u.area} km²</div>
+    </div>`;
+});
+
+// ===== NATIONAL PARKS =====
+const parksData = [
+    { name: 'Silent Valley', state: 'Kerala', emoji: '🌿', highlights: ['Pristine tropical evergreen', 'Lion-tailed Macaque habitat', 'No human settlement', 'Saved from dam project'] },
+    { name: 'Eravikulam', state: 'Kerala', emoji: '🐐', highlights: ['Nilgiri Tahr stronghold', 'Neelakurinji blooms (12-year cycle)', 'Anamudi peak located here', 'Montane grasslands'] },
+    { name: 'Periyar', state: 'Kerala', emoji: '🐘', highlights: ['Tiger & Elephant reserve', 'Periyar Lake boat safaris', 'Bamboo rafting', 'Spice plantation border'] },
+    { name: 'Kudremukh', state: 'Karnataka', emoji: '🌲', highlights: ['UNESCO core zone', 'Iron ore mining stopped', 'Pristine shola grasslands', '600 km² protected area'] },
+    { name: 'Bandipur', state: 'Karnataka', emoji: '🐅', highlights: ['Project Tiger reserve', 'Part of Nilgiri Biosphere', 'Connected to Nagarhole', 'Dry deciduous forests'] },
+    { name: 'Nagarhole', state: 'Karnataka', emoji: '🐍', highlights: ['Rajiv Gandhi National Park', 'Kabini backwaters', 'Highest Asian elephant density', 'Rich bird diversity'] },
+    { name: 'Anshi', state: 'Karnataka', emoji: '🦜', highlights: ['Western Ghats rainforest', 'Black Panther sightings', 'Connected to Dandeli', 'Rich amphibian diversity'] },
+    { name: 'Sanjay Gandhi', state: 'Maharashtra', emoji: '🏙', highlights: ['Urban national park', 'Inside Mumbai city', 'Kanheri Caves (109 caves)', 'Leopard population'] },
+];
+
+const parksGrid = document.getElementById('parksGrid');
+parksData.forEach((p, i) => {
+    let highlightsHtml = p.highlights.map(h => `<div class="park-highlight"><div class="park-highlight-dot"></div>${h}</div>`).join('');
+    parksGrid.innerHTML += `
+    <div class="park-card animate-in" style="transition-delay: ${i * 0.08}s">
+        <div class="park-card-header">
+            <div class="park-card-emoji">${p.emoji}</div>
+            <div class="park-card-name">${p.name} National Park</div>
+            <div class="park-card-state">📍 ${p.state}</div>
+        </div>
+        <div class="park-card-body">${highlightsHtml}</div>
+    </div>`;
+});
+
+// ===== HILL STATIONS =====
+const hillStations = [
+    { name: 'Mahabaleshwar', state: 'Maharashtra', emoji: '🍓' },
+    { name: 'Matheran', state: 'Maharashtra', emoji: '🚂' },
+    { name: 'Lonavala', state: 'Maharashtra', emoji: '🌧' },
+    { name: 'Khandala', state: 'Maharashtra', emoji: '⛰' },
+    { name: 'Panchgani', state: 'Maharashtra', emoji: '🏔' },
+    { name: 'Coorg', state: 'Karnataka', emoji: '☕' },
+    { name: 'Chikmagalur', state: 'Karnataka', emoji: '🌿' },
+    { name: 'Munnar', state: 'Kerala', emoji: '🍃' },
+    { name: 'Wayanad', state: 'Kerala', emoji: '🌴' },
+    { name: 'Ooty', state: 'Tamil Nadu', emoji: '🌹' },
+    { name: 'Kodaikanal', state: 'Tamil Nadu', emoji: '🌸' },
+    { name: 'Coonoor', state: 'Tamil Nadu', emoji: '🫖' },
+    { name: 'Kotagiri', state: 'Tamil Nadu', emoji: '🌄' },
+];
+
+const hillstationsGrid = document.getElementById('hillstationsGrid');
+hillStations.forEach((h, i) => {
+    hillstationsGrid.innerHTML += `
+    <div class="hillstation-chip animate-in" style="transition-delay: ${i * 0.04}s">
+        <div class="hillstation-emoji">${h.emoji}</div>
+        <div class="hillstation-name">${h.name}</div>
+        <div class="hillstation-state">${h.state}</div>
+    </div>`;
+});
+
+// ===== RAINFALL CHART =====
+const rainfallData = [
+    { month: 'Jan', mm: 10 }, { month: 'Feb', mm: 5 }, { month: 'Mar', mm: 15 },
+    { month: 'Apr', mm: 50 }, { month: 'May', mm: 120 }, { month: 'Jun', mm: 900 },
+    { month: 'Jul', mm: 1200 }, { month: 'Aug', mm: 800 }, { month: 'Sep', mm: 400 },
+    { month: 'Oct', mm: 200 }, { month: 'Nov', mm: 80 }, { month: 'Dec', mm: 20 }
+];
+
+const rainfallChart = document.getElementById('rainfallChart');
+const maxRain = 1200;
+rainfallData.forEach(r => {
+    const pct = (r.mm / maxRain * 85).toFixed(0);
+    rainfallChart.innerHTML += `
+    <div class="rainfall-bar-group">
+        <div class="rainfall-bar" style="height: ${pct}%">
+            <div class="rainfall-bar-value">${r.mm}</div>
+        </div>
+        <div class="rainfall-month">${r.month}</div>
+    </div>`;
+});
+
+// ===== SCROLL ANIMATIONS =====
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+// ===== ACTIVE NAV =====
+const sections = document.querySelectorAll('section[id], .map-section');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (window.scrollY >= sectionTop) {
+            current = section.getAttribute('id');
+        }
+    });
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Smooth scroll for nav links
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+
+</body>
+</html>
