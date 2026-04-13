@@ -8,16 +8,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root {
-  --sand-50: #fefce8;
-  --sand-100: #fef9c3;
-  --sand-200: #fef08a;
-  --sand-300: #fde047;
-  --sand-400: #facc15;
-  --sand-500: #eab308;
-  --sand-600: #ca8a04;
-  --sand-700: #a16207;
-  --sand-800: #854d0e;
-  --sand-900: #713f12;
   --amber-400: #fbbf24;
   --amber-500: #f59e0b;
   --amber-600: #d97706;
@@ -30,7 +20,6 @@
   --red-400: #f87171;
   --red-500: #ef4444;
   --red-600: #dc2626;
-  --stone-50: #fafaf9;
   --stone-100: #f5f5f4;
   --stone-200: #e7e5e4;
   --stone-300: #d6d3d1;
@@ -55,760 +44,483 @@
   --violet-600: #7c3aed;
   --rose-400: #fb7185;
   --rose-500: #f43f5e;
+  --yellow-400: #facc15;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
-html{scroll-behavior:smooth;}
-
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
-  background:var(--stone-950);
-  color:var(--stone-200);
-  line-height:1.7;
-  overflow-x:hidden;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--stone-950);
+  color: var(--stone-200);
+  line-height: 1.7;
+  overflow-x: hidden;
 }
 
 /* ===== BACK BUTTON ===== */
-.back-btn{
-  position:fixed;
-  top:1.25rem;
-  left:1.25rem;
-  z-index:9999;
-  display:flex;
-  align-items:center;
-  gap:0.5rem;
-  padding:0.6rem 1.1rem;
-  background:rgba(12,10,9,0.85);
-  backdrop-filter:blur(16px);
-  border:1px solid rgba(245,158,11,0.2);
-  border-radius:100px;
-  color:var(--amber-400);
-  text-decoration:none;
-  font-size:0.78rem;
-  font-weight:600;
-  letter-spacing:0.05em;
-  transition:all 0.3s ease;
+.back-btn {
+  position: fixed;
+  top: 1.25rem; left: 1.25rem;
+  z-index: 9999;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  background: rgba(12,10,9,0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 100px;
+  color: var(--amber-400);
+  text-decoration: none;
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
-.back-btn:hover{
-  background:rgba(245,158,11,0.1);
-  border-color:rgba(245,158,11,0.4);
-  transform:translateX(-3px);
+.back-btn:hover {
+  background: rgba(245,158,11,0.12);
+  border-color: rgba(245,158,11,0.4);
+  transform: translateX(-3px);
 }
-.back-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.back-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ===== HERO ===== */
-.hero{
-  position:relative;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  background:linear-gradient(160deg,#1a0800 0%,#2d1000 20%,#1c1208 45%,#0e0c08 70%,#0c0a09 100%);
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1a0800 0%, #2d1000 20%, #1c1208 45%, #0e0c08 70%, #0c0a09 100%);
 }
 
-.hero-sand-particles{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  pointer-events:none;
+.hero-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.particle {
+  position: absolute; border-radius: 50%;
+  background: rgba(234,179,8,0.4);
+  animation: drift linear infinite;
+}
+@keyframes drift {
+  0% { transform: translateY(110vh) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.4; }
+  100% { transform: translateY(-50px) translateX(var(--dx)); opacity: 0; }
 }
 
-.particle{
-  position:absolute;
-  border-radius:50%;
-  background:rgba(234,179,8,0.3);
-  animation:drift linear infinite;
+.hero-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+.hg1 { top: -150px; left: -100px; width: 600px; height: 600px; background: rgba(234,179,8,0.07); }
+.hg2 { bottom: -200px; right: -100px; width: 700px; height: 700px; background: rgba(249,115,22,0.05); }
+
+.hero-content {
+  position: relative; z-index: 2;
+  text-align: center;
+  padding: 6rem 1.5rem 3rem;
+  max-width: 1000px;
 }
 
-@keyframes drift{
-  0%{transform:translateY(100vh) translateX(0) rotate(0deg);opacity:0;}
-  10%{opacity:1;}
-  90%{opacity:0.5;}
-  100%{transform:translateY(-20px) translateX(var(--drift-x)) rotate(360deg);opacity:0;}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 1.1rem; border-radius: 100px;
+  background: rgba(234,179,8,0.07);
+  border: 1px solid rgba(234,179,8,0.2);
+  color: var(--amber-400);
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.badge-dot {
+  width: 6px; height: 6px;
+  background: var(--amber-400); border-radius: 50%;
+  animation: pdot 2s ease-in-out infinite;
+}
+@keyframes pdot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(1.6);} }
+
+.hero-emoji {
+  font-size: 5rem; display: block; margin-bottom: 1rem;
+  filter: drop-shadow(0 0 40px rgba(234,179,8,0.2));
+  animation: hfloat 7s ease-in-out infinite;
+}
+@keyframes hfloat { 0%,100%{transform:translateY(0) rotate(-2deg);} 50%{transform:translateY(-16px) rotate(2deg);} }
+
+.hero-deva { font-size: clamp(1rem,2vw,1.3rem); color: var(--amber-600); margin-bottom: 0.5rem; opacity: 0.75; }
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900; line-height: 1.05; letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #fef9c3, #fde047, #eab308, #ca8a04, #854d0e);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 
-.hero-bg-dunes{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  height:35%;
-  opacity:0.06;
-  background:radial-gradient(ellipse 60% 50% at 30% 100%,var(--amber-500),transparent),
-              radial-gradient(ellipse 50% 40% at 70% 100%,var(--orange-500),transparent);
-}
+.hero-tag { font-size: clamp(0.95rem,2vw,1.35rem); color: var(--stone-400); font-weight: 300; margin-bottom: 2.5rem; }
 
-.hero-glow{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;}
-.hero-glow-1{top:-150px;left:-100px;width:600px;height:600px;background:rgba(234,179,8,0.08);}
-.hero-glow-2{bottom:-200px;right:-100px;width:700px;height:700px;background:rgba(249,115,22,0.06);}
-.hero-glow-3{top:40%;left:40%;transform:translate(-50%,-50%);width:500px;height:500px;background:rgba(180,83,9,0.05);}
+.hero-stats {
+  display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+.hs {
+  text-align: center; padding: 1rem 1.4rem; border-radius: 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.055);
+  min-width: 130px; transition: all 0.35s ease;
+}
+.hs:hover { background: rgba(234,179,8,0.07); border-color: rgba(234,179,8,0.18); transform: translateY(-4px); }
+.hs-v { font-size: 1.5rem; font-weight: 800; color: var(--amber-400); display: block; line-height: 1.1; }
+.hs-l { font-size: 0.65rem; color: var(--stone-500); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.3rem; }
 
-.hero-content{
-  position:relative;z-index:2;
-  text-align:center;
-  padding:2rem 1.5rem;
-  max-width:1000px;
+.scroll-hint {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  color: var(--stone-600); font-size: 0.65rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  animation: sbounce 3s ease-in-out infinite;
 }
-
-.hero-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:0.5rem;
-  padding:0.45rem 1.1rem;
-  border-radius:100px;
-  background:rgba(234,179,8,0.07);
-  border:1px solid rgba(234,179,8,0.18);
-  color:var(--amber-400);
-  font-size:0.72rem;
-  font-weight:700;
-  letter-spacing:0.18em;
-  text-transform:uppercase;
-  margin-bottom:2rem;
-  backdrop-filter:blur(10px);
-}
-
-.badge-pulse{
-  width:6px;height:6px;
-  background:var(--amber-400);
-  border-radius:50%;
-  animation:pulse-badge 2s ease-in-out infinite;
-}
-@keyframes pulse-badge{
-  0%,100%{opacity:1;transform:scale(1);}
-  50%{opacity:0.4;transform:scale(1.6);}
-}
-
-.hero-emoji{
-  font-size:5.5rem;
-  display:block;
-  margin-bottom:1.25rem;
-  filter:drop-shadow(0 0 50px rgba(234,179,8,0.25));
-  animation:hero-float 7s ease-in-out infinite;
-}
-@keyframes hero-float{
-  0%,100%{transform:translateY(0) rotate(-2deg);}
-  50%{transform:translateY(-18px) rotate(2deg);}
-}
-
-.hero h1{
-  font-size:clamp(2.5rem,6vw,5.5rem);
-  font-weight:900;
-  line-height:1.05;
-  letter-spacing:-0.03em;
-  margin-bottom:0.5rem;
-  background:linear-gradient(135deg,#fef9c3,#fde047,#eab308,#ca8a04,#854d0e);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-
-.hero-devanagari{
-  font-size:clamp(1rem,2vw,1.4rem);
-  color:var(--amber-600);
-  font-weight:400;
-  letter-spacing:0.05em;
-  margin-bottom:0.5rem;
-  opacity:0.7;
-}
-
-.hero-tagline{
-  font-size:clamp(1rem,2.2vw,1.5rem);
-  color:var(--stone-400);
-  font-weight:300;
-  letter-spacing:0.03em;
-  margin-bottom:2.5rem;
-}
-
-.hero-stats-row{
-  display:flex;
-  justify-content:center;
-  gap:1.25rem;
-  flex-wrap:wrap;
-  margin-bottom:3rem;
-}
-
-.hstat{
-  text-align:center;
-  padding:1rem 1.5rem;
-  border-radius:16px;
-  background:rgba(255,255,255,0.025);
-  border:1px solid rgba(255,255,255,0.05);
-  backdrop-filter:blur(10px);
-  min-width:140px;
-  transition:all 0.35s ease;
-  cursor:default;
-}
-.hstat:hover{
-  background:rgba(234,179,8,0.07);
-  border-color:rgba(234,179,8,0.18);
-  transform:translateY(-4px);
-}
-.hstat-val{
-  font-size:1.6rem;
-  font-weight:800;
-  color:var(--amber-400);
-  display:block;
-  line-height:1.1;
-}
-.hstat-lbl{
-  font-size:0.68rem;
-  color:var(--stone-500);
-  text-transform:uppercase;
-  letter-spacing:0.1em;
-  margin-top:0.3rem;
-}
-
-.scroll-hint{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:0.4rem;
-  color:var(--stone-600);
-  font-size:0.68rem;
-  letter-spacing:0.15em;
-  text-transform:uppercase;
-  animation:scroll-bounce 3s ease-in-out infinite;
-}
-.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--stone-600),transparent);}
-@keyframes scroll-bounce{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(8px);}
-}
+.scroll-line { width: 1px; height: 36px; background: linear-gradient(to bottom, var(--stone-600), transparent); }
+@keyframes sbounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
 
 /* ===== NAV ===== */
-.nav{
-  position:sticky;top:0;z-index:200;
-  background:rgba(12,10,9,0.88);
-  backdrop-filter:blur(20px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,0.04);
-  overflow-x:auto;scrollbar-width:none;
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(12,10,9,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  overflow-x: auto; scrollbar-width: none;
 }
-.nav::-webkit-scrollbar{display:none;}
-.nav-inner{
-  display:flex;align-items:center;justify-content:center;
-  max-width:1400px;margin:0 auto;
-  min-width:max-content;
+.nav::-webkit-scrollbar { display: none; }
+.nav-inner {
+  display: flex; align-items: center; justify-content: center;
+  max-width: 1400px; margin: 0 auto; min-width: max-content;
 }
-.nav-link{
-  padding:0.9rem 1.1rem;
-  color:var(--stone-500);
-  text-decoration:none;
-  font-size:0.73rem;font-weight:500;
-  letter-spacing:0.06em;
-  white-space:nowrap;
-  transition:all 0.25s ease;
-  border-bottom:2px solid transparent;
+.nl {
+  padding: 0.9rem 1rem; color: var(--stone-500);
+  text-decoration: none; font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.06em; white-space: nowrap;
+  transition: all 0.25s ease;
+  border-bottom: 2px solid transparent;
 }
-.nav-link:hover{
-  color:var(--amber-400);
-  border-bottom-color:var(--amber-500);
-  background:rgba(234,179,8,0.04);
-}
+.nl:hover { color: var(--amber-400); border-bottom-color: var(--amber-500); background: rgba(234,179,8,0.04); }
 
 /* ===== LAYOUT ===== */
-.main{max-width:1400px;margin:0 auto;padding:0 1.5rem;}
+.main { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; }
+.section { padding: 5rem 0; }
 
-.section{padding:5rem 0;}
-
-.sec-header{margin-bottom:3.5rem;text-align:center;}
-
-.sec-eyebrow{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  font-size:0.68rem;font-weight:700;
-  letter-spacing:0.2em;text-transform:uppercase;
-  color:var(--amber-500);
-  margin-bottom:0.85rem;
+/* ===== SECTION HEADER ===== */
+.sh { margin-bottom: 3rem; text-align: center; }
+.se {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--amber-500); margin-bottom: 0.85rem;
 }
-.sec-eyebrow::before,.sec-eyebrow::after{
-  content:'';width:28px;height:1px;
-  background:linear-gradient(to right,transparent,var(--amber-700));
-}
-.sec-eyebrow::after{background:linear-gradient(to left,transparent,var(--amber-700));}
-
-.sec-title{
-  font-size:clamp(1.8rem,4vw,2.8rem);
-  font-weight:800;letter-spacing:-0.025em;line-height:1.2;
-  color:var(--stone-100);margin-bottom:0.75rem;
-}
-.sec-desc{
-  font-size:1rem;color:var(--stone-500);
-  max-width:640px;margin:0 auto;line-height:1.85;
-}
+.se::before,.se::after { content:''; width:28px; height:1px; background:linear-gradient(to right,transparent,var(--amber-700)); }
+.se::after { background:linear-gradient(to left,transparent,var(--amber-700)); }
+.st { font-size: clamp(1.8rem,4vw,2.6rem); font-weight: 800; letter-spacing: -0.025em; color: var(--stone-100); margin-bottom: 0.65rem; }
+.sd { font-size: 0.97rem; color: var(--stone-500); max-width: 620px; margin: 0 auto; line-height: 1.85; }
 
 /* ===== GRIDS ===== */
-.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:1.5rem;}
-.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:1.5rem;}
-.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;}
+.g2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem; }
+.g3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+.g4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.25rem; }
 
-/* ===== CARDS ===== */
-.card{
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:20px;padding:1.75rem;
-  transition:all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
-  position:relative;overflow:hidden;
+/* ===== CARD ===== */
+.card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.055);
+  border-radius: 20px; padding: 1.75rem;
+  transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+  position: relative; overflow: hidden;
 }
-.card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(234,179,8,0.25),transparent);
-  opacity:0;transition:opacity 0.4s ease;
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg,transparent,rgba(234,179,8,0.3),transparent);
+  opacity: 0; transition: opacity 0.4s;
 }
-.card:hover{
-  background:rgba(255,255,255,0.035);
-  border-color:rgba(234,179,8,0.1);
-  transform:translateY(-4px);
-  box-shadow:0 20px 60px rgba(0,0,0,0.25),0 0 30px rgba(234,179,8,0.02);
-}
-.card:hover::before{opacity:1;}
+.card:hover { background: rgba(255,255,255,0.035); border-color: rgba(234,179,8,0.12); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+.card:hover::before { opacity: 1; }
 
-.card-icon{font-size:2.25rem;margin-bottom:1rem;display:block;}
-.card-title{font-size:1.1rem;font-weight:700;color:var(--stone-100);margin-bottom:0.35rem;}
-.card-sub{font-size:0.72rem;color:var(--amber-500);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.85rem;}
-.card-text{font-size:0.88rem;color:var(--stone-400);line-height:1.8;}
+.ci { font-size: 2.25rem; margin-bottom: 1rem; display: block; }
+.ct { font-size: 1.1rem; font-weight: 700; color: var(--stone-100); margin-bottom: 0.3rem; }
+.cs { font-size: 0.72rem; color: var(--amber-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.85rem; }
+.cx { font-size: 0.88rem; color: var(--stone-400); line-height: 1.8; }
 
-.c-amber{border-left:3px solid var(--amber-600);}
-.c-orange{border-left:3px solid var(--orange-600);}
-.c-red{border-left:3px solid var(--red-500);}
-.c-emerald{border-left:3px solid var(--emerald-500);}
-.c-sky{border-left:3px solid var(--sky-500);}
-.c-violet{border-left:3px solid var(--violet-500);}
-.c-teal{border-left:3px solid var(--teal-500);}
-.c-rose{border-left:3px solid var(--rose-500);}
-.c-stone{border-left:3px solid var(--stone-600);}
+.c-am { border-left: 3px solid var(--amber-600); }
+.c-or { border-left: 3px solid var(--orange-600); }
+.c-rd { border-left: 3px solid var(--red-500); }
+.c-em { border-left: 3px solid var(--emerald-500); }
+.c-sk { border-left: 3px solid var(--sky-500); }
+.c-vi { border-left: 3px solid var(--violet-500); }
+.c-tl { border-left: 3px solid var(--teal-500); }
+.c-ro { border-left: 3px solid var(--rose-500); }
+.c-st { border-left: 3px solid var(--stone-600); }
 
 /* ===== DETAIL LIST ===== */
-.dlist{list-style:none;padding:0;}
-.dlist li{
-  padding:0.55rem 0;
-  border-bottom:1px solid rgba(255,255,255,0.03);
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:0.85rem;
+.dl { list-style: none; }
+.dl li {
+  padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.85rem;
 }
-.dlist li:last-child{border-bottom:none;}
-.dl{color:var(--stone-500);}
-.dv{color:var(--stone-200);font-weight:600;text-align:right;}
+.dl li:last-child { border-bottom: none; }
+.dll { color: var(--stone-500); }
+.dlv { color: var(--stone-200); font-weight: 600; text-align: right; }
 
 /* ===== TAGS ===== */
-.tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.85rem;}
-.tag{
-  display:inline-flex;align-items:center;gap:0.25rem;
-  padding:0.28rem 0.75rem;border-radius:100px;
-  font-size:0.72rem;font-weight:500;border:1px solid;
-}
-.t-amber{color:var(--amber-400);border-color:rgba(234,179,8,0.2);background:rgba(234,179,8,0.06);}
-.t-orange{color:var(--orange-400);border-color:rgba(249,115,22,0.2);background:rgba(249,115,22,0.06);}
-.t-red{color:var(--red-400);border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);}
-.t-emerald{color:var(--emerald-400);border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);}
-.t-sky{color:var(--sky-400);border-color:rgba(14,165,233,0.2);background:rgba(14,165,233,0.06);}
-.t-violet{color:var(--violet-400);border-color:rgba(139,92,246,0.2);background:rgba(139,92,246,0.06);}
-.t-teal{color:var(--teal-400);border-color:rgba(20,184,166,0.2);background:rgba(20,184,166,0.06);}
-.t-rose{color:var(--rose-400);border-color:rgba(244,63,94,0.2);background:rgba(244,63,94,0.06);}
+.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.85rem; }
+.tag { display: inline-flex; align-items: center; padding: 0.28rem 0.75rem; border-radius: 100px; font-size: 0.72rem; font-weight: 500; border: 1px solid; }
+.t-am { color: var(--amber-400); border-color: rgba(234,179,8,0.2); background: rgba(234,179,8,0.06); }
+.t-or { color: var(--orange-400); border-color: rgba(249,115,22,0.2); background: rgba(249,115,22,0.06); }
+.t-rd { color: var(--red-400); border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.06); }
+.t-em { color: var(--emerald-400); border-color: rgba(16,185,129,0.2); background: rgba(16,185,129,0.06); }
+.t-sk { color: var(--sky-400); border-color: rgba(14,165,233,0.2); background: rgba(14,165,233,0.06); }
+.t-vi { color: var(--violet-400); border-color: rgba(139,92,246,0.2); background: rgba(139,92,246,0.06); }
+.t-tl { color: var(--teal-400); border-color: rgba(20,184,166,0.2); background: rgba(20,184,166,0.06); }
+.t-ro { color: var(--rose-400); border-color: rgba(244,63,94,0.2); background: rgba(244,63,94,0.06); }
 
 /* ===== METRICS ===== */
-.metric{margin-bottom:1.1rem;}
-.metric-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;}
-.metric-lbl{font-size:0.82rem;color:var(--stone-300);font-weight:500;}
-.metric-val{font-size:0.82rem;color:var(--amber-400);font-weight:700;}
-.metric-bar{height:5px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden;}
-.mfill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--amber-600),var(--amber-400));}
-.mfill-or{background:linear-gradient(90deg,var(--orange-700),var(--orange-400));}
-.mfill-red{background:linear-gradient(90deg,var(--red-600),var(--red-400));}
-.mfill-em{background:linear-gradient(90deg,var(--emerald-600),var(--emerald-400));}
-.mfill-sky{background:linear-gradient(90deg,var(--sky-600),var(--sky-400));}
-.mfill-vi{background:linear-gradient(90deg,var(--violet-600),var(--violet-400));}
+.metric { margin-bottom: 1.1rem; }
+.mh { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem; }
+.ml { font-size: 0.82rem; color: var(--stone-300); font-weight: 500; }
+.mv { font-size: 0.82rem; color: var(--amber-400); font-weight: 700; }
+.mb { height: 5px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow: hidden; }
+.mf { height: 100%; border-radius: 100px; background: linear-gradient(90deg,var(--amber-600),var(--amber-400)); }
+.mf-or { background: linear-gradient(90deg,var(--orange-700),var(--orange-400)); }
+.mf-rd { background: linear-gradient(90deg,var(--red-600),var(--red-400)); }
+.mf-em { background: linear-gradient(90deg,var(--emerald-600),var(--emerald-400)); }
+.mf-sk { background: linear-gradient(90deg,var(--sky-600),var(--sky-400)); }
+.mf-vi { background: linear-gradient(90deg,var(--violet-600),var(--violet-400)); }
 
 /* ===== GLOW BOX ===== */
-.gbox{
-  padding:1.4rem 1.6rem;border-radius:14px;
-  background:linear-gradient(135deg,rgba(234,179,8,0.055),rgba(234,179,8,0.015));
-  border:1px solid rgba(234,179,8,0.1);
-  margin:1rem 0;
+.gbox {
+  padding: 1.2rem 1.4rem; border-radius: 12px;
+  background: linear-gradient(135deg,rgba(234,179,8,0.06),rgba(234,179,8,0.02));
+  border: 1px solid rgba(234,179,8,0.1); margin: 1rem 0;
 }
-.gbox p{font-size:0.88rem;color:var(--stone-300);line-height:1.8;}
+.gbox p { font-size: 0.87rem; color: var(--stone-300); line-height: 1.8; }
 
 /* ===== BANNER ===== */
-.banner{
-  background:linear-gradient(135deg,rgba(234,179,8,0.055) 0%,rgba(249,115,22,0.03) 50%,transparent 100%);
-  border:1px solid rgba(234,179,8,0.09);
-  border-radius:24px;padding:2.5rem;margin:2rem 0;
-  position:relative;overflow:hidden;
+.banner {
+  background: linear-gradient(135deg,rgba(234,179,8,0.055) 0%,rgba(249,115,22,0.03) 50%,transparent 100%);
+  border: 1px solid rgba(234,179,8,0.09);
+  border-radius: 22px; padding: 2.5rem; margin: 2rem 0;
+  position: relative; overflow: hidden;
 }
-.banner::after{
-  content:'';position:absolute;
-  top:-40%;right:-15%;
-  width:350px;height:350px;
-  background:radial-gradient(circle,rgba(234,179,8,0.04),transparent 70%);
-  pointer-events:none;
-}
-.banner-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;}
+.banner-g { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
 
 /* ===== TABLE ===== */
-.tbl{width:100%;border-collapse:separate;border-spacing:0;margin:1.25rem 0;}
-.tbl th{
-  padding:0.75rem 1rem;text-align:left;
-  font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
-  color:var(--amber-500);
-  background:rgba(234,179,8,0.06);
-  border-bottom:1px solid rgba(234,179,8,0.1);
+.tbl-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); }
+.tbl { width: 100%; border-collapse: separate; border-spacing: 0; }
+.tbl th {
+  padding: 0.75rem 1rem; text-align: left;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--amber-500); background: rgba(234,179,8,0.06);
+  border-bottom: 1px solid rgba(234,179,8,0.1);
 }
-.tbl th:first-child{border-radius:10px 0 0 0;}
-.tbl th:last-child{border-radius:0 10px 0 0;}
-.tbl td{
-  padding:0.65rem 1rem;font-size:0.82rem;
-  color:var(--stone-300);
-  border-bottom:1px solid rgba(255,255,255,0.03);
-  transition:background 0.2s;
+.tbl td {
+  padding: 0.65rem 1rem; font-size: 0.82rem; color: var(--stone-300);
+  border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s;
 }
-.tbl tr:hover td{background:rgba(255,255,255,0.02);}
-.tbl td:first-child{font-weight:600;color:var(--stone-200);}
+.tbl tr:hover td { background: rgba(255,255,255,0.02); }
+.tbl td:first-child { font-weight: 600; color: var(--stone-200); }
 
 /* ===== MAP ===== */
-.map-wrap{
-  border-radius:20px;overflow:hidden;
-  border:1px solid rgba(255,255,255,0.06);
-  margin:2rem 0;position:relative;
+.map-wrap { border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); margin: 2rem 0; position: relative; }
+#thar-map { height: 560px; width: 100%; }
+.map-leg {
+  position: absolute; bottom: 20px; left: 20px; z-index: 1000;
+  background: rgba(12,10,9,0.93); backdrop-filter: blur(15px);
+  border-radius: 12px; padding: 1rem 1.2rem;
+  border: 1px solid rgba(255,255,255,0.07);
 }
-#thar-map{height:560px;width:100%;background:var(--stone-900);}
-
-.map-legend{
-  position:absolute;bottom:20px;left:20px;z-index:1000;
-  background:rgba(12,10,9,0.93);backdrop-filter:blur(15px);
-  border-radius:12px;padding:1rem 1.2rem;
-  border:1px solid rgba(255,255,255,0.07);
-}
-.map-legend h4{
-  font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;
-  color:var(--amber-500);margin-bottom:0.5rem;
-}
-.leg-item{
-  display:flex;align-items:center;gap:0.5rem;
-  padding:0.18rem 0;font-size:0.72rem;color:var(--stone-400);
-}
-.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.map-leg h4 { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--amber-500); margin-bottom: 0.5rem; }
+.li { display: flex; align-items: center; gap: 0.5rem; padding: 0.18rem 0; font-size: 0.72rem; color: var(--stone-400); }
+.ld { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
 /* ===== WILDLIFE GRID ===== */
-.wildlife-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:1rem;
+.wg { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 1rem; }
+.wc {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.055);
+  border-radius: 14px; padding: 1.2rem;
+  text-align: center; transition: all 0.3s ease;
 }
-.wildlife-card{
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:14px;padding:1.2rem;
-  text-align:center;
-  transition:all 0.3s ease;
-  cursor:default;
-}
-.wildlife-card:hover{
-  transform:translateY(-3px);
-  border-color:rgba(234,179,8,0.14);
-  background:rgba(234,179,8,0.04);
-}
-.wc-icon{font-size:2.2rem;margin-bottom:0.5rem;}
-.wc-name{font-weight:700;font-size:0.88rem;color:var(--stone-200);margin-bottom:0.2rem;}
-.wc-detail{font-size:0.72rem;color:var(--stone-500);line-height:1.5;}
-.wc-status{
-  display:inline-block;margin-top:0.4rem;
-  padding:0.15rem 0.55rem;border-radius:100px;
-  font-size:0.62rem;font-weight:700;letter-spacing:0.06em;
-}
-.status-cr{background:rgba(239,68,68,0.15);color:var(--red-400);border:1px solid rgba(239,68,68,0.2);}
-.status-en{background:rgba(249,115,22,0.15);color:var(--orange-400);border:1px solid rgba(249,115,22,0.2);}
-.status-nt{background:rgba(234,179,8,0.15);color:var(--amber-400);border:1px solid rgba(234,179,8,0.2);}
-.status-lc{background:rgba(16,185,129,0.15);color:var(--emerald-400);border:1px solid rgba(16,185,129,0.2);}
+.wc:hover { transform: translateY(-3px); border-color: rgba(234,179,8,0.15); background: rgba(234,179,8,0.04); }
+.wi { font-size: 2.2rem; margin-bottom: 0.5rem; }
+.wn { font-weight: 700; font-size: 0.88rem; color: var(--stone-200); margin-bottom: 0.2rem; }
+.wd { font-size: 0.72rem; color: var(--stone-500); line-height: 1.5; }
+.ws { display: inline-block; margin-top: 0.4rem; padding: 0.15rem 0.55rem; border-radius: 100px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; }
+.cr { background: rgba(239,68,68,0.15); color: var(--red-400); border: 1px solid rgba(239,68,68,0.25); }
+.en { background: rgba(249,115,22,0.15); color: var(--orange-400); border: 1px solid rgba(249,115,22,0.25); }
+.nt { background: rgba(234,179,8,0.15); color: var(--amber-400); border: 1px solid rgba(234,179,8,0.25); }
+.lc { background: rgba(16,185,129,0.15); color: var(--emerald-400); border: 1px solid rgba(16,185,129,0.25); }
 
 /* ===== TEMPERATURE VIS ===== */
-.temp-vis{
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:20px;padding:2rem;margin:1.5rem 0;
-  overflow-x:auto;
-}
-.temp-bar-row{
-  display:flex;align-items:center;gap:1rem;
-  margin-bottom:0.9rem;
-}
-.temp-label{
-  min-width:80px;font-size:0.78rem;
-  color:var(--stone-400);font-weight:500;
-}
-.temp-bar-track{
-  flex:1;height:28px;
-  background:rgba(255,255,255,0.04);
-  border-radius:100px;overflow:hidden;position:relative;
-  min-width:200px;
-}
-.temp-bar-fill{
-  height:100%;border-radius:100px;
-  display:flex;align-items:center;justify-content:flex-end;
-  padding-right:0.75rem;
-  font-size:0.72rem;font-weight:700;color:white;
-}
-.temp-val-label{
-  min-width:55px;
-  font-size:0.8rem;color:var(--amber-400);font-weight:700;
-  text-align:right;
-}
-
-/* ===== DUNE VIS ===== */
-.dune-profile{
-  position:relative;height:200px;
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:20px;margin:1.5rem 0;
-  overflow:hidden;
-  display:flex;align-items:flex-end;
-  justify-content:space-around;padding:0 2rem 1rem;
-}
-.dune{
-  border-radius:50% 50% 0 0;
-  display:flex;align-items:flex-start;justify-content:center;
-  padding-top:0.5rem;
-  font-size:0.62rem;font-weight:700;color:rgba(255,255,255,0.7);
-  text-align:center;letter-spacing:0.05em;
-  transition:all 0.3s ease;cursor:default;
-  position:relative;
-}
-.dune:hover{filter:brightness(1.3);}
-.dune-lbl{
-  position:absolute;bottom:-1.4rem;
-  font-size:0.65rem;color:var(--stone-500);
-  white-space:nowrap;
-  left:50%;transform:translateX(-50%);
-}
+.tv { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.75rem; }
+.tr { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.9rem; }
+.trl { min-width: 90px; font-size: 0.78rem; color: var(--stone-400); font-weight: 500; }
+.trt { flex: 1; height: 26px; background: rgba(255,255,255,0.04); border-radius: 100px; overflow: hidden; min-width: 150px; }
+.trf { height: 100%; border-radius: 100px; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.65rem; font-size: 0.7rem; font-weight: 700; color: white; }
+.trv { min-width: 60px; font-size: 0.8rem; color: var(--amber-400); font-weight: 700; text-align: right; }
 
 /* ===== ENERGY CARDS ===== */
-.energy-dual{
-  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;
-  margin:1.5rem 0;
+.energy-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+.ec {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.055);
+  border-radius: 18px; padding: 2rem; text-align: center; transition: all 0.35s ease;
 }
-.energy-card{
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:18px;padding:2rem;
-  text-align:center;
-  transition:all 0.35s ease;
+.ec:hover { border-color: rgba(234,179,8,0.18); background: rgba(234,179,8,0.03); transform: translateY(-4px); }
+.ec-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+.ec-val {
+  font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg,var(--amber-400),var(--orange-500));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 0.25rem;
 }
-.energy-card:hover{
-  border-color:rgba(234,179,8,0.15);
-  background:rgba(234,179,8,0.03);
-  transform:translateY(-4px);
-}
-.energy-icon{font-size:3rem;margin-bottom:0.75rem;}
-.energy-val{
-  font-size:2.2rem;font-weight:900;
-  background:linear-gradient(135deg,var(--amber-400),var(--orange-500));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  margin-bottom:0.25rem;
-}
-.energy-label{font-size:0.85rem;font-weight:700;color:var(--stone-200);margin-bottom:0.25rem;}
-.energy-sub{font-size:0.72rem;color:var(--stone-500);}
+.ec-lbl { font-size: 0.88rem; font-weight: 700; color: var(--stone-200); margin-bottom: 0.25rem; }
+.ec-sub { font-size: 0.72rem; color: var(--stone-500); }
 
-/* ===== SALT LAKE VIS ===== */
-.lake-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:1rem;
+/* ===== LAKE GRID ===== */
+.lake-g { display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: 1rem; }
+.lake-c {
+  background: rgba(14,165,233,0.04); border: 1px solid rgba(14,165,233,0.1);
+  border-radius: 14px; padding: 1.2rem; transition: all 0.3s ease;
 }
-.lake-card{
-  background:rgba(14,165,233,0.04);
-  border:1px solid rgba(14,165,233,0.1);
-  border-radius:14px;padding:1.25rem;
-  transition:all 0.3s ease;
-}
-.lake-card:hover{
-  background:rgba(14,165,233,0.08);
-  border-color:rgba(14,165,233,0.2);
-  transform:translateY(-3px);
-}
-.lake-icon{font-size:2rem;margin-bottom:0.5rem;}
-.lake-name{font-weight:700;font-size:0.9rem;color:var(--sky-400);margin-bottom:0.4rem;}
-.lake-detail{font-size:0.78rem;color:var(--stone-500);line-height:1.6;}
+.lake-c:hover { background: rgba(14,165,233,0.08); border-color: rgba(14,165,233,0.2); transform: translateY(-3px); }
+.lake-i { font-size: 2rem; margin-bottom: 0.5rem; }
+.lake-n { font-weight: 700; font-size: 0.88rem; color: var(--sky-400); margin-bottom: 0.4rem; }
+.lake-d { font-size: 0.76rem; color: var(--stone-500); line-height: 1.6; }
 
-/* ===== COMPARISON TABLE ===== */
-.comp-wrap{overflow-x:auto;border-radius:16px;border:1px solid rgba(255,255,255,0.05);}
+/* ===== THREATS / CONSERVATION ===== */
+.item-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.thr-item {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.08);
+  border-radius: 12px; transition: all 0.3s ease;
+}
+.thr-item:hover { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.16); }
+.con-item {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(16,185,129,0.04); border: 1px solid rgba(16,185,129,0.08);
+  border-radius: 12px; transition: all 0.3s ease;
+}
+.con-item:hover { background: rgba(16,185,129,0.07); border-color: rgba(16,185,129,0.16); }
+.ii { font-size: 1.5rem; flex-shrink: 0; margin-top: 0.1rem; }
+.ic h5 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+.ic p { font-size: 0.82rem; color: var(--stone-400); line-height: 1.65; }
+.thr-item .ic h5 { color: var(--red-400); }
+.con-item .ic h5 { color: var(--emerald-400); }
 
-/* ===== UNIQUE BADGES ===== */
-.unique-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
-  gap:1.25rem;
+/* ===== UNIQUE ===== */
+.uniq-g { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 1.25rem; }
+.uniq {
+  background: linear-gradient(135deg,rgba(234,179,8,0.04),transparent);
+  border: 1px solid rgba(234,179,8,0.08);
+  border-radius: 16px; padding: 1.5rem;
+  position: relative; overflow: hidden; transition: all 0.3s ease;
 }
-.uniq{
-  background:linear-gradient(135deg,rgba(234,179,8,0.04),transparent);
-  border:1px solid rgba(234,179,8,0.08);
-  border-radius:16px;padding:1.5rem;
-  position:relative;overflow:hidden;
-  transition:all 0.3s ease;
-}
-.uniq:hover{border-color:rgba(234,179,8,0.18);transform:translateY(-2px);}
-.uniq-num{
-  position:absolute;top:0.6rem;right:0.9rem;
-  font-size:2.8rem;font-weight:900;
-  color:rgba(234,179,8,0.05);line-height:1;
-}
-.uniq h4{font-size:0.95rem;font-weight:700;color:var(--amber-400);margin-bottom:0.4rem;}
-.uniq p{font-size:0.82rem;color:var(--stone-400);line-height:1.7;}
+.uniq:hover { border-color: rgba(234,179,8,0.2); transform: translateY(-2px); }
+.uniq-n { position: absolute; top: 0.6rem; right: 0.9rem; font-size: 2.8rem; font-weight: 900; color: rgba(234,179,8,0.05); line-height: 1; }
+.uniq h4 { font-size: 0.95rem; font-weight: 700; color: var(--amber-400); margin-bottom: 0.4rem; }
+.uniq p { font-size: 0.82rem; color: var(--stone-400); line-height: 1.7; }
 
-/* ===== THREATS ===== */
-.threat-list{display:flex;flex-direction:column;gap:0.75rem;}
-.threat-item{
-  display:flex;align-items:flex-start;gap:1rem;
-  padding:1rem 1.25rem;
-  background:rgba(239,68,68,0.04);
-  border:1px solid rgba(239,68,68,0.08);
-  border-radius:12px;
-  transition:all 0.3s ease;
+/* ===== DUNE VIS ===== */
+.dune-row {
+  display: flex; align-items: flex-end; justify-content: space-around;
+  height: 220px; padding: 0 2rem 1.5rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20px; margin: 1.5rem 0;
+  position: relative; overflow: hidden;
 }
-.threat-item:hover{
-  background:rgba(239,68,68,0.07);
-  border-color:rgba(239,68,68,0.15);
+.dune {
+  border-radius: 50% 50% 0 0;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-start; padding-top: 0.6rem;
+  font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.75);
+  text-align: center; letter-spacing: 0.04em;
+  position: relative; cursor: default; transition: filter 0.3s;
 }
-.threat-icon{font-size:1.5rem;flex-shrink:0;margin-top:0.1rem;}
-.threat-content h5{font-size:0.9rem;font-weight:700;color:var(--red-400);margin-bottom:0.3rem;}
-.threat-content p{font-size:0.82rem;color:var(--stone-400);line-height:1.6;}
+.dune:hover { filter: brightness(1.35); }
+.dune-sub { position: absolute; bottom: -1.5rem; font-size: 0.62rem; color: var(--stone-500); white-space: nowrap; }
 
-/* ===== CONSERVATION ===== */
-.cons-list{display:flex;flex-direction:column;gap:0.75rem;}
-.cons-item{
-  display:flex;align-items:flex-start;gap:1rem;
-  padding:1rem 1.25rem;
-  background:rgba(16,185,129,0.04);
-  border:1px solid rgba(16,185,129,0.08);
-  border-radius:12px;
-  transition:all 0.3s ease;
+/* ===== SOIL CARDS ===== */
+.soil-c {
+  display: flex; gap: 1.25rem; align-items: flex-start;
+  padding: 1.4rem; background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.055);
+  border-radius: 16px; transition: all 0.3s ease;
 }
-.cons-item:hover{
-  background:rgba(16,185,129,0.07);
-  border-color:rgba(16,185,129,0.15);
-}
-.cons-icon{font-size:1.5rem;flex-shrink:0;}
-.cons-content h5{font-size:0.9rem;font-weight:700;color:var(--emerald-400);margin-bottom:0.3rem;}
-.cons-content p{font-size:0.82rem;color:var(--stone-400);line-height:1.6;}
-
-/* ===== HL HELPERS ===== */
-.hl{color:var(--amber-400);font-weight:600;}
-.hl-or{color:var(--orange-400);font-weight:600;}
-.hl-em{color:var(--emerald-400);font-weight:600;}
-.hl-sky{color:var(--sky-400);font-weight:600;}
-.hl-vi{color:var(--violet-400);font-weight:600;}
-.hl-red{color:var(--red-400);font-weight:600;}
-
-/* ===== DIVIDER ===== */
-.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(234,179,8,0.12),transparent);margin:2rem 0;}
+.soil-c:hover { background: rgba(255,255,255,0.04); }
+.soil-sw { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; }
+.soil-i h4 { font-size: 0.95rem; font-weight: 700; color: var(--stone-200); margin-bottom: 0.25rem; }
+.soil-i p { font-size: 0.8rem; color: var(--stone-500); line-height: 1.6; }
 
 /* ===== NEXT TOPICS ===== */
-.next-topics{
-  padding:4rem 0;
-  border-top:1px solid rgba(255,255,255,0.04);
+.next-sec { padding: 4rem 0; border-top: 1px solid rgba(255,255,255,0.04); }
+.next-sec h3 { text-align: center; font-size: 1.55rem; font-weight: 800; color: var(--stone-100); margin-bottom: 0.5rem; }
+.next-sec > p { text-align: center; font-size: 0.88rem; color: var(--stone-500); margin-bottom: 2.5rem; }
+.next-g { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 1.25rem; max-width: 960px; margin: 0 auto; }
+.nc {
+  display: flex; align-items: center; gap: 1.25rem;
+  padding: 1.4rem; background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px; text-decoration: none;
+  transition: all 0.35s ease; position: relative; overflow: hidden;
 }
-.next-header{text-align:center;margin-bottom:2.5rem;}
-.next-header h3{
-  font-size:1.6rem;font-weight:800;
-  color:var(--stone-100);margin-bottom:0.5rem;
+.nc::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg,rgba(234,179,8,0.06),transparent);
+  opacity: 0; transition: opacity 0.35s;
 }
-.next-header p{font-size:0.9rem;color:var(--stone-500);}
-.next-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:1.25rem;
-  max-width:1000px;margin:0 auto;
-}
-.next-card{
-  display:flex;align-items:center;gap:1.25rem;
-  padding:1.5rem;
-  background:rgba(255,255,255,0.025);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:18px;
-  text-decoration:none;
-  transition:all 0.35s ease;
-  position:relative;overflow:hidden;
-}
-.next-card::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(234,179,8,0.06),transparent);
-  opacity:0;transition:opacity 0.35s ease;
-}
-.next-card:hover{
-  border-color:rgba(234,179,8,0.18);
-  transform:translateY(-5px);
-  box-shadow:0 20px 50px rgba(0,0,0,0.3);
-}
-.next-card:hover::before{opacity:1;}
-.next-emoji{font-size:2.5rem;flex-shrink:0;}
-.next-info{flex:1;}
-.next-label{
-  font-size:0.62rem;font-weight:700;
-  text-transform:uppercase;letter-spacing:0.15em;
-  color:var(--amber-500);margin-bottom:0.25rem;
-}
-.next-title{font-size:1rem;font-weight:700;color:var(--stone-100);}
-.next-desc{font-size:0.75rem;color:var(--stone-500);margin-top:0.2rem;}
-.next-arrow{
-  font-size:1.2rem;color:var(--stone-600);
-  transition:all 0.3s ease;flex-shrink:0;
-}
-.next-card:hover .next-arrow{color:var(--amber-400);transform:translateX(4px);}
+.nc:hover { border-color: rgba(234,179,8,0.2); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+.nc:hover::before { opacity: 1; }
+.nc-emoji { font-size: 2.5rem; flex-shrink: 0; }
+.nc-info { flex: 1; }
+.nc-lbl { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--amber-500); margin-bottom: 0.2rem; }
+.nc-title { font-size: 0.95rem; font-weight: 700; color: var(--stone-100); }
+.nc-desc { font-size: 0.72rem; color: var(--stone-500); margin-top: 0.2rem; }
+.nc-arr { font-size: 1.1rem; color: var(--stone-600); transition: all 0.3s; flex-shrink: 0; }
+.nc:hover .nc-arr { color: var(--amber-400); transform: translateX(4px); }
 
 /* ===== FOOTER ===== */
-.footer{
-  text-align:center;padding:3.5rem 2rem;
-  border-top:1px solid rgba(255,255,255,0.04);
-}
-.footer-icon{font-size:2.5rem;margin-bottom:0.75rem;opacity:0.35;}
-.footer p{color:var(--stone-600);font-size:0.78rem;max-width:480px;margin:0 auto;line-height:1.8;}
+.footer { text-align: center; padding: 3.5rem 2rem; border-top: 1px solid rgba(255,255,255,0.04); }
+.footer-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.35; }
+.footer p { color: var(--stone-600); font-size: 0.78rem; max-width: 480px; margin: 0 auto; line-height: 1.8; }
 
-/* ===== FADE IN ===== */
-.fi{opacity:0;transform:translateY(28px);transition:opacity 0.8s ease,transform 0.8s ease;}
-.fi.vis{opacity:1;transform:translateY(0);}
+/* ===== HIGHLIGHT HELPERS ===== */
+.hl { color: var(--amber-400); font-weight: 600; }
+.hl-or { color: var(--orange-400); font-weight: 600; }
+.hl-em { color: var(--emerald-400); font-weight: 600; }
+.hl-sk { color: var(--sky-400); font-weight: 600; }
+.hl-vi { color: var(--violet-400); font-weight: 600; }
+.hl-rd { color: var(--red-400); font-weight: 600; }
+
+.divider { height: 1px; background: linear-gradient(90deg,transparent,rgba(234,179,8,0.12),transparent); margin: 2rem 0; }
 
 /* ===== LEAFLET CUSTOM ===== */
-.leaflet-popup-content-wrapper{
-  background:rgba(12,10,9,0.96)!important;
-  color:var(--stone-200)!important;
-  border-radius:12px!important;
-  border:1px solid rgba(234,179,8,0.2)!important;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5)!important;
+.leaflet-popup-content-wrapper {
+  background: rgba(12,10,9,0.96) !important; color: var(--stone-200) !important;
+  border-radius: 12px !important; border: 1px solid rgba(234,179,8,0.2) !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
 }
-.leaflet-popup-tip{background:rgba(12,10,9,0.96)!important;}
-.leaflet-popup-content{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif!important;
-  font-size:0.82rem!important;line-height:1.6!important;
-  margin:10px 14px!important;
-}
-.pu-title{font-weight:700;color:var(--amber-400);font-size:0.9rem;margin-bottom:0.2rem;}
-.pu-detail{color:var(--stone-400);font-size:0.74rem;}
-.leaflet-control-zoom a{
-  background:rgba(12,10,9,0.9)!important;
-  color:var(--stone-200)!important;
-  border-color:rgba(255,255,255,0.1)!important;
-}
-.leaflet-control-attribution{
-  background:rgba(12,10,9,0.7)!important;
-  color:var(--stone-600)!important;font-size:0.58rem!important;
-}
-.leaflet-control-attribution a{color:var(--stone-500)!important;}
+.leaflet-popup-tip { background: rgba(12,10,9,0.96) !important; }
+.leaflet-popup-content { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif !important; font-size: 0.82rem !important; line-height: 1.65 !important; margin: 10px 14px !important; }
+.pu-t { font-weight: 700; color: var(--amber-400); font-size: 0.9rem; margin-bottom: 0.25rem; }
+.pu-d { color: var(--stone-400); font-size: 0.74rem; }
+.leaflet-control-zoom a { background: rgba(12,10,9,0.9) !important; color: var(--stone-200) !important; border-color: rgba(255,255,255,0.1) !important; }
+.leaflet-control-attribution { background: rgba(12,10,9,0.7) !important; color: var(--stone-600) !important; font-size: 0.58rem !important; }
+.leaflet-control-attribution a { color: var(--stone-500) !important; }
 
 /* ===== RESPONSIVE ===== */
-@media(max-width:768px){
-  .g2,.g3,.g4{grid-template-columns:1fr;}
-  .banner-grid{grid-template-columns:1fr;}
-  .energy-dual{grid-template-columns:1fr;}
-  .section{padding:3rem 0;}
-  .card{padding:1.4rem;}
-  .banner{padding:1.75rem;}
-  .hstat{min-width:120px;}
-  .next-grid{grid-template-columns:1fr;}
+@media(max-width:768px) {
+  .g2,.g3,.g4 { grid-template-columns: 1fr; }
+  .banner-g { grid-template-columns: 1fr; }
+  .energy-row { grid-template-columns: 1fr; }
+  .section { padding: 3rem 0; }
+  .card { padding: 1.4rem; }
 }
-@media(max-width:480px){
-  .hero-content{padding:1rem;}
-  .main{padding:0 1rem;}
-  .nav-link{padding:0.8rem 0.8rem;font-size:0.68rem;}
-  .back-btn{top:0.75rem;left:0.75rem;font-size:0.72rem;padding:0.5rem 0.9rem;}
+@media(max-width:480px) {
+  .main { padding: 0 1rem; }
+  .nl { padding: 0.8rem 0.8rem; font-size: 0.68rem; }
+  .back-btn { top: 0.75rem; left: 0.75rem; }
 }
 </style>
 </head>
@@ -820,713 +532,1084 @@ body{
   Bharat
 </a>
 
-<!-- ==================== HERO ==================== -->
+<!-- ===== HERO ===== -->
 <header class="hero">
-  <div class="hero-sand-particles" id="particles"></div>
-  <div class="hero-bg-dunes"></div>
-  <div class="hero-glow hero-glow-1"></div>
-  <div class="hero-glow hero-glow-2"></div>
-  <div class="hero-glow hero-glow-3"></div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-glow hg1"></div>
+  <div class="hero-glow hg2"></div>
   <div class="hero-content">
-    <div class="hero-badge">
-      <span class="badge-pulse"></span>
-      Indian Physical Geography
-    </div>
+    <div class="hero-badge"><span class="badge-dot"></span> Indian Physical Geography</div>
     <span class="hero-emoji">🏜️</span>
-    <div class="hero-devanagari">थार रेगिस्तान</div>
+    <div class="hero-deva">थार रेगिस्तान</div>
     <h1>The Great Indian Desert</h1>
-    <p class="hero-tagline">Thar — Where Sand Dunes Touch the Sky & Life Defies the Odds</p>
-    <div class="hero-stats-row">
-      <div class="hstat">
-        <span class="hstat-val">2L km²</span>
-        <span class="hstat-lbl">Area in India</span>
-      </div>
-      <div class="hstat">
-        <span class="hstat-val">51°C</span>
-        <span class="hstat-lbl">India's Record High</span>
-      </div>
-      <div class="hstat">
-        <span class="hstat-lbl" style="font-size:0.9rem;margin-top:0;margin-bottom:0.2rem;">< 25 cm</span>
-        <span class="hstat-lbl">Annual Rainfall</span>
-      </div>
-      <div class="hstat">
-        <span class="hstat-val">10K yrs</span>
-        <span class="hstat-lbl">Desert Age</span>
-      </div>
-      <div class="hstat">
-        <span class="hstat-val">4,46,000</span>
-        <span class="hstat-lbl">Total km² (+ Pak)</span>
-      </div>
+    <p class="hero-tag">Thar — Where Sand Dunes Touch the Sky & Life Defies the Odds</p>
+    <div class="hero-stats">
+      <div class="hs"><span class="hs-v">2 L km²</span><span class="hs-l">Area in India</span></div>
+      <div class="hs"><span class="hs-v">51°C</span><span class="hs-l">India's Record High</span></div>
+      <div class="hs"><span class="hs-v">&lt; 25 cm</span><span class="hs-l">Annual Rainfall</span></div>
+      <div class="hs"><span class="hs-v">10,000 yrs</span><span class="hs-l">Desert Age</span></div>
+      <div class="hs"><span class="hs-v">4,46,000</span><span class="hs-l">Total km² incl. Pak</span></div>
     </div>
-    <div class="scroll-hint">
-      <span>Explore below</span>
-      <div class="scroll-line"></div>
-    </div>
+    <div class="scroll-hint"><span>Explore below</span><div class="scroll-line"></div></div>
   </div>
 </header>
 
-<!-- ==================== NAV ==================== -->
+<!-- ===== NAV ===== -->
 <nav class="nav">
   <div class="nav-inner">
-    <a href="#overview" class="nav-link">Overview</a>
-    <a href="#climate" class="nav-link">Climate</a>
-    <a href="#map" class="nav-link">Map</a>
-    <a href="#topography" class="nav-link">Topography</a>
-    <a href="#drainage" class="nav-link">Drainage</a>
-    <a href="#vegetation" class="nav-link">Vegetation</a>
-    <a href="#wildlife" class="nav-link">Wildlife</a>
-    <a href="#protected" class="nav-link">Protected Areas</a>
-    <a href="#human" class="nav-link">Human Life</a>
-    <a href="#energy" class="nav-link">Energy</a>
-    <a href="#threats" class="nav-link">Threats</a>
-    <a href="#comparison" class="nav-link">Comparison</a>
-    <a href="#unique" class="nav-link">Key Facts</a>
+    <a href="#overview" class="nl">Overview</a>
+    <a href="#climate" class="nl">Climate</a>
+    <a href="#map" class="nl">Map</a>
+    <a href="#topography" class="nl">Topography</a>
+    <a href="#drainage" class="nl">Drainage</a>
+    <a href="#vegetation" class="nl">Vegetation</a>
+    <a href="#wildlife" class="nl">Wildlife</a>
+    <a href="#protected" class="nl">Protected Areas</a>
+    <a href="#human" class="nl">Human Life</a>
+    <a href="#energy" class="nl">Energy</a>
+    <a href="#threats" class="nl">Threats</a>
+    <a href="#comparison" class="nl">Comparison</a>
+    <a href="#unique" class="nl">Key Facts</a>
   </div>
 </nav>
 
-<!-- ==================== MAIN ==================== -->
+<!-- ===== MAIN ===== -->
 <main class="main">
 
-  <!-- ========== OVERVIEW ========== -->
-  <section class="section fi" id="overview">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Overview</div>
-      <h2 class="sec-title">The Living Desert</h2>
-      <p class="sec-desc">Contrary to popular imagination, the Thar is one of the world's most densely populated deserts — a vibrant mosaic of sand, salt, fort, and song.</p>
-    </div>
+<!-- ========== OVERVIEW ========== -->
+<section class="section" id="overview">
+  <div class="sh">
+    <div class="se">Overview</div>
+    <h2 class="st">The Living Desert</h2>
+    <p class="sd">Contrary to popular imagination, the Thar is one of the world's most densely populated deserts — a vibrant mosaic of sand, salt, fort, and song.</p>
+  </div>
 
-    <div class="banner">
-      <div class="banner-grid">
-        <div>
-          <h3 style="font-size:1.4rem;font-weight:800;color:var(--stone-100);margin-bottom:1rem;">India's Only Major Desert</h3>
-          <p style="font-size:0.93rem;color:var(--stone-400);line-height:1.9;margin-bottom:1.25rem;">
-            Stretching across the <span class="hl">northwest corner of India</span> and into Pakistan, the Thar Desert occupies parts of 
-            <span class="hl">Rajasthan (61%), Gujarat, Punjab, and Haryana</span>. Located between coordinates 
-            <span class="hl-or">25°–30°N, 69°–75°E</span>, it is classified as a 
-            <span class="hl">sub-tropical hot desert (BWh)</span> on the Köppen scale — yet paradoxically receives 
-            some monsoon rainfall, making it one of the greenest and most populated deserts on Earth.
-          </p>
-          <p style="font-size:0.93rem;color:var(--stone-400);line-height:1.9;">
-            Its boundaries are defined by the <span class="hl">Sutlej River</span> to the north, 
-            <span class="hl">Rann of Kachchh</span> to the south, the 
-            <span class="hl">Aravalli Range</span> to the east, and the 
-            <span class="hl">Indus River</span> to the west (in Pakistan).
-          </p>
-        </div>
-        <div>
-          <ul class="dlist">
-            <li><span class="dl">Area (India)</span><span class="dv">2,00,000 km²</span></li>
-            <li><span class="dl">Total Area (incl. Pakistan)</span><span class="dv">4,46,000 km²</span></li>
-            <li><span class="dl">States Covered</span><span class="dv">RJ, GJ, PB, HR</span></li>
-            <li><span class="dl">Rajasthan Districts</span><span class="dv">12</span></li>
-            <li><span class="dl">Northern Boundary</span><span class="dv">Sutlej River</span></li>
-            <li><span class="dl">Southern Boundary</span><span class="dv">Rann of Kachchh</span></li>
-            <li><span class="dl">Eastern Boundary</span><span class="dv">Aravalli Range</span></li>
-            <li><span class="dl">Western Boundary</span><span class="dv">Indus River (Pakistan)</span></li>
-            <li><span class="dl">Desert Type</span><span class="dv">Sub-tropical Hot Desert</span></li>
-            <li><span class="dl">Köppen Classification</span><span class="dv">BWh</span></li>
-            <li><span class="dl">Population Density</span><span class="dv">83 persons/km²</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="g3">
-      <div class="card c-amber">
-        <span class="card-icon">📍</span>
-        <h3 class="card-title">Formation & Age</h3>
-        <div class="card-sub">4,000–10,000 years old</div>
-        <p class="card-text">The Thar is remarkably young among world deserts. Its formation is linked to the <span class="hl">desiccation of the Ghaggar-Hakra River</span> (ancient Saraswati), post-Ice Age climate shifts, and millennia of overgrazing and deforestation. It's still expanding eastward at <span class="hl">1–2 km/year</span> — a process called desertification.</p>
-        <div class="tags">
-          <span class="tag t-amber">Youngest Desert</span>
-          <span class="tag t-orange">Sub-tropical</span>
-          <span class="tag t-red">Expanding</span>
-        </div>
-      </div>
-      <div class="card c-orange">
-        <span class="card-icon">🌍</span>
-        <h3 class="card-title">Global Rank</h3>
-        <div class="card-sub">World Records</div>
-        <ul class="dlist" style="margin-top:0.5rem;">
-          <li><span class="dl">World's 9th largest desert</span><span class="dv">✓</span></li>
-          <li><span class="dl">Most densely populated desert</span><span class="dv">🏆</span></li>
-          <li><span class="dl">Youngest major desert</span><span class="dv">~10,000 yrs</span></li>
-          <li><span class="dl">India's hottest recorded</span><span class="dv">51°C (Phalodi)</span></li>
-          <li><span class="dl">World's largest solar park</span><span class="dv">Bhadla 2,245 MW</span></li>
-        </ul>
-      </div>
-      <div class="card c-sky">
-        <span class="card-icon">🏙️</span>
-        <h3 class="card-title">Major Cities</h3>
-        <div class="card-sub">Urban Desert Life</div>
-        <ul class="dlist">
-          <li><span class="dl">Jodhpur ("Sun City")</span><span class="dv">10.3 L pop.</span></li>
-          <li><span class="dl">Bikaner (Junagarh Fort)</span><span class="dv">Camel capital</span></li>
-          <li><span class="dl">Jaisalmer ("Golden City")</span><span class="dv">Living fort</span></li>
-          <li><span class="dl">Barmer</span><span class="dv">Oil & gas hub</span></li>
-          <li><span class="dl">Phalodi</span><span class="dv">India's hottest city</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== CLIMATE ========== -->
-  <section class="section fi" id="climate">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Climate</div>
-      <h2 class="sec-title">Extreme Temperature Regime</h2>
-      <p class="sec-desc">The Thar experiences one of the widest temperature ranges on Earth — from scorching 51°C summers to near-freezing winters, often within the same day.</p>
-    </div>
-
-    <div class="g2">
+  <div class="banner">
+    <div class="banner-g">
       <div>
-        <div class="card c-red" style="margin-bottom:1.5rem;">
-          <span class="card-icon">🌡️</span>
-          <h3 class="card-title">Temperature Extremes</h3>
-          <div class="temp-vis">
-            <div class="temp-bar-row">
-              <span class="temp-label">Peak Summer</span>
-              <div class="temp-bar-track">
-                <div class="temp-bar-fill" style="width:100%;background:linear-gradient(90deg,#dc2626,#ef4444);">51°C</div>
-              </div>
-              <span class="temp-val-label">51°C 🔥</span>
-            </div>
-            <div class="temp-bar-row">
-              <span class="temp-label">Avg. Summer</span>
-              <div class="temp-bar-track">
-                <div class="temp-bar-fill" style="width:88%;background:linear-gradient(90deg,#ea580c,#f97316);">45–50°C</div>
-              </div>
-              <span class="temp-val-label">47°C</span>
-            </div>
-            <div class="temp-bar-row">
-              <span class="temp-label">Avg. Annual</span>
-              <div class="temp-bar-track">
-                <div class="temp-bar-fill" style="width:60%;background:linear-gradient(90deg,#d97706,#f59e0b);">~28–32°C</div>
-              </div>
-              <span class="temp-val-label">30°C</span>
-            </div>
-            <div class="temp-bar-row">
-              <span class="temp-label">Avg. Winter</span>
-              <div class="temp-bar-track">
-                <div class="temp-bar-fill" style="width:25%;background:linear-gradient(90deg,#0284c7,#38bdf8);">0–10°C</div>
-              </div>
-              <span class="temp-val-label">5°C</span>
-            </div>
-            <div class="temp-bar-row">
-              <span class="temp-label">Min. Recorded</span>
-              <div class="temp-bar-track">
-                <div class="temp-bar-fill" style="width:10%;background:linear-gradient(90deg,#0369a1,#0ea5e9);">-2°C</div>
-              </div>
-              <span class="temp-val-label">−2°C ❄️</span>
-            </div>
-          </div>
-          <div class="gbox">
-            <p>🏆 <strong>India's Hottest Ever:</strong> Phalodi, Rajasthan recorded <strong>51°C on May 19, 2016</strong> — the highest temperature ever recorded in India, surpassing the previous record of 50.6°C set in 1956.</p>
-          </div>
-        </div>
+        <h3 style="font-size:1.4rem;font-weight:800;color:var(--stone-100);margin-bottom:1rem;">India's Only Major Desert</h3>
+        <p style="font-size:0.93rem;color:var(--stone-400);line-height:1.9;margin-bottom:1.2rem;">
+          Stretching across the <span class="hl">northwest corner of India</span> and into Pakistan, the Thar Desert occupies parts of
+          <span class="hl">Rajasthan (61%), Gujarat, Punjab, and Haryana</span>. Located between coordinates
+          <span class="hl-or">25°–30°N, 69°–75°E</span>, it is classified as a
+          <span class="hl">sub-tropical hot desert (BWh)</span> on the Köppen scale — yet paradoxically receives
+          some monsoon rainfall, making it one of the greenest and most populated deserts on Earth.
+        </p>
+        <p style="font-size:0.93rem;color:var(--stone-400);line-height:1.9;">
+          Its boundaries are defined by the <span class="hl">Sutlej River</span> to the north,
+          <span class="hl">Rann of Kachchh</span> to the south, the
+          <span class="hl">Aravalli Range</span> to the east, and the
+          <span class="hl">Indus River</span> to the west (in Pakistan).
+        </p>
       </div>
       <div>
-        <div class="card c-amber" style="margin-bottom:1.5rem;">
-          <span class="card-icon">💧</span>
-          <h3 class="card-title">Rainfall Pattern</h3>
-          <div class="card-sub">< 25 cm annually</div>
-          <ul class="dlist">
-            <li><span class="dl">Average Annual</span><span class="dv">150–200 mm</span></li>
-            <li><span class="dl">Driest (Jaisalmer)</span><span class="dv">~209 mm</span></li>
-            <li><span class="dl">Eastern Thar</span><span class="dv">up to 500 mm</span></li>
-            <li><span class="dl">Monsoon Season</span><span class="dv">July–September</span></li>
-            <li><span class="dl">SW Monsoon reach</span><span class="dv">Weak penetration</span></li>
-            <li><span class="dl">Winter rainfall (NE winds)</span><span class="dv">Negligible</span></li>
-          </ul>
-          <div class="gbox">
-            <p>💡 Despite being a desert, parts of the Thar receive <strong>monsoon rains</strong> from the Bay of Bengal branch — which is why it supports more vegetation and people than most world deserts.</p>
-          </div>
-        </div>
-
-        <div class="card c-violet">
-          <span class="card-icon">🌬️</span>
-          <h3 class="card-title">Winds & Dust Storms</h3>
-          <ul class="dlist">
-            <li><span class="dl">Summer Winds</span><span class="dv">SW, hot & dry</span></li>
-            <li><span class="dl">Winter Winds</span><span class="dv">NE, cold & dry</span></li>
-            <li><span class="dl">Dust storms</span><span class="dv">Pre-monsoon (May–Jun)</span></li>
-            <li><span class="dl">Local name</span><span class="dv">"Andhi"</span></li>
-            <li><span class="dl">Diurnal temp range</span><span class="dv">20–30°C</span></li>
-          </ul>
-          <div class="tags" style="margin-top:0.75rem;">
-            <span class="tag t-violet">Dust storms</span>
-            <span class="tag t-violet">Loo winds</span>
-            <span class="tag t-violet">Andhi</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== MAP ========== -->
-  <section class="section fi" id="map">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Interactive Map</div>
-      <h2 class="sec-title">Geographic Locations</h2>
-      <p class="sec-desc">Explore key locations of the Thar Desert — sand dunes, salt lakes, protected areas, cities, and major landmarks.</p>
-    </div>
-    <div class="map-wrap">
-      <div id="thar-map"></div>
-      <div class="map-legend">
-        <h4>Legend</h4>
-        <div class="leg-item"><div class="leg-dot" style="background:#f59e0b;"></div> Sand Dune Fields</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#0ea5e9;"></div> Salt Lakes / Rann</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#10b981;"></div> Protected Areas</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#ef4444;"></div> Major Cities</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#8b5cf6;"></div> Irrigation / Energy</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== TOPOGRAPHY ========== -->
-  <section class="section fi" id="topography">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Landforms</div>
-      <h2 class="sec-title">Topography & Sand Dunes</h2>
-      <p class="sec-desc">The Thar is not just sand — 50% is sand dunes, 30% rocky terrain, with salt lakes and playas completing the dramatic desert landscape.</p>
-    </div>
-
-    <!-- Dune Profile -->
-    <div class="dune-profile">
-      <div class="dune" style="width:90px;height:140px;background:linear-gradient(180deg,#b45309,#78350f);">
-        STAR DUNE
-        <span class="dune-lbl">Star / Multi-arm</span>
-      </div>
-      <div class="dune" style="width:110px;height:152px;background:linear-gradient(180deg,#d97706,#92400e);">
-        LONGITUDINAL
-        <span class="dune-lbl">Seif Dune</span>
-      </div>
-      <div class="dune" style="width:130px;height:120px;background:linear-gradient(180deg,#f59e0b,#b45309);">
-        TRANSVERSE
-        <span class="dune-lbl">Barchan</span>
-      </div>
-      <div class="dune" style="width:100px;height:95px;background:linear-gradient(180deg,#fbbf24,#d97706);">
-        PARABOLIC
-        <span class="dune-lbl">U-shaped</span>
-      </div>
-    </div>
-    <p style="text-align:center;font-size:0.72rem;color:var(--stone-600);margin-top:1.5rem;margin-bottom:2rem;">
-      Sand dune heights up to <span class="hl">152 m</span> · Sam Sand Dunes (Jaisalmer) · Khuri · Osian
-    </p>
-
-    <div class="g3">
-      <div class="card c-amber">
-        <span class="card-icon">🏜️</span>
-        <h3 class="card-title">Sand Dunes (50% area)</h3>
-        <div class="card-sub">4 Primary Types</div>
-        <ul class="dlist">
-          <li><span class="dl">Longitudinal (Seif)</span><span class="dv">Parallel to wind</span></li>
-          <li><span class="dl">Transverse (Barchan)</span><span class="dv">Crescent-shaped</span></li>
-          <li><span class="dl">Parabolic</span><span class="dv">U-shaped, stable</span></li>
-          <li><span class="dl">Star Dunes</span><span class="dv">Multi-directional wind</span></li>
-          <li><span class="dl">Max height</span><span class="dv">152 m</span></li>
-        </ul>
-        <div class="tags">
-          <span class="tag t-amber">Sam (Jaisalmer)</span>
-          <span class="tag t-amber">Khuri</span>
-          <span class="tag t-amber">Osian</span>
-        </div>
-      </div>
-      <div class="card c-stone">
-        <span class="card-icon">🪨</span>
-        <h3 class="card-title">Rocky Terrain (30% area)</h3>
-        <div class="card-sub">Reg & Hamada</div>
-        <p class="card-text">Large sections of the Thar consist of <span class="hl">rocky outcrops (reg)</span>, gravel plains, and exposed limestone/sandstone formations. The Aravallis in the east provide a transition zone between desert and semi-arid scrub forest.</p>
-        <ul class="dlist" style="margin-top:0.75rem;">
-          <li><span class="dl">Average elevation</span><span class="dv">100–150 m</span></li>
-          <li><span class="dl">Terrain type</span><span class="dv">Reg, Hamada, Erg</span></li>
+        <ul class="dl">
+          <li><span class="dll">Area (India only)</span><span class="dlv">2,00,000 km²</span></li>
+          <li><span class="dll">Total Area (incl. Pakistan)</span><span class="dlv">4,46,000 km²</span></li>
+          <li><span class="dll">Primary State</span><span class="dlv">Rajasthan (61%)</span></li>
+          <li><span class="dll">Other States</span><span class="dlv">Gujarat, Punjab, Haryana</span></li>
+          <li><span class="dll">Northern Boundary</span><span class="dlv">Sutlej River</span></li>
+          <li><span class="dll">Southern Boundary</span><span class="dlv">Rann of Kachchh</span></li>
+          <li><span class="dll">Eastern Boundary</span><span class="dlv">Aravalli Range</span></li>
+          <li><span class="dll">Western Boundary</span><span class="dlv">Indus River (Pak)</span></li>
+          <li><span class="dll">Desert Type</span><span class="dlv">Sub-tropical Hot</span></li>
+          <li><span class="dll">Köppen Classification</span><span class="dlv">BWh</span></li>
+          <li><span class="dll">Population Density</span><span class="dlv">83 persons/km²</span></li>
+          <li><span class="dll">Rajasthan Districts</span><span class="dlv">12 districts</span></li>
         </ul>
       </div>
-      <div class="card c-sky">
-        <span class="card-icon">🏔️</span>
-        <h3 class="card-title">Salt Lakes (Playas)</h3>
-        <div class="card-sub">Seasonal Wetlands</div>
-        <p class="card-text">Dry lakebeds that fill seasonally with briny water. These <span class="hl-sky">playas</span> or ranns are vital ecosystems — Sambhar is India's largest inland salt lake; the Rann of Kachchh is a vast seasonal salt marsh.</p>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card c-am">
+      <span class="ci">📍</span>
+      <h3 class="ct">Formation & Age</h3>
+      <div class="cs">4,000–10,000 years old</div>
+      <p class="cx">The Thar is remarkably young among world deserts. Its formation is linked to the <span class="hl">desiccation of the Ghaggar-Hakra River</span> (ancient Saraswati), post-Ice Age climate shifts, and millennia of overgrazing and deforestation. It is still expanding eastward at <span class="hl">1–2 km/year</span>.</p>
+      <div class="tags">
+        <span class="tag t-am">Youngest Desert</span>
+        <span class="tag t-or">Sub-tropical</span>
+        <span class="tag t-rd">Still Expanding</span>
+      </div>
+    </div>
+    <div class="card c-or">
+      <span class="ci">🌍</span>
+      <h3 class="ct">Global Records</h3>
+      <div class="cs">World-Class Superlatives</div>
+      <ul class="dl">
+        <li><span class="dll">World's 9th largest desert</span><span class="dlv">✓</span></li>
+        <li><span class="dll">Most densely populated desert</span><span class="dlv">🏆 World</span></li>
+        <li><span class="dll">Youngest major desert</span><span class="dlv">~10,000 yrs</span></li>
+        <li><span class="dll">India's hottest recorded temp</span><span class="dlv">51°C Phalodi</span></li>
+        <li><span class="dll">World's largest solar park</span><span class="dlv">Bhadla 2,245 MW</span></li>
+      </ul>
+    </div>
+    <div class="card c-sk">
+      <span class="ci">🏙️</span>
+      <h3 class="ct">Major Cities</h3>
+      <div class="cs">Urban Desert Life</div>
+      <ul class="dl">
+        <li><span class="dll">Jodhpur — "Sun City"</span><span class="dlv">10.3 lakh</span></li>
+        <li><span class="dll">Bikaner</span><span class="dlv">Camel capital</span></li>
+        <li><span class="dll">Jaisalmer — "Golden City"</span><span class="dlv">Living fort</span></li>
+        <li><span class="dll">Barmer</span><span class="dlv">Oil & gas hub</span></li>
+        <li><span class="dll">Phalodi</span><span class="dlv">India's hottest city</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CLIMATE ========== -->
+<section class="section" id="climate">
+  <div class="sh">
+    <div class="se">Climate</div>
+    <h2 class="st">Extreme Temperature Regime</h2>
+    <p class="sd">The Thar experiences one of the widest temperature ranges on Earth — scorching 51°C summers to near-freezing winters, often within the same day.</p>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="card c-rd" style="margin-bottom:1.5rem;">
+        <span class="ci">🌡️</span>
+        <h3 class="ct">Temperature Extremes</h3>
+        <div class="tv" style="margin-top:1rem;">
+          <div class="tr">
+            <span class="trl">Peak Summer</span>
+            <div class="trt"><div class="trf" style="width:100%;background:linear-gradient(90deg,#dc2626,#ef4444);">51°C record</div></div>
+            <span class="trv">51°C 🔥</span>
+          </div>
+          <div class="tr">
+            <span class="trl">Avg. Summer</span>
+            <div class="trt"><div class="trf" style="width:88%;background:linear-gradient(90deg,#ea580c,#f97316);">45–50°C</div></div>
+            <span class="trv">47°C</span>
+          </div>
+          <div class="tr">
+            <span class="trl">Avg. Annual</span>
+            <div class="trt"><div class="trf" style="width:60%;background:linear-gradient(90deg,#d97706,#f59e0b);">28–32°C</div></div>
+            <span class="trv">30°C</span>
+          </div>
+          <div class="tr">
+            <span class="trl">Avg. Winter</span>
+            <div class="trt"><div class="trf" style="width:25%;background:linear-gradient(90deg,#0284c7,#38bdf8);">0–10°C</div></div>
+            <span class="trv">5°C</span>
+          </div>
+          <div class="tr">
+            <span class="trl">Min. Recorded</span>
+            <div class="trt"><div class="trf" style="width:10%;background:linear-gradient(90deg,#0369a1,#0ea5e9);">−2°C</div></div>
+            <span class="trv">−2°C ❄️</span>
+          </div>
+        </div>
+        <div class="gbox" style="margin-top:1rem;">
+          <p>🏆 <strong>India's Hottest Ever:</strong> Phalodi, Rajasthan recorded <strong>51°C on May 19, 2016</strong> — the highest temperature ever recorded in India. Diurnal temperature range can be <strong>20–30°C</strong> in a single day.</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card c-am" style="margin-bottom:1.5rem;">
+        <span class="ci">💧</span>
+        <h3 class="ct">Rainfall Pattern</h3>
+        <div class="cs">Less than 25 cm annually</div>
+        <ul class="dl">
+          <li><span class="dll">Average Annual</span><span class="dlv">150–200 mm</span></li>
+          <li><span class="dll">Driest (Jaisalmer)</span><span class="dlv">~209 mm</span></li>
+          <li><span class="dll">Eastern Thar</span><span class="dlv">up to 500 mm</span></li>
+          <li><span class="dll">Monsoon Season</span><span class="dlv">July–September</span></li>
+          <li><span class="dll">SW Monsoon reach</span><span class="dlv">Weak penetration</span></li>
+          <li><span class="dll">Winter rainfall</span><span class="dlv">Negligible</span></li>
+        </ul>
+        <div class="gbox">
+          <p>💡 Despite being a desert, parts of the Thar receive <strong>monsoon rains</strong> — which is why it supports more vegetation and people than most world deserts. This is what makes the Thar biologically unique.</p>
+        </div>
+      </div>
+      <div class="card c-vi">
+        <span class="ci">🌬️</span>
+        <h3 class="ct">Winds & Dust Storms</h3>
+        <ul class="dl">
+          <li><span class="dll">Summer Winds</span><span class="dlv">SW, hot & dry</span></li>
+          <li><span class="dll">Winter Winds</span><span class="dlv">NE, cold & dry</span></li>
+          <li><span class="dll">Dust storms</span><span class="dlv">Pre-monsoon May–Jun</span></li>
+          <li><span class="dll">Local name</span><span class="dlv">"Andhi"</span></li>
+          <li><span class="dll">Diurnal temp range</span><span class="dlv">20–30°C</span></li>
+          <li><span class="dll">Loo winds</span><span class="dlv">Hot dry wind (summer)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== MAP ========== -->
+<section class="section" id="map">
+  <div class="sh">
+    <div class="se">Interactive Map</div>
+    <h2 class="st">Geographic Locations</h2>
+    <p class="sd">Explore key locations — sand dunes, salt lakes, protected areas, cities, and major landmarks of the Thar Desert.</p>
+  </div>
+  <div class="map-wrap">
+    <div id="thar-map"></div>
+    <div class="map-leg">
+      <h4>Legend</h4>
+      <div class="li"><div class="ld" style="background:#f59e0b;"></div> Sand Dune Fields</div>
+      <div class="li"><div class="ld" style="background:#0ea5e9;"></div> Salt Lakes / Rann</div>
+      <div class="li"><div class="ld" style="background:#10b981;"></div> Protected Areas</div>
+      <div class="li"><div class="ld" style="background:#ef4444;"></div> Major Cities</div>
+      <div class="li"><div class="ld" style="background:#8b5cf6;"></div> Energy / Canal</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== TOPOGRAPHY ========== -->
+<section class="section" id="topography">
+  <div class="sh">
+    <div class="se">Landforms</div>
+    <h2 class="st">Topography & Sand Dunes</h2>
+    <p class="sd">The Thar is not just sand — 50% sand dunes, 30% rocky terrain, with salt lakes and playas completing the dramatic desert landscape at 100–150 m average elevation.</p>
+  </div>
+
+  <!-- Dune Profile Visualisation -->
+  <div class="dune-row">
+    <div class="dune" style="width:85px;height:130px;background:linear-gradient(170deg,#b45309,#78350f);">
+      STAR DUNE<span class="dune-sub">Multi-arm</span>
+    </div>
+    <div class="dune" style="width:105px;height:152px;background:linear-gradient(170deg,#d97706,#92400e);">
+      LONGITUDINAL<span class="dune-sub">Seif · 152 m max</span>
+    </div>
+    <div class="dune" style="width:125px;height:115px;background:linear-gradient(170deg,#f59e0b,#b45309);">
+      TRANSVERSE<span class="dune-sub">Barchan</span>
+    </div>
+    <div class="dune" style="width:95px;height:90px;background:linear-gradient(170deg,#fbbf24,#d97706);">
+      PARABOLIC<span class="dune-sub">U-shaped</span>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:0.72rem;color:var(--stone-600);margin-bottom:2rem;">Sand dune heights up to <span class="hl">152 m</span> · Sam Sand Dunes (Jaisalmer) · Khuri · Osian Dune Fields</p>
+
+  <div class="g3">
+    <div class="card c-am">
+      <span class="ci">🏜️</span>
+      <h3 class="ct">Sand Dunes — 50% of Area</h3>
+      <div class="cs">4 Primary Dune Types</div>
+      <ul class="dl">
+        <li><span class="dll">Longitudinal (Seif)</span><span class="dlv">Parallel to wind</span></li>
+        <li><span class="dll">Transverse (Barchan)</span><span class="dlv">Crescent-shaped</span></li>
+        <li><span class="dll">Parabolic</span><span class="dlv">U-shaped, semi-stable</span></li>
+        <li><span class="dll">Star Dunes</span><span class="dlv">Multi-directional wind</span></li>
+        <li><span class="dll">Maximum height</span><span class="dlv">152 m</span></li>
+        <li><span class="dll">Sam Sand Dunes</span><span class="dlv">Most famous (Jaisalmer)</span></li>
+      </ul>
+    </div>
+    <div class="card c-st">
+      <span class="ci">🪨</span>
+      <h3 class="ct">Rocky Terrain — 30% of Area</h3>
+      <div class="cs">Reg, Hamada & Gravel Plains</div>
+      <p class="cx">Large sections consist of rocky outcrops <span class="hl">(reg)</span>, gravel plains, and exposed limestone/sandstone. The Aravallis provide a transition zone between desert and semi-arid scrub. Average elevation <span class="hl">100–150 m</span>.</p>
+      <div class="tags">
+        <span class="tag t-am">Reg (rocky)</span>
+        <span class="tag t-am">Hamada</span>
+        <span class="tag t-am">Erg (sandy)</span>
+      </div>
+    </div>
+    <div class="card c-sk">
+      <span class="ci">🏔️</span>
+      <h3 class="ct">Salt Lakes (Playas) — 20%</h3>
+      <div class="cs">Seasonal Wetlands & Salt Deserts</div>
+      <p class="cx">Dry lakebeds that fill seasonally with briny water. These <span class="hl-sk">playas</span> are vital ecosystems — Sambhar is India's largest inland salt lake; the Rann of Kachchh is Asia's largest seasonal salt marsh.</p>
+      <div class="tags">
+        <span class="tag t-sk">Sambhar</span>
+        <span class="tag t-sk">Rann of Kachchh</span>
+        <span class="tag t-sk">Didwana</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== DRAINAGE ========== -->
+<section class="section" id="drainage">
+  <div class="sh">
+    <div class="se">Hydrology</div>
+    <h2 class="st">Rivers, Lakes & Drainage</h2>
+    <p class="sd">A region of internal drainage — most water never reaches the sea. The Luni is the only major river; everything else vanishes into sand or salt.</p>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="card c-sk" style="margin-bottom:1.5rem;">
+        <span class="ci">🌊</span>
+        <h3 class="ct">Luni River — The Lone River</h3>
+        <div class="cs">Only River of the Thar Desert</div>
+        <p class="cx" style="margin-bottom:1rem;">
+          Rising from the <span class="hl-sk">Aravalli hills near Pushkar</span>, the Luni flows <span class="hl-sk">495 km</span> southwestward before vanishing into the <span class="hl">Rann of Kachchh</span>.
+          Its upper reach is fresh water, but the lower course becomes <span class="hl-rd">extremely saline</span> — the river literally gets saltier as it flows through the desert.
+        </p>
+        <ul class="dl">
+          <li><span class="dll">Length</span><span class="dlv">495 km</span></li>
+          <li><span class="dll">Origin</span><span class="dlv">Aravalli hills, Pushkar</span></li>
+          <li><span class="dll">End</span><span class="dlv">Rann of Kachchh</span></li>
+          <li><span class="dll">Tributaries</span><span class="dlv">Sukri, Mithri, Bandi, Jowai</span></li>
+          <li><span class="dll">Lower course character</span><span class="dlv">Highly saline</span></li>
+          <li><span class="dll">Type</span><span class="dlv">Seasonal (Ephemeral)</span></li>
+          <li><span class="dll">Forms</span><span class="dlv">No delta — disappears</span></li>
+        </ul>
+      </div>
+      <div class="card c-vi">
+        <span class="ci">👻</span>
+        <h3 class="ct">Ghaggar-Hakra — The Ghost River</h3>
+        <div class="cs">Ancient Saraswati River — Now Extinct</div>
+        <p class="cx">An <span class="hl-vi">extinct river system</span> flowing through Haryana → Rajasthan → Pakistan. Believed to be the legendary <span class="hl-vi">Vedic Saraswati River</span> that supported the Indus Valley Civilisation. Today it is a dry seasonal stream that disappears into the Thar — a ghost river of ancient India.</p>
         <div class="tags" style="margin-top:0.75rem;">
-          <span class="tag t-sky">Sambhar</span>
-          <span class="tag t-sky">Rann of Kachchh</span>
-          <span class="tag t-sky">Didwana</span>
-          <span class="tag t-sky">Pachpadra</span>
+          <span class="tag t-vi">Ancient Saraswati</span>
+          <span class="tag t-vi">Vedic River</span>
+          <span class="tag t-vi">Indus Civilisation</span>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- ========== DRAINAGE ========== -->
-  <section class="section fi" id="drainage">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Hydrology</div>
-      <h2 class="sec-title">Rivers, Lakes & Drainage</h2>
-      <p class="sec-desc">A region of internal drainage — most water never reaches the sea. The Luni is the only perennial river; everything else disappears into sand or salt.</p>
+    <div>
+      <h3 style="font-size:1rem;font-weight:700;color:var(--stone-200);margin-bottom:1rem;">Salt Lakes & Playas</h3>
+      <div class="lake-g">
+        <div class="lake-c">
+          <div class="lake-i">🧂</div>
+          <div class="lake-n">Sambhar Salt Lake</div>
+          <div class="lake-d">India's largest inland salt lake<br>Area: 190–230 km² (seasonal)<br>Salt: 2,00,000 tonnes/year<br><strong style="color:var(--teal-400);">★ Ramsar Wetland Site</strong></div>
+        </div>
+        <div class="lake-c">
+          <div class="lake-i">💧</div>
+          <div class="lake-n">Didwana Lake</div>
+          <div class="lake-d">Nagaur, Rajasthan<br>Salt & sodium sulphate<br>Chemical industry source<br>Moderate salinity level</div>
+        </div>
+        <div class="lake-c">
+          <div class="lake-i">🏝️</div>
+          <div class="lake-n">Pachpadra Lake</div>
+          <div class="lake-d">Barmer district, Rajasthan<br>Best quality salt<br>Traditional production<br>by Kharat community</div>
+        </div>
+        <div class="lake-c">
+          <div class="lake-i">🌊</div>
+          <div class="lake-n">Rann of Kachchh</div>
+          <div class="lake-d">Total area: 30,000 km²<br>Great Rann + Little Rann<br>Monsoon: wetland paradise<br>Winter: white salt desert</div>
+        </div>
+      </div>
+      <div class="gbox" style="margin-top:1.25rem;">
+        <p>🫏 <strong>Little Rann of Kachchh</strong> hosts the <strong>Wild Ass Sanctuary (4,954 km²)</strong> — home to India's last wild population of the <strong>Indian Wild Ass (Khur)</strong>, with 5,000+ individuals. Once down to 400 in the 1960s, this is one of India's greatest conservation successes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== VEGETATION ========== -->
+<section class="section" id="vegetation">
+  <div class="sh">
+    <div class="se">Flora</div>
+    <h2 class="st">Desert Vegetation</h2>
+    <p class="sd">Xerophytic plants with extraordinary survival strategies — deep roots reaching 30 m, water storage tissues, reduced thorny leaves, and CAM photosynthesis.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card c-em">
+      <span class="ci">🌵</span>
+      <h3 class="ct">Khejri Tree — Desert Lifeline</h3>
+      <div class="cs">Prosopis cineraria · State Tree of Rajasthan</div>
+      <p class="cx" style="margin-bottom:1rem;">
+        Called the <span class="hl-em">"Kalpavriksha"</span> of the Thar. The Khejri can survive decades of drought —
+        roots reaching <span class="hl-em">30+ meters deep</span> for water. Every part is useful: pods (sangri) as food,
+        leaves as fodder, bark as medicine, wood as fuel. It is also a <span class="hl-em">nitrogen fixer</span>, naturally
+        enriching desert soil. The Bishnoi community considers it sacred — 363 Bishnois gave their lives protecting Khejri trees in 1730.
+      </p>
+      <ul class="dl">
+        <li><span class="dll">Root depth</span><span class="dlv">30+ metres</span></li>
+        <li><span class="dll">Drought survival</span><span class="dlv">30+ years</span></li>
+        <li><span class="dll">Nitrogen fixing</span><span class="dlv">Yes (legume family)</span></li>
+        <li><span class="dll">Status</span><span class="dlv">State Tree — Rajasthan</span></li>
+      </ul>
+      <div class="tags">
+        <span class="tag t-em">Fodder (leaves)</span>
+        <span class="tag t-em">Food (sangri pods)</span>
+        <span class="tag t-em">Nitrogen fixer</span>
+        <span class="tag t-em">Sacred (Bishnoi)</span>
+      </div>
     </div>
 
-    <div class="g2">
-      <div>
-        <div class="card c-sky" style="margin-bottom:1.5rem;">
-          <span class="card-icon">🌊</span>
-          <h3 class="card-title">Luni River — The Lone River</h3>
-          <div class="card-sub">Only River of the Thar</div>
-          <p class="card-text" style="margin-bottom:1rem;">
-            Rising from the <span class="hl-sky">Aravalli hills near Pushkar</span>, the Luni flows <span class="hl-sky">495 km</span> southwestward before vanishing into the <span class="hl">Rann of Kachchh</span>. 
-            Its upper reach is fresh, but the lower course becomes <span class="hl-red">extremely saline</span> — the river literally gets saltier as it flows through the desert. 
-            A symbol of the desert's thirst.
-          </p>
-          <ul class="dlist">
-            <li><span class="dl">Length</span><span class="dv">495 km</span></li>
-            <li><span class="dl">Origin</span><span class="dv">Aravalli (Pushkar)</span></li>
-            <li><span class="dl">End</span><span class="dv">Rann of Kachchh</span></li>
-            <li><span class="dl">Tributaries</span><span class="dv">Sukri, Mithri, Bandi, Jowai</span></li>
-            <li><span class="dl">Lower course</span><span class="dv">Saline (salt soil)</span></li>
-            <li><span class="dl">Type</span><span class="dv">Seasonal (Ephemeral)</span></li>
+    <div>
+      <div class="card c-am" style="margin-bottom:1.25rem;">
+        <span class="ci">🌿</span>
+        <h3 class="ct">Other Key Plant Species</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.5rem;">
+          <ul class="dl">
+            <li><span class="dll">Rohida</span><span class="dlv">Desert teak</span></li>
+            <li><span class="dll">Babul (Acacia)</span><span class="dlv">Thorny, fuel</span></li>
+            <li><span class="dll">Ber (Ziziphus)</span><span class="dlv">Edible fruit</span></li>
+            <li><span class="dll">Ker (Capparis)</span><span class="dlv">Pickle ingredient</span></li>
+            <li><span class="dll">Phog</span><span class="dlv">Sand binder</span></li>
+          </ul>
+          <ul class="dl">
+            <li><span class="dll">Sewan grass</span><span class="dlv">Fodder</span></li>
+            <li><span class="dll">Dhaman grass</span><span class="dlv">Livestock feed</span></li>
+            <li><span class="dll">Date palm</span><span class="dlv">Oasis plant</span></li>
+            <li><span class="dll">Calotropis (Aak)</span><span class="dlv">Medicinal shrub</span></li>
+            <li><span class="dll">Khair</span><span class="dlv">Catchu source</span></li>
           </ul>
         </div>
-
-        <div class="card c-violet">
-          <span class="card-icon">👻</span>
-          <h3 class="card-title">Ghaggar-Hakra — The Lost River</h3>
-          <div class="card-sub">Ancient Saraswati River</div>
-          <p class="card-text">
-            An <span class="hl-vi">extinct river system</span> flowing through Haryana → Rajasthan → Pakistan. Believed to be the legendary <span class="hl-vi">Vedic Saraswati River</span> 
-            that once supported the Indus Valley Civilisation. Today it is a dry seasonal nullah (stream) that disappears into the Thar sands — 
-            a <span class="hl">ghost river</span> of ancient India.
-          </p>
-          <div class="tags" style="margin-top:0.75rem;">
-            <span class="tag t-violet">Ancient Saraswati</span>
-            <span class="tag t-violet">Vedic Connection</span>
-            <span class="tag t-violet">Indus Civilisation</span>
-          </div>
+      </div>
+      <div class="card c-tl">
+        <span class="ci">🔬</span>
+        <h3 class="ct">Xerophytic Adaptations</h3>
+        <div class="cs">Survival Engineering</div>
+        <div class="metric" style="margin-top:0.75rem;">
+          <div class="mh"><span class="ml">Deep tap roots (water access)</span><span class="mv">30 m+</span></div>
+          <div class="mb"><div class="mf mf-em" style="width:100%;"></div></div>
+        </div>
+        <div class="metric">
+          <div class="mh"><span class="ml">Thick waxy cuticle (moisture lock)</span><span class="mv">Very high</span></div>
+          <div class="mb"><div class="mf" style="width:85%;"></div></div>
+        </div>
+        <div class="metric">
+          <div class="mh"><span class="ml">Small/thorny leaves (reduce transpiration)</span><span class="mv">Critical</span></div>
+          <div class="mb"><div class="mf mf-or" style="width:90%;"></div></div>
+        </div>
+        <div class="metric">
+          <div class="mh"><span class="ml">CAM photosynthesis (night CO₂ uptake)</span><span class="mv">Energy saving</span></div>
+          <div class="mb"><div class="mf mf-vi" style="width:75%;"></div></div>
+        </div>
+        <div class="metric">
+          <div class="mh"><span class="ml">Water storage in stems & roots</span><span class="mv">Succulents</span></div>
+          <div class="mb"><div class="mf mf-sk" style="width:65%;"></div></div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
 
+<!-- ========== WILDLIFE ========== -->
+<section class="section" id="wildlife">
+  <div class="sh">
+    <div class="se">Fauna</div>
+    <h2 class="st">Desert Wildlife</h2>
+    <p class="sd">From the critically endangered Great Indian Bustard to the fleet-footed Chinkara — the Thar harbors a surprisingly rich diversity of desert-adapted species.</p>
+  </div>
+
+  <div class="wg">
+    <div class="wc">
+      <div class="wi">🦅</div>
+      <div class="wn">Great Indian Bustard</div>
+      <div class="wd">State bird Rajasthan<br>Habitat: Desert NP<br>&lt;150 individuals left</div>
+      <span class="ws cr">CRITICALLY ENDANGERED</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🫏</div>
+      <div class="wn">Indian Wild Ass (Khur)</div>
+      <div class="wd">Little Rann of Kachchh<br>Population: 5,000+<br>Conservation success</div>
+      <span class="ws nt">NEAR THREATENED</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🦌</div>
+      <div class="wn">Blackbuck</div>
+      <div class="wd">Grassland areas<br>Sacred to Bishnoi<br>Fast recovery</div>
+      <span class="ws lc">LEAST CONCERN</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🦌</div>
+      <div class="wn">Chinkara</div>
+      <div class="wd">Indian Gazelle<br>Survives without water<br>Most common gazelle</div>
+      <span class="ws lc">LEAST CONCERN</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🦊</div>
+      <div class="wn">Desert Fox</div>
+      <div class="wd">Endemic subspecies<br>Nocturnal hunter<br>Large ears for cooling</div>
+      <span class="ws lc">LEAST CONCERN</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🐱</div>
+      <div class="wn">Desert Cat</div>
+      <div class="wd">Felis lybica ornata<br>Rare sightings<br>Solitary, nocturnal</div>
+      <span class="ws lc">LEAST CONCERN</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🦩</div>
+      <div class="wn">Demoiselle Crane</div>
+      <div class="wd">Winter migrant<br>Thousands at Khichan<br>"Kurjan" locally</div>
+      <span class="ws lc">LEAST CONCERN</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🦢</div>
+      <div class="wn">Flamingo</div>
+      <div class="wd">Salt lake specialist<br>Millions at Sambhar<br>Rann of Kachchh</div>
+      <span class="ws lc">LEAST CONCERN</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🦅</div>
+      <div class="wn">Houbara Bustard</div>
+      <div class="wd">Winter migrant<br>Central Asia origin<br>Threatened by hunting</div>
+      <span class="ws en">VULNERABLE</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🦎</div>
+      <div class="wn">Spiny-tailed Lizard</div>
+      <div class="wd">Uromastyx hardwickii<br>Herbivore lizard<br>Threatened by trade</div>
+      <span class="ws en">ENDANGERED</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🐍</div>
+      <div class="wn">Russell's Viper</div>
+      <div class="wd">Highly venomous<br>Most snakebite deaths<br>Nocturnal</div>
+      <span class="ws lc">LEAST CONCERN</span>
+    </div>
+    <div class="wc">
+      <div class="wi">🐫</div>
+      <div class="wn">Indian Camel</div>
+      <div class="wd">State animal Rajasthan<br>"Ship of the Desert"<br>Declining numbers</div>
+      <span class="ws nt">NEAR THREATENED</span>
+    </div>
+  </div>
+
+  <div class="gbox" style="margin-top:2rem;">
+    <p>🚨 <strong>Crisis Alert — Great Indian Bustard:</strong> Rajasthan's state bird has fewer than <strong>150 individuals</strong> remaining. Major threats: overhead powerlines kill <strong>80+ birds/year</strong>, habitat loss from solar farms, hunting. The Supreme Court of India ordered powerlines to be undergrounded in GIB habitat zones. Captive breeding programs are underway at Jaisalmer.</p>
+  </div>
+</section>
+
+<!-- ========== PROTECTED AREAS ========== -->
+<section class="section" id="protected">
+  <div class="sh">
+    <div class="se">Conservation Zones</div>
+    <h2 class="st">Protected Areas</h2>
+    <p class="sd">From India's largest national park to the world's largest Wild Ass sanctuary — the Thar has critical conservation infrastructure protecting unique desert biodiversity.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card c-em">
+      <span class="ci">🏜️</span>
+      <h3 class="ct">Desert National Park</h3>
+      <div class="cs">India's Largest National Park</div>
+      <p class="cx" style="margin-bottom:1rem;">
+        Spanning <span class="hl-em">3,162 km²</span> across Jaisalmer and Barmer, this is <span class="hl">India's largest national park by area</span>.
+        A critical refuge for the Great Indian Bustard and home to preserved sand dune ecosystems.
+        Also protects fossils <span class="hl">180 million years old</span> — evidence of a once-lush tropical environment.
+      </p>
+      <ul class="dl">
+        <li><span class="dll">Area</span><span class="dlv">3,162 km²</span></li>
+        <li><span class="dll">Location</span><span class="dlv">Jaisalmer & Barmer, RJ</span></li>
+        <li><span class="dll">Key species</span><span class="dlv">Great Indian Bustard</span></li>
+        <li><span class="dll">Fossils found</span><span class="dlv">180 million years old</span></li>
+        <li><span class="dll">Terrain</span><span class="dlv">Sand dunes + rocky</span></li>
+      </ul>
+    </div>
+    <div class="card c-sk">
+      <span class="ci">🫏</span>
+      <h3 class="ct">Wild Ass Wildlife Sanctuary</h3>
+      <div class="cs">Little Rann of Kachchh, Gujarat</div>
+      <p class="cx" style="margin-bottom:1rem;">
+        The <span class="hl-sk">4,954 km²</span> sanctuary in Little Rann of Kachchh protects India's last herd of <span class="hl-sk">Indian Wild Ass (Khur)</span>.
+        Once at the brink of extinction (fewer than 400 in 1960s), the population has rebounded to <span class="hl">5,000+</span> —
+        one of India's greatest conservation success stories.
+      </p>
+      <ul class="dl">
+        <li><span class="dll">Area</span><span class="dlv">4,954 km²</span></li>
+        <li><span class="dll">State</span><span class="dlv">Gujarat (Little Rann)</span></li>
+        <li><span class="dll">Wild Ass population</span><span class="dlv">5,000+</span></li>
+        <li><span class="dll">Seasonal character</span><span class="dlv">Wetland (monsoon) / Salt (winter)</span></li>
+      </ul>
+    </div>
+    <div class="card c-am">
+      <span class="ci">🦌</span>
+      <h3 class="ct">Tal Chhapar Sanctuary</h3>
+      <div class="cs">Churu, Rajasthan — Blackbuck Haven</div>
+      <p class="cx">A compact but ecologically rich sanctuary in Churu district, famous for large herds of <span class="hl">Blackbuck</span>. Also hosts thousands of migratory birds including harriers, eagles, and cranes — one of the best places in India to witness Blackbuck sprinting at 80+ km/h.</p>
+      <div class="tags" style="margin-top:0.75rem;">
+        <span class="tag t-am">Blackbuck</span>
+        <span class="tag t-am">Migratory Birds</span>
+        <span class="tag t-am">Harriers</span>
+      </div>
+    </div>
+    <div class="card c-vi">
+      <span class="ci">🦩</span>
+      <h3 class="ct">Naliya Sanctuary & Sambhar Lake</h3>
+      <div class="cs">Wetland Birds of the Desert</div>
+      <p class="cx">
+        <span class="hl-vi">Naliya (Gujarat)</span> protects the Lesser Florican and migratory birds.
+        <span class="hl-vi">Sambhar Salt Lake</span> (Ramsar Site) hosts millions of flamingos, pelicans, and waders during winter —
+        a critical stopover on the Central Asian Flyway.
+      </p>
+      <div class="tags" style="margin-top:0.75rem;">
+        <span class="tag t-vi">Ramsar Site</span>
+        <span class="tag t-vi">Flamingos</span>
+        <span class="tag t-vi">Lesser Florican</span>
+        <span class="tag t-vi">Central Asian Flyway</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== HUMAN LIFE ========== -->
+<section class="section" id="human">
+  <div class="sh">
+    <div class="se">People & Culture</div>
+    <h2 class="st">Human Habitation</h2>
+    <p class="sd">At 83 persons/km², the Thar is the world's most densely populated desert — a testament to human ingenuity in adapting to extreme environments over millennia.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card c-am">
+      <span class="ci">👥</span>
+      <h3 class="ct">Communities & Tribes</h3>
+      <div class="cs">Living with the Desert</div>
+      <ul class="dl">
+        <li><span class="dll">Bishnoi</span><span class="dlv">Wildlife protectors, ecologists</span></li>
+        <li><span class="dll">Rabari</span><span class="dlv">Nomadic pastoralists, camels</span></li>
+        <li><span class="dll">Bhil</span><span class="dlv">Forest tribals, hunters</span></li>
+        <li><span class="dll">Meghwal</span><span class="dlv">Artisans, textile weavers</span></li>
+        <li><span class="dll">Manganiyar</span><span class="dlv">Hereditary musicians</span></li>
+        <li><span class="dll">Kalbelia</span><span class="dlv">Dancers (UNESCO Intangible Heritage)</span></li>
+      </ul>
+      <div class="gbox">
+        <p>🌿 The <strong>Bishnoi community</strong> follows 29 ecological rules set 500 years ago by Guru Jambheshwar — including never cutting green trees and always protecting wildlife. In <strong>1730, 363 Bishnois died</strong> hugging Khejri trees to protect them from being felled for a Maharaja's palace.</p>
+      </div>
+    </div>
+    <div class="card c-or">
+      <span class="ci">🏰</span>
+      <h3 class="ct">Architecture & Heritage</h3>
+      <div class="cs">Desert Genius in Stone</div>
+      <p class="cx" style="margin-bottom:1rem;">Desert architecture evolved to combat extreme heat, sand, and water scarcity through ingenious passive design.</p>
+      <ul class="dl">
+        <li><span class="dll">Havelis</span><span class="dlv">Ornate mansions, jharokhas</span></li>
+        <li><span class="dll">Bawris (step-wells)</span><span class="dlv">Water harvesting art</span></li>
+        <li><span class="dll">Sandstone forts</span><span class="dlv">Jaisalmer, Bikaner, Jodhpur</span></li>
+        <li><span class="dll">Wind towers</span><span class="dlv">Natural ventilation system</span></li>
+        <li><span class="dll">Thick walls</span><span class="dlv">Thermal insulation</span></li>
+        <li><span class="dll">Jaisalmer Fort</span><span class="dlv">World's only "living fort"</span></li>
+      </ul>
+      <div class="tags" style="margin-top:0.75rem;">
+        <span class="tag t-or">UNESCO Heritage</span>
+        <span class="tag t-or">Living Fort</span>
+        <span class="tag t-or">Golden Sandstone</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-top:1.5rem;">
+    <div class="card c-em">
+      <span class="ci">🌾</span>
+      <h3 class="ct">Agriculture & Economy</h3>
+      <ul class="dl">
+        <li><span class="dll">Bajra (Pearl millet)</span><span class="dlv">Primary crop</span></li>
+        <li><span class="dll">Jowar, Moth, Gram</span><span class="dlv">Dryland farming</span></li>
+        <li><span class="dll">Animal husbandry</span><span class="dlv">Sheep, goat, camel</span></li>
+        <li><span class="dll">Wool production</span><span class="dlv">Major income</span></li>
+        <li><span class="dll">Canal-irrigated crops</span><span class="dlv">Wheat, mustard</span></li>
+      </ul>
+    </div>
+    <div class="card c-sk">
+      <span class="ci">⛏️</span>
+      <h3 class="ct">Mining & Resources</h3>
+      <ul class="dl">
+        <li><span class="dll">Gypsum</span><span class="dlv">India's highest reserve</span></li>
+        <li><span class="dll">Limestone</span><span class="dlv">Cement industry</span></li>
+        <li><span class="dll">Marble</span><span class="dlv">Makrana (Taj Mahal source!)</span></li>
+        <li><span class="dll">Sandstone</span><span class="dlv">Jodhpur red/pink</span></li>
+        <li><span class="dll">Salt</span><span class="dlv">Sambhar, Pachpadra</span></li>
+        <li><span class="dll">Natural gas & oil</span><span class="dlv">Barmer, Jaisalmer</span></li>
+      </ul>
+    </div>
+    <div class="card c-vi">
+      <span class="ci">🎪</span>
+      <h3 class="ct">Tourism & Festivals</h3>
+      <ul class="dl">
+        <li><span class="dll">Desert Festival</span><span class="dlv">Jaisalmer (February)</span></li>
+        <li><span class="dll">Pushkar Mela</span><span class="dlv">Camel fair (November)</span></li>
+        <li><span class="dll">Bikaner Camel Festival</span><span class="dlv">January</span></li>
+        <li><span class="dll">Nagaur Fair</span><span class="dlv">Cattle fair</span></li>
+        <li><span class="dll">Desert Safaris</span><span class="dlv">Sam, Khuri dunes</span></li>
+        <li><span class="dll">Annual tourist footfall</span><span class="dlv">5+ million</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- IG Canal -->
+  <div class="card c-tl" style="margin-top:1.5rem;">
+    <div class="banner-g">
       <div>
-        <h3 style="font-size:1rem;font-weight:700;color:var(--stone-200);margin-bottom:1rem;">Salt Lakes & Playas</h3>
-        <div class="lake-grid">
-          <div class="lake-card">
-            <div class="lake-icon">🧂</div>
-            <div class="lake-name">Sambhar Salt Lake</div>
-            <div class="lake-detail">
-              India's largest inland salt lake<br>
-              Area: 190–230 km² (seasonal)<br>
-              Salt production: 2,00,000 t/yr<br>
-              <strong style="color:var(--teal-400);">★ Ramsar Site</strong>
-            </div>
-          </div>
-          <div class="lake-card">
-            <div class="lake-icon">💧</div>
-            <div class="lake-name">Didwana Lake</div>
-            <div class="lake-detail">
-              Rajasthan<br>
-              Salt & sodium sulphate<br>
-              Chemical industry resource<br>
-              Moderate salinity
-            </div>
-          </div>
-          <div class="lake-card">
-            <div class="lake-icon">🏝️</div>
-            <div class="lake-name">Pachpadra Lake</div>
-            <div class="lake-detail">
-              Barmer district, Rajasthan<br>
-              Known for best quality salt<br>
-              Traditional salt production<br>
-              by Kharat community
-            </div>
-          </div>
-          <div class="lake-card">
-            <div class="lake-icon">🌊</div>
-            <div class="lake-name">Rann of Kachchh</div>
-            <div class="lake-detail">
-              Area: 30,000 km²<br>
-              Great Rann + Little Rann<br>
-              Monsoon: seasonal wetland<br>
-              Winter: salt desert
-            </div>
-          </div>
-        </div>
-
-        <div class="gbox" style="margin-top:1.25rem;">
-          <p>🦏 <strong>Little Rann of Kachchh</strong> hosts the <strong>Wild Ass Sanctuary</strong> — home to India's last population of the <strong>Indian Wild Ass (Khur)</strong>, 
-          with 5,000+ individuals making it one of Asia's great conservation success stories.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== VEGETATION ========== -->
-  <section class="section fi" id="vegetation">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Flora</div>
-      <h2 class="sec-title">Desert Vegetation</h2>
-      <p class="sec-desc">Xerophytic plants that have evolved extraordinary survival strategies — deep roots, water storage, reduced leaves, and CAM photosynthesis.</p>
-    </div>
-
-    <div class="g2">
-      <div class="card c-emerald">
-        <span class="card-icon">🌵</span>
-        <h3 class="card-title">Khejri Tree — Desert Lifeline</h3>
-        <div class="card-sub">Prosopis cineraria · State Tree of Rajasthan</div>
-        <p class="card-text" style="margin-bottom:1rem;">
-          Called the <span class="hl-em">"Kalpavriksha"</span> (wish-fulfilling tree) of the Thar. The Khejri can survive decades of drought, 
-          its roots reaching <span class="hl-em">30+ meters deep</span> for water. Every part is useful — pods (sangri) as food, 
-          leaves as fodder, bark as medicine, wood as fuel. It is also a <span class="hl-em">nitrogen fixer</span>, naturally 
-          enriching the desert soil. The Bishnoi community considers it sacred and have given their lives protecting it.
+        <span class="ci">💧</span>
+        <h3 class="ct">Indira Gandhi Canal — Lifeline of the Desert</h3>
+        <div class="cs">Rajasthan Canal — World's Longest Irrigation System</div>
+        <p class="cx">
+          The <span class="hl-em">Indira Gandhi Canal (649 km main canal)</span> originates from the
+          <span class="hl">Harike Barrage</span> at the Sutlej-Beas confluence in Punjab.
+          It has <span class="hl">transformed the Thar</span> — turning barren desert into irrigated farmland.
+          The green corridor is visible from space via satellite imagery.
         </p>
-        <ul class="dlist">
-          <li><span class="dl">Root depth</span><span class="dv">30+ m</span></li>
-          <li><span class="dl">Nitrogen fixing</span><span class="dv">Yes (legume family)</span></li>
-          <li><span class="dl">Survival drought</span><span class="dv">30+ years</span></li>
-          <li><span class="dl">Status</span><span class="dv">State Tree (Rajasthan)</span></li>
-        </ul>
-        <div class="tags">
-          <span class="tag t-emerald">Fodder</span>
-          <span class="tag t-emerald">Food (sangri pods)</span>
-          <span class="tag t-emerald">Nitrogen fixing</span>
-          <span class="tag t-emerald">Sacred (Bishnoi)</span>
-        </div>
       </div>
-
       <div>
-        <div class="card c-amber" style="margin-bottom:1.25rem;">
-          <span class="card-icon">🌿</span>
-          <h3 class="card-title">Other Key Species</h3>
-          <div class="g2" style="gap:0.75rem;margin-top:0.5rem;">
-            <ul class="dlist">
-              <li><span class="dl">Rohida (Desert Teak)</span><span class="dv">Medicinal</span></li>
-              <li><span class="dl">Babul (Acacia nilotica)</span><span class="dv">Thorny, fuel</span></li>
-              <li><span class="dl">Ber (Ziziphus)</span><span class="dv">Edible fruit</span></li>
-              <li><span class="dl">Ker (Capparis)</span><span class="dv">Pickle, medicine</span></li>
-              <li><span class="dl">Phog</span><span class="dv">Sand binder</span></li>
-            </ul>
-            <ul class="dlist">
-              <li><span class="dl">Sewan grass</span><span class="dv">Fodder</span></li>
-              <li><span class="dl">Dhaman grass</span><span class="dv">Livestock feed</span></li>
-              <li><span class="dl">Date palm</span><span class="dv">Oasis plant</span></li>
-              <li><span class="dl">Calotropis</span><span class="dv">Aak plant</span></li>
-              <li><span class="dl">Capparis</span><span class="dv">Medicinal shrub</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="card c-teal">
-          <span class="card-icon">🔬</span>
-          <h3 class="card-title">Xerophytic Adaptations</h3>
-          <div class="card-sub">Survival Engineering</div>
-          <div class="metric" style="margin-top:0.75rem;">
-            <div class="metric-hd">
-              <span class="metric-lbl">Deep tap roots (water access)</span>
-              <span class="metric-val">30 m+</span>
-            </div>
-            <div class="metric-bar"><div class="mfill mfill-em" style="width:100%;"></div></div>
-          </div>
-          <div class="metric">
-            <div class="metric-hd">
-              <span class="metric-lbl">Thick waxy cuticle (moisture lock)</span>
-              <span class="metric-val">High</span>
-            </div>
-            <div class="metric-bar"><div class="mfill" style="width:85%;"></div></div>
-          </div>
-          <div class="metric">
-            <div class="metric-hd">
-              <span class="metric-lbl">Small/thorny leaves (reduce transpiration)</span>
-              <span class="metric-val">Critical</span>
-            </div>
-            <div class="metric-bar"><div class="mfill mfill-or" style="width:90%;"></div></div>
-          </div>
-          <div class="metric">
-            <div class="metric-hd">
-              <span class="metric-lbl">CAM photosynthesis (night CO₂ uptake)</span>
-              <span class="metric-val">Energy saving</span>
-            </div>
-            <div class="metric-bar"><div class="mfill mfill-vi" style="width:75%;"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== WILDLIFE ========== -->
-  <section class="section fi" id="wildlife">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Fauna</div>
-      <h2 class="sec-title">Desert Wildlife</h2>
-      <p class="sec-desc">From the critically endangered Great Indian Bustard to the fleet-footed Chinkara — the Thar harbors a surprisingly rich diversity of desert-adapted wildlife.</p>
-    </div>
-
-    <div class="wildlife-grid">
-      <div class="wildlife-card">
-        <div class="wc-icon">🦅</div>
-        <div class="wc-name">Great Indian Bustard</div>
-        <div class="wc-detail">State bird of Rajasthan<br>Habitat: Desert NP<br>&lt;150 individuals left</div>
-        <span class="wc-status status-cr">CRITICALLY ENDANGERED</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🫏</div>
-        <div class="wc-name">Indian Wild Ass (Khur)</div>
-        <div class="wc-detail">Little Rann of Kachchh<br>Population: 5,000+<br>Conservation success</div>
-        <span class="wc-status status-nt">NEAR THREATENED</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🦌</div>
-        <div class="wc-name">Blackbuck</div>
-        <div class="wc-detail">Grassland areas<br>Sacred to Bishnoi<br>Fast recovery</div>
-        <span class="wc-status status-lc">LEAST CONCERN</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🦌</div>
-        <div class="wc-name">Chinkara (Indian Gazelle)</div>
-        <div class="wc-detail">Most common gazelle<br>Can survive without water<br>Gets moisture from plants</div>
-        <span class="wc-status status-lc">LEAST CONCERN</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🦊</div>
-        <div class="wc-name">Desert Fox</div>
-        <div class="wc-detail">Endemic subspecies<br>Nocturnal hunter<br>Huge ears (heat dissipation)</div>
-        <span class="wc-status status-lc">LEAST CONCERN</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🐱</div>
-        <div class="wc-name">Desert Cat</div>
-        <div class="wc-detail">Felis lybica ornata<br>Rare sightings<br>Solitary, nocturnal</div>
-        <span class="wc-status status-lc">LEAST CONCERN</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🦩</div>
-        <div class="wc-name">Demoiselle Crane</div>
-        <div class="wc-detail">Winter migrant<br>Thousands at Khichan<br>"Kurjan" locally</div>
-        <span class="wc-status status-lc">LEAST CONCERN</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🦢</div>
-        <div class="wc-name">Flamingo</div>
-        <div class="wc-detail">Salt lake specialist<br>Millions at Sambhar<br>Rann of Kachchh</div>
-        <span class="wc-status status-lc">LEAST CONCERN</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🦅</div>
-        <div class="wc-name">Houbara Bustard</div>
-        <div class="wc-detail">Winter migrant<br>Travels from Central Asia<br>Hunted illegally</div>
-        <span class="wc-status status-en">VULNERABLE</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🦎</div>
-        <div class="wc-name">Spiny-tailed Lizard</div>
-        <div class="wc-detail">Uromastyx hardwickii<br>Herbivore lizard<br>Endangered by trade</div>
-        <span class="wc-status status-en">ENDANGERED</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🐍</div>
-        <div class="wc-name">Russell's Viper</div>
-        <div class="wc-detail">Highly venomous<br>Most snakebite deaths<br>Nocturnal</div>
-        <span class="wc-status status-lc">LEAST CONCERN</span>
-      </div>
-      <div class="wildlife-card">
-        <div class="wc-icon">🐫</div>
-        <div class="wc-name">Camel (Dromedary)</div>
-        <div class="wc-detail">State animal Rajasthan<br>"Ship of the Desert"<br>Declining numbers</div>
-        <span class="wc-status status-nt">NEAR THREATENED</span>
-      </div>
-    </div>
-
-    <div class="gbox" style="margin-top:2rem;">
-      <p>🚨 <strong>Crisis Alert:</strong> The <strong>Great Indian Bustard</strong> — Rajasthan's state bird — has fewer than <strong>150 individuals</strong> remaining, making it one of the world's rarest birds. 
-      Major threats: powerline collisions (overhead power cables kill 80+ birds/year), habitat loss from solar farms, and hunting. 
-      The Supreme Court of India ordered powerlines to be undergrounded in GIB habitat zones in 2021.</p>
-    </div>
-  </section>
-
-  <!-- ========== PROTECTED AREAS ========== -->
-  <section class="section fi" id="protected">
-    <div class="sec-header">
-      <div class="sec-eyebrow">Conservation Zones</div>
-      <h2 class="sec-title">Protected Areas</h2>
-      <p class="sec-desc">From the largest national park in India to the world's largest Wild Ass sanctuary — the Thar has significant conservation infrastructure.</p>
-    </div>
-
-    <div class="g2">
-      <div class="card c-emerald">
-        <span class="card-icon">🏜️</span>
-        <h3 class="card-title">Desert National Park</h3>
-        <div class="card-sub">India's Largest National Park</div>
-        <p class="card-text" style="margin-bottom:1rem;">
-          Spanning <span class="hl-em">3,162 km²</span> across Jaisalmer and Barmer districts, this is the <span class="hl">largest national park in India</span>. 
-          A critical refuge for the <span class="hl-em">Great Indian Bustard</span> and home to some of the best preserved sand dune ecosystems. 
-          Also protects fossils 180 million years old — evidence of a once-lush tropical environment.
-        </p>
-        <ul class="dlist">
-          <li><span class="dl">Area</span><span class="dv">3,162 km²</span></li>
-          <li><span class="dl">Location</span><span class="dv">Jaisalmer & Barmer, RJ</span></li>
-          <li><span class="dl">Key species</span><span class="dv">Great Indian Bustard</span></li>
-          <li><span class="dl">Fossils</span><span class="dv">180 million years old</span></li>
+        <ul class="dl">
+          <li><span class="dll">Main Canal Length</span><span class="dlv">649 km</span></li>
+          <li><span class="dll">Total network</span><span class="dlv">9,060 km</span></li>
+          <li><span class="dll">Origin</span><span class="dlv">Harike Barrage (Sutlej-Beas)</span></li>
+          <li><span class="dll">Districts benefited</span><span class="dlv">7 in Rajasthan</span></li>
+          <li><span class="dll">Area irrigated</span><span class="dlv">19 lakh hectares</span></li>
+          <li><span class="dll">Net Impact</span><span class="dlv">Desert → Green zone</span></li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
 
-      <div class="card c-sky">
-        <span class="card-icon">🫏</span>
-        <h3 class="card-title">Wild Ass Wildlife Sanctuary</h3>
-        <div class="card-sub">Little Rann of Kachchh, Gujarat</div>
-        <p class="card-text" style="margin-bottom:1rem;">
-          The <span class="hl-sky">4,954 km²</span> sanctuary in the Little Rann of Kachchh protects India's last herd of <span class="hl-sky">Indian Wild Ass (Khur)</span>. 
-          Once at the brink of extinction (fewer than 400 in 1960s), the population has rebounded to over 5,000 — 
-          one of India's greatest conservation success stories. The Rann transforms dramatically between seasons.
-        </p>
-        <ul class="dlist">
-          <li><span class="dl">Area</span><span class="dv">4,954 km²</span></li>
-          <li><span class="dl">State</span><span class="dv">Gujarat (Little Rann)</span></li>
-          <li><span class="dl">Wild Ass population</span><span class="dv">5,000+</span></li>
-          <li><span class="dl">Monsoon</span><span class="dv">Wetland / Bird paradise</span></li>
-        </ul>
-      </div>
+<!-- ========== ENERGY ========== -->
+<section class="section" id="energy">
+  <div class="sh">
+    <div class="se">Renewable Revolution</div>
+    <h2 class="st">India's Energy Capital</h2>
+    <p class="sd">The Thar's curse — extreme sun and relentless wind — is becoming its greatest asset. India's renewable energy revolution is being powered by the desert.</p>
+  </div>
 
-      <div class="card c-amber">
-        <span class="card-icon">🦌</span>
-        <h3 class="card-title">Tal Chhapar Sanctuary</h3>
-        <div class="card-sub">Rajasthan — Blackbuck Haven</div>
-        <p class="card-text">
-          A compact but ecologically rich sanctuary in Churu district, famous for its large herds of <span class="hl">Blackbuck</span>. 
-          Also hosts thousands of migratory birds including harriers, eagles, and cranes. One of the best places in India to see Blackbuck in the wild.
-        </p>
-        <div class="tags" style="margin-top:0.75rem;">
-          <span class="tag t-amber">Blackbuck</span>
-          <span class="tag t-amber">Migratory Birds</span>
-          <span class="tag t-amber">Harriers</span>
+  <div class="energy-row">
+    <div class="ec">
+      <div class="ec-icon">☀️</div>
+      <div class="ec-val">2,245 MW</div>
+      <div class="ec-lbl">Bhadla Solar Park</div>
+      <div class="ec-sub">World's Largest Solar Farm · Jodhpur, Rajasthan</div>
+    </div>
+    <div class="ec">
+      <div class="ec-icon">🌬️</div>
+      <div class="ec-val">1,064 MW</div>
+      <div class="ec-lbl">Jaisalmer Wind Park</div>
+      <div class="ec-sub">India's Largest Wind Farm · Best wind corridor in India</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card c-am">
+      <span class="ci">☀️</span>
+      <h3 class="ct">Solar Energy Potential</h3>
+      <div class="cs">Sunniest Region of India</div>
+      <p class="cx" style="margin-bottom:1rem;">
+        The Thar receives <span class="hl">300+ sunny days per year</span> with solar irradiance of
+        <span class="hl">5.5–7 kWh/m²/day</span> — among the highest in Asia. The
+        Indian government targets <span class="hl">100+ GW</span> solar in Rajasthan by 2030.
+      </p>
+      <ul class="dl">
+        <li><span class="dll">Bhadla Solar Park</span><span class="dlv">2,245 MW (World's largest)</span></li>
+        <li><span class="dll">Jodhpur Solar Zone</span><span class="dlv">4,000+ MW planned</span></li>
+        <li><span class="dll">Solar irradiance</span><span class="dlv">5.5–7 kWh/m²/day</span></li>
+        <li><span class="dll">Sunny days/year</span><span class="dlv">300+</span></li>
+        <li><span class="dll">Rajasthan 2030 target</span><span class="dlv">100+ GW</span></li>
+      </ul>
+    </div>
+    <div class="card c-sk">
+      <span class="ci">🌬️</span>
+      <h3 class="ct">Wind Energy Potential</h3>
+      <div class="cs">India's Windiest Zone</div>
+      <p class="cx" style="margin-bottom:1rem;">
+        The Jaisalmer-Barmer corridor has average wind speeds of <span class="hl-sk">6–8 m/s</span> — ideal for wind power.
+        Rajasthan ranks <span class="hl">2nd in India</span> for installed wind capacity. However, proliferation of turbines and powerlines poses
+        a <span class="hl-rd">critical threat to the Great Indian Bustard</span>.
+      </p>
+      <ul class="dl">
+        <li><span class="dll">Jaisalmer Wind Park</span><span class="dlv">1,064 MW</span></li>
+        <li><span class="dll">Gujarat (Kachchh)</span><span class="dlv">Major wind farms</span></li>
+        <li><span class="dll">Average wind speed</span><span class="dlv">6–8 m/s</span></li>
+        <li><span class="dll">India rank</span><span class="dlv">2nd highest capacity</span></li>
+        <li><span class="dll">Conflict with wildlife</span><span class="dlv">GIB powerline deaths</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== THREATS ========== -->
+<section class="section" id="threats">
+  <div class="sh">
+    <div class="se">Environmental Challenges</div>
+    <h2 class="st">Threats & Conservation</h2>
+    <p class="sd">A fragile ecosystem under siege from climate change, desertification, water crisis, and wildlife pressure — with active conservation responses making a difference.</p>
+  </div>
+
+  <div class="g2">
+    <div>
+      <h3 style="font-size:1rem;font-weight:700;color:var(--red-400);margin-bottom:1.2rem;">⚠️ Major Threats</h3>
+      <div class="item-list">
+        <div class="thr-item">
+          <div class="ii">🏜️</div>
+          <div class="ic">
+            <h5>Desertification — Expanding Desert</h5>
+            <p>The Thar is expanding eastward at <strong>1–2 km per year</strong> due to overgrazing, deforestation, and climate change. Fertile agricultural land in Rajasthan, Haryana, and Gujarat is being swallowed by advancing sand.</p>
+          </div>
         </div>
-      </div>
-
-      <div class="card c-violet">
-        <span class="card-icon">🦩</span>
-        <h3 class="card-title">Naliya Sanctuary & Sambhar</h3>
-        <div class="card-sub">Wetland Birds of the Desert</div>
-        <p class="card-text">
-          <span class="hl-vi">Naliya (Gujarat)</span> protects Lesser Floricans and migratory birds. 
-          <span class="hl-vi">Sambhar Salt Lake</span> (Ramsar Site) hosts millions of flamingos, pelicans, and waders during winter. 
-          These wetland oases within the desert are critical stopover points on the Central Asian Flyway.
-        </p>
-        <div class="tags" style="margin-top:0.75rem;">
-          <span class="tag t-violet">Ramsar Site</span>
-          <span class="tag t-violet">Flamingos</span>
-          <span class="tag t-violet">Lesser Florican</span>
+        <div class="thr-item">
+          <div class="ii">💧</div>
+          <div class="ic">
+            <h5>Groundwater Crisis</h5>
+            <p>Intensive irrigation from the IG Canal has caused <strong>groundwater depletion, waterlogging, and soil salinity</strong>. Fluoride contamination in groundwater affects millions — causing severe fluorosis in desert communities.</p>
+          </div>
+        </div>
+        <div class="thr-item">
+          <div class="ii">⚡</div>
+          <div class="ic">
+            <h5>Great Indian Bustard Crisis</h5>
+            <p>Fewer than <strong>150 individuals</strong> remain. Overhead powerlines kill 80+ birds/year. Solar and wind farms fragment critical habitat. Captive breeding programs are humanity's last-chance bet for this species.</p>
+          </div>
+        </div>
+        <div class="thr-item">
+          <div class="ii">🌡️</div>
+          <div class="ic">
+            <h5>Climate Change</h5>
+            <p>Rising temperatures increase aridity and make extreme heat events more frequent. Rainfall is becoming erratic — either prolonged drought or sudden flash floods with nothing in between.</p>
+          </div>
+        </div>
+        <div class="thr-item">
+          <div class="ii">🌪️</div>
+          <div class="ic">
+            <h5>Dust Storms (Andhi)</h5>
+            <p>Increasing frequency and intensity of dust storms causes severe <strong>soil erosion, crop damage, and air quality</strong> crises extending as far as Delhi, Lucknow, and beyond.</p>
+          </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- ========== HUMAN LIFE ========== -->
-  <section class="section fi" id="human">
-    <div class="sec-header">
-      <div class="sec-eyebrow">People & Culture</div>
-      <h2 class="sec-title">Human Habitation</h2>
-      <p class="sec-desc">With 83 persons/km², the Thar is the world's most densely populated desert — a testament to human ingenuity in adapting to extreme environments.</p>
+    <div>
+      <h3 style="font-size:1rem;font-weight:700;color:var(--emerald-400);margin-bottom:1.2rem;">✅ Conservation Efforts</h3>
+      <div class="item-list">
+        <div class="con-item">
+          <div class="ii">💧</div>
+          <div class="ic">
+            <h5>Traditional Water Harvesting</h5>
+            <p><strong>Johads</strong> (earthen check dams), <strong>Kunds</strong> (underground cisterns), <strong>Bawris</strong> (step-wells), and <strong>Tankas</strong> (rooftop storage) are ancient systems being actively revived to harvest every drop of rain.</p>
+          </div>
+        </div>
+        <div class="con-item">
+          <div class="ii">🌳</div>
+          <div class="ic">
+            <h5>Afforestation Programs</h5>
+            <p><strong>Khejri plantation drives</strong>, social forestry, and the <strong>IG Canal greening project</strong> have reforested 1,00,000+ hectares along the canal corridor — creating a green belt visible from satellites.</p>
+          </div>
+        </div>
+        <div class="con-item">
+          <div class="ii">🦅</div>
+          <div class="ic">
+            <h5>Great Indian Bustard Recovery</h5>
+            <p>Captive breeding center at Jaisalmer, <strong>Supreme Court order to underground powerlines</strong> in GIB zones, and "Project GIB" are attempting to pull India's most endangered bird back from the brink.</p>
+          </div>
+        </div>
+        <div class="con-item">
+          <div class="ii">⚡</div>
+          <div class="ic">
+            <h5>Sustainable Energy Planning</h5>
+            <p>Planning <strong>underground power cables</strong> in GIB zones, creating <strong>wildlife corridors</strong> between solar parks, and developing renewable energy guidelines that minimize ecological disruption.</p>
+          </div>
+        </div>
+        <div class="con-item">
+          <div class="ii">🏘️</div>
+          <div class="ic">
+            <h5>Community Conservation</h5>
+            <p>Empowering the <strong>Bishnoi community</strong> as ecological guardians, launching <strong>eco-tourism programs</strong> that give desert communities financial stakes in wildlife protection and forest conservation.</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
 
-    <div class="g2">
-      <div class="card c-amber">
-        <span class="card-icon">👥</span>
-        <h3 class="card-title">Communities & Tribes</h3>
-        <div class="card-sub">Living with the Desert</div>
-        <ul class="dlist" style="margin-top:0.5rem;">
-          <li><span class="dl">Bishnoi</span><span class="dv">Wildlife protectors, ecologists</span></li>
-          <li><span 
+<!-- ========== COMPARISON ========== -->
+<section class="section" id="comparison">
+  <div class="sh">
+    <div class="se">Global Context</div>
+    <h2 class="st">World Desert Comparison</h2>
+    <p class="sd">How does the Great Indian Thar compare to the Sahara, Gobi, Arabian, and other great deserts of the world?</p>
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>🏜️ Thar (India)</th>
+          <th>🌍 Sahara (Africa)</th>
+          <th>🏔️ Gobi (Asia)</th>
+          <th>🌵 Arabian</th>
+          <th>🦘 Australian</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Area</td><td>2,00,000 km²</td><td>9,200,000 km²</td><td>1,300,000 km²</td><td>2,330,000 km²</td><td>1,500,000 km²</td></tr>
+        <tr><td>Annual Rainfall</td><td>100–500 mm</td><td>&lt; 25 mm</td><td>&lt; 200 mm</td><td>&lt; 100 mm</td><td>150–250 mm</td></tr>
+        <tr><td>Population Density</td><td><strong style="color:var(--amber-400);">83/km² 🏆</strong></td><td>&lt; 1/km²</td><td>&lt; 3/km²</td><td>&lt; 5/km²</td><td>&lt; 1/km²</td></tr>
+        <tr><td>Max. Temperature</td><td>51°C</td><td>58°C</td><td>45°C</td><td>54°C</td><td>50.7°C</td></tr>
+        <tr><td>Desert Type</td><td>Sub-tropical Hot</td><td>Hot Tropical</td><td>Cold Continental</td><td>Subtropical Hot</td><td>Subtropical Hot</td></tr>
+        <tr><td>Vegetation</td><td>Sparse (relatively rich)</td><td>Very sparse</td><td>Sparse grass</td><td>Very sparse</td><td>Sparse shrub</td></tr>
+        <tr><td>Age</td><td>~10,000 yrs</td><td>~2.5 million yrs</td><td>~5 million yrs</td><td>~2 million yrs</td><td>~30 million yrs</td></tr>
+        <tr><td>Monsoon Rains?</td><td><strong style="color:var(--emerald-400);">Yes (partial)</strong></td><td>No</td><td>No</td><td>No</td><td>Partial</td></tr>
+        <tr><td>Renewable Energy</td><td>World's largest solar</td><td>Growing</td><td>Limited</td><td>Major solar</td><td>Growing</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== UNIQUE FEATURES ========== -->
+<section class="section" id="unique">
+  <div class="sh">
+    <div class="se">Key Facts</div>
+    <h2 class="st">What Makes Thar Unique</h2>
+    <p class="sd">Six extraordinary features that set the Great Indian Desert apart from every other desert on Earth.</p>
+  </div>
+
+  <div class="uniq-g">
+    <div class="uniq">
+      <span class="uniq-n">01</span>
+      <h4>🇮🇳 India's Only Desert</h4>
+      <p>The Thar is the only hot desert in India and the only true desert of the Indian subcontinent — occupying 2 lakh km² across 4 states with semi-arid character giving it far richer biodiversity than most world deserts.</p>
+    </div>
+    <div class="uniq">
+      <span class="uniq-n">02</span>
+      <h4>👥 World's Most Populated Desert</h4>
+      <p>At 83 persons/km², the Thar is denser than the Sahara, Gobi, and Arabian deserts combined. Human ingenuity in water harvesting, desert agriculture, and pastoral nomadism has made mass habitation possible.</p>
+    </div>
+    <div class="uniq">
+      <span class="uniq-n">03</span>
+      <h4>🌱 Youngest Major Desert</h4>
+      <p>Only 4,000–10,000 years old — the Thar is a geological infant compared to the Sahara (2.5 million years) or Gobi (5 million years). Formed by desiccation of ancient rivers, it is still forming and expanding.</p>
+    </div>
+    <div class="uniq">
+      <span class="uniq-n">04</span>
+      <h4>🌧️ Desert Inside the Monsoon Belt</h4>
+      <p>Uniquely, the Thar lies within the South Asian Monsoon zone — receiving partial rainfall from the Bay of Bengal monsoon branch. This makes it a "semi-desert" with richer vegetation than any comparable hot desert.</p>
+    </div>
+    <div class="uniq">
+      <span class="uniq-n">05</span>
+      <h4>⚡ Global Renewable Energy Hub</h4>
+      <p>Home to the world's largest solar park (Bhadla, 2,245 MW) and India's largest wind farm (Jaisalmer, 1,064 MW). The Thar is being transformed from India's most scorched zone into its clean energy powerhouse.</p>
+    </div>
+    <div class="uniq">
+      <span class="uniq-n">06</span>
+      <h4>🎭 Extraordinary Cultural Richness</h4>
+      <p>UNESCO-listed Kalbelia dance, Manganiyar music traditions, living fort of Jaisalmer, ancient step-well architecture, vibrant turbans, and camel festivals — the Thar is as culturally exuberant as it is geographically extreme.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== NEXT TOPICS ===== -->
+<div class="main">
+  <div class="next-sec">
+    <h3>Continue Your Journey</h3>
+    <p>Explore other remarkable landscapes of Bharat</p>
+    <div class="next-g">
+      <a href="himalayas.html" class="nc">
+        <span class="nc-emoji">🏔️</span>
+        <div class="nc-info">
+          <div class="nc-lbl">Next Topic</div>
+          <div class="nc-title">The Himalayas</div>
+          <div class="nc-desc">Young fold mountains, glaciers & world's highest peaks</div>
+        </div>
+        <span class="nc-arr">→</span>
+      </a>
+      <a href="northern-plains.html" class="nc">
+        <span class="nc-emoji">🌾</span>
+        <div class="nc-info">
+          <div class="nc-lbl">Explore</div>
+          <div class="nc-title">Northern Plains</div>
+          <div class="nc-desc">Ganga-Brahmaputra alluvial heartland of India</div>
+        </div>
+        <span class="nc-arr">→</span>
+      </a>
+      <a href="sundarbans.html" class="nc">
+        <span class="nc-emoji">🌿</span>
+        <div class="nc-info">
+          <div class="nc-lbl">Discover</div>
+          <div class="nc-title">Sundarbans</div>
+          <div class="nc-desc">World's largest mangrove delta & Royal Bengal Tiger</div>
+        </div>
+        <span class="nc-arr">→</span>
+      </a>
+      <a href="peninsular-plateau.html" class="nc">
+        <span class="nc-emoji">🗿</span>
+        <div class="nc-info">
+          <div class="nc-lbl">Revisit</div>
+          <div class="nc-title">Peninsular Plateau</div>
+          <div class="nc-desc">Ancient Deccan — minerals, rivers & lava plains</div>
+        </div>
+        <span class="nc-arr">→</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-icon">🏜️</div>
+  <p><strong>The Thar Desert</strong> — Where scorching sands meet vibrant culture, ancient caravans gave way to solar panels, and every drop of water is a miracle. India's living desert, defying every definition.</p>
+  <p style="margin-top:0.75rem;color:var(--stone-700);font-size:0.7rem;">Indian Physical Geography · Thar Desert · Comprehensive Study Reference</p>
+</footer>
+
+<script>
+// PARTICLES
+(function() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random() * 4 + 1;
+    p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;--dx:${(Math.random()-0.5)*180}px;animation-duration:${Math.random()*14+9}s;animation-delay:${Math.random()*-18}s;`;
+    c.appendChild(p);
+  }
+})();
+
+// MAP
+window.addEventListener('load', function() {
+  const map = L.map('thar-map', {
+    center: [27.0, 71.5], zoom: 6,
+    scrollWheelZoom: true, zoomControl: true
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 14
+  }).addTo(map);
+
+  function mk(lat, lng, color, title, detail, r) {
+    L.circleMarker([lat, lng], {
+      radius: r||7, fillColor: color, color: '#000',
+      weight: 1.2, opacity: 0.9, fillOpacity: 0.88
+    }).addTo(map).bindPopup(`<div class="pu-t">${title}</div><div class="pu-d">${detail}</div>`);
+  }
+
+  // Sand Dune Fields
+  mk(26.89, 70.52, '#f59e0b', '🏜️ Sam Sand Dunes', 'Jaisalmer · Most famous dune field · Camel safari · Heights up to 80 m', 9);
+  mk(26.61, 70.20, '#f59e0b', '🏜️ Khuri Sand Dunes', 'Jaisalmer · 40 km from city · Peaceful · Star dunes · Village stay', 7);
+  mk(26.98, 73.02, '#f59e0b', '🏜️ Osian Dunes', 'Jodhpur district · Ancient temples nearby · Camel camp · Desert safaris', 7);
+  mk(28.01, 73.31, '#fcd34d', '🏜️ Bikaner Dune Field', 'Great Thar dunes · Multiple dune types · Bikaner camel research center', 7);
+
+  // Salt Lakes
+  mk(26.90, 75.07, '#0ea5e9', '🧂 Sambhar Salt Lake', 'India\'s largest inland salt lake · Area: 190–230 km² · 2 lakh tonnes salt/year · Ramsar Site · Flamingos!', 10);
+  mk(27.40, 74.24, '#0ea5e9', '💧 Didwana Lake', 'Nagaur, Rajasthan · Salt & sodium sulphate · Industrial resource', 7);
+  mk(25.87, 72.24, '#0ea5e9', '💧 Pachpadra Lake', 'Barmer · Best quality salt · Traditional production by Kharat community', 7);
+  mk(23.72, 70.20, '#38bdf8', '🌊 Great Rann of Kachchh', 'Gujarat · 23,300 km² · Seasonal wetland in monsoon · White salt desert in winter', 11);
+  mk(23.30, 71.40, '#38bdf8', '🫏 Little Rann of Kachchh', 'Wild Ass Sanctuary · 4,954 km² · 5,000+ Indian Wild Ass · Critical habitat', 10);
+
+  // Protected Areas
+  mk(26.91, 70.55, '#10b981', '🏜️ Desert National Park', 'India\'s largest NP · 3,162 km² · Jaisalmer & Barmer · GIB habitat · 180 MY fossils', 10);
+  mk(27.70, 74.62, '#10b981', '🦌 Tal Chhapar Sanctuary', 'Churu district · Famous for Blackbuck · Migratory birds · Harriers winter here', 7);
+  mk(23.20, 68.85, '#10b981', '🦩 Naliya Sanctuary', 'Gujarat · Lesser Florican · Wetland birds', 6);
+
+  // Cities
+  mk(26.29, 73.02, '#ef4444', '🏙️ Jodhpur — Sun City', 'Pop: 10.3 lakh · Mehrangarh Fort · Blue City · 300+ sunny days/year', 8);
+  mk(28.01, 73.31, '#ef4444', '🏰 Bikaner', 'Junagarh Fort · National Camel Research Centre · India\'s camel capital', 8);
+  mk(26.91, 70.90, '#ef4444', '🌟 Jaisalmer — Golden City', 'Living fort · Sam Sand Dunes · Golden sandstone · Desert Festival (Feb)', 8);
+  mk(25.75, 71.39, '#ef4444', '⛽ Barmer', 'Oil & natural gas fields · Rajasthan oil block · Crude oil since 2004', 7);
+  mk(27.13, 72.37, '#f97316', '🌡️ Phalodi', 'India\'s hottest city · 51°C recorded May 19, 2016 · National temperature record', 7);
+
+  // Energy & Canal
+  mk(27.53, 71.91, '#8b5cf6', '☀️ Bhadla Solar Park', 'World\'s largest solar park · 2,245 MW · Jodhpur · 14,000 acres · Operational 2020', 9);
+  mk(27.48, 70.98, '#8b5cf6', '🌬️ Jaisalmer Wind Park', 'India\'s largest wind farm · 1,064 MW · Best wind corridor in country', 9);
+  mk(30.71, 75.14, '#a78bfa', '💧 Harike Barrage', 'Punjab · Origin of Indira Gandhi Canal · Sutlej + Beas confluence', 8);
+
+  // Luni River path
+  L.polyline([
+    [26.49, 74.77],[26.14, 74.12],[25.74, 73.36],
+    [25.28, 72.25],[24.56, 71.38],[23.82, 70.25]
+  ], { color: '#38bdf8', weight: 2.5, opacity: 0.55, dashArray: '6,4' })
+  .addTo(map).bindPopup('<div class="pu-t">🌊 Luni River</div><div class="pu-d">495 km · Aravalli to Rann of Kachchh · Only river of Thar · Saline lower course</div>');
+
+  // IG Canal path
+  L.polyline([
+    [30.71, 75.14],[30.20, 74.50],[29.50, 73.80],
+    [28.80, 73.00],[28.10, 72.20],[27.53, 71.91],[26.91, 70.90]
+  ], { color: '#10b981', weight: 2.5, opacity: 0.45, dashArray: '8,4' })
+  .addTo(map).bindPopup('<div class="pu-t">💧 Indira Gandhi Canal</div><div class="pu-d">649 km main canal · Harike to Jaisalmer · 19 lakh hectares irrigated</div>');
+});
+</script>
+</body>
+</html>
