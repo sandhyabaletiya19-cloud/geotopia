@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biogeography | The Science of Life's Distribution</title>
+    <style>
+        /* ============ SYSTEM FONTS - NO GOOGLE ============ */
+        :root {
+            --font-serif: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Georgia', serif;
+            --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'Courier New', Courier, monospace;
+
+            --jungle-dark: #050f05;
+            --jungle-deep: #0a1f0a;
+            --jungle-base: #0d2b0d;
+            --jungle-green: #1a4d1a;
+            --jungle-mid: #2d6a2d;
+            --jungle-light: #3d8b3d;
+            --jungle-bright: #4caf50;
+            --jungle-glow: #66bb6a;
+            --canopy-gold: #c8a84e;
+            --canopy-light: #e6cc80;
+            --canopy-pale: #f5e9c0;
+            --moss: #6b8e23;
+            --fern: #228b22;
+            --mist-white: rgba(255,255,255,0.05);
+            --text-light: #eae8e2;
+            --text-dim: #9a9690;
+            --text-gold: #d4af37;
+            --water-blue: #1e90ff;
+            --glow-green: rgba(76,175,80,0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--jungle-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* ============ SELECTION ============ */
+        ::selection {
+            background: rgba(76,175,80,0.35);
+            color: var(--canopy-gold);
+        }
+
+        /* ============ SCROLLBAR ============ */
+        ::-webkit-scrollbar { width: 7px; }
+        ::-webkit-scrollbar-track { background: var(--jungle-dark); }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--jungle-green), var(--jungle-mid));
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--jungle-bright); }
+
+        /* ============ PAGE LOADER ============ */
+        #pageLoader {
+            position: fixed;
+            inset: 0;
+            background: var(--jungle-dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: opacity 0.7s ease, visibility 0.7s ease;
+        }
+        #pageLoader.gone { opacity: 0; visibility: hidden; }
+        .loader-leaf {
+            font-size: 3rem;
+            animation: loaderPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes loaderPulse {
+            0%,100% { transform: scale(1) rotate(0deg); opacity:1; }
+            50% { transform: scale(1.25) rotate(10deg); opacity:0.7; }
+        }
+        .loader-title {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--canopy-gold);
+        }
+        .loader-bar-wrap {
+            width: 220px;
+            height: 2px;
+            background: rgba(76,175,80,0.15);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .loader-bar-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--jungle-green), var(--canopy-gold));
+            border-radius: 2px;
+            animation: loaderFill 2s ease forwards;
+        }
+        @keyframes loaderFill { to { width: 100%; } }
+
+        /* ============ ANIMATED BG ============ */
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ============ FLOATING DECO LEAVES ============ */
+        .deco-leaf {
+            position: fixed;
+            font-size: 1.4rem;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: gentleFloat linear infinite;
+        }
+        @keyframes gentleFloat {
+            0%   { transform: translateY(0) rotate(0deg); }
+            25%  { transform: translateY(-18px) rotate(6deg); }
+            50%  { transform: translateY(-8px) rotate(-4deg); }
+            75%  { transform: translateY(-22px) rotate(8deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        /* ============ NAV ============ */
+        nav {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transition: background 0.5s ease, border-color 0.5s ease,
+                        box-shadow 0.5s ease;
+        }
+        nav.scrolled {
+            background: rgba(5,15,5,0.96);
+            backdrop-filter: blur(22px);
+            border-bottom: 1px solid rgba(76,175,80,0.18);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.55);
+        }
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Back button */
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+            padding: 0.45rem 1rem;
+            border: 1px solid rgba(76,175,80,0.15);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .nav-back:hover {
+            color: var(--canopy-gold);
+            border-color: rgba(200,168,78,0.4);
+            background: rgba(200,168,78,0.06);
+        }
+        .nav-back .back-arrow {
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+        .nav-back:hover .back-arrow { transform: translateX(-3px); }
+
+        /* Logo */
+        .nav-logo {
+            font-family: var(--font-serif);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--canopy-gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .logo-orb {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--jungle-green), var(--jungle-bright));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        /* Nav links */
+        .nav-links {
+            display: flex;
+            gap: 1.8rem;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.88rem;
+            letter-spacing: 0.4px;
+            transition: color 0.3s;
+            position: relative;
+            padding-bottom: 2px;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0;
+            width: 0; height: 1px;
+            background: var(--canopy-gold);
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover { color: var(--canopy-gold); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .nav-toggle span {
+            width: 24px; height: 2px;
+            background: var(--text-light);
+            border-radius: 2px;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 6rem 2rem 4rem;
+            overflow: hidden;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                180deg,
+                rgba(5,15,5,0.25) 0%,
+                rgba(10,31,10,0.05) 40%,
+                rgba(10,31,10,0.35) 70%,
+                rgba(5,10,5,0.92) 100%
+            );
+        }
+        .hero-canopy {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 220px;
+            background:
+                radial-gradient(ellipse at 8%   0%, rgba(34,139,34,0.28) 0%, transparent 38%),
+                radial-gradient(ellipse at 28%  0%, rgba(0,100,0,0.35)   0%, transparent 32%),
+                radial-gradient(ellipse at 52%  0%, rgba(34,139,34,0.30) 0%, transparent 38%),
+                radial-gradient(ellipse at 74%  0%, rgba(0,80,0,0.25)    0%, transparent 32%),
+                radial-gradient(ellipse at 95%  0%, rgba(34,139,34,0.22) 0%, transparent 38%);
+            filter: blur(18px);
+        }
+        .hero-content {
+            position: relative; z-index: 2;
+            text-align: center;
+            max-width: 1000px;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(76,175,80,0.12);
+            border: 1px solid rgba(76,175,80,0.28);
+            border-radius: 50px;
+            padding: 0.5rem 1.4rem;
+            font-size: 0.75rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--jungle-glow);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(12px);
+            animation: fadeInDown 1s ease 0.4s both;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px;
+            background: var(--jungle-bright);
+            border-radius: 50%;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+        @keyframes pulseDot {
+            0%,100% { opacity:1; transform: scale(1); }
+            50%      { opacity:0.4; transform: scale(1.6); }
+        }
+        .hero h1 {
+            font-family: var(--font-serif);
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 700;
+            line-height: 1.05;
+            margin-bottom: 1.4rem;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+        .h1-line1 {
+            display: block;
+            background: linear-gradient(135deg, var(--text-light) 0%, var(--canopy-light) 50%, var(--canopy-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .h1-line2 {
+            display: block;
+            font-style: italic;
+            font-size: 0.48em;
+            font-weight: 400;
+            background: linear-gradient(90deg, var(--jungle-glow), var(--canopy-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+        .hero-desc {
+            font-family: var(--font-serif);
+            font-size: clamp(1rem, 2vw, 1.4rem);
+            color: var(--text-dim);
+            max-width: 720px;
+            margin: 0 auto 2.8rem;
+            line-height: 1.9;
+            animation: fadeInUp 1s ease 0.8s both;
+        }
+        .hero-cta {
+            display: flex;
+            gap: 1.2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 1s both;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--jungle-green), var(--jungle-mid));
+            color: var(--text-light);
+            border: 1px solid rgba(76,175,80,0.35);
+            padding: 0.9rem 2.2rem;
+            border-radius: 50px;
+            font-size: 0.92rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.4px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--jungle-mid), var(--jungle-light));
+            transform: translateY(-2px);
+            box-shadow: 0 10px 35px rgba(76,175,80,0.28);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--canopy-gold);
+            border: 1px solid rgba(200,168,78,0.35);
+            padding: 0.9rem 2.2rem;
+            border-radius: 50px;
+            font-size: 0.92rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-secondary:hover {
+            background: rgba(200,168,78,0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 35px rgba(200,168,78,0.12);
+        }
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem; left: 50%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column;
+            align-items: center; gap: 0.5rem;
+            animation: fadeIn 1s ease 1.8s both;
+        }
+        .scroll-hint-text {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+        .scroll-line {
+            width: 1px; height: 38px;
+            background: linear-gradient(180deg, var(--canopy-gold), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+        @keyframes scrollPulse {
+            0%,100% { opacity:1; height:38px; }
+            50%      { opacity:0.3; height:18px; }
+        }
+
+        /* ============ ANIMATIONS ============ */
+        @keyframes fadeInUp {
+            from { opacity:0; transform: translateY(40px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity:0; transform: translateY(-22px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity:0; }
+            to   { opacity:1; }
+        }
+
+        /* ============ REVEAL ON SCROLL ============ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(38px);
+            transition: opacity 0.85s cubic-bezier(0.23,1,0.32,1),
+                        transform 0.85s cubic-bezier(0.23,1,0.32,1);
+        }
+        .reveal.visible { opacity:1; transform: translateY(0); }
+        .rv1 { transition-delay: 0.08s; }
+        .rv2 { transition-delay: 0.16s; }
+        .rv3 { transition-delay: 0.24s; }
+        .rv4 { transition-delay: 0.32s; }
+        .rv5 { transition-delay: 0.40s; }
+
+        /* ============ SECTIONS ============ */
+        .section {
+            padding: 6rem 2rem;
+            position: relative;
+        }
+        .section-inner { max-width: 1200px; margin: 0 auto; }
+
+        .sec-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--jungle-glow);
+            margin-bottom: 0.9rem;
+        }
+        .sec-label .lline {
+            width: 38px; height: 1px;
+            background: var(--jungle-glow);
+        }
+        .sec-title {
+            font-family: var(--font-serif);
+            font-size: clamp(1.9rem, 4vw, 3.2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.3rem;
+        }
+        .sec-sub {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            color: var(--text-dim);
+            max-width: 620px;
+            line-height: 1.85;
+            margin-bottom: 3rem;
+        }
+
+        /* ============ STATS STRIP ============ */
+        .stats-strip {
+            padding: 4rem 2rem;
+            position: relative;
+        }
+        .stats-strip::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(26,77,26,0.18) 0%, transparent 65%);
+        }
+        .stats-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            position: relative; z-index: 1;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 2.2rem 1.2rem;
+            background: rgba(26,77,26,0.08);
+            border: 1px solid rgba(76,175,80,0.09);
+            border-radius: 16px;
+            transition: all 0.4s ease;
+        }
+        .stat-card:hover {
+            background: rgba(26,77,26,0.18);
+            border-color: rgba(76,175,80,0.22);
+            transform: translateY(-3px);
+        }
+        .stat-num {
+            font-family: var(--font-serif);
+            font-size: clamp(2.2rem, 3.5vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--canopy-gold), var(--canopy-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 0.4rem;
+        }
+        .stat-lbl {
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--jungle-glow);
+            margin-bottom: 0.4rem;
+        }
+        .stat-detail {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            line-height: 1.55;
+        }
+
+        /* ============ ABOUT ============ */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        .about-text p {
+            color: var(--text-dim);
+            font-size: 1rem;
+            line-height: 1.95;
+            margin-bottom: 1.4rem;
+        }
+        .about-text p strong { color: var(--canopy-gold); font-weight: 600; }
+        .about-text p:last-child { margin-bottom: 0; }
+
+        /* Earth orb */
+        .earth-orb-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .earth-orb {
+            position: relative;
+            width: min(340px, 100%);
+            aspect-ratio: 1;
+        }
+        .earth-core {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 28% 38%, rgba(34,139,34,0.55) 0%, transparent 30%),
+                radial-gradient(circle at 68% 28%, rgba(34,139,34,0.38) 0%, transparent 24%),
+                radial-gradient(circle at 48% 68%, rgba(34,139,34,0.45) 0%, transparent 24%),
+                radial-gradient(circle at 18% 68%, rgba(30,144,255,0.28) 0%, transparent 18%),
+                radial-gradient(circle at 78% 58%, rgba(30,144,255,0.2) 0%, transparent 14%),
+                radial-gradient(circle at 50% 50%, rgba(30,144,255,0.38) 0%, transparent 48%),
+                linear-gradient(135deg, #082840, #0c3018);
+            box-shadow:
+                0 0 55px rgba(30,144,255,0.12),
+                0 0 110px rgba(34,139,34,0.08),
+                inset 0 0 55px rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6.5rem;
+            filter: drop-shadow(0 0 20px rgba(34,139,34,0.35));
+            animation: earthGlow 6s ease-in-out infinite;
+        }
+        @keyframes earthGlow {
+            0%,100% { box-shadow: 0 0 55px rgba(30,144,255,0.12), 0 0 110px rgba(34,139,34,0.08), inset 0 0 55px rgba(0,0,0,0.45); }
+            50%      { box-shadow: 0 0 80px rgba(30,144,255,0.2),  0 0 140px rgba(34,139,34,0.15), inset 0 0 55px rgba(0,0,0,0.45); }
+        }
+        .orbit {
+            position: absolute;
+            border: 1px dashed rgba(76,175,80,0.18);
+            border-radius: 50%;
+            top: 50%; left: 50%;
+        }
+        .orbit1 {
+            width: 122%; height: 122%;
+            transform: translate(-50%,-50%);
+            animation: orbitSpin1 22s linear infinite;
+        }
+        .orbit2 {
+            width: 145%; height: 145%;
+            transform: translate(-50%,-50%);
+            animation: orbitSpin2 35s linear infinite reverse;
+        }
+        @keyframes orbitSpin1 {
+            from { transform: translate(-50%,-50%) rotate(0deg); }
+            to   { transform: translate(-50%,-50%) rotate(360deg); }
+        }
+        @keyframes orbitSpin2 {
+            from { transform: translate(-50%,-50%) rotate(0deg); }
+            to   { transform: translate(-50%,-50%) rotate(360deg); }
+        }
+        .orbit-dot {
+            position: absolute;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--canopy-gold);
+            box-shadow: 0 0 8px var(--canopy-gold);
+            top: -4px; left: 50%;
+            transform: translateX(-50%);
+        }
+        .orbit-dot2 {
+            width: 6px; height: 6px;
+            background: var(--jungle-bright);
+            box-shadow: 0 0 6px var(--jungle-bright);
+            top: auto; bottom: -3px;
+        }
+
+        /* ============ CONCEPT CARDS ============ */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+        .concept-card {
+            background: linear-gradient(148deg,
+                rgba(26,77,26,0.14),
+                rgba(13,43,13,0.28));
+            border: 1px solid rgba(76,175,80,0.1);
+            border-radius: 20px;
+            padding: 2.2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+        .concept-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--jungle-bright), transparent);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .concept-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(76,175,80,0.28);
+            box-shadow: 0 20px 55px rgba(0,0,0,0.38);
+        }
+        .concept-card:hover::after { opacity: 1; }
+        .cc-icon {
+            font-size: 2.4rem;
+            margin-bottom: 1.4rem;
+            display: block;
+        }
+        .concept-card h3 {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            color: var(--canopy-light);
+            margin-bottom: 0.85rem;
+        }
+        .concept-card p {
+            font-size: 0.93rem;
+            color: var(--text-dim);
+            line-height: 1.82;
+        }
+
+        /* ============ IMPORTANCE TIMELINE ============ */
+        .importance-bg {
+            background: linear-gradient(180deg,
+                rgba(5,15,5,0.9),
+                rgba(10,31,10,0.4),
+                rgba(5,15,5,0.9));
+        }
+        .timeline {
+            position: relative;
+            max-width: 920px;
+            margin: 3rem auto 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 29px; top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg,
+                transparent,
+                var(--jungle-green),
+                var(--jungle-bright),
+                var(--jungle-green),
+                transparent);
+        }
+        .t-item {
+            display: flex;
+            gap: 2.2rem;
+            margin-bottom: 2.8rem;
+        }
+        .t-marker {
+            flex-shrink: 0;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--jungle-green), var(--jungle-mid));
+            border: 2px solid rgba(76,175,80,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            z-index: 1;
+            box-shadow: 0 0 18px rgba(76,175,80,0.18);
+        }
+        .t-content {
+            background: linear-gradient(148deg,
+                rgba(26,77,26,0.1),
+                rgba(13,43,13,0.22));
+            border: 1px solid rgba(76,175,80,0.09);
+            border-radius: 16px;
+            padding: 1.8rem;
+            flex: 1;
+            transition: all 0.4s ease;
+        }
+        .t-content:hover {
+            border-color: rgba(76,175,80,0.22);
+            transform: translateX(5px);
+        }
+        .t-content h3 {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: var(--canopy-light);
+            margin-bottom: 0.7rem;
+        }
+        .t-content p {
+            font-size: 0.93rem;
+            color: var(--text-dim);
+            line-height: 1.85;
+        }
+        .t-content p strong { color: var(--canopy-gold); }
+
+        /* ============ TOPIC CARDS ============ */
+        .topics-wrap {
+            padding: 8rem 2rem;
+            position: relative;
+        }
+        .topics-wrap::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse at 18% 28%, rgba(34,139,34,0.07) 0%, transparent 48%),
+                radial-gradient(ellipse at 82% 72%, rgba(30,144,255,0.04) 0%, transparent 38%);
+        }
+        .topics-head {
+            text-align: center;
+            margin-bottom: 4.5rem;
+            position: relative; z-index: 1;
+        }
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.2rem;
+            max-width: 1320px;
+            margin: 0 auto;
+            position: relative; z-index: 1;
+        }
+        .topic-card {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(162deg,
+                rgba(26,77,26,0.18),
+                rgba(13,43,13,0.38),
+                rgba(10,31,10,0.58));
+            border: 1px solid rgba(76,175,80,0.1);
+            transition: all 0.6s cubic-bezier(0.23,1,0.32,1);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            min-height: 520px;
+        }
+        .topic-card:hover {
+            transform: translateY(-12px) scale(1.015);
+            border-color: rgba(76,175,80,0.32);
+            box-shadow:
+                0 30px 75px rgba(0,0,0,0.48),
+                0 0 55px rgba(76,175,80,0.08);
+        }
+        .tc-bg {
+            position: absolute; inset: 0;
+            opacity: 0.13;
+            transition: opacity 0.6s ease;
+        }
+        .topic-card:hover .tc-bg { opacity: 0.24; }
+        .tc-bg1 {
+            background:
+                radial-gradient(circle at 30% 38%, rgba(76,175,80,0.6) 0%, transparent 38%),
+                radial-gradient(circle at 68% 62%, rgba(34,139,34,0.4) 0%, transparent 32%);
+        }
+        .tc-bg2 {
+            background:
+                radial-gradient(circle at 38% 28%, rgba(30,144,255,0.4) 0%, transparent 32%),
+                radial-gradient(circle at 62% 68%, rgba(34,139,34,0.5) 0%, transparent 38%);
+        }
+        .tc-bg3 {
+            background:
+                radial-gradient(circle at 50% 38%, rgba(200,168,78,0.42) 0%, transparent 32%),
+                radial-gradient(circle at 30% 68%, rgba(34,139,34,0.4)   0%, transparent 32%);
+        }
+        .tc-inner {
+            position: relative; z-index: 2;
+            padding: 2.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .tc-num {
+            font-family: var(--font-serif);
+            font-size: 4.5rem;
+            font-weight: 700;
+            opacity: 0.06;
+            position: absolute;
+            top: 1.2rem; right: 1.8rem;
+            line-height: 1;
+        }
+        .tc-icon-box {
+            width: 78px; height: 78px;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.4rem;
+            margin-bottom: 2rem;
+        }
+        .tc1 .tc-icon-box {
+            background: linear-gradient(135deg, rgba(76,175,80,0.18), rgba(34,139,34,0.28));
+            border: 1px solid rgba(76,175,80,0.18);
+        }
+        .tc2 .tc-icon-box {
+            background: linear-gradient(135deg, rgba(30,144,255,0.18), rgba(34,139,34,0.28));
+            border: 1px solid rgba(30,144,255,0.18);
+        }
+        .tc3 .tc-icon-box {
+            background: linear-gradient(135deg, rgba(200,168,78,0.18), rgba(34,139,34,0.28));
+            border: 1px solid rgba(200,168,78,0.18);
+        }
+        .tc-tag {
+            display: inline-block;
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 0.28rem 0.9rem;
+            border-radius: 20px;
+            margin-bottom: 1.3rem;
+        }
+        .tc1 .tc-tag {
+            background: rgba(76,175,80,0.12);
+            color: var(--jungle-glow);
+            border: 1px solid rgba(76,175,80,0.18);
+        }
+        .tc2 .tc-tag {
+            background: rgba(30,144,255,0.12);
+            color: var(--water-blue);
+            border: 1px solid rgba(30,144,255,0.18);
+        }
+        .tc3 .tc-tag {
+            background: rgba(200,168,78,0.12);
+            color: var(--canopy-gold);
+            border: 1px solid rgba(200,168,78,0.18);
+        }
+        .topic-card h3 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.9rem;
+            line-height: 1.25;
+        }
+        .topic-card p {
+            font-size: 0.93rem;
+            color: var(--text-dim);
+            line-height: 1.82;
+            flex: 1;
+        }
+        .tc-stats {
+            display: flex;
+            gap: 1.4rem;
+            margin-top: 1.8rem;
+            padding-top: 1.4rem;
+            border-top: 1px solid rgba(255,255,255,0.055);
+        }
+        .tc-stat-val {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--canopy-gold);
+        }
+        .tc-stat-lbl {
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .tc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-top: 1.4rem;
+            color: var(--canopy-gold);
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: gap 0.3s ease;
+        }
+        .topic-card:hover .tc-link { gap: 0.8rem; }
+
+        /* ============ BIOMES ============ */
+        .biomes-bg {
+            background: linear-gradient(180deg,
+                rgba(5,15,5,0.9),
+                rgba(13,43,13,0.2),
+                rgba(5,15,5,0.9));
+        }
+        .biome-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1.3rem;
+            max-width: 1200px;
+            margin: 2.5rem auto 0;
+        }
+        .biome-card {
+            background: rgba(26,77,26,0.09);
+            border: 1px solid rgba(76,175,80,0.07);
+            border-radius: 14px;
+            padding: 1.4rem 1rem;
+            text-align: center;
+            transition: all 0.38s ease;
+        }
+        .biome-card:hover {
+            transform: translateY(-3px);
+            background: rgba(26,77,26,0.2);
+            border-color: rgba(76,175,80,0.2);
+        }
+        .biome-icon { font-size: 1.9rem; margin-bottom: 0.6rem; }
+        .biome-name {
+            font-family: var(--font-serif);
+            font-size: 0.88rem;
+            color: var(--canopy-light);
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+        }
+        .biome-area { font-size: 0.72rem; color: var(--text-dim); }
+
+        /* ============ QUOTE ============ */
+        .quote-sec {
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .quote-sec::before, .quote-sec::after {
+            content: '';
+            position: absolute;
+            left: 8%; right: 8%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(76,175,80,0.28), transparent);
+        }
+        .quote-sec::before { top: 0; }
+        .quote-sec::after  { bottom: 0; }
+        .q-mark {
+            font-family: var(--font-serif);
+            font-size: 4rem;
+            color: rgba(76,175,80,0.18);
+            line-height: 1;
+            margin-bottom: 1.5rem;
+        }
+        .q-text {
+            font-family: var(--font-serif);
+            font-size: clamp(1.2rem, 2.5vw, 1.85rem);
+            font-style: italic;
+            color: var(--text-light);
+            max-width: 780px;
+            margin: 0 auto 1.4rem;
+            line-height: 1.82;
+        }
+        .q-author { color: var(--canopy-gold); font-size: 1rem; font-weight: 600; }
+        .q-role { color: var(--text-dim); font-size: 0.82rem; margin-top: 0.2rem; }
+
+        /* ============ PIONEERS ============ */
+        .pioneer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.8rem;
+            max-width: 1200px;
+            margin: 2.5rem auto 0;
+        }
+        .pioneer-card {
+            background: linear-gradient(148deg,
+                rgba(26,77,26,0.09),
+                rgba(13,43,13,0.18));
+            border: 1px solid rgba(76,175,80,0.07);
+            border-radius: 16px;
+            padding: 1.8rem;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+        .pioneer-card:hover {
+            border-color: rgba(76,175,80,0.2);
+            transform: translateY(-3px);
+            background: rgba(26,77,26,0.18);
+        }
+        .p-avatar {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            margin: 0 auto 1.3rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.9rem;
+            background: linear-gradient(135deg,
+                rgba(26,77,26,0.28),
+                rgba(45,106,45,0.38));
+            border: 2px solid rgba(76,175,80,0.18);
+        }
+        .pioneer-card h4 {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            color: var(--canopy-light);
+            margin-bottom: 0.2rem;
+        }
+        .p-years {
+            font-size: 0.78rem;
+            color: var(--jungle-glow);
+            margin-bottom: 0.7rem;
+        }
+        .pioneer-card p {
+            font-size: 0.84rem;
+            color: var(--text-dim);
+            line-height: 1.72;
+        }
+
+        /* ============ CTA ============ */
+        .cta-sec {
+            padding: 8rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .cta-sec::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(26,77,26,0.28) 0%, transparent 55%);
+        }
+        .cta-inner {
+            position: relative; z-index: 1;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .cta-inner h2 {
+            font-family: var(--font-serif);
+            font-size: clamp(1.9rem, 4vw, 2.9rem);
+            margin-bottom: 1.4rem;
+            background: linear-gradient(135deg, var(--text-light), var(--canopy-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cta-inner p {
+            color: var(--text-dim);
+            font-size: 1.05rem;
+            line-height: 1.85;
+            margin-bottom: 2.5rem;
+        }
+        .cta-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ============ DIVIDER ============ */
+        .jungle-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+        }
+        .jd-line {
+            flex: 1; max-width: 220px; height: 1px;
+        }
+        .jd-left  { background: linear-gradient(90deg, transparent, rgba(76,175,80,0.28)); }
+        .jd-right { background: linear-gradient(90deg, rgba(76,175,80,0.28), transparent); }
+        .jd-icon { color: rgba(76,175,80,0.38); font-size: 1.2rem; }
+
+        /* ============ FOOTER ============ */
+        footer {
+            background: rgba(3,8,3,0.94);
+            border-top: 1px solid rgba(76,175,80,0.09);
+            padding: 4rem 2rem 2rem;
+        }
+        .footer-inner { max-width: 1200px; margin: 0 auto; }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .fb-brand h3 {
+            font-family: var(--font-serif);
+            font-size: 1.35rem;
+            color: var(--canopy-gold);
+            margin-bottom: 0.9rem;
+        }
+        .fb-brand p {
+            font-size: 0.88rem;
+            color: var(--text-dim);
+            line-height: 1.72;
+        }
+        .fc h4 {
+            font-size: 0.72rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--jungle-glow);
+            margin-bottom: 1.1rem;
+        }
+        .fc ul { list-style: none; }
+        .fc ul li { margin-bottom: 0.65rem; }
+        .fc ul li a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.3s;
+        }
+        .fc ul li a:hover { color: var(--canopy-gold); }
+        .footer-bottom {
+            border-top: 1px solid rgba(76,175,80,0.07);
+            padding-top: 1.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .footer-bottom p {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+        }
+        .f-socials { display: flex; gap: 0.8rem; }
+        .f-socials a {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: rgba(76,175,80,0.08);
+            border: 1px solid rgba(76,175,80,0.14);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.82rem;
+            transition: all 0.3s ease;
+        }
+        .f-socials a:hover {
+            background: rgba(76,175,80,0.18);
+            border-color: rgba(76,175,80,0.38);
+            color: var(--canopy-gold);
+            transform: translateY(-2px);
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1100px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .topic-grid  { grid-template-columns: 1fr; max-width: 560px; margin: 0 auto; }
+            .topic-card  { min-height: auto; }
+            .concept-grid { grid-template-columns: 1fr; }
+            .biome-grid  { grid-template-columns: repeat(4, 1fr); }
+            .pioneer-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 900px) {
+            .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+            .earth-orb-wrap { order: -1; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 700px) {
+            nav { padding: 0.9rem 1.2rem; }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%; left: 0;
+                width: 100%;
+                background: rgba(5,15,5,0.98);
+                backdrop-filter: blur(22px);
+                flex-direction: column;
+                padding: 1.5rem;
+                gap: 0.9rem;
+                border-bottom: 1px solid rgba(76,175,80,0.18);
+            }
+            .nav-links.open { display: flex; }
+            .nav-toggle { display: flex; }
+            .section { padding: 4rem 1.2rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .biome-grid { grid-template-columns: repeat(3, 1fr); }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; text-align: center; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .pioneer-grid { grid-template-columns: 1fr; }
+            .biome-grid { grid-template-columns: repeat(2, 1fr); }
+            .tc-stats { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOADER ===== -->
+<div id="pageLoader">
+    <div class="loader-leaf">🌿</div>
+    <div class="loader-title">Biogeography</div>
+    <div class="loader-bar-wrap">
+        <div class="loader-bar-fill"></div>
+    </div>
+</div>
+
+<!-- ===== CANVAS BG ===== -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- ===== DECO LEAVES ===== -->
+<div class="deco-leaf" style="top:18%;left:4%;animation-duration:16s;animation-delay:0s;">🍃</div>
+<div class="deco-leaf" style="top:58%;right:6%;animation-duration:19s;animation-delay:-6s;">🌿</div>
+<div class="deco-leaf" style="top:38%;left:88%;animation-duration:22s;animation-delay:-11s;">🍂</div>
+<div class="deco-leaf" style="top:78%;left:12%;animation-duration:14s;animation-delay:-8s;">🌱</div>
+
+<!-- ===== NAV ===== -->
+<nav id="mainNav">
+    <div class="nav-inner">
+        <!-- BACK BUTTON -->
+        <a href="../encyclopedia.html" class="nav-back">
+            <span class="back-arrow">←</span> Encyclopedia
+        </a>
+
+        <!-- LOGO -->
+        <a href="index.html" class="nav-logo">
+            <span class="logo-orb">🌍</span>
+            Biogeography
+        </a>
+
+        <!-- LINKS -->
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#about">About</a></li>
+            <li><a href="#importance">Importance</a></li>
+            <li><a href="#topics">Topics</a></li>
+            <li><a href="#biomes">Biomes</a></li>
+            <li><a href="#pioneers">Pioneers</a></li>
+        </ul>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+    <div class="hero-canopy"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="pulse-dot"></span>
+            The Science of Life on Earth
+        </div>
+        <h1>
+            <span class="h1-line1">Biogeography</span>
+            <span class="h1-line2">Where Life Meets Landscape</span>
+        </h1>
+        <p class="hero-desc">
+            The study of how species are distributed across the planet — through geological time, across shifting
+            continents, and under the forces of climate, evolution, and ecology. Understanding where life exists,
+            and <em>why</em>, is the key to protecting it.
+        </p>
+        <div class="hero-cta">
+            <a href="#topics" class="btn-primary">🌿 Explore Topics</a>
+            <a href="#about" class="btn-secondary">📖 What is Biogeography?</a>
+        </div>
+    </div>
+    <div class="scroll-hint">
+        <span class="scroll-hint-text">Scroll</span>
+        <div class="scroll-line"></div>
+    </div>
+</section>
+
+<!-- ===== STATS ===== -->
+<div class="stats-strip">
+    <div class="stats-grid">
+        <div class="stat-card reveal">
+            <div class="stat-num">8.7M</div>
+            <div class="stat-lbl">Species Estimated</div>
+            <div class="stat-detail">~86% remain undiscovered by science</div>
+        </div>
+        <div class="stat-card reveal rv1">
+            <div class="stat-num">36</div>
+            <div class="stat-lbl">Biodiversity Hotspots</div>
+            <div class="stat-detail">Hold 50% of species on 2.5% of land</div>
+        </div>
+        <div class="stat-card reveal rv2">
+            <div class="stat-num">300K+</div>
+            <div class="stat-lbl">Protected Areas</div>
+            <div class="stat-detail">Covering 17% of Earth's land surface</div>
+        </div>
+        <div class="stat-card reveal rv3">
+            <div class="stat-num">1,199</div>
+            <div class="stat-lbl">UNESCO Sites</div>
+            <div class="stat-detail">Across 168 countries worldwide</div>
+        </div>
+        <div class="stat-card reveal rv4">
+            <div class="stat-num">68%</div>
+            <div class="stat-lbl">Wildlife Decline</div>
+            <div class="stat-detail">Population loss since 1970 (WWF LPR)</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ABOUT ===== -->
+<section class="section" id="about">
+    <div class="section-inner">
+        <div class="about-grid">
+            <div class="about-text">
+                <div class="sec-label reveal"><span class="lline"></span> Understanding the Science</div>
+                <h2 class="sec-title reveal">What is Biogeography?</h2>
+                <p class="reveal">
+                    <strong>Biogeography</strong> is the scientific study of the distribution of species and ecosystems across geographic
+                    space and through geological time. It integrates ecology, evolutionary biology, geology, palaeontology,
+                    and climatology to answer one deceptively profound question: <strong>Why do organisms live where they do?</strong>
+                </p>
+                <p class="reveal rv1">
+                    The field was born from the voyages of <strong>Alexander von Humboldt</strong>, who in the early 19th century
+                    observed that vegetation follows predictable patterns with altitude and latitude. <strong>Alfred Russel Wallace</strong>
+                    then formalized biogeographic realms — noting that Bali and Lombok, separated by just 35 km, harbour entirely different
+                    faunas — what we now call the <em>Wallace Line</em>.
+                </p>
+                <p class="reveal rv2">
+                    Modern biogeography employs <strong>satellite remote sensing, molecular phylogenetics, species distribution models,
+                    and plate tectonic reconstructions</strong> to map life's history across 4.5 billion years of Earth's surface.
+                    It explains why marsupials dominate Australia, why the Amazon holds one in ten known species, and why
+                    oceanic islands foster explosive adaptive radiation.
+                </p>
+                <p class="reveal rv3">
+                    Today, with <strong>1 million species facing extinction</strong> (IPBES Global Assessment, 2019), biogeography
+                    has become indispensable — guiding where to protect, how to restore, and how to anticipate the reshuffling
+                    of life as Earth's climate transforms.
+                </p>
+            </div>
+            <div class="earth-orb-wrap reveal rv2">
+                <div class="earth-orb">
+                    <div class="orbit orbit1"><div class="orbit-dot"></div></div>
+                    <div class="orbit orbit2"><div class="orbit-dot orbit-dot2"></div></div>
+                    <div class="earth-core">🌍</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CONCEPTS ===== -->
+<section class="section">
+    <div class="section-inner">
+        <div class="sec-label reveal"><span class="lline"></span> Core Branches</div>
+        <h2 class="sec-title reveal">Three Pillars of the Discipline</h2>
+        <p class="sec-sub reveal">
+            Biogeography is a broad field divided into complementary branches, each illuminating a different
+            dimension of life's distribution across space and time.
+        </p>
+        <div class="concept-grid">
+            <div class="concept-card reveal rv1">
+                <span class="cc-icon">🕰️</span>
+                <h3>Historical Biogeography</h3>
+                <p>
+                    Examines how plate tectonics, glaciations, sea-level changes, and mountain-building events have shaped
+                    species distributions over millions of years. Explains Gondwanan flora in southern continents, the
+                    lemurs of Madagascar, and the unique marsupial fauna of Australia. Uses fossil records, molecular clocks,
+                    and vicariance analysis to reconstruct past distributions and lineage origins.
+                </p>
+            </div>
+            <div class="concept-card reveal rv2">
+                <span class="cc-icon">🌡️</span>
+                <h3>Ecological Biogeography</h3>
+                <p>
+                    Focuses on present-day environmental drivers — climate, topography, soil, and species interactions —
+                    that determine where organisms can persist. Encompasses island biogeography theory (MacArthur &amp; Wilson,
+                    1967), species-area relationships, latitudinal diversity gradients, and dispersal mechanisms.
+                    Explains patterns of diversity from equator to poles and from lowland to alpine zones.
+                </p>
+            </div>
+            <div class="concept-card reveal rv3">
+                <span class="cc-icon">🛡️</span>
+                <h3>Conservation Biogeography</h3>
+                <p>
+                    The applied frontier: uses biogeographic principles to combat the biodiversity crisis. Guides
+                    protected area design, identifies irreplaceable hotspots, predicts range shifts under climate scenarios,
+                    and plans wildlife corridors. With the 30×30 global target — protecting 30% of Earth by 2030 —
+                    this branch directly shapes international conservation policy and funding priorities.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== IMPORTANCE ===== -->
+<section class="section importance-bg" id="importance">
+    <div class="section-inner">
+        <div class="sec-label reveal"><span class="lline"></span> Why It Matters</div>
+        <h2 class="sec-title reveal">The Global Importance of Biogeography</h2>
+        <p class="sec-sub reveal">
+            In an era of unprecedented environmental change, biogeography provides the scientific framework
+            for understanding, predicting, and protecting life on our planet.
+        </p>
+        <div class="timeline">
+            <div class="t-item reveal">
+                <div class="t-marker">🛡️</div>
+                <div class="t-content">
+                    <h3>Conservation Planning &amp; Protected Areas</h3>
+                    <p>
+                        Biogeography identifies regions of exceptional richness and endemism — the <strong>36 biodiversity hotspots</strong>
+                        that harbour over 50% of all plant species on just 2.5% of Earth's land. It informs the design
+                        of 300,000+ protected areas using principles of island biogeography, gap analysis, and systematic
+                        reserve selection. The <strong>Global 200 Ecoregions</strong> (WWF) and <strong>Key Biodiversity Areas</strong>
+                        (KBAs) are entirely biogeographic constructs, now embedded in national and international policy.
+                    </p>
+                </div>
+            </div>
+            <div class="t-item reveal rv1">
+                <div class="t-marker">🌡️</div>
+                <div class="t-content">
+                    <h3>Climate Change &amp; Species Range Shifts</h3>
+                    <p>
+                        Species Distribution Models (SDMs) — rooted in biogeographic theory — predict how organisms will
+                        respond to warming. Current science projects that <strong>one in six species faces extinction risk</strong>
+                        under RCP 8.5 warming (Urban, 2015). Biogeography identifies climate refugia and guides the design of
+                        connectivity corridors such as the <strong>Yellowstone-to-Yukon (Y2Y) Initiative</strong> spanning
+                        3,200 km, allowing species to track suitable climates northward and upslope.
+                    </p>
+                </div>
+            </div>
+            <div class="t-item reveal rv2">
+                <div class="t-marker">🦠</div>
+                <div class="t-content">
+                    <h3>Disease Ecology &amp; Pandemic Preparedness</h3>
+                    <p>
+                        The geography of zoonotic disease spillover is a biogeographic problem. Habitat fragmentation,
+                        wildlife trade routes, and biodiversity loss all alter the spatial relationships between pathogen
+                        reservoirs and human populations. Biogeography maps <strong>high-risk interfaces</strong> between
+                        wildlife, livestock, and humans — providing the spatial intelligence for early warning systems
+                        against future pandemics, as highlighted by COVID-19 and successive Ebola outbreaks.
+                    </p>
+                </div>
+            </div>
+            <div class="t-item reveal rv3">
+                <div class="t-marker">🌾</div>
+                <div class="t-content">
+                    <h3>Food Security &amp; Crop Wild Relatives</h3>
+                    <p>
+                        The <strong>Vavilov Centres of Origin</strong> — biogeographic regions where crop species were first
+                        domesticated — contain wild relatives essential for breeding climate-resilient varieties.
+                        Global agriculture depends on only 12 plant species for 75% of food supply. Mapping the biogeography
+                        of crop wild relatives across their native ranges is critical for maintaining the genetic diversity
+                        needed to feed a world of 10 billion people by 2050.
+                    </p>
+                </div>
+            </div>
+            <div class="t-item reveal rv4">
+                <div class="t-marker">💰</div>
+                <div class="t-content">
+                    <h3>Ecosystem Services &amp; Economic Value</h3>
+                    <p>
+                        Earth's ecosystems provide services valued at <strong>$125–145 trillion per year</strong>
+                        (Costanza et al., 2014) — pollination, water purification, carbon sequestration, flood attenuation,
+                        and climate regulation. Biogeography maps where these services originate and how biodiversity loss
+                        erodes them. Tropical forests alone store <strong>250 billion tonnes of carbon</strong>, making
+                        their protection — guided by biogeographic data — a primary global climate strategy.
+                    </p>
+                </div>
+            </div>
+            <div class="t-item reveal rv5">
+                <div class="t-marker">🧭</div>
+                <div class="t-content">
+                    <h3>Invasive Species &amp; Biosecurity</h3>
+                    <p>
+                        Invasive alien species cost the global economy <strong>over $423 billion annually</strong> (IPBES
+                        Invasives Assessment, 2023) and are the primary driver of island extinctions. Biogeography
+                        explains why certain species become invasive in some contexts but not others — a question
+                        about the match between organismal traits and geographic context. This understanding underpins
+                        national biosecurity systems and international trade regulations governing biological movement.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="jungle-divider">
+    <div class="jd-line jd-left"></div>
+    <span class="jd-icon">🌿</span>
+    <div class="jd-line jd-right"></div>
+</div>
+
+<!-- ===== TOPIC CARDS ===== -->
+<section class="topics-wrap" id="topics">
+    <div class="topics-head">
+        <div class="sec-label reveal" style="justify-content:center;">
+            <span class="lline"></span> Deep Dives <span class="lline"></span>
+        </div>
+        <h2 class="sec-title reveal" style="text-align:center;">Explore the Three Pillars</h2>
+        <p class="sec-sub reveal" style="margin:0 auto 0;text-align:center;max-width:680px;">
+            Each topic represents a critical dimension of global biogeography — from the inventory of life itself
+            to the institutions and agreements protecting it for future generations.
+        </p>
+    </div>
+
+    <div class="topic-grid">
+
+        <!-- Card 1 – Biodiversity -->
+        <a href="biodiversity.html" class="topic-card tc1 reveal rv1">
+            <div class="tc-bg tc-bg1"></div>
+            <div class="tc-inner">
+                <div class="tc-num">01</div>
+                <div class="tc-icon-box">🦋</div>
+                <div class="tc-tag">Life's Grand Inventory</div>
+                <h3>Global Biodiversity</h3>
+                <p>
+                    Explore the staggering diversity of life — from 8.7 million estimated species to the 36 biodiversity
+                    hotspots harbouring half of all plant life. Understand latitudinal diversity gradients, island species
+                    richness, the sixth mass extinction, and why tropical rainforests covering 6% of Earth shelter over 50%
+                    of all species. Includes IUCN Red List data, genetic diversity, and biome-level richness patterns.
+                </p>
+                <div class="tc-stats">
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">8.7M</div>
+                        <div class="tc-stat-lbl">Species</div>
+                    </div>
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">36</div>
+                        <div class="tc-stat-lbl">Hotspots</div>
+                    </div>
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">44K+</div>
+                        <div class="tc-stat-lbl">Threatened</div>
+                    </div>
+                </div>
+                <div class="tc-link">Explore Biodiversity →</div>
+            </div>
+        </a>
+
+        <!-- Card 2 – Protected Areas -->
+        <a href="protected-areas.html" class="topic-card tc2 reveal rv2">
+            <div class="tc-bg tc-bg2"></div>
+            <div class="tc-inner">
+                <div class="tc-num">02</div>
+                <div class="tc-icon-box">🏞️</div>
+                <div class="tc-tag">Guardians of Nature</div>
+                <h3>Protected Areas</h3>
+                <p>
+                    Journey through 300,000+ protected areas — from Yellowstone (1872, the world's first national park)
+                    to the ambitious 30×30 global target. Discover IUCN management categories, marine protected areas
+                    covering 8.2% of oceans, transboundary reserves, wildlife corridors, indigenous-managed territories,
+                    and how island biogeography theory shapes the science of reserve design and connectivity planning.
+                </p>
+                <div class="tc-stats">
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">300K+</div>
+                        <div class="tc-stat-lbl">Areas</div>
+                    </div>
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">17%</div>
+                        <div class="tc-stat-lbl">Land</div>
+                    </div>
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">8.2%</div>
+                        <div class="tc-stat-lbl">Ocean</div>
+                    </div>
+                </div>
+                <div class="tc-link">Explore Protected Areas →</div>
+            </div>
+        </a>
+
+        <!-- Card 3 – UNESCO -->
+        <a href="unesco.html" class="topic-card tc3 reveal rv3">
+            <div class="tc-bg tc-bg3"></div>
+            <div class="tc-inner">
+                <div class="tc-num">03</div>
+                <div class="tc-icon-box">🏛️</div>
+                <div class="tc-tag">Heritage of Humanity</div>
+                <h3>UNESCO World Heritage</h3>
+                <p>
+                    Discover 1,199 UNESCO World Heritage Sites across 168 countries — including 227 natural sites and
+                    39 mixed sites representing Earth's most outstanding biogeographic treasures. From the Galápagos
+                    Islands to the Great Barrier Reef, from the Serengeti to the Amazon basin — explore how UNESCO
+                    protects irreplaceable landscapes, Biosphere Reserves, UNESCO Global Geoparks, and Ramsar wetlands
+                    that embody humanity's shared natural legacy.
+                </p>
+                <div class="tc-stats">
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">1,199</div>
+                        <div class="tc-stat-lbl">Sites</div>
+                    </div>
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">168</div>
+                        <div class="tc-stat-lbl">Countries</div>
+                    </div>
+                    <div class="tc-stat">
+                        <div class="tc-stat-val">227</div>
+                        <div class="tc-stat-lbl">Natural</div>
+                    </div>
+                </div>
+                <div class="tc-link">Explore UNESCO →</div>
+            </div>
+        </a>
+
+    </div>
+</section>
+
+<!-- ===== BIOMES ===== -->
+<section class="section biomes-bg" id="biomes">
+    <div class="section-inner">
+        <div style="text-align:center;">
+            <div class="sec-label reveal" style="justify-content:center;">
+                <span class="lline"></span> Earth's Living Zones <span class="lline"></span>
+            </div>
+            <h2 class="sec-title reveal">Major Biomes of the World</h2>
+            <p class="sec-sub reveal" style="margin:0 auto 0;text-align:center;max-width:640px;">
+                Earth's biosphere is divided into distinct zones — large-scale ecosystems defined by climate, vegetation
+                structure, and characteristic animal communities.
+            </p>
+        </div>
+        <div class="biome-grid">
+            <div class="biome-card reveal">
+                <div class="biome-icon">🌴</div>
+                <div class="biome-name">Tropical Rainforest</div>
+                <div class="biome-area">~17M km² · 50%+ species</div>
+            </div>
+            <div class="biome-card reveal rv1">
+                <div class="biome-icon">🌿</div>
+                <div class="biome-name">Temperate Forest</div>
+                <div class="biome-area">~10.4M km² · 4 seasons</div>
+            </div>
+            <div class="biome-card reveal rv2">
+                <div class="biome-icon">🌲</div>
+                <div class="biome-name">Boreal Taiga</div>
+                <div class="biome-area">~17M km² · Largest biome</div>
+            </div>
+            <div class="biome-card reveal rv3">
+                <div class="biome-icon">🏔️</div>
+                <div class="biome-name">Tundra</div>
+                <div class="biome-area">~8M km² · Permafrost</div>
+            </div>
+            <div class="biome-card reveal rv4">
+                <div class="biome-icon">🏜️</div>
+                <div class="biome-name">Desert</div>
+                <div class="biome-area">~50M km² · 33% of land</div>
+            </div>
+            <div class="biome-card reveal rv5">
+                <div class="biome-icon">🌾</div>
+                <div class="biome-name">Grassland / Savanna</div>
+                <div class="biome-area">~20M km² · Migrations</div>
+            </div>
+            <div class="biome-card reveal rv1">
+                <div class="biome-icon">🌊</div>
+                <div class="biome-name">Coral Reef</div>
+                <div class="biome-area">~285K km² · 25% marine sp.</div>
+            </div>
+            <div class="biome-card reveal rv2">
+                <div class="biome-icon">🐳</div>
+                <div class="biome-name">Open Ocean</div>
+                <div class="biome-area">~335M km² · 71% surface</div>
+            </div>
+            <div class="biome-card reveal rv3">
+                <div class="biome-icon">🌿</div>
+                <div class="biome-name">Wetlands</div>
+                <div class="biome-area">~12.1M km² · Carbon sinks</div>
+            </div>
+            <div class="biome-card reveal rv4">
+                <div class="biome-icon">🏔️</div>
+                <div class="biome-name">Alpine / Montane</div>
+                <div class="biome-area">~4M km² · Vertical zones</div>
+            </div>
+            <div class="biome-card reveal rv5">
+                <div class="biome-icon">🌳</div>
+                <div class="biome-name">Mediterranean</div>
+                <div class="biome-area">~3.1M km² · Fire-adapted</div>
+            </div>
+            <div class="biome-card reveal rv1">
+                <div class="biome-icon">🧊</div>
+                <div class="biome-name">Polar Ice</div>
+                <div class="biome-area">~14M km² · Climate sentinel</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== QUOTE 1 ===== -->
+<section class="quote-sec">
+    <div class="q-mark reveal">"</div>
+    <blockquote class="q-text reveal">
+        Every species is a masterpiece of evolution, exquisitely adapted to the particular environment
+        in which it has survived. Who are we to destroy or even diminish biodiversity?
+    </blockquote>
+    <p class="q-author reveal">Edward O. Wilson</p>
+    <p class="q-role reveal">Biologist · Father of Biodiversity · Two-time Pulitzer Prize Winner</p>
+</section>
+
+<!-- ===== PIONEERS ===== -->
+<section class="section" id="pioneers">
+    <div class="section-inner">
+        <div style="text-align:center;">
+            <div class="sec-label reveal" style="justify-content:center;">
+                <span class="lline"></span> Founding Minds <span class="lline"></span>
+            </div>
+            <h2 class="sec-title reveal">Pioneers of Biogeography</h2>
+            <p class="sec-sub reveal" style="margin:0 auto;text-align:center;max-width:620px;">
+                The visionaries whose expeditions, observations, and theoretical leaps built the foundations
+                of biogeographic science across three centuries.
+            </p>
+        </div>
+        <div class="pioneer-grid">
+            <div class="pioneer-card reveal rv1">
+                <div class="p-avatar">🧭</div>
+                <h4>Alexander von Humboldt</h4>
+                <p class="p-years">1769 – 1859</p>
+                <p>Father of biogeography. First to describe systematic vegetation zones by altitude and latitude.
+                His <em>Cosmos</em> envisioned nature as one interconnected living whole — a revolutionary synthesis
+                that inspired Darwin, Wallace, and Thoreau.</p>
+            </div>
+            <div class="pioneer-card reveal rv2">
+                <div class="p-avatar">🗺️</div>
+                <h4>Alfred Russel Wallace</h4>
+                <p class="p-years">1823 – 1913</p>
+                <p>Co-discoverer of natural selection by correspondence with Darwin. Defined the world's
+                six biogeographic realms. The Wallace Line — separating Asian and Australasian faunas —
+                remains a cornerstone of zoogeography.</p>
+            </div>
+            <div class="pioneer-card reveal rv3">
+                <div class="p-avatar">🐢</div>
+                <h4>Charles Darwin</h4>
+                <p class="p-years">1809 – 1882</p>
+                <p>Galápagos observations revealed how geographic isolation drives explosive speciation.
+                <em>On the Origin of Species</em> (1859) fused biogeography and evolutionary theory into a unified
+                framework that still underpins the science today.</p>
+            </div>
+            <div class="pioneer-card reveal rv4">
+                <div class="p-avatar">🏝️</div>
+                <h4>MacArthur &amp; Wilson</h4>
+                <p class="p-years">1960s</p>
+                <p>Robert MacArthur and E.O. Wilson's <em>Theory of Island Biogeography</em> (1967) quantified
+                the relationship between island area, isolation, and species richness — transforming reserve
+                design and conservation biology forever.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== QUOTE 2 ===== -->
+<section class="quote-sec">
+    <div class="q-mark reveal">"</div>
+    <blockquote class="q-text reveal">
+        In every walk with Nature, one receives far more than one seeks.
+    </blockquote>
+    <p class="q-author reveal">John Muir</p>
+    <p class="q-role reveal">Naturalist · Founder of the Sierra Club · Father of the National Parks</p>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-sec">
+    <div class="cta-inner">
+        <div class="sec-label reveal" style="justify-content:center;">
+            <span class="lline"></span> Begin Exploring <span class="lline"></span>
+        </div>
+        <h2 class="reveal">The Living Planet Awaits</h2>
+        <p class="reveal">
+            From the deepest ocean trenches to the highest alpine peaks, from ancient Gondwanan forests
+            to newly formed volcanic islands — biogeography reveals the extraordinary, unfolding story
+            of life on Earth. Choose a topic and dive in.
+        </p>
+        <div class="cta-btns reveal">
+            <a href="biodiversity.html" class="btn-primary">🦋 Biodiversity</a>
+            <a href="protected-areas.html" class="btn-primary">🏞️ Protected Areas</a>
+            <a href="unesco.html" class="btn-primary">🏛️ UNESCO Heritage</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-grid">
+            <div class="fb-brand">
+                <h3>🌍 Biogeography</h3>
+                <p>
+                    An educational resource dedicated to exploring the science of life's distribution across our planet.
+                    Understanding where species live and why is the foundation of all conservation action.
+                    Data sourced from IUCN, UNEP-WCMC, UNESCO, WWF and IPBES.
+                </p>
+            </div>
+            <div class="fc">
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="biodiversity.html">Biodiversity</a></li>
+                    <li><a href="protected-areas.html">Protected Areas</a></li>
+                    <li><a href="unesco.html">UNESCO Sites</a></li>
+                </ul>
+            </div>
+            <div class="fc">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="#about">What is Biogeography</a></li>
+                    <li><a href="#importance">Why It Matters</a></li>
+                    <li><a href="#biomes">World Biomes</a></li>
+                    <li><a href="#pioneers">Pioneers</a></li>
+                </ul>
+            </div>
+            <div class="fc">
+                <h4>Data Sources</h4>
+                <ul>
+                    <li><a href="https://www.iucn.org" target="_blank" rel="noopener">IUCN</a></li>
+                    <li><a href="https://www.unep-wcmc.org" target="_blank" rel="noopener">UNEP-WCMC</a></li>
+                    <li><a href="https://whc.unesco.org" target="_blank" rel="noopener">UNESCO WHC</a></li>
+                    <li><a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a></li>
+                    <li><a href="https://www.worldwildlife.org" target="_blank" rel="noopener">WWF</a></li>
+                    <li><a href="../encyclopedia.html">← Encyclopedia</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 Dharaverse Encyclopedia · dharaverse.com/encyclopedia/biogeography/ · All data global-level, publicly sourced.</p>
+            <div class="f-socials">
+                <a href="#" title="Share">🔗</a>
+                <a href="#" title="Research">📚</a>
+                <a href="#" title="Data">📊</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+/* ======================================================
+   SCRIPTS — zero external dependencies
+====================================================== */
+
+/* ---- LOADER ---- */
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('pageLoader').classList.add('gone');
+    }, 2300);
+});
+
+/* ---- NAV SCROLL ---- */
+const mainNav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+    mainNav.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+/* ---- MOBILE TOGGLE ---- */
+const navToggle = document.getElementById('navToggle');
+const navLinks  = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+});
+navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => navLinks.classList.remove('open'));
+});
+
+/* ---- SCROLL REVEAL ---- */
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.classList.add('visible');
+            revealObserver.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.1, rootMargin: '0px 0px -55px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* ---- HERO PARALLAX ---- */
+const heroContent = document.querySelector('.hero-content');
+window.addEventListener('scroll', () => {
+    const s = window.pageYOffset;
+    if (heroContent && s < window.innerHeight) {
+        heroContent.style.transform = `translateY(${s * 0.28}px)`;
+        heroContent.style.opacity   = String(1 - s / window.innerHeight);
+    }
+}, { passive: true });
+
+/* ---- TOPIC CARD TILT ---- */
+document.querySelectorAll('.topic-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width  - 0.5) * 9;
+        const y = ((e.clientY - r.top)  / r.height - 0.5) * 9;
+        card.style.transform = `translateY(-12px) scale(1.015) rotateX(${-y}deg) rotateY(${x}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+    });
+});
+
+/* ---- CANVAS FIREFLIES & VINE BG ---- */
+(function() {
+    const canvas = document.getElementById('bgCanvas');
+    const ctx    = canvas.getContext('2d');
+
+    function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Fireflies
+    const flies = Array.from({ length: 30 }, () => ({
+        x:   Math.random() * window.innerWidth,
+        y:   Math.random() * window.innerHeight,
+        r:   Math.random() * 2.5 + 1,
+        dx:  (Math.random() - 0.5) * 0.5,
+        dy:  (Math.random() - 0.5) * 0.5,
+        opacity: Math.random(),
+        dOp: (Math.random() - 0.5) * 0.012,
+    }));
+
+    function drawBg() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Ambient radials
+        const grads = [
+            { x: 0.15, y: 0.5,  r: 0.32, c: 'rgba(34,139,34,0.07)' },
+            { x: 0.85, y: 0.25, r: 0.28, c: 'rgba(107,142,35,0.05)' },
+            { x: 0.5,  y: 0.82, r: 0.30, c: 'rgba(0,100,0,0.06)' },
+        ];
+        grads.forEach(g => {
+            const grd = ctx.createRadialGradient(
+                g.x * canvas.width, g.y * canvas.height, 0,
+                g.x * canvas.width, g.y * canvas.height, g.r * canvas.width
+            );
+            grd.addColorStop(0, g.c);
+            grd.addColorStop(1, 'transparent');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Fireflies
+        flies.forEach(f => {
+            f.x += f.dx; f.y += f.dy;
+            f.opacity += f.dOp;
+            if (f.opacity > 1 || f.opacity < 0) f.dOp *= -1;
+            if (f.x < 0) f.x = canvas.width;
+            if (f.x > canvas.width)  f.x = 0;
+            if (f.y < 0) f.y = canvas.height;
+            if (f.y > canvas.height) f.y = 0;
+
+            const grd = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 4);
+            grd.addColorStop(0, `rgba(180,255,100,${f.opacity * 0.75})`);
+            grd.addColorStop(1, 'transparent');
+            ctx.fillStyle = grd;
+            ctx.beginPath();
+            ctx.arc(f.x, f.y, f.r * 4, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(drawBg);
+    }
+    drawBg();
+})();
+</script>
+</body>
+</html>
