@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Continental Drift | Dharaverse Encyclopedia</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-earth: #d97706;
+            --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .brand { font-weight: 800; letter-spacing: -0.05em; font-size: 1.2rem; }
+        .nav-link { text-decoration: none; color: var(--text-muted); transition: 0.3s; font-size: 0.9rem; }
+        .nav-link:hover { color: var(--text-main); }
+
+        /* --- HERO SECTION WITH ANIMATION --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            line-height: 0.9;
+            margin-bottom: 1rem;
+            z-index: 2;
+            text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            z-index: 2;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.3s forwards;
+        }
+
+        /* The Pangaea Animation Stage */
+        .drift-stage {
+            position: absolute;
+            inset: 0;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            pointer-events: none;
+        }
+
+        .earth-globe {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: transparent;
+            animation: rotateEarth 60s linear infinite;
+        }
+
+        /* Grid on globe */
+        .earth-grid {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: rotateX(60deg);
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.8);
+        }
+
+        /* Abstract Continents */
+        .continent {
+            position: absolute;
+            background: #34d399; /* Emerald Green */
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .continent span {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: bold;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .continent:hover span { opacity: 1; bottom: -40px; }
+
+        /* Initial Pangaea State (Center) */
+        @keyframes assemblePangea {
+            0% { transform: scale(0.1); opacity: 0; }
+            40% { transform: scale(1); opacity: 1; }
+            60% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.1); opacity: 0; }
+        }
+
+        /* Drift States */
+        .pangaea-group {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .anim-drift .pangaea-group {
+            transform: scale(0.4); /* Shrink so they fit on screen */
+        }
+
+        /* Specific continent movement classes applied via JS */
+        .na { width: 60px; height: 50px; background: #10b981; top: 30px; left: 100px; clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); }
+        .sa { width: 60px; height: 70px; background: #059669; top: 100px; left: 90px; clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 50% 100%, 0% 50%); }
+        .eu { width: 50px; height: 40px; background: #34d399; top: 40px; left: 170px; clip-path: polygon(0% 30%, 100% 0%, 100% 100%, 0% 80%); }
+        .af { width: 55px; height: 65px; background: #d97706; top: 110px; left: 125px; clip-path: polygon(20% 0%, 80% 10%, 100% 60%, 50% 100%, 0% 40%); }
+        .as { width: 70px; height: 55px; background: #10b981; top: 30px; right: 50px; clip-path: polygon(0% 20%, 100% 0%, 80% 100%, 0% 80%); }
+        .an { width: 80px; height: 30px; background: #bfdbfe; bottom: 50px; left: 110px; clip-path: ellipse(50% 40% at 50% 50%); }
+
+        /* Drift Targets */
+        .anim-drift .na { top: 20%; left: 20%; transform: rotate(-15deg); }
+        .anim-drift .sa { top: 70%; left: 15%; transform: rotate(10deg); }
+        .anim-drift .eu { top: 15%; left: 45%; transform: rotate(-10deg); }
+        .anim-drift .af { top: 55%; left: 40%; transform: rotate(0deg); }
+        .anim-drift .as { top: 10%; right: 15%; transform: rotate(10deg); }
+        .anim-drift .an { bottom: 10%; left: 40%; }
+
+        .controls {
+            margin-top: 2rem;
+            z-index: 10;
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            background: var(--text-main);
+            color: var(--bg-dark);
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.05); }
+        button.secondary { background: transparent; border: 1px solid var(--text-main); color: var(--text-main); }
+
+        /* --- CONTENT SECTIONS --- */
+        section { padding: 4rem 2rem; max-width: 1000px; margin: 0 auto; }
+        
+        .timeline-container {
+            position: relative;
+            margin: 4rem 0;
+        }
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            height: 100%;
+            width: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-left: 2rem;
+            padding-right: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 10px;
+            right: 50%; /* adjust based on alignment logic */
+            width: 16px;
+            height: 16px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            transform: translateX(50%);
+            box-shadow: 0 0 0 4px var(--bg-dark);
+        }
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+        }
+        .card:hover { border-color: var(--accent-blue); }
+        .card h3 { color: var(--accent-green); margin-bottom: 1rem; font-size: 1.5rem; }
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .evidence-card {
+            background: rgba(255,255,255,0.03);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline-line { left: 20px; }
+            .timeline-item { justify-content: flex-end !important; padding-right: 3rem; padding-left: 0; }
+            .timeline-dot { left: 0 !important; right: auto; transform: translateX(50%) !important; }
+            .hero h1 { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">DHARAVerse 🌍</div>
+        <nav>
+            <a href="index.html" class="nav-link">Encyclopedia</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>The Great<br><span style="color:var(--accent-green)">Journey</span></h1>
+        <p>How one supercontinent broke into seven continents over 200 million years.</p>
+
+        <div class="drift-stage">
+            <div class="earth-globe"><div class="earth-grid"></div></div>
+            <div class="pangaea-group" id="pangaeaGroup">
+                <!-- Pure CSS shapes representing lands -->
+                <div class="continent na"><span>North America</span></div>
+                <div class="continent sa"><span>South America</span></div>
+                <div class="continent eu"><span>Eurasia</span></div>
+                <div class="continent af"><span>Africa</span></div>
+                <div class="continent as"><span>Asia</span></div>
+                <div class="continent an"><span>Antarctica</span></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="startDrift()">Start the Drift ↗</button>
+            <button class="secondary" onclick="resetDrift()">Reset to Pangaea ◷</button>
+        </div>
+    </section>
+
+    <section>
+        <div class="card">
+            <h3>Alfred Wegener's Hypothesis (1912)</h3>
+            <p>In 1912, German meteorologist Alfred Wegener published "The Origin of Continents and Oceans." He proposed that all continents were once joined in a single supercontinent called <strong>Pangaea</strong> (meaning "All Lands"), surrounded by a vast ocean called <strong>Panthalassa</strong>.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">Evidence Supporting Drift</h2>
+        <div class="evidence-grid">
+            <div class="evidence-card">
+                <h4 style="color:var(--accent-blue)">🧩 Jigsaw Fit</h4>
+                <p>Wegener observed that the coasts of South America and Africa seemed to fit together perfectly like puzzle pieces.</p>
+            </div>
+            <div class="evidence-card">
+                <h4 style="color:#f59e0b">🦕 Fossil Distribution</h4>
+                <p>Fossils of the freshwater reptile <em>Mesosaurus</em> were found in both Brazil and South Africa, impossible if oceans separated them.</p>
+            </div>
+            <div class="evidence-card">
+                <h4 style="color:#ec4899">❄️ Glacial Striations</h4>
+                <p>Scars left by ancient glaciers in India, Australia, and South America suggest these lands were once connected near the South Pole.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">The Breaking of Pangaea</h2>
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="card">
+                    <h3>~200 Million Years Ago</h3>
+                    <h4>Pangaea Breaks</h4>
+                    <p>Due to convection currents in the mantle, the supercontinent splits into two huge landmasses: <strong>Laurasia</strong> (North) and <strong>Gondwana</strong> (South).</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="card">
+                    <h3>~100 Million Years Ago</h3>
+                    <h4>The Atlantic Opens</h4>
+                    <p>The North Atlantic opens first. North America separates from Europe. Gondwana continues to break apart as South America moves away from Africa.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="card">
+                    <h3>Present Day</h3>
+                    <h4>The Modern Arrangement</h4>
+                    <p>India collides with Asia to form the Himalayas. Australia separates from Antarctica. The plates continue to move today at roughly the speed of fingernail growth.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function startDrift() {
+            document.querySelector('.drift-stage').classList.add('anim-drift');
+        }
+        function resetDrift() {
+            document.querySelector('.drift-stage').classList.remove('anim-drift');
+        }
+    </script>
+</body>
+</html>
