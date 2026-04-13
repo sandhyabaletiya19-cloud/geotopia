@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eastern Ghats - पूर्वी घाट | India's Eastern Mountain Range</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    :root {
+        --earth-deep: #2C1810;
+        --earth-mid: #4A2C1A;
+        --earth-warm: #6B3D2E;
+        --earth-light: #8B5A3C;
+        --terracotta: #C4622D;
+        --amber: #D4883A;
+        --gold: #C9A84C;
+        --gold-light: #E8C97A;
+        --sand: #F2E4C8;
+        --parchment: #FAF3E8;
+        --cream: #FDFAF4;
+        --forest-green: #2D5A27;
+        --moss: #4A7A3D;
+        --sage: #6B9E5E;
+        --teal: #2A6B6B;
+        --sky: #3A7BA8;
+        --mist-blue: #E8F2F8;
+        --red-sanders: #8B1A1A;
+        --ochre: #C8860A;
+        --stone: #8A7B6A;
+        --text-primary: #1C110A;
+        --text-secondary: #3D2A1A;
+        --text-muted: #7A6050;
+        --shadow-warm: 0 4px 24px rgba(44, 24, 16, 0.08);
+        --shadow-mid: 0 8px 40px rgba(44, 24, 16, 0.12);
+        --shadow-strong: 0 16px 64px rgba(44, 24, 16, 0.18);
+        --radius-sm: 8px;
+        --radius-md: 16px;
+        --radius-lg: 24px;
+        --radius-xl: 32px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+        background: var(--cream);
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--sand); }
+    ::-webkit-scrollbar-thumb { background: var(--terracotta); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--earth-mid); }
+
+    /* ===== BACK BUTTON ===== */
+    .back-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 2000;
+        background: rgba(44,24,16,0.96);
+        backdrop-filter: blur(16px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        height: 48px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: color 0.3s;
+        cursor: pointer;
+    }
+
+    .back-btn:hover { color: var(--gold-light); }
+
+    .back-btn-arrow {
+        width: 20px;
+        height: 20px;
+        border: 1.5px solid currentColor;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+
+    .back-bar-center {
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.35);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
+
+    .back-bar-right {
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.4);
+        letter-spacing: 1px;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: linear-gradient(160deg, #1A0A04 0%, #2C1810 25%, #4A2C1A 55%, #2A4A3A 100%);
+        padding-top: 48px;
+    }
+
+    .hero-particles { position: absolute; inset: 0; pointer-events: none; }
+
+    .dust-particle {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgba(212,136,58,0.12) 0%, transparent 70%);
+        animation: dustDrift linear infinite;
+    }
+
+    @keyframes dustDrift {
+        0% { transform: translate(0,0) scale(1); opacity:0; }
+        20% { opacity:1; }
+        80% { opacity:0.6; }
+        100% { transform: translate(60px,-80px) scale(1.5); opacity:0; }
+    }
+
+    .hero-mountains {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        z-index: 3;
+    }
+
+    .hero-mountains svg { width: 100%; display: block; }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 2rem;
+        max-width: 960px;
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(196,98,45,0.15);
+        border: 1px solid rgba(196,98,45,0.35);
+        padding: 8px 24px;
+        border-radius: 40px;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-eyebrow span {
+        color: var(--amber);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
+
+    .hero-title {
+        font-size: clamp(3rem, 8vw, 6.5rem);
+        font-weight: 800;
+        color: white;
+        line-height: 1.05;
+        margin-bottom: 0.4rem;
+        text-shadow: 0 4px 40px rgba(0,0,0,0.4);
+    }
+
+    .hero-hindi {
+        font-size: clamp(1.2rem, 3vw, 2.2rem);
+        color: var(--gold-light);
+        font-weight: 300;
+        letter-spacing: 5px;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-desc {
+        font-size: clamp(0.95rem, 2vw, 1.2rem);
+        color: rgba(255,255,255,0.65);
+        max-width: 640px;
+        margin: 0 auto 3rem;
+        font-weight: 300;
+        line-height: 1.9;
+    }
+
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: rgba(255,255,255,0.08);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        backdrop-filter: blur(16px);
+    }
+
+    .hero-stat {
+        padding: 1.5rem 1rem;
+        background: rgba(255,255,255,0.04);
+        transition: background 0.3s;
+    }
+
+    .hero-stat:hover { background: rgba(255,255,255,0.08); }
+
+    .hero-stat-num {
+        font-size: clamp(1.4rem, 3vw, 2rem);
+        font-weight: 800;
+        color: white;
+        display: block;
+        line-height: 1;
+    }
+
+    .hero-stat-unit {
+        font-size: 0.75rem;
+        color: var(--amber);
+        font-weight: 600;
+    }
+
+    .hero-stat-lbl {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.45);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+    }
+
+    .scroll-cue {
+        position: absolute;
+        bottom: 2.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        animation: cueFloat 2.2s ease-in-out infinite;
+    }
+
+    @keyframes cueFloat {
+        0%,100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(12px); }
+    }
+
+    .scroll-cue-line {
+        width: 1px; height: 44px;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    }
+
+    .scroll-cue-label {
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.35);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
+
+    /* ===== NAV ===== */
+    .nav {
+        position: sticky;
+        top: 48px;
+        z-index: 900;
+        background: rgba(255,255,255,0.93);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(44,24,16,0.07);
+        box-shadow: var(--shadow-warm);
+    }
+
+    .nav-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        padding: 0 2rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .nav-inner::-webkit-scrollbar { display: none; }
+
+    .nav-brand {
+        font-weight: 800;
+        color: var(--earth-deep);
+        font-size: 0.95rem;
+        white-space: nowrap;
+        padding: 1rem 1.5rem 1rem 0;
+        border-right: 1px solid rgba(44,24,16,0.1);
+        margin-right: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .nav-link {
+        padding: 1rem 1rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.76rem;
+        font-weight: 600;
+        white-space: nowrap;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s;
+        position: relative;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-family: inherit;
+    }
+
+    .nav-link:hover, .nav-link.active { color: var(--earth-deep); }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 50%;
+        transform: translateX(-50%);
+        width: 0; height: 2px;
+        background: var(--terracotta);
+        transition: width 0.3s;
+        border-radius: 2px;
+    }
+
+    .nav-link:hover::after, .nav-link.active::after { width: 60%; }
+
+    /* ===== SECTIONS ===== */
+    .section {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--terracotta);
+        margin-bottom: 1rem;
+    }
+
+    .tag-line {
+        width: 28px; height: 2px;
+        background: var(--terracotta);
+        border-radius: 2px;
+    }
+
+    .section-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
+        color: var(--earth-deep);
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .section-desc {
+        font-size: 1.02rem;
+        color: var(--text-muted);
+        max-width: 680px;
+        margin: 0 auto;
+        line-height: 1.85;
+    }
+
+    .sep { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+    .sep-line { height: 1px; background: linear-gradient(to right, transparent, rgba(44,24,16,0.08), transparent); }
+
+    /* ===== ANIMATE ===== */
+    .ani {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: all 0.75s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ani.vis { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; }
+    .d4 { transition-delay: 0.4s; }
+
+    /* ===== MAP ===== */
+    .map-section { padding: 5rem 2rem; max-width: 1400px; margin: 0 auto; }
+
+    .map-wrap {
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-strong);
+        overflow: hidden;
+    }
+
+    .map-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        min-height: 720px;
+    }
+
+    #egMap { height: 720px; width: 100%; }
+
+    .map-panel {
+        background: var(--earth-deep);
+        color: white;
+        padding: 2rem;
+        overflow-y: auto;
+        max-height: 720px;
+    }
+
+    .map-panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .map-panel-sub { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-bottom: 1.8rem; line-height: 1.6; }
+
+    .legend { display: flex; flex-direction: column; gap: 6px; margin-bottom: 2rem; }
+    .legend-item { display: flex; align-items: center; gap: 10px; font-size: 0.76rem; color: rgba(255,255,255,0.75); padding: 5px 0; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    .filter-group { margin-bottom: 1.6rem; }
+    .filter-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.35); margin-bottom: 0.7rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .filter-btn {
+        padding: 5px 13px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.65);
+        border-radius: 20px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+        background: rgba(255,255,255,0.14);
+        color: white;
+        border-color: rgba(255,255,255,0.4);
+    }
+
+    .info-card {
+        background: rgba(255,255,255,0.07);
+        border-radius: var(--radius-md);
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .info-card h4 { font-size: 0.85rem; color: var(--gold-light); margin-bottom: 0.3rem; }
+    .info-card p { font-size: 0.76rem; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+    .info-stat {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        font-size: 0.78rem;
+    }
+
+    .info-stat:last-child { border: none; }
+    .info-stat-lbl { color: rgba(255,255,255,0.45); }
+    .info-stat-val { color: white; font-weight: 700; }
+
+    /* Custom popup */
+    .eg-popup .leaflet-popup-content-wrapper {
+        background: var(--earth-deep);
+        color: white;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-strong);
+        padding: 0;
+    }
+
+    .eg-popup .leaflet-popup-tip { background: var(--earth-deep); }
+    .eg-popup .leaflet-popup-content { margin: 0; min-width: 230px; }
+
+    .pc { padding: 15px 20px; }
+    .pc-type { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 2px; color: var(--amber); margin-bottom: 3px; }
+    .pc-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .pc-note { font-size: 0.73rem; color: rgba(255,255,255,0.55); margin-bottom: 10px; }
+    .pc-row { display: flex; justify-content: space-between; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.76rem; }
+    .pc-row-lbl { color: rgba(255,255,255,0.45); }
+    .pc-row-val { color: var(--gold-light); font-weight: 600; }
+
+    /* ===== NOMENCLATURE ===== */
+    .nomen-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .nomen-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-warm);
+        transition: all 0.3s;
+        border: 1px solid rgba(44,24,16,0.05);
+    }
+
+    .nomen-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-mid); }
+    .nomen-lang { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .nomen-name { font-size: 1.2rem; font-weight: 700; color: var(--earth-deep); }
+
+    /* ===== PEAKS ===== */
+    .peaks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .peak-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.8rem;
+        box-shadow: var(--shadow-warm);
+        border: 1px solid rgba(44,24,16,0.05);
+        transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .peak-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(to right, var(--terracotta), var(--amber));
+        transform: scaleX(0);
+        transition: transform 0.4s;
+        transform-origin: left;
+    }
+
+    .peak-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-mid); }
+    .peak-card:hover::before { transform: scaleX(1); }
+
+    .peak-rank {
+        position: absolute;
+        top: 1.2rem; right: 1.2rem;
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.78rem; font-weight: 800;
+    }
+
+    .rank-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; }
+    .rank-silver { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: white; }
+    .rank-bronze { background: linear-gradient(135deg, #CD7F32, #B8860B); color: white; }
+    .rank-default { background: var(--sand); color: var(--earth-mid); }
+
+    .peak-name { font-size: 1.15rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.25rem; }
+    .peak-state { font-size: 0.76rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+    .peak-height {
+        display: flex;
+        align-items: baseline; gap: 4px; margin-bottom: 1rem;
+    }
+
+    .peak-h-val { font-size: 2rem; font-weight: 800; color: var(--earth-deep); }
+    .peak-h-unit { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+
+    .peak-bar { height: 5px; background: var(--sand); border-radius: 3px; overflow: hidden; }
+    .peak-bar-fill { height: 100%; background: linear-gradient(to right, var(--terracotta), var(--amber)); border-radius: 3px; }
+    .peak-note { font-size: 0.74rem; color: var(--text-muted); margin-top: 0.8rem; line-height: 1.5; }
+
+    /* ===== RANGES ===== */
+    .ranges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .range-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-warm);
+        border: 1px solid rgba(44,24,16,0.05);
+        transition: all 0.3s;
+        border-top: 4px solid var(--terracotta);
+    }
+
+    .range-card:nth-child(2n) { border-top-color: var(--amber); }
+    .range-card:nth-child(3n) { border-top-color: var(--forest-green); }
+
+    .range-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-mid); }
+
+    .range-name { font-size: 1.15rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.25rem; }
+    .range-state { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+    .range-detail {
+        display: flex; justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(44,24,16,0.06);
+        font-size: 0.82rem;
+    }
+
+    .range-detail:last-child { border: none; }
+    .range-detail-lbl { color: var(--text-muted); }
+    .range-detail-val { font-weight: 700; color: var(--earth-deep); }
+
+    /* ===== DIVISIONS ===== */
+    .divisions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.8rem;
+    }
+
+    .division-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-warm);
+        transition: all 0.4s;
+    }
+
+    .division-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-mid); }
+
+    .division-header {
+        padding: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .div-north { background: linear-gradient(135deg, #1A4A2E, #2D7A4A); }
+    .div-central { background: linear-gradient(135deg, #4A2010, #8B3A20); }
+    .div-south { background: linear-gradient(135deg, #2A4A6E, #3A7AB8); }
+
+    .div-region { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.65; margin-bottom: 0.4rem; }
+    .div-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .div-states { font-size: 0.78rem; opacity: 0.7; }
+
+    .division-body { padding: 1.8rem; }
+
+    .div-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--terracotta); font-weight: 700; margin: 1rem 0 0.5rem; }
+
+    .div-item {
+        display: flex; align-items: center; gap: 8px;
+        padding: 6px 0;
+        font-size: 0.82rem; color: var(--text-secondary);
+        border-bottom: 1px solid rgba(44,24,16,0.05);
+    }
+
+    .div-item:last-child { border: none; }
+    .div-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--terracotta); flex-shrink: 0; }
+
+    /* ===== RIVERS ===== */
+    .rivers-timeline {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .rivers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .river-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.8rem;
+        box-shadow: var(--shadow-warm);
+        border-left: 4px solid var(--sky);
+        transition: all 0.3s;
+    }
+
+    .river-card:hover { transform: translateX(4px); box-shadow: var(--shadow-mid); }
+    .river-name { font-size: 1.05rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.3rem; }
+    .river-location { font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+    .river-break { font-size: 0.82rem; color: var(--text-secondary); }
+    .river-break strong { color: var(--sky); }
+
+    /* ===== WATERFALLS ===== */
+    .waterfalls-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .wf-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-warm);
+        transition: all 0.4s;
+    }
+
+    .wf-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-mid); }
+
+    .wf-visual {
+        height: 110px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .wf-visual-bg { position: absolute; inset: 0; }
+    .wf-bar {
+        position: absolute;
+        right: 18px; bottom: 0;
+        width: 36px;
+        border-radius: 4px 4px 0 0;
+        display: flex; align-items: flex-start; justify-content: center;
+        padding-top: 6px;
+        font-size: 0.66rem; font-weight: 800; color: white;
+    }
+
+    .wf-body { padding: 1.4rem; }
+    .wf-name { font-size: 1.05rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.3rem; }
+    .wf-meta { display: flex; gap: 1rem; font-size: 0.76rem; color: var(--text-muted); }
+    .wf-note { font-size: 0.74rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+    /* ===== BIODIVERSITY ===== */
+    .bio-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.4rem;
+        margin-bottom: 3.5rem;
+    }
+
+    .bio-stat {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-warm);
+        border: 1px solid rgba(44,24,16,0.05);
+        transition: all 0.3s;
+    }
+
+    .bio-stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-mid); }
+    .bio-stat-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .bio-stat-num { font-size: 2.2rem; font-weight: 800; color: var(--earth-deep); line-height: 1; margin-bottom: 0.3rem; }
+    .bio-stat-lbl { font-size: 0.82rem; color: var(--text-muted); }
+    .bio-stat-tag { font-size: 0.68rem; font-weight: 700; color: var(--moss); background: #E8F4E8; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-top: 0.5rem; }
+
+    .species-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .species-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.4rem;
+        display: flex; align-items: flex-start; gap: 1rem;
+        box-shadow: var(--shadow-warm);
+        transition: all 0.3s;
+        border: 1px solid rgba(44,24,16,0.04);
+    }
+
+    .species-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-mid); }
+    .sp-emoji { font-size: 1.8rem; line-height: 1; }
+    .sp-name { font-weight: 700; font-size: 0.88rem; color: var(--earth-deep); margin-bottom: 2px; }
+    .sp-sci { font-size: 0.7rem; color: var(--text-muted); font-style: italic; margin-bottom: 6px; }
+
+    .sp-status {
+        font-size: 0.63rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 4px;
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .st-cr { background: #FEE2E2; color: #B91C1C; }
+    .st-en { background: #FEF3C7; color: #B45309; }
+    .st-vu { background: #DBEAFE; color: #1D4ED8; }
+    .st-un { background: #F3E8FF; color: #6D28D9; }
+    .st-em { background: #ECFDF5; color: #065F46; }
+
+    /* ===== VEGETATION ===== */
+    .veg-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.4rem;
+    }
+
+    .veg-card {
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        min-height: 260px;
+        display: flex; flex-direction: column; justify-content: flex-end;
+        color: white;
+        transition: all 0.4s;
+        position: relative; overflow: hidden;
+    }
+
+    .veg-card:hover { transform: translateY(-5px); }
+
+    .veg-1 { background: linear-gradient(160deg, #1A3A10, #2D5A20); }
+    .veg-2 { background: linear-gradient(160deg, #2D4A10, #4A7020); }
+    .veg-3 { background: linear-gradient(160deg, #4A2A10, #7A4A20); }
+    .veg-4 { background: linear-gradient(160deg, #3A2A1A, #6A4A2A); }
+
+    .veg-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin-bottom: 0.4rem; }
+    .veg-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .veg-desc { font-size: 0.78rem; opacity: 0.75; line-height: 1.6; }
+    .veg-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 0.8rem; }
+    .veg-tag { padding: 3px 9px; background: rgba(255,255,255,0.14); border-radius: 12px; font-size: 0.67rem; border: 1px solid rgba(255,255,255,0.18); }
+
+    /* ===== PROTECTED AREAS ===== */
+    .pa-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .pa-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-warm);
+        transition: all 0.4s;
+    }
+
+    .pa-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-mid); }
+
+    .pa-header {
+        padding: 1.8rem 2rem 1rem;
+    }
+
+    .pa-emoji { font-size: 2.2rem; margin-bottom: 0.8rem; }
+    .pa-type { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--terracotta); font-weight: 700; margin-bottom: 0.3rem; }
+    .pa-name { font-size: 1.1rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.2rem; }
+    .pa-state { font-size: 0.76rem; color: var(--text-muted); }
+
+    .pa-body { padding: 0 2rem 2rem; }
+
+    .pa-hl {
+        display: flex; align-items: flex-start; gap: 8px;
+        padding: 8px 0;
+        font-size: 0.8rem; color: var(--text-secondary);
+        border-bottom: 1px solid rgba(44,24,16,0.05);
+    }
+
+    .pa-hl:last-child { border: none; }
+    .pa-hl-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--terracotta); flex-shrink: 0; margin-top: 6px; }
+
+    /* ===== MINERALS ===== */
+    .minerals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .mineral-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-warm);
+        border: 1px solid rgba(44,24,16,0.05);
+        transition: all 0.3s;
+    }
+
+    .mineral-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-mid); }
+    .mineral-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .mineral-name { font-size: 1rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.3rem; }
+    .mineral-state { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ===== TRIBES ===== */
+    .tribes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .tribe-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 1.8rem;
+        box-shadow: var(--shadow-warm);
+        border-top: 3px solid var(--ochre);
+        transition: all 0.3s;
+    }
+
+    .tribe-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-mid); }
+    .tribe-name { font-size: 1.1rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.3rem; }
+    .tribe-state { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+    .tribe-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ===== SACRED SITES ===== */
+    .sacred-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .sacred-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-warm);
+        text-align: center;
+        transition: all 0.3s;
+        border: 1px solid rgba(44,24,16,0.05);
+    }
+
+    .sacred-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-mid); }
+    .sacred-icon { font-size: 2.2rem; margin-bottom: 0.8rem; }
+    .sacred-name { font-size: 1.05rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.25rem; }
+    .sacred-hill { font-size: 0.78rem; color: var(--terracotta); font-weight: 600; margin-bottom: 0.5rem; }
+    .sacred-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ===== COMPARISON ===== */
+    .cmp-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-warm);
+    }
+
+    .cmp-table thead { background: var(--earth-deep); color: white; }
+    .cmp-table th { padding: 1.2rem 1.5rem; text-align: left; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.5px; }
+    .cmp-table td { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(44,24,16,0.06); font-size: 0.86rem; }
+    .cmp-table tr:last-child td { border: none; }
+    .cmp-table tbody tr:hover { background: var(--parchment); }
+    .cmp-feat { font-weight: 600; color: var(--text-secondary); }
+    .cmp-eg { color: var(--terracotta); font-weight: 600; }
+    .cmp-wg { color: var(--forest-green); font-weight: 600; }
+    .cmp-badge { display: inline-flex; align-items: center; gap: 4px; }
+
+    /* ===== THREATS ===== */
+    .threat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .thr-card, .con-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-warm);
+    }
+
+    .thr-list, .con-list { list-style: none; margin-top: 1.5rem; }
+
+    .thr-list li, .con-list li {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(44,24,16,0.06);
+        font-size: 0.86rem;
+    }
+
+    .thr-list li:last-child, .con-list li:last-child { border: none; }
+    .ti { color: #DC2626; font-size: 1rem; flex-shrink: 0; }
+    .ci { color: var(--forest-green); font-size: 1rem; flex-shrink: 0; }
+
+    /* ===== UNIQUE FEATURES ===== */
+    .unique-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .unique-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-warm);
+        border: 1px solid rgba(44,24,16,0.05);
+        transition: all 0.3s;
+    }
+
+    .unique-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-mid); }
+    .unique-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .unique-title { font-size: 1rem; font-weight: 700; color: var(--earth-deep); margin-bottom: 0.5rem; }
+    .unique-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ===== NEXT TOPICS ===== */
+    .next-section {
+        background: var(--earth-deep);
+        padding: 5rem 2rem;
+    }
+
+    .next-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .next-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 0.8rem;
+    }
+
+    .next-title {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 800;
+        color: white;
+        margin-bottom: 0.8rem;
+    }
+
+    .next-desc {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 3rem;
+    }
+
+    .next-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .next-card {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        text-decoration: none;
+        color: white;
+        transition: all 0.4s;
+        display: flex; flex-direction: column; align-items: center; text-align: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .next-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, var(--terracotta), var(--amber));
+        opacity: 0;
+        transition: opacity 0.4s;
+    }
+
+    .next-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.25); }
+    .next-card:hover::before { opacity: 0.12; }
+
+    .next-card-content { position: relative; z-index: 1; }
+
+    .next-card-emoji { font-size: 2.5rem; margin-bottom: 1rem; }
+    .next-card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .next-card-desc { font-size: 0.78rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+    .next-card-arrow { margin-top: 1rem; font-size: 0.72rem; color: var(--amber); font-weight: 700; letter-spacing: 1px; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+        background: #100806;
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .footer-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .footer-hindi { font-size: 1.1rem; color: var(--gold-light); margin-bottom: 2rem; }
+
+    .footer-stats {
+        display: flex;
+        justify-content: center; gap: 2.5rem;
+        flex-wrap: wrap; margin-bottom: 2rem;
+    }
+
+    .fs-val { font-size: 1.3rem; font-weight: 800; }
+    .fs-lbl { font-size: 0.68rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+    .footer-note { font-size: 0.76rem; color: rgba(255,255,255,0.28); max-width: 600px; margin: 0 auto; line-height: 1.9; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+        .map-grid { grid-template-columns: 1fr; }
+        .map-panel { max-height: 400px; }
+        #egMap { height: 500px; }
+        .divisions-grid { grid-template-columns: 1fr; }
+        .veg-grid { grid-template-columns: repeat(2, 1fr); }
+        .threat-grid { grid-template-columns: 1fr; }
+        .next-cards { grid-template-columns: 1fr; max-width: 420px; }
+        .bio-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .hero-stats { grid-template-columns: repeat(2, 1fr); }
+        .section { padding: 3rem 1rem; }
+        .map-section { padding: 3rem 1rem; }
+        .veg-grid { grid-template-columns: 1fr; }
+        .back-bar-center { display: none; }
+        .peaks-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ===== BACK BAR ===== -->
+<div class="back-bar">
+    <a class="back-btn" href="javascript:history.back()" onclick="if(!document.referrer)location.href='index.html'">
+        <span class="back-btn-arrow">←</span>
+        <span>Back to Bharat</span>
+    </a>
+    <span class="back-bar-center">भारत · Physical Geography</span>
+    <span class="back-bar-right">⛰ Eastern Ghats</span>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+    <div class="hero-particles" id="heroParticles"></div>
+
+    <!-- Mountain silhouettes -->
+    <div class="hero-mountains">
+        <svg viewBox="0 0 1440 340" preserveAspectRatio="none" style="height:340px">
+            <path fill="rgba(44,24,16,0.4)" d="M0,240 C100,210 180,250 300,220 C420,190 460,240 560,230 C660,220 700,200 800,215 C900,230 980,210 1080,225 C1180,240 1300,215 1440,230 L1440,340 L0,340 Z"/>
+            <path fill="rgba(44,24,16,0.65)" d="M0,270 C140,245 220,275 380,255 C540,235 580,260 720,250 C860,240 920,265 1060,252 C1200,239 1320,262 1440,255 L1440,340 L0,340 Z"/>
+            <path fill="rgba(28,14,8,0.85)" d="M0,295 C160,278 260,300 440,285 C620,270 680,295 860,282 C1040,269 1160,290 1300,280 C1360,275 1400,282 1440,278 L1440,340 L0,340 Z"/>
+            <path fill="#1A0A04" d="M0,315 C200,302 340,320 520,310 C700,300 780,318 960,308 C1140,298 1280,315 1440,308 L1440,340 L0,340 Z"/>
+        </svg>
+    </div>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <span>⛰ Eastern Mountain Range · Discontinuous Ghats</span>
+        </div>
+        <h1 class="hero-title">Eastern Ghats</h1>
+        <div class="hero-hindi">पूर्वी घाट · Purva Kondalu</div>
+        <p class="hero-desc">
+            Ancient, broken, and deeply carved by rivers — the Eastern Ghats stretch 1,750 km along 
+            India's eastern coast, holding the oldest rocks, unique red-sanders forests, 
+            and the critically endangered Jerdon's Courser.
+        </p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-num">1,750<span class="hero-stat-unit"> km</span></span>
+                <div class="hero-stat-lbl">Length</div>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-num">4<span class="hero-stat-unit"> states</span></span>
+                <div class="hero-stat-lbl">Coverage</div>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-num">1,690<span class="hero-stat-unit"> m</span></span>
+                <div class="hero-stat-lbl">Highest Peak</div>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-num">Precambrian</span>
+                <div class="hero-stat-lbl">Rock Age</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-cue">
+        <div class="scroll-cue-label">Scroll</div>
+        <div class="scroll-cue-line"></div>
+    </div>
+</section>
+
+<!-- ===== NAV ===== -->
+<nav class="nav" id="mainNav">
+    <div class="nav-inner">
+        <div class="nav-brand">⛰ E. Ghats</div>
+        <button class="nav-link active" data-target="map-sec">Map</button>
+        <button class="nav-link" data-target="names-sec">Names</button>
+        <button class="nav-link" data-target="divisions-sec">Divisions</button>
+        <button class="nav-link" data-target="peaks-sec">Peaks</button>
+        <button class="nav-link" data-target="ranges-sec">Ranges</button>
+        <button class="nav-link" data-target="rivers-sec">Rivers</button>
+        <button class="nav-link" data-target="waterfalls-sec">Waterfalls</button>
+        <button class="nav-link" data-target="bio-sec">Biodiversity</button>
+        <button class="nav-link" data-target="veg-sec">Vegetation</button>
+        <button class="nav-link" data-target="pa-sec">Protected Areas</button>
+        <button class="nav-link" data-target="minerals-sec">Minerals</button>
+        <button class="nav-link" data-target="tribes-sec">Tribes</button>
+        <button class="nav-link" data-target="sacred-sec">Sacred Sites</button>
+        <button class="nav-link" data-target="cmp-sec">Compare</button>
+        <button class="nav-link" data-target="threats-sec">Conservation</button>
+    </div>
+</nav>
+
+<!-- ===== MAP ===== -->
+<section class="map-section" id="map-sec">
+    <div class="section-header">
+        <div class="section-tag"><span class="tag-line"></span>Interactive Map<span class="tag-line"></span></div>
+        <h2 class="section-title">Explore the Eastern Ghats</h2>
+        <p class="section-desc">Click markers to discover peaks, parks, waterfalls, sacred sites and more across the discontinuous mountain range</p>
+    </div>
+    <div class="map-wrap">
+        <div class="map-grid">
+            <div id="egMap"></div>
+            <div class="map-panel">
+                <h3 class="map-panel-title">Eastern Ghats Atlas</h3>
+                <p class="map-panel-sub">Stretching discontinuously 1,750 km through 4 states, cut by major rivers, home to ancient Precambrian rocks.</p>
+
+                <div class="filter-group">
+                    <div class="filter-label">Filter by Type</div>
+                    <div class="filters" id="egFilters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="peak">⛰ Peaks</button>
+                        <button class="filter-btn" data-filter="park">🦁 Parks</button>
+                        <button class="filter-btn" data-filter="waterfall">💧 Waterfalls</button>
+                        <button class="filter-btn" data-filter="sacred">🛕 Sacred</button>
+                        <button class="filter-btn" data-filter="range">🏔 Ranges</button>
+                        <button class="filter-btn" data-filter="river">🌊 Rivers</button>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#C4622D"></div>Peaks</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#2D5A27"></div>National Parks / Sanctuaries</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#3A7AB8"></div>Waterfalls</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#C9A84C"></div>Sacred Sites</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#8B5A3C"></div>Hill Ranges</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#2A6B6B"></div>River Gorges</div>
+                </div>
+
+                <div class="info-card" id="egInfoCard">
+                    <h4>Click a marker</h4>
+                    <p>Select any marker on the map to see detailed information about that location.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-stat"><span class="info-stat-lbl">Total Length</span><span class="info-stat-val">1,750 km</span></div>
+                    <div class="info-stat"><span class="info-stat-lbl">Nature</span><span class="info-stat-val">Discontinuous</span></div>
+                    <div class="info-stat"><span class="info-stat-lbl">Avg Height</span><span class="info-stat-val">~600 m</span></div>
+                    <div class="info-stat"><span class="info-stat-lbl">Rock Type</span><span class="info-stat-val">Precambrian Gneiss</span></div>
+                    <div class="info-stat"><span class="info-stat-lbl">UNESCO Status</span><span class="info-stat-val">Not Listed</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== NOMENCLATURE ===== -->
+<section class="section" id="names-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Nomenclature<span class="tag-line"></span></div>
+        <h2 class="section-title">Names Across Languages</h2>
+        <p class="section-desc">The Eastern Ghats are known by different names across the linguistic tapestry of eastern and southern India</p>
+    </div>
+    <div class="nomen-grid">
+        <div class="nomen-card ani d1"><div class="nomen-lang">Telugu</div><div class="nomen-name">పూర్వ కొండలు</div></div>
+        <div class="nomen-card ani d2"><div class="nomen-lang">Tamil</div><div class="nomen-name">கிழக்கு தொடர்ச்சி மலை</div></div>
+        <div class="nomen-card ani d3"><div class="nomen-lang">Odia</div><div class="nomen-name">ପୂର୍ବ ଘାଟ</div></div>
+        <div class="nomen-card ani d4"><div class="nomen-lang">Hindi</div><div class="nomen-name">पूर्वी घाट</div></div>
+        <div class="nomen-card ani d1"><div class="nomen-lang">English</div><div class="nomen-name">Eastern Ghats</div></div>
+        <div class="nomen-card ani d2"><div class="nomen-lang">Sanskrit</div><div class="nomen-name">पूर्व घाटाः</div></div>
+    </div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== DIVISIONS ===== -->
+<section class="section" id="divisions-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Geographic Divisions<span class="tag-line"></span></div>
+        <h2 class="section-title">North to South</h2>
+        <p class="section-desc">Three broad geographic divisions from West Bengal-Odisha in the north to Tamil Nadu in the south</p>
+    </div>
+    <div class="divisions-grid">
+        <div class="division-card ani d1">
+            <div class="division-header div-north">
+                <div class="div-region">Northern Section</div>
+                <div class="div-title">Odisha Hills</div>
+                <div class="div-states">West Bengal · Odisha</div>
+            </div>
+            <div class="division-body">
+                <div class="div-section-title">Major Ranges</div>
+                <div class="div-item"><div class="div-dot"></div>Simlipal Range</div>
+                <div class="div-item"><div class="div-dot"></div>Malayagiri Range</div>
+                <div class="div-item"><div class="div-dot"></div>Mahendragiri Range</div>
+                <div class="div-section-title">Major Peaks</div>
+                <div class="div-item"><div class="div-dot"></div>Mahendragiri – 1,501 m (Odisha's highest)</div>
+                <div class="div-item"><div class="div-dot"></div>Malayagiri – 1,187 m</div>
+                <div class="div-item"><div class="div-dot"></div>Meghasani – 1,165 m</div>
+                <div class="div-section-title">Key Features</div>
+                <div class="div-item"><div class="div-dot"></div>Chilika Lake – largest brackish water</div>
+                <div class="div-item"><div class="div-dot"></div>Simlipal Biosphere Reserve</div>
+                <div class="div-item"><div class="div-dot"></div>Rivers: Mahanadi, Brahmani, Baitarani</div>
+            </div>
+        </div>
+        <div class="division-card ani d2">
+            <div class="division-header div-central">
+                <div class="div-region">Central Section</div>
+                <div class="div-title">Andhra Hills</div>
+                <div class="div-states">Andhra Pradesh · Telangana</div>
+            </div>
+            <div class="division-body">
+                <div class="div-section-title">Major Ranges</div>
+                <div class="div-item"><div class="div-dot"></div>Nallamala Hills</div>
+                <div class="div-item"><div class="div-dot"></div>Velikonda Range</div>
+                <div class="div-item"><div class="div-dot"></div>Palakonda Range</div>
+                <div class="div-item"><div class="div-dot"></div>Seshachalam Hills</div>
+                <div class="div-section-title">Major Peaks</div>
+                <div class="div-item"><div class="div-dot"></div>Arma Konda – 1,690 m (Highest in EG)</div>
+                <div class="div-item"><div class="div-dot"></div>Gali Konda – 1,643 m</div>
+                <div class="div-item"><div class="div-dot"></div>Sinkaram Gutta – 1,620 m</div>
+                <div class="div-section-title">Key Features</div>
+                <div class="div-item"><div class="div-dot"></div>Nagarjunsagar-Srisailam Tiger Reserve</div>
+                <div class="div-item"><div class="div-dot"></div>Red sanders forests (unique)</div>
+                <div class="div-item"><div class="div-dot"></div>Rivers: Godavari, Krishna, Pennar</div>
+            </div>
+        </div>
+        <div class="division-card ani d3">
+            <div class="division-header div-south">
+                <div class="div-region">Southern Section</div>
+                <div class="div-title">Tamil Hills</div>
+                <div class="div-states">Tamil Nadu</div>
+            </div>
+            <div class="division-body">
+                <div class="div-section-title">Major Ranges</div>
+                <div class="div-item"><div class="div-dot"></div>Javadi Hills</div>
+                <div class="div-item"><div class="div-dot"></div>Shevaroy Hills</div>
+                <div class="div-item"><div class="div-dot"></div>Pachaimalai Hills</div>
+                <div class="div-item"><div class="div-dot"></div>Kolli Hills</div>
+                <div class="div-item"><div class="div-dot"></div>Sirumalai Hills</div>
+                <div class="div-section-title">Major Peaks</div>
+                <div class="div-item"><div class="div-dot"></div>Servarayan – 1,623 m</div>
+                <div class="div-item"><div class="div-dot"></div>Kolli Hills – 1,300 m</div>
+                <div class="div-section-title">Key Features</div>
+                <div class="div-item"><div class="div-dot"></div>Hill station: Yercaud</div>
+                <div class="div-item"><div class="div-dot"></div>Meets Western Ghats at Nilgiris</div>
+                <div class="div-item"><div class="div-dot"></div>Coffee & orange cultivation</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== PEAKS ===== -->
+<section class="section" id="peaks-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Major Peaks<span class="tag-line"></span></div>
+        <h2 class="section-title">Summits of the East</h2>
+        <p class="section-desc">Lower than the Western Ghats but rich in character — the Eastern Ghats peaks hold distinct ecosystems and unique biodiversity</p>
+    </div>
+    <div class="peaks-grid" id="peaksGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== RANGES ===== -->
+<section class="section" id="ranges-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Hill Ranges<span class="tag-line"></span></div>
+        <h2 class="section-title">The Broken Mountain Chains</h2>
+        <p class="section-desc">Each isolated hill range of the Eastern Ghats has its own character, forests, and cultural significance</p>
+    </div>
+    <div class="ranges-grid" id="rangesGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== RIVERS ===== -->
+<section class="section" id="rivers-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Rivers<span class="tag-line"></span></div>
+        <h2 class="section-title">Rivers That Divide</h2>
+        <p class="section-desc">Unlike the Western Ghats which birth rivers, the Eastern Ghats are cut through by major Peninsular rivers — making them discontinuous</p>
+    </div>
+    <div class="rivers-grid" id="riversGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== WATERFALLS ===== -->
+<section class="section" id="waterfalls-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Waterfalls<span class="tag-line"></span></div>
+        <h2 class="section-title">Cascades of the East</h2>
+        <p class="section-desc">The river gorges cutting through the Eastern Ghats create spectacular waterfalls, many in remote tribal territories</p>
+    </div>
+    <div class="waterfalls-grid" id="waterfallsGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== BIODIVERSITY ===== -->
+<section class="section" id="bio-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Biodiversity<span class="tag-line"></span></div>
+        <h2 class="section-title">Wildlife & Endemism</h2>
+        <p class="section-desc">While not a global hotspot like the Western Ghats, the Eastern Ghats harbor several unique and critically endangered species found nowhere else</p>
+    </div>
+    <div class="bio-stats-grid ani">
+        <div class="bio-stat"><div class="bio-stat-icon">🐦</div><div class="bio-stat-num">300+</div><div class="bio-stat-lbl">Bird Species</div><div class="bio-stat-tag">Jerdon's Courser endemic</div></div>
+        <div class="bio-stat"><div class="bio-stat-icon">🌲</div><div class="bio-stat-num">2,000+</div><div class="bio-stat-lbl">Plant Species</div><div class="bio-stat-tag">Red sanders unique here</div></div>
+        <div class="bio-stat"><div class="bio-stat-icon">🐅</div><div class="bio-stat-num">50+</div><div class="bio-stat-lbl">Tiger Population</div><div class="bio-stat-tag">Nagarjunsagar-Srisailam</div></div>
+        <div class="bio-stat"><div class="bio-stat-icon">🦎</div><div class="bio-stat-num">3</div><div class="bio-stat-lbl">Endemic Species</div><div class="bio-stat-tag">Golden Gecko notable</div></div>
+    </div>
+    <div class="species-grid" id="speciesGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== VEGETATION ===== -->
+<section class="section" id="veg-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Vegetation<span class="tag-line"></span></div>
+        <h2 class="section-title">Forest Cover</h2>
+        <p class="section-desc">Drier than the Western Ghats, the Eastern Ghats are dominated by tropical dry deciduous forests with pockets of moist forest in river valleys</p>
+    </div>
+    <div class="veg-grid">
+        <div class="veg-card veg-1">
+            <div class="veg-label">Dominant Type</div>
+            <div class="veg-title">Tropical Dry Deciduous</div>
+            <div class="veg-desc">Covers most of the Eastern Ghats. Trees shed leaves in summer. Teak and sal dominate.</div>
+            <div class="veg-tags"><span class="veg-tag">Teak</span><span class="veg-tag">Sal</span><span class="veg-tag">Mahua</span></div>
+        </div>
+        <div class="veg-card veg-2">
+            <div class="veg-label">River Valleys</div>
+            <div class="veg-title">Moist Deciduous</div>
+            <div class="veg-desc">Along river valleys with higher moisture. Richer biodiversity than dry zones.</div>
+            <div class="veg-tags"><span class="veg-tag">Bamboo</span><span class="veg-tag">Ebony</span><span class="veg-tag">Rosewood</span></div>
+        </div>
+        <div class="veg-card veg-3">
+            <div class="veg-label">Rain Shadow Areas</div>
+            <div class="veg-title">Thorn Forests</div>
+            <div class="veg-desc">In areas receiving very low rainfall. Thorny shrubs, cacti, and stunted trees.</div>
+            <div class="veg-tags"><span class="veg-tag">Acacia</span><span class="veg-tag">Cactus</span><span class="veg-tag">Euphorbia</span></div>
+        </div>
+        <div class="veg-card veg-4">
+            <div class="veg-label">Unique to Eastern Ghats</div>
+            <div class="veg-title">Red Sanders Forest</div>
+            <div class="veg-desc">Found only in Seshachalam Hills. Critically endangered. Heavily smuggled internationally.</div>
+            <div class="veg-tags"><span class="veg-tag">Red Sanders</span><span class="veg-tag">Sandalwood</span><span class="veg-tag">Endangered</span></div>
+        </div>
+    </div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== PROTECTED AREAS ===== -->
+<section class="section" id="pa-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Protected Areas<span class="tag-line"></span></div>
+        <h2 class="section-title">Sanctuaries of the East</h2>
+        <p class="section-desc">A network of national parks, tiger reserves, and wildlife sanctuaries protecting the Eastern Ghats' fragile ecosystems</p>
+    </div>
+    <div class="pa-grid" id="paGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== MINERALS ===== -->
+<section class="section" id="minerals-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Minerals<span class="tag-line"></span></div>
+        <h2 class="section-title">Mineral Wealth</h2>
+        <p class="section-desc">The Eastern Ghats are among India's richest mineral zones — a blessing and a bane for conservation</p>
+    </div>
+    <div class="minerals-grid" id="mineralsGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== TRIBES ===== -->
+<section class="section" id="tribes-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Indigenous Communities<span class="tag-line"></span></div>
+        <h2 class="section-title">Tribal Heritage</h2>
+        <p class="section-desc">The Eastern Ghats have been home to indigenous communities for millennia, with rich cultures, languages, and ecological knowledge</p>
+    </div>
+    <div class="tribes-grid" id="tribesGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== SACRED SITES ===== -->
+<section class="section" id="sacred-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Sacred Sites<span class="tag-line"></span></div>
+        <h2 class="section-title">Mountains of Faith</h2>
+        <p class="section-desc">The Eastern Ghats hold some of India's most revered pilgrimage destinations, with temples perched on ancient hills</p>
+    </div>
+    <div class="sacred-grid" id="sacredGrid"></div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== COMPARISON ===== -->
+<section class="section" id="cmp-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Comparison<span class="tag-line"></span></div>
+        <h2 class="section-title">Eastern vs Western Ghats</h2>
+        <p class="section-desc">A detailed comparison of India's two great escarpment ranges — contrasting in almost every characteristic</p>
+    </div>
+    <div class="ani">
+        <table class="cmp-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>⛰ Eastern Ghats</th>
+                    <th>🌲 Western Ghats</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="cmp-feat">Continuity</td><td class="cmp-eg">Discontinuous (broken by rivers)</td><td class="cmp-wg">Continuous</td></tr>
+                <tr><td class="cmp-feat">Length</td><td class="cmp-eg">~1,750 km</td><td class="cmp-wg">1,600 km</td></tr>
+                <tr><td class="cmp-feat">Average Height</td><td class="cmp-eg">~600 m</td><td class="cmp-wg">~1,500 m</td></tr>
+                <tr><td class="cmp-feat">Highest Peak</td><td class="cmp-eg">Arma Konda (1,690 m)</td><td class="cmp-wg">Anamudi (2,695 m)</td></tr>
+                <tr><td class="cmp-feat">Annual Rainfall</td><td class="cmp-eg">1,000–1,500 mm</td><td class="cmp-wg">2,000–8,000 mm</td></tr>
+                <tr><td class="cmp-feat">Dominant Monsoon</td><td class="cmp-eg">Northeast (Oct–Dec)</td><td class="cmp-wg">Southwest (Jun–Sep)</td></tr>
+                <tr><td class="cmp-feat">Rivers</td><td class="cmp-eg">Cut through (Godavari, Krishna…)</td><td class="cmp-wg">Originate from here</td></tr>
+                <tr><td class="cmp-feat">Biodiversity</td><td class="cmp-eg">Moderate</td><td class="cmp-wg">Global Hotspot</td></tr>
+                <tr><td class="cmp-feat">UNESCO Status</td><td class="cmp-eg" style="color:#DC2626">✗ Not listed</td><td class="cmp-wg" style="color:#16A34A">✓ Yes (2012)</td></tr>
+                <tr><td class="cmp-feat">Endemism</td><td class="cmp-eg">Lower</td><td class="cmp-wg">Very High</td></div></td></tr>
+                <tr><td class="cmp-feat">Rock Age</td><td class="cmp-eg">Precambrian (Archaean)</td><td class="cmp-wg">Cretaceous (150 Ma)</td></tr>
+                <tr><td class="cmp-feat">Rock Type</td><td class="cmp-eg">Granites, Gneisses</td><td class="cmp-wg">Basalt (Deccan Traps)</td></tr>
+                <tr><td class="cmp-feat">Minerals</td><td class="cmp-eg">Bauxite, Iron, Mica, Manganese</td><td class="cmp-wg">Laterite, Bauxite</td></tr>
+                <tr><td class="cmp-feat">Coast</td><td class="cmp-eg">Bay of Bengal (East)</td><td class="cmp-wg">Arabian Sea (West)</td></tr>
+                <tr><td class="cmp-feat">Unique Feature</td><td class="cmp-eg">Red Sanders, Jerdon's Courser</td><td class="cmp-wg">Shola Forests, Purple Frog</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== THREATS & CONSERVATION ===== -->
+<section class="section" id="threats-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>Conservation<span class="tag-line"></span></div>
+        <h2 class="section-title">Threats & Protection</h2>
+        <p class="section-desc">The Eastern Ghats face severe pressures from mining, deforestation, and smuggling — while conservation efforts slowly grow</p>
+    </div>
+    <div class="threat-grid ani">
+        <div class="thr-card">
+            <h3 style="font-size:1.2rem; color:#DC2626; margin-bottom:0.4rem">⚠ Major Threats</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted)">Ongoing pressures on the ecosystem</p>
+            <ul class="thr-list">
+                <li><span class="ti">⛏</span><div><strong>Bauxite & Iron Ore Mining</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Extensive open-cast mining in Odisha & AP — major habitat destruction</span></div></li>
+                <li><span class="ti">🪓</span><div><strong>Deforestation</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Forest loss for agriculture, timber and development projects</span></div></li>
+                <li><span class="ti">🌲</span><div><strong>Red Sanders Smuggling</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">High-value wood illegally exported to East Asia; critically threatened</span></div></li>
+                <li><span class="ti">🏘</span><div><strong>Encroachment</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Expanding settlements into tribal forest areas</span></div></li>
+                <li><span class="ti">🐅</span><div><strong>Human-Wildlife Conflict</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Tiger, elephant and leopard conflicts with farming communities</span></div></li>
+                <li><span class="ti">💧</span><div><strong>Dam Construction</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">River gorges submerged by hydroelectric projects</span></div></li>
+            </ul>
+        </div>
+        <div class="con-card">
+            <h3 style="font-size:1.2rem; color:var(--forest-green); margin-bottom:0.4rem">🛡 Conservation Efforts</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted)">Steps taken to protect the ecosystem</p>
+            <ul class="con-list">
+                <li><span class="ci">🐯</span><div><strong>Tiger Reserve Network</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Nagarjunsagar-Srisailam is India's largest Tiger Reserve (3,568 km²)</span></div></li>
+                <li><span class="ci">🌲</span><div><strong>Red Sanders Protection</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">AP Forest Dept special task force; CITES Appendix II listing</span></div></li>
+                <li><span class="ci">🗺</span><div><strong>Protected Area Expansion</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">New sanctuaries and national parks in biodiversity-rich zones</span></div></li>
+                <li><span class="ci">👥</span><div><strong>Eco-Restoration</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Community-based restoration programs with tribal involvement</span></div></li>
+                <li><span class="ci">🔬</span><div><strong>Research Stations</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Jerdon's Courser monitoring; endemic species surveys</span></div></li>
+                <li><span class="ci">⚖</span><div><strong>Mining Regulation</strong><br><span style="font-size:0.76rem;color:var(--text-muted)">Supreme Court orders; environmental impact assessments</span></div></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<div class="sep"><div class="sep-line"></div></div>
+
+<!-- ===== UNIQUE FEATURES ===== -->
+<section class="section" id="unique-sec">
+    <div class="section-header ani">
+        <div class="section-tag"><span class="tag-line"></span>What Makes It Special<span class="tag-line"></span></div>
+        <h2 class="section-title">Unique Features</h2>
+        <p class="section-desc">Despite being overshadowed by its western counterpart, the Eastern Ghats hold several irreplaceable ecological and cultural treasures</p>
+    </div>
+    <div class="unique-grid">
+        <div class="unique-card ani d1">
+            <div class="unique-icon">🌲</div>
+            <div class="unique-title">Red Sanders Forests</div>
+            <div class="unique-desc">Pterocarpus santalinus grows only in Seshachalam Hills of AP. Its deep red wood is among the world's most expensive. Listed under CITES Appendix II. Heavily smuggled to China and Japan.</div>
+        </div>
+        <div class="unique-card ani d2">
+            <div class="unique-icon">🐦</div>
+            <div class="unique-title">Jerdon's Courser</div>
+            <div class="unique-desc">Critically Endangered nocturnal bird found only in rocky ravines of Nallamala Hills (AP). Thought extinct for 86 years, rediscovered in 1986. Fewer than 50 individuals estimated to survive.</div>
+        </div>
+        <div class="unique-card ani d3">
+            <div class="unique-icon">🪨</div>
+            <div class="unique-title">Oldest Rock Formations</div>
+            <div class="unique-desc">Precambrian Archaean gneisses — among the oldest rocks in India at 2–3 billion years. Rich in minerals like bauxite, chromite, mica and iron ore due to ancient weathering cycles.</div>
+        </div>
+        <div class="unique-card ani d4">
+            <div class="unique-icon">🦎</div>
+            <div class="unique-title">Golden Gecko</div>
+            <div class="unique-desc">Calodactylodes aureus — a rare, large golden-yellow gecko found only in Eastern Ghats rocks. Listed as Vulnerable by IUCN. Shelters in rock crevices and temple walls.</div>
+        </div>
+        <div class="unique-card ani d1">
+            <div class="unique-icon">🏛</div>
+            <div class="unique-title">Rich Tribal Culture</div>
+            <div class="unique-desc">Home to Kondh, Savara, Yanadi, Malayali and other ancient tribes with unique languages, art forms, medicinal plant knowledge and traditions dating back thousands of years.</div>
+        </div>
+        <div class="unique-card ani d2">
+            <div class="unique-icon">🌊</div>
+            <div class="unique-title">River Gorge Ecosystems</div>
+            <div class="unique-desc">Papi Hills gorge on Godavari, Nallamala gorges on Krishna — dramatic river-cut passages through mountains creating unique riparian ecosystems with high fish diversity.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== NEXT TOPICS ===== -->
+<div class="next-section">
+    <div class="next-inner">
+        <div class="next-label">Continue Exploring India</div>
+        <h2 class="next-title">What to Explore Next</h2>
+        <p class="next-desc">Journey through India's diverse physical geography</p>
+        <div class="next-cards">
+            <a class="next-card" href="himalayas.html">
+                <div class="next-card-content">
+                    <div class="next-card-emoji">🏔</div>
+                    <div class="next-card-title">The Himalayas</div>
+                    <div class="next-card-desc">World's youngest and tallest mountains — the roof of India, birthplace of sacred rivers and home to perpetual snow</div>
+                    <div class="next-card-arrow">Explore →</div>
+                </div>
+            </a>
+            <a class="next-card" href="northern-plains.html">
+                <div class="next-card-content">
+                    <div class="next-card-emoji">🌾</div>
+                    <div class="next-card-title">Northern Plains</div>
+                    <div class="next-card-desc">The Great Indo-Gangetic Plains — India's agricultural heartland, formed by three mighty river systems, home to 400 million people</div>
+                    <div class="next-card-arrow">Explore →</div>
+                </div>
+            </a>
+            <a class="next-card" href="sundarbans.html">
+                <div class="next-card-content">
+                    <div class="next-card-emoji">🐯</div>
+                    <div class="next-card-title">Sundarbans</div>
+                    <div class="next-card-desc">World's largest mangrove delta — UNESCO Heritage, Bengal Tiger's last great stronghold, where the Ganges meets the sea</div>
+                    <div class="next-card-arrow">Explore →</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="footer-title">⛰ Eastern Ghats</div>
+    <div class="footer-hindi">पूर्वी घाट — Ancient Mountains of the East</div>
+    <div class="footer-stats">
+        <div><div class="fs-val">1,750 km</div><div class="fs-lbl">Length</div></div>
+        <div><div class="fs-val">4 States</div><div class="fs-lbl">Coverage</div></div>
+        <div><div class="fs-val">1,690 m</div><div class="fs-lbl">Highest Peak</div></div>
+        <div><div class="fs-val">Precambrian</div><div class="fs-lbl">Rock Age</div></div>
+        <div><div class="fs-val">Discontinuous</div><div class="fs-lbl">Nature</div></div>
+    </div>
+    <p class="footer-note">
+        The Eastern Ghats, though less celebrated than their western counterpart, are an ancient ecological and cultural treasure of India. 
+        From the unique red-sanders forests to the critically endangered Jerdon's Courser, 
+        they deserve urgent conservation attention and greater scientific study.
+    </p>
+</footer>
+
+<script>
+// ===== HERO PARTICLES =====
+(function() {
+    const c = document.getElementById('heroParticles');
+    for (let i = 0; i < 12; i++) {
+        const d = document.createElement('div');
+        d.className = 'dust-particle';
+        d.style.cssText = `
+            width: ${150 + Math.random()*350}px;
+            height: ${80 + Math.random()*160}px;
+            top: ${10 + Math.random()*70}%;
+            left: ${Math.random()*100}%;
+            animation-duration: ${18 + Math.random()*22}s;
+            animation-delay: ${-Math.random()*20}s;
+        `;
+        c.appendChild(d);
+    }
+})();
+
+// ===== MAP =====
+const map = L.map('egMap', { zoomControl: false, attributionControl: true }).setView([15.5, 80.5], 6);
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap, © CARTO', maxZoom: 18
+}).addTo(map);
+
+// Eastern Ghats extent (discontinuous — drawn as segments)
+const ghatsSegments = [
+    // North: Odisha
+    [[22.0, 86.5], [21.5, 86.2], [21.0, 85.8], [20.5, 85.5], [20.0, 84.8]],
+    // Break at Mahanadi
+    [[19.5, 84.5], [19.0, 84.2], [18.5, 83.8]],
+    // Break at Godavari
+    [[18.0, 83.5], [17.5, 82.8], [17.0, 82.3], [16.5, 81.8]],
+    // Break at Krishna
+    [[16.0, 80.8], [15.5, 80.2], [15.0, 79.8], [14.5, 79.5]],
+    // Southern: Tamil Nadu
+    [[13.5, 79.2], [13.0, 79.0], [12.5, 78.8], [12.0, 78.5], [11.5, 78.2]]
+];
+
+ghatsSegments.forEach(seg => {
+    L.polyline(seg, { color: '#C4622D', weight: 4, opacity: 0.55, dashArray: '10,7', lineJoin: 'round' }).addTo(map);
+});
+
+const egData = [
+    // PEAKS
+    { type:'peak', name:'Arma Konda', lat:18.3500, lng:83.2000, h:'1,690 m', state:'Andhra Pradesh', note:'Highest peak in Eastern Ghats', color:'#C4622D' },
+    { type:'peak', name:'Gali Konda', lat:18.2000, lng:83.1000, h:'1,643 m', state:'Andhra Pradesh', note:'2nd highest peak', color:'#C4622D' },
+    { type:'peak', name:'Servarayan', lat:11.8100, lng:78.2300, h:'1,623 m', state:'Tamil Nadu', note:'Highest in Shevaroy Hills; Yercaud nearby', color:'#C4622D' },
+    { type:'peak', name:'Sinkaram Gutta', lat:18.1500, lng:83.0500, h:'1,620 m', state:'Andhra Pradesh', note:'3rd highest, Eastern Ghats', color:'#C4622D' },
+    { type:'peak', name:'Mahendragiri', lat:19.0100, lng:83.9500, h:'1,501 m', state:'Odisha', note:"Odisha's highest peak", color:'#C4622D' },
+    { type:'peak', name:'Malayagiri', lat:20.8500, lng:85.0500, h:'1,187 m', state:'Odisha', note:'Prominent peak; religious significance', color:'#C4622D' },
+    { type:'peak', name:'Kolli Hills', lat:11.2500, lng:78.3500, h:'1,300 m', state:'Tamil Nadu', note:'70 hairpin bends; organic farming hub', color:'#C4622D' },
+
+    // PARKS & SANCTUARIES
+    { type:'park', name:'Simlipal NP', lat:21.8392, lng:86.4503, area:'2,750 km²', state:'Odisha', note:'Tiger Reserve + Biosphere Reserve; elephant habitat', color:'#2D5A27' },
+    { type:'park', name:'Nagarjunsagar-Srisailam TR', lat:16.0500, lng:79.3000, area:'3,568 km²', state:'AP/Telangana', note:"India's largest Tiger Reserve", color:'#2D5A27' },
+    { type:'park', name:'Sri Venkateswara NP', lat:13.4000, lng:79.2000, area:'353 km²', state:'Andhra Pradesh', note:'Seshachalam Hills; Red sanders zone', color:'#2D5A27' },
+    { type:'park', name:'Papikonda NP', lat:17.2500, lng:81.7500, area:'1,012 km²', state:'Andhra Pradesh', note:'Papi Hills; Godavari gorge', color:'#2D5A27' },
+    { type:'park', name:'Satkosia Gorge WLS', lat:20.5000, lng:84.5000, area:'795 km²', state:'Odisha', note:'Mahanadi gorge; gharial sanctuary', color:'#2D5A27' },
+
+    // WATERFALLS
+    { type:'waterfall', name:'Talakona Falls', lat:13.5500, lng:79.0500, h:'270 m', state:'Andhra Pradesh', note:"Highest waterfall in AP; inside Sri Venkateswara NP", color:'#3A7AB8' },
+    { type:'waterfall', name:'Khandadhar Falls', lat:21.5500, lng:84.4000, h:'244 m', state:'Odisha', note:'Serene waterfall in dense Simlipal forest', color:'#3A7AB8' },
+    { type:'waterfall', name:'Duduma Falls', lat:18.3167, lng:82.9000, h:'175 m', state:'Odisha/AP', note:'On Machkund River; border of Odisha and AP', color:'#3A7AB8' },
+    { type:'waterfall', name:'Ethipothala Falls', lat:16.4000, lng:79.6500, h:'12 m', state:'Andhra Pradesh', note:'On Chandravanka river; crocodile project nearby', color:'#3A7AB8' },
+    { type:'waterfall', name:'Kiliyur Falls', lat:11.8000, lng:78.2000, h:'61 m', state:'Tamil Nadu', note:'Inside Yercaud forest; Shevaroy Hills', color:'#3A7AB8' },
+
+    // SACRED SITES
+    { type:'sacred', name:'Tirupati (Tirumala)', lat:13.6834, lng:79.3470, state:'Andhra Pradesh', note:'Seshachalam Hills; richest temple in world; 50,000+ daily pilgrims', color:'#C9A84C' },
+    { type:'sacred', name:'Srisailam', lat:16.0748, lng:78.8683, state:'Andhra Pradesh', note:'Nallamala Hills; Jyotirlinga; on Krishna River gorge', color:'#C9A84C' },
+    { type:'sacred', name:'Simhachalam', lat:17.7642, lng:83.2670, state:'Andhra Pradesh', note:'Hilltop temple of Lord Narasimha; ancient 11th century', color:'#C9A84C' },
+    { type:'sacred', name:'Mangalagiri', lat:16.4300, lng:80.5600, state:'Andhra Pradesh', note:'Hilltop Vishnu temple; famous for "Panakala Narasimha"', color:'#C9A84C' },
+
+    // RANGES
+    { type:'range', name:'Nallamala Hills', lat:16.0000, lng:79.0000, state:'AP/Telangana', note:'430 km long; Nallamala forests; Srisailam Tiger Reserve', color:'#8B5A3C' },
+    { type:'range', name:'Seshachalam Hills', lat:13.6000, lng:79.1000, state:'Andhra Pradesh', note:'Red sanders endemic zone; Tirupati temple', color:'#8B5A3C' },
+    { type:'range', name:'Shevaroy Hills', lat:11.8000, lng:78.1500, state:'Tamil Nadu', note:'Yercaud hill station; coffee & orange', color:'#8B5A3C' },
+    { type:'range', name:'Javadi Hills', lat:12.5000, lng:78.6000, state:'Tamil Nadu', note:'Dense sandal forests; Malayali tribe homeland', color:'#8B5A3C' },
+    { type:'range', name:'Simlipal Range', lat:21.8000, lng:86.3000, state:'Odisha', note:'Biosphere reserve; elephant corridor', color:'#8B5A3C' },
+
+    // RIVERS
+    { type:'river', name:'Godavari Gorge (Papi Hills)', lat:17.2667, lng:81.6667, state:'Andhra Pradesh', note:'Godavari cuts through Eastern Ghats — spectacular gorge', color:'#2A6B6B' },
+    { type:'river', name:'Mahanadi Gorge (Satkosia)', lat:20.5000, lng:84.4500, state:'Odisha', note:'Mahanadi breaks through — Satkosia gorge; gharial habitat', color:'#2A6B6B' },
+    { type:'river', name:'Krishna Gorge (Nallamala)', lat:16.0800, lng:78.9000, state:'Andhra Pradesh', note:'Krishna cuts through Nallamala Hills at Srisailam', color:'#2A6B6B' },
+];
+
+const allMarkers = [];
+
+function mkIcon(color, type) {
+    const icons = { peak:'⛰', park:'🦁', waterfall:'💧', sacred:'🛕', range:'🏔', river:'🌊' };
+    return L.divIcon({
+        className: '',
+        html: `<div style="width:30px;height:30px;background:${color};border:2.5px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,0.28);cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'">${icons[type]||'📍'}</div>`,
+        iconSize: [30, 30], iconAnchor: [15,15], popupAnchor: [0,-18]
+    });
+}
+
+function popupHTML(d) {
+    const labels = { peak:'Peak', park:'National Park / Sanctuary', waterfall:'Waterfall', sacred:'Sacred Site', range:'Hill Range', river:'River Gorge' };
+    let rows = '';
+    if(d.h) rows += `<div class="pc-row"><span class="pc-row-lbl">Height</span><span class="pc-row-val">${d.h}</span></div>`;
+    if(d.area) rows += `<div class="pc-row"><span class="pc-row-lbl">Area</span><span class="pc-row-val">${d.area}</span></div>`;
+    rows += `<div class="pc-row"><span class="pc-row-lbl">State</span><span class="pc-row-val">${d.state}</span></div>`;
+    return `<div class="pc"><div class="pc-type">${labels[d.type]||d.type}</div><div class="pc-name">${d.name}</div><div class="pc-note">${d.note||''}</div>${rows}</div>`;
+}
+
+egData.forEach(d => {
+    const m = L.marker([d.lat, d.lng], { icon: mkIcon(d.color, d.type) });
+    m.bindPopup(popupHTML(d), { className:'eg-popup', maxWidth:270 });
+    m.on('click', () => {
+        const card = document.getElementById('egInfoCard');
+        let rows = '';
+        if(d.h) rows += `<div class="info-stat"><span class="info-stat-lbl">Height</span><span class="info-stat-val">${d.h}</span></div>`;
+        if(d.area) rows += `<div class="info-stat"><span class="info-stat-lbl">Area</span><span class="info-stat-val">${d.area}</span></div>`;
+        rows += `<div class="info-stat"><span class="info-stat-lbl">State</span><span class="info-stat-val">${d.state}</span></div>`;
+        card.innerHTML = `<h4>${d.name}</h4><p>${d.note||''}</p><div style="margin-top:10px">${rows}</div>`;
+    });
+    m.dataType = d.type;
+    m.addTo(map);
+    allMarkers.push(m);
+});
+
+document.getElementById('egFilters').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    allMarkers.forEach(m => f === 'all' || m.dataType === f ? map.addLayer(m) : map.removeLayer(m));
+});
+
+// ===== PEAKS DATA =====
+const peaksData = [
+    { name:'Arma Konda', h:1690, state:'Andhra Pradesh', note:'Highest peak in the Eastern Ghats. Located in Visakhapatnam district.', rank:'gold' },
+    { name:'Gali Konda', h:1643, state:'Andhra Pradesh', note:'Close to Arma Konda. Part of the Araku Valley highland region.', rank:'silver' },
+    { name:'Servarayan', h:1623, state:'Tamil Nadu', note:"Highest in Shevaroy Hills. Yercaud hill station at its base.", rank:'bronze' },
+    { name:'Sinkaram Gutta', h:1620, state:'Andhra Pradesh', note:'Part of the high Eastern Ghats in Visakhapatnam district.', rank:'' },
+    { name:'Mahendragiri', h:1501, state:'Odisha', note:"Odisha's highest peak. Sacred Hindu site at summit.", rank:'' },
+    { name:'Kolli Hills', h:1300, state:'Tamil Nadu', note:'Famous for 70 hairpin bends. Center of organic farming.', rank:'' },
+    { name:'Javadi Hills', h:1300, state:'Tamil Nadu', note:'Dense sandalwood forests. Malayali tribal homeland.', rank:'' },
+    { name:'Malayagiri', h:1187, state:'Odisha', note:'Prominent Odisha peak with Shiva temple. Near Angul.', rank:'' },
+];
+
+const peaksGrid = document.getElementById('peaksGrid');
+const maxH = 1690;
+peaksData.forEach((p, i) => {
+    const pct = (p.h / maxH * 100).toFixed(1);
+    const rc = p.rank === 'gold' ? 'rank-gold' : p.rank === 'silver' ? 'rank-silver' : p.rank === 'bronze' ? 'rank-bronze' : 'rank-default';
+    peaksGrid.innerHTML += `<div class="peak-card ani" style="transition-delay:${i*0.06}s">
+        <div class="peak-rank ${rc}">${i+1}</div>
+        <div class="peak-name">${p.name}</div>
+        <div class="peak-state">📍 ${p.state}</div>
+        <div class="peak-height"><span class="peak-h-val">${p.h.toLocaleString()}</span><span class="peak-h-unit">metres</span></div>
+        <div class="peak-bar"><div class="peak-bar-fill" style="width:${pct}%"></div></div>
+        <div class="peak-note">${p.note}</div>
+    </div>`;
+});
+
+// ===== RANGES DATA =====
+const rangesData = [
+    { name:'Nallamala Hills', state:'Andhra Pradesh / Telangana', len:'430 km', highest:'Bhairani Konda (1,048 m)', forest:'Dense deciduous', feature:'Nagarjunsagar-Srisailam TR' },
+    { name:'Velikonda Range', state:'Andhra Pradesh', len:'-', highest:'~1,200 m', forest:'Red sanders (unique)', feature:'Between Krishna & Pennar rivers' },
+    { name:'Palakonda Range', state:'Andhra Pradesh', len:'-', highest:'~900 m', forest:'Dry deciduous', feature:'Between Pennar & Palar rivers' },
+    { name:'Seshachalam Hills', state:'Andhra Pradesh', len:'-', highest:'1,130 m', forest:'Red sanders (endangered)', feature:'Tirupati-Tirumala; Red sanders reserve' },
+    { name:'Javadi Hills', state:'Tamil Nadu', len:'-', highest:'1,000-1,300 m', forest:'Sandalwood & deciduous', feature:'Malayali tribal habitat; sandalwood' },
+    { name:'Shevaroy Hills', state:'Tamil Nadu', len:'-', highest:'1,623 m (Servarayan)', forest:'Semi-evergreen', feature:'Yercaud hill station; coffee & orange' },
+    { name:'Pachaimalai Hills', state:'Tamil Nadu', len:'-', highest:'~1,000 m', forest:'Dry deciduous', feature:'Rich medicinal plants; tribal region' },
+    { name:'Kolli Hills', state:'Tamil Nadu', len:'-', highest:'1,300 m', forest:'Moist deciduous', feature:'70 hairpin bends; organic farming hub' },
+];
+
+const rangesGrid = document.getElementById('rangesGrid');
+rangesData.forEach((r, i) => {
+    rangesGrid.innerHTML += `<div class="range-card ani" style="transition-delay:${i*0.06}s">
+        <div class="range-name">${r.name}</div>
+        <div class="range-state">📍 ${r.state}</div>
+        ${r.len !== '-' ? `<div class="range-detail"><span class="range-detail-lbl">Length</span><span class="range-detail-val">${r.len}</span></div>` : ''}
+        <div class="range-detail"><span class="range-detail-lbl">Highest Point</span><span class="range-detail-val">${r.highest}</span></div>
+        <div class="range-detail"><span class="range-detail-lbl">Forest Type</span><span class="range-detail-val">${r.forest}</span></div>
+        <div class="range-detail"><span class="range-detail-lbl">Key Feature</span><span class="range-detail-val">${r.feature}</span></div>
+    </div>`;
+});
+
+// ===== RIVERS =====
+const riversData = [
+    { name:'Mahanadi', loc:'Odisha', note:'Breaks through — Satkosia Gorge; gharial habitat', color:'#3A7AB8' },
+    { name:'Godavari', loc:'Andhra Pradesh', note:'Cuts Papi Hills — dramatic gorge; Papikonda NP', color:'#2A6B8B' },
+    { name:'Krishna', loc:'Andhra Pradesh', note:'Cuts Nallamala Hills at Srisailam; Jyotirlinga here', color:'#1A5B7A' },
+    { name:'Pennar', loc:'Andhra Pradesh', note:'Cuts Velikonda Range; drains into Bay of Bengal', color:'#3A8B7A' },
+    { name:'Kaveri', loc:'Tamil Nadu', note:'Breaks through southern section; connects Nilgiris region', color:'#2A7B6A' },
+    { name:'Brahmani', loc:'Odisha', note:'Cuts northern section; joins Mahanadi delta', color:'#4A8B9A' },
+];
+
+const riversGrid = document.getElementById('riversGrid');
+riversData.forEach((r, i) => {
+    riversGrid.innerHTML += `<div class="river-card ani" style="transition-delay:${i*0.08}s;border-left-color:${r.color}">
+        <div class="river-name">${r.name}</div>
+        <div class="river-location">📍 ${r.loc}</div>
+        <div class="river-break">🌊 <strong>${r.name}</strong> cuts through the Eastern Ghats — ${r.note}</div>
+    </div>`;
+});
+
+// ===== WATERFALLS =====
+const wfData = [
+    { name:'Talakona Falls', h:270, river:'Swarnamukhi', state:'Andhra Pradesh', note:"Highest waterfall in AP; inside Sri Venkateswara NP; sacred spring" },
+    { name:'Khandadhar Falls', h:244, river:'Khandadhar', state:'Odisha', note:'Iron ore-red waters; inside dense Simlipal-adjacent forest' },
+    { name:'Duduma Falls', h:175, river:'Machkund', state:'Odisha/AP', note:'Border waterfall; used for Machkund Hydroelectric project' },
+    { name:'Kiliyur Falls', h:61, river:'Kiliyur', state:'Tamil Nadu', note:'Shevaroy Hills; inside Yercaud reserve forest' },
+    { name:'Ethipothala Falls', h:12, river:'Chandravanka', state:'Andhra Pradesh', note:'3-streamed fall; Crocodile Breeding Project nearby' },
+];
+
+const wfBgs = [
+    'linear-gradient(135deg,#0A3A5A,#2A6BA8)',
+    'linear-gradient(135deg,#2A1A0A,#6A4A2A)',
+    'linear-gradient(135deg,#1A3A10,#4A7A30)',
+    'linear-gradient(135deg,#3A1A4A,#7A4A9A)',
+    'linear-gradient(135deg,#1A4A3A,#4A9A7A)',
+];
+
+const maxWf = 270;
+const wfGrid = document.getElementById('waterfallsGrid');
+wfData.forEach((w, i) => {
+    const bh = (w.h / maxWf * 90).toFixed(0);
+    wfGrid.innerHTML += `<div class="wf-card ani" style="transition-delay:${i*0.08}s">
+        <div class="wf-visual" style="background:${wfBgs[i]}">
+            <div class="wf-bar" style="height:${bh}%;background:linear-gradient(to top,rgba(74,163,212,0.8),rgba(26,122,174,0.9));">${w.h}m</div>
+        </div>
+        <div class="wf-body">
+            <div class="wf-name">${w.name}</div>
+            <div class="wf-meta"><span>📍 ${w.state}</span>${w.river !== '-' ? `<span>🌊 ${w.river}</span>` : ''}</div>
+            <div class="wf-note">${w.note}</div>
+        </div>
+    </div>`;
+});
+
+// ===== SPECIES =====
+const sppData = [
+    { e:'🐦', name:"Jerdon's Courser", sci:'Rhinoptilus bitorquatus', status:'Critically Endangered', sc:'st-cr' },
+    { e:'🐅', name:'Bengal Tiger', sci:'Panthera tigris tigris', status:'Endangered', sc:'st-en' },
+    { e:'🦎', name:'Golden Gecko', sci:'Calodactylodes aureus', status:'Vulnerable', sc:'st-vu' },
+    { e:'🐘', name:'Indian Elephant', sci:'Elephas maximus', status:'Endangered', sc:'st-en' },
+    { e:'🐆', name:'Indian Leopard', sci:'Panthera pardus fusca', status:'Vulnerable', sc:'st-vu' },
+    { e:'🐻', name:'Sloth Bear', sci:'Melursus ursinus', status:'Vulnerable', sc:'st-vu' },
+    { e:'🐊', name:'Mugger Crocodile', sci:'Crocodylus palustris', status:'Vulnerable', sc:'st-vu' },
+    { e:'🐍', name:'King Cobra', sci:'Ophiophagus hannah', status:'Vulnerable', sc:'st-vu' },
+    { e:'🌲', name:'Red Sanders', sci:'Pterocarpus santalinus', status:'Endemic', sc:'st-em' },
+];
+
+const spGrid = document.getElementById('speciesGrid');
+sppData.forEach((s, i) => {
+    spGrid.innerHTML += `<div class="species-card ani" style="transition-delay:${i*0.05}s">
+        <div class="sp-emoji">${s.e}</div>
+        <div><div class="sp-name">${s.name}</div><div class="sp-sci">${s.sci}</div><span class="sp-status ${s.sc}">${s.status}</span></div>
+    </div>`;
+});
+
+// ===== PROTECTED AREAS =====
+const paData = [
+    { e:'🐯', type:'National Park + Biosphere Reserve', name:'Simlipal NP', state:'Odisha', hl:['Tiger & Elephant Reserve','2,750 km² area','UNESCO Biosphere Reserve','Dense Sal forests'] },
+    { e:'🐅', type:'Tiger Reserve', name:'Nagarjunsagar-Srisailam TR', state:'AP / Telangana', hl:["India's largest Tiger Reserve at 3,568 km²",'Srisailam Jyotirlinga inside','Critically Endangered Jerdon\'s Courser habitat','Dense deciduous forests'] },
+    { e:'🌲', type:'National Park', name:'Sri Venkateswara NP', state:'Andhra Pradesh', hl:['Seshachalam Hills protected zone','Red Sanders forest core area','Tirupati — Tirumala temple nearby','Rich in endemic flora'] },
+    { e:'🌊', type:'National Park', name:'Papikonda NP', state:'Andhra Pradesh', hl:['Godavari gorge protected area','Papi Hills river ecosystem','Boat safari on Godavari','Rich tribal communities inside'] },
+    { e:'🐊', type:'Wildlife Sanctuary', name:'Satkosia Gorge WLS', state:'Odisha', hl:['Mahanadi gorge protected area','Gharial breeding project','Corridor to Simlipal','Tiger population'] },
+    { e:'🦅', type:'Wildlife Sanctuary', name:'Gundla Brahmeswaram WLS', state:'Andhra Pradesh', hl:['Part of Nagarjunsagar complex','Tiger habitat expansion','Dense Nallamala forests','River tributaries inside'] },
+];
+
+const paGrid = document.getElementById('paGrid');
+paData.forEach((p, i) => {
+    paGrid.innerHTML += `<div class="pa-card ani" style="transition-delay:${i*0.08}s">
+        <div class="pa-header">
+            <div class="pa-emoji">${p.e}</div>
+            <div class="pa-type">${p.type}</div>
+            <div class="pa-name">${p.name}</div>
+            <div class="pa-state">📍 ${p.state}</div>
+        </div>
+        <div class="pa-body">
+            ${p.hl.map(h => `<div class="pa-hl"><div class="pa-hl-dot"></div>${h}</div>`).join('')}
+        </div>
+    </div>`;
+});
+
+// ===== MINERALS =====
+const minsData = [
+    { icon:'🔴', name:'Bauxite', state:'Odisha, Andhra Pradesh', note:'Largest reserves in India' },
+    { icon:'⚫', name:'Iron Ore', state:'Odisha', note:'Keonjhar, Sundargarh districts' },
+    { icon:'✨', name:'Mica', state:'Andhra Pradesh', note:'Nellore is world\'s largest producer' },
+    { icon:'⬛', name:'Manganese', state:'Odisha', note:'Koraput, Keonjhar deposits' },
+    { icon:'🔵', name:'Chromite', state:'Odisha', note:'Sukinda Valley — world\'s largest' },
+    { icon:'💎', name:'Graphite', state:'Odisha', note:'High quality flake graphite' },
+    { icon:'🟤', name:'Limestone', state:'Andhra Pradesh', note:'Cement industry supply' },
+    { icon:'🟡', name:'Gold', state:'Andhra Pradesh', note:'Minor gold placer deposits' },
+];
+
+const minGrid = document.getElementById('mineralsGrid');
+minsData.forEach((m, i) => {
+    minGrid.innerHTML += `<div class="mineral-card ani" style="transition-delay:${i*0.05}s">
+        <div class="mineral-icon">${m.icon}</div>
+        <div class="mineral-name">${m.name}</div>
+        <div class="mineral-state">📍 ${m.state}</div>
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.4rem">${m.note}</p>
+    </div>`;
+});
+
+// ===== TRIBES =====
+const tribesData = [
+    { name:'Kondh (Khond)', state:'Odisha', desc:'Large tribal community. Known for traditional art — Dhokra metalcraft and Patta painting. Historically practiced Meriah sacrifices (abolished). Rich oral tradition.' },
+    { name:'Savara (Saura)', state:'Odisha / Andhra Pradesh', desc:'Ancient tribe. Known for Idital or Sora murals — wall paintings with geometric patterns depicting life and death. Have own Sorang Sompeng script.' },
+    { name:'Yanadi', state:'Andhra Pradesh', desc:'Forest-dwelling tribe of coastal AP. Traditional hunter-gatherers. Deep knowledge of Eastern Ghats flora and medicinal plants.' },
+    { name:'Malayali', state:'Tamil Nadu', desc:'Indigenous community of Javadi and Shevaroy Hills. Sandalwood forest guardians. Unique language and customs distinct from plains Tamil.' },
+    { name:'Gadaba', state:'Odisha / Andhra Pradesh', desc:'Known for elaborate dress and jewelry. Traditional agriculture on hill slopes. Skilled weavers of distinctive textiles.' },
+    { name:'Poraja', state:'Odisha', desc:'Settled agricultural community. Rich in folk music and dance. Traditionally associated with the Koraput highland forests.' },
+];
+
+const tGrid = document.getElementById('tribesGrid');
+tribesData.forEach((t, i) => {
+    tGrid.innerHTML += `<div class="tribe-card ani" style="transition-delay:${i*0.07}s">
+        <div class="tribe-name">${t.name}</div>
+        <div class="tribe-state">📍 ${t.state}</div>
+        <div class="tribe-desc">${t.desc}</div>
+    </div>`;
+});
+
+// ===== SACRED SITES =====
+const sacredData = [
+    { icon:'🛕', name:'Tirupati — Tirumala', hill:'Seshachalam Hills', desc:'Richest temple in the world. Lord Venkateswara. 50,000+ pilgrims daily. Perched at 853 m.' },
+    { icon:'🕉', name:'Srisailam', hill:'Nallamala Hills', desc:'One of 12 Jyotirlingas. Bhramaramba Devi (Shakti Peetha). On Krishna River gorge. Ancient temple complex.' },
+    { icon:'🛕', name:'Simhachalam', hill:'Eastern Ghats, Vizag', desc:'11th century Narasimha temple. Built in Kalinga style. Unique sandal paste covering of deity.' },
+    { icon:'🛕', name:'Mangalagiri', hill:'Andhra Hills', desc:'Lord Narasimha who drinks Panakam (jaggery water) but never finishes. Hilltop fortress temple.' },
+    { icon:'⛩', name:'Malayagiri', hill:'Odisha Ghats', desc:'Lord Shiva temple at summit of Malayagiri peak. Sacred to Odisha Hindus. Annual fair held.' },
+    { icon:'🛕', name:'Mahendragiri', hill:'Odisha Ghats', desc:"Odisha's highest peak with ancient temples. Lord Gajapatnath at summit. Tribal pilgrimage site." },
+];
+
+const sGrid = document.getElementById('sacredGrid');
+sacredData.forEach((s, i) => {
+    sGrid.innerHTML += `<div class="sacred-card ani" style="transition-delay:${i*0.07}s">
+        <div class="sacred-icon">${s.icon}</div>
+        <div class="sacred-name">${s.name}</div>
+        <div class="sacred-hill">${s.hill}</div>
+        <div class="sacred-desc">${s.desc}</div>
+    </div>`;
+});
+
+// ===== SCROLL ANIMATION =====
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.ani').forEach(el => obs.observe(el));
+
+// ===== NAV =====
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        const target = document.getElementById(link.dataset.target);
+        if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+});
+
+const secIds = ['map-sec','names-sec','divisions-sec','peaks-sec','ranges-sec','rivers-sec',
+    'waterfalls-sec','bio-sec','veg-sec','pa-sec','minerals-sec','tribes-sec','sacred-sec','cmp-sec','threats-sec'];
+
+window.addEventListener('scroll', () => {
+    let cur = '';
+    secIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(el && window.scrollY >= el.offsetTop - 160) cur = id;
+    });
+    document.querySelectorAll('.nav-link').forEach(l => {
+        l.classList.toggle('active', l.dataset.target === cur);
+    });
+});
+</script>
+</body>
+</html>
