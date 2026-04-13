@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Himalayas — Complete Encyclopedia | Bharat | DharaVerse</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --font-serif:'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif;
+            --font-sans:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+            --font-mono:'Courier New',Courier,monospace;
+            --primary:#0a0a0a;--secondary:#1a1a1a;
+            --accent:#D4A574;--accent-dark:#B8956A;
+            --saffron:#FF9933;--green-india:#138808;
+            --white:#FFF;--light:#FAFAFA;--cream:#FAF8F5;
+            --text:#1a1a1a;--text-light:#555;--text-muted:#888;
+            --border:#E8E4E0;
+            --shadow-sm:0 2px 8px rgba(0,0,0,.04);
+            --shadow-md:0 4px 20px rgba(0,0,0,.08);
+            --shadow-lg:0 10px 40px rgba(0,0,0,.12);
+            --shadow-xl:0 20px 60px rgba(0,0,0,.15);
+            --radius-sm:6px;--radius-md:12px;--radius-lg:20px;--radius-xl:30px;
+            --transition:all .3s cubic-bezier(.4,0,.2,1);
+            --snow:#F0F4FF;--ice:#D6E4F0;--rock:#8B7355;
+            --alpine:#6B8E4E;--forest:#3D6B35;--valley:#90C67C;
+            --sky-top:#0B1D3A;--sky-mid:#1B4B7A;--sky-bottom:#4A9BD9;
+        }
+        html{scroll-behavior:smooth}
+        body{font-family:var(--font-sans);background:var(--light);color:var(--text);line-height:1.7;overflow-x:hidden}
+
+        /* BACK BUTTON */
+        .back-button{position:fixed;top:20px;left:20px;z-index:1100;display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:50px;color:#fff;text-decoration:none;font-size:.85rem;font-weight:600;font-family:var(--font-sans);transition:var(--transition);cursor:pointer}
+        .back-button:hover{background:rgba(255,255,255,.22);transform:translateX(-3px)}
+        .back-button.scrolled{background:rgba(255,255,255,.95);border-color:var(--border);color:var(--primary);box-shadow:var(--shadow-sm)}
+        .back-button.scrolled:hover{background:#fff;box-shadow:var(--shadow-md)}
+        .back-arrow{font-size:1.1rem;transition:transform .3s ease}
+        .back-button:hover .back-arrow{transform:translateX(-3px)}
+
+        /* HEADER */
+        .header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 50px;display:flex;justify-content:space-between;align-items:center;transition:var(--transition)}
+        .header.scrolled{background:rgba(255,255,255,.98);backdrop-filter:blur(20px);padding:15px 50px;box-shadow:0 1px 0 var(--border)}
+        .header-brand{display:flex;align-items:center;gap:12px;text-decoration:none;margin-left:140px}
+        .header-logo{width:42px;height:42px;background:linear-gradient(135deg,var(--sky-mid),var(--snow));border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:var(--transition)}
+        .header.scrolled .header-logo{width:36px;height:36px}
+        .header-text{display:flex;flex-direction:column}
+        .header-title{font-family:var(--font-serif);font-size:1.3rem;font-weight:600;color:#fff;transition:var(--transition)}
+        .header.scrolled .header-title{color:var(--primary);font-size:1.15rem}
+        .header-subtitle{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);transition:var(--transition)}
+        .header.scrolled .header-subtitle{color:var(--text-muted)}
+        .header-nav{display:flex;gap:8px}
+        .header-nav-link{padding:10px 20px;font-size:.85rem;font-weight:500;color:rgba(255,255,255,.9);text-decoration:none;border-radius:var(--radius-md);transition:var(--transition)}
+        .header.scrolled .header-nav-link{color:var(--text-light)}
+        .header-nav-link:hover{background:rgba(255,255,255,.15)}
+        .header.scrolled .header-nav-link:hover{background:var(--cream);color:var(--primary)}
+        .header-nav-link.active{background:rgba(255,255,255,.2)}
+        .header.scrolled .header-nav-link.active{background:var(--primary);color:#fff}
+
+        /* ============= HERO WITH SVG MOUNTAINS ============= */
+        .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 35%,var(--sky-bottom) 65%,#87CEEB 100%)}
+        .hero-stars{position:absolute;top:0;left:0;right:0;height:40%;overflow:hidden}
+        .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s infinite alternate}
+        @keyframes twinkle{0%{opacity:.2}100%{opacity:1}}
+        .hero-mountains{position:absolute;bottom:0;left:0;right:0;height:65%}
+        .hero-mountains svg{position:absolute;bottom:0;left:0;width:100%;height:100%}
+        .hero-clouds{position:absolute;top:25%;left:0;right:0;height:30%}
+        .cloud{position:absolute;background:rgba(255,255,255,.15);border-radius:100px;animation:cloudDrift linear infinite}
+        @keyframes cloudDrift{0%{transform:translateX(-200px)}100%{transform:translateX(calc(100vw + 200px))}}
+        .hero-content{position:relative;z-index:10;text-align:center;max-width:1000px;padding:140px 40px 200px}
+        .hero-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);padding:10px 24px;border-radius:50px;margin-bottom:30px}
+        .hero-badge-icon{font-size:1.2rem}
+        .hero-badge-text{color:#fff;font-size:.72rem;font-weight:600;letter-spacing:3px;text-transform:uppercase}
+        .hero-title{font-family:var(--font-serif);font-size:clamp(3rem,10vw,6.5rem);font-weight:700;color:#fff;line-height:1;margin-bottom:12px;letter-spacing:-2px;text-shadow:0 4px 30px rgba(0,0,0,.3)}
+        .hero-title-sanskrit{display:block;font-family:var(--font-serif);font-size:clamp(1rem,3vw,1.6rem);font-weight:400;font-style:italic;color:var(--ice);letter-spacing:4px;margin-top:15px;text-shadow:0 2px 10px rgba(0,0,0,.2)}
+        .hero-title-meaning{display:block;font-family:var(--font-sans);font-size:clamp(.8rem,1.5vw,1rem);font-weight:400;color:rgba(255,255,255,.6);letter-spacing:6px;text-transform:uppercase;margin-top:10px}
+        .hero-description{font-size:1.1rem;font-weight:300;color:rgba(255,255,255,.8);max-width:700px;margin:25px auto 0;line-height:1.9}
+        .hero-stats-bar{display:flex;justify-content:center;gap:45px;flex-wrap:wrap;margin-top:40px;padding-top:30px;border-top:1px solid rgba(255,255,255,.12)}
+        .hero-stat{text-align:center}
+        .hero-stat-value{font-family:var(--font-serif);font-size:1.8rem;font-weight:700;color:#fff;line-height:1}
+        .hero-stat-label{font-size:.68rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;margin-top:5px}
+        .hero-scroll{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.4);animation:bounce 2s infinite;z-index:20}
+        @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+        .hero-scroll-text{font-size:.6rem;letter-spacing:2px;text-transform:uppercase}
+
+        /* MAIN / CONTAINERS */
+        .main{position:relative;z-index:10;background:var(--light)}
+        .container{max-width:1400px;margin:0 auto;padding:0 50px}
+
+        /* TOC */
+        .toc-section{padding:60px 0 40px;background:#fff;border-bottom:1px solid var(--border)}
+        .toc-title{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--primary);margin-bottom:25px;display:flex;align-items:center;gap:12px}
+        .toc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+        .toc-item{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-md);text-decoration:none;color:var(--text);border:1px solid var(--border);transition:var(--transition);font-size:.85rem;font-weight:500}
+        .toc-item:hover{border-color:var(--sky-mid);background:#F0F7FF;transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+        .toc-item-num{width:26px;height:26px;background:#E0F2FE;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--sky-mid);flex-shrink:0}
+        .toc-item:hover .toc-item-num{background:var(--sky-mid);color:#fff}
+
+        /* SECTIONS */
+        .section{padding:90px 0}
+        .section-white{background:#fff}
+        .section-cream{background:var(--cream)}
+        .section-dark{background:var(--secondary);color:#fff}
+        .section-mountain{background:linear-gradient(180deg,#1B2838 0%,#2C3E50 100%);color:#fff}
+        .section-header{text-align:center;max-width:800px;margin:0 auto 50px}
+        .section-eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--sky-mid);margin-bottom:18px}
+        .section-eyebrow::before,.section-eyebrow::after{content:'';width:30px;height:1px;background:var(--sky-mid)}
+        .section-title{font-family:var(--font-serif);font-size:clamp(2rem,4vw,2.8rem);font-weight:700;color:var(--primary);margin-bottom:16px;line-height:1.2}
+        .section-dark .section-title,.section-mountain .section-title{color:#fff}
+        .section-dark .section-eyebrow,.section-mountain .section-eyebrow{color:var(--ice)}
+        .section-subtitle{font-size:1.05rem;color:var(--text-light);line-height:1.8}
+        .section-dark .section-subtitle,.section-mountain .section-subtitle{color:rgba(255,255,255,.65)}
+
+        /* STAT GRID */
+        .stat-grid{display:grid;gap:18px}
+        .stat-grid-2{grid-template-columns:repeat(2,1fr)}
+        .stat-grid-3{grid-template-columns:repeat(3,1fr)}
+        .stat-grid-4{grid-template-columns:repeat(4,1fr)}
+        .stat-grid-5{grid-template-columns:repeat(5,1fr)}
+        .stat-box{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);padding:25px;text-align:center;transition:var(--transition)}
+        .stat-box:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--sky-mid)}
+        .stat-box-icon{font-size:1.8rem;margin-bottom:12px}
+        .stat-box-value{font-family:var(--font-serif);font-size:1.7rem;font-weight:700;color:var(--primary);line-height:1;margin-bottom:6px}
+        .stat-box-label{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+        .stat-box-desc{font-size:.78rem;color:var(--text-light);margin-top:8px;line-height:1.5}
+        .stat-box-dark{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+        .stat-box-dark .stat-box-value{color:#fff}
+        .stat-box-dark .stat-box-label{color:rgba(255,255,255,.5)}
+        .stat-box-dark .stat-box-desc{color:rgba(255,255,255,.6)}
+        .stat-box-dark:hover{background:rgba(255,255,255,.1);border-color:var(--ice)}
+
+        /* INFO CARD */
+        .info-card{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;transition:var(--transition)}
+        .info-card:hover{box-shadow:var(--shadow-md);border-color:var(--sky-mid)}
+        .info-card-header{padding:22px 28px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border)}
+        .info-card-icon{width:44px;height:44px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+        .info-card-header-text h3{font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:var(--primary)}
+        .info-card-header-text p{font-size:.78rem;color:var(--text-muted);margin-top:2px}
+        .info-card-body{padding:28px}
+
+        /* DATA TABLE */
+        .data-table{width:100%;border-collapse:collapse;font-size:.88rem}
+        .data-table th{text-align:left;padding:12px 16px;background:#F0F7FF;font-weight:700;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--sky-mid);border-bottom:2px solid var(--border)}
+        .data-table td{padding:13px 16px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+        .data-table tr:last-child td{border-bottom:none}
+        .data-table tr:hover td{background:rgba(27,75,122,.03)}
+        .data-table .label-cell{font-weight:600;color:var(--primary)}
+        .data-table .highlight{background:linear-gradient(90deg,rgba(27,75,122,.05),transparent)}
+        .data-table .rank-cell{font-family:var(--font-serif);font-weight:700;color:var(--sky-mid);font-size:1.05rem}
+
+        /* TWO COL */
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+
+        /* CONTENT BLOCK */
+        .content-block{margin-bottom:50px}
+        .content-block:last-child{margin-bottom:0}
+        .content-block h3{font-family:var(--font-serif);font-size:1.6rem;font-weight:700;color:var(--primary);margin-bottom:18px;display:flex;align-items:center;gap:12px}
+        .content-block h4{font-family:var(--font-serif);font-size:1.15rem;font-weight:700;color:var(--primary);margin-bottom:12px;margin-top:25px}
+        .content-block p{font-size:.98rem;color:var(--text-light);line-height:1.9;margin-bottom:16px}
+        .content-block ul,.content-block ol{margin:12px 0 20px 22px;color:var(--text-light)}
+        .content-block li{margin-bottom:8px;line-height:1.7;font-size:.93rem}
+        .content-block li strong{color:var(--primary)}
+
+        /* HIGHLIGHT BOX */
+        .highlight-box{background:linear-gradient(135deg,rgba(27,75,122,.06),rgba(214,228,240,.12));border:1px solid rgba(27,75,122,.15);border-left:4px solid var(--sky-mid);border-radius:var(--radius-md);padding:22px 28px;margin:25px 0}
+        .highlight-box-title{font-weight:700;color:var(--primary);font-size:.95rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+        .highlight-box p{font-size:.9rem;color:var(--text-light);line-height:1.7;margin:0}
+        .highlight-box-snow{background:linear-gradient(135deg,rgba(240,244,255,.5),rgba(214,228,240,.3));border-color:rgba(240,244,255,.4);border-left-color:var(--ice)}
+        .highlight-box-saffron{background:linear-gradient(135deg,rgba(255,153,51,.06),rgba(212,165,116,.08));border-color:rgba(255,153,51,.2);border-left-color:var(--saffron)}
+
+        /* DIVISION CARDS */
+        .division-card{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;transition:var(--transition)}
+        .division-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);border-color:var(--sky-mid)}
+        .division-card-header{height:90px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;position:relative}
+        .division-card-header .dc-label{position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,.5);color:#fff;padding:2px 10px;border-radius:10px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+        .division-card-body{padding:20px}
+        .division-card-body h4{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:6px}
+        .division-card-body p{font-size:.82rem;color:var(--text-light);line-height:1.6;margin-bottom:12px}
+        .division-card-stats{display:flex;gap:16px;flex-wrap:wrap}
+        .division-stat{font-size:.7rem;color:var(--text-muted)}
+        .division-stat strong{color:var(--sky-mid);font-weight:700}
+
+        .grad-him-1{background:linear-gradient(135deg,#1B4B7A,#0B1D3A)}
+        .grad-him-2{background:linear-gradient(135deg,#2E86C1,#1B4B7A)}
+        .grad-him-3{background:linear-gradient(135deg,#5DADE2,#2E86C1)}
+        .grad-him-4{background:linear-gradient(135deg,#85C1E9,#5DADE2)}
+        .grad-him-5{background:linear-gradient(135deg,#48C9B0,#1ABC9C)}
+        .grad-him-6{background:linear-gradient(135deg,#AF7AC5,#8E44AD)}
+        .grad-him-7{background:linear-gradient(135deg,#F5B041,#F39C12)}
+        .grad-him-8{background:linear-gradient(135deg,#EC7063,#E74C3C)}
+
+        /* PEAK BAR CHART */
+        .peak-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+        .peak-bar-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+        .peak-bar-rank-gold{background:linear-gradient(135deg,#F1C40F,#F39C12);color:#fff}
+        .peak-bar-rank-silver{background:linear-gradient(135deg,#BDC3C7,#95A5A6);color:#fff}
+        .peak-bar-rank-bronze{background:linear-gradient(135deg,#E67E22,#D35400);color:#fff}
+        .peak-bar-rank-default{background:var(--cream);color:var(--text-muted)}
+        .peak-bar-name{width:140px;font-size:.82rem;font-weight:600;color:var(--primary);flex-shrink:0}
+        .peak-bar-state{width:90px;font-size:.7rem;color:var(--text-muted);flex-shrink:0}
+        .peak-bar-track{flex:1;height:24px;background:#F0F7FF;border-radius:12px;overflow:hidden;position:relative}
+        .peak-bar-fill{height:100%;border-radius:12px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-size:.68rem;font-weight:700;color:#fff;transition:width 1.5s cubic-bezier(.4,0,.2,1);white-space:nowrap}
+        .peak-fill-1{background:linear-gradient(90deg,#1B4B7A,#0B1D3A)}
+        .peak-fill-2{background:linear-gradient(90deg,#2E86C1,#1B4B7A)}
+        .peak-fill-3{background:linear-gradient(90deg,#5DADE2,#2E86C1)}
+        .peak-fill-default{background:linear-gradient(90deg,#85C1E9,#5DADE2)}
+
+        /* GLACIER CARD */
+        .glacier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+        .glacier-card{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;transition:var(--transition)}
+        .glacier-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--ice)}
+        .glacier-card-icon{font-size:2rem;margin-bottom:10px}
+        .glacier-card-title{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:6px}
+        .glacier-card-desc{font-size:.82rem;color:var(--text-light);line-height:1.6;margin-bottom:10px}
+        .glacier-card-stat{font-size:.72rem;color:var(--text-muted)}
+        .glacier-card-stat strong{color:var(--sky-mid)}
+
+        /* PASS CARDS */
+        .pass-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+        .pass-card{background:#fff;border-radius:var(--radius-md);border:1px solid var(--border);padding:18px;text-align:center;transition:var(--transition)}
+        .pass-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--sky-mid)}
+        .pass-card-elev{font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:var(--sky-mid);margin-bottom:4px}
+        .pass-card-name{font-weight:700;font-size:.88rem;color:var(--primary);margin-bottom:3px}
+        .pass-card-loc{font-size:.7rem;color:var(--text-muted)}
+        .pass-card-tag{display:inline-block;margin-top:8px;padding:2px 10px;border-radius:10px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+        .pass-high{background:#FEE2E2;color:#991B1B}
+        .pass-medium{background:#FEF3C7;color:#92400E}
+        .pass-strategic{background:#DBEAFE;color:#1E40AF}
+
+        /* VALLEY CARD */
+        .valley-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+        .valley-card{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;transition:var(--transition)}
+        .valley-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--alpine)}
+        .valley-card-header{height:70px;display:flex;align-items:center;justify-content:center;font-size:2rem}
+        .valley-card-body{padding:18px}
+        .valley-card-body h4{font-family:var(--font-serif);font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:5px}
+        .valley-card-body p{font-size:.78rem;color:var(--text-light);line-height:1.5;margin-bottom:8px}
+        .valley-card-body .v-stat{font-size:.7rem;color:var(--text-muted)}
+        .valley-card-body .v-stat strong{color:var(--alpine)}
+        .grad-v-1{background:linear-gradient(135deg,#a8e6cf,#56ab2f)}
+        .grad-v-2{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
+        .grad-v-3{background:linear-gradient(135deg,#a1c4fd,#c2e9fb)}
+        .grad-v-4{background:linear-gradient(135deg,#d4fc79,#96e6a1)}
+        .grad-v-5{background:linear-gradient(135deg,#fbc2eb,#a6c1ee)}
+        .grad-v-6{background:linear-gradient(135deg,#e0c3fc,#8ec5fc)}
+
+        /* VEGETATION ZONE STRIP */
+        .veg-strip{display:flex;flex-direction:column;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border)}
+        .veg-zone{display:flex;align-items:stretch;min-height:50px}
+        .veg-zone-color{width:55px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+        .veg-zone-info{flex:1;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--border)}
+        .veg-zone:last-child .veg-zone-info{border-bottom:none}
+        .veg-zone-name{font-weight:700;color:var(--primary);font-size:.88rem}
+        .veg-zone-range{font-size:.75rem;color:var(--text-light);margin-top:2px}
+        .veg-zone-species{font-size:.78rem;color:var(--text-muted);text-align:right;max-width:250px}
+        .vz-1 .veg-zone-color{background:#F0F4FF}
+        .vz-2 .veg-zone-color{background:#D6E4F0}
+        .vz-3 .veg-zone-color{background:#A8D08D}
+        .vz-4 .veg-zone-color{background:#6B8E4E}
+        .vz-5 .veg-zone-color{background:#3D6B35}
+        .vz-6 .veg-zone-color{background:#2E5030}
+
+        /* WILDLIFE CARDS */
+        .wildlife-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+        .wildlife-card{background:#fff;border-radius:var(--radius-md);border:1px solid var(--border);padding:16px;text-align:center;transition:var(--transition)}
+        .wildlife-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--alpine)}
+        .wildlife-card-icon{font-size:2rem;margin-bottom:8px}
+        .wildlife-card-name{font-weight:700;font-size:.85rem;color:var(--primary);margin-bottom:3px}
+        .wildlife-card-status{font-size:.65rem;color:var(--text-muted)}
+        .wildlife-card-pop{font-size:.7rem;color:var(--sky-mid);font-weight:600;margin-top:4px}
+
+        /* DID YOU KNOW */
+        .dyk-box{background:linear-gradient(135deg,var(--primary),#2a2a2a);border-radius:var(--radius-xl);padding:40px;color:#fff}
+        .dyk-box h3{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;margin-bottom:25px;color:var(--ice)}
+        .dyk-item{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.08)}
+        .dyk-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+        .dyk-icon{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+        .dyk-text{font-size:.9rem;line-height:1.6;color:rgba(255,255,255,.85)}
+        .dyk-text strong{color:#fff}
+
+        /* CROSS SECTION SVG */
+        .cross-section-box{background:#fff;border-radius:var(--radius-xl);border:1px solid var(--border);padding:35px;overflow:hidden}
+        .cross-section-box-title{font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:var(--primary);margin-bottom:20px;text-align:center}
+        .cross-section-svg{width:100%;height:320px}
+        .cross-section-svg svg{width:100%;height:100%}
+
+        /* MAP */
+        .map-container{border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow-md)}
+        .map-header{background:#fff;padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+        .map-header-icon{font-size:1.5rem}
+        .map-header-text h3{font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:var(--primary)}
+        .map-header-text p{font-size:.8rem;color:var(--text-muted);margin-top:2px}
+        #himalaya-map{width:100%;height:550px}
+        .leaflet-popup-content-wrapper{border-radius:10px!important;box-shadow:0 4px 20px rgba(0,0,0,.15)!important}
+        .leaflet-popup-content{margin:12px 16px!important;font-family:var(--font-sans)!important;font-size:.85rem!important;line-height:1.5!important}
+        .popup-title{font-weight:700;color:var(--primary);font-size:.95rem;margin-bottom:4px}
+        .popup-desc{color:var(--text-light);font-size:.8rem}
+        .popup-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:6px}
+        .popup-tag-peak{background:#EDE9FE;color:#5B21B6}
+        .popup-tag-glacier{background:#E0F2FE;color:#0369A1}
+        .popup-tag-pass{background:#FEF3C7;color:#92400E}
+        .popup-tag-valley{background:#D1FAE5;color:#065F46}
+
+        /* NAV FOOTER */
+        .nav-footer{padding:50px 0;background:#fff;border-top:1px solid var(--border)}
+        .nav-footer-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        .nav-footer-card{display:flex;align-items:center;gap:18px;padding:22px 28px;border-radius:var(--radius-lg);border:1px solid var(--border);text-decoration:none;color:inherit;transition:var(--transition)}
+        .nav-footer-card:hover{border-color:var(--sky-mid);box-shadow:var(--shadow-md);transform:translateY(-3px)}
+        .nav-footer-dir{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px}
+        .nav-footer-title{font-family:var(--font-serif);font-size:1.2rem;font-weight:700;color:var(--primary)}
+        .nav-footer-icon{width:50px;height:50px;background:#F0F7FF;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+        .nav-footer-card:hover .nav-footer-icon{background:var(--sky-mid)}
+
+        /* FOOTER */
+        .footer{background:var(--primary);color:#fff;padding:60px 0 30px}
+        .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+        .footer-brand{font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:var(--ice)}
+        .footer-links{display:flex;gap:25px;list-style:none}
+        .footer-links a{color:rgba(255,255,255,.6);text-decoration:none;font-size:.85rem;transition:var(--transition)}
+        .footer-links a:hover{color:#fff}
+        .footer-copyright{width:100%;text-align:center;padding-top:25px;margin-top:25px;border-top:1px solid rgba(255,255,255,.08);font-size:.8rem;color:rgba(255,255,255,.4)}
+
+        /* RESPONSIVE */
+        @media(max-width:1200px){
+            .stat-grid-4,.stat-grid-5{grid-template-columns:repeat(3,1fr)}
+            .toc-grid{grid-template-columns:repeat(3,1fr)}
+            .pass-grid{grid-template-columns:repeat(3,1fr)}
+            .wildlife-grid{grid-template-columns:repeat(3,1fr)}
+            .glacier-grid{grid-template-columns:repeat(2,1fr)}
+        }
+        @media(max-width:1000px){
+            .container{padding:0 30px}
+            .header{padding:15px 30px}
+            .header-brand{margin-left:80px}
+            .two-col{grid-template-columns:1fr}
+            .stat-grid-3,.stat-grid-4,.stat-grid-5{grid-template-columns:repeat(2,1fr)}
+            .toc-grid{grid-template-columns:repeat(2,1fr)}
+            .valley-grid,.glacier-grid{grid-template-columns:repeat(2,1fr)}
+            .pass-grid{grid-template-columns:repeat(2,1fr)}
+            .nav-footer-grid{grid-template-columns:1fr}
+            #himalaya-map{height:420px}
+            .peak-bar-name{width:100px}
+            .peak-bar-state{width:70px;font-size:.65rem}
+        }
+        @media(max-width:700px){
+            .header-nav{display:none}
+            .header-brand{margin-left:55px}
+            .back-button span:not(.back-arrow){display:none}
+            .hero-title{font-size:3rem}
+            .hero-stats-bar{gap:20px}
+            .stat-grid-2,.stat-grid-3,.stat-grid-4,.stat-grid-5{grid-template-columns:1fr}
+            .toc-grid,.valley-grid,.glacier-grid,.pass-grid,.wildlife-grid{grid-template-columns:1fr}
+            .section{padding:60px 0}
+            #himalaya-map{height:350px}
+            .peak-bar-state{display:none}
+            .cross-section-svg{height:200px}
+            .veg-zone-species{display:none}
+        }
+    </style>
+</head>
+<body>
+
+<a href="https://dharaverse.com/encyclopedia/bharat/index.html" class="back-button" id="backButton">
+    <span class="back-arrow">←</span><span>Bharat</span>
+</a>
+
+<header class="header" id="header">
+    <a href="index.html" class="header-brand">
+        <div class="header-logo">🏔️</div>
+        <div class="header-text">
+            <span class="header-title">DharaVerse</span>
+            <span class="header-subtitle">Encyclopedia</span>
+        </div>
+    </a>
+    <nav class="header-nav">
+        <a href="../index.html" class="header-nav-link">Home</a>
+        <a href="index.html" class="header-nav-link active">Bharat</a>
+        <a href="../world/index.html" class="header-nav-link">World</a>
+    </nav>
+</header>
+
+<!-- ====== HERO WITH SVG MOUNTAINS ====== -->
+<section class="hero" id="heroSection">
+    <div class="hero-stars" id="starsContainer"></div>
+    <div class="hero-clouds">
+        <div class="cloud" style="width:200px;height:40px;top:20%;left:-200px;animation-duration:45s"></div>
+        <div class="cloud" style="width:300px;height:50px;top:40%;left:-300px;animation-duration:60s;animation-delay:10s"></div>
+        <div class="cloud" style="width:180px;height:35px;top:60%;left:-180px;animation-duration:50s;animation-delay:20s"></div>
+    </div>
+    <div class="hero-mountains">
+        <svg viewBox="0 0 1600 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Back range (farthest — Trans-Himalayas) -->
+            <path d="M0,400 L100,350 L180,280 L250,320 L320,250 L380,200 L440,160 L500,180 L560,130 L620,100 L680,80 L720,60 L760,40 L800,30 L840,45 L880,70 L920,55 L960,80 L1000,100 L1040,130 L1100,160 L1160,200 L1220,250 L1280,300 L1340,340 L1400,360 L1500,380 L1600,400 L1600,600 L0,600Z"
+                fill="#3A4A5C" opacity=".8"/>
+            <!-- Middle range (Greater Himalayas — snow peaks) -->
+            <path d="M0,450 L80,400 L160,350 L220,300 L280,260 L340,220 L400,180 L450,150 L500,130 L540,110 L580,90 L620,75 L660,65 L700,55 L740,50 L780,45 L810,55 L840,70 L870,60 L900,50 L930,65 L960,80 L1000,100 L1050,130 L1100,160 L1150,200 L1200,240 L1260,280 L1320,320 L1380,360 L1440,390 L1520,420 L1600,450 L1600,600 L0,600Z"
+                fill="#5A6A7C"/>
+            <!-- Snow caps on Greater Himalayas -->
+            <path d="M540,110 L560,100 L580,90 L600,82 L620,75 L640,70 L660,65 L680,60 L700,55 L720,51 L740,50 L760,48 L780,45 L800,48 L810,55 L820,60 L830,65 L840,70 L850,65 L860,60 L870,60 L880,55 L890,50 L900,50 L910,55 L920,60 L930,65 L940,70 L950,75 L960,80 L970,88 L980,92 L990,96 L1000,100
+                L990,100 L980,105 L970,108 L960,112 L950,115 L940,108 L930,100 L920,95 L910,92 L900,88 L890,85 L880,90 L870,95 L860,92 L850,95 L840,98 L830,95 L820,90 L810,88 L800,85 L790,80 L780,78 L770,80 L760,82 L750,85 L740,82 L730,80 L720,82 L710,85 L700,88 L690,90 L680,92 L670,95 L660,92 L650,90 L640,95 L630,98 L620,100 L610,102 L600,105 L590,108 L580,110 L570,112 L560,114 L550,115 L540,110Z"
+                fill="#F0F4FF" opacity=".9"/>
+            <!-- Lesser Himalayas -->
+            <path d="M0,500 L120,460 L200,430 L280,400 L350,370 L420,340 L480,310 L540,290 L600,270 L660,260 L720,250 L780,245 L840,250 L900,260 L960,270 L1020,285 L1080,310 L1140,340 L1200,370 L1260,400 L1320,430 L1400,460 L1500,485 L1600,500 L1600,600 L0,600Z"
+                fill="#6B8E4E" opacity=".85"/>
+            <!-- Shiwaliks (front) -->
+            <path d="M0,540 L200,510 L350,490 L500,475 L650,465 L800,460 L950,465 L1100,475 L1250,490 L1400,510 L1600,540 L1600,600 L0,600Z"
+                fill="#90C67C" opacity=".9"/>
+            <!-- Plains (bottom) -->
+            <rect x="0" y="570" width="1600" height="30" fill="#A8D08D" opacity=".7"/>
+        </svg>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge"><span class="hero-badge-icon">🏔️</span><span class="hero-badge-text">Bharat Encyclopedia</span></div>
+        <h1 class="hero-title">
+            The Himalayas
+            <span class="hero-title-sanskrit">हिमालय — हिम + आलय</span>
+            <span class="hero-title-meaning">Abode of Snow</span>
+        </h1>
+        <p class="hero-description">The youngest and highest mountain system on Earth — stretching 2,500 km across the northern frontier of India, home to 14 of the world's highest peaks, thousands of glaciers, and the source of all major North Indian rivers.</p>
+        <div class="hero-stats-bar">
+            <div class="hero-stat"><div class="hero-stat-value">2,500 km</div><div class="hero-stat-label">Length</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">8,849 m</div><div class="hero-stat-label">Highest Peak</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">50–60 MY</div><div class="hero-stat-label">Age</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">~500,000 km²</div><div class="hero-stat-label">Area in India</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">7 States</div><div class="hero-stat-label">Indian States</div></div>
+        </div>
+    </div>
+    <div class="hero-scroll"><span class="hero-scroll-text">Explore</span><span>↓</span></div>
+</section>
+
+<main class="main">
+
+<!-- TOC -->
+<section class="toc-section">
+    <div class="container">
+        <div class="toc-title">📑 Table of Contents</div>
+        <div class="toc-grid">
+            <a href="#etymology" class="toc-item"><span class="toc-item-num">1</span> Etymology & Overview</a>
+            <a href="#formation" class="toc-item"><span class="toc-item-num">2</span> Formation & Geology</a>
+            <a href="#longitudinal" class="toc-item"><span class="toc-item-num">3</span> Longitudinal Divisions</a>
+            <a href="#latitudinal" class="toc-item"><span class="toc-item-num">4</span> Latitudinal Divisions</a>
+            <a href="#cross-section" class="toc-item"><span class="toc-item-num">5</span> Cross-Section</a>
+            <a href="#purvanchal" class="toc-item"><span class="toc-item-num">6</span> Purvanchal (Eastern Hills)</a>
+            <a href="#peaks" class="toc-item"><span class="toc-item-num">7</span> Major Peaks</a>
+            <a href="#glaciers" class="toc-item"><span class="toc-item-num">8</span> Glaciers</a>
+            <a href="#passes" class="toc-item"><span class="toc-item-num">9</span> Mountain Passes</a>
+            <a href="#valleys" class="toc-item"><span class="toc-item-num">10</span> Valleys</a>
+            <a href="#himalaya-map" class="toc-item"><span class="toc-item-num">11</span> Interactive Map</a>
+            <a href="#climate-veg" class="toc-item"><span class="toc-item-num">12</span> Climate & Vegetation</a>
+            <a href="#wildlife" class="toc-item"><span class="toc-item-num">13</span> Wildlife</a>
+            <a href="#rivers-hydro" class="toc-item"><span class="toc-item-num">14</span> Rivers & Hydro</a>
+            <a href="#pilgrimage" class="toc-item"><span class="toc-item-num">15</span> Pilgrimage & Tourism</a>
+            <a href="#threats" class="toc-item"><span class="toc-item-num">16</span> Threats & Records</a>
+        </div>
+    </div>
+</section>
+
+<!-- 1: ETYMOLOGY & OVERVIEW -->
+<section class="section" id="etymology">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 01</div>
+            <h2 class="section-title">Etymology & Overview</h2>
+            <p class="section-subtitle">The word "Himalaya" comes from Sanskrit — हिम (Hima = Snow) + आलय (Ālaya = Abode) — "The Abode of Snow"</p>
+        </div>
+        <div class="stat-grid stat-grid-5" style="margin-bottom:45px">
+            <div class="stat-box"><div class="stat-box-icon">📏</div><div class="stat-box-value">2,500 km</div><div class="stat-box-label">Total Length</div><div class="stat-box-desc">From Indus gorge (west) to Brahmaputra gorge (east)</div></div>
+            <div class="stat-box"><div class="stat-box-icon">↔️</div><div class="stat-box-value">150–400 km</div><div class="stat-box-label">Width</div><div class="stat-box-desc">Narrowest in Arunachal, widest in Kashmir</div></div>
+            <div class="stat-box"><div class="stat-box-icon">🗺️</div><div class="stat-box-value">~500,000 km²</div><div class="stat-box-label">Area in India</div><div class="stat-box-desc">~15% of India's total land area</div></div>
+            <div class="stat-box"><div class="stat-box-icon">⏳</div><div class="stat-box-value">50–60 MY</div><div class="stat-box-label">Age</div><div class="stat-box-desc">Youngest fold mountains on Earth, still rising ~5mm/yr</div></div>
+            <div class="stat-box"><div class="stat-box-icon">🏛️</div><div class="stat-box-value">7</div><div class="stat-box-label">Indian States</div><div class="stat-box-desc">J&K, Ladakh, HP, Uttarakhand, Sikkim, WB, Arunachal</div></div>
+        </div>
+        <div class="two-col">
+            <div class="content-block">
+                <h3>🏔️ The Greatest Mountain System</h3>
+                <p>The Himalayas are the <strong>youngest and highest mountain system on Earth</strong>. They form a massive arc of approximately <strong>2,500 km</strong> from the <strong>Indus River gorge</strong> in the northwest (Nanga Parbat syntaxis) to the <strong>Brahmaputra River gorge</strong> in the northeast (Namcha Barwa syntaxis). The system comprises over <strong>110 peaks exceeding 7,300 m</strong> and includes the world's highest peak — <strong>Mount Everest (8,849 m)</strong> on the Nepal-Tibet border.</p>
+                <p>In India, the Himalayas traverse <strong>seven states and union territories</strong> — Jammu & Kashmir, Ladakh, Himachal Pradesh, Uttarakhand, Sikkim, West Bengal (Darjeeling hills), and Arunachal Pradesh — forming a natural fortress that has shaped India's climate, hydrology, culture, and strategic defense for millennia.</p>
+                <h4>Countries Sharing the Himalayas</h4>
+                <ul>
+                    <li><strong>India</strong> — Northwestern to northeastern frontier (~7 states/UTs)</li>
+                    <li><strong>Nepal</strong> — Central Himalayas (highest concentration of peaks)</li>
+                    <li><strong>Bhutan</strong> — Eastern Himalayas</li>
+                    <li><strong>China (Tibet)</strong> — Northern slopes (Trans-Himalayas)</li>
+                    <li><strong>Pakistan</strong> — Western extremity (through illegally occupied PoK)</li>
+                    <li><strong>Afghanistan</strong> — Hindu Kush extension (Wakhan Corridor)</li>
+                </ul>
+            </div>
+            <div>
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="info-card-icon" style="background:linear-gradient(135deg,#E0F2FE,#BAE6FD)">📋</div>
+                        <div class="info-card-header-text"><h3>Quick Reference</h3><p>Key Himalayan parameters</p></div>
+                    </div>
+                    <div class="info-card-body">
+                        <table class="data-table">
+                            <tbody>
+                                <tr><td class="label-cell">Full Name</td><td>Himalaya / Himālaya (हिमालय)</td></tr>
+                                <tr class="highlight"><td class="label-cell">Meaning</td><td>"Abode of Snow" (Sanskrit)</td></tr>
+                                <tr><td class="label-cell">Type</td><td>Young Fold Mountains (Tertiary)</td></tr>
+                                <tr class="highlight"><td class="label-cell">Geological Age</td><td>~50–60 Million Years (Cenozoic Era)</td></tr>
+                                <tr><td class="label-cell">Formation</td><td>Collision of Indian Plate & Eurasian Plate</td></tr>
+                                <tr class="highlight"><td class="label-cell">Tethys Sea</td><td>Ancient ocean whose sediments were uplifted</td></tr>
+                                <tr><td class="label-cell">Rising Rate</td><td>~5 mm per year (still tectonically active)</td></tr>
+                                <tr class="highlight"><td class="label-cell">Highest Peak</td><td>Mt. Everest — 8,849 m (Nepal-Tibet border)</td></tr>
+                                <tr><td class="label-cell">Highest in India</td><td>Kangchenjunga — 8,586 m (Sikkim)</td></tr>
+                                <tr class="highlight"><td class="label-cell">Major Glaciers</td><td>~15,000 glaciers storing ~12,000 km³ of freshwater</td></tr>
+                                <tr><td class="label-cell">Major Rivers</td><td>Indus, Ganga, Brahmaputra + all major tributaries</td></tr>
+                                <tr class="highlight"><td class="label-cell">Seismic Zone</td><td>Zone IV & V (highest earthquake risk in India)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2: FORMATION -->
+<section class="section section-cream" id="formation">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 02</div>
+            <h2 class="section-title">Formation & Geology</h2>
+            <p class="section-subtitle">How the collision of two tectonic plates created the mightiest mountains on Earth</p>
+        </div>
+        <div class="two-col">
+            <div class="content-block">
+                <h3>🌍 Plate Tectonics & The Tethys Sea</h3>
+                <p>The Himalayas owe their existence to the collision of the <strong>Indian Plate</strong> (originally part of the Gondwana supercontinent) with the <strong>Eurasian Plate</strong>. This process, which began approximately <strong>50–60 million years ago</strong> during the Eocene epoch, is one of the most dramatic geological events in Earth's history.</p>
+                <h4>Timeline of Formation</h4>
+                <ol>
+                    <li><strong>~225 Million Years Ago (Triassic):</strong> The supercontinent Pangaea exists. The <strong>Tethys Sea</strong> separates the Indian landmass (part of Gondwana) from the Eurasian landmass (Laurasia).</li>
+                    <li><strong>~140 MY Ago (Jurassic):</strong> Gondwana begins to break apart. The Indian Plate separates and starts drifting northward at ~15 cm/year — one of the fastest tectonic movements ever recorded.</li>
+                    <li><strong>~80 MY Ago (Cretaceous):</strong> India crosses the equator, moving rapidly north toward Eurasia. The Tethys Sea narrows.</li>
+                    <li><strong>~50–55 MY Ago (Eocene):</strong> The Indian Plate <strong>collides with the Eurasian Plate</strong>. The Tethys Sea closes entirely. Sediments deposited on the Tethys seabed are compressed, folded, and thrust upward — forming the Himalayas.</li>
+                    <li><strong>~20–25 MY Ago (Miocene):</strong> Major uplift phase — the Greater Himalayas rise to significant heights. The Tibetan Plateau is also elevated.</li>
+                    <li><strong>Present Day:</strong> The Indian Plate continues to push into Eurasia at ~5 cm/year. The Himalayas are <strong>still rising at ~5 mm per year</strong>. This ongoing collision makes the region <strong>seismically active</strong> (earthquakes, landslides).</li>
+                </ol>
+                <div class="highlight-box">
+                    <div class="highlight-box-title">🔬 Evidence of Marine Origin</div>
+                    <p>Fossils of marine creatures (ammonites, sea shells, coral) are found at high altitudes in the Himalayas — proof that these rocks were once part of the <strong>Tethys Sea floor</strong>. The <strong>Tethys Himalaya</strong> (the zone between the Greater Himalayas and the Trans-Himalayas) contains abundant marine fossils and is called the "Tibetan Sedimentary Zone."</p>
+                </div>
+            </div>
+            <div>
+                <!-- Formation Diagram -->
+                <div class="info-card" style="margin-bottom:25px">
+                    <div class="info-card-header">
+                        <div class="info-card-icon" style="background:linear-gradient(135deg,#FEF3C7,#FDE68A)">🌋</div>
+                        <div class="info-card-header-text"><h3>Geological Characteristics</h3><p>Rock types and tectonic features</p></div>
+                    </div>
+                    <div class="info-card-body">
+                        <table class="data-table">
+                            <thead><tr><th>Feature</th><th>Details</th></tr></thead>
+                            <tbody>
+                                <tr><td class="label-cell">Mountain Type</td><td>Young Fold Mountains (Tertiary orogeny)</td></tr>
+                                <tr class="highlight"><td class="label-cell">Rock Composition</td><td>Sedimentary (Shiwaliks), Metamorphic (Lesser), Granite/Gneiss (Greater)</td></tr>
+                                <tr><td class="label-cell">Major Faults</td><td>Main Boundary Thrust (MBT), Main Central Thrust (MCT), Main Frontal Thrust (MFT)</td></tr>
+                                <tr class="highlight"><td class="label-cell">Nappes</td><td>Large-scale rock sheets thrust over younger formations — common in Kashmir & Kumaon</td></tr>
+                                <tr><td class="label-cell">Syntaxial Bends</td><td>Nanga Parbat (NW) and Namcha Barwa (NE) — where the arc sharply bends</td></tr>
+                                <tr class="highlight"><td class="label-cell">Seismic Zone</td><td>Zone IV & V — highest risk of earthquakes in India</td></tr>
+                                <tr><td class="label-cell">Notable Earthquakes</td><td>Kashmir 2005 (7.6), Nepal 2015 (7.8), Uttarkashi 1991 (6.8), Chamoli 1999 (6.8)</td></tr>
+                                <tr class="highlight"><td class="label-cell">Isostatic Adjustment</td><td>The crust beneath Himalayas is 70–80 km thick — double the normal continental crust (~35 km)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="highlight-box highlight-box-saffron">
+                    <div class="highlight-box-title">⚡ Living Mountains</div>
+                    <p>The Himalayas are <strong>geologically alive</strong>. They experience ~500 earthquakes annually (most minor). The 2015 Nepal earthquake shifted Kathmandu by 3 meters. The Indian Plate moves northward at 5 cm/year — making collision forces immense. This is why the Himalayas are prone to <strong>landslides, avalanches, GLOFs</strong> (Glacial Lake Outburst Floods), and <strong>cloudbursts</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3: LONGITUDINAL DIVISIONS -->
+<section class="section" id="longitudinal">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 03</div>
+            <h2 class="section-title">Longitudinal Divisions (West to East)</h2>
+            <p class="section-subtitle">The Himalayas are divided into 4 major regional sections from the Indus gorge to the Brahmaputra gorge</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px">
+            <div class="division-card">
+                <div class="division-card-header grad-him-1">🏔️<div class="dc-label">560 km</div></div>
+                <div class="division-card-body">
+                    <h4>1. Kashmir / Punjab Himalayas</h4>
+                    <p>From the Indus gorge (Nanga Parbat) to the Sutlej gorge. Covers J&K, Ladakh, and Himachal Pradesh. The widest section with the most prominent Trans-Himalayan ranges (Karakoram, Ladakh, Zanskar).</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>K2 (8,611m)</strong> highest</div>
+                        <div class="division-stat"><strong>Nanga Parbat</strong> 8,126m</div>
+                        <div class="division-stat"><strong>Kashmir Valley</strong></div>
+                    </div>
+                    <p style="margin-top:10px;font-size:.78rem;color:var(--text-muted)"><strong>Key Passes:</strong> Zoji La, Banihal, Pir Panjal, Khardung La · <strong>Rivers:</strong> Indus, Jhelum, Chenab, Ravi, Beas · <strong>Valleys:</strong> Kashmir, Kangra, Kullu, Spiti, Zanskar, Ladakh</p>
+                </div>
+            </div>
+            <div class="division-card">
+                <div class="division-card-header grad-him-2">⛰️<div class="dc-label">320 km</div></div>
+                <div class="division-card-body">
+                    <h4>2. Kumaon Himalayas</h4>
+                    <p>From the Sutlej gorge to the Kali River (Nepal border). Entirely in Uttarakhand. Source of the sacred Ganga river system. Known for hill stations, pilgrimage sites, and trekking.</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>Nanda Devi</strong> 7,816m</div>
+                        <div class="division-stat"><strong>Kamet</strong> 7,756m</div>
+                        <div class="division-stat"><strong>Char Dham</strong></div>
+                    </div>
+                    <p style="margin-top:10px;font-size:.78rem;color:var(--text-muted)"><strong>Key Passes:</strong> Niti, Lipulekh, Mana · <strong>Rivers:</strong> Ganga (Bhagirathi + Alaknanda), Yamuna · <strong>Valleys:</strong> Dehradun, Tons, Bhagirathi · <strong>Glaciers:</strong> Gangotri, Yamunotri, Pindari</p>
+                </div>
+            </div>
+            <div class="division-card">
+                <div class="division-card-header grad-him-3">🗻<div class="dc-label">800 km</div></div>
+                <div class="division-card-body">
+                    <h4>3. Nepal Himalayas</h4>
+                    <p>The longest section — from the Kali River to the Teesta River. Mostly in Nepal with India's Sikkim at the eastern end. Contains the <strong>highest concentration of 8,000m+ peaks</strong> including Everest.</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>Everest</strong> 8,849m</div>
+                        <div class="division-stat"><strong>Kangchenjunga</strong> 8,586m</div>
+                        <div class="division-stat"><strong>8 of 14</strong> 8000ers</div>
+                    </div>
+                    <p style="margin-top:10px;font-size:.78rem;color:var(--text-muted)"><strong>Key Passes:</strong> Nathu La, Jelep La (Sikkim-Tibet border) · <strong>Rivers:</strong> Kosi, Gandak, Ghaghra, Teesta · <strong>In India:</strong> Sikkim (Kangchenjunga region)</p>
+                </div>
+            </div>
+            <div class="division-card">
+                <div class="division-card-header grad-him-5">🌿<div class="dc-label">720 km</div></div>
+                <div class="division-card-body">
+                    <h4>4. Assam / Eastern Himalayas</h4>
+                    <p>From the Teesta River to the Brahmaputra gorge (Namcha Barwa). Covers Sikkim, W. Bengal (Darjeeling), and Arunachal Pradesh. <strong>Highest rainfall zone</strong> of the Himalayas due to moisture from Bay of Bengal.</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>Namcha Barwa</strong> 7,782m</div>
+                        <div class="division-stat"><strong>Highest rainfall</strong></div>
+                        <div class="division-stat"><strong>Richest biodiversity</strong></div>
+                    </div>
+                    <p style="margin-top:10px;font-size:.78rem;color:var(--text-muted)"><strong>Key Passes:</strong> Bum La, Diphu, Yonggyap (Arunachal–Tibet) · <strong>Rivers:</strong> Brahmaputra, Teesta, Kameng, Subansiri · <strong>Feature:</strong> Brahmaputra gorge — one of the deepest on Earth</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4: LATITUDINAL DIVISIONS -->
+<section class="section section-cream" id="latitudinal">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 04</div>
+            <h2 class="section-title">Latitudinal Divisions (South to North)</h2>
+            <p class="section-subtitle">Four parallel ranges running west to east — from the foothills to the snow peaks</p>
+        </div>
+        <div style="display:grid;gap:20px">
+            <div class="division-card">
+                <div class="division-card-header grad-him-7">🌿<div class="dc-label">Youngest</div></div>
+                <div class="division-card-body">
+                    <h4>1. Outer Himalayas — Shiwaliks (शिवालिक)</h4>
+                    <p>The <strong>youngest and southernmost</strong> range of the Himalayan system. Composed of <strong>unconsolidated sediments</strong> (gravel, sand, clay) deposited by Himalayan rivers. Highly susceptible to erosion and landslides. Between the Shiwaliks and the Lesser Himalayas lie flat-floored, longitudinal valleys called <strong>"Duns"</strong> (e.g., Dehradun, Patli Dun, Kotli Dun).</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>600–1,500m</strong> height</div>
+                        <div class="division-stat"><strong>10–50 km</strong> width</div>
+                        <div class="division-stat"><strong>Duns:</strong> Dehradun, Patli Dun</div>
+                        <div class="division-stat"><strong>Forests:</strong> Deciduous & Scrub</div>
+                    </div>
+                </div>
+            </div>
+            <div class="division-card">
+                <div class="division-card-header grad-him-5">🌲<div class="dc-label">Hill Stations</div></div>
+                <div class="division-card-body">
+                    <h4>2. Lesser Himalayas — Himachal (हिमाचल)</h4>
+                    <p>Also called the <strong>Middle Himalayas</strong> or <strong>Lower Himalayas</strong>. Composed of <strong>metamorphic crystalline rocks</strong> (schist, slate, quartzite). Contains most of India's famous <strong>hill stations</strong> — Shimla, Mussoorie, Nainital, Darjeeling, Manali. Important sub-ranges include <strong>Pir Panjal</strong> (longest), <strong>Dhaula Dhar</strong>, <strong>Mahabharat</strong>, and <strong>Mussoorie Range</strong>.</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>3,700–4,500m</strong> height</div>
+                        <div class="division-stat"><strong>~50 km</strong> width</div>
+                        <div class="division-stat"><strong>Pir Panjal</strong> longest sub-range</div>
+                        <div class="division-stat"><strong>Forests:</strong> Oak, Deodar, Pine</div>
+                    </div>
+                </div>
+            </div>
+            <div class="division-card">
+                <div class="division-card-header grad-him-1">❄️<div class="dc-label">Snow Peaks</div></div>
+                <div class="division-card-body">
+                    <h4>3. Greater Himalayas — Himadri (हिमाद्रि)</h4>
+                    <p>The <strong>innermost, highest, and most continuous</strong> range. Composed of <strong>granite and gneiss</strong> — ancient crystalline rocks. Contains <strong>all major peaks above 7,000 m</strong> and perpetual snow cover above 4,500 m. Average elevation exceeds <strong>6,000 m</strong>. All major glaciers originate here. The range is remarkably continuous — only breached by deep gorges (antecedent rivers like Indus, Sutlej, Brahmaputra).</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>6,000m+</strong> avg height</div>
+                        <div class="division-stat"><strong>~25 km</strong> width</div>
+                        <div class="division-stat"><strong>All 8,000m+</strong> peaks here</div>
+                        <div class="division-stat"><strong>Perpetual snow</strong> above 4,500m</div>
+                    </div>
+                </div>
+            </div>
+            <div class="division-card">
+                <div class="division-card-header grad-him-8">🏜️<div class="dc-label">Cold Desert</div></div>
+                <div class="division-card-body">
+                    <h4>4. Trans-Himalayas (Beyond the Greater Himalayas)</h4>
+                    <p>Located <strong>north of the Greater Himalayas</strong>, these ranges lie in the rain shadow and are characterized by <strong>cold desert conditions</strong> — sparse vegetation, extreme cold, low rainfall (&lt;100mm). Includes the <strong>Karakoram Range</strong> (K2 — 8,611m), <strong>Ladakh Range</strong>, <strong>Zanskar Range</strong>, and the <strong>Kailash Range</strong>. The Tibetan Plateau lies beyond.</p>
+                    <div class="division-card-stats">
+                        <div class="division-stat"><strong>3,000–8,611m</strong></div>
+                        <div class="division-stat"><strong>Karakoram, Ladakh, Zanskar</strong></div>
+                        <div class="division-stat"><strong>K2 (8,611m)</strong></div>
+                        <div class="division-stat"><strong>&lt;100mm</strong> rainfall</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5: CROSS-SECTION -->
+<section class="section section-white" id="cross-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 05</div>
+            <h2 class="section-title">Cross-Section of the Himalayas</h2>
+            <p class="section-subtitle">South to North profile showing the four parallel ranges and their relative heights</p>
+        </div>
+        <div class="cross-section-box">
+            <div class="cross-section-box-title">South → North Cross-Section (along ~78°E — Uttarakhand)</div>
+            <div class="cross-section-svg">
+                <svg viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#87CEEB"/><stop offset="100%" stop-color="#B8D4E8"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="1200" height="320" fill="url(#skyGrad)"/>
+                    <!-- Indo-Gangetic Plains -->
+                    <rect x="0" y="280" width="200" height="40" fill="#A8D08D" rx="3"/>
+                    <text x="100" y="300" text-anchor="middle" font-size="10" fill="#2E5030" font-weight="700">INDO-GANGETIC PLAINS</text>
+                    <text x="100" y="313" text-anchor="middle" font-size="8" fill="#555">~200m</text>
+                    <!-- Shiwaliks -->
+                    <path d="M200,280 L220,270 L250,250 L280,240 L310,235 L340,240 L360,250 L380,260 L400,270 L400,280Z" fill="#90C67C"/>
+                    <text x="300" y="265" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">SHIWALIKS</text>
+                    <text x="300" y="278" text-anchor="middle" font-size="7" fill="#fff">600–1,500m</text>
+                    <!-- Dun Valley -->
+                    <rect x="380" y="265" width="70" height="15" fill="#C8E6B4" rx="3"/>
+                    <text x="415" y="276" text-anchor="middle" font-size="7" fill="#333" font-weight="600">DUN</text>
+                    <!-- Lesser Himalayas -->
+                    <path d="M430,265 L460,240 L490,200 L520,170 L550,155 L580,145 L610,140 L640,145 L660,155 L680,170 L700,195 L720,220 L740,250 L740,280 L430,280Z" fill="#6B8E4E"/>
+                    <text x="590" y="178" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">LESSER HIMALAYAS</text>
+                    <text x="590" y="192" text-anchor="middle" font-size="7" fill="#D4E8C4">3,700–4,500m · Pir Panjal, Dhaula Dhar</text>
+                    <!-- Greater Himalayas -->
+                    <path d="M720,220 L750,180 L770,140 L790,100 L810,70 L830,45 L850,30 L870,20 L890,15 L910,20 L930,30 L950,45 L970,70 L990,100 L1010,140 L1030,185 L1030,280 L720,280Z" fill="#5A6A7C"/>
+                    <path d="M830,45 L840,35 L850,30 L860,25 L870,20 L880,17 L890,15 L900,17 L910,20 L920,25 L930,30 L940,38 L950,45 L945,50 L940,48 L935,52 L930,50 L925,55 L920,52 L915,48 L910,45 L905,48 L900,50 L895,48 L890,45 L885,48 L880,50 L875,48 L870,50 L865,52 L860,48 L855,50 L850,52 L845,48 L840,50 L835,48 L830,45Z" fill="#F0F4FF"/>
+                    <text x="880" y="80" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">GREATER HIMALAYAS</text>
+                    <text x="880" y="95" text-anchor="middle" font-size="7" fill="#D6E4F0">6,000m+ · All major peaks · Himadri</text>
+                    <text x="880" y="40" text-anchor="middle" font-size="8" fill="#E74C3C" font-weight="700">▲ 8,849m</text>
+                    <!-- Trans-Himalayas -->
+                    <path d="M1020,185 L1040,160 L1060,140 L1080,130 L1100,125 L1120,128 L1140,135 L1160,145 L1180,160 L1200,180 L1200,280 L1020,280Z" fill="#8B7355"/>
+                    <text x="1110" y="165" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">TRANS-</text>
+                    <text x="1110" y="177" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">HIMALAYAS</text>
+                    <text x="1110" y="192" text-anchor="middle" font-size="7" fill="#D4C5A9">Cold Desert</text>
+                    <!-- Direction arrows -->
+                    <text x="30" y="20" font-size="10" fill="#333" font-weight="700">SOUTH ←</text>
+                    <text x="1100" y="20" font-size="10" fill="#333" font-weight="700">→ NORTH</text>
+                    <!-- Thrust Lines -->
+                    <line x1="420" y1="268" x2="420" y2="285" stroke="#E74C3C" stroke-width="2" stroke-dasharray="4,2"/>
+                    <text x="420" y="298" text-anchor="middle" font-size="6" fill="#E74C3C" font-weight="700">MFT</text>
+                    <line x1="730" y1="215" x2="730" y2="285" stroke="#E74C3C" stroke-width="2" stroke-dasharray="4,2"/>
+                    <text x="730" y="298" text-anchor="middle" font-size="6" fill="#E74C3C" font-weight="700">MBT</text>
+                    <line x1="1025" y1="180" x2="1025" y2="285" stroke="#E74C3C" stroke-width="2" stroke-dasharray="4,2"/>
+                    <text x="1025" y="298" text-anchor="middle" font-size="6" fill="#E74C3C" font-weight="700">MCT</text>
+                </svg>
+            </div>
+            <p style="text-align:center;font-size:.75rem;color:var(--text-muted);margin-top:15px">MFT = Main Frontal Thrust · MBT = Main Boundary Thrust · MCT = Main Central Thrust — major fault lines separating the Himalayan zones</p>
+        </div>
+    </div>
+</section>
+
+<!-- 6: PURVANCHAL -->
+<section class="section section-cream" id="purvanchal">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 06</div>
+            <h2 class="section-title">Purvanchal — Eastern Hills</h2>
+            <p class="section-subtitle">The Himalayan system bends sharply south at the Dihang gorge, forming the hill ranges of Northeast India</p>
+        </div>
+        <div class="content-block" style="max-width:900px;margin:0 auto 35px">
+            <p style="text-align:center">At the <strong>Dihang (Brahmaputra) gorge</strong> in Arunachal Pradesh, the Himalayas take a sharp <strong>southward bend</strong>, forming a series of hill ranges running roughly <strong>north-south</strong> along India's eastern border with Myanmar. These are collectively called the <strong>Purvanchal</strong> (Eastern Mountains) and include the Patkai, Naga, Manipur, Mizo (Lushai), and Tripura hills.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+            <div class="division-card"><div class="division-card-header grad-him-5">⛰️</div><div class="division-card-body"><h4>Patkai Range</h4><p>Arunachal-Myanmar border. Pangsau Pass connects India to Myanmar.</p><div class="division-card-stats"><div class="division-stat"><strong>1,000–2,000m</strong></div></div></div></div>
+            <div class="division-card"><div class="division-card-header grad-him-6">🌿</div><div class="division-card-body"><h4>Naga Hills</h4><p>Nagaland. Mt. Saramati (3,826m) — highest peak of the Purvanchal.</p><div class="division-card-stats"><div class="division-stat"><strong>Saramati 3,826m</strong></div></div></div></div>
+            <div class="division-card"><div class="division-card-header grad-him-3">🌄</div><div class="division-card-body"><h4>Manipur Hills</h4><p>Surround the Imphal Valley (Manipur's lifeline). Loktak Lake (largest freshwater lake in NE).</p><div class="division-card-stats"><div class="division-stat"><strong>1,500–2,000m</strong></div></div></div></div>
+            <div class="division-card"><div class="division-card-header grad-him-4">🌊</div><div class="division-card-body"><h4>Mizo (Lushai) Hills</h4><p>Mizoram. Blue Mountain / Phawngpui (2,157m) — highest point. Sandstone hills.</p><div class="division-card-stats"><div class="division-stat"><strong>Blue Mtn 2,157m</strong></div></div></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- 7: MAJOR PEAKS -->
+<section class="section" id="peaks">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 07</div>
+            <h2 class="section-title">Major Peaks of the Indian Himalayas</h2>
+            <p class="section-subtitle">India's top 10 highest peaks — all above 7,100 meters</p>
+        </div>
+        <div class="info-card">
+            <div class="info-card-header">
+                <div class="info-card-icon" style="background:linear-gradient(135deg,#EDE9FE,#DDD6FE)">🏔️</div>
+                <div class="info-card-header-text"><h3>Top 10 Peaks (India-Accessible)</h3><p>Ranked by elevation — peaks within or on India's borders</p></div>
+            </div>
+            <div class="info-card-body">
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-gold">1</div><div class="peak-bar-name">Kangchenjunga</div><div class="peak-bar-state">Sikkim</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-1" style="width:100%">8,586 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-silver">2</div><div class="peak-bar-name">Nanda Devi</div><div class="peak-bar-state">Uttarakhand</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-2" style="width:91%">7,816 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-bronze">3</div><div class="peak-bar-name">Kamet</div><div class="peak-bar-state">Uttarakhand</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-3" style="width:90%">7,756 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-default">4</div><div class="peak-bar-name">Saltoro Kangri</div><div class="peak-bar-state">Ladakh</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-default" style="width:90%">7,742 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-default">5</div><div class="peak-bar-name">Saser Kangri</div><div class="peak-bar-state">Ladakh</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-default" style="width:89%">7,672 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-default">6</div><div class="peak-bar-name">Mamostong Kangri</div><div class="peak-bar-state">Ladakh</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-default" style="width:87%">7,516 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-default">7</div><div class="peak-bar-name">Rimo I</div><div class="peak-bar-state">Ladakh</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-default" style="width:86%">7,385 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-default">8</div><div class="peak-bar-name">Hardeol</div><div class="peak-bar-state">Uttarakhand</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-default" style="width:83%">7,151 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-default">9</div><div class="peak-bar-name">Chaukhamba</div><div class="peak-bar-state">Uttarakhand</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-default" style="width:83%">7,138 m</div></div></div>
+                <div class="peak-bar"><div class="peak-bar-rank peak-bar-rank-default">10</div><div class="peak-bar-name">Trisul</div><div class="peak-bar-state">Uttarakhand</div><div class="peak-bar-track"><div class="peak-bar-fill peak-fill-default" style="width:83%">7,120 m</div></div></div>
+            </div>
+        </div>
+        <div class="highlight-box" style="margin-top:30px">
+            <div class="highlight-box-title">📌 Note on K2</div>
+            <p><strong>K2 (8,611 m)</strong> — the world's 2nd highest peak — is located in the <strong>Karakoram Range</strong> in India's PoK (illegally occupied by Pakistan). As PoK is an integral part of India, K2 is officially India's (and the Himalayas') highest peak. Among <strong>administered Indian territory</strong>, Kangchenjunga (8,586 m) in Sikkim is the highest.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 8: GLACIERS -->
+<section class="section section-cream" id="glaciers">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 08</div>
+            <h2 class="section-title">Major Glaciers</h2>
+            <p class="section-subtitle">~15,000 glaciers storing ~12,000 km³ of freshwater — the largest ice reservoir outside the polar regions</p>
+        </div>
+        <div class="glacier-grid">
+            <div class="glacier-card"><div class="glacier-card-icon">🧊</div><div class="glacier-card-title">Siachen Glacier</div><div class="glacier-card-desc">Longest glacier in the Karakoram (76 km). Located in Ladakh. World's highest battlefield — Indian Army has maintained presence since 1984 (Operation Meghdoot). Feeds the Nubra River (tributary of Shyok → Indus).</div><div class="glacier-card-stat"><strong>76 km</strong> long · <strong>5,753m</strong> altitude · Ladakh</div></div>
+            <div class="glacier-card"><div class="glacier-card-icon">🏔️</div><div class="glacier-card-title">Gangotri Glacier</div><div class="glacier-card-desc">Source of the River Bhagirathi (main tributary forming Ganga). Terminus at Gaumukh ("Cow's Mouth") — sacred origin of the Ganges. Retreating at ~22m/year. One of the most studied glaciers.</div><div class="glacier-card-stat"><strong>30 km</strong> long · <strong>Gaumukh</strong> · Uttarakhand</div></div>
+            <div class="glacier-card"><div class="glacier-card-icon">❄️</div><div class="glacier-card-title">Yamunotri Glacier</div><div class="glacier-card-desc">Source of River Yamuna — India's 2nd holiest river. Located at the base of Kalind Parvat (6,387m). Part of the Char Dham pilgrimage circuit. Smaller but culturally significant.</div><div class="glacier-card-stat"><strong>Yamuna source</strong> · Uttarakhand</div></div>
+            <div class="glacier-card"><div class="glacier-card-icon">🌊</div><div class="glacier-card-title">Zemu Glacier</div><div class="glacier-card-desc">Largest glacier in the Eastern Himalayas (26 km). Located on the NE slope of Kangchenjunga, Sikkim. Source of River Teesta. Remote and rarely visited — accessible only via multi-day treks.</div><div class="glacier-card-stat"><strong>26 km</strong> long · Sikkim</div></div>
+            <div class="glacier-card"><div class="glacier-card-icon">⛰️</div><div class="glacier-card-title">Pindari Glacier</div><div class="glacier-card-desc">Popular trekking destination in Kumaon Himalayas. Located between Nanda Devi and Nanda Kot peaks. Feeds the Pindar River (tributary of Alaknanda → Ganga). Retreating rapidly.</div><div class="glacier-card-stat"><strong>3 km</strong> long · Uttarakhand · <strong>Trek: 6 days</strong></div></div>
+            <div class="glacier-card"><div class="glacier-card-icon">🏞️</div><div class="glacier-card-title">Biafo & Baltoro Glaciers</div><div class="glacier-card-desc">Two of the world's longest non-polar glaciers (63 km and 67 km). Located in the Karakoram, PoK (integral part of India). Baltoro leads to K2 and Concordia — the "Throne Room of the Mountain Gods."</div><div class="glacier-card-stat"><strong>63–67 km</strong> · Karakoram · PoK (India)</div></div>
+        </div>
+        <div class="highlight-box highlight-box-saffron" style="margin-top:30px">
+            <div class="highlight-box-title">⚠️ Glacier Retreat — A Crisis</div>
+            <p>Over <strong>70% of Himalayan glaciers have retreated</strong> since the 1960s. The Gangotri Glacier has retreated by ~2 km in the last century. IPCC reports warn that at current warming rates, <strong>one-third of all Himalayan glaciers could disappear by 2100</strong> — threatening water supply for 1.65 billion people in the Indus, Ganga, and Brahmaputra basins.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 9: PASSES -->
+<section class="section" id="passes">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 09</div>
+            <h2 class="section-title">Mountain Passes</h2>
+            <p class="section-subtitle">Strategic gateways across the Himalayan barrier — from ancient trade routes to modern motorable roads</p>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.3rem;margin-bottom:20px;color:var(--primary)">🔴 High Altitude Passes (&gt;5,000 m)</h3>
+        <div class="pass-grid" style="margin-bottom:35px">
+            <div class="pass-card"><div class="pass-card-elev">5,582m</div><div class="pass-card-name">Marsimik La</div><div class="pass-card-loc">Ladakh</div><div class="pass-card-tag pass-high">Highest motorable</div></div>
+            <div class="pass-card"><div class="pass-card-elev">5,545m</div><div class="pass-card-name">Mana Pass</div><div class="pass-card-loc">Uttarakhand</div><div class="pass-card-tag pass-strategic">India-Tibet Border</div></div>
+            <div class="pass-card"><div class="pass-card-elev">5,360m</div><div class="pass-card-name">Chang La</div><div class="pass-card-loc">Ladakh</div><div class="pass-card-tag pass-high">To Pangong Lake</div></div>
+            <div class="pass-card"><div class="pass-card-elev">5,359m</div><div class="pass-card-name">Khardung La</div><div class="pass-card-loc">Ladakh</div><div class="pass-card-tag pass-high">To Nubra Valley</div></div>
+            <div class="pass-card"><div class="pass-card-elev">5,389m</div><div class="pass-card-name">Niti Pass</div><div class="pass-card-loc">Uttarakhand</div><div class="pass-card-tag pass-strategic">India-Tibet</div></div>
+            <div class="pass-card"><div class="pass-card-elev">5,334m</div><div class="pass-card-name">Lipulekh Pass</div><div class="pass-card-loc">Uttarakhand</div><div class="pass-card-tag pass-strategic">To Kailash Mansarovar</div></div>
+            <div class="pass-card"><div class="pass-card-elev">5,328m</div><div class="pass-card-name">Tanglang La</div><div class="pass-card-loc">Ladakh</div><div class="pass-card-tag pass-high">Leh-Manali Hwy</div></div>
+            <div class="pass-card"><div class="pass-card-elev">5,065m</div><div class="pass-card-name">Lachalung La</div><div class="pass-card-loc">Ladakh</div><div class="pass-card-tag pass-high">Leh-Manali Hwy</div></div>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.3rem;margin-bottom:20px;color:var(--primary)">🟡 Medium Altitude (3,000–5,000 m)</h3>
+        <div class="pass-grid" style="margin-bottom:35px">
+            <div class="pass-card"><div class="pass-card-elev">4,572m</div><div class="pass-card-name">Bum La</div><div class="pass-card-loc">Arunachal Pradesh</div><div class="pass-card-tag pass-strategic">India-China Border</div></div>
+            <div class="pass-card"><div class="pass-card-elev">4,310m</div><div class="pass-card-name">Nathu La</div><div class="pass-card-loc">Sikkim</div><div class="pass-card-tag pass-strategic">India-China Trade</div></div>
+            <div class="pass-card"><div class="pass-card-elev">4,267m</div><div class="pass-card-name">Jelep La</div><div class="pass-card-loc">Sikkim</div><div class="pass-card-tag pass-medium">Historic Trade Route</div></div>
+            <div class="pass-card"><div class="pass-card-elev">3,978m</div><div class="pass-card-name">Rohtang Pass</div><div class="pass-card-loc">Himachal Pradesh</div><div class="pass-card-tag pass-medium">Now bypassed by Atal Tunnel</div></div>
+            <div class="pass-card"><div class="pass-card-elev">3,528m</div><div class="pass-card-name">Zoji La</div><div class="pass-card-loc">J&K–Ladakh</div><div class="pass-card-tag pass-strategic">Gateway to Ladakh</div></div>
+            <div class="pass-card"><div class="pass-card-elev">3,300m</div><div class="pass-card-name">Burzil Pass</div><div class="pass-card-loc">J&K</div><div class="pass-card-tag pass-medium">Ancient Silk Route</div></div>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.3rem;margin-bottom:20px;color:var(--primary)">🟢 Lower Altitude (&lt;3,000 m)</h3>
+        <div class="pass-grid">
+            <div class="pass-card"><div class="pass-card-elev">2,832m</div><div class="pass-card-name">Banihal Pass</div><div class="pass-card-loc">J&K</div><div class="pass-card-tag pass-medium">Jawahar Tunnel</div></div>
+            <div class="pass-card"><div class="pass-card-elev">2,438m</div><div class="pass-card-name">Pir Panjal Pass</div><div class="pass-card-loc">J&K</div><div class="pass-card-tag pass-medium">Historic Mughal Route</div></div>
+            <div class="pass-card"><div class="pass-card-elev">1,582m</div><div class="pass-card-name">Bomdila Pass</div><div class="pass-card-loc">Arunachal Pradesh</div><div class="pass-card-tag pass-medium">Tawang access</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- 10: VALLEYS -->
+<section class="section section-cream" id="valleys">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 10</div>
+            <h2 class="section-title">Himalayan Valleys</h2>
+            <p class="section-subtitle">Fertile intermontane valleys — cradles of civilization, agriculture, and culture</p>
+        </div>
+        <div class="valley-grid">
+            <div class="valley-card"><div class="valley-card-header grad-v-1">🌸</div><div class="valley-card-body"><h4>Kashmir Valley</h4><p>135 km long, 32 km wide at 1,620m. Surrounded by Pir Panjal and Greater Himalayas. Dal Lake, Wular Lake, Jhelum River. "Paradise on Earth."</p><div class="v-stat"><strong>135 × 32 km</strong> · 1,620m · J&K</div></div></div>
+            <div class="valley-card"><div class="valley-card-header grad-v-2">🍎</div><div class="valley-card-body"><h4>Kullu Valley</h4><p>"Valley of Gods." Beas River flows through it. Famous for apple orchards, Dussehra festival, and access to Manali and Rohtang Pass.</p><div class="v-stat"><strong>80 km</strong> long · Beas River · HP</div></div></div>
+            <div class="valley-card"><div class="valley-card-header grad-v-3">🏔️</div><div class="valley-card-body"><h4>Spiti Valley</h4><p>Cold desert at 3,800–4,500m. Pin Valley NP. Buddhist monasteries (Key, Tabo — 1,000+ years old). "Middle Land" between India and Tibet.</p><div class="v-stat"><strong>3,800–4,500m</strong> · Cold desert · HP</div></div></div>
+            <div class="valley-card"><div class="valley-card-header grad-v-4">🌳</div><div class="valley-card-body"><h4>Dehradun Dun</h4><p>Largest and most famous "Dun" valley. Between Shiwaliks and Lesser Himalayas. Ganga-Yamuna doab. IMA, FRI, ISRO headquarters.</p><div class="v-stat"><strong>Dun valley</strong> · Uttarakhand</div></div></div>
+            <div class="valley-card"><div class="valley-card-header grad-v-5">❄️</div><div class="valley-card-body"><h4>Zanskar Valley</h4><p>Ladakh. Completely cut off in winter — frozen Zanskar River becomes the only route ("Chadar Trek" on ice). Buddhist monasteries. ~4,000m.</p><div class="v-stat"><strong>~4,000m</strong> · Chadar Trek · Ladakh</div></div></div>
+            <div class="valley-card"><div class="valley-card-header grad-v-6">☕</div><div class="valley-card-body"><h4>Kangra Valley</h4><p>HP. Beas River. Famous for Kangra miniature paintings, Dharamshala (Dalai Lama's residence), tea gardens, and Kangra Fort.</p><div class="v-stat"><strong>Tea gardens</strong> · Dharamshala · HP</div></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- 11: INTERACTIVE MAP -->
+<section class="section" id="himalaya-map">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 11</div>
+            <h2 class="section-title">Interactive Himalayan Map</h2>
+            <p class="section-subtitle">Explore peaks, glaciers, passes, valleys, and rivers across the Himalayan arc</p>
+        </div>
+        <div class="map-container">
+            <div class="map-header"><span class="map-header-icon">🗺️</span><div class="map-header-text"><h3>The Himalayan System</h3><p>Click markers to explore peaks, passes, glaciers & valleys</p></div></div>
+            <div id="himalaya-map-leaflet"></div>
+        </div>
+    </div>
+</section>
+
+<!-- 12: CLIMATE & VEGETATION -->
+<section class="section section-cream" id="climate-veg">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 12</div>
+            <h2 class="section-title">Climate & Vegetation Zones</h2>
+            <p class="section-subtitle">Altitude-based zonation from tropical forests at the base to perpetual snow at the summit</p>
+        </div>
+        <div class="two-col">
+            <div class="veg-strip">
+                <div class="veg-zone vz-1"><div class="veg-zone-color">🏔️</div><div class="veg-zone-info"><div><div class="veg-zone-name">Glacial / Nival Zone</div><div class="veg-zone-range">Above 5,000m — Perpetual snow & ice</div></div><div class="veg-zone-species">Moss, lichen only on exposed rock</div></div></div>
+                <div class="veg-zone vz-2"><div class="veg-zone-color">🌿</div><div class="veg-zone-info"><div><div class="veg-zone-name">Alpine Meadows (Bugyals)</div><div class="veg-zone-range">4,000–5,000m — Grasses, herbs, wildflowers</div></div><div class="veg-zone-species">Rhododendron, Primula, Gentiana</div></div></div>
+                <div class="veg-zone vz-3"><div class="veg-zone-color">🌲</div><div class="veg-zone-info"><div><div class="veg-zone-name">Alpine Forest</div><div class="veg-zone-range">3,000–4,000m — Birch, Juniper, Rhododendron</div></div><div class="veg-zone-species">Silver Birch, Junipers, dwarf shrubs</div></div></div>
+                <div class="veg-zone vz-4"><div class="veg-zone-color">🌲</div><div class="veg-zone-info"><div><div class="veg-zone-name">Temperate Coniferous</div><div class="veg-zone-range">2,000–3,000m — Deodar, Pine, Spruce, Fir</div></div><div class="veg-zone-species">Deodar Cedar, Blue Pine, Spruce, Silver Fir</div></div></div>
+                <div class="veg-zone vz-5"><div class="veg-zone-color">🌳</div><div class="veg-zone-info"><div><div class="veg-zone-name">Subtropical Broad-leaf</div><div class="veg-zone-range">1,000–2,000m — Oak, Chestnut, Magnolia</div></div><div class="veg-zone-species">Oak, Chestnut, Laurel, Magnolia</div></div></div>
+                <div class="veg-zone vz-6"><div class="veg-zone-color">🌴</div><div class="veg-zone-info"><div><div class="veg-zone-name">Tropical / Sub-tropical</div><div class="veg-zone-range">Up to 1,000m — Sal, Bamboo, Teak</div></div><div class="veg-zone-species">Sal, Bamboo, Teak, Shisham</div></div></div>
+            </div>
+            <div class="dyk-box">
+                <h3>🌡️ Climate Zones by Altitude</h3>
+                <div class="dyk-item"><div class="dyk-icon">🌴</div><div class="dyk-text"><strong>Tropical (up to 1,000m):</strong> Hot & humid. Heavy monsoon rainfall. Terai belt — malaria was once rampant.</div></div>
+                <div class="dyk-item"><div class="dyk-icon">🌤️</div><div class="dyk-text"><strong>Subtropical (1,000–2,000m):</strong> Moderate temperatures. Hill stations — Shimla (avg 15°C), Mussoorie, Nainital, Darjeeling.</div></div>
+                <div class="dyk-item"><div class="dyk-icon">❄️</div><div class="dyk-text"><strong>Temperate (2,000–3,500m):</strong> Cool summers (10–15°C), cold winters (-5 to 5°C). Snowfall common. Manali, Gulmarg.</div></div>
+                <div class="dyk-item"><div class="dyk-icon">🏔️</div><div class="dyk-text"><strong>Alpine (3,500–5,000m):</strong> Very cold. Summer 5–10°C, winter -20°C. Alpine meadows ("Bugyals") bloom June–Sep. Grazing grounds.</div></div>
+                <div class="dyk-item"><div class="dyk-icon">🧊</div><div class="dyk-text"><strong>Glacial (&gt;5,000m):</strong> Perpetual snow & ice. Temps below -30°C in winter. No vegetation. Only mountaineers reach here.</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 13: WILDLIFE -->
+<section class="section" id="wildlife">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 13</div>
+            <h2 class="section-title">Himalayan Wildlife</h2>
+            <p class="section-subtitle">Home to 300+ endemic species — from the elusive Snow Leopard to the Red Panda</p>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.3rem;margin-bottom:20px">🐾 Iconic Mammals</h3>
+        <div class="wildlife-grid" style="margin-bottom:35px">
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐆</div><div class="wildlife-card-name">Snow Leopard</div><div class="wildlife-card-status">Vulnerable (IUCN)</div><div class="wildlife-card-pop">200–600 in India</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐻</div><div class="wildlife-card-name">Himalayan Brown Bear</div><div class="wildlife-card-status">Critically Endangered (India)</div><div class="wildlife-card-pop">500–750 in India</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐼</div><div class="wildlife-card-name">Red Panda</div><div class="wildlife-card-status">Endangered (IUCN)</div><div class="wildlife-card-pop">Sikkim, Arunachal</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🦌</div><div class="wildlife-card-name">Musk Deer</div><div class="wildlife-card-status">Endangered</div><div class="wildlife-card-pop">Kedarnath, Askot</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐐</div><div class="wildlife-card-name">Himalayan Tahr</div><div class="wildlife-card-status">Near Threatened</div><div class="wildlife-card-pop">Western Himalayas</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐑</div><div class="wildlife-card-name">Bharal (Blue Sheep)</div><div class="wildlife-card-status">Least Concern</div><div class="wildlife-card-pop">Ladakh, Spiti</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🦬</div><div class="wildlife-card-name">Wild Yak</div><div class="wildlife-card-status">Vulnerable</div><div class="wildlife-card-pop">Ladakh plateau</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐻‍❄️</div><div class="wildlife-card-name">Asiatic Black Bear</div><div class="wildlife-card-status">Vulnerable</div><div class="wildlife-card-pop">All Himalayan states</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐐</div><div class="wildlife-card-name">Markhor</div><div class="wildlife-card-status">Near Threatened</div><div class="wildlife-card-pop">J&K, Ladakh (PoK)</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐐</div><div class="wildlife-card-name">Himalayan Ibex</div><div class="wildlife-card-status">Least Concern</div><div class="wildlife-card-pop">Ladakh, Spiti</div></div>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.3rem;margin-bottom:20px">🦅 Notable Birds</h3>
+        <div class="wildlife-grid" style="margin-bottom:35px">
+            <div class="wildlife-card"><div class="wildlife-card-icon">🦚</div><div class="wildlife-card-name">Himalayan Monal</div><div class="wildlife-card-status">State bird: UK & HP</div><div class="wildlife-card-pop">National bird of Nepal</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🦅</div><div class="wildlife-card-name">Golden Eagle</div><div class="wildlife-card-status">Least Concern</div><div class="wildlife-card-pop">High altitude raptor</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🦅</div><div class="wildlife-card-name">Bearded Vulture</div><div class="wildlife-card-status">Near Threatened</div><div class="wildlife-card-pop">Bone-eating specialist</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🐦</div><div class="wildlife-card-name">Snow Partridge</div><div class="wildlife-card-status">Least Concern</div><div class="wildlife-card-pop">Alpine zones 3,500m+</div></div>
+            <div class="wildlife-card"><div class="wildlife-card-icon">🦢</div><div class="wildlife-card-name">Bar-headed Goose</div><div class="wildlife-card-status">Least Concern</div><div class="wildlife-card-pop">Flies over Everest!</div></div>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.3rem;margin-bottom:20px">🛡️ Protected Areas</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+            <div class="stat-box"><div class="stat-box-icon">🏞️</div><div class="stat-box-value">Great Himalayan NP</div><div class="stat-box-label">HP · UNESCO Heritage</div><div class="stat-box-desc">1,171 km². Temperate & alpine forests. 375+ fauna species. World Heritage since 2014.</div></div>
+            <div class="stat-box"><div class="stat-box-icon">🌸</div><div class="stat-box-value">Valley of Flowers NP</div><div class="stat-box-label">Uttarakhand · UNESCO</div><div class="stat-box-desc">87.5 km². Over 600 species of flowering plants. Blooms July–September. UNESCO site since 2005.</div></div>
+            <div class="stat-box"><div class="stat-box-icon">🏔️</div><div class="stat-box-value">Nanda Devi NP</div><div class="stat-box-label">Uttarakhand · UNESCO</div><div class="stat-box-desc">630 km². Surrounds Nanda Devi peak (7,816m). Snow leopard, Himalayan black bear. No human entry to core zone.</div></div>
+            <div class="stat-box"><div class="stat-box-icon">🐆</div><div class="stat-box-value">Hemis NP</div><div class="stat-box-label">Ladakh · Largest in India</div><div class="stat-box-desc">4,400 km². India's largest NP. Snow leopard stronghold (~200). Cold desert. Altitude: 3,300–6,000m.</div></div>
+            <div class="stat-box"><div class="stat-box-icon">🗻</div><div class="stat-box-value">Khangchendzonga NP</div><div class="stat-box-label">Sikkim · UNESCO</div><div class="stat-box-desc">1,784 km². World's 3rd highest peak. Mixed Heritage Site (natural + cultural). Red Panda habitat.</div></div>
+            <div class="stat-box"><div class="stat-box-icon">🌲</div><div class="stat-box-value">Pin Valley NP</div><div class="stat-box-label">HP · Cold Desert</div><div class="stat-box-desc">675 km². Spiti Valley. Snow leopard, ibex, Himalayan snowcock. Altitude: 3,500–6,000m.</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- 14: RIVERS & HYDRO -->
+<section class="section section-mountain" id="rivers-hydro">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 14</div>
+            <h2 class="section-title">Rivers & Hydroelectric Potential</h2>
+            <p class="section-subtitle">The Himalayas are the source of all major North Indian river systems — the lifeline of over 1 billion people</p>
+        </div>
+        <div class="stat-grid stat-grid-3" style="margin-bottom:40px">
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">🌊</div><div class="stat-box-value">3 Major Systems</div><div class="stat-box-label">Indus, Ganga, Brahmaputra</div><div class="stat-box-desc">All originate from Himalayan glaciers. Perennial rivers — fed by snowmelt + monsoon rainfall.</div></div>
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">⚡</div><div class="stat-box-value">1,50,000 MW</div><div class="stat-box-label">Hydroelectric Potential</div><div class="stat-box-desc">Estimated potential of Himalayan rivers. Only ~25% has been tapped so far.</div></div>
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">🏗️</div><div class="stat-box-value">Tehri Dam</div><div class="stat-box-label">India's Highest Dam (260m)</div><div class="stat-box-desc">On Bhagirathi River, Uttarakhand. 1,000 MW. Asia's highest and world's 8th highest dam.</div></div>
+        </div>
+        <div class="dyk-box" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+            <h3 style="color:var(--ice)">🌊 Key Himalayan River Origins</h3>
+            <div class="dyk-item"><div class="dyk-icon">🏔️</div><div class="dyk-text"><strong>Indus:</strong> Originates from Sengge Khabab (Lion's Mouth) near Lake Mansarovar, Tibet. Enters India at Ladakh. Total: 3,180 km.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🙏</div><div class="dyk-text"><strong>Ganga:</strong> Bhagirathi from Gangotri Glacier (Gaumukh) + Alaknanda from Satopanth Glacier. Merge at Devprayag to form Ganga. Total: 2,525 km.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🌊</div><div class="dyk-text"><strong>Brahmaputra:</strong> Originates as Tsangpo near Mansarovar, Tibet. Enters India through Arunachal as Dihang/Siang. Total: 2,900 km. World's 9th largest by discharge.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">💧</div><div class="dyk-text"><strong>Yamuna:</strong> From Yamunotri Glacier (Bandarpunch). 2nd largest tributary of Ganga. Passes through Delhi. Total: 1,376 km.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🌿</div><div class="dyk-text"><strong>Antecedent Rivers:</strong> Indus, Sutlej, and Brahmaputra are <strong>older than the Himalayas</strong> — they cut through the rising mountains, creating dramatic gorges.</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- 15: PILGRIMAGE & TOURISM -->
+<section class="section" id="pilgrimage">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 15</div>
+            <h2 class="section-title">Pilgrimage & Tourism</h2>
+            <p class="section-subtitle">The Himalayas are sacred to Hinduism, Buddhism, Jainism, and Sikhism — home to India's holiest pilgrimage circuits</p>
+        </div>
+        <div class="two-col">
+            <div class="content-block">
+                <h3>🙏 Sacred Pilgrimage Sites</h3>
+                <h4>Char Dham (Uttarakhand)</h4>
+                <ul>
+                    <li><strong>Yamunotri:</strong> Source of Yamuna. Temple at 3,293m. Hot springs.</li>
+                    <li><strong>Gangotri:</strong> Source of Ganga. Temple at 3,100m. Gaumukh trek.</li>
+                    <li><strong>Kedarnath:</strong> One of 12 Jyotirlingas. Temple at 3,583m. Devastated by 2013 flash floods, rebuilt.</li>
+                    <li><strong>Badrinath:</strong> One of 4 Dhams (all-India). Temple at 3,133m. Dedicated to Lord Vishnu.</li>
+                </ul>
+                <h4>Other Major Sites</h4>
+                <ul>
+                    <li><strong>Amarnath Cave (J&K):</strong> Natural ice Shivalinga at 3,888m. Annual yatra (July–August).</li>
+                    <li><strong>Vaishno Devi (J&K):</strong> India's 2nd most visited shrine (~8 million/year). Trikuta Mountains.</li>
+                    <li><strong>Hemkund Sahib (Uttarakhand):</strong> Sikh shrine at 4,632m — one of the highest gurudwaras.</li>
+                    <li><strong>Kailash Mansarovar (via India):</strong> Sacred to Hindus, Buddhists, Jains, Bön. In Tibet, accessed via Lipulekh (India) or Nathu La (Sikkim).</li>
+                </ul>
+            </div>
+            <div class="content-block">
+                <h3>🏔️ Adventure Tourism</h3>
+                <h4>Trekking</h4>
+                <ul>
+                    <li><strong>Chadar Trek:</strong> Walking on frozen Zanskar River, Ladakh (winter only). One of the world's most extreme treks.</li>
+                    <li><strong>Valley of Flowers Trek:</strong> UNESCO site, Uttarakhand. 600+ wildflower species. July–September.</li>
+                    <li><strong>Roopkund Trek:</strong> "Skeleton Lake" at 5,029m, Uttarakhand. Mysterious human skeletons from ~9th century.</li>
+                    <li><strong>Markha Valley Trek:</strong> Ladakh. Passes through remote villages at 3,800–5,200m.</li>
+                </ul>
+                <h4>Skiing & Winter Sports</h4>
+                <ul>
+                    <li><strong>Gulmarg (J&K):</strong> World's highest gondola (3,979m). Premier ski resort. Powdery snow Dec–Mar.</li>
+                    <li><strong>Auli (Uttarakhand):</strong> Ski slopes at 2,500–3,050m. Asia's longest cable car (4 km).</li>
+                    <li><strong>Solang Valley (HP):</strong> Near Manali. Skiing, paragliding, zorbing.</li>
+                </ul>
+                <h4>Mountaineering</h4>
+                <p>India has established mountaineering institutes at <strong>HMI Darjeeling</strong> (Tenzing Norgay's institute) and <strong>NIM Uttarkashi</strong>. Popular summits for Indian expeditions include Stok Kangri (6,153m), Friendship Peak (5,289m), and Kalanag (6,387m).</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 16: THREATS & RECORDS -->
+<section class="section section-dark" id="threats">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-eyebrow">Chapter 16</div>
+            <h2 class="section-title">Threats & Unique Records</h2>
+            <p class="section-subtitle">The Himalayas face existential threats from climate change while holding extraordinary natural records</p>
+        </div>
+        <div class="stat-grid stat-grid-5" style="margin-bottom:50px">
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">🌡️</div><div class="stat-box-value">Climate Change</div><div class="stat-box-label">Primary Threat</div><div class="stat-box-desc">Warming 0.6°C per decade — 3x global average. Permafrost melting.</div></div>
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">🧊</div><div class="stat-box-value">70%+</div><div class="stat-box-label">Glaciers Retreated</div><div class="stat-box-desc">Since 1960s. Gangotri lost 2 km. Pindari lost 1.6 km. Rate accelerating.</div></div>
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">🌊</div><div class="stat-box-value">GLOFs</div><div class="stat-box-label">Glacial Lake Floods</div><div class="stat-box-desc">200+ glacial lakes at risk. Chamoli disaster 2021 killed 200+. Increasing frequency.</div></div>
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">🌲</div><div class="stat-box-value">Deforestation</div><div class="stat-box-label">Forest Loss</div><div class="stat-box-desc">Illegal logging, road construction, hydropower projects causing habitat fragmentation.</div></div>
+            <div class="stat-box stat-box-dark"><div class="stat-box-icon">🏗️</div><div class="stat-box-value">Tourism</div><div class="stat-box-label">Overtourism</div><div class="stat-box-desc">Unplanned development, plastic waste, carrying capacity exceeded in places like Shimla, Manali.</div></div>
+        </div>
+        <div class="dyk-box" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)">
+            <h3 style="color:var(--ice)">🏆 Unique Records of the Himalayas</h3>
+            <div class="dyk-item"><div class="dyk-icon">1️⃣</div><div class="dyk-text"><strong>Youngest mountains on Earth</strong> — only 50–60 million years old (compare: Aravallis are 1.5 billion years old).</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🏔️</div><div class="dyk-text"><strong>Highest peaks concentration:</strong> All 14 peaks above 8,000m are in the Himalaya-Karakoram system. 110+ peaks above 7,300m.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🧊</div><div class="dyk-text"><strong>Largest freshwater reserve</strong> outside the polar ice caps — ~15,000 glaciers storing ~12,000 km³ of ice.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🌊</div><div class="dyk-text"><strong>Source of 10 major rivers</strong> that sustain 1.65 billion people — Indus, Ganga, Brahmaputra, Yamuna, Sutlej, and their tributaries.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🌧️</div><div class="dyk-text"><strong>Monsoon barrier:</strong> The Himalayas block moisture-laden monsoon winds, causing India to receive rainfall while creating the Tibetan rain shadow — the driest region on the planet.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">📈</div><div class="dyk-text"><strong>Still growing:</strong> The Himalayas rise ~5mm per year — compensated partly by erosion. Mt. Everest is measurably higher than it was 100 years ago.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🌡️</div><div class="dyk-text"><strong>Temperature range:</strong> From +45°C (Terai plains) to -60°C (Siachen in winter) — a 105°C range within the same mountain system.</div></div>
+            <div class="dyk-item"><div class="dyk-icon">🏞️</div><div class="dyk-text"><strong>Deepest gorge:</strong> The Brahmaputra gorge near Namcha Barwa plunges 5,382m deep — among the deepest on Earth.</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- NAV FOOTER -->
+<section class="nav-footer">
+    <div class="container">
+        <div class="nav-footer-grid">
+            <a href="index.html" class="nav-footer-card"><div class="nav-footer-icon">🏠</div><div><div class="nav-footer-dir">← Back to</div><div class="nav-footer-title">Bharat Encyclopedia</div></div></a>
+            <a href="northern-plains.html" class="nav-footer-card"><div class="nav-footer-icon">🌾</div><div><div class="nav-footer-dir">Next Chapter →</div><div class="nav-footer-title">Northern Plains</div></div></a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-brand">🏔️ DharaVerse Encyclopedia</div>
+            <ul class="footer-links"><li><a href="index.html">Bharat</a></li><li><a href="rivers.html">Rivers</a></li><li><a href="mountains.html">Mountains</a></li><li><a href="climate.html">Climate</a></li><li><a href="maps-hub.html">Maps</a></li></ul>
+            <div class="footer-copyright">© 2026 DharaVerse Encyclopedia · The Himalayas · Data from Survey of India, GSI, ISRO, WIHG</div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Scroll effects
+window.addEventListener('scroll',function(){
+    const h=document.getElementById('header'),b=document.getElementById('backButton');
+    if(window.scrollY>100){h.classList.add('scrolled');b.classList.add('scrolled')}
+    else{h.classList.remove('scrolled');b.classList.remove('scrolled')}
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'})})
+});
+
+// Generate stars
+(function(){
+    const c=document.getElementById('starsContainer');
+    for(let i=0;i<100;i++){
+        const s=document.createElement('div');s.className='star';
+        s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+        s.style.animationDelay=Math.random()*3+'s';s.style.animationDuration=(2+Math.random()*3)+'s';
+        if(Math.random()>.7){s.style.width='3px';s.style.height='3px'}
+        c.appendChild(s);
+    }
+})();
+
+// Animation observer
+const obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.style.opacity='1';en.target.style.transform='translateY(0)'}})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.stat-box,.info-card,.division-card,.glacier-card,.pass-card,.valley-card,.wildlife-card,.dyk-box,.cross-section-box,.veg-strip').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity .6s ease,transform .6s ease';obs.observe(el)});
+
+// LEAFLET MAP
+document.addEventListener('DOMContentLoaded',function(){
+    const map=L.map('himalaya-map-leaflet',{center:[31,79],zoom:6,minZoom:5,maxZoom:12,scrollWheelZoom:false});
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'© OpenTopoMap',maxZoom:17}).addTo(map);
+
+    function addM(lat,lng,emoji,label,popup){
+        const m=L.marker([lat,lng],{icon:L.divIcon({className:'cm',html:'<div style="background:rgba(0,0,0,.82);color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);font-family:system-ui;">'+emoji+' '+label+'</div>',iconSize:[160,24],iconAnchor:[80,12]})}).addTo(map);
+        if(popup)m.bindPopup(popup);return m;
+    }
+
+    // Peaks
+    addM(27.70,88.15,'🏔️','Kangchenjunga 8,586m','<div class="popup-title">Kangchenjunga</div><div class="popup-desc">8,586m — India\'s highest administered peak (world\'s 3rd). Sikkim-Nepal border. Sacred — summit is never stepped on by climbers out of respect.</div><div class="popup-tag popup-tag-peak">India\'s Highest · Sikkim</div>');
+    addM(30.38,79.97,'🏔️','Nanda Devi 7,816m','<div class="popup-title">Nanda Devi</div><div class="popup-desc">7,816m — Uttarakhand\'s highest. India\'s 2nd highest. Surrounded by a 70km "sanctuary" ring wall. NP is a UNESCO World Heritage Site. No entry to core zone since 1983.</div><div class="popup-tag popup-tag-peak">Uttarakhand · UNESCO</div>');
+    addM(35.88,76.51,'🏔️','K2 8,611m (PoK)','<div class="popup-title">K2 (Godwin-Austen)</div><div class="popup-desc">8,611m — World\'s 2nd highest. In Karakoram Range, PoK (integral part of India). Called "Savage Mountain" — deadliest for climbers. 1 in 4 summit attempts end in death.</div><div class="popup-tag popup-tag-peak">World\'s 2nd Highest · PoK</div>');
+    addM(35.24,74.59,'🏔️','Nanga Parbat 8,126m','<div class="popup-title">Nanga Parbat</div><div class="popup-desc">8,126m — "Killer Mountain." NW anchor of the Himalayas. Rupal Face is the tallest mountain face on Earth (4,600m vertical). J&K/PoK border.</div><div class="popup-tag popup-tag-peak">9th Highest · Killer Mountain</div>');
+    addM(30.73,79.60,'🏔️','Kamet 7,756m','<div class="popup-title">Kamet</div><div class="popup-desc">7,756m — 3rd highest in India. Uttarakhand near Tibet border. First 7,000m+ peak to be climbed (1931).</div><div class="popup-tag popup-tag-peak">Uttarakhand</div>');
+
+    // Glaciers
+    addM(35.42,77.11,'🧊','Siachen Glacier','<div class="popup-title">Siachen Glacier</div><div class="popup-desc">76 km — longest in the Karakoram. World\'s highest battlefield since 1984 (Operation Meghdoot). Indian Army maintains posts at 6,700m.</div><div class="popup-tag popup-tag-glacier">76 km · World\'s Highest Battlefield</div>');
+    addM(30.93,79.08,'🧊','Gangotri Glacier','<div class="popup-title">Gangotri Glacier</div><div class="popup-desc">30 km — Source of Bhagirathi (Ganga). Terminus at Gaumukh (3,892m). Retreating ~22m/year. Pilgrimage + science destination.</div><div class="popup-tag popup-tag-glacier">30 km · Ganga Source</div>');
+    addM(27.78,88.50,'🧊','Zemu Glacier','<div class="popup-title">Zemu Glacier</div><div class="popup-desc">26 km — Largest in Eastern Himalayas. NE slope of Kangchenjunga. Source of Teesta River. Remote — requires multi-day trek.</div><div class="popup-tag popup-tag-glacier">26 km · Sikkim</div>');
+
+    // Passes
+    addM(34.28,77.60,'🚗','Khardung La 5,359m','<div class="popup-title">Khardung La</div><div class="popup-desc">5,359m — One of the highest motorable passes. Gateway to Nubra Valley, Ladakh. On Leh-Siachen road.</div><div class="popup-tag popup-tag-pass">5,359m · Ladakh</div>');
+    addM(34.08,76.18,'🚗','Zoji La 3,528m','<div class="popup-title">Zoji La</div><div class="popup-desc">3,528m — Gateway between Srinagar and Ladakh. Closed in winter. Z-Morh tunnel (under construction) will provide year-round access.</div><div class="popup-tag popup-tag-pass">3,528m · J&K-Ladakh</div>');
+    addM(27.39,88.93,'🚗','Nathu La 4,310m','<div class="popup-title">Nathu La</div><div class="popup-desc">4,310m — India-China border pass in Sikkim. One of 3 open trading border posts. 1967 Nathu La skirmish. Spectacular views of Chumbi Valley.</div><div class="popup-tag popup-tag-pass">4,310m · India-China · Sikkim</div>');
+    addM(32.39,77.13,'🚗','Rohtang Pass 3,978m','<div class="popup-title">Rohtang Pass</div><div class="popup-desc">3,978m — Connects Kullu Valley to Lahaul-Spiti, HP. Now partly bypassed by Atal Tunnel (world\'s longest above 3,000m at 9.02 km).</div><div class="popup-tag popup-tag-pass">3,978m · HP · Atal Tunnel</div>');
+    addM(27.56,91.42,'🚗','Bum La 4,572m','<div class="popup-title">Bum La</div><div class="popup-desc">4,572m — India-China border pass in Arunachal Pradesh (Tawang). Site of 1962 war engagement. Border Personnel Meetings held here.</div><div class="popup-tag popup-tag-pass">4,572m · India-China · Arunachal</div>');
+
+    // Valleys
+    addM(34.08,74.80,'🌸','Kashmir Valley','<div class="popup-title">Kashmir Valley</div><div class="popup-desc">135 × 32 km at 1,620m. "Paradise on Earth." Dal Lake, Wular Lake (largest freshwater in India), Jhelum River. Surrounded by Pir Panjal & Greater Himalayas.</div><div class="popup-tag popup-tag-valley">135 km · 1,620m · J&K</div>');
+    addM(32.27,77.18,'🍎','Kullu Valley','<div class="popup-title">Kullu Valley</div><div class="popup-desc">"Valley of Gods." 80 km along Beas River. Apple orchards, hot springs, Dussehra festival. Gateway to Manali and Rohtang.</div><div class="popup-tag popup-tag-valley">Beas River · HP</div>');
+    addM(32.50,78.00,'🏜️','Spiti Valley','<div class="popup-title">Spiti Valley</div><div class="popup-desc">Cold desert at 3,800–4,500m. "Middle Land" between India and Tibet. Key Monastery (1,000+ years), Tabo Monastery. Pin Valley NP.</div><div class="popup-tag popup-tag-valley">Cold Desert · 3,800m · HP</div>');
+    addM(30.32,78.05,'🌳','Dehradun','<div class="popup-title">Dehradun Dun Valley</div><div class="popup-desc">Largest Dun (inter-montane valley) between Shiwaliks and Lesser Himalayas. Capital of Uttarakhand. Home to IMA, FRI, Survey of India, ISRO.</div><div class="popup-tag popup-tag-valley">Dun Valley · Uttarakhand</div>');
+
+    // Himalayan arc outline
+    L.polyline([[35.3,74.5],[34.5,75.5],[33.5,76.5],[32.5,77.0],[31.5,78.0],[30.5,79.5],[29.5,81.0],[28.5,83.5],[28.0,85.5],[27.8,87.5],[27.5,88.5],[27.0,90.0],[27.2,91.5],[27.5,93.0],[28.0,95.0],[28.5,96.5],[29.0,97.0]],{color:'#F0F4FF',weight:3,opacity:.5,dashArray:'8,4'}).addTo(map);
+});
+</script>
+</body>
+</html>
