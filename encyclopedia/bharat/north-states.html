@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏔️ Northern States & UTs — उत्तरी भारत</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --snow: #F0F4F8;
+            --ice: #E2EAF2;
+            --peak: #8B5E3C;
+            --peak-light: #B8886E;
+            --mountain: #5C7A3D;
+            --mountain-light: #7FA955;
+            --forest: #2D5016;
+            --forest-light: #4A7C28;
+            --glacier: #A8D8EA;
+            --glacier-dark: #5B9BD5;
+            --river: #2E6B8A;
+            --river-light: #4A9BC7;
+            --gold: #D4A843;
+            --gold-light: #F0D78C;
+            --gold-dark: #8B6914;
+            --saffron: #E07020;
+            --saffron-light: #F09040;
+            --maroon: #7B1F3A;
+            --maroon-light: #A63258;
+            --sky: #87CEEB;
+            --bg: #08090C;
+            --bg-card: #0F1114;
+            --bg-elevated: #161920;
+            --text: #D8DDE5;
+            --text-dim: #7A8494;
+            --text-bright: #F2F4F8;
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --accent: #5B9BD5;
+            --accent-glow: rgba(91,155,213,0.15);
+        }
+
+        *{margin:0;padding:0;box-sizing:border-box}
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar{width:7px}
+        ::-webkit-scrollbar-track{background:var(--bg)}
+        ::-webkit-scrollbar-thumb{background:#2A3040;border-radius:4px}
+        ::-webkit-scrollbar-thumb:hover{background:#3A4560}
+
+        /* ===== BACK BUTTON ===== */
+        .back-btn {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(15,17,20,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            color: var(--text-bright);
+            border-color: var(--accent);
+            background: rgba(91,155,213,0.08);
+            transform: translateX(-2px);
+        }
+        .back-btn svg { width:16px; height:16px; }
+
+        /* ===== NAV TABS ===== */
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            background: rgba(8,9,12,0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border);
+            padding: 0;
+        }
+        .nav-inner {
+            max-width: 1500px;
+            margin: 0 auto;
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-inner::-webkit-scrollbar{display:none}
+        .nav-tab {
+            flex-shrink: 0;
+            padding: 1rem 1.3rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-dim);
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .nav-tab:hover{color:var(--text-bright);background:rgba(255,255,255,0.02)}
+        .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+        /* ===== HERO ===== */
+        .hero {
+            position: relative;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0C1018 0%, #121824 40%, #0F1520 70%, var(--bg) 100%);
+        }
+        .hero::before {
+            content:'';position:absolute;inset:0;
+            background:
+                radial-gradient(ellipse 100% 50% at 50% 20%, rgba(91,155,213,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 20% 60%, rgba(45,80,22,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 50%, rgba(139,94,60,0.04) 0%, transparent 50%);
+        }
+
+        /* Mountain silhouette */
+        .mountain-range {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        .mtn {
+            position: absolute;
+            bottom: 0;
+            width: 0;height: 0;
+            border-style: solid;
+            opacity: 0.08;
+        }
+        .mtn-1{left:5%;border-width:0 120px 160px 100px;border-color:transparent transparent #5B9BD5 transparent}
+        .mtn-2{left:15%;border-width:0 180px 200px 160px;border-color:transparent transparent #8B5E3C transparent}
+        .mtn-3{left:35%;border-width:0 200px 180px 220px;border-color:transparent transparent #5C7A3D transparent}
+        .mtn-4{left:55%;border-width:0 160px 190px 140px;border-color:transparent transparent #7B1F3A transparent}
+        .mtn-5{left:70%;border-width:0 140px 150px 180px;border-color:transparent transparent #D4A843 transparent}
+        .mtn-6{left:85%;border-width:0 120px 170px 100px;border-color:transparent transparent #5B9BD5 transparent}
+
+        .hero-content {
+            position: relative;z-index:2;text-align:center;padding:2rem;max-width:900px;
+        }
+        .hero-emoji{font-size:4rem;display:block;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+        .hero-badge {
+            display:inline-flex;align-items:center;gap:0.5rem;
+            padding:0.4rem 1.5rem;
+            background:rgba(91,155,213,0.08);
+            border:1px solid rgba(91,155,213,0.2);
+            border-radius:50px;font-size:0.7rem;letter-spacing:3px;
+            text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;
+        }
+        .hero h1{font-size:clamp(2.2rem,5vw,4.5rem);font-weight:800;letter-spacing:-1px;line-height:1.1}
+        .hero h1 .en{display:block;background:linear-gradient(135deg,var(--snow),var(--glacier-dark),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero h1 .hi{display:block;font-size:0.4em;font-weight:400;letter-spacing:4px;color:var(--gold);-webkit-text-fill-color:var(--gold);margin-top:0.5rem;font-family:"Noto Sans Devanagari",-apple-system,sans-serif}
+        .hero-sub{font-size:1rem;color:var(--text-dim);max-width:650px;margin:1.5rem auto 0;font-weight:300}
+
+        .hero-chips {
+            display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-top:2rem;
+        }
+        .hero-chip {
+            padding:0.4rem 1rem;background:rgba(255,255,255,0.04);
+            border:1px solid var(--border);border-radius:50px;font-size:0.75rem;color:var(--text-dim);
+            transition:all 0.3s;cursor:pointer;
+        }
+        .hero-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+        .hero-chip .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:0.4rem}
+
+        /* ===== CONTENT ===== */
+        .content{max-width:1500px;margin:0 auto;padding:0 1.5rem 4rem}
+
+        /* ===== STATE SECTION ===== */
+        .state-section {
+            margin-bottom:5rem;scroll-margin-top:4rem;
+        }
+
+        .state-hero {
+            position:relative;
+            border-radius:24px;
+            overflow:hidden;
+            margin-bottom:2rem;
+            min-height:280px;
+            display:flex;align-items:flex-end;
+            padding:2.5rem;
+        }
+        .state-hero-bg {
+            position:absolute;inset:0;
+            opacity:0.12;
+        }
+        .state-hero-overlay {
+            position:absolute;inset:0;
+            background:linear-gradient(180deg,transparent 0%,rgba(8,9,12,0.7) 50%,rgba(8,9,12,0.95) 100%);
+        }
+        .state-hero-content{position:relative;z-index:2;width:100%}
+        .state-number{font-size:0.65rem;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:0.5rem}
+        .state-name{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:var(--text-bright);line-height:1.1}
+        .state-tagline{font-size:0.9rem;color:var(--text-dim);margin-top:0.3rem}
+
+        .state-quick-stats {
+            display:flex;gap:1.5rem;margin-top:1.5rem;flex-wrap:wrap;
+        }
+        .state-qs {
+            display:flex;flex-direction:column;
+        }
+        .state-qs-val{font-size:1.1rem;font-weight:700;color:var(--text-bright)}
+        .state-qs-lbl{font-size:0.65rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+
+        /* ===== MAP CONTAINER ===== */
+        .map-container {
+            border-radius:16px;overflow:hidden;
+            border:1px solid var(--border);
+            margin-bottom:2rem;height:350px;
+            position:relative;
+        }
+        .leaflet-container{background:var(--bg-card) !important}
+        .leaflet-tile{filter:brightness(0.7) contrast(1.1) saturate(0.3) !important}
+        .leaflet-control-zoom a{background:var(--bg-elevated) !important;color:var(--text) !important;border-color:var(--border) !important}
+
+        /* ===== TABS for each state ===== */
+        .state-tabs {
+            display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem;overflow-x:auto;
+            scrollbar-width:none;
+        }
+        .state-tabs::-webkit-scrollbar{display:none}
+        .state-tab {
+            flex-shrink:0;padding:0.8rem 1.2rem;font-size:0.75rem;font-weight:600;
+            color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;
+            transition:all 0.3s;white-space:nowrap;
+        }
+        .state-tab:hover{color:var(--text-bright)}
+        .state-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+        .tab-content{display:none}
+        .tab-content.active{display:block;animation:fadeTab 0.4s ease}
+        @keyframes fadeTab{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+        /* ===== CARDS ===== */
+        .grid{display:grid;gap:1.2rem}
+        .grid-2{grid-template-columns:repeat(auto-fit,minmax(350px,1fr))}
+        .grid-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+        .grid-4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+        .grid-5{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+
+        .card {
+            background:var(--bg-card);border:1px solid var(--border);
+            border-radius:14px;padding:1.5rem;position:relative;overflow:hidden;
+            transition:all 0.35s ease;
+        }
+        .card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:0 16px 48px rgba(0,0,0,0.3)}
+        .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity 0.3s}
+        .card:hover::before{opacity:1}
+
+        .card-blue::before{background:linear-gradient(90deg,var(--accent),var(--river-light));opacity:1}
+        .card-green::before{background:linear-gradient(90deg,var(--forest-light),var(--mountain-light));opacity:1}
+        .card-gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-dark));opacity:1}
+        .card-saffron::before{background:linear-gradient(90deg,var(--saffron),var(--saffron-light));opacity:1}
+        .card-maroon::before{background:linear-gradient(90deg,var(--maroon),var(--maroon-light));opacity:1}
+        .card-peak::before{background:linear-gradient(90deg,var(--peak),var(--peak-light));opacity:1}
+        .card-glacier::before{background:linear-gradient(90deg,var(--glacier-dark),var(--glacier));opacity:1}
+
+        .card-icon{font-size:2rem;margin-bottom:0.8rem;display:block}
+        .card-label{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.4rem;font-weight:600}
+        .card-title{font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.6rem}
+        .card-text{font-size:0.85rem;color:var(--text-dim);line-height:1.7}
+
+        /* ===== DATA LIST ===== */
+        .dl{list-style:none}
+        .dl li{padding:0.45rem 0;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:1rem}
+        .dl li:last-child{border-bottom:none}
+        .dl-k{color:var(--text-dim);font-size:0.82rem}
+        .dl-v{color:var(--text-bright);font-weight:600;font-size:0.85rem;text-align:right}
+        .dl-v.blue{color:var(--accent)}
+        .dl-v.gold{color:var(--gold)}
+        .dl-v.green{color:var(--mountain-light)}
+        .dl-v.saffron{color:var(--saffron-light)}
+
+        /* ===== TAGS ===== */
+        .tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.8rem}
+        .tag{padding:0.2rem 0.7rem;border-radius:50px;font-size:0.7rem;font-weight:600;border:1px solid}
+        .tag-blue{background:rgba(91,155,213,0.1);color:var(--accent);border-color:rgba(91,155,213,0.2)}
+        .tag-green{background:rgba(74,124,40,0.1);color:var(--mountain-light);border-color:rgba(74,124,40,0.2)}
+        .tag-gold{background:rgba(212,168,67,0.1);color:var(--gold);border-color:rgba(212,168,67,0.2)}
+        .tag-red{background:rgba(200,50,50,0.1);color:#E86B6B;border-color:rgba(200,50,50,0.2)}
+        .tag-saffron{background:rgba(224,112,32,0.1);color:var(--saffron-light);border-color:rgba(224,112,32,0.2)}
+
+        /* ===== TABLE ===== */
+        .data-table{width:100%;border-collapse:collapse}
+        .data-table thead th{padding:0.7rem 1rem;text-align:left;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);font-weight:600;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.01)}
+        .data-table tbody td{padding:0.6rem 1rem;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03)}
+        .data-table tbody tr:last-child td{border-bottom:none}
+        .data-table tbody tr:hover{background:rgba(91,155,213,0.03)}
+        .td-name{font-weight:600;color:var(--text-bright)}
+        .td-val{font-variant-numeric:tabular-nums}
+
+        /* ===== SECTION HEADERS ===== */
+        .sh{margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);position:relative}
+        .sh::after{content:'';position:absolute;bottom:-1px;left:0;width:60px;height:2px;background:var(--accent)}
+        .sh-num{font-size:0.65rem;color:var(--text-dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:0.3rem}
+        .sh-title{font-size:1.6rem;font-weight:800;color:var(--text-bright);display:flex;align-items:center;gap:0.6rem}
+        .sh-title .emoji{font-size:1.2rem}
+        .sh-desc{color:var(--text-dim);font-size:0.88rem;margin-top:0.3rem;max-width:700px}
+
+        /* ===== MEGA BLOCKS ===== */
+        .mega{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+        .mega::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+        .mega-blue::before{background:linear-gradient(to bottom,var(--accent),var(--river))}
+        .mega-green::before{background:linear-gradient(to bottom,var(--forest-light),var(--forest))}
+        .mega-gold::before{background:linear-gradient(to bottom,var(--gold),var(--gold-dark))}
+        .mega-saffron::before{background:linear-gradient(to bottom,var(--saffron),var(--saffron-light))}
+
+        .mega-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+        .mega-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+        .mega-icon-blue{background:rgba(91,155,213,0.12);color:var(--accent)}
+        .mega-icon-green{background:rgba(74,124,40,0.12);color:var(--mountain-light)}
+        .mega-icon-gold{background:rgba(212,168,67,0.12);color:var(--gold)}
+        .mega-title{font-size:1.2rem;font-weight:700;color:var(--text-bright)}
+        .mega-sub{font-size:0.8rem;color:var(--text-dim)}
+        .mega-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem}
+
+        .info-block{background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);border-radius:10px;padding:1rem}
+        .ib-title{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.5rem;font-weight:600}
+        .ib-content{font-size:0.85rem;color:var(--text);line-height:1.8}
+
+        /* ===== ALERT/WARNING ===== */
+        .alert{border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0;display:flex;gap:1rem;align-items:flex-start}
+        .alert-red{background:rgba(200,50,50,0.06);border:1px solid rgba(200,50,50,0.12)}
+        .alert-blue{background:rgba(91,155,213,0.06);border:1px solid rgba(91,155,213,0.12)}
+        .alert-gold{background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.12)}
+        .alert-icon{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+        .alert-text{font-size:0.85rem;color:var(--text-dim);line-height:1.6}
+        .alert-text strong{color:var(--text-bright)}
+
+        /* ===== HIGHLIGHTS ===== */
+        .highlights{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.8rem;margin:1.5rem 0}
+        .hl{background:rgba(91,155,213,0.04);border:1px solid rgba(91,155,213,0.08);border-radius:12px;padding:1rem;text-align:center;transition:all 0.3s}
+        .hl:hover{background:rgba(91,155,213,0.08);transform:translateY(-2px)}
+        .hl-val{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--glacier-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+        .hl-unit{font-size:0.7rem;color:var(--text-dim)}
+        .hl-lbl{font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem}
+
+        /* ===== DIVIDER ===== */
+        .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:3rem 0}
+
+        /* ===== FOOTER ===== */
+        .footer{border-top:1px solid var(--border);padding:3rem 1.5rem;max-width:1500px;margin:0 auto}
+        .footer-explore{margin-bottom:2rem}
+        .footer-explore-title{font-size:0.7rem;color:var(--text-dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem}
+        .explore-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0.8rem}
+        .explore-link{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text);transition:all 0.3s}
+        .explore-link:hover{border-color:var(--accent);background:var(--accent-glow);transform:translateY(-2px)}
+        .explore-link .el-emoji{font-size:1.5rem}
+        .explore-link .el-title{font-size:0.9rem;font-weight:600;color:var(--text-bright)}
+        .explore-link .el-desc{font-size:0.72rem;color:var(--text-dim)}
+        .explore-link .el-arrow{margin-left:auto;color:var(--text-dim);font-size:1.2rem}
+
+        .footer-bottom{text-align:center;padding-top:2rem;border-top:1px solid var(--border)}
+        .footer-bottom p{font-size:0.75rem;color:var(--text-dim)}
+
+        /* ===== RESPONSIVE ===== */
+        @media(max-width:1024px){
+            .grid-2{grid-template-columns:1fr}
+            .highlights{grid-template-columns:repeat(2,1fr)}
+        }
+        @media(max-width:768px){
+            .content{padding:0 1rem 3rem}
+            .grid-3,.grid-4{grid-template-columns:1fr}
+            .state-hero{min-height:220px;padding:1.5rem}
+            .mega{padding:1.2rem}
+            .mega-body{grid-template-columns:1fr}
+            .hero h1{font-size:2rem}
+            .back-btn{top:0.8rem;left:0.8rem;padding:0.5rem 0.8rem;font-size:0.7rem}
+            .highlights{grid-template-columns:1fr 1fr}
+            .state-quick-stats{gap:1rem}
+            .map-container{height:250px}
+        }
+        @media(max-width:480px){
+            .highlights{grid-template-columns:1fr}
+            .grid-5{grid-template-columns:1fr 1fr}
+        }
+
+        /* ===== FADE-IN ===== */
+        .fi{opacity:0;transform:translateY(20px);transition:all 0.6s ease}
+        .fi.vis{opacity:1;transform:translateY(0)}
+
+        /* Accent color per state */
+        [data-accent="jk"]{--sa:var(--saffron);--sa-light:var(--saffron-light);--sa-glow:rgba(224,112,32,0.1)}
+        [data-accent="ldk"]{--sa:var(--glacier-dark);--sa-light:var(--glacier);--sa-glow:rgba(91,155,213,0.1)}
+        [data-accent="hp"]{--sa:var(--forest-light);--sa-light:var(--mountain-light);--sa-glow:rgba(74,124,40,0.1)}
+        [data-accent="uk"]{--sa:var(--mountain-light);--sa-light:#9BCC6A;--sa-glow:rgba(127,169,85,0.1)}
+        [data-accent="pb"]{--sa:var(--saffron);--sa-light:var(--saffron-light);--sa-glow:rgba(224,112,32,0.1)}
+        [data-accent="hr"]{--sa:var(--gold);--sa-light:var(--gold-light);--sa-glow:rgba(212,168,67,0.1)}
+        [data-accent="ch"]{--sa:var(--accent);--sa-light:#7BB8E8;--sa-glow:rgba(91,155,213,0.1)}
+        [data-accent="dl"]{--sa:var(--maroon-light);--sa-light:#C84A6A;--sa-glow:rgba(166,50,88,0.1)}
+
+        /* Compact state for readability */
+        .compact-section{margin-bottom:1.5rem}
+
+        /* State color band */
+        .state-color-band{height:4px;border-radius:2px;margin-bottom:1.5rem}
+    </style>
+</head>
+<body>
+
+    <!-- BACK -->
+    <a href="index.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Bharat
+    </a>
+
+    <!-- NAV -->
+    <nav class="nav-bar">
+        <div class="nav-inner">
+            <a class="nav-tab active" onclick="scrollToState('jk')">J&K</a>
+            <a class="nav-tab" onclick="scrollToState('ladakh')">Ladakh</a>
+            <a class="nav-tab" onclick="scrollToState('hp')">Himachal</a>
+            <a class="nav-tab" onclick="scrollToState('uk')">Uttarakhand</a>
+            <a class="nav-tab" onclick="scrollToState('punjab')">Punjab</a>
+            <a class="nav-tab" onclick="scrollToState('haryana')">Haryana</a>
+            <a class="nav-tab" onclick="scrollToState('chandigarh')">Chandigarh</a>
+            <a class="nav-tab" onclick="scrollToState('delhi')">Delhi</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="mountain-range">
+            <div class="mtn mtn-1"></div><div class="mtn mtn-2"></div><div class="mtn mtn-3"></div>
+            <div class="mtn mtn-4"></div><div class="mtn mtn-5"></div><div class="mtn mtn-6"></div>
+        </div>
+        <div class="hero-content">
+            <span class="hero-emoji">🏔️</span>
+            <div class="hero-badge">Indian Geography Series</div>
+            <h1>
+                <span class="en">Northern States & UTs</span>
+                <span class="hi">उत्तरी भारत</span>
+            </h1>
+            <p class="hero-sub">From the snow-clad peaks of Kashmir to the plains of Haryana, from the cold deserts of Ladakh to the planned city of Chandigarh — a comprehensive study of 6 states and 2 Union Territories.</p>
+            <div class="hero-chips">
+                <span class="hero-chip" onclick="scrollToState('jk')"><span class="dot" style="background:var(--saffron)"></span>J&K</span>
+                <span class="hero-chip" onclick="scrollToState('ladakh')"><span class="dot" style="background:var(--glacier-dark)"></span>Ladakh</span>
+                <span class="hero-chip" onclick="scrollToState('hp')"><span class="dot" style="background:var(--forest-light)"></span>Himachal</span>
+                <span class="hero-chip" onclick="scrollToState('uk')"><span class="dot" style="background:var(--mountain-light)"></span>Uttarakhand</span>
+                <span class="hero-chip" onclick="scrollToState('punjab')"><span class="dot" style="background:var(--saffron)"></span>Punjab</span>
+                <span class="hero-chip" onclick="scrollToState('haryana')"><span class="dot" style="background:var(--gold)"></span>Haryana</span>
+                <span class="hero-chip" onclick="scrollToState('chandigarh')"><span class="dot" style="background:var(--accent)"></span>Chandigarh</span>
+                <span class="hero-chip" onclick="scrollToState('delhi')"><span class="dot" style="background:var(--maroon-light)"></span>Delhi</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="content">
+
+        <!-- ==================== 1. JAMMU & KASHMIR ==================== -->
+        <section class="state-section fi" id="jk" data-accent="jk">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(224,112,32,0.08),rgba(91,155,213,0.05))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 01 of 08</div>
+                    <div class="state-name">Jammu & Kashmir</div>
+                    <div class="state-tagline">Paradise on Earth • Union Territory since Aug 5, 2019</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">Srinagar / Jammu</span><span class="state-qs-lbl">Capital</span></div>
+                        <div class="state-qs"><span class="state-qs-val">42,241 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">12.5M</span><span class="state-qs-lbl">Population</span></div>
+                        <div class="state-qs"><span class="state-qs-val">20</span><span class="state-qs-lbl">Districts</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-jk"></div>
+
+            <div class="state-tabs" data-state="jk">
+                <div class="state-tab active" data-tab="jk-geo">Geography</div>
+                <div class="state-tab" data-tab="jk-rivers">Rivers & Lakes</div>
+                <div class="state-tab" data-tab="jk-climate">Climate & Soil</div>
+                <div class="state-tab" data-tab="jk-wildlife">Wildlife</div>
+                <div class="state-tab" data-tab="jk-economy">Economy</div>
+                <div class="state-tab" data-tab="jk-culture">Culture & Tourism</div>
+            </div>
+
+            <!-- JK Geography -->
+            <div class="tab-content active" id="jk-geo">
+                <div class="grid grid-2">
+                    <div class="card card-saffron">
+                        <div class="card-label">Physiographic Divisions</div>
+                        <div class="card-title">Four Distinct Zones</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">1. Outer Plains (Jammu)</span><span class="dl-v">300 m • Subtropical</span></li>
+                            <li><span class="dl-k">2. Outer Hills (Shiwaliks)</span><span class="dl-v">600–1,500 m</span></li>
+                            <li><span class="dl-k">3. Middle Himalayas</span><span class="dl-v">3,000–4,500 m</span></li>
+                            <li><span class="dl-k">4. Great Himalayas</span><span class="dl-v">6,000 m+</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-blue">
+                        <div class="card-label">Kashmir Valley</div>
+                        <div class="card-title">"Paradise on Earth"</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Length</span><span class="dl-v blue">135 km</span></li>
+                            <li><span class="dl-k">Width</span><span class="dl-v blue">32 km</span></li>
+                            <li><span class="dl-k">Elevation</span><span class="dl-v blue">1,620 m</span></li>
+                            <li><span class="dl-k">River</span><span class="dl-v">Jhelum flows through</span></li>
+                            <li><span class="dl-k">Between</span><span class="dl-v">Pir Panjal & Great Himalayas</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="grid grid-3" style="margin-top:1.2rem">
+                    <div class="card card-peak">
+                        <span class="card-icon">⛰️</span>
+                        <div class="card-title">Major Peaks</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Nanga Parbat</span><span class="dl-v gold">8,126 m</span></li>
+                            <li><span class="dl-k">Kolahoi</span><span class="dl-v">5,425 m</span></li>
+                            <li><span class="dl-k">Harmukh</span><span class="dl-v">5,142 m</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-glacier">
+                        <span class="card-icon">🏔️</span>
+                        <div class="card-title">Mountain Passes</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Zoji La</span><span class="dl-v blue">3,528 m</span></li>
+                            <li><span class="dl-k">Banihal Pass</span><span class="dl-v">2,832 m</span></li>
+                            <li><span class="dl-k">Pir Panjal Pass</span><span class="dl-v">3,485 m</span></li>
+                            <li><span class="dl-k">Sinthan Pass</span><span class="dl-v">3,748 m</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-green">
+                        <span class="card-icon">🗻</span>
+                        <div class="card-title">Mountain Ranges</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Pir Panjal</span><span class="dl-v green">Main range</span></li>
+                            <li><span class="dl-k">Zanskar</span><span class="dl-v">Northern</span></li>
+                            <li><span class="dl-k">Great Himalayas</span><span class="dl-v">Northernmost</span></li>
+                        </ul>
+                        <div class="tags">
+                            <span class="tag tag-blue">Kolahoi Glacier</span>
+                            <span class="tag tag-blue">Machoi Glacier</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JK Rivers & Lakes -->
+            <div class="tab-content" id="jk-rivers">
+                <div class="mega mega-blue">
+                    <div class="mega-header">
+                        <div class="mega-icon mega-icon-blue">🌊</div>
+                        <div><div class="mega-title">Indus River System</div><div class="mega-sub">All rivers belong to the Indus system</div></div>
+                    </div>
+                    <div class="mega-body">
+                        <div class="info-block">
+                            <div class="ib-title">Jhelum — Main River of Kashmir</div>
+                            <div class="ib-content">
+                                <strong>Length:</strong> 725 km<br>
+                                <strong>Origin:</strong> Verinag Spring<br>
+                                <strong>Flows through:</strong> Srinagar, Wular Lake<br>
+                                <strong>Tributaries:</strong> Lidder, Sind, Pohru
+                            </div>
+                        </div>
+                        <div class="info-block">
+                            <div class="ib-title">Chenab</div>
+                            <div class="ib-content">
+                                <strong>Origin:</strong> Bara Lacha Pass (HP)<br>
+                                <strong>Length in J&K:</strong> 1,180 km<br>
+                                <strong>Tributary:</strong> Tawi (Jammu's river)<br>
+                                <strong>Dams:</strong> Salal, Dulhasti, Baglihar
+                            </div>
+                        </div>
+                        <div class="info-block">
+                            <div class="ib-title">Other Rivers</div>
+                            <div class="ib-content">
+                                <strong>Ravi:</strong> Partly flows through J&K<br>
+                                <strong>Indus:</strong> Along Ladakh border
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sh" style="margin-top:2rem"><div class="sh-title"><span class="emoji">🏞️</span> Lakes</div></div>
+                <div class="grid grid-3">
+                    <div class="card card-blue">
+                        <span class="card-icon">🛶</span>
+                        <div class="card-title">Dal Lake</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Area</span><span class="dl-v blue">18 km²</span></li>
+                            <li><span class="dl-k">Location</span><span class="dl-v">Srinagar</span></li>
+                            <li><span class="dl-k">Features</span><span class="dl-v">Houseboats, Shikaras</span></li>
+                            <li><span class="dl-k">Special</span><span class="dl-v">Floating gardens</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-green">
+                        <span class="card-icon">🌿</span>
+                        <div class="card-title">Wular Lake</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Area</span><span class="dl-v green">189 km²</span></li>
+                            <li><span class="dl-k">Status</span><span class="dl-v">India's largest freshwater</span></li>
+                            <li><span class="dl-k">Fed by</span><span class="dl-v">Jhelum</span></li>
+                            <li><span class="dl-k">Ramsar</span><span class="dl-v green">✓ Designated</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-gold">
+                        <span class="card-icon">💎</span>
+                        <div class="card-title">Manasbal Lake</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Area</span><span class="dl-v">2.81 km²</span></li>
+                            <li><span class="dl-k">Depth</span><span class="dl-v gold">Deepest in Kashmir</span></li>
+                        </ul>
+                        <div class="tags">
+                            <span class="tag tag-blue">Nigeen Lake</span>
+                            <span class="tag tag-blue">Anchar Lake</span>
+                            <span class="tag tag-green">Hokersar Wetland</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JK Climate -->
+            <div class="tab-content" id="jk-climate">
+                <div class="grid grid-2">
+                    <div class="card card-blue">
+                        <div class="card-label">Kashmir Valley</div>
+                        <div class="card-title">Moderate Climate</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Summer</span><span class="dl-v">20–30°C</span></li>
+                            <li><span class="dl-k">Winter</span><span class="dl-v blue">-5 to 10°C</span></li>
+                            <li><span class="dl-k">Snowfall</span><span class="dl-v">Dec–Feb</span></li>
+                            <li><span class="dl-k">Rainfall</span><span class="dl-v">650 mm</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-saffron">
+                        <div class="card-label">Jammu Division</div>
+                        <div class="card-title">Subtropical Climate</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Summer</span><span class="dl-v saffron">40°C</span></li>
+                            <li><span class="dl-k">Winter</span><span class="dl-v">5–15°C</span></li>
+                            <li><span class="dl-k">Rainfall</span><span class="dl-v">1,100 mm</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:1.2rem">
+                    <div class="card-title">Soil Types</div>
+                    <div class="tags">
+                        <span class="tag tag-gold">Alluvial (plains)</span>
+                        <span class="tag tag-green">Mountain soil (hills)</span>
+                        <span class="tag tag-saffron">Karewa soil (Kashmir valley — lacustrine)</span>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:1.2rem">
+                    <div class="card-title">Vegetation Zones</div>
+                    <ul class="dl">
+                        <li><span class="dl-k">Tropical (Jammu)</span><span class="dl-v">Sal, Acacia</span></li>
+                        <li><span class="dl-k">Subtropical (Shiwaliks)</span><span class="dl-v">Chir Pine</span></li>
+                        <li><span class="dl-k">Temperate (Kashmir)</span><span class="dl-v green">Deodar, Fir, Spruce, Chinar</span></li>
+                        <li><span class="dl-k">Alpine (high alt.)</span><span class="dl-v blue">Birch, Juniper</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- JK Wildlife -->
+            <div class="tab-content" id="jk-wildlife">
+                <div class="grid grid-2">
+                    <div class="card card-green">
+                        <span class="card-icon">🐆</span>
+                        <div class="card-title">Key Fauna</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Snow Leopard</span><span class="dl-v">Endangered</span></li>
+                            <li><span class="dl-k">Hangul (Kashmir Stag)</span><span class="dl-v" style="color:#E86B6B">CR — ~237 left</span></li>
+                            <li><span class="dl-k">Himalayan Brown Bear</span><span class="dl-v">Rare</span></li>
+                            <li><span class="dl-k">Musk Deer</span><span class="dl-v">Endangered</span></li>
+                            <li><span class="dl-k">Asiatic Black Bear</span><span class="dl-v">Vulnerable</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-gold">
+                        <span class="card-icon">🦅</span>
+                        <div class="card-title">Protected Areas</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Dachigam NP</span><span class="dl-v gold">Hangul habitat</span></li>
+                            <li><span class="dl-k">Kishtwar NP</span><span class="dl-v">Snow Leopard</span></li>
+                            <li><span class="dl-k">Salim Ali NP</span><span class="dl-v">Bird sanctuary</span></li>
+                            <li><span class="dl-k">Overa-Aru WLS</span><span class="dl-v">Musk Deer</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="alert alert-red" style="margin-top:1rem">
+                    <span class="alert-icon">⚠️</span>
+                    <div class="alert-text"><strong>Hangul (Kashmir Stag)</strong> is found only in Dachigam NP, Kashmir. With ~237 individuals remaining, it is one of the most critically endangered deer species in the world.</div>
+                </div>
+            </div>
+
+            <!-- JK Economy -->
+            <div class="tab-content" id="jk-economy">
+                <div class="grid grid-3">
+                    <div class="card card-saffron">
+                        <span class="card-icon">🌸</span>
+                        <div class="card-title">Saffron</div>
+                        <div class="card-text">Pampore — <strong>only saffron-producing region in India</strong>. GI-tagged Kashmiri Saffron (Mongra) is among the finest in the world.</div>
+                    </div>
+                    <div class="card card-green">
+                        <span class="card-icon">🍎</span>
+                        <div class="card-title">Horticulture</div>
+                        <div class="card-text">Apples, Walnuts, Almonds, Cherries. Kashmir Valley is a major temperate fruit belt.</div>
+                    </div>
+                    <div class="card card-blue">
+                        <span class="card-icon">⚡</span>
+                        <div class="card-title">Hydropower</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Salal (Chenab)</span><span class="dl-v">690 MW</span></li>
+                            <li><span class="dl-k">Uri (Jhelum)</span><span class="dl-v">480 MW</span></li>
+                            <li><span class="dl-k">Dulhasti</span><span class="dl-v">390 MW</span></li>
+                            <li><span class="dl-k">Baglihar</span><span class="dl-v">450 MW</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:1.2rem">
+                    <div class="card-title">Minerals & Crafts</div>
+                    <div class="tags">
+                        <span class="tag tag-blue">Sapphire (Padder)</span>
+                        <span class="tag tag-gold">Pashmina wool</span>
+                        <span class="tag tag-green">Walnut wood carving</span>
+                        <span class="tag tag-saffron">Paper mâché</span>
+                        <span class="tag tag-blue">Carpet weaving</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JK Culture -->
+            <div class="tab-content" id="jk-culture">
+                <div class="grid grid-3">
+                    <div class="card card-gold">
+                        <span class="card-icon">🛕</span>
+                        <div class="card-title">Tourism</div>
+                        <div class="card-text">Dal Lake • Gulmarg (skiing) • Pahalgam • Sonamarg • Vaishno Devi (Jammu) • Mughal Gardens: Shalimar, Nishat</div>
+                    </div>
+                    <div class="card card-saffron">
+                        <span class="card-icon">🌲</span>
+                        <div class="card-title">Unique Features</div>
+                        <div class="card-text">Chinar trees (iconic) • Houseboats on Dal Lake • Pashmina from Changthangi goat • Saffron cultivation (only in India)</div>
+                    </div>
+                    <div class="card card-maroon">
+                        <span class="card-icon">⚠️</span>
+                        <div class="card-title">Challenges</div>
+                        <div class="card-text">Political instability • Glacial lake outburst floods • Dal Lake pollution • Deforestation • Climate change (declining snowfall)</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:1.2rem">
+                    <div class="card-label">Districts (20)</div>
+                    <div class="card-text" style="margin-top:0.5rem">
+                        <strong>Jammu Div:</strong> Jammu, Samba, Kathua, Udhampur, Reasi, Rajouri, Poonch, Doda, Kishtwar, Ramban<br>
+                        <strong>Kashmir Div:</strong> Srinagar, Budgam, Ganderbal, Pulwama, Shopian, Kulgam, Anantnag, Baramulla, Bandipora, Kupwara
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 2. LADAKH ==================== -->
+        <section class="state-section fi" id="ladakh" data-accent="ldk">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(91,155,213,0.08),rgba(168,216,234,0.04))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 02 of 08</div>
+                    <div class="state-name">Ladakh</div>
+                    <div class="state-tagline">The Highest Cold Desert • Union Territory since Oct 31, 2019</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">Leh / Kargil</span><span class="state-qs-lbl">Capital</span></div>
+                        <div class="state-qs"><span class="state-qs-val">59,146 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">2.74 Lakh</span><span class="state-qs-lbl">Population</span></div>
+                        <div class="state-qs"><span class="state-qs-val">4.6/km²</span><span class="state-qs-lbl">Lowest Density</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-ladakh"></div>
+
+            <div class="state-tabs" data-state="ladakh">
+                <div class="state-tab active" data-tab="ldk-geo">Geography</div>
+                <div class="state-tab" data-tab="ldk-rivers">Rivers & Lakes</div>
+                <div class="state-tab" data-tab="ldk-wildlife">Wildlife</div>
+                <div class="state-tab" data-tab="ldk-life">Life & Economy</div>
+            </div>
+
+            <div class="tab-content active" id="ldk-geo">
+                <div class="highlights">
+                    <div class="hl"><div class="hl-val">K2<span class="hl-unit"> 8,611m</span></div><div class="hl-lbl">Visible Peak</div></div>
+                    <div class="hl"><div class="hl-val">76 km</div><div class="hl-lbl">Siachen Glacier</div></div>
+                    <div class="hl"><div class="hl-val">5,359 m</div><div class="hl-lbl">Khardung La</div></div>
+                    <div class="hl"><div class="hl-val">-60°C</div><div class="hl-lbl">Dras Recorded</div></div>
+                    <div class="hl"><div class="hl-val">&lt;10 cm</div><div class="hl-lbl">Annual Rainfall</div></div>
+                </div>
+                <div class="grid grid-3">
+                    <div class="card card-glacier">
+                        <span class="card-icon">🏔️</span>
+                        <div class="card-title">Karakoram Range</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">K2 (POK border)</span><span class="dl-v blue">8,611 m</span></li>
+                            <li><span class="dl-k">Saltoro Kangri</span><span class="dl-v">7,742 m</span></li>
+                            <li><span class="dl-k">Saser Kangri</span><span class="dl-v">7,672 m</span></li>
+                            <li><span class="dl-k">Siachen Glacier</span><span class="dl-v blue">76 km</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-peak">
+                        <span class="card-icon">⛰️</span>
+                        <div class="card-title">High Passes</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Khardung La</span><span class="dl-v gold">5,359 m</span></li>
+                            <li><span class="dl-k">Chang La</span><span class="dl-v">5,360 m</span></li>
+                            <li><span class="dl-k">Marsimik La</span><span class="dl-v">5,582 m</span></li>
+                            <li><span class="dl-k">Tanglang La</span><span class="dl-v">5,328 m</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-blue">
+                        <span class="card-icon">🥶</span>
+                        <div class="card-title">Cold Desert Climate</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Summer Day</span><span class="dl-v">20–30°C</span></li>
+                            <li><span class="dl-k">Winter</span><span class="dl-v blue">-20 to -40°C</span></li>
+                            <li><span class="dl-k">Dras</span><span class="dl-v" style="color:#E86B6B">Coldest in India</span></li>
+                            <li><span class="dl-k">Sunshine</span><span class="dl-v">300+ days/yr</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="ldk-rivers">
+                <div class="grid grid-2">
+                    <div class="card card-blue">
+                        <span class="card-icon">🌊</span>
+                        <div class="card-title">Indus River in Ladakh</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Length in Ladakh</span><span class="dl-v blue">270 km</span></li>
+                            <li><span class="dl-k">Origin</span><span class="dl-v">Tibet (Mansarovar)</span></li>
+                            <li><span class="dl-k">Tributaries</span><span class="dl-v">Zanskar, Shyok, Nubra</span></li>
+                        </ul>
+                        <div class="alert alert-blue" style="margin-top:1rem">
+                            <span class="alert-icon">❄️</span>
+                            <div class="alert-text"><strong>Chadar Trek:</strong> The frozen Zanskar River becomes a walkable ice sheet in winter — one of the world's most extreme treks.</div>
+                        </div>
+                    </div>
+                    <div class="card card-glacier">
+                        <span class="card-icon">💎</span>
+                        <div class="card-title">Iconic Lakes</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Pangong Tso</span><span class="dl-v blue">4,350 m • 134 km</span></li>
+                            <li><span class="dl-k">Tso Moriri</span><span class="dl-v">4,522 m • Ramsar</span></li>
+                            <li><span class="dl-k">Tso Kar</span><span class="dl-v">4,530 m • "White Lake"</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="ldk-wildlife">
+                <div class="grid grid-2">
+                    <div class="card card-green">
+                        <span class="card-icon">🐆</span>
+                        <div class="card-title">Snow Leopard Capital</div>
+                        <div class="card-text">~200 Snow Leopards in Ladakh — highest density in the world. <strong>Hemis National Park (4,400 km²)</strong> is India's largest NP and primary Snow Leopard habitat.</div>
+                        <div class="tags" style="margin-top:0.8rem">
+                            <span class="tag tag-green">Tibetan Wild Ass</span>
+                            <span class="tag tag-green">Bharal</span>
+                            <span class="tag tag-green">Ibex</span>
+                            <span class="tag tag-green">Marmot</span>
+                            <span class="tag tag-blue">Black-necked Crane</span>
+                            <span class="tag tag-gold">Bactrian Camel (Nubra)</span>
+                        </div>
+                    </div>
+                    <div class="card card-gold">
+                        <span class="card-icon">🛕</span>
+                        <div class="card-title">Monasteries</div>
+                        <div class="card-text">Hemis • Thiksey • Diskit • Lamayuru • Alchi — ancient Buddhist Gompas perched on mountain tops, preserving Tibetan Buddhist heritage.</div>
+                        <div class="tags" style="margin-top:0.8rem">
+                            <span class="tag tag-gold">Hemis Festival</span>
+                            <span class="tag tag-gold">Losar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="ldk-life">
+                <div class="grid grid-3">
+                    <div class="card card-saffron">
+                        <span class="card-icon">🐐</span>
+                        <div class="card-title">Pashmina</div>
+                        <div class="card-text">Changthangi goats of Changthang plateau produce the world's finest Pashmina wool at 4,500m altitude.</div>
+                    </div>
+                    <div class="card card-gold">
+                        <span class="card-icon">🌾</span>
+                        <div class="card-title">Agriculture</div>
+                        <div class="card-text">Barley (main), wheat, peas, apricots (famous). All irrigated by glacial meltwater.</div>
+                    </div>
+                    <div class="card card-maroon">
+                        <span class="card-icon">🎖️</span>
+                        <div class="card-title">Strategic Importance</div>
+                        <div class="card-text">LAC with China • Siachen Glacier (highest battlefield) • Karakoram Pass (Silk Route) • 1,000+ km international borders.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 3. HIMACHAL PRADESH ==================== -->
+        <section class="state-section fi" id="hp" data-accent="hp">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(74,124,40,0.08),rgba(45,80,22,0.05))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 03 of 08</div>
+                    <div class="state-name">Himachal Pradesh</div>
+                    <div class="state-tagline">Dev Bhoomi • Apple State of India • Hydropower Hub</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">Shimla</span><span class="state-qs-lbl">Capital</span></div>
+                        <div class="state-qs"><span class="state-qs-val">55,673 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">68.5 Lakh</span><span class="state-qs-lbl">Population</span></div>
+                        <div class="state-qs"><span class="state-qs-val">12</span><span class="state-qs-lbl">Districts</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-hp"></div>
+
+            <div class="state-tabs" data-state="hp">
+                <div class="state-tab active" data-tab="hp-geo">Geography</div>
+                <div class="state-tab" data-tab="hp-rivers">Rivers & Valleys</div>
+                <div class="state-tab" data-tab="hp-wildlife">Wildlife & Forest</div>
+                <div class="state-tab" data-tab="hp-economy">Economy</div>
+            </div>
+
+            <div class="tab-content active" id="hp-geo">
+                <div class="highlights">
+                    <div class="hl"><div class="hl-val">6,816 m</div><div class="hl-lbl">Reo Purgyil (Highest)</div></div>
+                    <div class="hl"><div class="hl-val">9.02 km</div><div class="hl-lbl">Atal Tunnel</div></div>
+                    <div class="hl"><div class="hl-val">60%</div><div class="hl-lbl">India's Apple Production</div></div>
+                    <div class="hl"><div class="hl-val">27,000 MW</div><div class="hl-lbl">Hydro Potential</div></div>
+                </div>
+                <div class="grid grid-3">
+                    <div class="card card-green">
+                        <div class="card-label">Physiography</div>
+                        <div class="card-title">Three Zones</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Shiwaliks (Outer)</span><span class="dl-v">600–1,500 m</span></li>
+                            <li><span class="dl-k">Lesser Himalayas</span><span class="dl-v">3,500–4,500 m</span></li>
+                            <li><span class="dl-k">Greater Himalayas</span><span class="dl-v green">6,000 m+</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-peak">
+                        <div class="card-title">Key Peaks</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Reo Purgyil</span><span class="dl-v gold">6,816 m</span></li>
+                            <li><span class="dl-k">Manirang</span><span class="dl-v">6,593 m</span></li>
+                            <li><span class="dl-k">Hanuman Tibba</span><span class="dl-v">5,982 m</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-glacier">
+                        <div class="card-title">Key Passes</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Rohtang Pass</span><span class="dl-v blue">3,978 m</span></li>
+                            <li><span class="dl-k">Baralacha</span><span class="dl-v">4,883 m</span></li>
+                            <li><span class="dl-k">Kunzum</span><span class="dl-v">4,551 m</span></li>
+                            <li><span class="dl-k">Shipki La</span><span class="dl-v">4,200 m</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="alert alert-blue" style="margin-top:1rem">
+                    <span class="alert-icon">🚇</span>
+                    <div class="alert-text"><strong>Atal Tunnel (9.02 km)</strong> — World's longest highway tunnel above 3,000m, connecting Manali to Lahaul-Spiti with all-weather access.</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="hp-rivers">
+                <div class="grid grid-2">
+                    <div class="card card-blue">
+                        <div class="card-title">Rivers (All Indus System)</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Sutlej</span><span class="dl-v blue">320 km in HP</span></li>
+                            <li><span class="dl-k">Beas</span><span class="dl-v">470 km total</span></li>
+                            <li><span class="dl-k">Ravi</span><span class="dl-v">158 km in HP</span></li>
+                            <li><span class="dl-k">Chenab</span><span class="dl-v">Lahaul (as Chandra-Bhaga)</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-green">
+                        <div class="card-title">Famous Valleys</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Kullu</span><span class="dl-v green">"Valley of Gods"</span></li>
+                            <li><span class="dl-k">Kangra</span><span class="dl-v">Largest valley</span></li>
+                            <li><span class="dl-k">Spiti</span><span class="dl-v">"Little Tibet"</span></li>
+                            <li><span class="dl-k">Lahaul</span><span class="dl-v">High altitude</span></li>
+                            <li><span class="dl-k">Parvati</span><span class="dl-v">Hot springs (Manikaran)</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="hp-wildlife">
+                <div class="grid grid-2">
+                    <div class="card card-green">
+                        <div class="card-title">Great Himalayan NP</div>
+                        <div class="card-text"><strong>UNESCO World Heritage (2014)</strong> • 754 km² in Kullu • Snow Leopard, Musk Deer, Western Tragopan</div>
+                        <div class="tags" style="margin-top:0.5rem">
+                            <span class="tag tag-green">Pin Valley NP</span>
+                            <span class="tag tag-green">32 Wildlife Sanctuaries</span>
+                        </div>
+                    </div>
+                    <div class="card card-gold">
+                        <div class="card-title">Forest Cover: 27.72%</div>
+                        <div class="card-text">Altitude zones: Sal → Chir Pine → Deodar → Fir → Birch → Alpine meadows. <strong>Deodar</strong> is the state tree.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="hp-economy">
+                <div class="grid grid-3">
+                    <div class="card card-saffron"><span class="card-icon">🍎</span><div class="card-title">Apple State</div><div class="card-text">60% of India's apples. Belt: Shimla, Kullu, Kinnaur. Also pears, plums, apricots.</div></div>
+                    <div class="card card-blue"><span class="card-icon">⚡</span><div class="card-title">Hydropower</div><div class="card-text">27,000 MW potential. Bhakra (1,325 MW), Nathpa Jhakri (1,500 MW). HP earns royalties from power.</div></div>
+                    <div class="card card-gold"><span class="card-icon">🪂</span><div class="card-title">Adventure Tourism</div><div class="card-text">Bir-Billing (paragliding capital), Solang (skiing), trekking, Dharamshala (Dalai Lama), Shimla.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 4. UTTARAKHAND ==================== -->
+        <section class="state-section fi" id="uk" data-accent="uk">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(127,169,85,0.08),rgba(74,124,40,0.05))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 04 of 08</div>
+                    <div class="state-name">Uttarakhand</div>
+                    <div class="state-tagline">Devbhoomi — Land of Gods • Source of Ganga & Yamuna</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">Dehradun / Gairsain</span><span class="state-qs-lbl">Capital</span></div>
+                        <div class="state-qs"><span class="state-qs-val">53,483 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">1.01 Cr</span><span class="state-qs-lbl">Population</span></div>
+                        <div class="state-qs"><span class="state-qs-val">13</span><span class="state-qs-lbl">Districts</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-uk"></div>
+
+            <div class="state-tabs" data-state="uk">
+                <div class="state-tab active" data-tab="uk-geo">Geography</div>
+                <div class="state-tab" data-tab="uk-rivers">Rivers & Prayags</div>
+                <div class="state-tab" data-tab="uk-wildlife">Wildlife</div>
+                <div class="state-tab" data-tab="uk-chardham">Char Dham</div>
+            </div>
+
+            <div class="tab-content active" id="uk-geo">
+                <div class="highlights">
+                    <div class="hl"><div class="hl-val">7,816 m</div><div class="hl-lbl">Nanda Devi</div></div>
+                    <div class="hl"><div class="hl-val">130+</div><div class="hl-lbl">Glaciers</div></div>
+                    <div class="hl"><div class="hl-val">45.44%</div><div class="hl-lbl">Forest Cover</div></div>
+                    <div class="hl"><div class="hl-val">260.5 m</div><div class="hl-lbl">Tehri Dam Height</div></div>
+                </div>
+                <div class="grid grid-3">
+                    <div class="card card-peak">
+                        <span class="card-icon">⛰️</span>
+                        <div class="card-title">Major Peaks</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Nanda Devi</span><span class="dl-v gold">7,816 m</span></li>
+                            <li><span class="dl-k">Kamet</span><span class="dl-v">7,756 m</span></li>
+                            <li><span class="dl-k">Chaukhamba</span><span class="dl-v">7,138 m</span></li>
+                            <li><span class="dl-k">Trisul</span><span class="dl-v">7,120 m</span></li>
+                            <li><span class="dl-k">Panchachuli</span><span class="dl-v">6,904 m</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-blue">
+                        <span class="card-icon">❄️</span>
+                        <div class="card-title">Glaciers</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Gangotri</span><span class="dl-v blue">30 km • Ganga source</span></li>
+                            <li><span class="dl-k">Yamunotri</span><span class="dl-v">Yamuna source</span></li>
+                            <li><span class="dl-k">Pindari</span><span class="dl-v">3 km • Trekking</span></li>
+                            <li><span class="dl-k">Milam</span><span class="dl-v">16 km</span></li>
+                        </ul>
+                    </div>
+                    <div class="card card-green">
+                        <span class="card-icon">🌿</span>
+                        <div class="card-title">Regions</div>
+                        <ul class="dl">
+                            <li><span class="dl-k">Garhwal (NW)</span><span class="dl-v green">7 districts</span></li>
+                            <li><span class="dl-k">Kumaon (SE)</span><span class="dl-v">6 districts</span></li>
+                        </ul>
+                        <div class="tags" style="margin-top:0.5rem">
+                            <span class="tag tag-green">Bugyals (Alpine Meadows)</span>
+                            <span class="tag tag-green">Bedni • Ali • Dayara</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="uk-rivers">
+                <div class="mega mega-blue">
+                    <div class="mega-header">
+                        <div class="mega-icon mega-icon-blue">🌊</div>
+                        <div><div class="mega-title">Panch Prayag — Five Sacred Confluences</div><div class="mega-sub">The birth journey of the Ganga</div></div>
+                    </div>
+                    <div class="mega-body">
+                        <div class="info-block"><div class="ib-title">1. Vishnuprayag</div><div class="ib-content">Dhauliganga + Alaknanda</div></div>
+                        <div class="info-block"><div class="ib-title">2. Nandprayag</div><div class="ib-content">Nandakini + Alaknanda</div></div>
+                        <div class="info-block"><div class="ib-title">3. Karnaprayag</div><div class="ib-content">Pindar + Alaknanda</div></div>
+                        <div class="info-block"><div class="ib-title">4. Rudraprayag</div><div class="ib-content">Mandakini + Alaknanda</div></div>
+                        <div class="info-block"><div class="ib-title">5. Devprayag ⭐</div><div class="ib-content"><strong>Bhagirathi + Alaknanda = GANGA</strong></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="uk-wildlife">
+                <div class="grid grid-2">
+                    <div class="card card-green">
+                        <span class="card-icon">🐅</span>
+                        <div class="card-title">Jim Corbett NP</div>
+                        <div class="card-text"><strong>India's oldest NP (1936)</strong> • First Project Tiger Reserve (1973) • 260+ tigers • 520 km² • Ramganga River</div>
+                    </div>
+                    <div class="card card-gold">
+                        <span class="card-icon">🌸</span>
+                        <div class="card-title">Valley of Flowers</div>
+                        <div class="card-text"><strong>UNESCO World Heritage (2005)</strong> • 87.5 km² • 600+ alpine flower species • Chamoli district</div>
+                        <div class="tags" style="margin-top:0.5rem">
+                            <span class="tag tag-green">Nanda Devi NP (UNESCO)</span>
+                            <span class="tag tag-green">Gangotri NP</span>
+                            <span class="tag tag-green">Rajaji NP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="uk-chardham">
+                <div class="grid grid-4">
+                    <div class="card card-blue"><span class="card-icon">🏔️</span><div class="card-title">Yamunotri</div><div class="card-text">3,293 m • Goddess Yamuna • Uttarkashi</div></div>
+                    <div class="card card-glacier"><span class="card-icon">🏔️</span><div class="card-title">Gangotri</div><div class="card-text">3,100 m • Goddess Ganga • Gaumukh (18 km trek)</div></div>
+                    <div class="card card-saffron"><span class="card-icon">🔱</span><div class="card-title">Kedarnath</div><div class="card-text">3,583 m • Lord Shiva • 12 Jyotirlingas • 2013 disaster</div></div>
+                    <div class="card card-gold"><span class="card-icon">🙏</span><div class="card-title">Badrinath</div><div class="card-text">3,300 m • Lord Vishnu • Alaknanda River</div></div>
+                </div>
+                <div class="card" style="margin-top:1.2rem"><div class="card-text"><strong>Route:</strong> Haridwar → Rishikesh → Yamunotri → Gangotri → Kedarnath → Badrinath</div></div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 5. PUNJAB ==================== -->
+        <section class="state-section fi" id="punjab" data-accent="pb">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(224,112,32,0.08),rgba(212,168,67,0.04))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 05 of 08</div>
+                    <div class="state-name">Punjab</div>
+                    <div class="state-tagline">Land of Five Rivers • Granary of India • Green Revolution Heartland</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">Chandigarh</span><span class="state-qs-lbl">Capital (shared)</span></div>
+                        <div class="state-qs"><span class="state-qs-val">50,362 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">2.77 Cr</span><span class="state-qs-lbl">Population</span></div>
+                        <div class="state-qs"><span class="state-qs-val">23</span><span class="state-qs-lbl">Districts</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-punjab"></div>
+
+            <div class="state-tabs" data-state="punjab">
+                <div class="state-tab active" data-tab="pb-geo">Geography</div>
+                <div class="state-tab" data-tab="pb-agri">Agriculture</div>
+                <div class="state-tab" data-tab="pb-industry">Industry & Cities</div>
+                <div class="state-tab" data-tab="pb-issues">Issues</div>
+            </div>
+
+            <div class="tab-content active" id="pb-geo">
+                <div class="highlights">
+                    <div class="hl"><div class="hl-val">83%</div><div class="hl-lbl">Cultivated Land</div></div>
+                    <div class="hl"><div class="hl-val">98%</div><div class="hl-lbl">Irrigated Area</div></div>
+                    <div class="hl"><div class="hl-val">3.5%</div><div class="hl-lbl">Forest Cover</div></div>
+                    <div class="hl"><div class="hl-val">425 km</div><div class="hl-lbl">Pak Border</div></div>
+                </div>
+                <div class="grid grid-3">
+                    <div class="card card-saffron"><div class="card-title">Rivers</div><ul class="dl"><li><span class="dl-k">Sutlej</span><span class="dl-v saffron">350 km</span></li><li><span class="dl-k">Beas</span><span class="dl-v">256 km</span></li><li><span class="dl-k">Ravi</span><span class="dl-v">185 km</span></li><li><span class="dl-k">Ghaggar</span><span class="dl-v">Seasonal</span></li></ul></div>
+                    <div class="card card-gold"><div class="card-title">Doabs</div><ul class="dl"><li><span class="dl-k">Bist Doab</span><span class="dl-v gold">Beas-Sutlej</span></li><li><span class="dl-k">Bari Doab</span><span class="dl-v">Beas-Ravi</span></li></ul></div>
+                    <div class="card card-blue"><div class="card-title">Wetlands (Ramsar)</div><ul class="dl"><li><span class="dl-k">Harike</span><span class="dl-v blue">86 km² • 350+ birds</span></li><li><span class="dl-k">Kanjli</span><span class="dl-v">Kapurthala</span></li><li><span class="dl-k">Ropar</span><span class="dl-v">Archaeological</span></li></ul></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="pb-agri">
+                <div class="grid grid-2">
+                    <div class="card card-gold"><span class="card-icon">🌾</span><div class="card-title">Wheat (Rabi)</div><div class="card-text">35 lakh ha • 180+ lakh tonnes • 20% of India's wheat. <strong>India's "Wheat Bowl"</strong></div></div>
+                    <div class="card card-green"><span class="card-icon">🍚</span><div class="card-title">Rice (Kharif)</div><div class="card-text">31 lakh ha • 110+ lakh tonnes • 12% of India's rice. Basmati & non-Basmati.</div></div>
+                </div>
+                <div class="alert alert-gold" style="margin-top:1rem"><span class="alert-icon">💧</span><div class="alert-text"><strong>Water Crisis:</strong> Groundwater exploitation at 165% (critical). 14 lakh tubewells. Water table falling 0.5–1 m/year. All 138 blocks in dark zone.</div></div>
+            </div>
+
+            <div class="tab-content" id="pb-industry">
+                <div class="grid grid-3">
+                    <div class="card card-saffron"><span class="card-icon">🏭</span><div class="card-title">Ludhiana</div><div class="card-text">"Manchester of India" — Hosiery, cycles, auto parts. Largest city (16 lakh).</div></div>
+                    <div class="card card-gold"><span class="card-icon">🛕</span><div class="card-title">Amritsar</div><div class="card-text">Golden Temple (Harmandir Sahib) • Jallianwala Bagh • Wagah Border ceremony</div></div>
+                    <div class="card card-blue"><span class="card-icon">🏏</span><div class="card-title">Jalandhar</div><div class="card-text">60% of India's sports goods manufacturing. Leather goods, hand tools.</div></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="pb-issues">
+                <div class="grid grid-2">
+                    <div class="card card-maroon"><span class="card-icon">🔥</span><div class="card-title">Stubble Burning</div><div class="card-text">20+ million tonnes rice straw burned annually (Oct–Nov). Major cause of Delhi NCR air pollution. <strong>AQI reaches 500+.</strong></div></div>
+                    <div class="card card-maroon"><span class="card-icon">💧</span><div class="card-title">Groundwater Crisis</div><div class="card-text">Rice-wheat monoculture depleting aquifers. Cancer belt in Malwa (pesticides). Salinity, arsenic contamination.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 6. HARYANA ==================== -->
+        <section class="state-section fi" id="haryana" data-accent="hr">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(212,168,67,0.08),rgba(139,105,20,0.04))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 06 of 08</div>
+                    <div class="state-name">Haryana</div>
+                    <div class="state-tagline">NCR Industrial Powerhouse • Kurukshetra — Bhagavad Gita's Birthplace</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">Chandigarh</span><span class="state-qs-lbl">Capital (shared)</span></div>
+                        <div class="state-qs"><span class="state-qs-val">44,212 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">2.54 Cr</span><span class="state-qs-lbl">Population</span></div>
+                        <div class="state-qs"><span class="state-qs-val">22</span><span class="state-qs-lbl">Districts</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-haryana"></div>
+
+            <div class="state-tabs" data-state="haryana">
+                <div class="state-tab active" data-tab="hr-geo">Geography</div>
+                <div class="state-tab" data-tab="hr-economy">Economy & Industry</div>
+                <div class="state-tab" data-tab="hr-culture">Culture & History</div>
+            </div>
+
+            <div class="tab-content active" id="hr-geo">
+                <div class="grid grid-3">
+                    <div class="card card-gold"><div class="card-title">Physiography</div><ul class="dl"><li><span class="dl-k">Yamuna-Ghaggar Plain</span><span class="dl-v gold">Major portion</span></li><li><span class="dl-k">Shiwalik Hills (NE)</span><span class="dl-v">Morni: 1,220 m</span></li><li><span class="dl-k">Aravalli Extension (S)</span><span class="dl-v">Low rocky hills</span></li><li><span class="dl-k">Semi-Arid (SW)</span><span class="dl-v">Thar extension</span></li></ul></div>
+                    <div class="card card-blue"><div class="card-title">Rivers</div><ul class="dl"><li><span class="dl-k">Yamuna</span><span class="dl-v blue">Eastern boundary</span></li><li><span class="dl-k">Ghaggar</span><span class="dl-v">Seasonal (ancient Saraswati?)</span></li></ul><div class="card-text" style="margin-top:0.5rem;font-size:0.8rem">Most rivers seasonal. Monsoon-dependent drainage.</div></div>
+                    <div class="card card-green"><div class="card-title">Key Facts</div><ul class="dl"><li><span class="dl-k">Forest Cover</span><span class="dl-v" style="color:#E86B6B">3.59% (very low)</span></li><li><span class="dl-k">Murrah Buffalo</span><span class="dl-v green">World-famous breed</span></li><li><span class="dl-k">Sultanpur NP</span><span class="dl-v">Ramsar Site</span></li></ul></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="hr-economy">
+                <div class="grid grid-3">
+                    <div class="card card-gold"><span class="card-icon">💻</span><div class="card-title">Gurugram</div><div class="card-text">India's #3 IT hub. Maruti Suzuki (largest auto plant). Cyber City. 100+ MNCs. Highest per capita income.</div></div>
+                    <div class="card card-saffron"><span class="card-icon">🏭</span><div class="card-title">Faridabad</div><div class="card-text">Largest city (14 lakh). Engineering goods, tractors (Escorts), refrigerators.</div></div>
+                    <div class="card card-blue"><span class="card-icon">🧶</span><div class="card-title">Panipat</div><div class="card-text">"Textile City" — Blankets, carpets, recycled yarn. 3 historic battles fought here.</div></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="hr-culture">
+                <div class="grid grid-2">
+                    <div class="card card-gold"><span class="card-icon">📜</span><div class="card-title">Kurukshetra</div><div class="card-text">Mahabharata battlefield. Bhagavad Gita was delivered here. Brahma Sarovar. Solar eclipse pilgrimage.</div></div>
+                    <div class="card card-saffron"><span class="card-icon">⚔️</span><div class="card-title">Panipat Battles</div><div class="card-text">1st (1526): Babur vs Ibrahim Lodhi<br>2nd (1556): Akbar vs Hemu<br>3rd (1761): Marathas vs Ahmad Shah Abdali</div></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 7. CHANDIGARH ==================== -->
+        <section class="state-section fi" id="chandigarh" data-accent="ch">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(91,155,213,0.08),rgba(91,155,213,0.03))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 07 of 08</div>
+                    <div class="state-name">Chandigarh</div>
+                    <div class="state-tagline">The City Beautiful • Le Corbusier's Masterpiece • UNESCO World Heritage</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">114 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">10.5 Lakh</span><span class="state-qs-lbl">Population</span></div>
+                        <div class="state-qs"><span class="state-qs-val">9,252/km²</span><span class="state-qs-lbl">Density</span></div>
+                        <div class="state-qs"><span class="state-qs-val">86%</span><span class="state-qs-lbl">Literacy</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-chandigarh"></div>
+
+            <div class="grid grid-3">
+                <div class="card card-blue">
+                    <span class="card-icon">🏛️</span>
+                    <div class="card-title">Le Corbusier's Design</div>
+                    <div class="card-text">Grid pattern with 63 sectors. Each sector is self-sufficient. <strong>UNESCO Capitol Complex (2016):</strong> Secretariat, Assembly, High Court, Open Hand Monument.</div>
+                </div>
+                <div class="card card-green">
+                    <span class="card-icon">🌹</span>
+                    <div class="card-title">Greenest City</div>
+                    <div class="card-text">35+ trees per capita (highest in India). Rose Garden (Asia's largest — 1,600 varieties). Rock Garden (Nek Chand). Sukhna Lake.</div>
+                </div>
+                <div class="card card-gold">
+                    <span class="card-icon">🧍</span>
+                    <div class="card-title">"Human Body" Metaphor</div>
+                    <ul class="dl">
+                        <li><span class="dl-k">Head</span><span class="dl-v gold">Capitol Complex (Sector 1)</span></li>
+                        <li><span class="dl-k">Heart</span><span class="dl-v">City Center (Sector 17)</span></li>
+                        <li><span class="dl-k">Lungs</span><span class="dl-v">Leisure Valley (green belt)</span></li>
+                        <li><span class="dl-k">Circulation</span><span class="dl-v">7V Road Hierarchy</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 8. DELHI ==================== -->
+        <section class="state-section fi" id="delhi" data-accent="dl">
+            <div class="state-hero" style="background:linear-gradient(135deg,rgba(166,50,88,0.08),rgba(123,31,58,0.04))">
+                <div class="state-hero-content">
+                    <div class="state-number">State / UT 08 of 08</div>
+                    <div class="state-name">Delhi (NCT)</div>
+                    <div class="state-tagline">National Capital Territory • Mughal Heritage • India's Political Heart</div>
+                    <div class="state-quick-stats">
+                        <div class="state-qs"><span class="state-qs-val">1,484 km²</span><span class="state-qs-lbl">Area</span></div>
+                        <div class="state-qs"><span class="state-qs-val">3 Cr+</span><span class="state-qs-lbl">Population (est.)</span></div>
+                        <div class="state-qs"><span class="state-qs-val">11,297/km²</span><span class="state-qs-lbl">Highest Density</span></div>
+                        <div class="state-qs"><span class="state-qs-val">₹3.89L</span><span class="state-qs-lbl">Per Capita (Highest)</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container" id="map-delhi"></div>
+
+            <div class="state-tabs" data-state="delhi">
+                <div class="state-tab active" data-tab="dl-geo">Geography</div>
+                <div class="state-tab" data-tab="dl-heritage">Heritage (UNESCO)</div>
+                <div class="state-tab" data-tab="dl-transport">Transport</div>
+                <div class="state-tab" data-tab="dl-issues">Challenges</div>
+            </div>
+
+            <div class="tab-content active" id="dl-geo">
+                <div class="grid grid-3">
+                    <div class="card card-maroon"><div class="card-title">Physiography</div><ul class="dl"><li><span class="dl-k">Yamuna Floodplain</span><span class="dl-v">22% of Delhi</span></li><li><span class="dl-k">Delhi Ridge</span><span class="dl-v" style="color:var(--maroon-light)">Aravalli extension</span></li><li><span class="dl-k">Plains</span><span class="dl-v">Flat alluvial</span></li><li><span class="dl-k">Highest Point</span><span class="dl-v">318 m (Tara Hill)</span></li></ul></div>
+                    <div class="card card-blue"><div class="card-title">Yamuna River</div><ul class="dl"><li><span class="dl-k">Length in Delhi</span><span class="dl-v blue">48 km</span></li><li><span class="dl-k">Enters</span><span class="dl-v">Palla (North)</span></li><li><span class="dl-k">Exits</span><span class="dl-v">Jaitpur (South)</span></li><li><span class="dl-k">Status</span><span class="dl-v" style="color:#E86B6B">Most polluted stretch</span></li></ul></div>
+                    <div class="card card-green"><div class="card-title">Delhi Ridge</div><div class="card-text">1.5 billion year old quartzite. Last green lung of Delhi. 7,777 ha protected. 4 zones: Northern, Central, South-Central, Southern (Asola).</div></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="dl-heritage">
+                <div class="sh"><div class="sh-title"><span class="emoji">🏛️</span> 3 UNESCO World Heritage Sites</div></div>
+                <div class="grid grid-3">
+                    <div class="card card-maroon"><span class="card-icon">🏰</span><div class="card-title">Red Fort (1639)</div><div class="card-text">Shah Jahan's masterpiece. Mughal architecture. Independence Day venue.</div></div>
+                    <div class="card card-gold"><span class="card-icon">🗼</span><div class="card-title">Qutub Minar (1192)</div><div class="card-text">72.5 m — tallest brick minaret. Iron Pillar (1,600 years, rust-free).</div></div>
+                    <div class="card card-saffron"><span class="card-icon">🕌</span><div class="card-title">Humayun's Tomb (1570)</div><div class="card-text">Mughal garden tomb. Inspiration for Taj Mahal. Bega Begum built it.</div></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="dl-transport">
+                <div class="grid grid-3">
+                    <div class="card card-blue"><span class="card-icon">🚇</span><div class="card-title">Delhi Metro</div><div class="card-text">393 km network • 12 lines • 288 stations • 60 lakh riders/day. Extends to Noida, Gurgaon, Ghaziabad, Faridabad.</div></div>
+                    <div class="card card-gold"><span class="card-icon">✈️</span><div class="card-title">IGI Airport</div><div class="card-text">India's busiest airport. 7 crore passengers/year. Terminal 1, 2, 3. Hub for Air India, IndiGo, Vistara.</div></div>
+                    <div class="card card-green"><span class="card-icon">🚂</span><div class="card-title">Railways</div><div class="card-text">5 main terminals: New Delhi, Old Delhi, Nizamuddin, Anand Vihar, Sarai Rohilla. All-India connectivity.</div></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="dl-issues">
+                <div class="grid grid-2">
+                    <div class="card card-maroon"><span class="card-icon">💨</span><div class="card-title">Air Pollution</div><div class="card-text">AQI >300 in winter (Severe). Causes: stubble burning, 1.2 crore vehicles, construction dust, industrial emissions. <strong>World's most polluted capital.</strong></div></div>
+                    <div class="card card-maroon"><span class="card-icon">🌊</span><div class="card-title">Yamuna Pollution</div><div class="card-text">Worst river stretch in India. Only 2% of Yamuna's length (Delhi stretch) carries 76% of its total pollution load.</div></div>
+                </div>
+                <div class="alert alert-red" style="margin-top:1rem"><span class="alert-icon">⚠️</span><div class="alert-text">Other critical challenges: <strong>Water scarcity</strong> (groundwater depletion), <strong>urban sprawl</strong>, <strong>11,000 tonnes/day solid waste</strong>, <strong>flooding</strong> (Yamuna encroachment), <strong>heat islands</strong>, <strong>Seismic Zone IV</strong> risk.</div></div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-explore">
+            <div class="footer-explore-title">Explore More Topics</div>
+            <div class="explore-links">
+                <a href="northern-plains.html" class="explore-link">
+                    <span class="el-emoji">🌾</span>
+                    <div><div class="el-title">Indo-Gangetic Plains</div><div class="el-desc">The Granary of India — landforms, rivers, soil</div></div>
+                    <span class="el-arrow">→</span>
+                </a>
+                <a href="himalayas.html" class="explore-link">
+                    <span class="el-emoji">🏔️</span>
+                    <div><div class="el-title">The Himalayas</div><div class="el-desc">Greater, Lesser & Outer Himalayas in detail</div></div>
+                    <span class="el-arrow">→</span>
+                </a>
+                <a href="states-west.html" class="explore-link">
+                    <span class="el-emoji">🏜️</span>
+                    <div><div class="el-title">Western States</div><div class="el-desc">Rajasthan, Gujarat, Maharashtra, Goa</div></div>
+                    <span class="el-arrow">→</span>
+                </a>
+                <a href="states-east.html" class="explore-link">
+                    <span class="el-emoji">🌿</span>
+                    <div><div class="el-title">Eastern States</div><div class="el-desc">Bihar, Jharkhand, West Bengal, Odisha</div></div>
+                    <span class="el-arrow">→</span>
+                </a>
+                <a href="states-south.html" class="explore-link">
+                    <span class="el-emoji">🛕</span>
+                    <div><div class="el-title">Southern States</div><div class="el-desc">Tamil Nadu, Kerala, Karnataka, AP, Telangana</div></div>
+                    <span class="el-arrow">→</span>
+                </a>
+                <a href="states-ne.html" class="explore-link">
+                    <span class="el-emoji">🦏</span>
+                    <div><div class="el-title">North-East States</div><div class="el-desc">Seven Sisters & Sikkim</div></div>
+                    <span class="el-arrow">→</span>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>🏔️ Northern States & UTs — Indian Geography Comprehensive Study • UPSC Reference</p>
+        </div>
+    </footer>
+
+    <script>
+    // ===== TAB SYSTEM =====
+    document.querySelectorAll('.state-tabs').forEach(tabBar => {
+        const tabs = tabBar.querySelectorAll('.state-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const parent = tabBar.closest('.state-section');
+                parent.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    });
+
+    // ===== NAV SCROLL =====
+    function scrollToState(id) {
+        document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ===== NAV ACTIVE =====
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const stSections = document.querySelectorAll('.state-section');
+    const navObs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navTabs.forEach(t => t.classList.remove('active'));
+                const idx = Array.from(stSections).indexOf(entry.target);
+                if (navTabs[idx]) navTabs[idx].classList.add('active');
+            }
+        });
+    }, { threshold: 0.2 });
+    stSections.forEach(s => navObs.observe(s));
+
+    // ===== FADE-IN =====
+    const fiObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.fi').forEach(el => fiObs.observe(el));
+
+    // ===== MAPS =====
+    function createMap(containerId, center, zoom, markers) {
+        const map = L.map(containerId, {
+            scrollWheelZoom: false,
+            zoomControl: true,
+            attributionControl: false
+        }).setView(center, zoom);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 12, minZoom: 4
+        }).addTo(map);
+
+        if (markers) {
+            markers.forEach(m => {
+                L.circleMarker(m.pos, {
+                    radius: m.r || 5, fillColor: m.c || '#5B9BD5',
+                    color: '#fff', weight: 1, opacity: 0.8, fillOpacity: 0.7
+                }).addTo(map).bindPopup(`<b>${m.n}</b>${m.d ? '<br>' + m.d : ''}`);
+            });
+        }
+        setTimeout(() => map.invalidateSize(), 300);
+        return map;
+    }
+
+    // Wait for DOM
+    window.addEventListener('load', () => {
+        // J&K
+        createMap('map-jk', [33.7, 75.5], 7, [
+            {pos:[34.08,74.79],n:'Srinagar',d:'Summer Capital',r:8,c:'#F09040'},
+            {pos:[32.73,74.87],n:'Jammu',d:'Winter Capital',r:7,c:'#F09040'},
+            {pos:[34.07,74.84],n:'Dal Lake',d:'18 km²',c:'#5B9BD5'},
+            {pos:[34.36,74.58],n:'Wular Lake',d:'Largest freshwater',r:6,c:'#5B9BD5'},
+            {pos:[34.05,75.31],n:'Pahalgam',c:'#7FA955'},
+            {pos:[34.05,74.38],n:'Gulmarg',d:'Skiing',c:'#7FA955'},
+            {pos:[34.30,75.29],n:'Sonamarg',c:'#7FA955'},
+            {pos:[33.01,75.51],n:'Vaishno Devi',d:'Jammu',c:'#D4A843',r:6}
+        ]);
+
+        // Ladakh
+        createMap('map-ladakh', [34.3, 77.5], 7, [
+            {pos:[34.16,77.58],n:'Leh',d:'Summer Capital',r:8,c:'#5B9BD5'},
+            {pos:[34.56,76.13],n:'Kargil',d:'Winter Capital',r:7,c:'#5B9BD5'},
+            {pos:[33.75,78.65],n:'Pangong Tso',d:'4,350 m',r:6,c:'#A8D8EA'},
+            {pos:[32.91,78.32],n:'Tso Moriri',d:'Ramsar',r:5,c:'#A8D8EA'},
+            {pos:[34.52,77.60],n:'Nubra Valley',d:'Bactrian camels',c:'#D4A843'},
+            {pos:[33.78,77.57],n:'Hemis NP',d:'Largest NP',r:6,c:'#7FA955'}
+        ]);
+
+        // HP
+        createMap('map-hp', [31.8, 77.2], 7, [
+            {pos:[31.10,77.17],n:'Shimla',d:'Capital',r:8,c:'#4A7C28'},
+            {pos:[32.22,76.32],n:'Dharamshala',d:'Dalai Lama',r:7,c:'#4A7C28'},
+            {pos:[32.24,77.19],n:'Manali',d:'Tourism hub',r:7,c:'#7FA955'},
+            {pos:[31.52,77.80],n:'Kinnaur',d:'Apple belt',c:'#D4A843'},
+            {pos:[32.58,76.97],n:'Lahaul-Spiti',d:'Cold desert',r:6,c:'#5B9BD5'},
+            {pos:[32.10,76.53],n:'Bir-Billing',d:'Paragliding',c:'#F09040'}
+        ]);
+
+        // Uttarakhand
+        createMap('map-uk', [30.3, 79.0], 7, [
+            {pos:[30.32,78.03],n:'Dehradun',d:'Capital',r:8,c:'#7FA955'},
+            {pos:[29.95,78.16],n:'Haridwar',d:'Holy city',r:7,c:'#D4A843'},
+            {pos:[30.12,78.30],n:'Rishikesh',d:'Yoga Capital',r:6,c:'#D4A843'},
+            {pos:[29.38,79.45],n:'Nainital',d:'Lake city',r:6,c:'#5B9BD5'},
+            {pos:[30.73,79.07],n:'Kedarnath',d:'Char Dham',r:5,c:'#F09040'},
+            {pos:[30.74,79.49],n:'Badrinath',d:'Char Dham',r:5,c:'#F09040'},
+            {pos:[30.99,78.94],n:'Gangotri',d:'Ganga source',r:5,c:'#5B9BD5'},
+            {pos:[29.60,79.43],n:'Jim Corbett NP',d:'Oldest NP',r:6,c:'#4A7C28'}
+        ]);
+
+        // Punjab
+        createMap('map-punjab', [31.0, 75.5], 7, [
+            {pos:[31.63,74.87],n:'Amritsar',d:'Golden Temple',r:8,c:'#F09040'},
+            {pos:[30.90,75.86],n:'Ludhiana',d:'Largest city',r:8,c:'#F09040'},
+            {pos:[31.33,75.58],n:'Jalandhar',d:'Sports goods',r:7,c:'#D4A843'},
+            {pos:[30.34,76.39],n:'Patiala',d:'Historical',r:6,c:'#D4A843'},
+            {pos:[30.21,74.95],n:'Bathinda',d:'Cotton hub',r:6,c:'#D4A843'},
+            {pos:[31.39,75.03],n:'Harike Wetland',d:'Ramsar',r:5,c:'#5B9BD5'}
+        ]);
+
+        // Haryana
+        createMap('map-haryana', [29.0, 76.5], 7, [
+            {pos:[28.41,77.04],n:'Faridabad',d:'Largest city',r:8,c:'#D4A843'},
+            {pos:[28.46,77.03],n:'Gurugram',d:'IT Hub',r:8,c:'#D4A843'},
+            {pos:[29.97,76.85],n:'Kurukshetra',d:'Mahabharata',r:7,c:'#F09040'},
+            {pos:[29.39,76.97],n:'Panipat',d:'3 Battles',r:6,c:'#F09040'},
+            {pos:[29.16,75.72],n:'Hisar',d:'Murrah buffalo',r:6,c:'#7FA955'},
+            {pos:[28.98,76.61],n:'Rohtak',r:5,c:'#D4A843'}
+        ]);
+
+        // Chandigarh
+        createMap('map-chandigarh', [30.74, 76.78], 12, [
+            {pos:[30.76,76.78],n:'Capitol Complex',d:'UNESCO',r:8,c:'#5B9BD5'},
+            {pos:[30.74,76.79],n:'Sector 17',d:'City Center',r:6,c:'#5B9BD5'},
+            {pos:[30.74,76.82],n:'Sukhna Lake',d:'Man-made',r:6,c:'#A8D8EA'},
+            {pos:[30.75,76.81],n:'Rock Garden',d:'Nek Chand',r:6,c:'#D4A843'},
+            {pos:[30.75,76.77],n:'Rose Garden',d:'Asia\'s largest',r:6,c:'#E86B6B'}
+        ]);
+
+        // Delhi
+        createMap('map-delhi', [28.63, 77.22], 10, [
+            {pos:[28.61,77.23],n:'Red Fort',d:'UNESCO',r:7,c:'#A63258'},
+            {pos:[28.52,77.19],n:'Qutub Minar',d:'UNESCO • 72.5m',r:7,c:'#A63258'},
+            {pos:[28.59,77.25],n:'Humayun\'s Tomb',d:'UNESCO',r:7,c:'#A63258'},
+            {pos:[28.61,77.21],n:'India Gate',r:6,c:'#D4A843'},
+            {pos:[28.62,77.21],n:'Rashtrapati Bhavan',r:6,c:'#D4A843'},
+            {pos:[28.57,77.32],n:'Akshardham',r:6,c:'#F09040'},
+            {pos:[28.56,77.17],n:'IGI Airport',d:'Busiest in India',r:7,c:'#5B9BD5'},
+            {pos:[28.55,77.27],n:'Lotus Temple',d:'Bahai',r:5,c:'#7FA955'}
+        ]);
+    });
+    </script>
+</body>
+</html>
