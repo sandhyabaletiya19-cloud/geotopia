@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coastal Geography of India | Bharat Encyclopedia | DharaVerse</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --font-serif: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Georgia', serif;
+            --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'Courier New', Courier, monospace;
+            --primary: #0a0a0a;
+            --secondary: #1a1a1a;
+            --accent: #D4A574;
+            --accent-dark: #B8956A;
+            --saffron: #FF9933;
+            --green-india: #138808;
+            --white: #FFFFFF;
+            --light: #FAFAFA;
+            --cream: #FAF8F5;
+            --text: #1a1a1a;
+            --text-light: #555555;
+            --text-muted: #888888;
+            --border: #E8E4E0;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+            --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 30px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --ocean-deep: #0C4A6E;
+            --ocean-mid: #0369A1;
+            --ocean-light: #38BDF8;
+            --ocean-surf: #7DD3FC;
+            --sand: #FDE68A;
+            --coast-green: #4ADE80;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--light);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* BACK BUTTON */
+        .back-button {
+            position: fixed; top: 20px; left: 20px; z-index: 1100;
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50px; color: white;
+            text-decoration: none; font-size: 0.85rem;
+            font-weight: 600; font-family: var(--font-sans);
+            transition: var(--transition); cursor: pointer;
+        }
+        .back-button:hover { background: rgba(255,255,255,0.25); transform: translateX(-3px); }
+        .back-button.scrolled {
+            background: rgba(255,255,255,0.95);
+            border-color: var(--border); color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .back-button.scrolled:hover { background: white; box-shadow: var(--shadow-md); }
+        .back-arrow { font-size: 1.1rem; transition: transform 0.3s ease; }
+        .back-button:hover .back-arrow { transform: translateX(-3px); }
+
+        /* HEADER */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 20px 50px; display: flex;
+            justify-content: space-between; align-items: center;
+            transition: var(--transition);
+        }
+        .header.scrolled {
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px);
+            padding: 15px 50px; box-shadow: 0 1px 0 var(--border);
+        }
+        .header-brand {
+            display: flex; align-items: center; gap: 12px;
+            text-decoration: none; margin-left: 140px;
+        }
+        .header-logo {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--ocean-mid), var(--ocean-deep));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; transition: var(--transition);
+        }
+        .header.scrolled .header-logo { width: 36px; height: 36px; }
+        .header-text { display: flex; flex-direction: column; }
+        .header-title {
+            font-family: var(--font-serif); font-size: 1.3rem;
+            font-weight: 600; color: white; transition: var(--transition);
+        }
+        .header.scrolled .header-title { color: var(--primary); font-size: 1.15rem; }
+        .header-subtitle {
+            font-size: 0.65rem; letter-spacing: 2px;
+            text-transform: uppercase; color: rgba(255,255,255,0.7);
+            transition: var(--transition);
+        }
+        .header.scrolled .header-subtitle { color: var(--text-muted); }
+        .header-nav { display: flex; gap: 8px; }
+        .header-nav-link {
+            padding: 10px 20px; font-size: 0.85rem; font-weight: 500;
+            color: rgba(255,255,255,0.9); text-decoration: none;
+            border-radius: var(--radius-md); transition: var(--transition);
+        }
+        .header.scrolled .header-nav-link { color: var(--text-light); }
+        .header-nav-link:hover { background: rgba(255,255,255,0.15); }
+        .header.scrolled .header-nav-link:hover { background: var(--cream); color: var(--primary); }
+        .header-nav-link.active { background: rgba(255,255,255,0.2); }
+        .header.scrolled .header-nav-link.active { background: var(--primary); color: white; }
+
+        /* HERO */
+        .hero {
+            position: relative; min-height: 85vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0C4A6E 0%, #0369A1 30%, #0EA5E9 60%, #38BDF8 80%, #7DD3FC 100%);
+        }
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 30% 70%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 30%, rgba(0,0,0,0.15) 0%, transparent 50%);
+        }
+        .hero-waves {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
+            overflow: hidden;
+        }
+        .hero-waves svg {
+            position: absolute; bottom: -2px; left: 0; width: 200%; height: 120px;
+            animation: waveAnim 8s ease-in-out infinite alternate;
+        }
+        @keyframes waveAnim {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .hero-content {
+            position: relative; z-index: 10; text-align: center;
+            max-width: 1000px; padding: 120px 40px 100px;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 10px 24px; border-radius: 50px; margin-bottom: 30px;
+        }
+        .hero-badge-icon { font-size: 1.2rem; }
+        .hero-badge-text {
+            color: white; font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 3px; text-transform: uppercase;
+        }
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: clamp(2.8rem, 8vw, 5rem);
+            font-weight: 700; color: white;
+            line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px;
+        }
+        .hero-title-accent { color: var(--sand); display: block; }
+        .hero-description {
+            font-size: 1.15rem; font-weight: 300;
+            color: rgba(255,255,255,0.85);
+            max-width: 750px; margin: 0 auto; line-height: 1.9;
+        }
+        .hero-stats-bar {
+            display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+            margin-top: 45px; padding-top: 35px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-value {
+            font-family: var(--font-serif); font-size: 2rem;
+            font-weight: 700; color: white; line-height: 1;
+        }
+        .hero-stat-label {
+            font-size: 0.7rem; color: rgba(255,255,255,0.6);
+            text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px;
+        }
+        .hero-scroll {
+            position: absolute; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            color: rgba(255,255,255,0.5); animation: bounce 2s infinite; z-index: 20;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+        .hero-scroll-text { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* MAIN */
+        .main { position: relative; z-index: 10; background: var(--light); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 50px; }
+
+        /* TOC */
+        .toc-section { padding: 60px 0 40px; background: white; border-bottom: 1px solid var(--border); }
+        .toc-title {
+            font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700;
+            color: var(--primary); margin-bottom: 25px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .toc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .toc-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 16px; border-radius: var(--radius-md);
+            text-decoration: none; color: var(--text);
+            border: 1px solid var(--border); transition: var(--transition);
+            font-size: 0.85rem; font-weight: 500;
+        }
+        .toc-item:hover {
+            border-color: var(--ocean-mid); background: #F0F9FF;
+            transform: translateY(-2px); box-shadow: var(--shadow-sm);
+        }
+        .toc-item-num {
+            width: 26px; height: 26px; background: #E0F2FE; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; color: var(--ocean-mid); flex-shrink: 0;
+        }
+        .toc-item:hover .toc-item-num { background: var(--ocean-mid); color: white; }
+
+        /* SECTIONS */
+        .section { padding: 90px 0; }
+        .section-white { background: white; }
+        .section-cream { background: var(--cream); }
+        .section-dark { background: var(--secondary); color: white; }
+        .section-ocean { background: linear-gradient(180deg, #0C4A6E, #164E63); color: white; }
+        .section-header { text-align: center; max-width: 800px; margin: 0 auto 50px; }
+        .section-eyebrow {
+            display: inline-flex; align-items: center; gap: 12px;
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--ocean-mid); margin-bottom: 18px;
+        }
+        .section-eyebrow::before, .section-eyebrow::after {
+            content: ''; width: 30px; height: 1px; background: var(--ocean-light);
+        }
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 700; color: var(--primary);
+            margin-bottom: 16px; line-height: 1.2;
+        }
+        .section-dark .section-title, .section-ocean .section-title { color: white; }
+        .section-dark .section-eyebrow, .section-ocean .section-eyebrow { color: var(--ocean-light); }
+        .section-subtitle { font-size: 1.05rem; color: var(--text-light); line-height: 1.8; }
+        .section-dark .section-subtitle, .section-ocean .section-subtitle { color: rgba(255,255,255,0.65); }
+
+        /* STAT GRID */
+        .stat-grid { display: grid; gap: 18px; }
+        .stat-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .stat-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .stat-grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .stat-grid-5 { grid-template-columns: repeat(5, 1fr); }
+        .stat-box {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); padding: 25px;
+            text-align: center; transition: var(--transition);
+        }
+        .stat-box:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--ocean-light); }
+        .stat-box-icon { font-size: 1.8rem; margin-bottom: 12px; }
+        .stat-box-value {
+            font-family: var(--font-serif); font-size: 1.8rem; font-weight: 700;
+            color: var(--primary); line-height: 1; margin-bottom: 6px;
+        }
+        .stat-box-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-box-desc { font-size: 0.8rem; color: var(--text-light); margin-top: 8px; line-height: 1.5; }
+        .stat-box-dark {
+            background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
+        }
+        .stat-box-dark .stat-box-value { color: white; }
+        .stat-box-dark .stat-box-label { color: rgba(255,255,255,0.5); }
+        .stat-box-dark .stat-box-desc { color: rgba(255,255,255,0.6); }
+        .stat-box-dark:hover { background: rgba(255,255,255,0.1); border-color: var(--ocean-light); }
+
+        /* INFO CARD */
+        .info-card {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); overflow: hidden; transition: var(--transition);
+        }
+        .info-card:hover { box-shadow: var(--shadow-md); border-color: var(--ocean-light); }
+        .info-card-header {
+            padding: 22px 28px; display: flex; align-items: center; gap: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .info-card-icon {
+            width: 44px; height: 44px; border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        .info-card-header-text h3 { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .info-card-header-text p { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+        .info-card-body { padding: 28px; }
+
+        /* DATA TABLE */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .data-table th {
+            text-align: left; padding: 12px 16px; background: #F0F9FF;
+            font-weight: 700; font-size: 0.75rem; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--ocean-mid);
+            border-bottom: 2px solid var(--border);
+        }
+        .data-table td {
+            padding: 14px 16px; border-bottom: 1px solid var(--border);
+            color: var(--text); vertical-align: top;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(3,105,161,0.03); }
+        .data-table .label-cell { font-weight: 600; color: var(--primary); width: 30%; }
+        .data-table .highlight { background: linear-gradient(90deg, rgba(56,189,248,0.06), transparent); }
+
+        /* TWO COL */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+
+        /* CONTENT BLOCK */
+        .content-block { margin-bottom: 50px; }
+        .content-block:last-child { margin-bottom: 0; }
+        .content-block h3 {
+            font-family: var(--font-serif); font-size: 1.6rem; font-weight: 700;
+            color: var(--primary); margin-bottom: 18px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .content-block h4 {
+            font-family: var(--font-serif); font-size: 1.2rem; font-weight: 700;
+            color: var(--primary); margin-bottom: 12px; margin-top: 25px;
+        }
+        .content-block p { font-size: 1rem; color: var(--text-light); line-height: 1.9; margin-bottom: 16px; }
+        .content-block ul, .content-block ol { margin: 12px 0 20px 22px; color: var(--text-light); }
+        .content-block li { margin-bottom: 8px; line-height: 1.7; font-size: 0.95rem; }
+        .content-block li strong { color: var(--primary); }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(56,189,248,0.06), rgba(14,165,233,0.08));
+            border: 1px solid rgba(56,189,248,0.2);
+            border-left: 4px solid var(--ocean-mid);
+            border-radius: var(--radius-md); padding: 22px 28px; margin: 25px 0;
+        }
+        .highlight-box-title {
+            font-weight: 700; color: var(--primary); font-size: 0.95rem;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+        }
+        .highlight-box p { font-size: 0.9rem; color: var(--text-light); line-height: 1.7; margin: 0; }
+        .highlight-box-saffron {
+            background: linear-gradient(135deg, rgba(255,153,51,0.06), rgba(212,165,116,0.08));
+            border-color: rgba(255,153,51,0.2); border-left-color: var(--saffron);
+        }
+        .highlight-box-green {
+            background: linear-gradient(135deg, rgba(19,136,8,0.06), rgba(74,222,128,0.08));
+            border-color: rgba(19,136,8,0.2); border-left-color: var(--green-india);
+        }
+
+        /* COAST CARD */
+        .coast-card {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); overflow: hidden;
+            transition: var(--transition);
+        }
+        .coast-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--ocean-light); }
+        .coast-card-header {
+            padding: 20px 24px; display: flex; align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .coast-card-header-left { display: flex; align-items: center; gap: 14px; }
+        .coast-card-num {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: white; flex-shrink: 0;
+        }
+        .coast-card-header-text h4 {
+            font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--primary);
+        }
+        .coast-card-header-text span { font-size: 0.75rem; color: var(--text-muted); }
+        .coast-card-length {
+            font-family: var(--font-serif); font-size: 1.4rem; font-weight: 700;
+            color: var(--ocean-mid);
+        }
+        .coast-card-length small { font-size: 0.65rem; color: var(--text-muted); display: block; font-family: var(--font-sans); font-weight: 400; }
+        .coast-card-body { padding: 20px 24px; }
+        .coast-card-body p { font-size: 0.88rem; color: var(--text-light); line-height: 1.7; margin-bottom: 12px; }
+        .coast-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+        .coast-tag {
+            padding: 4px 12px; border-radius: 20px; font-size: 0.68rem;
+            font-weight: 600; background: #F0F9FF; color: var(--ocean-mid);
+            border: 1px solid #BAE6FD;
+        }
+        .coast-tag-port { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
+        .coast-tag-feature { background: #F0FDF4; color: #166534; border-color: #BBF7D0; }
+        .coast-card-bar {
+            height: 4px; border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .bar-west { background: linear-gradient(90deg, var(--ocean-deep), var(--ocean-mid)); }
+        .bar-east { background: linear-gradient(90deg, #0E7490, #06B6D4); }
+        .bar-island { background: linear-gradient(90deg, #7C3AED, #A78BFA); }
+
+        /* COAST LENGTH BAR */
+        .coast-bar-chart { margin: 20px 0; }
+        .coast-bar-item { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .coast-bar-label {
+            width: 130px; font-size: 0.82rem; font-weight: 600;
+            color: var(--primary); text-align: right; flex-shrink: 0;
+        }
+        .coast-bar-track {
+            flex: 1; height: 26px; background: #F0F9FF;
+            border-radius: 13px; overflow: hidden; position: relative;
+        }
+        .coast-bar-fill {
+            height: 100%; border-radius: 13px;
+            display: flex; align-items: center; padding-left: 12px;
+            font-size: 0.68rem; font-weight: 700; color: white;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+        .fill-west { background: linear-gradient(90deg, var(--ocean-deep), var(--ocean-mid)); }
+        .fill-east { background: linear-gradient(90deg, #0E7490, #06B6D4); }
+        .fill-island { background: linear-gradient(90deg, #7C3AED, #A78BFA); }
+
+        /* PORT CARD */
+        .port-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .port-card {
+            background: white; border-radius: var(--radius-md);
+            border: 1px solid var(--border); padding: 18px;
+            text-align: center; transition: var(--transition);
+        }
+        .port-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--ocean-light); }
+        .port-card-icon { font-size: 1.6rem; margin-bottom: 8px; }
+        .port-card-name { font-weight: 700; font-size: 0.9rem; color: var(--primary); margin-bottom: 3px; }
+        .port-card-state { font-size: 0.72rem; color: var(--text-muted); }
+        .port-card-coast {
+            display: inline-block; margin-top: 8px; padding: 2px 10px;
+            border-radius: 10px; font-size: 0.6rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .port-west-badge { background: #E0F2FE; color: var(--ocean-deep); }
+        .port-east-badge { background: #E0F2FE; color: #0E7490; }
+
+        /* LAGOON/DELTA CARDS */
+        .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .feature-card {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); padding: 24px;
+            transition: var(--transition);
+        }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--ocean-light); }
+        .feature-card-icon { font-size: 2rem; margin-bottom: 12px; }
+        .feature-card-title {
+            font-family: var(--font-serif); font-size: 1.15rem;
+            font-weight: 700; color: var(--primary); margin-bottom: 6px;
+        }
+        .feature-card-desc { font-size: 0.85rem; color: var(--text-light); line-height: 1.6; margin-bottom: 10px; }
+        .feature-card-stat { font-size: 0.75rem; color: var(--text-muted); }
+        .feature-card-stat strong { color: var(--ocean-mid); }
+
+        /* BEACH GRID */
+        .beach-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .beach-card {
+            border-radius: var(--radius-lg); overflow: hidden;
+            border: 1px solid var(--border); background: white;
+            transition: var(--transition);
+        }
+        .beach-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--sand); }
+        .beach-card-header {
+            height: 80px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; position: relative;
+        }
+        .beach-card-body { padding: 16px; }
+        .beach-card-name { font-family: var(--font-serif); font-weight: 700; font-size: 1rem; color: var(--primary); margin-bottom: 4px; }
+        .beach-card-loc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+        .beach-card-tag {
+            display: inline-block; padding: 3px 10px; border-radius: 12px;
+            font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+            background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A;
+        }
+
+        .grad-beach-1 { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+        .grad-beach-2 { background: linear-gradient(135deg, #34D399, #10B981); }
+        .grad-beach-3 { background: linear-gradient(135deg, #60A5FA, #3B82F6); }
+        .grad-beach-4 { background: linear-gradient(135deg, #F472B6, #EC4899); }
+        .grad-beach-5 { background: linear-gradient(135deg, #A78BFA, #8B5CF6); }
+        .grad-beach-6 { background: linear-gradient(135deg, #FB923C, #F97316); }
+        .grad-beach-7 { background: linear-gradient(135deg, #2DD4BF, #14B8A6); }
+        .grad-beach-8 { background: linear-gradient(135deg, #818CF8, #6366F1); }
+
+        /* MARITIME ZONES DIAGRAM */
+        .maritime-diagram {
+            background: white; border-radius: var(--radius-xl);
+            border: 1px solid var(--border); padding: 35px; overflow: hidden;
+        }
+        .maritime-diagram-title {
+            font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700;
+            color: var(--primary); margin-bottom: 25px; text-align: center;
+        }
+        .maritime-zones-visual {
+            position: relative; width: 100%; height: 200px;
+            border-radius: var(--radius-md); overflow: hidden;
+            background: linear-gradient(90deg, #92400E 0%, #A16207 4%, #A16207 4.5%,
+                #7DD3FC 5%, #38BDF8 20%, #0EA5E9 40%, #0369A1 65%, #0C4A6E 100%);
+        }
+        .mz-label {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            color: white; font-size: 0.65rem; font-weight: 700;
+            text-align: center; line-height: 1.3;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+        .mz-divider {
+            position: absolute; top: 0; bottom: 0; width: 2px;
+            background: rgba(255,255,255,0.5); border-left: 1px dashed rgba(255,255,255,0.8);
+        }
+        .mz-distance {
+            position: absolute; bottom: 8px; font-size: 0.6rem;
+            color: rgba(255,255,255,0.8); font-weight: 600;
+        }
+
+        /* CRZ CARDS */
+        .crz-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .crz-card {
+            border-radius: var(--radius-lg); border: 1px solid var(--border);
+            overflow: hidden; background: white; transition: var(--transition);
+        }
+        .crz-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .crz-card-header {
+            padding: 16px 20px; color: white; font-weight: 700;
+            font-size: 0.95rem; text-align: center;
+        }
+        .crz-card-body { padding: 18px 20px; }
+        .crz-card-body h4 { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .crz-card-body p { font-size: 0.8rem; color: var(--text-light); line-height: 1.6; }
+        .crz-1 { background: #065F46; }
+        .crz-2 { background: #1E40AF; }
+        .crz-3 { background: #92400E; }
+        .crz-4 { background: #0E7490; }
+
+        /* ECOSYSTEM CARDS */
+        .eco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .eco-card {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-lg); padding: 28px;
+            transition: var(--transition);
+        }
+        .eco-card:hover { background: rgba(255,255,255,0.1); border-color: var(--ocean-light); transform: translateY(-4px); }
+        .eco-card-icon { font-size: 2.2rem; margin-bottom: 14px; }
+        .eco-card-title { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: white; margin-bottom: 8px; }
+        .eco-card-desc { font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 12px; }
+        .eco-card-stat { font-size: 0.75rem; color: var(--ocean-light); }
+        .eco-card-stat strong { color: white; }
+
+        /* THREAT CARDS */
+        .threat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+        .threat-card {
+            background: white; border-radius: var(--radius-md);
+            border: 1px solid var(--border); padding: 20px;
+            text-align: center; transition: var(--transition);
+        }
+        .threat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: #FCA5A5; }
+        .threat-card-icon { font-size: 1.8rem; margin-bottom: 10px; }
+        .threat-card-name { font-weight: 700; font-size: 0.88rem; color: var(--primary); margin-bottom: 4px; }
+        .threat-card-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+        /* MAP */
+        .map-container {
+            border-radius: var(--radius-xl); overflow: hidden;
+            border: 1px solid var(--border); box-shadow: var(--shadow-md);
+        }
+        .map-header {
+            background: white; padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .map-header-icon { font-size: 1.5rem; }
+        .map-header-text h3 { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .map-header-text p { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        #coastal-map { width: 100%; height: 600px; }
+        .leaflet-popup-content-wrapper { border-radius: 10px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important; }
+        .leaflet-popup-content { margin: 12px 16px !important; font-family: var(--font-sans) !important; font-size: 0.85rem !important; line-height: 1.5 !important; }
+        .popup-title { font-weight: 700; color: var(--primary); font-size: 0.95rem; margin-bottom: 4px; }
+        .popup-desc { color: var(--text-light); font-size: 0.8rem; }
+        .popup-tag {
+            display: inline-block; padding: 2px 8px; border-radius: 10px;
+            font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-top: 6px;
+        }
+        .popup-tag-port { background: #FFF7ED; color: #C2410C; }
+        .popup-tag-feature { background: #F0FDF4; color: #166534; }
+        .popup-tag-beach { background: #FFFBEB; color: #92400E; }
+
+        /* DID YOU KNOW */
+        .dyk-box {
+            background: linear-gradient(135deg, var(--primary), #2a2a2a);
+            border-radius: var(--radius-xl); padding: 40px; color: white;
+        }
+        .dyk-box h3 { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; margin-bottom: 25px; color: var(--ocean-light); }
+        .dyk-item {
+            display: flex; align-items: flex-start; gap: 14px;
+            margin-bottom: 18px; padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .dyk-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .dyk-icon {
+            width: 36px; height: 36px; background: rgba(255,255,255,0.1);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1rem; flex-shrink: 0;
+        }
+        .dyk-text { font-size: 0.9rem; line-height: 1.6; color: rgba(255,255,255,0.85); }
+        .dyk-text strong { color: white; }
+
+        /* NAV FOOTER */
+        .nav-footer { padding: 50px 0; background: white; border-top: 1px solid var(--border); }
+        .nav-footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .nav-footer-card {
+            display: flex; align-items: center; gap: 18px; padding: 22px 28px;
+            border-radius: var(--radius-lg); border: 1px solid var(--border);
+            text-decoration: none; color: inherit; transition: var(--transition);
+        }
+        .nav-footer-card:hover { border-color: var(--ocean-mid); box-shadow: var(--shadow-md); transform: translateY(-3px); }
+        .nav-footer-dir { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
+        .nav-footer-title { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .nav-footer-icon {
+            width: 50px; height: 50px; background: #F0F9FF; border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+        }
+        .nav-footer-card:hover .nav-footer-icon { background: var(--ocean-mid); }
+
+        /* FOOTER */
+        .footer { background: var(--primary); color: white; padding: 60px 0 30px; }
+        .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .footer-brand { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--ocean-light); }
+        .footer-links { display: flex; gap: 25px; list-style: none; }
+        .footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem; transition: var(--transition); }
+        .footer-links a:hover { color: white; }
+        .footer-copyright {
+            width: 100%; text-align: center; padding-top: 25px; margin-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.8rem; color: rgba(255,255,255,0.4);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .stat-grid-4, .stat-grid-5, .port-grid { grid-template-columns: repeat(3, 1fr); }
+            .toc-grid { grid-template-columns: repeat(3, 1fr); }
+            .beach-grid { grid-template-columns: repeat(3, 1fr); }
+            .threat-grid { grid-template-columns: repeat(3, 1fr); }
+            .crz-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 1000px) {
+            .container { padding: 0 30px; }
+            .header { padding: 15px 30px; }
+            .header-brand { margin-left: 80px; }
+            .two-col { grid-template-columns: 1fr; }
+            .stat-grid-3, .stat-grid-4, .stat-grid-5 { grid-template-columns: repeat(2, 1fr); }
+            .toc-grid { grid-template-columns: repeat(2, 1fr); }
+            .feature-grid, .eco-grid { grid-template-columns: repeat(2, 1fr); }
+            .port-grid { grid-template-columns: repeat(2, 1fr); }
+            .beach-grid { grid-template-columns: repeat(2, 1fr); }
+            .nav-footer-grid { grid-template-columns: 1fr; }
+            #coastal-map { height: 450px; }
+        }
+        @media (max-width: 700px) {
+            .header-nav { display: none; }
+            .header-brand { margin-left: 55px; }
+            .back-button span:not(.back-arrow) { display: none; }
+            .hero-title { font-size: 2.5rem; }
+            .hero-stats-bar { gap: 20px; }
+            .stat-grid-2, .stat-grid-3, .stat-grid-4, .stat-grid-5 { grid-template-columns: 1fr; }
+            .toc-grid, .feature-grid, .eco-grid, .port-grid, .beach-grid, .threat-grid, .crz-grid { grid-template-columns: 1fr; }
+            .coast-bar-label { width: 80px; font-size: 0.72rem; }
+            .section { padding: 60px 0; }
+            #coastal-map { height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BACK BUTTON -->
+    <a href="https://dharaverse.com/encyclopedia/bharat/index.html" class="back-button" id="backButton">
+        <span class="back-arrow">←</span>
+        <span>Bharat</span>
+    </a>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <a href="index.html" class="header-brand">
+            <div class="header-logo">🌊</div>
+            <div class="header-text">
+                <span class="header-title">DharaVerse</span>
+                <span class="header-subtitle">Encyclopedia</span>
+            </div>
+        </a>
+        <nav class="header-nav">
+            <a href="../index.html" class="header-nav-link">Home</a>
+            <a href="index.html" class="header-nav-link active">Bharat</a>
+            <a href="../world/index.html" class="header-nav-link">World</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-waves">
+            <svg viewBox="0 0 2400 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <path d="M0,60 C200,120 400,0 600,60 C800,120 1000,0 1200,60 C1400,120 1600,0 1800,60 C2000,120 2200,0 2400,60 L2400,120 L0,120Z" fill="var(--light)" fill-opacity="0.8"/>
+                <path d="M0,80 C200,40 400,120 600,80 C800,40 1000,120 1200,80 C1400,40 1600,120 1800,80 C2000,40 2200,120 2400,80 L2400,120 L0,120Z" fill="var(--light)"/>
+            </svg>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="hero-badge-icon">🌊</span>
+                <span class="hero-badge-text">Bharat Encyclopedia</span>
+            </div>
+            <h1 class="hero-title">
+                Coastal Geography
+                <span class="hero-title-accent">of India</span>
+            </h1>
+            <p class="hero-description">
+                An encyclopedic study of India's 7,516.6 km coastline — from the marshy creeks of Gujarat to the mangrove deltas of Sundarbans, the coral atolls of Lakshadweep to the sandy beaches of Goa. Covering all 9 coastal states, 4 coastal UTs, 13 major ports, maritime zones, and coastal ecosystems.
+            </p>
+            <div class="hero-stats-bar">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">7,516.6 km</div>
+                    <div class="hero-stat-label">Total Coastline</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">9 + 4</div>
+                    <div class="hero-stat-label">States + UTs</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">13</div>
+                    <div class="hero-stat-label">Major Ports</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">2.02M km²</div>
+                    <div class="hero-stat-label">EEZ Area</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <span class="hero-scroll-text">Explore</span>
+            <span>↓</span>
+        </div>
+    </section>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- TOC -->
+        <section class="toc-section">
+            <div class="container">
+                <div class="toc-title">📑 Table of Contents</div>
+                <div class="toc-grid">
+                    <a href="#overview" class="toc-item"><span class="toc-item-num">1</span> Coastline Overview</a>
+                    <a href="#western-coast" class="toc-item"><span class="toc-item-num">2</span> Western Coast</a>
+                    <a href="#eastern-coast" class="toc-item"><span class="toc-item-num">3</span> Eastern Coast</a>
+                    <a href="#island-coasts" class="toc-item"><span class="toc-item-num">4</span> Island Coasts</a>
+                    <a href="#coastal-map" class="toc-item"><span class="toc-item-num">5</span> Interactive Map</a>
+                    <a href="#deltas-estuaries" class="toc-item"><span class="toc-item-num">6</span> Deltas & Estuaries</a>
+                    <a href="#lagoons" class="toc-item"><span class="toc-item-num">7</span> Lagoons</a>
+                    <a href="#beaches" class="toc-item"><span class="toc-item-num">8</span> Famous Beaches</a>
+                    <a href="#ports" class="toc-item"><span class="toc-item-num">9</span> Major Ports</a>
+                    <a href="#maritime" class="toc-item"><span class="toc-item-num">10</span> Maritime Zones</a>
+                    <a href="#ecosystems" class="toc-item"><span class="toc-item-num">11</span> Coastal Ecosystems</a>
+                    <a href="#crz" class="toc-item"><span class="toc-item-num">12</span> CRZ Regulations</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1: OVERVIEW -->
+        <section class="section" id="overview">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 01</div>
+                    <h2 class="section-title">Coastline Overview</h2>
+                    <p class="section-subtitle">India's vast coastline stretches across two seas and an ocean, supporting millions of livelihoods</p>
+                </div>
+                <div class="stat-grid stat-grid-5" style="margin-bottom: 45px;">
+                    <div class="stat-box"><div class="stat-box-icon">📏</div><div class="stat-box-value">6,100 km</div><div class="stat-box-label">Mainland Coast</div></div>
+                    <div class="stat-box"><div class="stat-box-icon">🏝️</div><div class="stat-box-value">1,416.6 km</div><div class="stat-box-label">Island Coast</div></div>
+                    <div class="stat-box"><div class="stat-box-icon">🌊</div><div class="stat-box-value">7,516.6 km</div><div class="stat-box-label">Total</div></div>
+                    <div class="stat-box"><div class="stat-box-icon">🏛️</div><div class="stat-box-value">9</div><div class="stat-box-label">Coastal States</div></div>
+                    <div class="stat-box"><div class="stat-box-icon">🗺️</div><div class="stat-box-value">4</div><div class="stat-box-label">Coastal UTs</div></div>
+                </div>
+                <div class="two-col">
+                    <div class="content-block">
+                        <h3>🌊 India's Peninsular Coastline</h3>
+                        <p>India is a peninsular nation bounded by the <strong>Arabian Sea</strong> on the west, the <strong>Bay of Bengal</strong> on the east, and the <strong>Indian Ocean</strong> to the south. The coastline stretches from the <strong>Rann of Kutch (Gujarat)</strong> in the northwest to the <strong>Sundarbans (West Bengal)</strong> in the northeast.</p>
+                        <p>The western coast is generally <strong>narrow, rocky, and indented</strong> with few natural harbours (except where rivers form estuaries), while the eastern coast is comparatively <strong>broad, smooth, and low-lying</strong> with large river deltas. This fundamental difference is due to the steeper Western Ghats backing the west coast vs. the gentler Eastern Ghats behind the east coast.</p>
+                        <h4>Coastal States (9)</h4>
+                        <ul>
+                            <li><strong>West Coast:</strong> Gujarat, Maharashtra, Goa, Karnataka, Kerala</li>
+                            <li><strong>East Coast:</strong> Tamil Nadu, Andhra Pradesh, Odisha, West Bengal</li>
+                        </ul>
+                        <h4>Coastal Union Territories (4)</h4>
+                        <ul>
+                            <li>Puducherry, Lakshadweep, Andaman & Nicobar Islands, Daman & Diu (now Dadra & Nagar Haveli and Daman & Diu)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-icon" style="background: linear-gradient(135deg, #E0F2FE, #BAE6FD);">📊</div>
+                                <div class="info-card-header-text"><h3>Coastline Length by State</h3><p>State-wise coast distribution</p></div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="coast-bar-chart">
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Gujarat</div><div class="coast-bar-track"><div class="coast-bar-fill fill-west" style="width:100%;">1,600 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">A&N Islands</div><div class="coast-bar-track"><div class="coast-bar-fill fill-island" style="width:75%;">1,962 km*</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Tamil Nadu</div><div class="coast-bar-track"><div class="coast-bar-fill fill-east" style="width:67%;">1,076 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Andhra Pradesh</div><div class="coast-bar-track"><div class="coast-bar-fill fill-east" style="width:61%;">974 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Maharashtra</div><div class="coast-bar-track"><div class="coast-bar-fill fill-west" style="width:45%;">720 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Kerala</div><div class="coast-bar-track"><div class="coast-bar-fill fill-west" style="width:37%;">590 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Odisha</div><div class="coast-bar-track"><div class="coast-bar-fill fill-east" style="width:30%;">480 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Karnataka</div><div class="coast-bar-track"><div class="coast-bar-fill fill-west" style="width:20%;">320 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">West Bengal</div><div class="coast-bar-track"><div class="coast-bar-fill fill-east" style="width:10%;">158 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Lakshadweep</div><div class="coast-bar-track"><div class="coast-bar-fill fill-island" style="width:8.3%;">132 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Goa</div><div class="coast-bar-track"><div class="coast-bar-fill fill-west" style="width:6.3%;">101 km</div></div></div>
+                                    <div class="coast-bar-item"><div class="coast-bar-label">Puducherry</div><div class="coast-bar-track"><div class="coast-bar-fill fill-east" style="width:2.8%; min-width:50px;">45 km</div></div></div>
+                                </div>
+                                <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 10px;">*A&N Islands coast is island territory, not mainland. Gujarat has the longest mainland coast.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2: WESTERN COAST -->
+        <section class="section section-cream" id="western-coast">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 02</div>
+                    <h2 class="section-title">Western Coast (Arabian Sea)</h2>
+                    <p class="section-subtitle">From Gujarat's creeks to Kerala's backwaters — the narrow, rocky, estuarine western coastline</p>
+                </div>
+                <div class="highlight-box" style="max-width: 900px; margin: 0 auto 40px;">
+                    <div class="highlight-box-title">🌊 Western Coast Characteristics</div>
+                    <p>The western coast runs from the <strong>Rann of Kutch (Gujarat)</strong> to <strong>Kanyakumari (Kerala)</strong>. It is generally <strong>narrow</strong> (10–80 km wide), <strong>rocky and indented</strong>, backed by the steep <strong>Western Ghats</strong>. Rivers entering the Arabian Sea form <strong>estuaries</strong> (not deltas) because of the narrow coastal strip and strong tidal action. This coast is regionally known as <strong>Konkan</strong> (Maharashtra), <strong>Kanara/Karnataka coast</strong>, and <strong>Malabar</strong> (Kerala).</p>
+                </div>
+                <div style="display: grid; gap: 20px;">
+                    <!-- Gujarat -->
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: var(--ocean-deep);">1</div>
+                                <div class="coast-card-header-text"><h4>Gujarat Coast</h4><span>Longest coastline of any Indian state</span></div>
+                            </div>
+                            <div class="coast-card-length">1,600 km<small>longest</small></div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>Gujarat has India's longest coastline, stretching from the Rann of Kutch in the north to the Daman border in the south. The coast is highly <strong>indented and marshy</strong>, with two major gulfs — the <strong>Gulf of Kachchh</strong> and the <strong>Gulf of Khambhat (Cambay)</strong>. The <strong>Kathiawar (Saurashtra) Peninsula</strong> juts into the Arabian Sea between these two gulfs. The coast features creeks, mudflats, salt marshes, and coral reefs (Gulf of Kachchh Marine National Park).</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Gulf of Kachchh</span>
+                                <span class="coast-tag-feature">Gulf of Khambhat</span>
+                                <span class="coast-tag-feature">Kathiawar Peninsula</span>
+                                <span class="coast-tag-feature">Rann of Kutch</span>
+                                <span class="coast-tag-feature">Coral Reefs</span>
+                                <span class="coast-tag-port">⚓ Kandla</span>
+                                <span class="coast-tag-port">⚓ Mundra</span>
+                                <span class="coast-tag-port">⚓ Pipavav</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-west"></div>
+                    </div>
+                    <!-- Maharashtra -->
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: var(--ocean-mid);">2</div>
+                                <div class="coast-card-header-text"><h4>Maharashtra Coast (Konkan)</h4><span>Rocky coast with India's busiest port</span></div>
+                            </div>
+                            <div class="coast-card-length">720 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>Known as the <strong>Konkan Coast</strong>, this stretch from Daman to Goa is characterized by <strong>rocky headlands, cliffs, pocket beaches, and laterite terrain</strong>. The Western Ghats rise sharply behind, with numerous waterfalls during monsoon. Mumbai's <strong>natural harbour</strong> (one of the finest in the world) is formed by Salsette and Trombay islands. The coast receives heavy monsoon rainfall (2,000–4,000mm).</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Konkan Coast</span>
+                                <span class="coast-tag-feature">Rocky Headlands</span>
+                                <span class="coast-tag-feature">Laterite Cliffs</span>
+                                <span class="coast-tag-port">⚓ Mumbai Port</span>
+                                <span class="coast-tag-port">⚓ JNPT (Nhava Sheva)</span>
+                                <span class="coast-tag-port">⚓ Ratnagiri</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-west"></div>
+                    </div>
+                    <!-- Goa -->
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #0EA5E9;">3</div>
+                                <div class="coast-card-header-text"><h4>Goa Coast</h4><span>India's beach tourism capital</span></div>
+                            </div>
+                            <div class="coast-card-length">101 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>Despite being India's smallest state, Goa's coast is world-renowned for its <strong>golden sandy beaches</strong> — Calangute, Baga, Anjuna, Palolem, and Colva. The coast features <strong>estuaries</strong> of the Mandovi and Zuari rivers, which merge at the <strong>Cabo Aguada</strong> headland. The <strong>Mormugao harbour</strong> is one of India's oldest and busiest iron ore export ports.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Sandy Beaches</span>
+                                <span class="coast-tag-feature">Mandovi Estuary</span>
+                                <span class="coast-tag-feature">Zuari Estuary</span>
+                                <span class="coast-tag">Beach Tourism</span>
+                                <span class="coast-tag-port">⚓ Mormugao</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-west"></div>
+                    </div>
+                    <!-- Karnataka -->
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #0284C7;">4</div>
+                                <div class="coast-card-header-text"><h4>Karnataka Coast (Kanara)</h4><span>Rocky coast with river mouths</span></div>
+                            </div>
+                            <div class="coast-card-length">320 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>Divided into <strong>North Kanara (Uttara Kannada)</strong> and <strong>South Kanara (Dakshina Kannada)</strong>. The coast is rocky with occasional sandy stretches and mangrove patches. Major rivers like <strong>Sharavathi</strong> (Jog Falls — India's highest plunge waterfall) and <strong>Netravati</strong> meet the sea here. The Ghats are very close to the coast, creating dramatic landscapes.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Uttara Kannada</span>
+                                <span class="coast-tag-feature">Dakshina Kannada</span>
+                                <span class="coast-tag-feature">Sharavathi Mouth</span>
+                                <span class="coast-tag-port">⚓ New Mangalore</span>
+                                <span class="coast-tag-port">⚓ Karwar</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-west"></div>
+                    </div>
+                    <!-- Kerala -->
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #0369A1;">5</div>
+                                <div class="coast-card-header-text"><h4>Kerala Coast (Malabar)</h4><span>Backwaters, lagoons & coconut-fringed shores</span></div>
+                            </div>
+                            <div class="coast-card-length">590 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>The <strong>Malabar Coast</strong> is unique for its <strong>backwater system</strong> — an interconnected network of lagoons, canals, rivers, and lakes parallel to the coast. The <strong>Vembanad Lake</strong> (2,033 km², largest lake in Kerala) and <strong>Ashtamudi Lake</strong> are key backwater bodies. <strong>Kuttanad</strong> is one of the few regions in the world where farming occurs below sea level (-2.2m). The coast is <strong>smooth, low-lying, and palm-fringed</strong>.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Backwaters</span>
+                                <span class="coast-tag-feature">Vembanad Lake</span>
+                                <span class="coast-tag-feature">Ashtamudi</span>
+                                <span class="coast-tag-feature">Kuttanad (-2.2m)</span>
+                                <span class="coast-tag">Lagoon Coast</span>
+                                <span class="coast-tag-port">⚓ Kochi</span>
+                                <span class="coast-tag-port">⚓ Vizhinjam (upcoming)</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-west"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3: EASTERN COAST -->
+        <section class="section" id="eastern-coast">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 03</div>
+                    <h2 class="section-title">Eastern Coast (Bay of Bengal)</h2>
+                    <p class="section-subtitle">Broad, deltaic, and cyclone-prone — the wide eastern seaboard from Tamil Nadu to West Bengal</p>
+                </div>
+                <div class="highlight-box highlight-box-saffron" style="max-width: 900px; margin: 0 auto 40px;">
+                    <div class="highlight-box-title">🌊 Eastern Coast Characteristics</div>
+                    <p>The eastern coast extends from <strong>Kanyakumari</strong> to the <strong>Ganga-Brahmaputra delta</strong> in West Bengal. It is <strong>broader</strong> (100–130 km wide in places) and <strong>smoother</strong> than the western coast, with extensive <strong>river deltas</strong> (Krishna, Godavari, Kaveri, Mahanadi). The Eastern Ghats are set back from the coast, allowing wide alluvial plains. This coast is regionally called <strong>Coromandel</strong> (TN/AP) and <strong>Northern Circars</strong> (AP/Odisha). It is highly <strong>cyclone-prone</strong>.</p>
+                </div>
+                <div style="display: grid; gap: 20px;">
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #0E7490;">1</div>
+                                <div class="coast-card-header-text"><h4>Tamil Nadu Coast (Coromandel)</h4><span>Smooth delta coast with India's 2nd largest city port</span></div>
+                            </div>
+                            <div class="coast-card-length">1,076 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>The <strong>Coromandel Coast</strong> of Tamil Nadu is low-lying, sandy, and relatively smooth. The <strong>Kaveri River delta</strong> is the granary of South India. The coast receives <strong>northeast monsoon</strong> rainfall (Oct-Dec), unlike the rest of India. <strong>Marina Beach (Chennai)</strong> is one of the longest urban beaches in the world (13 km). The <strong>Gulf of Mannar</strong> coast features coral reefs and marine biodiversity. <strong>Palk Strait</strong> separates India from Sri Lanka.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Coromandel Coast</span><span class="coast-tag-feature">Kaveri Delta</span>
+                                <span class="coast-tag-feature">Gulf of Mannar</span><span class="coast-tag-feature">Palk Strait</span>
+                                <span class="coast-tag-feature">Ram Setu (Adam's Bridge)</span><span class="coast-tag">NE Monsoon</span>
+                                <span class="coast-tag-port">⚓ Chennai</span><span class="coast-tag-port">⚓ Ennore</span>
+                                <span class="coast-tag-port">⚓ Tuticorin</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-east"></div>
+                    </div>
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #0891B2;">2</div>
+                                <div class="coast-card-header-text"><h4>Andhra Pradesh Coast (Northern Circars)</h4><span>Fertile deltas & major port city</span></div>
+                            </div>
+                            <div class="coast-card-length">974 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>The AP coast features two of India's largest river deltas — the <strong>Krishna</strong> and <strong>Godavari</strong> deltas — among the most fertile agricultural regions. The historic <strong>Northern Circars</strong> region covers the northern coast. <strong>Visakhapatnam</strong> is a major port and India's eastern naval command HQ. The coast also has <strong>Pulicat Lake</strong> (2nd largest brackish water lagoon in India) at the AP-TN border.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Krishna Delta</span><span class="coast-tag-feature">Godavari Delta</span>
+                                <span class="coast-tag-feature">Northern Circars</span><span class="coast-tag-feature">Pulicat Lake</span>
+                                <span class="coast-tag-port">⚓ Visakhapatnam</span><span class="coast-tag-port">⚓ Kakinada</span>
+                                <span class="coast-tag-port">⚓ Krishnapatnam</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-east"></div>
+                    </div>
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #06B6D4;">3</div>
+                                <div class="coast-card-header-text"><h4>Odisha Coast</h4><span>Sandy beaches, Chilika lagoon & cyclone corridor</span></div>
+                            </div>
+                            <div class="coast-card-length">480 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>The Odisha coast is <strong>smooth and sandy</strong>, with the <strong>Mahanadi River delta</strong> in the north. It hosts <strong>Chilika Lake</strong> — India's largest brackish water lagoon (1,100 km²) and a Ramsar wetland, famous for migratory birds and Irrawaddy dolphins. The coast is one of the most <strong>cyclone-prone</strong> in India (1999 Super Cyclone, Fani 2019, Amphan 2020). Puri's <strong>Golden Beach</strong> and the Konark Sun Temple are nearby.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Chilika Lake</span><span class="coast-tag-feature">Mahanadi Delta</span>
+                                <span class="coast-tag-feature">Cyclone Corridor</span><span class="coast-tag">Ramsar Site</span>
+                                <span class="coast-tag-port">⚓ Paradip</span><span class="coast-tag-port">⚓ Gopalpur</span>
+                                <span class="coast-tag-port">⚓ Dhamra</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-east"></div>
+                    </div>
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #22D3EE;">4</div>
+                                <div class="coast-card-header-text"><h4>West Bengal Coast</h4><span>Sundarbans mangrove delta — world's largest</span></div>
+                            </div>
+                            <div class="coast-card-length">158 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p>Though shortest among mainland coastal states, West Bengal's coast is home to the <strong>Sundarbans</strong> — the world's largest mangrove forest (10,000 km² shared with Bangladesh) and a UNESCO World Heritage Site. The <strong>Ganga-Brahmaputra-Meghna delta</strong> (world's largest delta) dominates the landscape. The coast is <strong>marshy, low-lying, and subject to tidal flooding</strong>. <strong>Digha</strong> is a popular beach resort.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">Sundarbans</span><span class="coast-tag-feature">Ganga-Brahmaputra Delta</span>
+                                <span class="coast-tag-feature">Mangroves</span><span class="coast-tag">UNESCO Heritage</span>
+                                <span class="coast-tag-port">⚓ Kolkata (riverine)</span><span class="coast-tag-port">⚓ Haldia</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-east"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4: ISLAND COASTS -->
+        <section class="section section-cream" id="island-coasts">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 04</div>
+                    <h2 class="section-title">Island Territory Coasts</h2>
+                    <p class="section-subtitle">Coral atolls and volcanic archipelagos — India's oceanic frontiers</p>
+                </div>
+                <div class="two-col">
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #7C3AED;">1</div>
+                                <div class="coast-card-header-text"><h4>Andaman & Nicobar Islands</h4><span>Bay of Bengal — volcanic & coral archipelago</span></div>
+                            </div>
+                            <div class="coast-card-length">1,962 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p><strong>572 islands</strong> (38 inhabited) stretching 800 km north to south. The islands are peaks of a submerged mountain chain — an extension of the Arakan Yoma range of Myanmar. Features include <strong>coral-fringed coastline</strong>, white sand beaches, dense tropical rainforest (86% forest cover), and India's only active volcano — <strong>Barren Island</strong>. <strong>Radhanagar Beach (Havelock)</strong> is rated among Asia's best.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">572 Islands</span><span class="coast-tag-feature">Coral Reefs</span>
+                                <span class="coast-tag-feature">Barren Island Volcano</span><span class="coast-tag-feature">Radhanagar Beach</span>
+                                <span class="coast-tag-port">⚓ Port Blair</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-island"></div>
+                    </div>
+                    <div class="coast-card">
+                        <div class="coast-card-header">
+                            <div class="coast-card-header-left">
+                                <div class="coast-card-num" style="background: #A78BFA;">2</div>
+                                <div class="coast-card-header-text"><h4>Lakshadweep Islands</h4><span>Arabian Sea — coral atolls & lagoons</span></div>
+                            </div>
+                            <div class="coast-card-length">132 km</div>
+                        </div>
+                        <div class="coast-card-body">
+                            <p><strong>36 islands</strong> (10 inhabited) — India's smallest UT. These are <strong>coral atolls</strong> (ring-shaped coral reefs enclosing lagoons) sitting atop the underwater Chagos-Laccadive Ridge. The islands are low-lying (max elevation ~5m), making them vulnerable to sea-level rise. <strong>Minicoy</strong> is closest to the Maldives. The lagoons have crystal-clear turquoise water and rich marine biodiversity.</p>
+                            <div class="coast-card-tags">
+                                <span class="coast-tag-feature">36 Coral Atolls</span><span class="coast-tag-feature">Lagoons</span>
+                                <span class="coast-tag-feature">Minicoy Island</span><span class="coast-tag">India's Smallest UT</span>
+                            </div>
+                        </div>
+                        <div class="coast-card-bar bar-island"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5: INTERACTIVE MAP -->
+        <section class="section" id="coastal-map">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 05</div>
+                    <h2 class="section-title">Interactive Coastal Map</h2>
+                    <p class="section-subtitle">Explore ports, beaches, lagoons, deltas, and coastal features across India</p>
+                </div>
+                <div class="map-container">
+                    <div class="map-header">
+                        <span class="map-header-icon">🗺️</span>
+                        <div class="map-header-text"><h3>Coastal Features Map of India</h3><p>Click markers to explore ports, beaches, lagoons & coastal landforms</p></div>
+                    </div>
+                    <div id="coastal-map-leaflet"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6: DELTAS & ESTUARIES -->
+        <section class="section section-cream" id="deltas-estuaries">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 06</div>
+                    <h2 class="section-title">Deltas & Estuaries</h2>
+                    <p class="section-subtitle">India's river mouths — deltaic on the east coast, estuarine on the west</p>
+                </div>
+                <div class="two-col" style="margin-bottom: 40px;">
+                    <div class="content-block">
+                        <h3>🔺 Major Deltas (East Coast)</h3>
+                        <p>The <strong>east coast</strong> features extensive river deltas because the Eastern Ghats are lower and set back, allowing rivers to deposit sediment over broad, gently sloping plains. Major deltas:</p>
+                        <ul>
+                            <li><strong>Ganga-Brahmaputra Delta (Sundarbans):</strong> World's largest delta (~80,000 km²). Shared with Bangladesh. Mangrove forests, Royal Bengal Tiger habitat, UNESCO site.</li>
+                            <li><strong>Godavari Delta:</strong> ~6,000 km² in AP. Known as "Konaseema" — rich rice-growing region, palm-fringed.</li>
+                            <li><strong>Krishna Delta:</strong> ~4,000 km² in AP. Highly fertile, major rice and sugarcane production.</li>
+                            <li><strong>Kaveri (Cauvery) Delta:</strong> ~4,000 km² in TN. Called "Granary of South India," Thanjavur district is the heartland.</li>
+                            <li><strong>Mahanadi Delta:</strong> ~9,000 km² in Odisha. Includes Chilika Lake on its southern margin.</li>
+                        </ul>
+                    </div>
+                    <div class="content-block">
+                        <h3>🌀 Major Estuaries (West Coast)</h3>
+                        <p>The <strong>west coast</strong> rivers form <strong>estuaries</strong> (funnel-shaped tidal river mouths) rather than deltas, because the Western Ghats are steep and close to the coast, leaving no room for sediment deposition. Key estuaries:</p>
+                        <ul>
+                            <li><strong>Narmada Estuary:</strong> Opens into the Gulf of Khambhat, Gujarat. India's largest west-flowing river. Ria-like estuary.</li>
+                            <li><strong>Tapi (Tapti) Estuary:</strong> Also into Gulf of Khambhat. Surat city is on this estuary.</li>
+                            <li><strong>Mandovi-Zuari Estuary:</strong> Goa's twin lifelines. Merge near Cabo Raj Niwas. Important for fisheries and iron ore transport.</li>
+                            <li><strong>Sharavathi Estuary:</strong> Enters sea at Honnavar, Karnataka.</li>
+                            <li><strong>Periyar Estuary:</strong> Opens at Kochi, Kerala. The basis for Kochi's famous harbour.</li>
+                        </ul>
+                        <div class="highlight-box highlight-box-green">
+                            <div class="highlight-box-title">🤔 Why Estuaries in West, Deltas in East?</div>
+                            <p><strong>Western Ghats</strong> are steep and close to the coast → rivers are short, fast-flowing, carry sediment directly to sea (tides sweep it away) → <strong>estuaries</strong>. <strong>Eastern Ghats</strong> are lower and set back → rivers are long, slow-flowing, deposit sediment → <strong>deltas</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7: LAGOONS -->
+        <section class="section" id="lagoons">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 07</div>
+                    <h2 class="section-title">Lagoons of India</h2>
+                    <p class="section-subtitle">Brackish water bodies separated from the sea by sandbars or barrier islands</p>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🌊</div>
+                        <div class="feature-card-title">Vembanad Lake</div>
+                        <div class="feature-card-desc">Kerala's largest lake and India's longest lake (96 km). Part of the famous Kerala backwaters. Hosts the Nehru Trophy Boat Race (snake boat race). Kuttanad (-2.2m, below sea level farming) is on its eastern shore.</div>
+                        <div class="feature-card-stat"><strong>2,033 km²</strong> area · Kerala · Ramsar Site</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🦩</div>
+                        <div class="feature-card-title">Chilika Lake</div>
+                        <div class="feature-card-desc">India's largest brackish water lagoon and the largest coastal lagoon in Asia. Home to millions of migratory birds and the endangered Irrawaddy Dolphin. Connected to Bay of Bengal. A Ramsar wetland of international importance.</div>
+                        <div class="feature-card-stat"><strong>1,100 km²</strong> area · Odisha · Ramsar Site</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🐦</div>
+                        <div class="feature-card-title">Pulicat Lake</div>
+                        <div class="feature-card-desc">India's 2nd largest brackish water lagoon, straddling the Andhra Pradesh–Tamil Nadu border. The Sriharikota barrier island (ISRO's launch centre) separates it from the Bay of Bengal. Important bird habitat, especially flamingos.</div>
+                        <div class="feature-card-stat"><strong>759 km²</strong> area · AP/TN border</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🌴</div>
+                        <div class="feature-card-title">Ashtamudi Lake</div>
+                        <div class="feature-card-desc">An octopus-shaped (8-armed) estuary-lagoon in Kollam, Kerala. One of the most important Kerala backwater systems. Known as the "Gateway to the Backwaters." Rich in clam fisheries and mangroves.</div>
+                        <div class="feature-card-stat"><strong>61.4 km²</strong> area · Kerala · Ramsar Site</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🏝️</div>
+                        <div class="feature-card-title">Kabartal Wetland</div>
+                        <div class="feature-card-desc">A large freshwater lake in Begusarai, Bihar. Although not coastal, it's a significant Ramsar wetland (2020) supporting migratory birds and freshwater biodiversity. Key inland comparison.</div>
+                        <div class="feature-card-stat"><strong>~26 km²</strong> area · Bihar · Ramsar Site</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-icon">🌅</div>
+                        <div class="feature-card-title">Veeranpuzha & Other Kayals</div>
+                        <div class="feature-card-desc">Kerala has dozens of smaller lagoons (locally called "kayals") — Veeranpuzha, Kadamakkudy, Paravur, Kayamkulam — forming the interconnected backwater network. These are lifelines for fishing communities.</div>
+                        <div class="feature-card-stat"><strong>Multiple</strong> lagoons · Kerala Backwaters</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8: BEACHES -->
+        <section class="section section-cream" id="beaches">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 08</div>
+                    <h2 class="section-title">Famous Beaches of India</h2>
+                    <p class="section-subtitle">From urban waterfronts to pristine tropical shores — India's iconic beaches</p>
+                </div>
+                <div class="beach-grid">
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-1">🏖️</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Marina Beach</div>
+                            <div class="beach-card-loc">Chennai, Tamil Nadu</div>
+                            <div class="beach-card-tag">Longest Urban Beach (13 km)</div>
+                        </div>
+                    </div>
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-2">🌴</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Radhanagar Beach</div>
+                            <div class="beach-card-loc">Havelock, Andaman & Nicobar</div>
+                            <div class="beach-card-tag">Asia's Best Beach</div>
+                        </div>
+                    </div>
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-3">🌊</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Calangute Beach</div>
+                            <div class="beach-card-loc">North Goa</div>
+                            <div class="beach-card-tag">Queen of Beaches</div>
+                        </div>
+                    </div>
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-4">🐚</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Palolem Beach</div>
+                            <div class="beach-card-loc">South Goa</div>
+                            <div class="beach-card-tag">Crescent Bay</div>
+                        </div>
+                    </div>
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-5">🌅</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Kovalam Beach</div>
+                            <div class="beach-card-loc">Thiruvananthapuram, Kerala</div>
+                            <div class="beach-card-tag">Lighthouse Beach</div>
+                        </div>
+                    </div>
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-6">⛱️</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Varkala Beach</div>
+                            <div class="beach-card-loc">Varkala, Kerala</div>
+                            <div class="beach-card-tag">Cliff Beach</div>
+                        </div>
+                    </div>
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-7">🦀</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Chandrabhaga Beach</div>
+                            <div class="beach-card-loc">Konark, Odisha</div>
+                            <div class="beach-card-tag">Blue Flag Certified</div>
+                        </div>
+                    </div>
+                    <div class="beach-card">
+                        <div class="beach-card-header grad-beach-8">🐠</div>
+                        <div class="beach-card-body">
+                            <div class="beach-card-name">Agatti Beach</div>
+                            <div class="beach-card-loc">Agatti Island, Lakshadweep</div>
+                            <div class="beach-card-tag">Coral Lagoon Beach</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9: MAJOR PORTS -->
+        <section class="section" id="ports">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 09</div>
+                    <h2 class="section-title">Major Ports of India</h2>
+                    <p class="section-subtitle">13 major ports (central government) handle ~55% of India's maritime trade; 200+ minor ports under state governments</p>
+                </div>
+                <div class="port-grid">
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Kandla (Deendayal)</div><div class="port-card-state">Gujarat</div><div class="port-card-coast port-west-badge">West Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Mumbai Port</div><div class="port-card-state">Maharashtra</div><div class="port-card-coast port-west-badge">West Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">JNPT (Nhava Sheva)</div><div class="port-card-state">Maharashtra</div><div class="port-card-coast port-west-badge">West Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Mormugao</div><div class="port-card-state">Goa</div><div class="port-card-coast port-west-badge">West Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">New Mangalore</div><div class="port-card-state">Karnataka</div><div class="port-card-coast port-west-badge">West Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Kochi</div><div class="port-card-state">Kerala</div><div class="port-card-coast port-west-badge">West Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Tuticorin (V.O.C.)</div><div class="port-card-state">Tamil Nadu</div><div class="port-card-coast port-east-badge">East Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Chennai</div><div class="port-card-state">Tamil Nadu</div><div class="port-card-coast port-east-badge">East Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Ennore (Kamarajar)</div><div class="port-card-state">Tamil Nadu</div><div class="port-card-coast port-east-badge">East Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Visakhapatnam</div><div class="port-card-state">Andhra Pradesh</div><div class="port-card-coast port-east-badge">East Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Paradip</div><div class="port-card-state">Odisha</div><div class="port-card-coast port-east-badge">East Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Kolkata (incl. Haldia)</div><div class="port-card-state">West Bengal</div><div class="port-card-coast port-east-badge">East Coast</div></div>
+                    <div class="port-card"><div class="port-card-icon">⚓</div><div class="port-card-name">Port Blair</div><div class="port-card-state">Andaman & Nicobar</div><div class="port-card-coast port-east-badge">Islands</div></div>
+                </div>
+                <div class="highlight-box" style="margin-top: 30px;">
+                    <div class="highlight-box-title">📊 Port Facts</div>
+                    <p><strong>200+ minor ports</strong> are managed by respective state governments. <strong>Gujarat alone has 42+ minor ports</strong>, including Mundra (India's largest private port by cargo volume, operated by Adani Group). <strong>JNPT</strong> is India's largest container port. <strong>Visakhapatnam</strong> handles the most cargo by tonnage among east coast ports. India aims to develop <strong>Sagarmala Project</strong> — port-led industrialization and coastal economic zones.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10: MARITIME ZONES -->
+        <section class="section section-cream" id="maritime">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 10</div>
+                    <h2 class="section-title">Maritime Zones</h2>
+                    <p class="section-subtitle">India's maritime jurisdiction under UNCLOS (United Nations Convention on the Law of the Sea)</p>
+                </div>
+                <div class="maritime-diagram" style="margin-bottom: 40px;">
+                    <div class="maritime-diagram-title">Maritime Zones of India (UNCLOS)</div>
+                    <div class="maritime-zones-visual">
+                        <div class="mz-label" style="left: 1%; width: 3.5%;">🏖️<br>Land</div>
+                        <div class="mz-divider" style="left: 5%;"></div>
+                        <div class="mz-label" style="left: 6%; width: 14%;">Territorial<br>Waters</div>
+                        <div class="mz-distance" style="left: 6%;">0 NM</div>
+                        <div class="mz-divider" style="left: 20%;"></div>
+                        <div class="mz-label" style="left: 21%; width: 14%;">Contiguous<br>Zone</div>
+                        <div class="mz-distance" style="left: 18%;">12 NM</div>
+                        <div class="mz-divider" style="left: 35%;"></div>
+                        <div class="mz-label" style="left: 38%; width: 55%;">Exclusive Economic Zone (EEZ)<br>Full sovereign rights over resources</div>
+                        <div class="mz-distance" style="left: 33%;">24 NM</div>
+                        <div class="mz-distance" style="right: 3%;">200 NM</div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <table class="data-table">
+                            <thead><tr><th>Zone</th><th>Extent</th><th>Rights</th></tr></thead>
+                            <tbody>
+                                <tr><td class="label-cell">Internal Waters</td><td>Inside baseline</td><td>Full sovereignty, same as land territory</td></tr>
+                                <tr class="highlight"><td class="label-cell">Territorial Sea</td><td>0–12 NM from baseline</td><td>Full sovereignty; innocent passage allowed for foreign ships</td></tr>
+                                <tr><td class="label-cell">Contiguous Zone</td><td>12–24 NM</td><td>Customs, immigration, fiscal, sanitary enforcement</td></tr>
+                                <tr class="highlight"><td class="label-cell">Exclusive Economic Zone (EEZ)</td><td>24–200 NM</td><td>Sovereign rights over natural resources (fish, oil, minerals); freedom of navigation for others</td></tr>
+                                <tr><td class="label-cell">Continental Shelf</td><td>Up to 350 NM</td><td>Rights over seabed resources (mineral, sedentary species)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="stat-grid stat-grid-3">
+                    <div class="stat-box"><div class="stat-box-icon">🌊</div><div class="stat-box-value">2.02M km²</div><div class="stat-box-label">Total EEZ Area</div><div class="stat-box-desc">India's EEZ is 61% of its land area — larger than the area of many countries</div></div>
+                    <div class="stat-box"><div class="stat-box-icon">📏</div><div class="stat-box-value">12 NM</div><div class="stat-box-label">Territorial Waters</div><div class="stat-box-desc">1 Nautical Mile = 1.852 km. India has full sovereignty in this zone.</div></div>
+                    <div class="stat-box"><div class="stat-box-icon">🛢️</div><div class="stat-box-value">200 NM</div><div class="stat-box-label">EEZ Extent</div><div class="stat-box-desc">India has exclusive rights to explore and exploit marine resources within 200 NM (370.4 km)</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 11: COASTAL ECOSYSTEMS -->
+        <section class="section section-ocean" id="ecosystems">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 11</div>
+                    <h2 class="section-title">Coastal Ecosystems</h2>
+                    <p class="section-subtitle">Mangroves, coral reefs, seagrass beds, and estuarine ecosystems that sustain India's coastal biodiversity</p>
+                </div>
+                <div class="eco-grid" style="margin-bottom: 50px;">
+                    <div class="eco-card">
+                        <div class="eco-card-icon">🌿</div>
+                        <div class="eco-card-title">Mangrove Forests</div>
+                        <div class="eco-card-desc">India has 4,975 km² of mangrove cover (2021). Sundarbans (West Bengal) is the world's largest mangrove forest. Other key areas: Bhitarkanika (Odisha), Pichavaram (TN), Gulf of Kachchh (Gujarat). Mangroves act as bio-shields against cyclones and tsunamis.</div>
+                        <div class="eco-card-stat"><strong>4,975 km²</strong> total · <strong>Sundarbans</strong> largest</div>
+                    </div>
+                    <div class="eco-card">
+                        <div class="eco-card-icon">🪸</div>
+                        <div class="eco-card-title">Coral Reefs</div>
+                        <div class="eco-card-desc">India has 4 major coral reef regions: <strong>Gulf of Mannar</strong> (TN), <strong>Gulf of Kachchh</strong> (Gujarat), <strong>Lakshadweep</strong> (atolls), and <strong>Andaman & Nicobar</strong> (fringing reefs). Coral reefs support 25% of all marine species despite covering less than 1% of the ocean floor.</div>
+                        <div class="eco-card-stat"><strong>4 regions</strong> · ~2,375 km² reef area</div>
+                    </div>
+                    <div class="eco-card">
+                        <div class="eco-card-icon">🌱</div>
+                        <div class="eco-card-title">Seagrass Beds</div>
+                        <div class="eco-card-desc">Found in Gulf of Mannar, Palk Bay, Gulf of Kachchh, and Andaman & Nicobar. Seagrasses are underwater flowering plants that provide nursery habitats for fish, trap sediment, and sequester carbon. Dugongs (sea cows) depend on seagrass for food.</div>
+                        <div class="eco-card-stat"><strong>Key habitat</strong> for Dugong (endangered)</div>
+                    </div>
+                    <div class="eco-card">
+                        <div class="eco-card-icon">🦀</div>
+                        <div class="eco-card-title">Estuarine Ecosystems</div>
+                        <div class="eco-card-desc">Where rivers meet the sea — mixing zones of freshwater and saltwater. Rich in nutrients and biodiversity. India has ~70 major estuaries. Fishing communities depend heavily on estuarine fisheries. Hooghly, Narmada, and Mandovi are key examples.</div>
+                        <div class="eco-card-stat"><strong>~70</strong> major estuaries across India</div>
+                    </div>
+                    <div class="eco-card">
+                        <div class="eco-card-icon">🐢</div>
+                        <div class="eco-card-title">Marine Protected Areas</div>
+                        <div class="eco-card-desc">India has designated Marine National Parks (Gulf of Kachchh, Gulf of Mannar, Mahatma Gandhi MNP in Wandoor, A&N) and marine sanctuaries. These protect coral reefs, sea turtles (Olive Ridley mass nesting at Gahirmatha, Odisha), dolphins, and whale sharks.</div>
+                        <div class="eco-card-stat"><strong>6+</strong> marine national parks & sanctuaries</div>
+                    </div>
+                    <div class="eco-card">
+                        <div class="eco-card-icon">🌾</div>
+                        <div class="eco-card-title">Salt Marshes & Mudflats</div>
+                        <div class="eco-card-desc">Extensive along Gujarat (Rann of Kutch), western Rajasthan coast, and Sundarbans. Support migratory birds, crabs, and molluscs. The Rann of Kutch seasonal salt marshes are among the largest in the world — home to the Greater Flamingo.</div>
+                        <div class="eco-card-stat"><strong>Rann of Kutch</strong> — world's largest salt marsh</div>
+                    </div>
+                </div>
+
+                <!-- Coastal Threats -->
+                <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: white; margin-bottom: 25px; text-align: center;">⚠️ Coastal Threats</h3>
+                <div class="threat-grid">
+                    <div class="threat-card"><div class="threat-card-icon">🌊</div><div class="threat-card-name">Coastal Erosion</div><div class="threat-card-desc">~33% of India's coast faces erosion. Kerala, West Bengal, Puducherry worst affected.</div></div>
+                    <div class="threat-card"><div class="threat-card-icon">📈</div><div class="threat-card-name">Sea Level Rise</div><div class="threat-card-desc">1.3 mm/year average rise. Low-lying areas like Sundarbans, Lakshadweep at highest risk.</div></div>
+                    <div class="threat-card"><div class="threat-card-icon">🌀</div><div class="threat-card-name">Cyclones</div><div class="threat-card-desc">East coast (Odisha, AP, TN) highly cyclone-prone. Bay of Bengal generates 7x more cyclones than Arabian Sea.</div></div>
+                    <div class="threat-card"><div class="threat-card-icon">🏭</div><div class="threat-card-name">Pollution</div><div class="threat-card-desc">Industrial effluents, plastic waste, sewage discharge. Mumbai, Chennai, Kolkata coasts heavily polluted.</div></div>
+                    <div class="threat-card"><div class="threat-card-icon">🐟</div><div class="threat-card-name">Over-Fishing</div><div class="threat-card-desc">Mechanized trawling threatening fish stocks and traditional fishing communities.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 12: CRZ -->
+        <section class="section" id="crz">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-eyebrow">Chapter 12</div>
+                    <h2 class="section-title">Coastal Regulation Zone (CRZ)</h2>
+                    <p class="section-subtitle">India's regulatory framework for coastal land use — protecting ecologically sensitive areas while allowing sustainable development</p>
+                </div>
+                <div class="content-block" style="max-width: 900px; margin: 0 auto 35px;">
+                    <p style="text-align: center;">The <strong>CRZ Notification (2019)</strong> issued under the Environment Protection Act, 1986 classifies coastal areas into four categories. The regulations control construction, industrial activity, and development within 500m of the High Tide Line (HTL) on the landward side and up to 12 nautical miles on the seaward side.</p>
+                </div>
+                <div class="crz-grid" style="margin-bottom: 40px;">
+                    <div class="crz-card">
+                        <div class="crz-card-header crz-1">CRZ – I</div>
+                        <div class="crz-card-body">
+                            <h4>Ecologically Sensitive</h4>
+                            <p>Mangroves, coral reefs, sand dunes, biologically active mudflats, national parks, marine parks, wildlife habitats, salt marshes, turtle nesting grounds, horse-shoe crab habitats, seagrass beds, nesting sites of birds. <strong>No new construction permitted</strong> except eco-tourism facilities with strict guidelines.</p>
+                        </div>
+                    </div>
+                    <div class="crz-card">
+                        <div class="crz-card-header crz-2">CRZ – II</div>
+                        <div class="crz-card-body">
+                            <h4>Urban / Developed Areas</h4>
+                            <p>Areas already substantially built-up close to the shoreline within municipal limits. Construction allowed only on the landward side of existing roads/structures. Floor Space Index (FSI) limited. No new buildings seaward of existing structures. Existing buildings can be repaired/reconstructed.</p>
+                        </div>
+                    </div>
+                    <div class="crz-card">
+                        <div class="crz-card-header crz-3">CRZ – III</div>
+                        <div class="crz-card-body">
+                            <h4>Rural / Undeveloped Areas</h4>
+                            <p>Coastal areas that are not substantially built-up — rural, agricultural, and undeveloped areas. <strong>No Development Zone (NDZ):</strong> 200m from HTL for densely populated areas; 50m for sparsely populated. Agriculture, horticulture, rain-fed parks, public facilities allowed beyond NDZ.</p>
+                        </div>
+                    </div>
+                    <div class="crz-card">
+                        <div class="crz-card-header crz-4">CRZ – IV</div>
+                        <div class="crz-card-body">
+                            <h4>Water Area (Aquatic)</h4>
+                            <p>The water area from the Low Tide Line (LTL) to the territorial water limit (12 NM). Includes tidal-influenced water bodies. Fishing, traditional activities allowed. No untreated sewage discharge. Dredging, reclamation only with prior environmental clearance.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Did You Know -->
+                <div class="dyk-box">
+                    <h3>🧠 Coastal Geography — Did You Know?</h3>
+                    <div class="dyk-item"><div class="dyk-icon">🏖️</div><div class="dyk-text"><strong>Marina Beach (Chennai)</strong> at ~13 km is one of the longest natural urban beaches in the world, 2nd only to Cox's Bazar (Bangladesh).</div></div>
+                    <div class="dyk-item"><div class="dyk-icon">🐢</div><div class="dyk-text"><strong>Gahirmatha Beach (Odisha)</strong> is the world's largest mass nesting site for <strong>Olive Ridley sea turtles</strong> — up to 500,000 turtles nest annually in "Arribada" events.</div></div>
+                    <div class="dyk-item"><div class="dyk-icon">🌉</div><div class="dyk-text"><strong>Ram Setu (Adam's Bridge)</strong> is a 48 km chain of limestone shoals connecting India's Pamban Island to Sri Lanka's Mannar Island. Its origin (natural vs man-made) is debated.</div></div>
+                    <div class="dyk-item"><div class="dyk-icon">🏝️</div><div class="dyk-text"><strong>Sriharikota</strong> (AP) — the barrier island that separates Pulicat Lake from the Bay of Bengal — hosts <strong>ISRO's Satish Dhawan Space Centre</strong>, India's primary rocket launch site.</div></div>
+                    <div class="dyk-item"><div class="dyk-icon">🌊</div><div class="dyk-text"><strong>Kanyakumari</strong> is the only place in India where you can watch both <strong>sunrise and sunset over the ocean</strong> (different directions). It's where 3 water bodies meet: Arabian Sea, Bay of Bengal, Indian Ocean.</div></div>
+                    <div class="dyk-item"><div class="dyk-icon">📍</div><div class="dyk-text"><strong>Indira Point</strong> (Great Nicobar Island) was India's southernmost point at 6°45'N. It was partially <strong>submerged during the 2004 Indian Ocean Tsunami</strong> and the lighthouse destroyed.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NAV FOOTER -->
+        <section class="nav-footer">
+            <div class="container">
+                <div class="nav-footer-grid">
+                    <a href="index.html" class="nav-footer-card">
+                        <div class="nav-footer-icon">🏠</div>
+                        <div><div class="nav-footer-dir">← Back to</div><div class="nav-footer-title">Bharat Encyclopedia</div></div>
+                    </a>
+                    <a href="islands.html" class="nav-footer-card">
+                        <div class="nav-footer-icon">🏝️</div>
+                        <div><div class="nav-footer-dir">Next Chapter →</div><div class="nav-footer-title">Islands of India</div></div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-brand">🌊 DharaVerse Encyclopedia</div>
+                <ul class="footer-links">
+                    <li><a href="index.html">Bharat Home</a></li>
+                    <li><a href="rivers.html">Rivers</a></li>
+                    <li><a href="islands.html">Islands</a></li>
+                    <li><a href="climate.html">Climate</a></li>
+                    <li><a href="maps-hub.html">Maps Hub</a></li>
+                </ul>
+                <div class="footer-copyright">© 2026 DharaVerse Encyclopedia · Coastal Geography of India · Data from official government sources</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Scroll effects
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            const backBtn = document.getElementById('backButton');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+                backBtn.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+                backBtn.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Animation observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.stat-box, .info-card, .coast-card, .feature-card, .beach-card, .port-card, .crz-card, .eco-card, .threat-card, .dyk-box, .maritime-diagram').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        // LEAFLET MAP
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('coastal-map-leaflet', {
+                center: [15, 78],
+                zoom: 5,
+                minZoom: 4,
+                maxZoom: 12,
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            function addM(lat, lng, emoji, label, popup) {
+                const m = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'cm',
+                        html: '<div style="background:rgba(0,0,0,0.82);color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:system-ui;">'+emoji+' '+label+'</div>',
+                        iconSize: [150, 24], iconAnchor: [75, 12]
+                    })
+                }).addTo(map);
+                if (popup) m.bindPopup(popup);
+                return m;
+            }
+
+            // PORTS
+            addM(23.03, 70.22, '⚓', 'Kandla', '<div class="popup-title">Kandla (Deendayal) Port</div><div class="popup-desc">Gujarat — Gulf of Kachchh. Major port for grain, salt, and cargo. Largest port by cargo in Gujarat.</div><div class="popup-tag popup-tag-port">Major Port · West Coast</div>');
+            addM(18.95, 72.84, '⚓', 'Mumbai Port', '<div class="popup-title">Mumbai Port</div><div class="popup-desc">One of India\'s oldest and finest natural harbours. Handles liquid cargo, containers, and general cargo.</div><div class="popup-tag popup-tag-port">Major Port · West Coast</div>');
+            addM(18.95, 73.0, '⚓', 'JNPT', '<div class="popup-title">JNPT (Nhava Sheva)</div><div class="popup-desc">India\'s largest container port. Handles ~55% of India\'s containerized cargo. Located in Navi Mumbai.</div><div class="popup-tag popup-tag-port">India\'s Largest Container Port</div>');
+            addM(15.41, 73.81, '⚓', 'Mormugao', '<div class="popup-title">Mormugao Port</div><div class="popup-desc">Goa — oldest port on the west coast. Major iron ore export terminal. Natural harbour.</div><div class="popup-tag popup-tag-port">Major Port · West Coast</div>');
+            addM(12.92, 74.82, '⚓', 'New Mangalore', '<div class="popup-title">New Mangalore Port</div><div class="popup-desc">Karnataka — handles iron ore, POL, containers. Gateway port for Karnataka\'s industrial hinterland.</div><div class="popup-tag popup-tag-port">Major Port · West Coast</div>');
+            addM(9.97, 76.27, '⚓', 'Kochi Port', '<div class="popup-title">Kochi Port</div><div class="popup-desc">Kerala — natural harbour at Vembanad Lake mouth. International Container Transshipment Terminal (ICTT) at Vallarpadam. Historic spice trade port.</div><div class="popup-tag popup-tag-port">Major Port · West Coast</div>');
+            addM(8.76, 78.22, '⚓', 'Tuticorin', '<div class="popup-title">V.O. Chidambaranar Port (Tuticorin)</div><div class="popup-desc">Tamil Nadu — southernmost major port. Handles coal, salt, containers. Near Gulf of Mannar.</div><div class="popup-tag popup-tag-port">Major Port · East Coast</div>');
+            addM(13.1, 80.3, '⚓', 'Chennai Port', '<div class="popup-title">Chennai Port</div><div class="popup-desc">India\'s 2nd largest container port. One of the oldest (since 1881). Artificial harbour on Coromandel Coast.</div><div class="popup-tag popup-tag-port">Major Port · East Coast</div>');
+            addM(13.22, 80.32, '⚓', 'Ennore', '<div class="popup-title">Kamarajar Port (Ennore)</div><div class="popup-desc">India\'s first corporatized major port (1999). Primarily handles thermal coal, LNG, containers. Near Chennai.</div><div class="popup-tag popup-tag-port">Major Port · East Coast</div>');
+            addM(17.69, 83.29, '⚓', 'Visakhapatnam', '<div class="popup-title">Visakhapatnam Port</div><div class="popup-desc">AP — largest port on east coast by cargo volume. Handles iron ore, coal, POL. HQ of Eastern Naval Command.</div><div class="popup-tag popup-tag-port">Largest East Coast Port</div>');
+            addM(20.26, 86.61, '⚓', 'Paradip', '<div class="popup-title">Paradip Port</div><div class="popup-desc">Odisha — deepest port on east coast. Handles iron ore, coal, chrome ore, POL. Built at Mahanadi delta mouth.</div><div class="popup-tag popup-tag-port">Major Port · East Coast</div>');
+            addM(22.55, 88.32, '⚓', 'Kolkata', '<div class="popup-title">Kolkata Port (incl. Haldia Dock)</div><div class="popup-desc">India\'s only riverine major port (128 km from sea on Hooghly River). Historic port, one of the oldest in India. Haldia subsidiary dock handles bulk cargo.</div><div class="popup-tag popup-tag-port">India\'s Only Riverine Major Port</div>');
+            addM(11.67, 92.73, '⚓', 'Port Blair', '<div class="popup-title">Port Blair</div><div class="popup-desc">Capital of A&N Islands. The 13th major port of India. Strategic location in Bay of Bengal near Malacca Strait.</div><div class="popup-tag popup-tag-port">Major Port · Islands</div>');
+
+            // BEACHES
+            addM(15.55, 73.76, '🏖️', 'Calangute Beach', '<div class="popup-title">Calangute Beach</div><div class="popup-desc">North Goa — "Queen of Beaches." India\'s most visited beach. 7 km of golden sand.</div><div class="popup-tag popup-tag-beach">Goa\'s Most Popular</div>');
+            addM(13.05, 80.28, '🏖️', 'Marina Beach', '<div class="popup-title">Marina Beach</div><div class="popup-desc">Chennai — ~13 km, one of the longest natural urban beaches in the world.</div><div class="popup-tag popup-tag-beach">Longest Urban Beach</div>');
+            addM(12.0, 93.0, '🏖️', 'Radhanagar', '<div class="popup-title">Radhanagar Beach</div><div class="popup-desc">Havelock Island, A&N — rated "Asia\'s Best Beach" by TIME magazine (2004). White sand, turquoise water.</div><div class="popup-tag popup-tag-beach">Asia\'s Best</div>');
+            addM(8.39, 76.98, '🏖️', 'Kovalam', '<div class="popup-title">Kovalam Beach</div><div class="popup-desc">Kerala — iconic crescent-shaped beach with lighthouse. International tourist hotspot.</div><div class="popup-tag popup-tag-beach">Kerala</div>');
+
+            // LAGOONS
+            addM(19.72, 85.32, '🦩', 'Chilika Lake', '<div class="popup-title">Chilika Lake</div><div class="popup-desc">India\'s largest brackish water lagoon (1,100 km²). Odisha. Ramsar Site. Home to Irrawaddy Dolphins and millions of migratory birds.</div><div class="popup-tag popup-tag-feature">Largest Lagoon · Ramsar</div>');
+            addM(9.6, 76.4, '🌊', 'Vembanad Lake', '<div class="popup-title">Vembanad Lake</div><div class="popup-desc">Kerala\'s largest lake (2,033 km²). 96 km long. Heart of Kerala backwaters. Kuttanad (-2.2m below sea level) on its shores.</div><div class="popup-tag popup-tag-feature">Largest Lake in Kerala</div>');
+            addM(13.68, 80.18, '🐦', 'Pulicat Lake', '<div class="popup-title">Pulicat Lake</div><div class="popup-desc">2nd largest brackish lagoon (759 km²) at AP-TN border. Sriharikota barrier island (ISRO) separates it from Bay of Bengal.</div><div class="popup-tag popup-tag-feature">ISRO Launch Site Adjacent</div>');
+
+            // DELTAS
+            addM(21.73, 88.45, '🔺', 'Sundarbans Delta', '<div class="popup-title">Ganga-Brahmaputra Delta (Sundarbans)</div><div class="popup-desc">World\'s largest delta (~80,000 km²). Largest mangrove forest. UNESCO World Heritage. Royal Bengal Tiger habitat.</div><div class="popup-tag popup-tag-feature">World\'s Largest Delta</div>');
+            addM(16.5, 82.0, '🔺', 'Godavari Delta', '<div class="popup-title">Godavari Delta</div><div class="popup-desc">~6,000 km² in AP. Known as Konaseema. Rich rice-growing region with palm forests.</div><div class="popup-tag popup-tag-feature">Major Delta</div>');
+            addM(15.9, 80.8, '🔺', 'Krishna Delta', '<div class="popup-title">Krishna Delta</div><div class="popup-desc">~4,000 km² in AP. Highly fertile. Major rice and sugarcane production area.</div><div class="popup-tag popup-tag-feature">Major Delta</div>');
+
+            // FEATURES
+            addM(8.08, 77.55, '📍', 'Kanyakumari', '<div class="popup-title">Kanyakumari</div><div class="popup-desc">Southernmost tip of mainland India. Meeting point of Arabian Sea, Bay of Bengal, and Indian Ocean. Famous for sunrise and sunset views.</div><div class="popup-tag popup-tag-feature">India\'s Southern Tip</div>');
+            addM(9.28, 79.4, '🌉', 'Ram Setu', '<div class="popup-title">Ram Setu (Adam\'s Bridge)</div><div class="popup-desc">48 km chain of limestone shoals connecting Pamban Island (India) to Mannar Island (Sri Lanka). Historical and religious significance.</div><div class="popup-tag popup-tag-feature">Natural Bridge</div>');
+
+            // Coast lines (approximate)
+            // Western coast
+            L.polyline([
+                [23.5, 68.5], [22.5, 69.5], [21.5, 70.0], [20.5, 72.5], [19.0, 72.8],
+                [17.5, 73.2], [15.5, 73.8], [14.0, 74.4], [12.5, 74.8], [11.0, 75.5],
+                [9.5, 76.3], [8.1, 77.5]
+            ], {color: '#0369A1', weight: 3, opacity: 0.4, dashArray: '8,4'}).addTo(map);
+
+            // Eastern coast
+            L.polyline([
+                [8.1, 77.5], [9.0, 78.8], [10.5, 80.0], [12.0, 80.2], [13.1, 80.3],
+                [14.5, 80.2], [16.0, 81.0], [17.5, 83.2], [19.5, 85.0], [20.5, 86.5],
+                [21.5, 87.5], [21.8, 88.4]
+            ], {color: '#0E7490', weight: 3, opacity: 0.4, dashArray: '8,4'}).addTo(map);
+        });
+    </script>
+</body>
+</html>
