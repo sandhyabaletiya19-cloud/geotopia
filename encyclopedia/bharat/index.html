@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bharat (India) | Geotopia Encyclopedia</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title>Bharat (India) | DharaVerse Encyclopedia</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <style>
         * {
             margin: 0;
@@ -16,6 +16,11 @@
         }
 
         :root {
+            /* SYSTEM FONTS - NO GOOGLE */
+            --font-serif: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Georgia', serif;
+            --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'Courier New', Courier, monospace;
+
             --primary: #0a0a0a;
             --secondary: #1a1a1a;
             --accent: #D4A574;
@@ -46,11 +51,62 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: var(--font-sans);
             background: var(--light);
             color: var(--text);
             line-height: 1.7;
             overflow-x: hidden;
+        }
+
+        /* ============================================
+           BACK BUTTON
+        ============================================ */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateX(-3px);
+        }
+
+        .back-button.scrolled {
+            background: rgba(255,255,255,0.95);
+            border-color: var(--border);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-button.scrolled:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .back-arrow {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover .back-arrow {
+            transform: translateX(-3px);
         }
 
         /* ============================================
@@ -81,6 +137,7 @@
             align-items: center;
             gap: 12px;
             text-decoration: none;
+            margin-left: 140px;
         }
 
         .header-logo {
@@ -106,7 +163,7 @@
         }
 
         .header-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 1.3rem;
             font-weight: 600;
             color: white;
@@ -143,6 +200,7 @@
             text-decoration: none;
             border-radius: var(--radius-md);
             transition: var(--transition);
+            font-family: var(--font-sans);
         }
 
         .header.scrolled .header-nav-link {
@@ -188,11 +246,50 @@
             height: 100%;
         }
 
-        .hero-image {
+        .hero-bg-gradient {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            filter: brightness(0.55) saturate(1.1);
+            background: linear-gradient(135deg, 
+                #0d1b2a 0%, 
+                #1b2a4a 20%, 
+                #2d4a22 40%, 
+                #4a3520 60%, 
+                #1a3a5c 80%, 
+                #0d1b2a 100%
+            );
+            position: relative;
+        }
+
+        .hero-bg-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 30% 40%, rgba(255,153,51,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 60%, rgba(19,136,8,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 30%, rgba(212,165,116,0.1) 0%, transparent 40%);
+        }
+
+        .hero-bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M40 40c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10zm10 0c0 5.523 4.477 10 10 10s10-4.477 10-10-4.477-10-10-10-10 4.477-10 10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-monument-silhouette {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 35%;
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
         }
 
         .hero-overlay {
@@ -204,9 +301,9 @@
             background: linear-gradient(
                 180deg,
                 rgba(0,0,0,0.3) 0%,
-                rgba(0,0,0,0.2) 40%,
-                rgba(0,0,0,0.5) 70%,
-                rgba(0,0,0,0.9) 100%
+                rgba(0,0,0,0.15) 40%,
+                rgba(0,0,0,0.3) 70%,
+                rgba(0,0,0,0.7) 100%
             );
         }
 
@@ -259,12 +356,13 @@
             font-weight: 600;
             letter-spacing: 3px;
             text-transform: uppercase;
+            font-family: var(--font-sans);
         }
 
         .hero-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: clamp(4rem, 12vw, 8rem);
-            font-weight: 600;
+            font-weight: 700;
             color: white;
             line-height: 1;
             margin-bottom: 20px;
@@ -273,7 +371,7 @@
 
         .hero-title-sanskrit {
             display: block;
-            font-family: 'Playfair Display', serif;
+            font-family: var(--font-serif);
             font-size: clamp(1.2rem, 3vw, 1.8rem);
             font-weight: 400;
             font-style: italic;
@@ -289,6 +387,7 @@
             max-width: 700px;
             margin: 30px auto 0;
             line-height: 1.9;
+            font-family: var(--font-sans);
         }
 
         .hero-stats {
@@ -305,9 +404,9 @@
         }
 
         .hero-stat-value {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 2.5rem;
-            font-weight: 600;
+            font-weight: 700;
             color: white;
             line-height: 1;
         }
@@ -318,6 +417,7 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             margin-top: 8px;
+            font-family: var(--font-sans);
         }
 
         .hero-scroll {
@@ -342,6 +442,7 @@
             font-size: 0.7rem;
             letter-spacing: 2px;
             text-transform: uppercase;
+            font-family: var(--font-sans);
         }
 
         .hero-scroll-icon {
@@ -364,7 +465,7 @@
         }
 
         /* ============================================
-           INTRO SECTION
+           INTRO SECTION WITH MAP
         ============================================ */
         .intro-section {
             padding: 120px 0 100px;
@@ -374,14 +475,14 @@
         .intro-grid {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 80px;
-            align-items: center;
+            gap: 60px;
+            align-items: start;
         }
 
         .intro-content h2 {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 3rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
             line-height: 1.2;
             margin-bottom: 30px;
@@ -434,39 +535,74 @@
             line-height: 1.5;
         }
 
-        .intro-visual {
+        /* Leaflet Map Container */
+        .intro-map-container {
             position: relative;
-        }
-
-        .intro-map {
-            width: 100%;
-            aspect-ratio: 4/5;
-            background: linear-gradient(135deg, var(--cream) 0%, #fff 100%);
             border-radius: var(--radius-xl);
-            border: 1px solid var(--border);
             overflow: hidden;
-            position: relative;
-        }
-
-        .intro-map img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 30px;
-            opacity: 0.9;
-        }
-
-        .intro-map-badge {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            background: white;
-            padding: 15px 22px;
-            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
             box-shadow: var(--shadow-md);
         }
 
-        .intro-map-badge-title {
+        #india-map {
+            width: 100%;
+            height: 580px;
+            border-radius: var(--radius-xl);
+            z-index: 1;
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 500;
+            font-size: 0.75rem;
+            max-width: 220px;
+        }
+
+        .map-legend-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .map-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            color: var(--text-light);
+        }
+
+        .map-legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .map-rank-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 22px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 500;
+        }
+
+        .map-rank-badge-title {
             font-size: 0.7rem;
             color: var(--text-muted);
             text-transform: uppercase;
@@ -474,11 +610,57 @@
             margin-bottom: 4px;
         }
 
-        .intro-map-badge-value {
-            font-family: 'Cormorant Garamond', serif;
+        .map-rank-badge-value {
+            font-family: var(--font-serif);
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
+        }
+
+        /* Custom Leaflet popup */
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+        }
+
+        .leaflet-popup-content {
+            margin: 12px 16px !important;
+            font-family: var(--font-sans) !important;
+            font-size: 0.85rem !important;
+            line-height: 1.5 !important;
+        }
+
+        .popup-title {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .popup-desc {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        .popup-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 6px;
+        }
+
+        .popup-tag-red {
+            background: #FFE8E8;
+            color: #CC3333;
+        }
+
+        .popup-tag-orange {
+            background: #FFF3E0;
+            color: #E65100;
         }
 
         /* ============================================
@@ -512,6 +694,7 @@
             text-transform: uppercase;
             color: var(--accent-dark);
             margin-bottom: 20px;
+            font-family: var(--font-sans);
         }
 
         .section-eyebrow::before,
@@ -523,9 +706,9 @@
         }
 
         .section-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: clamp(2.2rem, 5vw, 3.2rem);
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
             margin-bottom: 20px;
             line-height: 1.2;
@@ -574,7 +757,7 @@
         }
 
         /* ============================================
-           TOPIC CARDS - Small, Cute, Clickable
+           TOPIC CARDS
         ============================================ */
         .topic-card {
             background: white;
@@ -599,6 +782,7 @@
             height: 140px;
             overflow: hidden;
             position: relative;
+            background: linear-gradient(135deg, #e8ddd3, #d4c5b0);
         }
 
         .topic-card-image img {
@@ -649,9 +833,9 @@
         }
 
         .topic-card-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 1.25rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
             margin-bottom: 6px;
             line-height: 1.2;
@@ -701,6 +885,17 @@
             color: white;
         }
 
+        /* Topic card without image (icon-only header) */
+        .topic-card-icon-header {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            position: relative;
+        }
+
         /* ============================================
            FEATURED CARDS (Larger)
         ============================================ */
@@ -727,6 +922,7 @@
             min-height: 280px;
             overflow: hidden;
             position: relative;
+            background: linear-gradient(135deg, #d4c5b0, #b8a892);
         }
 
         .featured-card-image img {
@@ -778,12 +974,13 @@
             text-transform: uppercase;
             color: var(--accent-dark);
             margin-bottom: 12px;
+            font-family: var(--font-sans);
         }
 
         .featured-card-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 2rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
             margin-bottom: 12px;
             line-height: 1.2;
@@ -807,9 +1004,9 @@
         }
 
         .featured-card-stat-value {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 1.6rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
         }
 
@@ -852,6 +1049,24 @@
             gap: 15px;
         }
 
+        .section-dark .mini-card {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .section-dark .mini-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent);
+        }
+
+        .section-dark .mini-card-title {
+            color: white;
+        }
+
+        .section-dark .mini-card-desc {
+            color: rgba(255,255,255,0.5);
+        }
+
         .mini-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-md);
@@ -870,6 +1085,11 @@
             font-size: 1.4rem;
             flex-shrink: 0;
             transition: var(--transition);
+        }
+
+        .section-dark .mini-card-icon {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.15);
         }
 
         .mini-card:hover .mini-card-icon {
@@ -908,6 +1128,14 @@
             transform: translateX(5px);
         }
 
+        .section-dark .mini-card-arrow {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .section-dark .mini-card:hover .mini-card-arrow {
+            color: var(--accent);
+        }
+
         /* ============================================
            CATEGORY SECTIONS
         ============================================ */
@@ -936,9 +1164,9 @@
         }
 
         .category-text h3 {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 1.8rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
         }
 
@@ -1001,9 +1229,9 @@
         }
 
         .stats-value {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 2.8rem;
-            font-weight: 600;
+            font-weight: 700;
             color: white;
             line-height: 1;
         }
@@ -1014,6 +1242,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-top: 10px;
+            font-family: var(--font-sans);
         }
 
         /* ============================================
@@ -1067,6 +1296,20 @@
         }
 
         /* ============================================
+           GRADIENT CARD HEADERS (for topic cards without images)
+        ============================================ */
+        .gradient-header-1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .gradient-header-2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .gradient-header-3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .gradient-header-4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .gradient-header-5 { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .gradient-header-6 { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .gradient-header-7 { background: linear-gradient(135deg, #fccb90, #d57eeb); }
+        .gradient-header-8 { background: linear-gradient(135deg, #e0c3fc, #8ec5fc); }
+        .gradient-header-9 { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+        .gradient-header-10 { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); }
+
+        /* ============================================
            FOOTER
         ============================================ */
         .footer {
@@ -1083,7 +1326,7 @@
         }
 
         .footer-brand h3 {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-serif);
             font-size: 2rem;
             margin-bottom: 15px;
             color: var(--accent);
@@ -1102,6 +1345,7 @@
             text-transform: uppercase;
             color: var(--accent);
             margin-bottom: 25px;
+            font-family: var(--font-sans);
         }
 
         .footer-links {
@@ -1177,6 +1421,10 @@
             .stats-item:nth-child(3) {
                 border-right: none;
             }
+
+            .header-brand {
+                margin-left: 100px;
+            }
         }
 
         @media (max-width: 1000px) {
@@ -1188,9 +1436,17 @@
                 padding: 15px 30px;
             }
 
+            .header-brand {
+                margin-left: 80px;
+            }
+
             .intro-grid {
                 grid-template-columns: 1fr;
                 gap: 50px;
+            }
+
+            #india-map {
+                height: 450px;
             }
 
             .card-grid-3, .card-grid-4, .card-grid-5, .card-grid-6 {
@@ -1212,6 +1468,19 @@
 
         @media (max-width: 700px) {
             .header-nav {
+                display: none;
+            }
+
+            .header-brand {
+                margin-left: 60px;
+            }
+
+            .back-button {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .back-button span:not(.back-arrow) {
                 display: none;
             }
 
@@ -1246,10 +1515,32 @@
                 gap: 20px;
                 text-align: center;
             }
+
+            #india-map {
+                height: 380px;
+            }
+
+            .intro-content h2 {
+                font-size: 2.2rem;
+            }
+
+            .category-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- ============================================
+         BACK BUTTON
+    ============================================ -->
+    <a href="https://dharaverse.com/encyclopedia/encyclopedia.html" class="back-button" id="backButton">
+        <span class="back-arrow">←</span>
+        <span>Encyclopedia</span>
+    </a>
 
     <!-- ============================================
          HEADER
@@ -1258,7 +1549,7 @@
         <a href="../index.html" class="header-brand">
             <div class="header-logo">🌏</div>
             <div class="header-text">
-                <span class="header-title">Geotopia</span>
+                <span class="header-title">DharaVerse</span>
                 <span class="header-subtitle">Encyclopedia</span>
             </div>
         </a>
@@ -1271,15 +1562,14 @@
     </header>
 
     <!-- ============================================
-         HERO SECTION
+         HERO SECTION (No external image - pure CSS)
     ============================================ -->
     <section class="hero">
         <div class="hero-media">
-            <img 
-                src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1920&q=85" 
-                alt="Taj Mahal at sunrise" 
-                class="hero-image"
-            >
+            <div class="hero-bg-gradient">
+                <div class="hero-bg-pattern"></div>
+                <div class="hero-monument-silhouette"></div>
+            </div>
             <div class="hero-overlay"></div>
         </div>
 
@@ -1290,7 +1580,7 @@
                     <div class="flag-white"><div class="flag-chakra"></div></div>
                     <div class="flag-green"></div>
                 </div>
-                <span class="hero-badge-text">Geotopia Encyclopedia</span>
+                <span class="hero-badge-text">DharaVerse Encyclopedia</span>
             </div>
 
             <h1 class="hero-title">
@@ -1335,7 +1625,7 @@
     ============================================ -->
     <main class="main">
 
-        <!-- Introduction Section -->
+        <!-- Introduction Section with Leaflet Map -->
         <section class="intro-section">
             <div class="container">
                 <div class="intro-grid">
@@ -1388,14 +1678,26 @@
                     </div>
 
                     <div class="intro-visual">
-                        <div class="intro-map">
-                            <img 
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/India-locator-map-blank.svg/800px-India-locator-map-blank.svg.png" 
-                                alt="Map of India"
-                            >
-                            <div class="intro-map-badge">
-                                <div class="intro-map-badge-title">World Rank by Area</div>
-                                <div class="intro-map-badge-value">7th Largest</div>
+                        <div class="intro-map-container">
+                            <div id="india-map"></div>
+                            <div class="map-rank-badge">
+                                <div class="map-rank-badge-title">World Rank by Area</div>
+                                <div class="map-rank-badge-value">7th Largest</div>
+                            </div>
+                            <div class="map-legend">
+                                <div class="map-legend-title">Map Legend</div>
+                                <div class="map-legend-item">
+                                    <div class="map-legend-color" style="background: rgba(255,0,0,0.25); border-color: #cc0000;"></div>
+                                    <span>Illegally Occupied by Pakistan (PoK)</span>
+                                </div>
+                                <div class="map-legend-item">
+                                    <div class="map-legend-color" style="background: rgba(255,140,0,0.25); border-color: #e67300;"></div>
+                                    <span>Illegally Occupied by China (Aksai Chin)</span>
+                                </div>
+                                <div class="map-legend-item">
+                                    <div class="map-legend-color" style="background: rgba(0,100,255,0.2); border-color: #0066cc;"></div>
+                                    <span>Arunachal Pradesh (Claimed by China)</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1499,10 +1801,8 @@
                 </div>
 
                 <div class="card-grid card-grid-3">
-                    <!-- Himalayas -->
                     <a href="himalayas.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=600&q=80" alt="Himalayas">
+                        <div class="topic-card-image gradient-header-1">
                             <div class="topic-card-icon">🏔️</div>
                             <div class="topic-card-badge">Iconic</div>
                         </div>
@@ -1516,10 +1816,8 @@
                         </div>
                     </a>
 
-                    <!-- Northern Plains -->
                     <a href="northern-plains.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&q=80" alt="Northern Plains">
+                        <div class="topic-card-image gradient-header-4">
                             <div class="topic-card-icon">🌾</div>
                             <div class="topic-card-badge">Fertile</div>
                         </div>
@@ -1533,10 +1831,8 @@
                         </div>
                     </a>
 
-                    <!-- Peninsular Plateau -->
                     <a href="peninsular-plateau.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" alt="Peninsular Plateau">
+                        <div class="topic-card-image gradient-header-7">
                             <div class="topic-card-icon">🏜️</div>
                             <div class="topic-card-badge">Ancient</div>
                         </div>
@@ -1550,10 +1846,8 @@
                         </div>
                     </a>
 
-                    <!-- Western Ghats -->
                     <a href="western-ghats.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600&q=80" alt="Western Ghats">
+                        <div class="topic-card-image gradient-header-4">
                             <div class="topic-card-icon">🌿</div>
                             <div class="topic-card-badge">UNESCO</div>
                         </div>
@@ -1567,10 +1861,8 @@
                         </div>
                     </a>
 
-                    <!-- Eastern Ghats -->
                     <a href="eastern-ghats.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80" alt="Eastern Ghats">
+                        <div class="topic-card-image gradient-header-3">
                             <div class="topic-card-icon">⛰️</div>
                         </div>
                         <div class="topic-card-content">
@@ -1583,10 +1875,8 @@
                         </div>
                     </a>
 
-                    <!-- Thar Desert -->
                     <a href="thar-desert.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=600&q=80" alt="Thar Desert">
+                        <div class="topic-card-image gradient-header-5">
                             <div class="topic-card-icon">🏜️</div>
                             <div class="topic-card-badge">Unique</div>
                         </div>
@@ -1607,8 +1897,7 @@
         <section class="section section-cream">
             <div class="container">
                 <a href="rivers.html" class="featured-card">
-                    <div class="featured-card-image">
-                        <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=800&q=80" alt="Ganges River">
+                    <div class="featured-card-image gradient-header-3">
                         <div class="featured-card-overlay"></div>
                         <div class="featured-card-icon">🌊</div>
                     </div>
@@ -1657,10 +1946,8 @@
                 </div>
 
                 <div class="card-grid card-grid-4">
-                    <!-- Physical Geography -->
                     <a href="physical-geography.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80" alt="Physical Geography">
+                        <div class="topic-card-image gradient-header-10">
                             <div class="topic-card-icon">🗺️</div>
                         </div>
                         <div class="topic-card-content">
@@ -1673,10 +1960,8 @@
                         </div>
                     </a>
 
-                    <!-- Physiographic Divisions -->
                     <a href="physiographic-divisions.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80" alt="Physiographic Divisions">
+                        <div class="topic-card-image gradient-header-6">
                             <div class="topic-card-icon">🏞️</div>
                         </div>
                         <div class="topic-card-content">
@@ -1689,10 +1974,8 @@
                         </div>
                     </a>
 
-                    <!-- Climate -->
                     <a href="climate.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=600&q=80" alt="Climate">
+                        <div class="topic-card-image gradient-header-3">
                             <div class="topic-card-icon">🌤️</div>
                             <div class="topic-card-badge">Monsoon</div>
                         </div>
@@ -1706,10 +1989,8 @@
                         </div>
                     </a>
 
-                    <!-- Mountains -->
                     <a href="mountains.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=80" alt="Mountains">
+                        <div class="topic-card-image gradient-header-1">
                             <div class="topic-card-icon">⛰️</div>
                         </div>
                         <div class="topic-card-content">
@@ -1740,10 +2021,8 @@
                 </div>
 
                 <div class="card-grid card-grid-4">
-                    <!-- Soils -->
                     <a href="soils.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80" alt="Soils">
+                        <div class="topic-card-image gradient-header-7">
                             <div class="topic-card-icon">🌱</div>
                         </div>
                         <div class="topic-card-content">
@@ -1756,10 +2035,8 @@
                         </div>
                     </a>
 
-                    <!-- Vegetation & Wildlife -->
                     <a href="vegetation-wildlife.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1549366021-9f761d450615?w=600&q=80" alt="Wildlife">
+                        <div class="topic-card-image gradient-header-4">
                             <div class="topic-card-icon">🦁</div>
                             <div class="topic-card-badge">Megadiverse</div>
                         </div>
@@ -1773,10 +2050,8 @@
                         </div>
                     </a>
 
-                    <!-- Natural Resources -->
                     <a href="natural-resources.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80" alt="Natural Resources">
+                        <div class="topic-card-image gradient-header-2">
                             <div class="topic-card-icon">💎</div>
                         </div>
                         <div class="topic-card-content">
@@ -1789,10 +2064,8 @@
                         </div>
                     </a>
 
-                    <!-- Coastal Geography -->
                     <a href="coastal-geography.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Coastal Geography">
+                        <div class="topic-card-image gradient-header-3">
                             <div class="topic-card-icon">🏖️</div>
                         </div>
                         <div class="topic-card-content">
@@ -1808,7 +2081,7 @@
             </div>
         </section>
 
-        <!-- Special Regions -->
+        <!-- Special Geographic Regions -->
         <section class="section">
             <div class="container">
                 <div class="category-header">
@@ -1823,10 +2096,8 @@
                 </div>
 
                 <div class="card-grid card-grid-3">
-                    <!-- Islands -->
                     <a href="islands.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=600&q=80" alt="Islands">
+                        <div class="topic-card-image gradient-header-3">
                             <div class="topic-card-icon">🏝️</div>
                             <div class="topic-card-badge">1,382 Islands</div>
                         </div>
@@ -1840,10 +2111,8 @@
                         </div>
                     </a>
 
-                    <!-- Sundarbans -->
                     <a href="sundarbans.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1605649487212-47a4f385d3c8?w=600&q=80" alt="Sundarbans">
+                        <div class="topic-card-image gradient-header-4">
                             <div class="topic-card-icon">🐅</div>
                             <div class="topic-card-badge">UNESCO</div>
                         </div>
@@ -1857,17 +2126,183 @@
                         </div>
                     </a>
 
-                    <!-- Additional regions card -->
-                    <a href="physiographic-divisions.html" class="topic-card">
-                        <div class="topic-card-image">
-                            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" alt="More Regions">
+                    <a href="special-regions.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-6">
                             <div class="topic-card-icon">🌏</div>
                         </div>
                         <div class="topic-card-content">
-                            <h3 class="topic-card-title">All Physiographic Divisions</h3>
-                            <p class="topic-card-desc">Complete overview of India's major landform regions</p>
+                            <h3 class="topic-card-title">All Special Regions</h3>
+                            <p class="topic-card-desc">Complete overview of India's unique geographic areas</p>
                             <div class="topic-card-meta">
-                                <span class="topic-card-stat"><strong>6</strong> divisions</span>
+                                <span class="topic-card-stat"><strong>Explore</strong> all</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: States & Regions -->
+        <section class="section section-cream">
+            <div class="container">
+                <div class="category-header">
+                    <div class="category-title">
+                        <div class="category-icon">🏛️</div>
+                        <div class="category-text">
+                            <h3>States & Regions</h3>
+                            <p>Explore India by geographic zones</p>
+                        </div>
+                    </div>
+                    <div class="category-count">6 Zones</div>
+                </div>
+
+                <div class="card-grid card-grid-3">
+                    <a href="north-states.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-1">
+                            <div class="topic-card-icon">🏔️</div>
+                            <div class="topic-card-badge">Himalayas</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">North States</h3>
+                            <p class="topic-card-desc">J&K, HP, Punjab, Haryana, Uttarakhand, UP, Rajasthan, Delhi & more</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>9+</strong> states</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="northeast-states.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-4">
+                            <div class="topic-card-icon">🌿</div>
+                            <div class="topic-card-badge">Seven Sisters</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">Northeast States</h3>
+                            <p class="topic-card-desc">Assam, Meghalaya, Nagaland, Manipur, Mizoram, Tripura, Arunachal, Sikkim</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>8</strong> states</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="east-states.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-3">
+                            <div class="topic-card-icon">🌊</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">East States</h3>
+                            <p class="topic-card-desc">West Bengal, Bihar, Jharkhand, Odisha — fertile deltas & plateaus</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>4</strong> states</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="west-states.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-5">
+                            <div class="topic-card-icon">🏖️</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">West States</h3>
+                            <p class="topic-card-desc">Gujarat, Maharashtra, Goa — coastline, industry & Thar border</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>3</strong> states</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="south-states.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-2">
+                            <div class="topic-card-icon">🌴</div>
+                            <div class="topic-card-badge">Peninsula</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">South States</h3>
+                            <p class="topic-card-desc">Karnataka, Kerala, Tamil Nadu, Telangana, Andhra Pradesh</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>5</strong> states</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="central-states.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-7">
+                            <div class="topic-card-icon">🏛️</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">Central States</h3>
+                            <p class="topic-card-desc">Madhya Pradesh, Chhattisgarh — heart of India, dense forests & tribes</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>2</strong> states</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: Protected Areas, Special Features, Maps Hub -->
+        <section class="section">
+            <div class="container">
+                <div class="category-header">
+                    <div class="category-title">
+                        <div class="category-icon">🛡️</div>
+                        <div class="category-text">
+                            <h3>More to Explore</h3>
+                            <p>Protected areas, special features & interactive maps</p>
+                        </div>
+                    </div>
+                    <div class="category-count">3 Sections</div>
+                </div>
+
+                <div class="card-grid card-grid-3">
+                    <a href="protected-areas.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-4">
+                            <div class="topic-card-icon">🛡️</div>
+                            <div class="topic-card-badge">Conservation</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">Protected Areas</h3>
+                            <p class="topic-card-desc">National parks, wildlife sanctuaries, biosphere reserves, Tiger reserves</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>990+</strong> areas</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="special-features.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-9">
+                            <div class="topic-card-icon">✨</div>
+                            <div class="topic-card-badge">Unique</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">Special Features</h3>
+                            <p class="topic-card-desc">Geothermal springs, caves, waterfalls, geological wonders & anomalies</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>Discover</strong> wonders</span>
+                                <div class="topic-card-arrow">→</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="maps-hub.html" class="topic-card">
+                        <div class="topic-card-image gradient-header-10">
+                            <div class="topic-card-icon">🗺️</div>
+                            <div class="topic-card-badge">Interactive</div>
+                        </div>
+                        <div class="topic-card-content">
+                            <h3 class="topic-card-title">Maps Hub</h3>
+                            <p class="topic-card-desc">Interactive maps — physical, political, climate, rivers, forests & more</p>
+                            <div class="topic-card-meta">
+                                <span class="topic-card-stat"><strong>20+</strong> maps</span>
                                 <div class="topic-card-arrow">→</div>
                             </div>
                         </div>
@@ -1888,6 +2323,15 @@
                 </div>
 
                 <div class="card-grid card-grid-4" style="gap: 15px;">
+                    <a href="central-states.html" class="mini-card">
+                        <div class="mini-card-icon">🏛️</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">Central States</div>
+                            <div class="mini-card-desc">MP & Chhattisgarh</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
                     <a href="climate.html" class="mini-card">
                         <div class="mini-card-icon">🌤️</div>
                         <div class="mini-card-content">
@@ -1902,6 +2346,15 @@
                         <div class="mini-card-content">
                             <div class="mini-card-title">Coastal Geography</div>
                             <div class="mini-card-desc">7,517 km coastline</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
+                    <a href="east-states.html" class="mini-card">
+                        <div class="mini-card-icon">🌊</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">East States</div>
+                            <div class="mini-card-desc">Bengal, Bihar, Odisha</div>
                         </div>
                         <span class="mini-card-arrow">→</span>
                     </a>
@@ -1933,6 +2386,15 @@
                         <span class="mini-card-arrow">→</span>
                     </a>
 
+                    <a href="maps-hub.html" class="mini-card">
+                        <div class="mini-card-icon">🗺️</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">Maps Hub</div>
+                            <div class="mini-card-desc">Interactive maps</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
                     <a href="mountains.html" class="mini-card">
                         <div class="mini-card-icon">🗻</div>
                         <div class="mini-card-content">
@@ -1947,6 +2409,24 @@
                         <div class="mini-card-content">
                             <div class="mini-card-title">Natural Resources</div>
                             <div class="mini-card-desc">Minerals & energy</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
+                    <a href="north-states.html" class="mini-card">
+                        <div class="mini-card-icon">🏔️</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">North States</div>
+                            <div class="mini-card-desc">Himalayan & plains</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
+                    <a href="northeast-states.html" class="mini-card">
+                        <div class="mini-card-icon">🌿</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">Northeast States</div>
+                            <div class="mini-card-desc">Seven Sisters + Sikkim</div>
                         </div>
                         <span class="mini-card-arrow">→</span>
                     </a>
@@ -1987,6 +2467,15 @@
                         <span class="mini-card-arrow">→</span>
                     </a>
 
+                    <a href="protected-areas.html" class="mini-card">
+                        <div class="mini-card-icon">🛡️</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">Protected Areas</div>
+                            <div class="mini-card-desc">Parks & sanctuaries</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
                     <a href="rivers.html" class="mini-card">
                         <div class="mini-card-icon">🌊</div>
                         <div class="mini-card-content">
@@ -2001,6 +2490,33 @@
                         <div class="mini-card-content">
                             <div class="mini-card-title">Soils</div>
                             <div class="mini-card-desc">8 major types</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
+                    <a href="south-states.html" class="mini-card">
+                        <div class="mini-card-icon">🌴</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">South States</div>
+                            <div class="mini-card-desc">Peninsular India</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
+                    <a href="special-features.html" class="mini-card">
+                        <div class="mini-card-icon">✨</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">Special Features</div>
+                            <div class="mini-card-desc">Geological wonders</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
+                    <a href="special-regions.html" class="mini-card">
+                        <div class="mini-card-icon">⭐</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">Special Regions</div>
+                            <div class="mini-card-desc">Unique ecosystems</div>
                         </div>
                         <span class="mini-card-arrow">→</span>
                     </a>
@@ -2032,6 +2548,15 @@
                         <span class="mini-card-arrow">→</span>
                     </a>
 
+                    <a href="west-states.html" class="mini-card">
+                        <div class="mini-card-icon">🏖️</div>
+                        <div class="mini-card-content">
+                            <div class="mini-card-title">West States</div>
+                            <div class="mini-card-desc">Gujarat, Maharashtra, Goa</div>
+                        </div>
+                        <span class="mini-card-arrow">→</span>
+                    </a>
+
                     <a href="western-ghats.html" class="mini-card">
                         <div class="mini-card-icon">🌿</div>
                         <div class="mini-card-content">
@@ -2053,7 +2578,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <h3>🌏 Geotopia Encyclopedia</h3>
+                    <h3>🌏 DharaVerse Encyclopedia</h3>
                     <p>
                         The most comprehensive digital repository of geographic knowledge. 
                         Designed for students, researchers, and curious minds seeking to 
@@ -2067,30 +2592,32 @@
                         <li><a href="mountains.html">Mountains</a></li>
                         <li><a href="climate.html">Climate</a></li>
                         <li><a href="vegetation-wildlife.html">Wildlife</a></li>
+                        <li><a href="protected-areas.html">Protected Areas</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="footer-title">Regions</h4>
                     <ul class="footer-links">
-                        <li><a href="himalayas.html">Himalayas</a></li>
-                        <li><a href="western-ghats.html">Western Ghats</a></li>
-                        <li><a href="thar-desert.html">Thar Desert</a></li>
-                        <li><a href="sundarbans.html">Sundarbans</a></li>
+                        <li><a href="north-states.html">North States</a></li>
+                        <li><a href="south-states.html">South States</a></li>
+                        <li><a href="northeast-states.html">Northeast States</a></li>
+                        <li><a href="west-states.html">West States</a></li>
+                        <li><a href="east-states.html">East States</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="footer-title">Resources</h4>
                     <ul class="footer-links">
-                        <li><a href="#">Download PDF</a></li>
+                        <li><a href="maps-hub.html">Maps Hub</a></li>
+                        <li><a href="special-features.html">Special Features</a></li>
+                        <li><a href="special-regions.html">Special Regions</a></li>
                         <li><a href="#">UPSC Notes</a></li>
-                        <li><a href="#">Maps Collection</a></li>
-                        <li><a href="#">Quiz</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p class="footer-copyright">
-                    © 2024 Geotopia Encyclopedia. All data verified from official government sources.
+                    © 2026 DharaVerse Encyclopedia. All data verified from official government sources.
                 </p>
                 <div class="footer-social">
                     <a href="#">📧</a>
@@ -2104,18 +2631,28 @@
     <!-- ============================================
          SCRIPTS
     ============================================ -->
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script>
-        // Header scroll effect
+        // =============================================
+        // Header & Back Button scroll effect
+        // =============================================
         window.addEventListener('scroll', function() {
             const header = document.getElementById('header');
+            const backBtn = document.getElementById('backButton');
             if (window.scrollY > 100) {
                 header.classList.add('scrolled');
+                backBtn.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
+                backBtn.classList.remove('scrolled');
             }
         });
 
+        // =============================================
         // Smooth scroll for anchor links
+        // =============================================
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -2126,7 +2663,9 @@
             });
         });
 
-        // Add animation on scroll
+        // =============================================
+        // Scroll animation
+        // =============================================
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -2146,6 +2685,171 @@
             el.style.transform = 'translateY(20px)';
             el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(el);
+        });
+
+        // =============================================
+        // LEAFLET MAP - India with PoK, Aksai Chin, Arunachal Pradesh
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const map = L.map('india-map', {
+                center: [28.5, 78],
+                zoom: 4,
+                minZoom: 3,
+                maxZoom: 8,
+                zoomControl: true,
+                attributionControl: true,
+                scrollWheelZoom: false
+            });
+
+            // Use OpenStreetMap tiles (no cookies, open source)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            // ---- PoK (Pakistan-occupied Kashmir) ----
+            // Approximate boundary of PoK (Azad Kashmir + Gilgit-Baltistan)
+            const pokCoords = [
+                [35.9, 74.0], [36.1, 74.5], [36.5, 75.0], [36.8, 75.5],
+                [36.9, 76.0], [36.5, 76.5], [36.0, 76.8], [35.5, 77.0],
+                [35.2, 77.0], [34.8, 76.5], [34.5, 76.0], [34.2, 75.5],
+                [34.0, 75.0], [33.8, 74.5], [33.5, 74.0], [33.3, 73.8],
+                [33.5, 73.5], [33.8, 73.5], [34.0, 73.8], [34.3, 74.0],
+                [34.8, 74.0], [35.2, 74.0], [35.5, 74.0], [35.9, 74.0]
+            ];
+
+            const pokPolygon = L.polygon(pokCoords, {
+                color: '#cc0000',
+                weight: 2,
+                fillColor: '#ff0000',
+                fillOpacity: 0.2,
+                dashArray: '6, 4'
+            }).addTo(map);
+
+            pokPolygon.bindPopup(`
+                <div class="popup-title">Pakistan-Occupied Kashmir (PoK)</div>
+                <div class="popup-desc">
+                    Includes so-called "Azad Kashmir" & Gilgit-Baltistan. 
+                    This is an integral part of India, illegally occupied by Pakistan since 1947. 
+                    India's official position: entire J&K (including PoK) is part of India.
+                </div>
+                <div class="popup-tag popup-tag-red">Illegally Occupied by Pakistan</div>
+            `);
+
+            // ---- Aksai Chin (Occupied by China) ----
+            const aksaiChinCoords = [
+                [35.5, 77.5], [35.8, 78.0], [36.0, 78.5], [36.2, 79.0],
+                [36.5, 79.5], [36.3, 80.0], [36.0, 80.2], [35.5, 80.0],
+                [35.0, 79.8], [34.5, 79.5], [34.0, 79.2], [33.8, 79.0],
+                [34.0, 78.5], [34.3, 78.0], [34.8, 77.8], [35.0, 77.5],
+                [35.5, 77.5]
+            ];
+
+            const aksaiChinPolygon = L.polygon(aksaiChinCoords, {
+                color: '#e67300',
+                weight: 2,
+                fillColor: '#ff8c00',
+                fillOpacity: 0.2,
+                dashArray: '6, 4'
+            }).addTo(map);
+
+            aksaiChinPolygon.bindPopup(`
+                <div class="popup-title">Aksai Chin</div>
+                <div class="popup-desc">
+                    Part of the Union Territory of Ladakh (India). 
+                    Illegally occupied by China since the 1962 war. 
+                    Approx. 38,000 km² of Indian territory.
+                </div>
+                <div class="popup-tag popup-tag-orange">Illegally Occupied by China</div>
+            `);
+
+            // ---- Arunachal Pradesh (Claimed by China as "South Tibet") ----
+            const arunachalCoords = [
+                [29.5, 91.5], [29.2, 92.0], [28.8, 92.5], [28.5, 93.0],
+                [28.2, 93.5], [27.8, 94.0], [27.5, 94.5], [27.2, 95.0],
+                [27.0, 95.5], [26.8, 96.0], [27.0, 96.5], [27.2, 97.0],
+                [27.5, 97.3], [28.0, 97.0], [28.5, 96.5], [29.0, 96.0],
+                [29.2, 95.5], [29.3, 95.0], [29.5, 94.5], [29.5, 94.0],
+                [29.5, 93.5], [29.5, 93.0], [29.5, 92.5], [29.5, 92.0],
+                [29.5, 91.5]
+            ];
+
+            const arunachalPolygon = L.polygon(arunachalCoords, {
+                color: '#0066cc',
+                weight: 2,
+                fillColor: '#0064ff',
+                fillOpacity: 0.15,
+                dashArray: '6, 4'
+            }).addTo(map);
+
+            arunachalPolygon.bindPopup(`
+                <div class="popup-title">Arunachal Pradesh</div>
+                <div class="popup-desc">
+                    An integral state of India (28th state). 
+                    China illegally claims it as "South Tibet" — this claim has no legal or historical basis. 
+                    India firmly and rightfully considers Arunachal Pradesh as an inseparable part of the Indian Union.
+                </div>
+                <div class="popup-tag popup-tag-orange">Claimed by China — Part of India</div>
+            `);
+
+            // ---- Markers ----
+
+            // PoK Marker
+            const pokMarker = L.marker([35.0, 74.5], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background:#cc0000;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:system-ui;">📍 PoK (India\'s Territory)</div>',
+                    iconSize: [160, 30],
+                    iconAnchor: [80, 15]
+                })
+            }).addTo(map);
+
+            // Galwan Valley Marker
+            const galwanMarker = L.marker([34.75, 78.18], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background:#e67300;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:system-ui;">📍 Galwan Valley</div>',
+                    iconSize: [130, 30],
+                    iconAnchor: [65, 15]
+                })
+            }).addTo(map);
+
+            galwanMarker.bindPopup(`
+                <div class="popup-title">Galwan Valley, Ladakh</div>
+                <div class="popup-desc">
+                    Site of the 2020 India-China standoff. Located in Indian territory near the LAC. 
+                    Indian soldiers made the supreme sacrifice defending India's sovereignty. 
+                    Galwan Valley is and always has been Indian territory.
+                </div>
+                <div class="popup-tag popup-tag-orange">India's Sovereign Territory</div>
+            `);
+
+            // Arunachal Pradesh Marker
+            const arunachalMarker = L.marker([28.2, 94.5], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background:#0066cc;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:system-ui;">📍 Arunachal Pradesh (India)</div>',
+                    iconSize: [180, 30],
+                    iconAnchor: [90, 15]
+                })
+            }).addTo(map);
+
+            // New Delhi Marker
+            const delhiMarker = L.marker([28.6139, 77.2090], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background:#1a1a1a;color:white;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.4);font-family:system-ui;">🏛️ New Delhi (Capital)</div>',
+                    iconSize: [160, 30],
+                    iconAnchor: [80, 15]
+                })
+            }).addTo(map);
+
+            delhiMarker.bindPopup(`
+                <div class="popup-title">New Delhi</div>
+                <div class="popup-desc">Capital of the Republic of India. Seat of Parliament, Supreme Court & the President.</div>
+            `);
+
         });
     </script>
 
