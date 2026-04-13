@@ -1,11 +1,11 @@
 // ========================================
-// 💜 PREMIUM WRAPPER - DHARAVERSE v4 FINAL
+// 💜 PREMIUM WRAPPER - DHARAVERSE v5 FINAL
 // ========================================
 
 (function() {
     'use strict';
 
-    console.log('💜 Premium Wrapper v4 Loading...');
+    console.log('💜 Premium Wrapper v5 Loading...');
 
     // ==========================================
     // FREE PROFILE IDs
@@ -58,25 +58,44 @@
 
     // ==========================================
     // ✅ FREE ENCYCLOPEDIA PAGES
-    // Exact paths that are always FREE
-    // Everything else in /encyclopedia/ is LOCKED
+    // These are the ONLY encyclopedia pages that are free.
+    // Every single path is listed explicitly.
+    // EVERYTHING else inside /encyclopedia/ = LOCKED
     // ==========================================
 
-    var FREE_ENCYCLOPEDIA_PAGES = [
-        // Main grid
+    var FREE_ENCYCLOPEDIA_PATHS = [
+        // ── Main encyclopedia grid ──
         '/encyclopedia/encyclopedia.html',
         '/encyclopedia/',
         '/encyclopedia/index.html',
 
-        // All index.html pages (entry points)
-        'index.html',
+        // ── Category index pages (entry points) ──
+        // Each topic folder's index.html is FREE
+        '/encyclopedia/biogeography/index.html',
+        '/encyclopedia/climate/index.html',
+        '/encyclopedia/dictionary/index.html',
+        '/encyclopedia/environment-geography/index.html',
+        '/encyclopedia/geology/index.html',
+        '/encyclopedia/human-geography/index.html',
+        '/encyclopedia/hydrology/index.html',
+        '/encyclopedia/map-science/index.html',
+        '/encyclopedia/organizations/index.html',
+        '/encyclopedia/physical-geography/index.html',
+        '/encyclopedia/space-geography/index.html',
+        '/encyclopedia/strategic-locations/index.html',
 
-        // Historical geography main page
-        'historical-geo.html',
+        // ── Historical geography uses a different filename ──
+        '/encyclopedia/historical-geography/historical-geo.html',
 
-        // Two specific free sub-pages
-        'celestial-effects.html',
-        'gibralter.html'
+        // ── Two specific free sub-pages ──
+        '/encyclopedia/space-geography/celestial-effects.html',
+        '/encyclopedia/strategic-locations/gibralter.html',
+
+        // ── Country folders: only index.html is free ──
+        '/encyclopedia/bharat/index.html'
+        // Add more countries here as needed:
+        // '/encyclopedia/usa/index.html',
+        // '/encyclopedia/japan/index.html',
     ];
 
     // ==========================================
@@ -110,77 +129,90 @@
     };
 
     // ==========================================
-    // ✅ DETECT PAGE TYPE - SIMPLE CLEAR LOGIC
+    // ✅ NORMALIZE PATH - handles double slashes, 
+    //    trailing issues, case
+    // ==========================================
+
+    function normalizePath(p) {
+        p = p.toLowerCase().replace(/\/+/g, '/');
+        // Remove trailing slash unless it's just "/"
+        if (p.length > 1 && p.endsWith('/')) {
+            p = p.slice(0, -1);
+        }
+        return p;
+    }
+
+    // ==========================================
+    // ✅ CHECK IF CURRENT PAGE IS A FREE 
+    //    ENCYCLOPEDIA PAGE
+    // ==========================================
+
+    function isEncyclopediaPageFree() {
+        var currentPath = normalizePath(window.location.pathname);
+
+        for (var i = 0; i < FREE_ENCYCLOPEDIA_PATHS.length; i++) {
+            var freePath = normalizePath(FREE_ENCYCLOPEDIA_PATHS[i]);
+
+            // Exact match
+            if (currentPath === freePath) {
+                return true;
+            }
+
+            // Also handle if site is deployed in a subdirectory
+            // e.g. currentPath might be "/dharaverse/encyclopedia/bharat/index.html"
+            if (currentPath.endsWith(freePath)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ==========================================
+    // ✅ DETECT PAGE TYPE - CLEAR LOGIC
     // ==========================================
 
     function detectPageType() {
         var path = window.location.pathname.toLowerCase();
-        var filename = path.split('/').pop(); // e.g. "index.html", "rivers.html"
+        var filename = path.split('/').pop();
 
         // ══════════════════════════════════════
         // ENCYCLOPEDIA PAGES
         // ══════════════════════════════════════
         if (path.includes('/encyclopedia/')) {
 
-            // Main grid page = FREE
-            if (path.endsWith('/encyclopedia/encyclopedia.html') ||
-                path.endsWith('/encyclopedia/') ||
-                path === '/encyclopedia') {
-                console.log('💜 DETECT: Encyclopedia main grid = FREE');
-                return 'free';
-            }
-
-            // Check if this exact filename is in the free list
-            var isFree = false;
-            for (var i = 0; i < FREE_ENCYCLOPEDIA_PAGES.length; i++) {
-                var freePage = FREE_ENCYCLOPEDIA_PAGES[i];
-                if (filename === freePage || path.endsWith(freePage)) {
-                    isFree = true;
-                    break;
-                }
-            }
-
-            if (isFree) {
-                console.log('💜 DETECT: Encyclopedia FREE page:', filename);
+            if (isEncyclopediaPageFree()) {
+                console.log('💜 DETECT: Encyclopedia FREE page:', path);
                 return 'free';
             }
 
             // Everything else in encyclopedia = LOCKED
-            console.log('💜 DETECT: Encyclopedia LOCKED page:', filename);
+            console.log('💜 DETECT: Encyclopedia LOCKED page:', path);
             return 'encyc-locked';
         }
 
         // ══════════════════════════════════════
         // GRID PAGES (mountains, rivers, upsc etc)
         // ══════════════════════════════════════
-        var gridPages = [
-            'mountains.html', 'rivers.html', 'lakes.html',
-            'oceans.html', 'seas.html', 'coral-reefs.html',
-            'deserts.html', 'islands.html', 'forests.html',
-            'volcanoes.html', 'games.html', 'upsc.html',
-            'atlas.html'
+        var gridMatches = [
+            '/mountains/mountains.html',
+            '/rivers/rivers.html',
+            '/lakes/lakes.html',
+            '/oceans/oceans.html',
+            '/oceans/seas.html',
+            '/coral-reefs/coral-reefs.html',
+            '/deserts/deserts.html',
+            '/islands/islands.html',
+            '/forests/forests.html',
+            '/volcanoes/volcanoes.html',
+            '/games/games.html',
+            '/upsc/upsc.html',
+            '/atlas/atlas.html'
         ];
 
-        // Only match if the file is directly inside its category folder
-        for (var j = 0; j < gridPages.length; j++) {
-            if (filename === gridPages[j]) {
-                // Make sure it's the grid page, not a sub-page
-                var isGrid = (
-                    path.endsWith('/mountains/mountains.html') ||
-                    path.endsWith('/rivers/rivers.html') ||
-                    path.endsWith('/lakes/lakes.html') ||
-                    path.endsWith('/oceans/oceans.html') ||
-                    path.endsWith('/oceans/seas.html') ||
-                    path.endsWith('/coral-reefs/coral-reefs.html') ||
-                    path.endsWith('/deserts/deserts.html') ||
-                    path.endsWith('/islands/islands.html') ||
-                    path.endsWith('/forests/forests.html') ||
-                    path.endsWith('/volcanoes/volcanoes.html') ||
-                    path.endsWith('/games/games.html') ||
-                    path.endsWith('/upsc/upsc.html') ||
-                    path.endsWith('/atlas/atlas.html')
-                );
-                if (isGrid) return 'grid';
+        for (var j = 0; j < gridMatches.length; j++) {
+            if (path.endsWith(gridMatches[j])) {
+                return 'grid';
             }
         }
 
@@ -201,18 +233,18 @@
 
     function detectCategory() {
         var path = window.location.pathname.toLowerCase();
-        if (path.includes('/mountains/'))   return 'mountains';
-        if (path.includes('/rivers/'))      return 'rivers';
-        if (path.includes('/lakes/'))       return 'lakes';
-        if (path.includes('/oceans/'))      return 'oceans';
-        if (path.includes('/coral-reefs/')) return 'coral-reefs';
-        if (path.includes('/deserts/'))     return 'deserts';
-        if (path.includes('/islands/'))     return 'islands';
-        if (path.includes('/forests/'))     return 'forests';
-        if (path.includes('/volcanoes/'))   return 'volcanoes';
-        if (path.includes('/games/'))       return 'games';
-        if (path.includes('/upsc/'))        return 'upsc';
-        if (path.includes('/atlas/'))       return 'atlas';
+        if (path.includes('/mountains/'))    return 'mountains';
+        if (path.includes('/rivers/'))       return 'rivers';
+        if (path.includes('/lakes/'))        return 'lakes';
+        if (path.includes('/oceans/'))       return 'oceans';
+        if (path.includes('/coral-reefs/'))  return 'coral-reefs';
+        if (path.includes('/deserts/'))      return 'deserts';
+        if (path.includes('/islands/'))      return 'islands';
+        if (path.includes('/forests/'))      return 'forests';
+        if (path.includes('/volcanoes/'))    return 'volcanoes';
+        if (path.includes('/games/'))        return 'games';
+        if (path.includes('/upsc/'))         return 'upsc';
+        if (path.includes('/atlas/'))        return 'atlas';
         if (path.includes('/encyclopedia/')) return 'encyclopedia';
         return null;
     }
@@ -529,24 +561,18 @@
 
     // ==========================================
     // ✅ FULL PAGE LOCK
-    // Used for:
-    //   - Locked encyclopedia sub-pages
-    //   - Locked profile pages
     // ==========================================
 
     function applyFullPageLock() {
-        // Don't double-apply
         if (document.getElementById('geo-fullpage-lock')) return;
 
         var msg = BTS_MESSAGES[Math.floor(Math.random() * BTS_MESSAGES.length)];
 
-        // Blur body
         document.body.style.filter = 'blur(8px)';
         document.body.style.pointerEvents = 'none';
         document.body.style.userSelect = 'none';
         document.body.style.overflow = 'hidden';
 
-        // Overlay
         var overlay = document.createElement('div');
         overlay.id = 'geo-fullpage-lock';
         overlay.style.cssText =
@@ -554,7 +580,6 @@
             'align-items:center;justify-content:center;' +
             'background:rgba(10,10,20,0.85);backdrop-filter:blur(4px);pointer-events:auto;';
 
-        // Ribbon
         var ribbon = document.createElement('div');
         ribbon.style.cssText =
             'position:absolute;top:0;left:0;right:0;height:55px;' +
@@ -566,16 +591,26 @@
             '<span style="color:white;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;">✦ Premium Content ✦</span>' +
             '<div style="width:36px;height:36px;background:linear-gradient(135deg,#1e3a5f,#2563eb,#1e40af);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 0 2px white;">🌍</div>';
 
-        // Back URL
+        // ── Smart back URL ──
         var path = window.location.pathname;
         var backUrl = '/';
+
         if (path.includes('/encyclopedia/')) {
-            // Go back to the index.html of the current encyclopedia folder
+            // Go back to the parent folder's index.html
             var parts = path.split('/');
-            parts.pop(); // remove current file
-            backUrl = parts.join('/') + '/index.html';
-            // If that would be /encyclopedia/index.html, go to encyclopedia.html
-            if (backUrl === '/encyclopedia/index.html' || backUrl.endsWith('/encyclopedia/index.html')) {
+            parts.pop(); // remove current filename
+            var parentFolder = parts[parts.length - 1]; // e.g. "bharat", "historical-geography"
+
+            // If we're in a sub-folder of encyclopedia
+            if (parentFolder && parentFolder !== 'encyclopedia') {
+                // Special case: historical-geography uses historical-geo.html
+                if (parentFolder === 'historical-geography') {
+                    backUrl = parts.join('/') + '/historical-geo.html';
+                } else {
+                    backUrl = parts.join('/') + '/index.html';
+                }
+            } else {
+                // We're directly in /encyclopedia/
                 backUrl = '/encyclopedia/encyclopedia.html';
             }
         }
@@ -590,7 +625,6 @@
         else if (path.includes('/upsc/'))         backUrl = '/upsc/upsc.html';
         else if (path.includes('/volcanoes/'))    backUrl = '/volcanoes/volcanoes.html';
 
-        // Box
         var box = document.createElement('div');
         box.style.cssText =
             'background:linear-gradient(145deg,#1e1b4b,#312e81);border-radius:24px;' +
@@ -705,7 +739,7 @@
 
     function initialize() {
         console.log('💜 ════════════════════════════════');
-        console.log('💜 Premium Wrapper v4');
+        console.log('💜 Premium Wrapper v5');
 
         state.pageType = detectPageType();
         state.category = detectCategory();
@@ -795,5 +829,5 @@
         }
     };
 
-    console.log('💜 Premium Wrapper v4 Loaded');
+    console.log('💜 Premium Wrapper v5 Loaded');
 })();
