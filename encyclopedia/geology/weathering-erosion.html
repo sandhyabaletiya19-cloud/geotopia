@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weathering & Erosion | Dharaverse Encyclopedia</title>
+    <style>
+        :root {
+            --sky-day: #87CEEB;
+            --rock-color: #8B4513;
+            --wind-color: rgba(255,255,255,0.6);
+            --water-color: #00AEEF;
+            --glacier-color: #DFFFE4;
+            --bg-dark: #121212;
+            --text-light: #f5f5f5;
+            --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: #f0f4f8;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .dark-mode {
+            background-color: #0f172a;
+            color: #cbd5e1;
+        }
+
+        /* Navigation */
+        nav {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: rgba(240, 244, 248, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dark-mode nav { background: rgba(15, 23, 42, 0.9); border-color: #334155; }
+        
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -1px; }
+
+        /* Hero Animation Container */
+        .hero {
+            height: 60vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB 0%, #e0f7fa 100%);
+        }
+        .dark-mode .hero { background: linear-gradient(to bottom, #0f2942 0%, #1e3a8a 100%); }
+
+        .scene-title {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            pointer-events: none;
+        }
+        .scene-title h1 { font-size: 4rem; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 0.5rem; }
+        .scene-title p { font-size: 1.2rem; color: rgba(255,255,255,0.9); font-weight: 500; }
+
+        /* The Mountain/Rock Object */
+        .mountain-scene {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .rock-face {
+            width: 600px;
+            height: 400px;
+            background: linear-gradient(135deg, #6b4c35, #4a3221);
+            clip-path: polygon(20% 100%, 50% 0%, 80% 100%);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            transition: all 1s ease;
+        }
+
+        .dark-mode .rock-face { filter: brightness(0.7); }
+
+        /* Agents of Change */
+
+        /* 1. Rain / Chemical Weathering */
+        .rain-container {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+        .rain-drops {
+            width: 4px;
+            height: 40px;
+            background: #4fc3f7;
+            position: absolute;
+            opacity: 0.6;
+            animation: fall 1s linear infinite;
+        }
+        @keyframes fall { to { transform: translateY(100vh); } }
+
+        /* 2. Wind / Physical Weathering */
+        .wind-particles {
+            position: absolute;
+            top: 40%;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: repeating-linear-gradient(90deg, var(--wind-color) 0, var(--wind-color) 20px, transparent 20px, transparent 40px);
+            z-index: 15;
+            opacity: 0;
+            animation: blow 0.2s linear infinite;
+        }
+        .dark-mode .wind-particles { background: repeating-linear-gradient(90deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 20px, transparent 20px, transparent 40px); }
+        @keyframes blow { 0% { transform: translateX(-40px); opacity: 0;} 50% { opacity: 1;} 100% { transform: translateX(40px); opacity: 0; } }
+
+        /* 3. Glacier / Abrasion */
+        .ice-sheet {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 200px;
+            background: linear-gradient(to bottom, #ffffff, #b3e5fc);
+            border-radius: 50% 50% 10% 10% / 30% 30% 10% 10%;
+            z-index: 8;
+            opacity: 0;
+            transition: all 1s ease;
+        }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .btn-agent {
+            background: white;
+            border: 2px solid #ccc;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .btn-agent:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        .btn-agent.active { background: #10b981; color: white; border-color: #10b981; }
+
+        /* Content Layout */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        @media(max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+        .concept-box {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .dark-mode .concept-box { background: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        h2 { color: #333; font-size: 2rem; margin-bottom: 1rem; }
+        .dark-mode h2 { color: #fff; }
+        h3 { color: #10b981; margin-bottom: 0.5rem; font-size: 1.4rem; }
+        .dark-mode h3 { color: #34d399; }
+        p { margin-bottom: 1rem; line-height: 1.6; color: #555; }
+        .dark-mode p { color: #94a3b8; }
+
+        ul { list-style-position: inside; margin-left: 1rem; margin-bottom: 1rem; color: #555; }
+        .dark-mode ul { color: #94a3b8; }
+        
+        li::marker { color: #3b82f6; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .badge-wear { background: #fee2e2; color: #ef4444; }
+        .badge-move { background: #dbeafe; color: #2563eb; }
+        .dark-mode .badge-wear { background: #451a1a; color: #fca5a5; }
+        .dark-mode .badge-move { background: #1e3a8a; color: #93c5fd; }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">DHARAVerse ⛰️</div>
+        <div>
+            <a href="#" class="theme-toggle" onclick="toggleTheme()" style="text-decoration:none; color:inherit;">Toggle Dark Mode</a>
+            <a href="index.html" style="text-decoration:none; color:inherit; margin-left:15px;">Back</a>
+        </div>
+    </nav>
+
+    <!-- Interactive Hero -->
+    <section class="hero" id="heroSection">
+        <div class="scene-title">
+            <h1>Shaping the Earth</h1>
+            <p>Select an agent below to see its effect</p>
+        </div>
+
+        <div class="mountain-scene">
+            <!-- The Rock -->
+            <div class="rock-face" id="targetRock"></div>
+            
+            <!-- Effects Layers -->
+            <div class="rain-container" id="rainEffect">
+                <!-- JS will fill drops -->
+            </div>
+            
+            <div class="wind-particles" id="windEffect"></div>
+            
+            <div class="ice-sheet" id="iceEffect"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-agent active" onclick="activateAgent('none')">Normal</button>
+            <button class="btn-agent" onclick="activateAgent('rain')">💧 Rain (Chemical)</button>
+            <button class="btn-agent" onclick="activateAgent('wind')">💨 Wind (Physical)</button>
+            <button class="btn-agent" onclick="activateAgent('ice')">🧊 Ice (Glacial)</button>
+        </div>
+    </section>
+
+    <div class="container">
+        <h2>Definitions &amp; Distinctions</h2>
+        <div class="comparison-grid">
+            <div class="concept-box">
+                <span class="badge badge-wear">Breakdown In Place</span>
+                <h3>Weathering</h3>
+                <p>The process of breaking down rocks <strong>in situ</strong> (on the spot) without moving them.</p>
+                <p><strong>Types:</strong></p>
+                <ul>
+                    <li><strong>Physical/Mechanical:</strong> Rocks crack due to freezing water (Ice Wedging) or temperature changes.</li>
+                    <li><strong>Chemical:</strong> Acid rain or oxygen react with minerals (like Iron rusting).</li>
+                </ul>
+            </div>
+            <div class="concept-box">
+                <span class="badge badge-move">Transportation</span>
+                <h3>Erosion</h3>
+                <p>The process of <strong>transporting</strong> weathered material by agents like wind, water, ice, or gravity.</p>
+                <p><strong>Agents:</strong></p>
+                <ul>
+                    <li><strong>Rivers:</strong> Carve V-shaped valleys and transport sediment to the sea.</li>
+                    <li><strong>Wind:</strong> Picks up fine sand to shape dunes and polish rocks.</li>
+                    <li><strong>Glaciers:</strong> Giant ice sheets scraping the landscape.</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 4rem;">Key Examples for Exams</h2>
+        <div class="concept-box" style="margin-top: 2rem;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <tr style="border-bottom: 1px solid #eee;">
+                    <th style="padding: 10px;">Process</th>
+                    <th style="padding: 10px;">Feature Formed</th>
+                    <th style="padding: 10px;">Example</th>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px;"><strong>Cave Formation</strong><br><small style="opacity:0.6">(Carbonation)</small></td>
+                    <td style="padding: 10px;">Caves, Swallow Holes</td>
+                    <td style="padding: 10px;">Limestone Karsts (Mammoth Caves)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px;"><strong>Abrasion</strong><br><small style="opacity:0.6">(Glacial)</small></td>
+                    <td style="padding: 10px;">U-Shaped Valleys</td>
+                    <td style="padding: 10px;">Yosemite Valley, Nanda Devi</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px;"><strong>Deflation</strong><br><small style="opacity:0.6">(Wind)</small></td>
+                    <td style="padding: 10px;">Blenken (Depressions)</td>
+                    <td style="padding: 10px;">Thar Desert</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Setup Rain Particles
+        const rainContainer = document.getElementById('rainEffect');
+        for(let i=0; i<50; i++){
+            let drop = document.createElement('div');
+            drop.classList.add('rain-drops');
+            drop.style.left = Math.random() * 100 + '%';
+            drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+            drop.style.opacity = Math.random();
+            rainContainer.appendChild(drop);
+        }
+
+        function activateAgent(agent) {
+            // Reset all
+            document.getElementById('rainEffect').style.opacity = '0';
+            document.getElementById('windEffect').style.opacity = '0';
+            document.getElementById('iceEffect').style.opacity = '0';
+            document.getElementById('targetRock').style.transform = 'translateX(-50%) scale(1)';
+            document.getElementById('targetRock').style.filter = 'none';
+            document.querySelectorAll('.btn-agent').forEach(b => b.classList.remove('active'));
+
+            // Apply Logic
+            if(agent === 'rain') {
+                document.getElementById('rainEffect').style.opacity = '1';
+                // Chemical effect: Rust/Discolor
+                document.getElementById('targetRock').style.filter = 'sepia(0.8) hue-rotate(-10deg) contrast(1.2)';
+                event.target.classList.add('active');
+            } else if (agent === 'wind') {
+                document.getElementById('windEffect').style.opacity = '1';
+                // Physical effect: Slight shrink/sandblasted look
+                document.getElementById('targetRock').style.filter = 'grayscale(0.5)';
+                event.target.classList.add('active');
+            } else if (agent === 'ice') {
+                document.getElementById('iceEffect').style.opacity = '1';
+                // Glacial effect: Cover part of rock
+                document.getElementById('iceEffect').style.top = '-50px'; // slide down
+                event.target.classList.add('active');
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+</body>
+</html>
