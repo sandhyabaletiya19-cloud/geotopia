@@ -35,6 +35,28 @@
     // ========================================
     // ALL DOM FEATURES
     // ========================================
+
+    // ========== FIX VIEWPORT FOR MOBILE ZOOM ==========
+(function fixViewport() {
+    var viewport = document.querySelector("meta[name='viewport']");
+    if (viewport) {
+        // Remove bad attributes
+        var content = viewport.getAttribute("content");
+        content = content.replace(/,?\s*user-scalable\s*=\s*(no|0)/gi, "");
+        content = content.replace(/,?\s*maximum-scale\s*=\s*[\d.]+/gi, "");
+        content = content.trim().replace(/,\s*$/, "");
+        viewport.setAttribute("content", content);
+        console.log("✅ Viewport fixed:", content);
+    } else {
+        // Create viewport if missing
+        var meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content = "width=device-width, initial-scale=1.0";
+        document.head.appendChild(meta);
+        console.log("✅ Viewport created");
+    }
+})();
+    
     document.addEventListener("DOMContentLoaded", function () {
 
 
