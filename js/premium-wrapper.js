@@ -2,6 +2,7 @@
 // ============================================
 // DHARAVERSE.COM - SMART LOCK SYSTEM v4.0
 // Card-level + Page-level locking
+// BTS Purple Theme 💜
 // www.dharaverse.com
 // ============================================
 
@@ -13,12 +14,11 @@
 // ==========================================
 
 const CONFIG = {
-    // How many cards are FREE on each listing page
     freeCards: {
         mountains: 7,
         rivers: 7,
         lakes: 7,
-        oceans: 7,      // probably fewer total, adjust
+        oceans: 7,
         seas: 7,
         islands: 7,
         volcanoes: 7,
@@ -28,51 +28,68 @@ const CONFIG = {
         games: 3,
         upsc: 3,
     },
-
-    // Default free cards if section not listed above
     defaultFreeCards: 7,
-
-    // Price display
     price: '₹299',
     originalPrice: '₹999',
     period: '/year',
 };
 
 // ==========================================
+// BTS MESSAGES 💜
+// ==========================================
+
+const BTS_MESSAGES = [
+    { title: "Keep Swimming! 🌊",             subtitle: "The ocean of knowledge awaits 💜" },
+    { title: "Dream, Believe, Achieve! ✨",    subtitle: "Unlock your potential 💜" },
+    { title: "Purple You! 보라해 💜",           subtitle: "We believe in your dreams" },
+    { title: "Magic Shop Awaits! ✨",           subtitle: "Unlock all wonders 💜" },
+    { title: "Beyond The Scene! 🌟",            subtitle: "Go beyond with premium 💜" },
+    { title: "You Are The Best! 🌸",            subtitle: "Best comes with premium 💜" },
+    { title: "Life Goes On! 🌿",                subtitle: "Keep exploring, go premium 💜" },
+    { title: "Dynamite! 💥",                    subtitle: "Explode into full knowledge 💜" },
+    { title: "Butter! 🧈",                      subtitle: "Smooth access to everything 💜" },
+    { title: "Run BTS! 🏃",                     subtitle: "Run towards all knowledge 💜" },
+    { title: "Mikrokosmos! 🌌",                 subtitle: "You are a shining star 💜" },
+    { title: "Spring Day 🌸",                   subtitle: "Warm knowledge awaits you 💜" },
+    { title: "Permission to Dance! 💃",         subtitle: "Dance into full access 💜" },
+    { title: "Yet To Come! 🎶",                 subtitle: "The best is yet to come 💜" },
+    { title: "Idol! 👑",                        subtitle: "Be the idol of knowledge 💜" },
+    { title: "DNA! 🧬",                         subtitle: "Geography is in your DNA 💜" },
+    { title: "Fire! 🔥",                        subtitle: "Set your learning on fire 💜" },
+    { title: "Boy With Luv! 💕",                subtitle: "Fall in love with Earth 💜" },
+    { title: "Euphoria! 🦋",                    subtitle: "Feel the euphoria of learning 💜" },
+    { title: "Black Swan! 🦢",                  subtitle: "Discover the unseen beauty 💜" },
+    { title: "ON! 💜",                          subtitle: "Bring the pain, bring the knowledge!" },
+    { title: "Fake Love? Real Knowledge! 💔➡️💜", subtitle: "Get the real thing here" },
+    { title: "Blood Sweat & Tears! 💧",         subtitle: "Worth every drop 💜" },
+    { title: "Airplane pt.2 ✈️",                subtitle: "Fly across all continents 💜" },
+    { title: "Dis-ease → Ease! 💊",             subtitle: "Cure your curiosity 💜" },
+];
+
+function getRandomBTSMessage() {
+    return BTS_MESSAGES[Math.floor(Math.random() * BTS_MESSAGES.length)];
+}
+
+// ==========================================
 // PAGE-LEVEL: Which pages are FULLY FREE
 // ==========================================
 
 const FREE_PAGES = [
-    // Root
     '/', '/index.html', '/geotopia.html',
     '/auth.html', '/pricing.html', '/contact.html',
     '/payment-success.html', '/payment-failed.html',
     '/dashboard.html', '/admin-login.html', '/admin-dashboard.html',
     '/disable-sw.html', '/test.html',
-
-    // Legal
     '/legal/privacy-policy.html',
     '/legal/terms-and-conditions.html',
-
-    // Continents (all 7 FREE)
     '/africa.html', '/asia.html', '/europe.html',
     '/australia.html', '/north-america.html',
     '/south-america.html', '/antarctica.html',
-
-    // Atlas
     '/atlas/atlas.html', '/atlas.html',
-
-    // Zones
     '/kids-zone.html', '/junior-zone.html', '/teen-zone.html',
-
-    // Spin / Mystery
     '/spin-globe.html', '/mystery.html',
-
-    // Timeline
     '/timeline/index.html', '/timeline.html',
     '/timeline-part1.html', '/timeline-part2.html', '/timeline-part3.html',
-
-    // ── LISTING PAGES (FREE, but cards inside are locked) ──
     '/mountains/mountains.html',
     '/rivers/rivers.html',
     '/lakes/lakes.html',
@@ -85,8 +102,6 @@ const FREE_PAGES = [
     '/coral-reefs/coral-reefs.html',
     '/games/games.html', '/games.html',
     '/upsc/upsc.html',
-
-    // ── ENCYCLOPEDIA INDEX PAGES ──
     '/encyclopedia/encyclopedia.html',
     '/encyclopedia/bharat/index.html',
     '/encyclopedia/biogeography/index.html',
@@ -108,7 +123,6 @@ const FREE_PAGES = [
     '/encyclopedia/earth-simulator.html',
 ];
 
-// Pages that have CARD-LEVEL locking (listing pages)
 const CARD_LOCK_PAGES = [
     '/mountains/mountains.html',
     '/rivers/rivers.html',
@@ -153,7 +167,6 @@ function isCardLockPage(path) {
 }
 
 function getSectionName(path) {
-    // Extract section from path like /mountains/mountains.html → mountains
     const parts = path.split('/').filter(Boolean);
     for (let key of Object.keys(CONFIG.freeCards)) {
         if (path.includes('/' + key)) return key;
@@ -168,7 +181,6 @@ function getFreeCardCount(section) {
 
 function isPremiumUser() {
     try {
-        // Check 1: dharaverse_premium
         const pd = localStorage.getItem('dharaverse_premium');
         if (pd) {
             const d = JSON.parse(pd);
@@ -181,22 +193,16 @@ function isPremiumUser() {
                 return true;
             }
         }
-
-        // Check 2: Admin
         const ad = localStorage.getItem('dharaverse_admin');
         if (ad) {
             const a = JSON.parse(ad);
             if (a && a.isAdmin === true) return true;
         }
-
-        // Check 3: Session
         const sp = sessionStorage.getItem('dharaverse_premium');
         if (sp) {
             const s = JSON.parse(sp);
             if (s && s.isPremium === true) return true;
         }
-
-        // Check 4: User object
         const au = localStorage.getItem('dharaverse_user');
         if (au) {
             const u = JSON.parse(au);
@@ -205,8 +211,6 @@ function isPremiumUser() {
                 u.plan === 'premium' || u.plan === 'annual' || u.plan === 'lifetime'))
                 return true;
         }
-
-        // Check 5: Supabase
         const sbKey = Object.keys(localStorage).find(k =>
             k.startsWith('sb-') && k.endsWith('-auth-token'));
         if (sbKey) {
@@ -214,7 +218,6 @@ function isPremiumUser() {
             if (sb?.user?.user_metadata?.premium === true ||
                 sb?.user?.user_metadata?.isPremium === true) return true;
         }
-
         return false;
     } catch (e) {
         return false;
@@ -226,49 +229,33 @@ function isPremiumUser() {
 // ==========================================
 
 let _cardLockApplied = false;
-    
+
 function lockCards() {
+    if (_cardLockApplied) {
+        console.log('%c⚠️ Card locks already applied — skipping', 'color: #a78bfa;');
+        return;
+    }
+
     const path = getPath();
     const section = getSectionName(path);
     const freeCount = getFreeCardCount(section);
 
-    // Common card selectors used across dharaverse pages
     const cardSelectors = [
-        '.card',
-        '.item-card',
-        '.grid-card',
-        '.feature-card',
-        '.mountain-card',
-        '.river-card',
-        '.lake-card',
-        '.ocean-card',
-        '.island-card',
-        '.volcano-card',
-        '.desert-card',
-        '.forest-card',
-        '.coral-card',
-        '.game-card',
-        '.upsc-card',
-        '.topic-card',
-        '.category-card',
-        '.quiz-card',
-        '[data-card]',
-        '.cards-container > div',
-        '.cards-container > a',
-        '.card-grid > div',
-        '.card-grid > a',
-        '.grid > div',
-        '.grid > a',
-        '.items-grid > div',
-        '.items-grid > a',
+        '.card', '.item-card', '.grid-card', '.feature-card',
+        '.mountain-card', '.river-card', '.lake-card', '.ocean-card',
+        '.island-card', '.volcano-card', '.desert-card', '.forest-card',
+        '.coral-card', '.game-card', '.upsc-card', '.topic-card',
+        '.category-card', '.quiz-card', '[data-card]',
+        '.cards-container > div', '.cards-container > a',
+        '.card-grid > div', '.card-grid > a',
+        '.grid > div', '.grid > a',
+        '.items-grid > div', '.items-grid > a',
     ];
 
     const selectorString = cardSelectors.join(', ');
     const allCards = document.querySelectorAll(selectorString);
 
     if (allCards.length === 0) {
-        // Cards might not be rendered yet (JS-generated)
-        // We'll retry with MutationObserver
         waitForCards(selectorString, freeCount, section);
         return;
     }
@@ -277,13 +264,11 @@ function lockCards() {
 }
 
 function applyCardLocks(cards, freeCount, section) {
-    // GUARD: Don't re-apply if already done
     if (_cardLockApplied) {
-        console.log('%c⚠️ Card locks already applied — skipping', 'color: #ff9800;');
+        console.log('%c⚠️ Card locks already applied — skipping', 'color: #a78bfa;');
         return;
     }
 
-    // Deduplicate: a card might match multiple selectors
     const uniqueCards = [];
     const seen = new Set();
 
@@ -298,28 +283,23 @@ function applyCardLocks(cards, freeCount, section) {
     let lockedCount = 0;
 
     uniqueCards.forEach((card, index) => {
-        // Skip cards that are already processed
         if (card.classList.contains('dv-card-locked') ||
             card.classList.contains('dv-card-free')) return;
 
         if (index < freeCount) {
-            // FREE card
             card.classList.add('dv-card-free');
         } else {
-            // LOCKED card
             card.classList.add('dv-card-locked');
             lockedCount++;
 
-            // Add lock overlay
             const overlay = document.createElement('div');
             overlay.className = 'dv-card-lock-overlay';
             overlay.innerHTML = `
                 <span class="dv-card-lock-icon">🔒</span>
                 <p class="dv-card-lock-text">Premium</p>
-                <p class="dv-card-lock-sub">Tap to unlock</p>
+                <p class="dv-card-lock-sub">Tap to unlock 💜</p>
             `;
 
-            // Add premium badge
             const badge = document.createElement('span');
             badge.className = 'dv-card-premium-badge';
             badge.textContent = '★ PRO';
@@ -328,14 +308,12 @@ function applyCardLocks(cards, freeCount, section) {
             card.appendChild(overlay);
             card.appendChild(badge);
 
-            // Click handler → show popup
             overlay.addEventListener('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 showPremiumPopup(card, section, totalCards, freeCount);
             });
 
-            // Prevent the card's original click/link
             card.addEventListener('click', function (e) {
                 if (card.classList.contains('dv-card-locked')) {
                     e.preventDefault();
@@ -344,7 +322,6 @@ function applyCardLocks(cards, freeCount, section) {
                 }
             });
 
-            // If card is an <a> tag, prevent navigation
             if (card.tagName === 'A') {
                 card.addEventListener('click', function (e) {
                     if (card.classList.contains('dv-card-locked')) {
@@ -353,7 +330,6 @@ function applyCardLocks(cards, freeCount, section) {
                 });
             }
 
-            // Also handle links inside the card
             const links = card.querySelectorAll('a');
             links.forEach(link => {
                 link.addEventListener('click', function (e) {
@@ -367,25 +343,24 @@ function applyCardLocks(cards, freeCount, section) {
         }
     });
 
-    // Add counter bar
     if (lockedCount > 0) {
         addCounterBar(totalCards, freeCount, lockedCount, section);
     }
 
-    // Mark as done so it never runs again
-    _cardLockApplied = true; // ← ADD THIS LINE
+    _cardLockApplied = true;
 
     console.log(
         `%c🔒 Card Lock | ${section} | ${freeCount} free / ${lockedCount} locked / ${totalCards} total`,
-        'color: #e94560; font-size: 12px; background: #1a1a2e; padding: 4px 12px; border-radius: 4px;'
+        'color: #a78bfa; font-size: 12px; background: #1a0a2e; padding: 4px 12px; border-radius: 4px;'
     );
 }
 
 function waitForCards(selectorString, freeCount, section) {
     let attempts = 0;
-    const maxAttempts = 50; // 5 seconds max
+    const maxAttempts = 50;
 
     const interval = setInterval(() => {
+        if (_cardLockApplied) { clearInterval(interval); return; }
         attempts++;
         const cards = document.querySelectorAll(selectorString);
 
@@ -396,20 +371,21 @@ function waitForCards(selectorString, freeCount, section) {
 
         if (attempts >= maxAttempts) {
             clearInterval(interval);
-            console.log('%c⚠️ No cards found after 5s', 'color: #ff9800;');
+            console.log('%c⚠️ No cards found after 5s', 'color: #fbbf24;');
         }
     }, 100);
 
-    // Also use MutationObserver for dynamically added cards
     const observer = new MutationObserver(function (mutations) {
+        if (_cardLockApplied) { observer.disconnect(); return; }
         const cards = document.querySelectorAll(selectorString);
         if (cards.length > 0) {
             observer.disconnect();
             clearInterval(interval);
-            // Small delay to let all cards render
             setTimeout(() => {
-                const finalCards = document.querySelectorAll(selectorString);
-                applyCardLocks(finalCards, freeCount, section);
+                if (!_cardLockApplied) {
+                    const finalCards = document.querySelectorAll(selectorString);
+                    applyCardLocks(finalCards, freeCount, section);
+                }
             }, 200);
         }
     });
@@ -435,7 +411,7 @@ function addCounterBar(total, free, locked, section) {
     bar.innerHTML = `
         <div class="dv-counter-text">
             🌍 <strong>${free}</strong> of ${total} ${sectionName} are free •
-            <span class="dv-counter-locked">${locked} locked</span>
+            <span class="dv-counter-locked">${locked} locked 💜</span>
         </div>
         <a href="/pricing.html" class="dv-counter-btn">🔓 Unlock All</a>
         <div class="dv-counter-progress">
@@ -443,17 +419,10 @@ function addCounterBar(total, free, locked, section) {
         </div>
     `;
 
-    // Insert at the top of main content area
     const insertTargets = [
-        'main',
-        '.content',
-        '.content-wrapper',
-        '.cards-container',
-        '.card-grid',
-        '.container',
-        '.page-content',
-        '#app',
-        '#root',
+        'main', '.content', '.content-wrapper',
+        '.cards-container', '.card-grid',
+        '.container', '.page-content', '#app', '#root',
     ];
 
     let inserted = false;
@@ -467,7 +436,6 @@ function addCounterBar(total, free, locked, section) {
     }
 
     if (!inserted) {
-        // Insert after first nav/header
         const header = document.querySelector('nav, header, .navbar');
         if (header && header.nextSibling) {
             header.parentNode.insertBefore(bar, header.nextSibling);
@@ -478,15 +446,13 @@ function addCounterBar(total, free, locked, section) {
 }
 
 // ==========================================
-// PREMIUM POPUP (when clicking locked card)
+// PREMIUM POPUP WITH BTS MESSAGES 💜
 // ==========================================
 
 function showPremiumPopup(card, section, total, free) {
-    // Remove existing popup
     const existing = document.getElementById('dv-premium-popup');
     if (existing) existing.remove();
 
-    // Try to get card name
     let cardName = 'this content';
     const nameEl = card.querySelector('h2, h3, h4, .card-title, .name, .title, [data-name]');
     if (nameEl) {
@@ -497,43 +463,55 @@ function showPremiumPopup(card, section, total, free) {
 
     const sectionName = section.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const locked = total - free;
+    const bts = getRandomBTSMessage();
+
+    // Generate floating hearts
+    const hearts = ['💜', '💜', '🤍', '💜', '✨', '💜', '🌍', '💜'];
+    let heartsHTML = '<div class="dv-popup-hearts">';
+    hearts.forEach((h, i) => {
+        const left = 10 + Math.random() * 80;
+        const delay = Math.random() * 3;
+        const duration = 3 + Math.random() * 2;
+        heartsHTML += `<span class="dv-popup-heart" style="left:${left}%;animation-delay:${delay}s;animation-duration:${duration}s">${h}</span>`;
+    });
+    heartsHTML += '</div>';
 
     const popup = document.createElement('div');
     popup.id = 'dv-premium-popup';
     popup.innerHTML = `
         <div class="dv-popup-box">
+            ${heartsHTML}
             <button class="dv-popup-close" onclick="this.closest('#dv-premium-popup').remove()">×</button>
-            <span class="dv-popup-icon">🔒</span>
-            <h3>Premium Content</h3>
+            <span class="dv-popup-icon">💜</span>
+            <p class="dv-popup-bts-title">${bts.title}</p>
+            <p class="dv-popup-bts-subtitle">${bts.subtitle}</p>
+            <h3>🔒 Premium Content</h3>
             <p class="dv-popup-item-name">"${cardName}"</p>
             <p>Unlock all <strong>${total}</strong> ${sectionName} and <strong>200+</strong> pages across Dharaverse with a Premium subscription.</p>
             <a href="/pricing.html" class="dv-popup-btn dv-popup-btn-buy">
                 🌟 Get Premium — ${CONFIG.price}${CONFIG.period}
             </a>
             <a href="/auth.html" class="dv-popup-btn dv-popup-btn-close">
-                Already subscribed? Log in
+                Already subscribed? Log in 보라해 💜
             </a>
             <p class="dv-popup-counter">
-                ${free} free • ${locked} locked in ${sectionName}
+                ${free} free • ${locked} locked in ${sectionName} 💜
             </p>
         </div>
     `;
 
     document.body.appendChild(popup);
 
-    // Animate in
     requestAnimationFrame(() => {
         popup.classList.add('dv-popup-show');
     });
 
-    // Close on background click
     popup.addEventListener('click', function (e) {
         if (e.target === popup) {
             popup.remove();
         }
     });
 
-    // Close on Escape
     const escHandler = function (e) {
         if (e.key === 'Escape') {
             popup.remove();
@@ -544,17 +522,19 @@ function showPremiumPopup(card, section, total, free) {
 }
 
 // ==========================================
-// PAGE-LEVEL LOCKING (encyclopedia sub-pages, profiles)
+// PAGE-LEVEL LOCKING
 // ==========================================
 
 function lockEntirePage() {
     document.body.classList.add('premium-page-locked');
     document.body.classList.remove('premium-verified');
+    document.body.classList.remove('dv-card-lock-page');
 
     if (document.getElementById('premium-page-overlay')) return;
 
     const pageTitle = getPageTitle();
     const backLink = getBackLink();
+    const bts = getRandomBTSMessage();
 
     const overlay = document.createElement('div');
     overlay.id = 'premium-page-overlay';
@@ -563,6 +543,8 @@ function lockEntirePage() {
             <div class="dv-page-lock-inner">
                 <span class="dv-page-lock-icon">🔒</span>
                 <span class="dv-page-premium-badge">★ PREMIUM CONTENT</span>
+                <p class="dv-popup-bts-title">${bts.title}</p>
+                <p class="dv-popup-bts-subtitle">${bts.subtitle}</p>
                 <p class="dv-page-name">📄 ${pageTitle}</p>
                 <h2>Unlock Full Access</h2>
                 <p>This page is part of Dharaverse Premium. Get unlimited access to 200+ interactive geography pages.</p>
@@ -633,15 +615,16 @@ function getBackLink() {
 }
 
 function unlockPage() {
-     _cardLockApplied = false;
+    _cardLockApplied = false;
+
     document.body.classList.remove('premium-page-locked');
     document.body.classList.remove('premium-locked');
+    document.body.classList.remove('dv-card-lock-page');
     document.body.classList.add('premium-verified');
 
     const overlay = document.getElementById('premium-page-overlay');
     if (overlay) overlay.remove();
 
-    // Also remove all card locks
     document.querySelectorAll('.dv-card-locked').forEach(card => {
         card.classList.remove('dv-card-locked');
         const lockOverlay = card.querySelector('.dv-card-lock-overlay');
@@ -650,17 +633,15 @@ function unlockPage() {
         if (badge) badge.remove();
     });
 
-    // Remove counter bar
     const counter = document.querySelector('.dv-free-counter-bar');
     if (counter) counter.remove();
 
-    // Remove popup
     const popup = document.getElementById('dv-premium-popup');
     if (popup) popup.remove();
 
     console.log(
-        '%c✅ DHARAVERSE: Premium Verified — Full Access',
-        'color: #70e0a0; font-size: 14px; font-weight: bold; background: #1a2e1a; padding: 8px 16px; border-radius: 6px;'
+        '%c✅ DHARAVERSE: Premium Verified — Full Access 보라해 💜',
+        'color: #a78bfa; font-size: 14px; font-weight: bold; background: #1a0a2e; padding: 8px 16px; border-radius: 6px;'
     );
 }
 
@@ -669,43 +650,47 @@ function unlockPage() {
 // ==========================================
 
 function init() {
+    // Inject lock CSS if not already loaded
+    if (!document.querySelector('link[href*="premium-lock"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/css/premium-lock.css';
+        document.head.appendChild(link);
+    }
+
     const path = getPath();
 
     console.log(
-        `%c🌍 Dharaverse Lock v4.0 | ${path}`,
-        'color: #4fc3f7; font-size: 11px;'
+        `%c🌍 Dharaverse Lock v4.0 💜 | ${path}`,
+        'color: #a78bfa; font-size: 11px;'
     );
 
     const premium = isPremiumUser();
 
-    // ── Premium user: unlock everything ──
     if (premium) {
         unlockPage();
         return;
     }
 
-    // ── Free page check ──
     if (isFreePage(path)) {
-        // It's a free page
-
         if (isCardLockPage(path)) {
-            // FREE page BUT with card-level locking
-            document.body.classList.add('premium-verified'); // page itself is free
+            // FREE page with card-level locking
+            document.body.classList.add('dv-card-lock-page');
+            document.body.classList.remove('premium-verified');
+            document.body.classList.remove('premium-page-locked');
             lockCards();
-            console.log('%c🆓 FREE page with card locks', 'color: #ffa726;');
+            console.log('%c🆓 FREE page with card locks 💜', 'color: #fbbf24;');
         } else {
-            // Fully free page
             document.body.classList.add('premium-verified');
-            console.log('%c🆓 FREE page', 'color: #70e0a0;');
+            console.log('%c🆓 FREE page 💜', 'color: #a78bfa;');
         }
         return;
     }
 
-    // ── Locked page (encyclopedia sub-pages, profiles, etc) ──
     lockEntirePage();
     console.log(
-        '%c🔒 PAGE LOCKED — Premium Required',
-        'color: #e94560; font-size: 14px; font-weight: bold;'
+        '%c🔒 PAGE LOCKED — Premium Required 💜',
+        'color: #a78bfa; font-size: 14px; font-weight: bold;'
     );
 }
 
@@ -721,7 +706,6 @@ function earlyBodyLock() {
     }
 }
 
-// Lock body ASAP
 if (document.body) {
     earlyBodyLock();
 } else {
@@ -731,14 +715,13 @@ if (document.body) {
     obs.observe(document.documentElement, { childList: true, subtree: true });
 }
 
-// Full init on DOM ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
 }
 
-// Re-check on full load
+// Re-check on full load — only if not already locked
 window.addEventListener('load', () => {
     const path = getPath();
     if (isPremiumUser()) {
@@ -746,7 +729,6 @@ window.addEventListener('load', () => {
         return;
     }
     if (isCardLockPage(path) && !_cardLockApplied) {
-        // Only retry if cards haven't been locked yet
         setTimeout(lockCards, 500);
         setTimeout(lockCards, 1500);
         setTimeout(lockCards, 3000);
@@ -758,13 +740,13 @@ window.addEventListener('load', () => {
 // ==========================================
 
 window.DharaversePremium = {
-    version: '4.0',
+    version: '4.0-bts',
     isLocked: () => document.body.classList.contains('premium-page-locked'),
     isPremium: isPremiumUser,
     check: init,
     getConfig: () => CONFIG,
+    getBTSMessage: getRandomBTSMessage,
 
-    // For testing
     setPremium: function (days) {
         const exp = new Date();
         exp.setDate(exp.getDate() + (days || 365));
@@ -774,7 +756,7 @@ window.DharaversePremium = {
             plan: 'test'
         }));
         unlockPage();
-        return `✅ Premium set for ${days || 365} days`;
+        return `✅ Premium set for ${days || 365} days 보라해 💜`;
     },
 
     removePremium: function () {
@@ -793,15 +775,15 @@ window.DharaversePremium = {
                 plan: 'admin'
             }));
             unlockPage();
-            return '✅ Admin unlocked';
+            return '✅ Admin unlocked 보라해 💜';
         }
         return '❌ Invalid key';
     },
 
-    // Manually set free card count for a section
     setFreeCards: function (section, count) {
         CONFIG.freeCards[section] = count;
-        return `✅ ${section}: ${count} free cards`;
+        return `✅ ${section}: ${count} free cards 💜`;
     }
 };
+
 })();
