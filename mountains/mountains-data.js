@@ -30,6 +30,15 @@
         typeof MOUNTAINS_DATA_10 !== 'undefined' ? MOUNTAINS_DATA_10 : []
     ];
 
+    // Log which files loaded successfully
+    dataFiles.forEach((data, i) => {
+        if (!data || data.length === 0) {
+            console.warn(`⚠️ MOUNTAINS_DATA_${i + 1} is EMPTY or NOT LOADED!`);
+        } else {
+            console.log(`✅ MOUNTAINS_DATA_${i + 1}: ${data.length} mountains loaded`);
+        }
+    });
+
     // Merge all data files
     dataFiles.forEach(data => {
         if (Array.isArray(data)) {
@@ -43,6 +52,19 @@
 
     // Ensure all mountains have required fields
     window.MOUNTAINS_DATA = window.MOUNTAINS_DATA.map((mountain, index) => {
+
+        // Skip completely invalid entries
+        if (!mountain || typeof mountain !== 'object') {
+            console.warn(`⚠️ Invalid mountain entry at index ${index}, skipping`);
+            return null;
+        }
+
+        // Ensure name exists FIRST before anything else
+        if (!mountain.name || typeof mountain.name !== 'string') {
+            mountain.name = 'Unknown Mountain ' + (index + 1);
+            console.warn(`⚠️ Mountain at index ${index} has no valid name, assigned default`);
+        }
+
         // Generate ID if not present
         if (!mountain.id) {
             mountain.id = mountain.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -53,6 +75,15 @@
             mountain.countries = [{ name: 'Unknown', code: 'UN' }];
         }
 
+        // Ensure each country has name and code
+        mountain.countries = mountain.countries.map(c => {
+            if (!c || typeof c !== 'object') return { name: 'Unknown', code: 'UN' };
+            return {
+                name: c.name || 'Unknown',
+                code: c.code || 'UN'
+            };
+        });
+
         // Ensure coordinates exist
         if (!mountain.coordinates || !Array.isArray(mountain.coordinates)) {
             mountain.coordinates = [0, 0];
@@ -61,6 +92,16 @@
         // Ensure elevation exists
         if (typeof mountain.elevation !== 'number') {
             mountain.elevation = 0;
+        }
+
+        // Ensure continent exists
+        if (!mountain.continent || typeof mountain.continent !== 'string') {
+            mountain.continent = 'Unknown';
+        }
+
+        // Ensure mountainRange exists
+        if (!mountain.mountainRange || typeof mountain.mountainRange !== 'string') {
+            mountain.mountainRange = '';
         }
 
         // Set default zoom if not present
@@ -86,7 +127,8 @@
         mountain.permitRequired = mountain.permitRequired || false;
 
         return mountain;
-    });
+
+    }).filter(Boolean); // Remove any null/invalid entries
 
     // ============================================
     // SORT BY ELEVATION (HIGHEST FIRST)
@@ -109,11 +151,13 @@
         highestPeak: window.MOUNTAINS_DATA.length > 0 ? window.MOUNTAINS_DATA[0] : null,
         
         countries: [...new Set(
-            window.MOUNTAINS_DATA.flatMap(m => m.countries.map(c => c.name))
+            window.MOUNTAINS_DATA.flatMap(m => 
+                m.countries ? m.countries.map(c => c.name) : []
+            )
         )].length,
         
         continents: [...new Set(
-            window.MOUNTAINS_DATA.map(m => m.continent)
+            window.MOUNTAINS_DATA.map(m => m.continent).filter(Boolean)
         )],
         
         ranges: [...new Set(
@@ -130,17 +174,17 @@
         
         byCountry: (countryName) => {
             return window.MOUNTAINS_DATA.filter(m => 
-                m.countries.some(c => c.name === countryName)
+                m.countries && m.countries.some(c => c.name === countryName)
             );
         },
         
         search: (query) => {
             const q = query.toLowerCase();
             return window.MOUNTAINS_DATA.filter(m =>
-                m.name.toLowerCase().includes(q) ||
-                m.countries.some(c => c.name.toLowerCase().includes(q)) ||
-                m.mountainRange.toLowerCase().includes(q) ||
-                m.continent.toLowerCase().includes(q)
+                (m.name && m.name.toLowerCase().includes(q)) ||
+                (m.countries && m.countries.some(c => c.name && c.name.toLowerCase().includes(q))) ||
+                (m.mountainRange && m.mountainRange.toLowerCase().includes(q)) ||
+                (m.continent && m.continent.toLowerCase().includes(q))
             );
         },
         
@@ -357,6 +401,8 @@
     // ============================================
     if (window.MOUNTAINS_DATA.length === 0) {
         console.warn('⚠️ No mountain data loaded. Ensure all data files are included before mountains-data.js');
+    } else {
+        console.log(`%c✅ All data processed successfully!`, 'color: #27ae60; font-weight: bold;');
     }
 
 })();
