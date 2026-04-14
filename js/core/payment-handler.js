@@ -29,6 +29,7 @@
         // LOCATION & CURRENCY DETECTION
         // ═══════════════════════════════════════════════════════════════════
         
+        // ✅ FIXED: Replaced ipapi.co with CORS-friendly alternatives
         async detectUserLocation() {
             // Method 1: Browser locale
             const locale = navigator.language || navigator.userLanguage;
@@ -41,21 +42,21 @@
             
             // Method 2: Timezone
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (timezone && timezone.includes('Kolkata') || timezone.includes('India')) {
+            if (timezone && (timezone.includes('Kolkata') || timezone.includes('India'))) {
                 this.userCountry = 'IN';
                 this.currency = 'INR';
                 return;
             }
             
-            // Method 3: IP-based detection (fallback)
+            // Method 3: IP-based detection (CORS-friendly API)
             try {
-                const response = await fetch('https://ipapi.co/json/', { timeout: 3000 });
+                const response = await fetch('https://api.country.is');
                 const data = await response.json();
                 
-                this.userCountry = data.country_code;
-                this.currency = data.country_code === 'IN' ? 'INR' : 'USD';
+                this.userCountry = data.country || 'US';
+                this.currency = this.userCountry === 'IN' ? 'INR' : 'USD';
             } catch (e) {
-                // Default to USD for international
+                console.warn('⚠️ GeoPayment: Location detection failed, defaulting to US/USD');
                 this.userCountry = 'US';
                 this.currency = 'USD';
             }
@@ -77,8 +78,15 @@
             }
         }
         
+        // ✅ FIXED: Added safety check for missing Razorpay key
         loadRazorpay() {
             if (this.razorpayLoaded) return Promise.resolve();
+            
+            const razorpayKey = 'YOUR_RAZORPAY_KEY_ID';
+            if (!razorpayKey || razorpayKey === 'YOUR_RAZORPAY_KEY_ID') {
+                console.warn('⚠️ GeoPayment: Razorpay key not configured — skipping load');
+                return Promise.resolve();
+            }
             
             return new Promise((resolve, reject) => {
                 const script = document.createElement('script');
@@ -92,11 +100,18 @@
             });
         }
         
+        // ✅ FIXED: Skip PayPal if no real client ID configured
         loadPayPal() {
             if (this.paypalLoaded) return Promise.resolve();
             
             // Replace with your PayPal client ID
             const clientId = 'YOUR_PAYPAL_CLIENT_ID';
+            
+            // Don't load PayPal SDK if no real client ID is set
+            if (!clientId || clientId === 'YOUR_PAYPAL_CLIENT_ID') {
+                console.warn('⚠️ GeoPayment: PayPal client ID not configured — skipping load');
+                return Promise.resolve();
+            }
             
             return new Promise((resolve, reject) => {
                 const script = document.createElement('script');
