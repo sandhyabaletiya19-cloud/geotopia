@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥥 Southern States & Union Territories | Dharaverse Encyclopedia</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --coconut-cream: #FFF8E7;
+    --temple-gold: #D4A017;
+    --malabar-green: #0B6623;
+    --ocean-deep: #003153;
+    --silk-red: #8B2252;
+    --jasmine-white: #FFFDF7;
+    --sandal-wood: #C2956B;
+    --lotus-pink: #E8407B;
+    --palm-shadow: #1A3C34;
+    --spice-orange: #E8702A;
+    --backwater-teal: #008080;
+    --kathakali-green: #2E8B57;
+    --dravidian-purple: #6A0DAD;
+    --temple-tower: #B22222;
+    --nilgiri-blue: #4682B4;
+    --chettinad-brown: #6B3A2A;
+    --glow-gold: rgba(212, 160, 23, 0.15);
+    --glow-green: rgba(11, 102, 35, 0.1);
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes floatUp {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes gentlePulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes templeGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(212, 160, 23, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(212, 160, 23, 0.6), 0 0 60px rgba(212, 160, 23, 0.2); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes borderDance {
+    0% { border-image-source: linear-gradient(0deg, var(--temple-gold), var(--lotus-pink), var(--backwater-teal)); }
+    33% { border-image-source: linear-gradient(120deg, var(--lotus-pink), var(--backwater-teal), var(--temple-gold)); }
+    66% { border-image-source: linear-gradient(240deg, var(--backwater-teal), var(--temple-gold), var(--lotus-pink)); }
+    100% { border-image-source: linear-gradient(360deg, var(--temple-gold), var(--lotus-pink), var(--backwater-teal)); }
+}
+
+@keyframes kolam {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes waveMotion {
+    0%, 100% { transform: translateX(0) scaleY(1); }
+    25% { transform: translateX(5px) scaleY(1.05); }
+    50% { transform: translateX(0) scaleY(0.95); }
+    75% { transform: translateX(-5px) scaleY(1.05); }
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Georgia', 'Palatino Linotype', 'Book Antiqua', 'Palatino', 'Times New Roman', serif;
+    background: var(--coconut-cream);
+    color: #2D2D2D;
+    line-height: 1.75;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 10% 20%, rgba(212, 160, 23, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(0, 128, 128, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(139, 34, 82, 0.03) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ===== KOLAM PATTERN DECORATIONS ===== */
+.kolam-decoration {
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    opacity: 0.04;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.kolam-decoration::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--temple-gold);
+    border-radius: 50%;
+    animation: kolam 20s linear infinite;
+}
+
+.kolam-decoration::after {
+    content: '';
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    top: 15%;
+    left: 15%;
+    border: 2px solid var(--silk-red);
+    transform: rotate(45deg);
+    animation: kolam 15s linear infinite reverse;
+}
+
+.kolam-1 { top: 10%; left: 5%; }
+.kolam-2 { top: 30%; right: 3%; }
+.kolam-3 { top: 60%; left: 2%; }
+.kolam-4 { bottom: 10%; right: 5%; }
+
+/* ===== BACK BUTTON ===== */
+.back-nav {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--ocean-deep), var(--palm-shadow));
+    color: var(--coconut-cream);
+    text-decoration: none;
+    border-radius: 50px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0, 49, 83, 0.3);
+    border: 1px solid rgba(212, 160, 23, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.back-btn:hover {
+    transform: translateX(-5px) scale(1.05);
+    box-shadow: 0 6px 25px rgba(0, 49, 83, 0.5);
+    background: linear-gradient(135deg, var(--palm-shadow), var(--malabar-green));
+    border-color: var(--temple-gold);
+}
+
+.back-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.back-btn:hover svg {
+    transform: translateX(-3px);
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(135deg,
+            var(--ocean-deep) 0%,
+            #0A2647 15%,
+            var(--palm-shadow) 35%,
+            var(--malabar-green) 55%,
+            var(--backwater-teal) 75%,
+            var(--ocean-deep) 100%);
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 40px,
+            rgba(212, 160, 23, 0.03) 40px,
+            rgba(212, 160, 23, 0.03) 41px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 40px,
+            rgba(212, 160, 23, 0.03) 40px,
+            rgba(212, 160, 23, 0.03) 41px
+        );
+}
+
+.hero-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatUp 4s ease-in-out infinite;
+}
+
+.particle:nth-child(1) { width: 6px; height: 6px; background: var(--temple-gold); top: 20%; left: 10%; animation-delay: 0s; opacity: 0.5; }
+.particle:nth-child(2) { width: 4px; height: 4px; background: var(--lotus-pink); top: 40%; left: 25%; animation-delay: 1s; opacity: 0.4; }
+.particle:nth-child(3) { width: 8px; height: 8px; background: var(--jasmine-white); top: 60%; left: 45%; animation-delay: 2s; opacity: 0.3; }
+.particle:nth-child(4) { width: 5px; height: 5px; background: var(--spice-orange); top: 30%; left: 65%; animation-delay: 0.5s; opacity: 0.5; }
+.particle:nth-child(5) { width: 7px; height: 7px; background: var(--temple-gold); top: 70%; left: 80%; animation-delay: 1.5s; opacity: 0.4; }
+.particle:nth-child(6) { width: 3px; height: 3px; background: var(--coconut-cream); top: 15%; left: 90%; animation-delay: 2.5s; opacity: 0.6; }
+.particle:nth-child(7) { width: 5px; height: 5px; background: var(--lotus-pink); top: 80%; left: 15%; animation-delay: 3s; opacity: 0.3; }
+.particle:nth-child(8) { width: 4px; height: 4px; background: var(--backwater-teal); top: 50%; left: 55%; animation-delay: 0.8s; opacity: 0.5; }
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 2rem;
+    max-width: 900px;
+}
+
+.hero-emoji {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 1.5rem;
+    animation: floatUp 3s ease-in-out infinite;
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+}
+
+.hero h1 {
+    font-family: 'Georgia', 'Palatino Linotype', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    color: var(--coconut-cream);
+    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    margin-bottom: 0.5rem;
+    letter-spacing: 3px;
+}
+
+.hero h1 .gold-text {
+    background: linear-gradient(90deg, var(--temple-gold), #FFD700, var(--sandal-wood), #FFD700, var(--temple-gold));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+}
+
+.hero-subtitle {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: rgba(255, 248, 231, 0.85);
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.hero-stat {
+    text-align: center;
+    padding: 1rem;
+}
+
+.hero-stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--temple-gold);
+    text-shadow: 0 2px 10px rgba(212, 160, 23, 0.5);
+}
+
+.hero-stat-label {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.8rem;
+    color: rgba(255,248,231,0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.hero-wave {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    z-index: 3;
+}
+
+.hero-wave svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* ===== TABLE OF CONTENTS ===== */
+.toc-section {
+    padding: 4rem 2rem;
+    background: linear-gradient(180deg, var(--coconut-cream), var(--jasmine-white));
+    position: relative;
+}
+
+.toc-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.toc-title {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--ocean-deep);
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.toc-subtitle {
+    text-align: center;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--sandal-wood);
+    font-size: 0.95rem;
+    margin-bottom: 3rem;
+    letter-spacing: 1px;
+}
+
+.toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.toc-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.8rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(212, 160, 23, 0.15);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+}
+
+.toc-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.toc-card:nth-child(1)::before { background: linear-gradient(180deg, #C41E3A, #FFD700); }
+.toc-card:nth-child(2)::before { background: linear-gradient(180deg, var(--malabar-green), var(--temple-gold)); }
+.toc-card:nth-child(3)::before { background: linear-gradient(180deg, var(--silk-red), var(--temple-gold)); }
+.toc-card:nth-child(4)::before { background: linear-gradient(180deg, var(--nilgiri-blue), var(--temple-gold)); }
+.toc-card:nth-child(5)::before { background: linear-gradient(180deg, var(--dravidian-purple), var(--temple-gold)); }
+.toc-card:nth-child(6)::before { background: linear-gradient(180deg, var(--spice-orange), var(--temple-gold)); }
+.toc-card:nth-child(7)::before { background: linear-gradient(180deg, var(--backwater-teal), var(--temple-gold)); }
+.toc-card:nth-child(8)::before { background: linear-gradient(180deg, var(--ocean-deep), var(--temple-gold)); }
+
+.toc-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    border-color: var(--temple-gold);
+}
+
+.toc-card:hover::before {
+    width: 6px;
+}
+
+.toc-card-emoji {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+    animation: floatUp 3s ease-in-out infinite;
+}
+
+.toc-card-content h3 {
+    font-size: 1.15rem;
+    color: var(--ocean-deep);
+    margin-bottom: 0.3rem;
+    letter-spacing: 1px;
+}
+
+.toc-card-content .capital {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.82rem;
+    color: var(--sandal-wood);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.toc-card-content p {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* ===== MAP SECTION ===== */
+.map-section {
+    padding: 4rem 2rem;
+    background: var(--jasmine-white);
+}
+
+.map-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.map-title {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--ocean-deep);
+    margin-bottom: 0.5rem;
+}
+
+.map-subtitle {
+    text-align: center;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--sandal-wood);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+}
+
+#south-india-map {
+    width: 100%;
+    height: 550px;
+    border-radius: 20px;
+    border: 3px solid var(--temple-gold);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    z-index: 1;
+}
+
+.map-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legend-dot.state-capital { background: var(--temple-tower); }
+.legend-dot.ut-capital { background: var(--backwater-teal); }
+.legend-dot.city { background: var(--nilgiri-blue); }
+
+/* ===== SECTION COMMON ===== */
+.state-section {
+    position: relative;
+    padding: 5rem 2rem;
+    overflow: hidden;
+}
+
+.state-section:nth-child(even) {
+    background: linear-gradient(180deg, var(--jasmine-white), var(--coconut-cream));
+}
+
+.state-section:nth-child(odd) {
+    background: linear-gradient(180deg, var(--coconut-cream), var(--jasmine-white));
+}
+
+.state-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== STATE HEADER ===== */
+.state-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.state-header::after {
+    content: '';
+    display: block;
+    width: 150px;
+    height: 3px;
+    margin: 1.5rem auto 0;
+    border-radius: 2px;
+}
+
+.karnataka-section .state-header::after { background: linear-gradient(90deg, #C41E3A, #FFD700, #C41E3A); }
+.kerala-section .state-header::after { background: linear-gradient(90deg, var(--malabar-green), var(--temple-gold), var(--malabar-green)); }
+.tamilnadu-section .state-header::after { background: linear-gradient(90deg, var(--silk-red), var(--temple-gold), var(--silk-red)); }
+.andhra-section .state-header::after { background: linear-gradient(90deg, var(--nilgiri-blue), var(--temple-gold), var(--nilgiri-blue)); }
+.telangana-section .state-header::after { background: linear-gradient(90deg, var(--dravidian-purple), var(--temple-gold), var(--dravidian-purple)); }
+.puducherry-section .state-header::after { background: linear-gradient(90deg, var(--spice-orange), var(--temple-gold), var(--spice-orange)); }
+.andaman-section .state-header::after { background: linear-gradient(90deg, var(--backwater-teal), var(--temple-gold), var(--backwater-teal)); }
+.lakshadweep-section .state-header::after { background: linear-gradient(90deg, var(--ocean-deep), var(--temple-gold), var(--ocean-deep)); }
+
+.state-emoji {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.state-name {
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: 4px;
+    margin-bottom: 0.3rem;
+}
+
+.karnataka-section .state-name { color: #C41E3A; }
+.kerala-section .state-name { color: var(--malabar-green); }
+.tamilnadu-section .state-name { color: var(--silk-red); }
+.andhra-section .state-name { color: var(--nilgiri-blue); }
+.telangana-section .state-name { color: var(--dravidian-purple); }
+.puducherry-section .state-name { color: var(--spice-orange); }
+.andaman-section .state-name { color: var(--backwater-teal); }
+.lakshadweep-section .state-name { color: var(--ocean-deep); }
+
+.state-capital-info {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 1rem;
+    color: var(--sandal-wood);
+    letter-spacing: 2px;
+}
+
+.state-tagline {
+    font-style: italic;
+    color: #777;
+    font-size: 1.05rem;
+    margin-top: 0.8rem;
+}
+
+/* ===== INFO GRID ===== */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.info-box {
+    background: white;
+    border-radius: 16px;
+    padding: 1.8rem;
+    border: 1px solid rgba(212, 160, 23, 0.12);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--temple-gold), var(--backwater-teal), var(--lotus-pink));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.info-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    border-color: rgba(212, 160, 23, 0.3);
+}
+
+.info-box:hover::before {
+    opacity: 1;
+}
+
+.info-box-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.info-box-icon {
+    font-size: 1.8rem;
+}
+
+.info-box-title {
+    font-size: 1.05rem;
+    color: var(--ocean-deep);
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.info-box p, .info-box ul {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.8;
+}
+
+.info-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-box ul li {
+    padding: 0.3rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.info-box ul li::before {
+    content: '◈';
+    position: absolute;
+    left: 0;
+    color: var(--temple-gold);
+    font-size: 0.8rem;
+}
+
+/* ===== DETAIL SECTION ===== */
+.detail-block {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(212, 160, 23, 0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
+}
+
+.detail-block:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+.detail-block h3 {
+    font-size: 1.5rem;
+    color: var(--ocean-deep);
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid var(--glow-gold);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.detail-block h3 span {
+    font-size: 1.5rem;
+}
+
+.detail-block h4 {
+    font-size: 1.1rem;
+    color: var(--palm-shadow);
+    margin: 1.5rem 0 0.8rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--temple-gold);
+}
+
+.detail-block p {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.92rem;
+    color: #555;
+    line-height: 1.9;
+    margin-bottom: 0.8rem;
+    text-align: justify;
+}
+
+.detail-block .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.88rem;
+}
+
+.data-table th {
+    background: linear-gradient(135deg, var(--ocean-deep), var(--palm-shadow));
+    color: var(--coconut-cream);
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(212, 160, 23, 0.1);
+    color: #555;
+}
+
+.data-table tr:nth-child(even) td {
+    background: rgba(212, 160, 23, 0.03);
+}
+
+.data-table tr:hover td {
+    background: rgba(212, 160, 23, 0.08);
+}
+
+/* ===== FEATURE CARDS ===== */
+.feature-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.2rem;
+    margin: 1.5rem 0;
+}
+
+.feature-card {
+    background: linear-gradient(135deg, rgba(212, 160, 23, 0.05), rgba(0, 128, 128, 0.05));
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(212, 160, 23, 0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: scale(1.03);
+    border-color: var(--temple-gold);
+    box-shadow: 0 8px 25px rgba(212, 160, 23, 0.15);
+}
+
+.feature-card-emoji {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 0.8rem;
+}
+
+.feature-card h4 {
+    font-size: 0.95rem;
+    color: var(--ocean-deep);
+    margin-bottom: 0.5rem;
+    border: none;
+    padding: 0;
+}
+
+.feature-card p {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.82rem;
+    color: #777;
+    line-height: 1.6;
+}
+
+/* ===== QUICK FACTS BAR ===== */
+.quick-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--ocean-deep), var(--palm-shadow));
+    border-radius: 16px;
+    color: var(--coconut-cream);
+}
+
+.quick-fact {
+    text-align: center;
+    padding: 1rem;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.quick-fact:last-child {
+    border-right: none;
+}
+
+.quick-fact-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--temple-gold);
+    display: block;
+}
+
+.quick-fact-label {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+/* ===== SECTION DIVIDER ===== */
+.section-divider {
+    text-align: center;
+    padding: 2rem 0;
+    position: relative;
+}
+
+.section-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--temple-gold), transparent);
+}
+
+.section-divider span {
+    background: var(--coconut-cream);
+    padding: 0 1.5rem;
+    position: relative;
+    font-size: 1.5rem;
+}
+
+/* ===== EXPLORE NAVIGATION ===== */
+.explore-nav {
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--palm-shadow) 50%, #0A2647 100%);
+    position: relative;
+}
+
+.explore-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--temple-gold), var(--lotus-pink), var(--backwater-teal), var(--temple-gold));
+}
+
+.explore-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.explore-title {
+    font-size: 1.8rem;
+    color: var(--coconut-cream);
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.explore-subtitle {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: rgba(255,248,231,0.6);
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+    letter-spacing: 1px;
+}
+
+.explore-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.explore-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(212, 160, 23, 0.2);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--coconut-cream);
+    transition: all 0.4s ease;
+    backdrop-filter: blur(5px);
+}
+
+.explore-link:hover {
+    background: rgba(212, 160, 23, 0.15);
+    border-color: var(--temple-gold);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.explore-link-emoji {
+    font-size: 2rem;
+}
+
+.explore-link-text h4 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+    letter-spacing: 1px;
+}
+
+.explore-link-text p {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.explore-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--temple-gold), #FFD700);
+    color: var(--ocean-deep);
+    text-decoration: none;
+    border-radius: 50px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 20px rgba(212, 160, 23, 0.4);
+}
+
+.explore-back:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 30px rgba(212, 160, 23, 0.6);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    background: #0A0A0A;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--temple-gold), var(--lotus-pink), var(--backwater-teal), var(--malabar-green), var(--temple-gold));
+}
+
+.footer a {
+    color: var(--temple-gold);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* ===== SCROLL ANIMATIONS ===== */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-on-scroll.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .hero-stats {
+        gap: 1.5rem;
+    }
+
+    .hero-stat-number {
+        font-size: 1.8rem;
+    }
+
+    .back-nav {
+        top: 10px;
+        left: 10px;
+    }
+
+    .back-btn {
+        padding: 8px 16px;
+        font-size: 0.75rem;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-facts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .quick-fact {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .detail-block {
+        padding: 1.5rem;
+    }
+
+    .state-section {
+        padding: 3rem 1rem;
+    }
+
+    .explore-links {
+        grid-template-columns: 1fr;
+    }
+
+    .toc-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #south-india-map {
+        height: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        letter-spacing: 1px;
+    }
+
+    .quick-facts {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== SCROLL TO TOP ===== */
+.scroll-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--temple-gold), #FFD700);
+    color: var(--ocean-deep);
+    border: none;
+    cursor: pointer;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(212, 160, 23, 0.4);
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+}
+
+.scroll-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-top:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 6px 30px rgba(212, 160, 23, 0.6);
+}
+
+/* ===== HIGHLIGHT BOX ===== */
+.highlight-box {
+    background: linear-gradient(135deg, rgba(212, 160, 23, 0.08), rgba(0, 128, 128, 0.06));
+    border-left: 4px solid var(--temple-gold);
+    border-radius: 0 12px 12px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1rem 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.7;
+}
+
+/* ===== TWO COLUMN LAYOUT ===== */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 1.5rem 0;
+}
+
+@media (max-width: 768px) {
+    .two-col {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+  
+ <link rel="stylesheet" href="/css/premium-lock.css">
+
+</head>
+<body>
+
+<!-- Kolam Decorations -->
+<div class="kolam-decoration kolam-1"></div>
+<div class="kolam-decoration kolam-2"></div>
+<div class="kolam-decoration kolam-3"></div>
+<div class="kolam-decoration kolam-4"></div>
+
+<!-- Back Navigation -->
+<nav class="back-nav">
+    <a href="/encyclopedia/bharat/index.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Bharat Home
+    </a>
+</nav>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero">
+    <div class="hero-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="hero-content">
+        <span class="hero-emoji">🥥</span>
+        <h1><span class="gold-text">SOUTHERN STATES</span></h1>
+        <h1 style="font-size: clamp(1.2rem, 3vw, 1.8rem); color: rgba(255,248,231,0.8); font-weight: 400;">& Union Territories</h1>
+        <p class="hero-subtitle">
+            From the ancient Dravidian temples to the emerald backwaters,<br>
+            the Silicon Valley of India to the spice-scented Malabar coast —<br>
+            the South is where tradition dances with innovation.
+        </p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-number">5</span>
+                <span class="hero-stat-label">States</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">3</span>
+                <span class="hero-stat-label">Union Territories</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">6,100+</span>
+                <span class="hero-stat-label">Km Coastline</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">25+</span>
+                <span class="hero-stat-label">UNESCO Sites</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-wave">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path fill="var(--coconut-cream)" d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"></path>
+            <path fill="var(--coconut-cream)" opacity="0.5" d="M0,80 C360,40 720,100 1080,60 C1260,40 1380,70 1440,80 L1440,120 L0,120 Z"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- ===== TABLE OF CONTENTS ===== -->
+<section class="toc-section" id="toc">
+    <div class="toc-container">
+        <h2 class="toc-title">📜 Navigate This Page</h2>
+        <p class="toc-subtitle">Click any state or territory to jump directly to its section</p>
+        <div class="toc-grid">
+            <a href="#karnataka" class="toc-card">
+                <span class="toc-card-emoji">🏛️</span>
+                <div class="toc-card-content">
+                    <h3>KARNATAKA</h3>
+                    <span class="capital">Capital: Bengaluru</span>
+                    <p>Land of temples, tech hubs, and the Western Ghats. India's Silicon Valley state.</p>
+                </div>
+            </a>
+            <a href="#kerala" class="toc-card">
+                <span class="toc-card-emoji">🌴</span>
+                <div class="toc-card-content">
+                    <h3>KERALA</h3>
+                    <span class="capital">Capital: Thiruvananthapuram</span>
+                    <p>God's Own Country — backwaters, spices, highest literacy, and Ayurveda.</p>
+                </div>
+            </a>
+            <a href="#tamilnadu" class="toc-card">
+                <span class="toc-card-emoji">🛕</span>
+                <div class="toc-card-content">
+                    <h3>TAMIL NADU</h3>
+                    <span class="capital">Capital: Chennai</span>
+                    <p>The Dravidian heartland — monumental temples, classical arts, and automobile hub.</p>
+                </div>
+            </a>
+            <a href="#andhra" class="toc-card">
+                <span class="toc-card-emoji">⚡</span>
+                <div class="toc-card-content">
+                    <h3>ANDHRA PRADESH</h3>
+                    <span class="capital">Capital: Amaravati</span>
+                    <p>The rice bowl of India — longest coastline, Tirupati, and Kuchipudi dance.</p>
+                </div>
+            </a>
+            <a href="#telangana" class="toc-card">
+                <span class="toc-card-emoji">🏰</span>
+                <div class="toc-card-content">
+                    <h3>TELANGANA</h3>
+                    <span class="capital">Capital: Hyderabad</span>
+                    <p>City of Pearls — Charminar, biriyani capital, IT powerhouse, and Nizami heritage.</p>
+                </div>
+            </a>
+            <a href="#puducherry" class="toc-card">
+                <span class="toc-card-emoji">🇫🇷</span>
+                <div class="toc-card-content">
+                    <h3>PUDUCHERRY</h3>
+                    <span class="capital">Capital: Puducherry</span>
+                    <p>French Riviera of the East — colonial charm, Auroville, and spiritual tranquility.</p>
+                </div>
+            </a>
+            <a href="#andaman" class="toc-card">
+                <span class="toc-card-emoji">🏝️</span>
+                <div class="toc-card-content">
+                    <h3>ANDAMAN & NICOBAR</h3>
+                    <span class="capital">Capital: Port Blair</span>
+                    <p>Emerald islands in the Bay of Bengal — coral reefs, Cellular Jail, and pristine beaches.</p>
+                </div>
+            </a>
+            <a href="#lakshadweep" class="toc-card">
+                <span class="toc-card-emoji">🐚</span>
+                <div class="toc-card-content">
+                    <h3>LAKSHADWEEP</h3>
+                    <span class="capital">Capital: Kavaratti</span>
+                    <p>India's smallest UT — 36 coral islands, turquoise lagoons, and coconut palms.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== MAP SECTION ===== -->
+<section class="map-section">
+    <div class="map-container">
+        <h2 class="map-title">🗺️ Interactive Map of Southern India</h2>
+        <p class="map-subtitle">Explore state capitals, major cities, and key locations</p>
+        <div id="south-india-map"></div>
+        <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot state-capital"></div> State Capitals</div>
+            <div class="legend-item"><div class="legend-dot ut-capital"></div> UT Capitals</div>
+            <div class="legend-item"><div class="legend-dot city"></div> Major Cities</div>
+        </div>
+    </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- ===== KARNATAKA ===== -->
+<!-- ================================================================ -->
+<section class="state-section karnataka-section" id="karnataka">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">🏛️</span>
+            <h2 class="state-name">KARNATAKA</h2>
+            <span class="state-capital-info">Capital: Bengaluru &nbsp;|&nbsp; Formed: 1 November 1956</span>
+            <p class="state-tagline">"One State, Many Worlds" — Ondu Raajya, Aneka Lokagalu</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact">
+                <span class="quick-fact-value">1,91,791 km²</span>
+                <span class="quick-fact-label">Area</span>
+            </div>
+            <div class="quick-fact">
+                <span class="quick-fact-value">6.41 Cr</span>
+                <span class="quick-fact-label">Population (2011)</span>
+            </div>
+            <div class="quick-fact">
+                <span class="quick-fact-value">31</span>
+                <span class="quick-fact-label">Districts</span>
+            </div>
+            <div class="quick-fact">
+                <span class="quick-fact-value">Kannada</span>
+                <span class="quick-fact-label">Official Language</span>
+            </div>
+            <div class="quick-fact">
+                <span class="quick-fact-value">75.36%</span>
+                <span class="quick-fact-label">Literacy Rate</span>
+            </div>
+        </div>
+
+        <!-- Geography -->
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — The Geological Tapestry</h3>
+            <p>Karnataka, the sixth-largest state of India by area, occupies a significant portion of the Deccan Plateau in the western-southern part of the Indian Peninsula. It stretches between latitudes 11°31'N and 18°45'N, and longitudes 74°12'E and 78°40'E. The state shares borders with Maharashtra and Goa to the north, Telangana to the northeast, Andhra Pradesh to the east, Tamil Nadu to the southeast, and Kerala to the southwest, while the Arabian Sea washes its western coast along a 320-km-long shoreline.</p>
+
+            <h4>Physiographic Divisions</h4>
+            <p>Karnataka can be broadly divided into four distinct physiographic regions:</p>
+            <p><strong>1. The Coastal Plain (Karavali):</strong> A narrow strip of land between the Western Ghats and the Arabian Sea, approximately 320 km long and 50–80 km wide. This region includes the districts of Dakshina Kannada, Udupi, and Uttara Kannada. The coastline is characterized by estuaries, lagoons, rocky headlands, sandy beaches, and dense mangrove patches. The terrain is undulating with laterite plateaus, interspersed with deep river valleys. Average elevation ranges from sea level to about 150 metres.</p>
+            <p><strong>2. The Western Ghats (Sahyadri Range):</strong> Running parallel to the coast like a massive wall, the Western Ghats in Karnataka rise abruptly from the coastal plain to heights exceeding 1,000 metres. Key peaks include Mullayanagiri (1,930 m) — the highest point in Karnataka, Bababudangiri (1,895 m), Kudremukh (1,894 m), and Pushpagiri (1,714 m). The Ghats are part of one of the world's eight "hottest hotspots" of biological diversity. The region receives extremely heavy rainfall (3,000–7,000 mm annually) on the western slopes, creating conditions for dense tropical and semi-evergreen forests. The Ghats form the watershed boundary between west-flowing rivers draining into the Arabian Sea and east-flowing rivers reaching the Bay of Bengal.</p>
+            <p><strong>3. The Deccan Plateau (Maidan):</strong> This vast tableland stretches east and south of the Western Ghats and constitutes the bulk of Karnataka's geography. The Northern Maidan (altitude 300–600 m) is characterized by dry, semi-arid terrain with black cotton soil (regur), ideal for growing cotton, jowar, and sunflower. The Southern Maidan (altitude 600–900 m) sits at a higher elevation and includes the Malnad (hill country) transitional zone. The plateau surface features granite-gneiss formations of Archaean and Proterozoic age, making it one of the oldest exposed surfaces on Earth. Deccan trap basalt covers the northern part (Bidar, Kalaburagi, Raichur), forming flat-topped hills and step-like terrain.</p>
+            <p><strong>4. The Malnad (Hilly Region):</strong> A transitional zone between the steep Western Ghats and the flat Deccan Plateau, the Malnad region (meaning "hilly land" in Kannada) covers districts like Chikkamagaluru, Hassan, Kodagu, and Shivamogga. Elevations range from 500 to 1,500 metres. This region is known for its coffee plantations (Karnataka produces 71% of India's coffee), spice gardens, and dense biodiversity. The Malnad is drained by numerous streams and rivers that create spectacular waterfalls including Jog Falls (253 m, India's second-highest plunge waterfall), Abbey Falls, and Iruppu Falls.</p>
+
+            <h4>Geological Significance</h4>
+            <p>Karnataka possesses one of the richest and most varied geological profiles in India. The Dharwar Craton — one of the most ancient pieces of Earth's crust (3.4 to 2.6 billion years old) — underlies much of the state. This geological formation is rich in gold (Kolar Gold Fields, one of the deepest mines in the world at 3.2 km), iron ore (Bellary-Hospet belt), manganese, and chromite. The Chitradurga Schist Belt, a greenstone belt, is a classic textbook example studied by geologists worldwide. Karnataka's mineral wealth includes granite, limestone, ornamental stones, and the world-famous Mysore sandstone used in construction of the Vidhana Soudha.</p>
+        </div>
+
+        <!-- Rivers & Coast -->
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌊</span> Rivers & Coastline</h3>
+            <p>Karnataka is drained by seven major river systems. The Krishna River (1,400 km total length, ~480 km in Karnataka) originates at Mahabaleshwar in Maharashtra and enters Karnataka near Sangli before flowing through the northern districts. Its tributaries — the Ghataprabha, Malaprabha, Bhima, and Tungabhadra — are vital for irrigation. The Tungabhadra (531 km) itself is formed by the confluence of the Tunga and Bhadra rivers at Koodli and was central to the Vijayanagara Empire's prosperity.</p>
+            <p>The Cauvery River (Kaveri) — the lifeline of southern Karnataka and northern Tamil Nadu — originates at Talakaveri in Kodagu at an elevation of 1,341 m. It flows 800 km total, with about 320 km in Karnataka, passing through Mysuru and Mandya before plunging over the Shivanasamudra Falls (98 m). The Cauvery's tributaries include the Hemavathi, Shimsha, Arkavathi, Kapila (Kabini), Lakshmana Tirtha, and Suvarnavathi. The river sustains the Old Mysuru region's agricultural economy, particularly rice and sugarcane cultivation.</p>
+            <p>West-flowing rivers — Sharavathi (known for Jog Falls), Netravathi, Kali, Aghanashini, Gangavalli, and Bedthi — are short, swift, and seasonal, originating in the Western Ghats and draining into the Arabian Sea. They are critical for hydroelectric power generation; the Sharavathi Hydroelectric Project alone generates around 1,035 MW.</p>
+            <p>The Karnataka coastline stretches 320 km along three districts (Uttara Kannada, Udupi, and Dakshina Kannada). Key ports include the New Mangalore Port (one of India's major ports handling 40+ million tonnes annually), Karwar Port (the deepest natural harbour on India's west coast), and Old Mangalore Port. The coast features the ecologically sensitive Netravathi-Gurpur estuary system, the Pigeon Island Marine Sanctuary, and important turtle nesting beaches at Kundapur and Honnavar.</p>
+        </div>
+
+        <!-- Climate & Soil -->
+        <div class="detail-block animate-on-scroll">
+            <h3><span>☀️</span> Climate & Soil</h3>
+            <p>Karnataka experiences four distinct climatic zones due to its diverse topography. The coastal zone has a tropical wet climate (Köppen: Am) with heavy rainfall (3,000–4,000 mm), high humidity (70–90%), and temperatures between 20°C and 35°C year-round. The Western Ghats have a montane tropical climate with temperatures dropping to 10–15°C at higher elevations and rainfall exceeding 5,000 mm in certain pockets.</p>
+            <p>The Southern Maidan enjoys a semi-arid to moderate climate with pleasant conditions — Bengaluru at 920 m elevation averages 21–33°C year-round, earning it the sobriquet "Garden City" and "Air-conditioned City." The Northern Maidan districts (Kalaburagi, Raichur, Yadgir, Bidar, Ballari) experience a hot semi-arid climate (BSh) with summer temperatures soaring above 45°C and annual rainfall of only 500–750 mm, making them part of India's drought-prone zone.</p>
+            <p>The state has six soil types: Red soil (largest coverage, found across central and eastern Karnataka), black cotton soil (regur, dominant in northern districts, ideal for cotton), laterite soil (coastal and Malnad regions), alluvial soil (river valleys), forest soil (Western Ghats), and red sandy soil (eastern borders). The soil diversity, combined with varied climate, enables Karnataka to grow an extraordinarily wide range of crops — from coffee and pepper in Kodagu to millets in Raichur.</p>
+        </div>
+
+        <!-- Forests & Wildlife -->
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🐘</span> Forests & Wildlife</h3>
+            <p>Karnataka has approximately 38,720 km² under forest cover (20.19% of state area), with the actual recorded forest area at 43,356 km² (State Forest Department data). The state possesses the second-largest elephant population in India (approximately 6,049 elephants) and the second-largest tiger population (524 tigers as per 2018 census). Forest types include tropical wet evergreen forests (Agumbe, Kudremukh), tropical semi-evergreen forests (Malnad), moist deciduous forests (Nagarahole, Bandipur), dry deciduous forests (central plateau), thorn forests (northern Karnataka), and shola grasslands (Bababudangiri).</p>
+            <p>The state's sandalwood forests were historically among the most valuable in the world, with Mysore sandalwood (Santalum album) being prized for its essential oil content. The Government of Karnataka holds a monopoly on sandalwood trade, making it a "Royal Tree."</p>
+
+            <h4>Protected Areas Network</h4>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🐯</span>
+                    <h4>Bandipur Tiger Reserve</h4>
+                    <p>874 km² in Chamarajanagar. Part of Nilgiri Biosphere Reserve. Connected to Nagarahole, Mudumalai & Wayanad forming the largest contiguous protected area in South India.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🦁</span>
+                    <h4>Nagarahole (Rajiv Gandhi NP)</h4>
+                    <p>644 km² in Kodagu & Mysuru. Dense deciduous & evergreen forests. High density of tigers & elephants. Part of the Nilgiri Biosphere Reserve corridor.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🦅</span>
+                    <h4>Bannerghatta NP</h4>
+                    <p>260 km² near Bengaluru. One of the few national parks adjacent to a metropolis. Houses a biological park, butterfly enclosure, and rescue centre.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🏔️</span>
+                    <h4>Kudremukh NP</h4>
+                    <p>600 km² in Chikkamagaluru. One of the wettest regions with shola forests. Critical watershed for Tunga & Bhadra rivers. Mining was banned here after Supreme Court intervention.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🐾</span>
+                    <h4>Bhadra Tiger Reserve</h4>
+                    <p>492 km² in Chikkamagaluru. "Muthodi" sanctuary known for successful voluntary relocation of tribals. Rich in wild elephants, leopards, and gaur.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🌿</span>
+                    <h4>Dandeli-Anshi Tiger Reserve</h4>
+                    <p>886 km² in Uttara Kannada. Part of Western Ghats biodiversity hotspot. Known for black panther sightings. Kali River flows through the reserve.</p>
+                </div>
+            </div>
+            <p>Other important protected areas include BRT Tiger Reserve (Biligiri Rangaswamy Temple, 540 km²), Cauvery Wildlife Sanctuary (510 km²), Ranganthittu Bird Sanctuary (an island on the Cauvery famous for painted storks and spot-billed pelicans), and Gudavi Bird Sanctuary near Soraba.</p>
+        </div>
+
+        <!-- Districts & Cities -->
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🏙️</span> Districts & Major Cities</h3>
+            <p>Karnataka is divided into 31 districts (as of 2024) across four revenue divisions: Bengaluru, Mysuru, Belgavi (Belagavi), and Kalaburagi. Major cities include:</p>
+            <table class="data-table">
+                <tr><th>City</th><th>Population</th><th>Significance</th></tr>
+                <tr><td>Bengaluru</td><td>~1.2 Cr (metro)</td><td>IT Capital of India, Garden City, Vidhana Soudha, IISc, ISRO HQ</td></tr>
+                <tr><td>Mysuru (Mysore)</td><td>~12 Lakh</td><td>Cultural capital, Mysore Palace, Dasara festival, sandal & silk industries</td></tr>
+                <tr><td>Hubballi-Dharwad</td><td>~10 Lakh</td><td>Commercial hub of North Karnataka, railway junction, Hindustani music</td></tr>
+                <tr><td>Mangaluru</td><td>~6.5 Lakh</td><td>Major port, banking capital, Dakshina Kannada education hub</td></tr>
+                <tr><td>Belagavi (Belgaum)</td><td>~6 Lakh</td><td>Military area, border district, sugarcane belt, Suvarna Vidhana Soudha</td></tr>
+                <tr><td>Kalaburagi (Gulbarga)</td><td>~5.5 Lakh</td><td>Historical Bahmani Sultanate capital, tur dal trade centre</td></tr>
+                <tr><td>Vijayapura (Bijapur)</td><td>~3.5 Lakh</td><td>Gol Gumbaz, Ibrahim Rauza, Adil Shahi architecture</td></tr>
+                <tr><td>Shivamogga</td><td>~3.5 Lakh</td><td>Gateway to Malnad, Jog Falls, rice bowl of Karnataka</td></tr>
+                <tr><td>Davangere</td><td>~4.5 Lakh</td><td>Cotton city, benne dosa fame, central Karnataka</td></tr>
+            </table>
+        </div>
+
+        <!-- Economy -->
+        <div class="detail-block animate-on-scroll">
+            <h3><span>💰</span> Economy</h3>
+            <p>Karnataka's GSDP stands at approximately ₹22.2 lakh crore (FY 2023-24), making it India's fourth-largest state economy. The service sector (especially IT/ITES) contributes roughly 65% of GSDP. Bengaluru alone contributes about 38% of India's total IT exports. Major IT companies with headquarters or large campuses include Infosys (founded in Bengaluru), Wipro, TCS, and over 3,500+ multinational tech firms operating in the city.</p>
+            <p>Agriculture employs about 55% of the workforce. Karnataka is India's largest producer of coffee (71% of national production, mainly Arabica from Kodagu, Chikkamagaluru, Hassan), silk (Mysuru silk from Ramanagara, the "Silk City"), ragi (finger millet), and sandalwood products. The state is the second-largest producer of flowers (especially roses, jasmine, and marigold from the Bengaluru-Mysuru belt), areca nut, and spices (pepper, cardamom from Kodagu). Major crops include rice (paddy), sugarcane, cotton, jowar, sunflower, and tobacco.</p>
+            <p>Karnataka's industrial sector includes aerospace (HAL, NAL, BEL headquarters in Bengaluru), biotechnology (Biocon — India's largest biopharmaceutical company is headquartered here), automobile manufacturing, machine tools, and mining. The Bellary-Hospet iron ore belt is one of the largest in India, though mining has seen regulatory scrutiny. The state also has significant gold reserves at Kolar and Hutti.</p>
+        </div>
+
+        <!-- Tourism -->
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🎭</span> Tourism & Unique Features</h3>
+            <p>Karnataka's tourism treasures span millennia. The state houses three UNESCO World Heritage Sites: the Hampi Group of Monuments (ruins of the Vijayanagara Empire, c. 1336–1565 CE, spread over 4,100 hectares with over 1,600 surviving structures), the Pattadakal Complex (8th-century Chalukyan temples showcasing both Nagara and Dravida architectural styles), and the Western Ghats serial property (including Kudremukh, Pushpagiri, and Talakaveri).</p>
+            <p>The Mysore Palace (Amba Vilas Palace) is the second-most visited tourist attraction in India after the Taj Mahal, drawing over 6 million visitors annually. The Gol Gumbaz in Vijayapura has the second-largest unsupported dome in the world (44 m diameter). The Hoysala temples at Belur and Halebidu (12th–13th century) showcase the pinnacle of Indian sculptural artistry, with intricate carvings that inspired the state's proposal for UNESCO World Heritage status (inscribed in 2023). Gomateshwara (Bahubali) statue at Shravanabelagola — a 17.4-metre monolithic Jain statue from 981 CE — is the world's largest free-standing monolithic statue.</p>
+            <p>Other highlights include the Coorg (Kodagu) hill station, Gokarna beach, the Badami cave temples, the Bidar Fort, the Jog Falls, and the annual Mysore Dasara festival — a 10-day royal celebration culminating in a grand torchlight procession with a caparisoned elephant carrying the golden howdah.</p>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"><span>🌺</span></div>
+
+<!-- ================================================================ -->
+<!-- ===== KERALA ===== -->
+<!-- ================================================================ -->
+<section class="state-section kerala-section" id="kerala">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">🌴</span>
+            <h2 class="state-name">KERALA</h2>
+            <span class="state-capital-info">Capital: Thiruvananthapuram &nbsp;|&nbsp; Formed: 1 November 1956</span>
+            <p class="state-tagline">"God's Own Country" — Daivasya Swantham Naadu</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact"><span class="quick-fact-value">38,863 km²</span><span class="quick-fact-label">Area</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">3.34 Cr</span><span class="quick-fact-label">Population (2011)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">14</span><span class="quick-fact-label">Districts</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">Malayalam</span><span class="quick-fact-label">Official Language</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">93.91%</span><span class="quick-fact-label">Literacy Rate (Highest)</span></div>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — The Slender Paradise</h3>
+            <p>Kerala occupies a narrow crescent along India's southwestern Malabar Coast, stretching approximately 580 km in length with a width varying from 11 km (at Wayanad-Kozhikode border) to 121 km (at the Palakkad Gap). It lies between latitudes 8°18'N and 12°48'N and longitudes 74°52'E and 77°22'E. The state borders Karnataka to the north and northeast, Tamil Nadu to the east and south, and the Arabian Sea to the west, with a coastline of 590 km.</p>
+
+            <h4>Three Distinct Geographical Zones</h4>
+            <p><strong>1. The Highland (Eastern Kerala / Mala Nad):</strong> The Western Ghats dominate Kerala's eastern boundary, with average elevations of 900–1,800 m. The highest point is Anamudi (2,695 m) — the highest peak in South India and the highest point in India south of the Himalayas. Other major peaks include Meesapulimala (2,640 m), Devikulam Peak (2,362 m), and Agasthyamalai (1,868 m). This zone covers approximately 48% of Kerala's area. The Palakkad Gap (Palghat Gap) — a 32-km-wide break in the Western Ghats at approximately 300 m elevation — is the single most significant geographical feature of Kerala, acting as a corridor for trade, migration, cultural exchange, and monsoon winds between Kerala and Tamil Nadu. The highlands are covered with dense tropical evergreen forests, tea and coffee plantations (Munnar, Wayanad), rubber estates, and cardamom hills (Idukki — world's largest cardamom-producing area).</p>
+            <p><strong>2. The Midland (Central Kerala / Idanadu):</strong> An undulating terrain of laterite hills, valleys, and small plateaus between 7.5 m and 300 m elevation. This zone covers roughly 42% of the state and is the most densely populated region. The midland is the heart of Kerala's agriculture — rice paddies, coconut groves (Kerala's name derives from "Kera" meaning coconut), rubber plantations (India's largest rubber-producing state), and spice gardens. Major rivers form wide valleys here, creating fertile alluvial plains. The region also hosts most of Kerala's towns and educational institutions.</p>
+            <p><strong>3. The Lowland (Western Kerala / Theerapradesham):</strong> A narrow coastal strip averaging 10–20 km width, comprising sandy beaches, lagoons, estuaries, and the famous backwaters (Kayals). The Vembanad Lake — India's longest lake (96.5 km) and Kerala's largest body of water — is the centerpiece of this zone, spread across 2,033 km² when including surrounding wetlands. The backwater system consists of interconnected brackish lagoons, canals, and rivers totaling over 900 km of navigable waterways. Kuttanad, the rice bowl of Kerala, is one of the few places in the world where farming is done below sea level (1.5–2.2 m below MSL), using an ingenious system of bunds and canals developed over centuries.</p>
+
+            <h4>Geological Background</h4>
+            <p>Kerala's geology is dominated by Precambrian crystalline rocks — charnockites, khondalites, and gneisses of the Archaean and Proterozoic eras. The laterite deposits in the midland are the result of intense tropical weathering over millions of years. The coastal sediments include Tertiary and Quaternary formations. Kerala sits near the southern terminus of the Deccan Shield. The Western Ghats in Kerala represent the eroded escarpment of the uplifted Deccan Plateau, with a dramatic rise from the coastal plain. The state's mineral resources include ilmenite, rutile, zircon, sillimanite, and monazite (found in the beach sands of Chavara-Neendakara — one of the world's richest deposits of rare earth minerals), bauxite, china clay, and graphite.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌊</span> Rivers & Backwaters</h3>
+            <p>Kerala is blessed with 44 rivers — 41 flowing westward into the Arabian Sea and 3 flowing eastward into the Bay of Bengal (through Tamil Nadu). All rivers are short, swift, and rain-fed, originating in the Western Ghats. Major west-flowing rivers include the Periyar (244 km, longest in Kerala), Bharathapuzha (Nila, 209 km, second longest), Pamba (176 km, sacred river associated with Sabarimala), Chaliyar (169 km), Kadalundi (130 km), and Muvattupuzha (121 km). The Kabani, Bhavani, and Pambar flow eastward through the Palakkad Gap and Nilgiri passes into Tamil Nadu.</p>
+            <p>The backwater system (kayals) — a network of 34 brackish lagoons, 44 rivers, and over 1,500 km of man-made and natural canals — is unique to Kerala and has no parallel anywhere in India. The major backwater bodies include Vembanad Kayal (2,033 km²), Ashtamudi Kayal (61 km²), Kayamkulam Kayal, and Paravur Kayal. The annual Nehru Trophy Boat Race on Vembanad Lake, featuring the iconic snake boats (Chundan Vallam, up to 100 feet long with 100+ rowers), is a global spectacle. The backwaters support houseboat tourism, inland fishing, coir retting, and coconut cultivation — forming the backbone of Kerala's rural economy.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🐘</span> Forests, Wildlife & Protected Areas</h3>
+            <p>Kerala has approximately 11,310 km² of forest cover (29.1% of state area — one of the highest among Indian states). Forest types include tropical wet evergreen forests (Silent Valley, Agasthyamalai), tropical semi-evergreen forests, tropical moist deciduous forests (Parambikulam, Periyar), montane subtropical forests, and the unique shola-grassland ecosystem at higher elevations. Kerala is part of the Western Ghats biodiversity hotspot and the Nilgiri Biosphere Reserve.</p>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🐯</span>
+                    <h4>Periyar Tiger Reserve</h4>
+                    <p>925 km² in Idukki & Pathanamthitta. Famous artificial lake created in 1895. Home to elephants, tigers, gaur, lion-tailed macaques. Eco-tourism model.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🌳</span>
+                    <h4>Silent Valley NP</h4>
+                    <p>237 km² in Palakkad. Last remaining tract of virgin tropical rainforest in India. Saved from a hydroelectric dam through India's first major environmental movement (1973–85).</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🦎</span>
+                    <h4>Eravikulam NP</h4>
+                    <p>97 km² in Idukki. Home to the largest viable population of Nilgiri tahr (endangered mountain goat, ~800 individuals). Features Neelakurinji flowers that bloom once in 12 years.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🏞️</span>
+                    <h4>Parambikulam Tiger Reserve</h4>
+                    <p>644 km² in Palakkad. Houses Kannimara Teak — the world's oldest and tallest living teak tree (46.5 m, ~480 years old). Exceptional tribal tourism model.</p>
+                </div>
+            </div>
+            <p>Other important reserves include Wayanad Wildlife Sanctuary (344 km², part of the Nilgiri Biosphere corridor), Chinnar Wildlife Sanctuary (90 km², dry deciduous forests — unusual for Kerala), Aralam Wildlife Sanctuary, Peppara Wildlife Sanctuary, and the Kumarakom Bird Sanctuary (14 km²) on Vembanad Lake.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>💰</span> Economy & Unique Features</h3>
+            <p>Kerala's economy is unique in India, driven largely by remittances, tourism, and services rather than manufacturing. The state's GSDP is approximately ₹10.5 lakh crore (FY 2023-24). Over 2.1 million Keralites work in Gulf countries, and NRI remittances contribute about 36% of the state's GDP — the highest for any Indian state. The Kerala Model of Development is globally studied for achieving first-world social indicators (literacy: 96.2% for 2024 estimates, life expectancy: 77 years, infant mortality: 6 per 1,000) on a third-world economy.</p>
+            <p>Key industries include spice processing (Kerala produces 96% of India's rubber, major pepper, cardamom, and vanilla), coir and coir products (Alappuzha — coir capital), seafood processing and export, handloom textiles (Kasavu sarees), Ayurvedic products and wellness tourism, and IT/ITES (Technopark Thiruvananthapuram, Infopark Kochi, Cyberpark Kozhikode). Kochi (Cochin) is the commercial capital, home to India's first Smart City project (Kochi Smart City) and the Cochin International Airport — the world's first fully solar-powered airport.</p>
+            <p>Tourism is a major revenue earner — Kerala receives about 1.8 crore domestic tourists and 11 lakh international tourists annually. Iconic experiences include houseboat cruises on the backwaters, Kathakali and Mohiniattam classical dance performances, Theyyam ritual art in Malabar, the Thrissur Pooram festival (the "festival of all festivals" featuring 30+ caparisoned elephants and Kudamattam umbrella ceremony), Onam celebrations, Ayurvedic spa treatments, and the Sabarimala Ayyappa Temple pilgrimage (attracting 50 million+ pilgrims annually, making it the most visited pilgrimage site in the world).</p>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"><span>🪷</span></div>
+
+<!-- ================================================================ -->
+<!-- ===== TAMIL NADU ===== -->
+<!-- ================================================================ -->
+<section class="state-section tamilnadu-section" id="tamilnadu">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">🛕</span>
+            <h2 class="state-name">TAMIL NADU</h2>
+            <span class="state-capital-info">Capital: Chennai &nbsp;|&nbsp; Formed: 26 January 1950</span>
+            <p class="state-tagline">"Where Ancient Dravidian Civilization Lives and Breathes"</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact"><span class="quick-fact-value">1,30,058 km²</span><span class="quick-fact-label">Area</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">7.21 Cr</span><span class="quick-fact-label">Population (2011)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">38</span><span class="quick-fact-label">Districts</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">Tamil</span><span class="quick-fact-label">Official Language</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">80.33%</span><span class="quick-fact-label">Literacy Rate</span></div>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — The Coromandel Heritage</h3>
+            <p>Tamil Nadu, the southernmost state of peninsular India, extends between latitudes 8°5'N and 13°35'N and longitudes 76°15'E and 80°20'E. It is bounded by Kerala and Karnataka to the west, Andhra Pradesh and Telangana to the north, the Bay of Bengal to the east, and the Indian Ocean to the south. The state has a coastline of approximately 1,076 km — the second longest among Indian states after Gujarat — running along the Coromandel Coast.</p>
+
+            <h4>Physiographic Divisions</h4>
+            <p><strong>1. The Western Ghats (Kurinji region):</strong> The Western Ghats form Tamil Nadu's western boundary, separating it from Kerala. In Tamil Nadu, the Ghats include the Nilgiri Hills (Ooty at 2,240 m, Doddabetta Peak at 2,637 m — the highest in the Nilgiris), the Anaimalai Hills (Anamudi at 2,695 m lies on the Kerala border), the Palani Hills (Kodaikanal at 2,133 m), and the Cardamom Hills. These mountains create a rain shadow effect, making eastern Tamil Nadu significantly drier than the western slopes of Kerala. The region is characterized by shola-grassland ecosystems, tea and coffee plantations, and significant biodiversity including the Nilgiri tahr, lion-tailed macaque, and Nilgiri langur.</p>
+            <p><strong>2. The Eastern Ghats:</strong> Unlike the continuous Western Ghats, the Eastern Ghats in Tamil Nadu are broken, discontinuous hill ranges running roughly north-south along the eastern portion of the state. Key ranges include the Javadi Hills (1,119 m), Shevaroy Hills (Yercaud at 1,515 m), Kolli Hills (1,439 m), Pachaimalai Hills, and Kalrayan Hills. The Eastern Ghats are older and more eroded than the Western Ghats, composed primarily of charnockite, granite, and gneiss. They harbour unique biodiversity and tribal populations (Malayali tribes of Javadi, Irula of Nilgiris).</p>
+            <p><strong>3. The Coastal Plains:</strong> Tamil Nadu's coastal plain is one of the broadest in peninsular India, varying from 80 to 160 km in width. The northern portion (Coromandel Coast) is characterized by sandy beaches, salt pans, backwater lagoons (Pulicat Lake — India's second-largest brackish water lake), and deltaic formations (Cauvery Delta — Thanjavur-Nagapattinam region, one of the most fertile areas in India). The southern coast curves around the tip of the peninsula at Kanyakumari, where three seas meet — the Bay of Bengal, the Arabian Sea, and the Indian Ocean.</p>
+            <p><strong>4. The Interior Plains (Maidan):</strong> The central interior of Tamil Nadu consists of an elevated peneplain at 150–300 m above sea level. This region, comprising the districts of Salem, Namakkal, Karur, Tiruchirappalli (Trichy), and Madurai, has a gently undulating topography with inselbergs (isolated granite hills). The soil is mainly red laterite and black cotton soil. This semi-arid zone depends heavily on tank irrigation — Tamil Nadu has over 39,000 tanks (eris), more than any other state, a legacy of the Chola and Pallava irrigation engineering.</p>
+
+            <h4>Geological Significance</h4>
+            <p>Tamil Nadu's geology is among the most ancient and varied in India. The Precambrian granulite terrain of southern Tamil Nadu (3.5 billion years old) includes some of the oldest rocks on the planet. The Palk Strait and Palk Bay separate Tamil Nadu from Sri Lanka, connected by Adam's Bridge (Ram Setu) — a chain of limestone shoals stretching 48 km. The Cauvery Basin is a significant sedimentary basin with petroleum exploration ongoing. Beach placer deposits along the coast (especially near Manavalakurichi) contain valuable heavy minerals — ilmenite, rutile, garnet, zircon, and monazite.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌊</span> Rivers & Coastal Features</h3>
+            <p>The Cauvery (Kaveri) is the most important river in Tamil Nadu, entering the state from Karnataka at Hogenakkal (famous for its waterfalls and coracle rides). The river flows through Salem, Erode, and Tiruchirappalli before fanning out into the Grand Anicut Delta — the oldest existing irrigation dam in the world, built by the Chola King Karikala around 2nd century CE. The Cauvery Delta (covering Thanjavur, Nagapattinam, Tiruvarur, and Mayiladuthurai districts) is called the "Rice Bowl of Tamil Nadu" and is one of the most fertile regions in India.</p>
+            <p>Other major rivers include the Palar (348 km, draining Kanchipuram district), Vaigai (258 km, flowing through Madurai — the "River of Madurai"), Tamiraparani (128 km, the only perennial river in the southern districts originating in the Pothigai Hills), Bhavani (217 km), Amaravati (169 km), Noyyal, and Cheyyar. The Penna River drains the northern districts.</p>
+            <p>Tamil Nadu's coastline features the Marina Beach (Chennai, 13 km long — one of the longest urban beaches in the world), Mahabalipuram's shore temple coast, the Gulf of Mannar Marine Biosphere Reserve (21 islands with coral reefs, the first marine biosphere reserve in South and Southeast Asia), Pulicat Lake, and the Pichavaram Mangrove Forest (1,100 hectares — one of the largest mangrove forests in the world).</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🐘</span> Forests, Wildlife & Protected Areas</h3>
+            <p>Tamil Nadu has approximately 26,419 km² of forest cover (20.31% of the state area). Forest types range from tropical wet evergreen forests in the Western Ghats to dry deciduous forests in the interior and tropical thorn forests in the rain shadow regions. The state is part of two biodiversity hotspots — the Western Ghats and the Eastern Ghats.</p>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🐯</span>
+                    <h4>Mudumalai Tiger Reserve</h4>
+                    <p>321 km² in the Nilgiris. Part of Nilgiri Biosphere Reserve corridor. Home to elephants (700+), tigers, leopards, gaur, and Indian wild dog. Adjoins Bandipur and Wayanad.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🦅</span>
+                    <h4>Gulf of Mannar MNP</h4>
+                    <p>6.23 km² across 21 islands. India's first Marine National Park. 3,600+ species including dugong, sea turtles, dolphins, coral reefs with 117 species of coral.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🏔️</span>
+                    <h4>Anamalai Tiger Reserve</h4>
+                    <p>958 km² in Coimbatore-Tiruppur. Indira Gandhi Wildlife Sanctuary. Diverse habitats from tropical evergreen to grasslands. 8,000+ plant species.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🐒</span>
+                    <h4>Kalakkad-Mundanthurai TR</h4>
+                    <p>895 km² in Tirunelveli. Southernmost tiger reserve in India. Source of the Tamiraparani River. 150+ endemic plant species.</p>
+                </div>
+            </div>
+            <p>Other important sites: Sathyamangalam Tiger Reserve (1,411 km², largest in TN), Vedanthangal Bird Sanctuary (oldest bird sanctuary in India, est. 1798), Point Calimere Wildlife Sanctuary (flamingos), and Grizzled Squirrel Wildlife Sanctuary (Srivilliputhur).</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>💰</span> Economy, Tourism & Unique Features</h3>
+            <p>Tamil Nadu has the second-largest state economy in India with a GSDP of approximately ₹24.8 lakh crore (FY 2023-24). It is the most industrialized and urbanized major state in South India. Key sectors include automobiles (Chennai is the "Detroit of India," producing 40% of India's automobiles and 45% of auto components — home to Hyundai, Ford, BMW, Renault-Nissan, Royal Enfield, Ashok Leyland, TVS), textiles (Coimbatore — "Manchester of South India," Tirupur — "Knitwear Capital of India" exporting ₹30,000+ crore of garments annually), leather (Tamil Nadu produces 60% of India's leather), and IT/ITES (Chennai's IT corridor with TCS, Cognizant, Infosys).</p>
+            <p>Tamil Nadu has the highest number of temples in India — over 33,000 — and Dravidian temple architecture is the state's greatest cultural contribution to world heritage. UNESCO World Heritage Sites include the Mahabalipuram Group of Monuments (7th-century Pallava rock-cut temples), the Brihadisvara Temple at Thanjavur (1010 CE, Chola dynasty — one of the tallest temple towers at 66 m, the Nandi carved from a single granite stone weighing 25 tonnes), Gangaikonda Cholapuram, and Airavatesvara Temple at Darasuram. The Meenakshi Amman Temple (Madurai, with its 14 gopurams, the tallest at 51.9 m), Rameswaram Temple (the longest corridor in any Indian temple at 1,220 m), and Chidambaram Nataraja Temple are among the most iconic.</p>
+            <p>Tamil is one of the oldest surviving classical languages in the world, with a literary history spanning 2,500+ years. Sangam literature (300 BCE – 300 CE) is the earliest known Tamil literary corpus. Bharatanatyam, originating from Tamil Nadu's Devadasi temple tradition, is India's oldest classical dance form. The state is also the powerhouse of Indian cinema — Kollywood (Tamil film industry) produces over 300 films annually and has produced global legends like A.R. Rahman and Mani Ratnam.</p>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"><span>🌸</span></div>
+
+<!-- ================================================================ -->
+<!-- ===== ANDHRA PRADESH ===== -->
+<!-- ================================================================ -->
+<section class="state-section andhra-section" id="andhra">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">⚡</span>
+            <h2 class="state-name">ANDHRA PRADESH</h2>
+            <span class="state-capital-info">Capital: Amaravati &nbsp;|&nbsp; Reorganized: 2 June 2014</span>
+            <p class="state-tagline">"The Kohinoor of India" — Rice Bowl of India</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact"><span class="quick-fact-value">1,62,975 km²</span><span class="quick-fact-label">Area</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">4.94 Cr</span><span class="quick-fact-label">Population (2011)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">26</span><span class="quick-fact-label">Districts</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">Telugu</span><span class="quick-fact-label">Official Language</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">67.02%</span><span class="quick-fact-label">Literacy Rate</span></div>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — The Land Between Two Ghats</h3>
+            <p>Andhra Pradesh (post-2014 bifurcation) is the seventh-largest state in India by area. It stretches between latitudes 12°41'N and 19°07'N and longitudes 76°50'E and 84°40'E. It is bordered by Telangana to the northwest, Odisha and Chhattisgarh to the north, Karnataka to the west, Tamil Nadu to the south, and the Bay of Bengal to the east. The state has the second-longest coastline in India at approximately 974 km.</p>
+
+            <h4>Physiographic Regions</h4>
+            <p><strong>1. The Coastal Plains:</strong> The Andhra coastal plain is the most prominent feature, extending from Srikakulam in the north to Nellore in the south. The plain varies in width from 20 km to 100 km and is formed by the alluvial deposits of the major river deltas — Krishna, Godavari, and Pennar. The Krishna-Godavari Delta is one of the most fertile regions in India, producing massive quantities of rice (AP produces ~14% of India's total rice output). The coastline features extensive sandy beaches, mangrove forests (Coringa Mangrove Forest — one of the largest mangrove areas on India's east coast, 235 km²), backwater systems, and important ports (Visakhapatnam, Krishnapatnam, Gangavaram, Machilipatnam).</p>
+            <p><strong>2. The Eastern Ghats:</strong> The Eastern Ghats run through the northern and central parts of Andhra Pradesh, forming a series of broken, discontinuous hill ranges. Major formations include the Nallamala Hills (in Prakasam, Kurnool, and Kadapa districts — housing the Nagarjunasagar-Srisailam Tiger Reserve, India's largest tiger reserve at 3,728 km²), the Velikonda Range, Palakonda Hills, Seshachalam Hills (where Tirumala-Tirupati sits at 853 m elevation), Erramalai Hills, and the Araku Valley hills in Visakhapatnam district (1,615 m peak). The Eastern Ghats in AP are rich in bauxite deposits (Araku region), limestone, and precious stones. The Borra Caves (a million-year-old natural limestone cave system near Araku) and Belum Caves (the second-longest cave system in India at 3.5 km) are geological marvels.</p>
+            <p><strong>3. The Rayalaseema Plateau:</strong> The southwestern portion of Andhra Pradesh (Kurnool, Kadapa, Anantapur, and Chittoor districts) forms the Rayalaseema region — a rocky, semi-arid plateau at 300–600 m elevation. The terrain is characterized by granite inselbergs, quartzite ridges, and the Pennar River basin. Anantapur is one of the driest districts in India (annual rainfall ~550 mm). The Penna (Pennar) River and its tributaries — Chitravathi, Papagni, and Cheyyeru — drain this region. The Rayalaseema landscape is dotted with the ruins of Vijayanagara-era forts (Gandikota — India's Grand Canyon, where the Pennar River cuts through a dramatic gorge, Gooty Fort, Adoni Fort).</p>
+
+            <h4>Geological Highlights</h4>
+            <p>Andhra Pradesh sits on one of the oldest geological formations — the Dharwar Craton extends into the western districts. The Cuddapah Basin (named after Kadapa district) is a Proterozoic sedimentary basin of immense geological significance, containing limestones, shales, quartzites, and iron ore formations. The Krishna-Godavari Basin, both onshore and offshore, is India's most prolific hydrocarbon-producing basin, contributing significantly to India's natural gas output (the KG-D6 block by Reliance was a landmark discovery). Diamond-bearing kimberlite pipes have been found in the Wajrakarur area (Anantapur), making AP the only state in India with primary diamond deposits.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌊</span> Rivers & Coastline</h3>
+            <p>The Godavari (1,465 km total, ~600 km in AP) — India's second-longest river — enters AP from Telangana and forms a vast delta between Rajahmundry and the Bay of Bengal. The Godavari Delta covers approximately 7,800 km² and is one of the most productive agricultural zones in India. The delta is crisscrossed by distributaries — Gautami, Vasishta, and Vainateya — and supports millions of livelihoods through rice, sugarcane, and aquaculture.</p>
+            <p>The Krishna River (1,400 km total, ~500 km in AP) enters from Karnataka and forms an equally vast delta adjacent to the Godavari. Its tributaries in AP include the Tungabhadra (entering from Karnataka at Kurnool), Musi (flowing through Hyderabad into AP), and Bhima. The Srisailam Dam and Nagarjuna Sagar Dam (one of the tallest masonry dams in the world at 124 m) are major hydroelectric and irrigation projects on the Krishna.</p>
+            <p>Other rivers include the Pennar (597 km), Vamsadhara (254 km), Nagavali (256 km), and Kundu. The 974-km coastline supports one of India's largest aquaculture industries — AP produces over 40% of India's shrimp exports, particularly from the Krishna-Godavari delta region. Visakhapatnam Port is the largest port by cargo volume on India's east coast.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>💰</span> Economy, Tourism & Unique Features</h3>
+            <p>Andhra Pradesh's GSDP is approximately ₹13.5 lakh crore (FY 2023-24). Agriculture remains the backbone — the state is the largest producer of rice, eggs, and chillies in India, and a major producer of tobacco, cotton, sugarcane, and groundnut. The aquaculture revolution has made AP the "Shrimp Capital of India." IT hubs are developing in Visakhapatnam (Vizag, proposed as the executive capital) and Amaravati.</p>
+            <p>The Tirumala Venkateswara Temple (Tirupati) is the richest and most visited Hindu temple in the world, receiving 50,000–100,000 pilgrims daily and annual donations exceeding ₹3,000 crore. Srisailam Mallikarjuna Temple (one of twelve Jyotirlingas), the Buddhist sites at Amaravati (2nd century BCE stupa) and Nagarjunakonda (island archaeological museum), the ISKCON temple at Tirupati, and Lepakshi Temple (famous for the hanging pillar) are architectural marvels. Araku Valley is an emerging eco-tourism destination known for its coffee (Araku coffee received the Paris Café Award). Kuchipudi classical dance form originated in Kuchipudi village of Krishna district.</p>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"><span>💎</span></div>
+
+<!-- ================================================================ -->
+<!-- ===== TELANGANA ===== -->
+<!-- ================================================================ -->
+<section class="state-section telangana-section" id="telangana">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">🏰</span>
+            <h2 class="state-name">TELANGANA</h2>
+            <span class="state-capital-info">Capital: Hyderabad &nbsp;|&nbsp; Formed: 2 June 2014</span>
+            <p class="state-tagline">"City of Pearls, Land of the Deccan Plateau"</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact"><span class="quick-fact-value">1,12,077 km²</span><span class="quick-fact-label">Area</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">3.51 Cr</span><span class="quick-fact-label">Population (2011)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">33</span><span class="quick-fact-label">Districts</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">Telugu & Urdu</span><span class="quick-fact-label">Official Languages</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">66.46%</span><span class="quick-fact-label">Literacy Rate</span></div>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — Heart of the Deccan</h3>
+            <p>Telangana, India's 29th state (formed by bifurcation of Andhra Pradesh), occupies the northwestern portion of the Deccan Plateau between latitudes 15°46'N and 19°47'N and longitudes 77°16'E and 81°43'E. It is landlocked, bordered by Maharashtra to the northwest, Chhattisgarh to the north, Andhra Pradesh to the south and east, and Karnataka to the west.</p>
+
+            <h4>Topographical Character</h4>
+            <p><strong>The Deccan Plateau Proper:</strong> Telangana's entire landmass sits on the Deccan Plateau, with an average elevation of 400–700 m above sea level. The terrain is a gently undulating peneplain with scattered granite hills, rocky outcrops (the iconic Hyderabad boulders are 2.5-billion-year-old granite formations), and flat-topped mesas. The landscape is characterized by what geologists call a "mature dissected plateau" — millions of years of erosion have created broad, shallow river valleys separated by flat interfluves.</p>
+            <p><strong>Hill Ranges:</strong> Though generally flat, Telangana has notable hill formations. The Nirmal Hills in the north reach 600 m, the Nallamala Range forms the southern boundary (part of the Eastern Ghats), and the Sahyadri foothills touch the western borders. The highest point in Telangana is around 965 m in the Mahbubnagar-Jogulamba Gadwal area near the Nallamala Hills.</p>
+            <p><strong>Rock Formations:</strong> The state sits on one of the world's oldest geological formations — the Dharwar Craton and the Eastern Dharwar Craton. Granites, gneisses, and schists of Archaean age (2.5–3.5 billion years old) form the basement. The Deccan Traps (basalt flows from the volcanic eruptions ~66 million years ago) cover the northwestern districts — Adilabad, Nirmal, and Nizamabad — creating the distinctive black cotton soil (regur). These basaltic formations store groundwater in fractures, making them important aquifers. The Pakhal Group of rocks (Proterozoic) form the prominent sandstone and limestone ridges in Warangal district.</p>
+            <p><strong>Soils:</strong> Four major soil types — Red soil (covering 60% of the state, dominant in the central and southern districts), black cotton soil (covering 25%, dominant in the northern Deccan Trap area), laterite soil (small patches in the western hills), and alluvial soil (along major river valleys). The red soil is generally thin and poor, requiring careful irrigation management. Telangana's innovative response to this challenge is the Kaleshwaram Lift Irrigation Project (KLIP) — the world's largest multi-stage lift irrigation project, designed to lift Godavari River water through multiple stages to irrigate the entire state.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌊</span> Rivers & Water Bodies</h3>
+            <p>The Godavari is Telangana's principal river, flowing through the state from west to east for approximately 770 km. Its major tributaries in Telangana include the Pranahita (the largest tributary of the Godavari, formed by the confluence of the Penganga and Wardha), Indravati, Maneru, and Manair. The Godavari basin covers about 79% of Telangana's area.</p>
+            <p>The Krishna River forms the southern boundary of the state, with its tributary the Musi River flowing through Hyderabad (historically vital for the city's water supply, now heavily polluted). Other Krishna tributaries include the Dindi, Bhima, and Tungabhadra (which barely touches Telangana's southwestern border). The Musi's flow through Hyderabad has been augmented by the Hussain Sagar Lake (built in 1563 by Ibrahim Quli Qutb Shah), which separates Hyderabad and Secunderabad.</p>
+            <p>Telangana has an extensive network of over 46,000 tanks (kuntas and cheruvu) — a water harvesting system built over centuries by the Kakatiya dynasty (12th–14th century). The Pakhal Lake (Warangal), Ramappa Lake, and thousands of smaller tanks form one of the most impressive pre-modern irrigation systems in the world. The Kaleshwaram Lift Irrigation Project aims to utilize the Godavari's flood waters to fill these tanks across the state.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>💰</span> Economy, Tourism & Unique Features</h3>
+            <p>Telangana's GSDP is approximately ₹13.9 lakh crore (FY 2023-24), making it the fastest-growing state economy since its formation. Hyderabad is the economic engine, contributing over 65% of the state's revenue. HITEC City (Hyderabad Information Technology and Engineering Consultancy City) is India's second-largest IT hub after Bengaluru, hosting offices of Google, Microsoft, Amazon, Apple, Facebook, and hundreds of other MNCs. The Genome Valley is Asia's largest biotechnology cluster. The Hyderabad Pharma City (planned 19,333 acres) aims to become the world's largest pharma cluster.</p>
+            <p>Hyderabad's Charminar (1591 CE, built by Muhammad Quli Qutb Shah) is the iconic symbol of the Deccan. The Golconda Fort — once housing the world-famous Kohinoor diamond and Hope diamond — is an engineering marvel with an acoustic system that allows a clap at the entrance to be heard at the citadel 1 km away. The Qutb Shahi Tombs, the Salar Jung Museum (one of the largest one-man collections in the world), and the recently inscribed Ramappa Temple (UNESCO World Heritage Site, 2021 — a 13th-century Kakatiya-era temple with "floating bricks" that are lighter than water) are major attractions.</p>
+            <p>Hyderabad is the undisputed Biryani Capital of India. The Hyderabadi Biryani — a dum (slow-cooked) preparation of basmati rice and meat — has gained global recognition. The Nizami culinary tradition, the pearl trade (Hyderabad was called the "City of Pearls"), and the Pochampally Ikat weaving tradition (GI-tagged) are integral to the state's identity.</p>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"><span>🌙</span></div>
+
+<!-- ================================================================ -->
+<!-- ===== PUDUCHERRY ===== -->
+<!-- ================================================================ -->
+<section class="state-section puducherry-section" id="puducherry">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">🇫🇷</span>
+            <h2 class="state-name">PUDUCHERRY</h2>
+            <span class="state-capital-info">Capital: Puducherry &nbsp;|&nbsp; De Jure Transfer: 1 November 1954</span>
+            <p class="state-tagline">"The French Riviera of the East"</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact"><span class="quick-fact-value">492 km²</span><span class="quick-fact-label">Area</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">12.48 Lakh</span><span class="quick-fact-label">Population (2011)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">4 Districts</span><span class="quick-fact-label">Across 3 States</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">Tamil</span><span class="quick-fact-label">Primary Language</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">85.85%</span><span class="quick-fact-label">Literacy Rate</span></div>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — A Union of Enclaves</h3>
+            <p>Puducherry (formerly Pondicherry) is unique among Indian territories in that it consists of four geographically separate and non-contiguous enclaves, each surrounded by a different state: <strong>Puducherry</strong> and <strong>Karaikal</strong> (both on the Coromandel Coast, surrounded by Tamil Nadu), <strong>Mahé</strong> (on the Malabar Coast, surrounded by Kerala), and <strong>Yanam</strong> (in the Godavari delta, surrounded by Andhra Pradesh). The total area is merely 492 km² — smaller than many Indian cities.</p>
+            <p><strong>Puducherry District</strong> (293 km²) lies on the Coromandel Coast at 11°56'N, 79°50'E. The terrain is flat coastal plain, barely 5–10 m above sea level. The district is drained by short streams — Gingee, Pennaiyar, and Chunnambar rivers. The French colonial grid layout of the town, with its white-and-yellow heritage buildings, tree-lined boulevards (named after French figures — Rue de la Marine, Rue Romain Rolland), and the iconic Promenade Beach, gives it a distinctly Mediterranean feel unlike any other Indian city.</p>
+            <p><strong>Karaikal District</strong> (161 km²) lies 150 km south of Puducherry in the Cauvery Delta, surrounded by Nagapattinam and Tiruvarur districts of Tamil Nadu. The terrain is fertile alluvial plain — primarily rice-growing with extensive canal irrigation.</p>
+            <p><strong>Mahé District</strong> (9 km²) — the smallest district in India by area — sits on the Malabar Coast at the mouth of the Mayyazhi River (Mahé River), surrounded by Kannur district of Kerala. The terrain is hilly with laterite soils, lush coconut groves, and typical Malabar vegetation.</p>
+            <p><strong>Yanam District</strong> (30 km²) lies on the eastern coast at the confluence of the Godavari's Coringa distributary, surrounded by East Godavari district of Andhra Pradesh. The terrain is low-lying deltaic plain prone to flooding.</p>
+            <p>The most distinctive feature of Puducherry is <strong>Auroville</strong> — the "City of Dawn" — an experimental township founded in 1968 by Mirra Alfassa ("The Mother"), dedicated to human unity. Spread over 20 km² of land (mostly red laterite), Auroville houses 3,200+ residents from 60+ countries and is centered around the Matrimandir — a golden spherical meditation hall.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>💰</span> Economy & Tourism</h3>
+            <p>Puducherry's economy is driven by tourism, education, and manufacturing. The territory attracts over 17 lakh tourists annually, drawn by its French colonial heritage, spiritual retreats (Sri Aurobindo Ashram, Auroville), beaches, and affordable lifestyle. The French Quarter (Ville Blanche) with its colonial mansions, cafés, and boutique hotels is a major draw. The territory has a higher per capita income than many Indian states due to its tourism economy and the influx of visitors from neighbouring Tamil Nadu and Karnataka.</p>
+            <p>Puducherry has a significant education sector — JIPMER (Jawaharlal Institute of Postgraduate Medical Education & Research) is one of India's premier medical institutions. The PONDICHERRY UNIVERSITY is a central university serving the entire South Indian region.</p>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"><span>🌊</span></div>
+
+<!-- ================================================================ -->
+<!-- ===== ANDAMAN & NICOBAR ISLANDS ===== -->
+<!-- ================================================================ -->
+<section class="state-section andaman-section" id="andaman">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">🏝️</span>
+            <h2 class="state-name">ANDAMAN & NICOBAR ISLANDS</h2>
+            <span class="state-capital-info">Capital: Port Blair &nbsp;|&nbsp; Became UT: 1 November 1956</span>
+            <p class="state-tagline">"The Emerald Isles — India's Easternmost Frontier"</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact"><span class="quick-fact-value">8,249 km²</span><span class="quick-fact-label">Area</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">3.81 Lakh</span><span class="quick-fact-label">Population (2011)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">3 Districts</span><span class="quick-fact-label">572 Islands</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">Hindi & English</span><span class="quick-fact-label">Official Languages</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">86.27%</span><span class="quick-fact-label">Literacy Rate</span></div>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — An Archipelago of Wonders</h3>
+            <p>The Andaman and Nicobar Islands are an archipelago of 572 islands (of which only 37 are permanently inhabited) stretching over 800 km in a north-south arc in the Bay of Bengal, between latitudes 6°45'N and 13°41'N and longitudes 92°12'E and 93°57'E. The archipelago lies approximately 1,200 km from the Indian mainland (Kolkata) and only 150 km from Myanmar (the nearest point) and 190 km from Indonesia (Sumatra).</p>
+
+            <h4>Two Island Groups</h4>
+            <p><strong>The Andaman Islands (Northern Group):</strong> The Andaman group consists of approximately 325 islands covering 6,408 km², divided into North Andaman, Middle Andaman (the largest island at 1,536 km²), South Andaman (where Port Blair is located), Little Andaman, and numerous smaller islands. The Andaman Islands are the emergent peaks of a submerged mountain range — the Andaman-Java Ridge — which is a continuation of the Arakan Yoma range of Myanmar. The topography is hilly, with the highest point being Saddle Peak (732 m) on North Andaman. The terrain is characterized by dense tropical evergreen forests (covering 86% of the land area — the highest forest cover percentage of any Indian territory), mangrove-fringed coasts, coral reefs, and volcanic formations. The only active volcano in South Asia — Barren Island (354 m) — lies 135 km northeast of Port Blair and has erupted multiple times since 1991. Narcondam Island is a dormant volcanic cone.</p>
+
+            <p><strong>The Nicobar Islands (Southern Group):</strong> Separated from the Andaman group by the Ten Degree Channel (a 150-km-wide strait), the Nicobar group comprises 24 islands covering 1,841 km². The major islands are Car Nicobar (the administrative centre of the Nicobar district), Katchal, Nancowry, Camorta, Trinkat, and Great Nicobar (the southernmost and largest, 1,044 km²). Great Nicobar's Indira Point — the southernmost point of India — lies only 163 km from the northern tip of Sumatra (Indonesia) and was significantly damaged by the 2004 Indian Ocean tsunami. The Nicobar Islands are ecologically distinct from the Andamans, with stronger biogeographical links to Southeast Asia.</p>
+
+            <h4>Geological Significance</h4>
+            <p>The islands sit on the Burma Plate, at the boundary of the Indian Plate, making them seismically active. The 2004 Indian Ocean earthquake (magnitude 9.1) had its rupture zone pass directly through the islands — the Andamans were uplifted by 1–2 metres in the north, while the Nicobars subsided by up to 3 metres, causing devastating damage. This event permanently altered the coastline, submerging some beaches while creating new ones. The islands contain ophiolite sequences — pieces of oceanic crust thrust above sea level — providing geologists with rare direct access to the Earth's oceanic basement. Mud volcanoes (Baratang Island) are another unique geological feature, where methane-rich slurry erupts from subsurface formations.</p>
+
+            <h4>Marine Environment</h4>
+            <p>The marine environment is extraordinarily rich: 1,200+ fish species, 350+ coral species (comparable to the Great Barrier Reef), 7,000+ marine organisms, and habitats for dugong (sea cow), saltwater crocodile, leatherback sea turtles, dolphins, and whale sharks. The coral reef ecosystem around the islands — covering approximately 11,939 km² of shelf area — is one of the healthiest in the Indian Ocean. The Mahatma Gandhi Marine National Park (281 km² in the Wandoor area) protects spectacular coral reefs, mangroves, and tropical fish.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌳</span> Forests, Wildlife & Protected Areas</h3>
+            <p>The Andaman & Nicobar Islands have the highest proportion of forest cover in India — approximately 86.2% (7,171 km²). Forest types include tropical wet evergreen forests (giant dipterocarp trees reaching 40+ metres), tropical semi-evergreen forests, mangrove forests (966 km² — the third-largest mangrove area in India after the Sundarbans and Gujarat), littoral forests, and mountain forests (above 600 m on Saddle Peak).</p>
+            <p>The islands are a globally significant biodiversity hotspot. Endemic species include the Andaman wild pig, Andaman horseshoe bat, Narcondam hornbill (found only on the single tiny island of Narcondam), Nicobar pigeon, Nicobar megapode (a bird that incubates eggs using volcanic heat), and the Andaman day gecko. Marine life includes the largest breeding population of leatherback sea turtles in the Indian Ocean (Great Nicobar) and the saltwater crocodile (Crocodylus porosus — the world's largest living reptile, with significant populations in the Andaman mangroves).</p>
+
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🐠</span>
+                    <h4>Mahatma Gandhi MNP</h4>
+                    <p>281 km² — spectacular coral reefs, glass-bottom boat rides, snorkeling. 15 islands in Wandoor area with pristine marine ecosystems.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🌋</span>
+                    <h4>Rani Jhansi Marine NP</h4>
+                    <p>256 km² in Ritchie's Archipelago. Scuba diving paradise. Home to manta rays, reef sharks, and spectacular coral walls.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🏔️</span>
+                    <h4>Saddle Peak NP</h4>
+                    <p>32 km² on North Andaman. Contains the highest peak (732 m). Dense tropical rainforest with endemic birds and butterflies.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-card-emoji">🐢</span>
+                    <h4>Campbell Bay NP & Galathea NP</h4>
+                    <p>Great Nicobar island. Leatherback turtle nesting. Nicobar megapode habitat. One of the most remote protected areas in India.</p>
+                </div>
+            </div>
+
+            <h4>Indigenous Peoples</h4>
+            <p>The islands are home to some of the most isolated indigenous peoples on Earth. The Sentinelese (estimated 50–100 individuals on North Sentinel Island) are one of the last uncontacted peoples in the world — they have consistently rejected all outside contact for thousands of years. The Great Andamanese (about 50 individuals, relocated to Strait Island), Onge (about 100, on Little Andaman), Jarawa (about 400, on South and Middle Andaman), Shompen (about 229, on Great Nicobar), and Nicobarese (about 30,000, the largest group) represent some of the oldest human lineages outside Africa, with genetic studies suggesting they descend from some of the earliest Out-of-Africa migrations 60,000+ years ago. India maintains a strict policy of non-interference with the Sentinelese and limits contact with other particularly vulnerable tribal groups (PVTGs).</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🏛️</span> History, Economy & Tourism</h3>
+            <p>The Cellular Jail in Port Blair ("Kala Pani") — built between 1896 and 1906 — is a national memorial honoring the Indian independence freedom fighters who were exiled and imprisoned here by the British. The seven-wing radial structure (three wings survive) held prisoners in solitary confinement cells. Notable inmates included Veer Savarkar, Batukeshwar Dutt, and Yogendra Shukla. The nightly Light and Sound Show at the Cellular Jail is one of the most poignant patriotic experiences in India.</p>
+            <p>Tourism is the mainstay of the economy. Havelock Island (Swaraj Dweep) and its Radhanagar Beach — voted "Asia's Best Beach" by TIME Magazine — is a world-class destination for scuba diving, snorkeling, and beach tourism. Neil Island (Shaheed Dweep) offers natural rock formations like the Howrah Bridge (a natural coral bridge). Baratang Island features limestone caves and mud volcanoes. Ross Island (Netaji Subhas Chandra Bose Island) has atmospheric ruins of the former British administrative headquarters, reclaimed by giant banyan trees.</p>
+            <p>The economy also depends on agriculture (coconut, arecanut, paddy, spices), fishing (tuna, prawns), forest products, and a growing IT/defence sector (India is developing a major naval and tri-service base — INS Baaz — on Campbell Bay, Great Nicobar, as part of its Indo-Pacific strategy).</p>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"><span>🐚</span></div>
+
+<!-- ================================================================ -->
+<!-- ===== LAKSHADWEEP ===== -->
+<!-- ================================================================ -->
+<section class="state-section lakshadweep-section" id="lakshadweep">
+    <div class="state-inner">
+        <div class="state-header animate-on-scroll">
+            <span class="state-emoji">🐚</span>
+            <h2 class="state-name">LAKSHADWEEP</h2>
+            <span class="state-capital-info">Capital: Kavaratti &nbsp;|&nbsp; Became UT: 1 November 1956</span>
+            <p class="state-tagline">"A Hundred Thousand Islands" — India's Coral Paradise</p>
+        </div>
+
+        <div class="quick-facts animate-on-scroll">
+            <div class="quick-fact"><span class="quick-fact-value">32 km²</span><span class="quick-fact-label">Area (Smallest UT)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">64,473</span><span class="quick-fact-label">Population (2011)</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">1 District</span><span class="quick-fact-label">36 Islands</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">Malayalam</span><span class="quick-fact-label">Official Language</span></div>
+            <div class="quick-fact"><span class="quick-fact-value">92.28%</span><span class="quick-fact-label">Literacy Rate</span></div>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>🌍</span> Geography — Jewels of the Arabian Sea</h3>
+            <p>Lakshadweep (meaning "a hundred thousand islands" in Sanskrit) is India's smallest Union Territory by area and the only coral atoll formation in the country. The archipelago consists of 36 islands (10 inhabited), 12 atolls, 3 reefs, and 5 submerged banks, spread across approximately 32 km² of land area within a vast maritime zone of 20,000 km² in the Arabian Sea, between latitudes 8°N and 12°30'N and longitudes 71°E and 74°E. The islands lie 200–440 km off the coast of Kerala (the nearest point is Kochi).</p>
+
+            <h4>Atoll Formation & Structure</h4>
+            <p>Lakshadweep's islands are classic coral atolls — ring-shaped coral reefs enclosing shallow lagoons. They were formed over millions of years as coral colonies grew on the peaks of a submerged volcanic mountain range (the Chagos-Maldives-Laccadive Ridge), which extends from the Réunion hotspot through the Maldives to Lakshadweep. As the volcanic peaks slowly subsided due to tectonic processes, the coral kept growing upward, creating the atoll structures visible today. This process, first described by Charles Darwin, is beautifully demonstrated in Lakshadweep.</p>
+            <p>The islands are uniformly low-lying — the highest point on any island is barely 5 metres above sea level, making Lakshadweep extremely vulnerable to climate change and sea-level rise. A rise of just 1 metre would submerge most of the archipelago. The terrain is flat, composed of coral sand and reef debris. Each island is typically surrounded by a shallow lagoon on one side (usually the west) and a deeper reef slope on the other (usually the east). The lagoons are characterized by crystal-clear turquoise water, white sand, and rich coral gardens.</p>
+
+            <h4>Individual Islands</h4>
+            <p><strong>Kavaratti:</strong> The capital island (4.22 km²), administrative centre. 52 mosques on a tiny island (reflecting the 100% Muslim population). Features a beautiful lagoon ideal for water sports and the Ujra Mosque with a ceiling made of driftwood carved with floral designs.</p>
+            <p><strong>Agatti:</strong> Has the only airport in Lakshadweep. Gateway island for tourists. 2.7 km runway built on coral reclamation. Spectacular lagoon considered one of the most beautiful in the world.</p>
+            <p><strong>Bangaram:</strong> An uninhabited island (1.3 km²) with a luxury resort — the only island where alcohol is permitted. The surrounding waters are pristine with visibility exceeding 30 metres. A world-class diving and snorkeling destination.</p>
+            <p><strong>Minicoy (Maliku):</strong> The southernmost and most culturally distinct island (4.37 km² — the largest). Separated from the rest by the Nine Degree Channel. The inhabitants speak Mahl (related to Dhivehi of the Maldives) rather than Malayalam. Features a 50-m lighthouse built by the British in 1885, and the traditional Lava dance performed by men in colourful costumes.</p>
+            <p><strong>Andrott:</strong> The largest island by area (4.90 km²) but not open to tourists. Has the oldest mosque in Lakshadweep — the Jumma Mosque, believed to have been established by Ubaidullah in the 7th century CE.</p>
+            <p><strong>Kalpeni:</strong> Famous for its three uninhabited islets (Tilakkam, Pitti, and Cheriyam) connected by a vast shallow lagoon. The 1847 storm threw massive coral boulders onto the island, which remain as dramatic features.</p>
+
+            <h4>Marine Ecosystem</h4>
+            <p>The marine biodiversity of Lakshadweep is extraordinary — the coral reefs support 104 species of corals, 600+ species of fish, 82 species of seaweed, sea turtles (Green, Hawksbill, Olive Ridley), dolphins, whale sharks, manta rays, and diverse invertebrate fauna. The coral reef ecosystem covers approximately 4,200 km² of lagoon and shelf area. The reefs are classified as fringing reefs, barrier reefs, and atolls, representing all three reef types described in coral reef ecology. The islands' waters are part of a biologically productive zone where the Arabian Sea's open-ocean and coastal ecosystems interact.</p>
+            <p>The Pitti Bird Sanctuary (Pitti Island, 1.6 hectares) — the smallest protected area in India — is a critical breeding site for the Brown Noddy and Sooty Tern, with hundreds of thousands of seabirds nesting annually on this tiny uninhabited islet.</p>
+        </div>
+
+        <div class="detail-block animate-on-scroll">
+            <h3><span>💰</span> Economy, Culture & Conservation</h3>
+            <p>Lakshadweep's economy is subsistence-based, revolving around coconut cultivation, fishing, and coir production. Coconut is the primary crop — covering 2,598 hectares (about 80% of the cultivable area). The coconut palm provides copra, coir, toddy, and timber. Tuna fishing is a major livelihood — the islanders use traditional pole-and-line fishing methods, which are internationally recognized as sustainable. The tuna catch is processed into masmin (dried tuna strips), a local delicacy and export product.</p>
+            <p>Tourism is emerging as a significant sector, though heavily regulated to protect the fragile ecosystem. The entry to Lakshadweep is controlled by a permit system, and non-residents require special permission. The UT administration promotes eco-tourism — glass-bottom boat rides, scuba diving (Bangaram and Kadmat are world-class dive sites with visibility up to 50 metres), snorkeling, kayaking, and sport fishing. The number of tourists is capped to prevent environmental degradation.</p>
+            <p>The population is overwhelmingly Muslim (96.58%) and follows a matrilineal system (Marumakkathayam), similar to the Nair communities of Kerala. The islands have a unique cultural blend of Malayalam, Arabic, and Maldivian influences. The traditional dance forms — Kolkali (stick dance), Parichakali (martial dance), and Lava (Minicoy) — reflect this multicultural heritage.</p>
+            <p>Conservation challenges include coral bleaching (severe events in 1998, 2010, and 2016), sea-level rise (threatening the very existence of these low-lying islands), overfishing, and waste management on tiny islands with limited land. The administration has implemented various conservation measures including coral reef monitoring programmes, restrictions on sand mining, and waste segregation initiatives.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== EXPLORE NAVIGATION ===== -->
+<section class="explore-nav">
+    <div class="explore-inner">
+        <h2 class="explore-title">🧭 Continue Exploring Bharat</h2>
+        <p class="explore-subtitle">Discover more regions, mountain ranges, and geographical wonders</p>
+
+        <div class="explore-links">
+            <a href="eastern-ghats.html" class="explore-link">
+                <span class="explore-link-emoji">🏔️</span>
+                <div class="explore-link-text">
+                    <h4>Eastern Ghats</h4>
+                    <p>Explore the ancient broken hill ranges of peninsular India</p>
+                </div>
+            </a>
+            <a href="western-ghats.html" class="explore-link">
+                <span class="explore-link-emoji">🌿</span>
+                <div class="explore-link-text">
+                    <h4>Western Ghats</h4>
+                    <p>The UNESCO biodiversity hotspot — 1,600 km mountain wall</p>
+                </div>
+            </a>
+            <a href="states-west.html" class="explore-link">
+                <span class="explore-link-emoji">🏜️</span>
+                <div class="explore-link-text">
+                    <h4>Western States</h4>
+                    <p>Rajasthan, Gujarat, Maharashtra, Goa & Dadra-Nagar Haveli</p>
+                </div>
+            </a>
+            <a href="states-east.html" class="explore-link">
+                <span class="explore-link-emoji">🌾</span>
+                <div class="explore-link-text">
+                    <h4>Eastern States</h4>
+                    <p>West Bengal, Odisha, Bihar, Jharkhand & Northeast</p>
+                </div>
+            </a>
+            <a href="states-north.html" class="explore-link">
+                <span class="explore-link-emoji">❄️</span>
+                <div class="explore-link-text">
+                    <h4>Northern States</h4>
+                    <p>Himalayan states, Indo-Gangetic Plains, and more</p>
+                </div>
+            </a>
+            <a href="indian-ocean.html" class="explore-link">
+                <span class="explore-link-emoji">🌊</span>
+                <div class="explore-link-text">
+                    <h4>Indian Ocean</h4>
+                    <p>The oceanic realm — coastlines, islands, and marine life</p>
+                </div>
+            </a>
+        </div>
+
+        <a href="/encyclopedia/bharat/index.html" class="explore-back">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Back to Bharat Encyclopedia
+        </a>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">🥥</p>
+    <p><strong>DHARAVERSE ENCYCLOPEDIA</strong> — Southern States & Union Territories</p>
+    <p style="margin-top: 0.5rem;">Part of <a href="/encyclopedia/bharat/index.html">Bharat Encyclopedia</a> &nbsp;|&nbsp; <a href="https://dharaverse.com">dharaverse.com</a></p>
+    <p style="margin-top: 1rem; opacity: 0.5;">Compiled with reverence for the ancient Dravidian heritage, the tropical biodiversity,<br>and the vibrant cultures of Southern India.</p>
+    <p style="margin-top: 0.5rem; opacity: 0.4;">© 2025 Dharaverse. All rights reserved.</p>
+</footer>
+
+<!-- Scroll to Top Button -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
+
+<script>
+// ===== LEAFLET MAP =====
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('south-india-map', {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        attributionControl: true
+    }).setView([12.5, 79.5], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
+    }).addTo(map);
+
+    // Custom icons
+    function createIcon(color, size) {
+        return L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="
+                width: ${size}px; height: ${size}px;
+                background: ${color};
+                border: 3px solid white;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            "></div>`,
+            iconSize: [size, size],
+            iconAnchor: [size/2, size/2]
+        });
+    }
+
+    const capitalIcon = createIcon('#B22222', 18);
+    const utCapitalIcon = createIcon('#008080', 16);
+    const cityIcon = createIcon('#4682B4', 12);
+
+    // State Capitals
+    const stateCapitals = [
+        {lat: 12.9716, lng: 77.5946, name: 'Bengaluru', info: 'Capital of Karnataka — IT Capital of India, 920m elevation'},
+        {lat: 8.5241, lng: 76.9366, name: 'Thiruvananthapuram', info: 'Capital of Kerala — Temple city, Padmanabhaswamy Temple'},
+        {lat: 13.0827, lng: 80.2707, name: 'Chennai', info: 'Capital of Tamil Nadu — Detroit of India, Marina Beach'},
+        {lat: 16.5062, lng: 80.6480, name: 'Amaravati', info: 'Capital of Andhra Pradesh — Ancient Buddhist site, new capital'},
+        {lat: 17.3850, lng: 78.4867, name: 'Hyderabad', info: 'Capital of Telangana — City of Pearls, Charminar, HITEC City'}
+    ];
+
+    // UT Capitals
+    const utCapitals = [
+        {lat: 11.9416, lng: 79.8083, name: 'Puducherry', info: 'Capital of Puducherry UT — French colonial heritage, Auroville'},
+        {lat: 11.6234, lng: 92.7265, name: 'Port Blair', info: 'Capital of Andaman & Nicobar — Cellular Jail, gateway to islands'},
+        {lat: 10.5626, lng: 72.6369, name: 'Kavaratti', info: 'Capital of Lakshadweep — Coral atoll, turquoise lagoons'}
+    ];
+
+    // Major Cities
+    const majorCities = [
+        {lat: 12.2958, lng: 76.6394, name: 'Mysuru', info: 'Mysore Palace, Dasara, cultural capital of Karnataka'},
+        {lat: 12.8685, lng: 74.8425, name: 'Mangaluru', info: 'Major port, banking hub, Dakshina Kannada'},
+        {lat: 15.3647, lng: 75.1240, name: 'Hubballi-Dharwad', info: 'Commercial hub, North Karnataka'},
+        {lat: 9.9312, lng: 76.2673, name: 'Kochi', info: 'Commercial capital of Kerala, port city, Fort Kochi'},
+        {lat: 11.2588, lng: 75.7804, name: 'Kozhikode', info: 'Calicut — Spice trade, Malabar coast'},
+        {lat: 10.5276, lng: 76.2144, name: 'Thrissur', info: 'Cultural capital of Kerala, Pooram festival'},
+        {lat: 10.7905, lng: 78.7047, name: 'Tiruchirappalli', info: 'Trichy — Rock Fort, Srirangam temple'},
+        {lat: 9.9252, lng: 78.1198, name: 'Madurai', info: 'Temple City — Meenakshi Amman, 2,500+ years old'},
+        {lat: 11.0168, lng: 76.9558, name: 'Coimbatore', info: 'Manchester of South India, textile hub'},
+        {lat: 10.7870, lng: 79.1378, name: 'Thanjavur', info: 'Temple town, Brihadisvara, rice bowl'},
+        {lat: 13.6288, lng: 79.4192, name: 'Tirupati', info: 'Tirumala — Richest temple in the world'},
+        {lat: 17.6868, lng: 83.2185, name: 'Visakhapatnam', info: 'Vizag — Largest port on East Coast, City of Destiny'},
+        {lat: 16.3067, lng: 80.4365, name: 'Vijayawada', info: 'Major city on Krishna River, Kanaka Durga Temple'},
+        {lat: 15.8281, lng: 78.0373, name: 'Kurnool', info: 'Former capital of AP, gateway to Srisailam'},
+        {lat: 18.2345, lng: 79.1288, name: 'Warangal', info: 'Kakatiya dynasty capital, Ramappa Temple (UNESCO)'},
+        {lat: 18.0543, lng: 79.5537, name: 'Karimnagar', info: 'Historical town, granite quarrying'},
+        {lat: 17.9784, lng: 79.5941, name: 'Nizamabad', info: 'Turmeric city, Nizamabad Fort'},
+        {lat: 11.4102, lng: 76.6950, name: 'Ooty', info: 'Nilgiris — Queen of Hill Stations, 2,240m elevation'},
+        {lat: 10.2381, lng: 77.4892, name: 'Kodaikanal', info: 'Princess of Hill Stations, Palani Hills'},
+        {lat: 11.9139, lng: 75.3708, name: 'Wayanad', info: 'Kerala hill district, coffee, spices, wildlife'},
+        {lat: 12.4244, lng: 75.7382, name: 'Coorg (Madikeri)', info: 'Scotland of India, coffee capital'},
+        {lat: 14.7952, lng: 73.9488, name: 'Gokarna', info: 'Beach temple town, Karnataka coast'},
+        {lat: 15.3350, lng: 76.4600, name: 'Hampi', info: 'UNESCO — Vijayanagara ruins, 1,600+ monuments'},
+        {lat: 9.2648, lng: 79.1357, name: 'Rameswaram', info: 'Pilgrimage island, Ram Setu, temple corridors'},
+        {lat: 8.0884, lng: 77.5385, name: 'Kanyakumari', info: 'Land\'s End — three seas meet, Vivekananda Rock'}
+    ];
+
+    stateCapitals.forEach(c => {
+        L.marker([c.lat, c.lng], {icon: capitalIcon}).addTo(map)
+            .bindPopup(`<div style="font-family: 'Segoe UI', system-ui, sans-serif; min-width: 200px;">
+                <strong style="font-size: 14px; color: #B22222;">★ ${c.name}</strong><br>
+                <span style="font-size: 12px; color: #555;">${c.info}</span>
+            </div>`);
+    });
+
+    utCapitals.forEach(c => {
+        L.marker([c.lat, c.lng], {icon: utCapitalIcon}).addTo(map)
+            .bindPopup(`<div style="font-family: 'Segoe UI', system-ui, sans-serif; min-width: 200px;">
+                <strong style="font-size: 14px; color: #008080;">◆ ${c.name}</strong><br>
+                <span style="font-size: 12px; color: #555;">${c.info}</span>
+            </div>`);
+    });
+
+    majorCities.forEach(c => {
+        L.marker([c.lat, c.lng], {icon: cityIcon}).addTo(map)
+            .bindPopup(`<div style="font-family: 'Segoe UI', system-ui, sans-serif; min-width: 180px;">
+                <strong style="font-size: 13px; color: #4682B4;">● ${c.name}</strong><br>
+                <span style="font-size: 11px; color: #666;">${c.info}</span>
+            </div>`);
+    });
+
+    // Draw approximate Western Ghats line
+    const westernGhats = [
+        [21.1, 73.8], [19.9, 73.6], [18.5, 73.5], [17.8, 73.5],
+        [16.5, 74.5], [15.5, 74.3], [14.8, 74.8], [13.5, 75.0],
+        [12.5, 75.5], [11.8, 76.0], [11.2, 76.5], [10.5, 76.8],
+        [10.0, 77.0], [9.5, 77.1], [8.8, 77.2], [8.3, 77.3]
+    ];
+
+    L.polyline(westernGhats, {
+        color: '#0B6623',
+        weight: 3,
+        opacity: 0.6,
+        dashArray: '10, 8'
+    }).addTo(map).bindPopup('<strong style="color: #0B6623;">Western Ghats</strong><br>UNESCO World Heritage, 1,600 km mountain range');
+
+    // Draw approximate Eastern Ghats line
+    const easternGhats = [
+        [20.5, 85.0], [19.0, 84.0], [17.5, 83.0], [16.0, 79.5],
+        [15.5, 78.5], [14.5, 78.8], [13.5, 79.0], [12.5, 78.5],
+        [12.0, 78.2], [11.5, 78.5]
+    ];
+
+    L.polyline(easternGhats, {
+        color: '#8B4513',
+        weight: 3,
+        opacity: 0.5,
+        dashArray: '10, 8'
+    }).addTo(map).bindPopup('<strong style="color: #8B4513;">Eastern Ghats</strong><br>Discontinuous mountain ranges, ancient geology');
+});
+
+// ===== SCROLL ANIMATIONS =====
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animated');
+        }
+    });
+}, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+});
+
+document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+// ===== SCROLL TO TOP BUTTON =====
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 600) {
+        scrollTopBtn.classList.add('visible');
+    } else {
+        scrollTopBtn.classList.remove('visible');
+    }
+});
+
+// ===== SMOOTH SCROLL FOR TOC LINKS =====
+document.querySelectorAll('.toc-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+  
+<script src="/js/auto-inject.js"></script>
+<script src="/js/premium-wrapper.js"></script>
+<script src="/global-nav.js"></script>
+<script src="/js/dashboard.js"></script>
+
+</body>
+</html>
