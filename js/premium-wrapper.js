@@ -275,7 +275,6 @@ function lockCards() {
 }
 
 function applyCardLocks(cards, freeCount, section) {
-    // Deduplicate: a card might match multiple selectors
     const uniqueCards = [];
     const seen = new Set();
 
@@ -285,6 +284,113 @@ function applyCardLocks(cards, freeCount, section) {
             uniqueCards.push(card);
         }
     });
+
+    const totalCards = uniqueCards.length;
+    let lockedCount = 0;
+
+    uniqueCards.forEach((card, index) => {
+        // Skip cards that are already processed
+        if (card.classList.contains('dv-card-locked') ||
+            card.classList.contains('dv-card-free')) return;
+
+        if (index < freeCount) {
+            // FREE card
+            card.classList.add('dv-card-free');
+        } else {
+            // LOCKED card
+            card.classList.add('dv-card-locked');
+            card.dataset.dvLocked = 'true';  // 👈 ADD THIS LINE
+            lockedCount++;
+
+            // Add lock overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'dv-card-lock-overlay';
+
+            // 💜 Random BTS message for each card!
+            const btsMsg = BTS_MESSAGES[Math.floor(Math.random() * BTS_MESSAGES.length)];
+
+            overlay.innerHTML = `
+                <span class="dv-card-lock-icon">🔒</span>
+                <p class="dv-card-lock-text">${btsMsg.title}</p>
+                <p class="dv-card-lock-sub">${btsMsg.subtitle}</p>
+            `;
+
+            // Add premium badge
+            const badge = document.createElement('span');
+            badge.className = 'dv-card-premium-badge';
+            badge.textContent = '★ PRO';
+
+            card.style.position = 'relative';
+            card.appendChild(overlay);
+            card.appendChild(badge);
+
+            // Click handler
+            overlay.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showPremiumPopup(card, section, totalCards, freeCount);
+            });
+        }
+    });
+
+    console.log('🔒 Card Lock | ' + section + ' | ' +
+        freeCount + ' free / ' + lockedCount + ' locked / ' +
+        totalCards + ' total');
+}
+
+    // ==========================================
+// 🛡️ PROTECT LOCKS FROM BEING REMOVED
+// ==========================================
+
+function protectLocks(selectorString, freeCount, section) {
+
+    // Re-apply locks every time DOM changes
+    const protector = new MutationObserver(function(mutations) {
+        let needsRelock = false;
+
+        mutations.forEach(function(mutation) {
+            // Check if lock overlays were removed
+            mutation.removedNodes.forEach(function(node) {
+                if (node.classList &&
+                    (node.classList.contains('dv-card-lock-overlay') ||
+                     node.classList.contains('dv-card-premium-badge'))) {
+                    needsRelock = true;
+                }
+            });
+
+            // Check if locked class was removed
+            if (mutation.type === 'attributes' &&
+                mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.dataset && target.dataset.dvLocked === 'true' &&
+                    !target.classList.contains('dv-card-locked')) {
+                    needsRelock = true;
+                }
+            }
+        });
+
+        if (needsRelock) {
+            console.log('🛡️ Lock tampering detected! Re-applying...');
+            const cards = document.querySelectorAll(selectorString);
+            // Reset processed state and re-lock
+            cards.forEach(function(card) {
+                card.classList.remove('dv-card-locked');
+                card.classList.remove('dv-card-free');
+                // Remove existing overlays to avoid duplicates
+                card.querySelectorAll('.dv-card-lock-overlay, .dv-card-premium-badge')
+                    .forEach(function(el) { el.remove(); });
+            });
+            applyCardLocks(cards, freeCount, section);
+        }
+    });
+
+    protector.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class']
+    });
+}
 
     const totalCards = uniqueCards.length;
     let lockedCount = 0;
@@ -370,24 +476,69 @@ function applyCardLocks(cards, freeCount, section) {
     );
 }
 
+// ==========================================
+// 🔒 BULLETPROOF CARD WAITING & LOCKING
+// ==========================================
+
 function waitForCards(selectorString, freeCount, section) {
     let attempts = 0;
-    const maxAttempts = 50; // 5 seconds max
+    const maxAttempts = 50; // Try for ~10 seconds
 
-    const interval = setInterval(() => {
+    // Method 1: Polling interval
+    const poller = setInterval(function() {
         attempts++;
         const cards = document.querySelectorAll(selectorString);
 
         if (cards.length > 0) {
-            clearInterval(interval);
+            clearInterval(poller);
+            console.log('🔒 Found ' + cards.length + ' cards after ' + attempts + ' attempts');
             applyCardLocks(cards, freeCount, section);
+            protectLocks(selectorString, freeCount, section);
+            return;
         }
 
         if (attempts >= maxAttempts) {
-            clearInterval(interval);
-            console.log('%c⚠️ No cards found after 5s', 'color: #ff9800;');
+            clearInterval(poller);
+            console.warn('⚠️ No cards found after max attempts for: ' + section);
         }
-    }, 100);
+    }, 200);
+
+    // Method 2: MutationObserver (catches dynamic renders)
+    const container = document.querySelector(
+        '.grid, .cards-container, .card-grid, .mountains-grid, ' +
+        '.rivers-grid, .lakes-grid, .content-grid, .main-content, ' +
+        '#app, #main, main, .container'
+    ) || document.body;
+
+    const observer = new MutationObserver(function(mutations) {
+        const cards = document.querySelectorAll(selectorString);
+        if (cards.length > 0) {
+            // Check if any cards are NOT yet processed
+            let unprocessed = 0;
+            cards.forEach(function(card) {
+                if (!card.classList.contains('dv-card-locked') &&
+                    !card.classList.contains('dv-card-free')) {
+                    unprocessed++;
+                }
+            });
+
+            if (unprocessed > 0) {
+                console.log('🔒 Observer found ' + unprocessed + ' new unprocessed cards');
+                applyCardLocks(cards, freeCount, section);
+            }
+        }
+    });
+
+    observer.observe(container, {
+        childList: true,
+        subtree: true
+    });
+
+    // Stop observer after 15 seconds (cleanup)
+    setTimeout(function() {
+        observer.disconnect();
+    }, 15000);
+}
 
     // Also use MutationObserver for dynamically added cards
     const observer = new MutationObserver(function (mutations) {
