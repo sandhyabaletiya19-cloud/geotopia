@@ -1,0 +1,3020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💦 Waterfalls & Lakes of Bharat | DharaVerse Encyclopedia</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    :root {
+        --water-deep: #0a1628;
+        --water-mid: #0c2d4a;
+        --water-surface: #1a5276;
+        --foam-white: #e8f4f8;
+        --mist-blue: #aed6f1;
+        --cascade-cyan: #00bcd4;
+        --lake-teal: #00897b;
+        --lake-emerald: #26a69a;
+        --glacier-ice: #b3e5fc;
+        --waterfall-blue: #4fc3f7;
+        --spray-white: #f0f8ff;
+        --gold-shimmer: #ffd54f;
+        --sunset-orange: #ff8a65;
+        --rock-brown: #5d4037;
+        --moss-green: #558b2f;
+        --lotus-pink: #f48fb1;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+        background: var(--water-deep);
+        color: var(--foam-white);
+        line-height: 1.7;
+        overflow-x: hidden;
+    }
+
+    /* === WATER RIPPLE ANIMATIONS === */
+    @keyframes ripple {
+        0% { transform: scale(1); opacity: 0.6; }
+        100% { transform: scale(4); opacity: 0; }
+    }
+
+    @keyframes waterfall-flow {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 0% 200%; }
+    }
+
+    @keyframes float-up {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+    }
+
+    @keyframes cascade {
+        0% { transform: translateY(-100%); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    @keyframes wave {
+        0%, 100% { transform: translateX(0) scaleY(1); }
+        25% { transform: translateX(-5px) scaleY(1.05); }
+        50% { transform: translateX(5px) scaleY(0.95); }
+        75% { transform: translateX(-3px) scaleY(1.02); }
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(0,188,212,0.3); }
+        50% { box-shadow: 0 0 40px rgba(0,188,212,0.6), 0 0 80px rgba(0,188,212,0.2); }
+    }
+
+    @keyframes droplet {
+        0% { transform: translateY(-20px) scale(1); opacity: 1; }
+        80% { transform: translateY(60px) scale(0.8); opacity: 0.6; }
+        100% { transform: translateY(70px) scale(1.5, 0.3); opacity: 0; }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-60px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(60px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes rotateIn {
+        from { opacity: 0; transform: rotate(-10deg) scale(0.8); }
+        to { opacity: 1; transform: rotate(0) scale(1); }
+    }
+
+    /* === BACK BUTTON === */
+    .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        background: linear-gradient(135deg, rgba(10,22,40,0.95), rgba(12,45,74,0.95));
+        border: 1px solid rgba(0,188,212,0.4);
+        border-radius: 50px;
+        color: var(--cascade-cyan);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        backdrop-filter: blur(20px);
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .back-button:hover {
+        background: linear-gradient(135deg, var(--cascade-cyan), var(--lake-teal));
+        color: var(--water-deep);
+        transform: translateX(-5px);
+        box-shadow: 0 8px 30px rgba(0,188,212,0.4);
+    }
+
+    .back-button svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.3s;
+    }
+
+    .back-button:hover svg {
+        transform: translateX(-4px);
+    }
+
+    /* === WATERFALL PARTICLES (Background) === */
+    .waterfall-particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .water-drop {
+        position: absolute;
+        width: 3px;
+        height: 12px;
+        background: linear-gradient(to bottom, transparent, rgba(79,195,247,0.5), transparent);
+        border-radius: 50%;
+        animation: cascade linear infinite;
+    }
+
+    /* === HERO SECTION === */
+    .hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background:
+            radial-gradient(ellipse at 20% 80%, rgba(0,188,212,0.15) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 20%, rgba(0,137,123,0.15) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(26,82,118,0.3) 0%, transparent 70%),
+            linear-gradient(180deg, var(--water-deep) 0%, #0d3b5c 50%, #0a2940 100%);
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(79,195,247,0.03) 2px,
+                rgba(79,195,247,0.03) 4px
+            );
+        animation: waterfall-flow 3s linear infinite;
+        z-index: 1;
+    }
+
+    .hero-waterfall-left,
+    .hero-waterfall-right {
+        position: absolute;
+        top: 0;
+        width: 80px;
+        height: 100%;
+        z-index: 1;
+        opacity: 0.15;
+    }
+
+    .hero-waterfall-left {
+        left: 5%;
+        background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(79,195,247,0.6) 20%,
+            rgba(255,255,255,0.8) 25%,
+            rgba(79,195,247,0.4) 40%,
+            rgba(255,255,255,0.6) 55%,
+            rgba(79,195,247,0.5) 70%,
+            rgba(255,255,255,0.3) 85%,
+            transparent 100%
+        );
+        background-size: 100% 50%;
+        animation: waterfall-flow 2s linear infinite;
+        filter: blur(3px);
+    }
+
+    .hero-waterfall-right {
+        right: 5%;
+        background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(0,188,212,0.5) 15%,
+            rgba(255,255,255,0.7) 30%,
+            rgba(0,188,212,0.3) 50%,
+            rgba(255,255,255,0.5) 65%,
+            rgba(0,188,212,0.4) 80%,
+            transparent 100%
+        );
+        background-size: 100% 50%;
+        animation: waterfall-flow 2.5s linear infinite;
+        filter: blur(4px);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding: 2rem;
+        max-width: 1000px;
+    }
+
+    .hero-emoji {
+        font-size: 5rem;
+        display: block;
+        margin-bottom: 1.5rem;
+        animation: float-up 3s ease-in-out infinite;
+        filter: drop-shadow(0 0 30px rgba(79,195,247,0.5));
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 7vw, 5.5rem);
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #e0f7fa, #4fc3f7, #00bcd4, #26a69a, #4fc3f7);
+        background-size: 300% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 5s linear infinite;
+        text-shadow: none;
+    }
+
+    .hero-subtitle {
+        font-size: clamp(1rem, 2.5vw, 1.6rem);
+        color: var(--mist-blue);
+        font-weight: 300;
+        margin-bottom: 2rem;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+    }
+
+    .hero-description {
+        font-size: 1.15rem;
+        color: rgba(174,214,241,0.85);
+        max-width: 750px;
+        margin: 0 auto 3rem;
+        line-height: 1.9;
+    }
+
+    .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .hero-stat {
+        text-align: center;
+        padding: 1.5rem 2rem;
+        background: rgba(0,188,212,0.08);
+        border: 1px solid rgba(0,188,212,0.2);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        transition: all 0.4s;
+        min-width: 150px;
+    }
+
+    .hero-stat:hover {
+        background: rgba(0,188,212,0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,188,212,0.2);
+    }
+
+    .hero-stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--cascade-cyan);
+        display: block;
+    }
+
+    .hero-stat-label {
+        font-size: 0.85rem;
+        color: var(--mist-blue);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-top: 0.3rem;
+    }
+
+    /* === WAVE DIVIDER === */
+    .wave-divider {
+        position: relative;
+        height: 120px;
+        overflow: hidden;
+        background: var(--water-deep);
+    }
+
+    .wave-divider svg {
+        position: absolute;
+        bottom: 0;
+        width: 200%;
+        height: 120px;
+        animation: wave 6s ease-in-out infinite;
+    }
+
+    /* === NAVIGATION TABS === */
+    .section-nav {
+        position: sticky;
+        top: 0;
+        z-index: 9000;
+        background: linear-gradient(135deg, rgba(10,22,40,0.97), rgba(12,45,74,0.97));
+        backdrop-filter: blur(25px);
+        border-bottom: 1px solid rgba(0,188,212,0.2);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .nav-tab {
+        padding: 10px 24px;
+        border-radius: 50px;
+        border: 1px solid rgba(0,188,212,0.25);
+        background: rgba(0,188,212,0.05);
+        color: var(--mist-blue);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.4s;
+        white-space: nowrap;
+    }
+
+    .nav-tab:hover, .nav-tab.active {
+        background: linear-gradient(135deg, var(--cascade-cyan), var(--lake-teal));
+        color: var(--water-deep);
+        border-color: var(--cascade-cyan);
+        box-shadow: 0 4px 20px rgba(0,188,212,0.3);
+        transform: translateY(-2px);
+    }
+
+    /* === MAIN CONTENT === */
+    .main-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* === SECTION HEADERS === */
+    .section-header {
+        text-align: center;
+        padding: 5rem 0 3rem;
+        position: relative;
+    }
+
+    .section-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1px;
+        height: 60px;
+        background: linear-gradient(to bottom, transparent, var(--cascade-cyan));
+    }
+
+    .section-icon {
+        font-size: 3.5rem;
+        display: block;
+        margin-bottom: 1rem;
+        animation: float-up 4s ease-in-out infinite;
+    }
+
+    .section-title {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--foam-white), var(--cascade-cyan));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: var(--mist-blue);
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    .section-divider {
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--cascade-cyan), transparent);
+        margin: 1.5rem auto;
+        border-radius: 2px;
+    }
+
+    /* === WATERFALL CARDS === */
+    .waterfall-showcase {
+        display: grid;
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .top-waterfall-card {
+        position: relative;
+        background: linear-gradient(135deg, rgba(12,45,74,0.6), rgba(10,22,40,0.8));
+        border: 1px solid rgba(0,188,212,0.15);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .top-waterfall-card:nth-child(1) { animation-delay: 0.1s; }
+    .top-waterfall-card:nth-child(2) { animation-delay: 0.2s; }
+    .top-waterfall-card:nth-child(3) { animation-delay: 0.3s; }
+    .top-waterfall-card:nth-child(4) { animation-delay: 0.4s; }
+    .top-waterfall-card:nth-child(5) { animation-delay: 0.5s; }
+
+    .top-waterfall-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(0,188,212,0.5);
+        box-shadow: 0 20px 60px rgba(0,188,212,0.15), 0 0 0 1px rgba(0,188,212,0.1);
+    }
+
+    .top-waterfall-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--cascade-cyan), var(--lake-emerald), var(--waterfall-blue));
+    }
+
+    .waterfall-card-inner {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 2rem;
+        padding: 2rem;
+        align-items: center;
+    }
+
+    .waterfall-rank {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: rgba(0,188,212,0.15);
+        line-height: 1;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    .rank-1 { color: rgba(255,215,0,0.3); }
+    .rank-2 { color: rgba(192,192,192,0.3); }
+    .rank-3 { color: rgba(205,127,50,0.3); }
+
+    .waterfall-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .waterfall-name {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--foam-white);
+    }
+
+    .waterfall-location {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--mist-blue);
+        font-size: 0.95rem;
+    }
+
+    .waterfall-description {
+        color: rgba(174,214,241,0.7);
+        font-size: 0.92rem;
+        line-height: 1.7;
+        margin-top: 0.5rem;
+    }
+
+    .waterfall-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    .waterfall-tag {
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid;
+    }
+
+    .tag-river { background: rgba(0,188,212,0.1); border-color: rgba(0,188,212,0.3); color: var(--cascade-cyan); }
+    .tag-type { background: rgba(38,166,154,0.1); border-color: rgba(38,166,154,0.3); color: var(--lake-emerald); }
+    .tag-season { background: rgba(255,138,101,0.1); border-color: rgba(255,138,101,0.3); color: var(--sunset-orange); }
+
+    .waterfall-height-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+        min-width: 120px;
+    }
+
+    .height-bar-container {
+        width: 12px;
+        height: 100px;
+        background: rgba(0,188,212,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .height-bar {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: linear-gradient(to top, var(--cascade-cyan), var(--waterfall-blue));
+        border-radius: 10px;
+        transition: height 1s ease-out;
+    }
+
+    .height-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--cascade-cyan);
+    }
+
+    .height-unit {
+        font-size: 0.75rem;
+        color: var(--mist-blue);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    /* === STATE-WISE WATERFALLS === */
+    .state-waterfalls-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .state-waterfall-card {
+        background: linear-gradient(145deg, rgba(12,45,74,0.5), rgba(10,22,40,0.7));
+        border: 1px solid rgba(0,188,212,0.12);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s;
+    }
+
+    .state-waterfall-card:hover {
+        border-color: rgba(0,188,212,0.35);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .state-wf-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(0,188,212,0.1), rgba(38,166,154,0.05));
+        border-bottom: 1px solid rgba(0,188,212,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .state-wf-icon {
+        font-size: 2rem;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,188,212,0.1);
+        border-radius: 14px;
+        border: 1px solid rgba(0,188,212,0.2);
+    }
+
+    .state-wf-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--foam-white);
+    }
+
+    .state-wf-count {
+        font-size: 0.8rem;
+        color: var(--cascade-cyan);
+    }
+
+    .state-wf-body {
+        padding: 1.5rem;
+    }
+
+    .wf-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid rgba(0,188,212,0.06);
+        transition: all 0.3s;
+    }
+
+    .wf-list-item:last-child {
+        border-bottom: none;
+    }
+
+    .wf-list-item:hover {
+        padding-left: 0.5rem;
+        background: rgba(0,188,212,0.03);
+        border-radius: 8px;
+    }
+
+    .wf-item-name {
+        font-weight: 600;
+        color: var(--foam-white);
+        font-size: 0.95rem;
+    }
+
+    .wf-item-river {
+        font-size: 0.8rem;
+        color: var(--mist-blue);
+    }
+
+    .wf-item-height {
+        font-weight: 700;
+        color: var(--cascade-cyan);
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    /* === LAKES SECTION === */
+    .lake-category {
+        margin-bottom: 4rem;
+    }
+
+    .lake-category-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem 2rem;
+        background: linear-gradient(135deg, rgba(0,137,123,0.1), rgba(0,188,212,0.05));
+        border: 1px solid rgba(0,137,123,0.2);
+        border-radius: 16px;
+    }
+
+    .lake-cat-icon {
+        font-size: 2.5rem;
+    }
+
+    .lake-cat-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--foam-white);
+    }
+
+    .lake-cat-desc {
+        font-size: 0.9rem;
+        color: var(--mist-blue);
+    }
+
+    .lakes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .lake-card {
+        position: relative;
+        background: linear-gradient(145deg, rgba(12,45,74,0.5), rgba(10,22,40,0.7));
+        border: 1px solid rgba(0,137,123,0.15);
+        border-radius: 20px;
+        padding: 1.8rem;
+        transition: all 0.5s;
+        overflow: hidden;
+    }
+
+    .lake-card::before {
+        content: '';
+        position: absolute;
+        bottom: -50%;
+        left: -50%;
+        width: 200%;
+        height: 100%;
+        background: radial-gradient(ellipse, rgba(0,137,123,0.08), transparent 70%);
+        transition: all 0.5s;
+    }
+
+    .lake-card:hover {
+        border-color: rgba(0,137,123,0.4);
+        transform: translateY(-6px);
+        box-shadow: 0 20px 50px rgba(0,137,123,0.15);
+    }
+
+    .lake-card:hover::before {
+        bottom: -30%;
+    }
+
+    .lake-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .lake-name {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--foam-white);
+        margin-bottom: 0.2rem;
+    }
+
+    .lake-state {
+        font-size: 0.85rem;
+        color: var(--lake-emerald);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .lake-type-badge {
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .badge-freshwater {
+        background: rgba(79,195,247,0.15);
+        color: var(--waterfall-blue);
+        border: 1px solid rgba(79,195,247,0.3);
+    }
+
+    .badge-brackish {
+        background: rgba(255,213,79,0.15);
+        color: var(--gold-shimmer);
+        border: 1px solid rgba(255,213,79,0.3);
+    }
+
+    .badge-saltwater {
+        background: rgba(255,138,101,0.15);
+        color: var(--sunset-orange);
+        border: 1px solid rgba(255,138,101,0.3);
+    }
+
+    .badge-glacial {
+        background: rgba(179,229,252,0.15);
+        color: var(--glacier-ice);
+        border: 1px solid rgba(179,229,252,0.3);
+    }
+
+    .badge-artificial {
+        background: rgba(38,166,154,0.15);
+        color: var(--lake-emerald);
+        border: 1px solid rgba(38,166,154,0.3);
+    }
+
+    .badge-crater {
+        background: rgba(244,143,177,0.15);
+        color: var(--lotus-pink);
+        border: 1px solid rgba(244,143,177,0.3);
+    }
+
+    .badge-oxbow {
+        background: rgba(85,139,47,0.2);
+        color: #aed581;
+        border: 1px solid rgba(85,139,47,0.4);
+    }
+
+    .lake-details {
+        position: relative;
+        z-index: 1;
+    }
+
+    .lake-desc {
+        font-size: 0.9rem;
+        color: rgba(174,214,241,0.75);
+        line-height: 1.7;
+        margin-bottom: 1rem;
+    }
+
+    .lake-meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+
+    .lake-meta-item {
+        display: flex;
+        flex-direction: column;
+        padding: 0.6rem;
+        background: rgba(0,188,212,0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(0,188,212,0.08);
+    }
+
+    .lake-meta-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--mist-blue);
+        margin-bottom: 0.2rem;
+    }
+
+    .lake-meta-value {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--cascade-cyan);
+    }
+
+    /* === COMPARISON CHART === */
+    .comparison-section {
+        margin: 4rem 0;
+        padding: 3rem;
+        background: linear-gradient(145deg, rgba(12,45,74,0.4), rgba(10,22,40,0.6));
+        border: 1px solid rgba(0,188,212,0.1);
+        border-radius: 24px;
+    }
+
+    .comparison-title {
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--foam-white);
+        margin-bottom: 2rem;
+    }
+
+    .height-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 1.5rem;
+        padding: 2rem 0;
+        min-height: 350px;
+        flex-wrap: wrap;
+    }
+
+    .chart-bar-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+        flex: 0 0 auto;
+    }
+
+    .chart-bar-value {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--cascade-cyan);
+    }
+
+    .chart-bar {
+        width: 45px;
+        border-radius: 10px 10px 4px 4px;
+        position: relative;
+        transition: all 0.5s;
+        cursor: pointer;
+        min-height: 20px;
+    }
+
+    .chart-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
+        border-radius: 10px 10px 0 0;
+    }
+
+    .chart-bar:hover {
+        filter: brightness(1.3);
+        transform: scaleX(1.1);
+    }
+
+    .chart-bar-label {
+        font-size: 0.7rem;
+        color: var(--mist-blue);
+        text-align: center;
+        max-width: 80px;
+        line-height: 1.3;
+    }
+
+    /* === MAP SECTION === */
+    .map-section {
+        margin: 4rem 0;
+    }
+
+    .map-container {
+        height: 550px;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 2px solid rgba(0,188,212,0.2);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    #waterfall-lake-map {
+        height: 100%;
+        width: 100%;
+    }
+
+    .map-legend {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--mist-blue);
+    }
+
+    .legend-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    /* === INTERESTING FACTS === */
+    .facts-section {
+        margin: 4rem 0;
+    }
+
+    .facts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .fact-card {
+        padding: 2rem;
+        background: linear-gradient(145deg, rgba(12,45,74,0.5), rgba(10,22,40,0.7));
+        border: 1px solid rgba(0,188,212,0.12);
+        border-radius: 20px;
+        transition: all 0.4s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .fact-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, var(--cascade-cyan), var(--lake-teal), var(--waterfall-blue), var(--lake-emerald));
+        border-radius: 22px;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.4s;
+    }
+
+    .fact-card:hover::before {
+        opacity: 0.15;
+    }
+
+    .fact-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .fact-emoji {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .fact-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--foam-white);
+        margin-bottom: 0.5rem;
+    }
+
+    .fact-text {
+        font-size: 0.9rem;
+        color: rgba(174,214,241,0.75);
+        line-height: 1.7;
+    }
+
+    /* === STATE WISE COMPLETE TABLE === */
+    .table-container {
+        margin: 3rem 0;
+        overflow-x: auto;
+        border-radius: 20px;
+        border: 1px solid rgba(0,188,212,0.12);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .data-table thead {
+        background: linear-gradient(135deg, rgba(0,188,212,0.15), rgba(0,137,123,0.1));
+    }
+
+    .data-table th {
+        padding: 1rem 1.2rem;
+        text-align: left;
+        font-weight: 700;
+        color: var(--cascade-cyan);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+        border-bottom: 2px solid rgba(0,188,212,0.2);
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 0.8rem 1.2rem;
+        border-bottom: 1px solid rgba(0,188,212,0.06);
+        color: var(--foam-white);
+    }
+
+    .data-table tbody tr {
+        transition: background 0.3s;
+    }
+
+    .data-table tbody tr:hover {
+        background: rgba(0,188,212,0.05);
+    }
+
+    .data-table tbody tr:nth-child(even) {
+        background: rgba(0,188,212,0.02);
+    }
+
+    .data-table tbody tr:nth-child(even):hover {
+        background: rgba(0,188,212,0.07);
+    }
+
+    /* === FOOTER === */
+    .explore-next {
+        margin: 4rem 0 0;
+        padding: 3rem 2rem;
+        background: linear-gradient(135deg, rgba(0,137,123,0.1), rgba(0,188,212,0.05));
+        border: 1px solid rgba(0,137,123,0.2);
+        border-radius: 24px;
+        text-align: center;
+    }
+
+    .explore-next-label {
+        font-size: 0.85rem;
+        color: var(--mist-blue);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 1rem;
+    }
+
+    .explore-next-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--foam-white);
+        margin-bottom: 0.5rem;
+    }
+
+    .explore-next-desc {
+        color: rgba(174,214,241,0.7);
+        margin-bottom: 1.5rem;
+    }
+
+    .explore-next-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 14px 36px;
+        background: linear-gradient(135deg, var(--cascade-cyan), var(--lake-teal));
+        color: var(--water-deep);
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.4s;
+        box-shadow: 0 8px 25px rgba(0,188,212,0.3);
+    }
+
+    .explore-next-btn:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 12px 35px rgba(0,188,212,0.5);
+    }
+
+    .site-footer {
+        margin-top: 4rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        border-top: 1px solid rgba(0,188,212,0.1);
+        color: var(--mist-blue);
+        font-size: 0.85rem;
+    }
+
+    .footer-brand {
+        font-size: 1.3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--cascade-cyan), var(--lake-emerald));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    /* === SCROLL ANIMATIONS === */
+    .scroll-animate {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .scroll-animate.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .scroll-animate.slide-left {
+        transform: translateX(-40px);
+    }
+    .scroll-animate.slide-left.visible {
+        transform: translateX(0);
+    }
+
+    .scroll-animate.slide-right {
+        transform: translateX(40px);
+    }
+    .scroll-animate.slide-right.visible {
+        transform: translateX(0);
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+        .back-button {
+            top: 10px;
+            left: 10px;
+            padding: 10px 16px;
+            font-size: 0.8rem;
+        }
+
+        .hero-stats {
+            gap: 1rem;
+        }
+
+        .hero-stat {
+            min-width: 120px;
+            padding: 1rem;
+        }
+
+        .hero-stat-number {
+            font-size: 2rem;
+        }
+
+        .waterfall-card-inner {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .waterfall-rank {
+            font-size: 2rem;
+        }
+
+        .waterfall-height-display {
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .height-bar-container {
+            width: 100px;
+            height: 12px;
+        }
+
+        .height-bar {
+            left: 0;
+            bottom: 0;
+            height: 100% !important;
+            border-radius: 10px;
+        }
+
+        .state-waterfalls-grid,
+        .lakes-grid,
+        .facts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .height-chart {
+            gap: 0.8rem;
+        }
+
+        .chart-bar-wrapper {
+            flex: 0 0 auto;
+        }
+
+        .chart-bar {
+            width: 30px;
+        }
+
+        .section-nav {
+            gap: 0.5rem;
+            padding: 0.8rem 1rem;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+        }
+
+        .main-content {
+            padding: 0 1rem;
+        }
+
+        .comparison-section {
+            padding: 2rem 1rem;
+        }
+
+        .lake-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .map-container {
+            height: 400px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-emoji {
+            font-size: 3.5rem;
+        }
+
+        .section-icon {
+            font-size: 2.5rem;
+        }
+
+        .state-waterfalls-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .lake-card-top {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+
+    /* === LEAFLET CUSTOM === */
+    .leaflet-popup-content-wrapper {
+        background: linear-gradient(145deg, #0c2d4a, #0a1628) !important;
+        border: 1px solid rgba(0,188,212,0.3) !important;
+        border-radius: 16px !important;
+        color: #e8f4f8 !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    }
+
+    .leaflet-popup-tip {
+        background: #0c2d4a !important;
+        border: 1px solid rgba(0,188,212,0.3) !important;
+    }
+
+    .leaflet-popup-content {
+        font-family: 'Segoe UI', system-ui, sans-serif !important;
+        font-size: 0.9rem !important;
+        line-height: 1.6 !important;
+    }
+
+    .popup-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #4fc3f7;
+        margin-bottom: 0.3rem;
+    }
+
+    .popup-type {
+        font-size: 0.75rem;
+        color: #26a69a;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .popup-detail {
+        color: #aed6f1;
+        font-size: 0.85rem;
+    }
+
+    .leaflet-control-zoom a {
+        background: rgba(10,22,40,0.9) !important;
+        color: #4fc3f7 !important;
+        border-color: rgba(0,188,212,0.3) !important;
+    }
+
+    .leaflet-control-zoom a:hover {
+        background: rgba(0,188,212,0.3) !important;
+    }
+</style>
+   <link rel="stylesheet" href="/css/premium-lock.css">
+
+</head>
+<body>
+
+<!-- Back Button -->
+<a href="index.html" class="back-button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    Bharat Encyclopedia
+</a>
+
+<!-- Water Drop Particles -->
+<div class="waterfall-particles" id="particles"></div>
+
+<!-- ====== HERO SECTION ====== -->
+<section class="hero">
+    <div class="hero-waterfall-left"></div>
+    <div class="hero-waterfall-right"></div>
+    <div class="hero-content">
+        <span class="hero-emoji">💦🏔️</span>
+        <h1 class="hero-title">Waterfalls & Lakes</h1>
+        <p class="hero-subtitle">The Liquid Jewels of Bharat</p>
+        <p class="hero-description">
+            From the thunderous 455-metre cascade of Kunchikal in the Western Ghats to the serene 
+            expanse of Wular Lake cradled by the Himalayas, Bharat's waterfalls and lakes are 
+            masterpieces of nature — sculpted by millennia of geological forces, monsoon rhythms, 
+            and glacial heritage. Explore over 500 major waterfalls and hundreds of lakes that define 
+            the hydrological soul of the subcontinent.
+        </p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-number">500+</span>
+                <span class="hero-stat-label">Major Waterfalls</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">455m</span>
+                <span class="hero-stat-label">Tallest Fall</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">200+</span>
+                <span class="hero-stat-label">Notable Lakes</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">189</span>
+                <span class="hero-stat-label">km² Largest Lake</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Navigation Tabs -->
+<nav class="section-nav" id="sectionNav">
+    <a href="#waterfalls" class="nav-tab active">🌊 Waterfalls</a>
+    <a href="#top5" class="nav-tab">🏆 Top 5 Highest</a>
+    <a href="#state-waterfalls" class="nav-tab">📍 State-wise Falls</a>
+    <a href="#natural-lakes" class="nav-tab">🌿 Natural Lakes</a>
+    <a href="#glacial-lakes" class="nav-tab">🏔️ Glacial Lakes</a>
+    <a href="#artificial-lakes" class="nav-tab">🏗️ Reservoirs</a>
+    <a href="#map" class="nav-tab">🗺️ Map</a>
+    <a href="#facts" class="nav-tab">💡 Facts</a>
+</nav>
+
+<!-- ====== MAIN CONTENT ====== -->
+<main class="main-content">
+
+    <!-- ============================================ -->
+    <!--             WATERFALLS SECTION               -->
+    <!-- ============================================ -->
+    <section id="waterfalls">
+        <div class="section-header">
+            <span class="section-icon">🌊</span>
+            <h2 class="section-title">Waterfalls of Bharat</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle">
+                India is home to over 500 major waterfalls, predominantly concentrated in the Western Ghats, 
+                Eastern Ghats, Northeast hills, and the Himalayan foothills. Each waterfall tells a story of 
+                geological upheaval, river determination, and the raw power of water.
+            </p>
+        </div>
+
+        <!-- Top 5 Highest Waterfalls -->
+        <div id="top5">
+            <h3 style="text-align:center; font-size:1.6rem; color:var(--foam-white); margin-bottom:2rem;">
+                🏆 India's 5 Highest Waterfalls
+            </h3>
+
+            <div class="waterfall-showcase">
+                <!-- 1. Kunchikal -->
+                <div class="top-waterfall-card">
+                    <div class="waterfall-card-inner">
+                        <div class="waterfall-rank rank-1">#1</div>
+                        <div class="waterfall-info">
+                            <div class="waterfall-name">Kunchikal Falls</div>
+                            <div class="waterfall-location">📍 Shimoga District, Karnataka</div>
+                            <div class="waterfall-description">
+                                India's tallest waterfall and one of the highest in Asia. Formed by the Varahi River 
+                                plunging down a massive cliff in the Western Ghats, Kunchikal is largely inaccessible 
+                                to tourists as it falls within the restricted zone of the Mani Dam hydroelectric project. 
+                                The falls cascade in multiple tiers through dense tropical forest. During the monsoon 
+                                season (June–September), the water volume increases dramatically, creating a thunderous 
+                                spectacle visible from distant vantage points. The surrounding Agumbe region receives 
+                                some of the highest rainfall in India, fueling this magnificent cascade.
+                            </div>
+                            <div class="waterfall-tags">
+                                <span class="waterfall-tag tag-river">🌊 Varahi River</span>
+                                <span class="waterfall-tag tag-type">⛰️ Tiered Plunge</span>
+                                <span class="waterfall-tag tag-season">🌧️ Monsoon Peak</span>
+                            </div>
+                        </div>
+                        <div class="waterfall-height-display">
+                            <div class="height-bar-container">
+                                <div class="height-bar" style="height:100%; background: linear-gradient(to top, #ffd54f, #ffb300);"></div>
+                            </div>
+                            <span class="height-value" style="color:#ffd54f;">455</span>
+                            <span class="height-unit">metres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Barehipani -->
+                <div class="top-waterfall-card">
+                    <div class="waterfall-card-inner">
+                        <div class="waterfall-rank rank-2">#2</div>
+                        <div class="waterfall-info">
+                            <div class="waterfall-name">Barehipani Falls</div>
+                            <div class="waterfall-location">📍 Simlipal National Park, Mayurbhanj, Odisha</div>
+                            <div class="waterfall-description">
+                                The second tallest waterfall in India, Barehipani drops in two magnificent tiers within 
+                                the pristine Simlipal Biosphere Reserve. Fed by the Budhabalanga River, the upper tier 
+                                is a sheer free-fall of about 259 metres, followed by a shorter cascade. The falls are 
+                                surrounded by one of India's finest sal and tropical forests, home to tigers, elephants, 
+                                and the rare mugger crocodile. The Simlipal massif creates its own microclimate, ensuring 
+                                the falls remain impressive even during drier months. The trek to Barehipani passes through 
+                                stunning forest corridors and tribal villages of the Ho and Santhal communities.
+                            </div>
+                            <div class="waterfall-tags">
+                                <span class="waterfall-tag tag-river">🌊 Budhabalanga River</span>
+                                <span class="waterfall-tag tag-type">⛰️ Two-tiered</span>
+                                <span class="waterfall-tag tag-season">🐅 Simlipal Reserve</span>
+                            </div>
+                        </div>
+                        <div class="waterfall-height-display">
+                            <div class="height-bar-container">
+                                <div class="height-bar" style="height:87.7%; background: linear-gradient(to top, #bdbdbd, #9e9e9e);"></div>
+                            </div>
+                            <span class="height-value" style="color:#bdbdbd;">399</span>
+                            <span class="height-unit">metres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Nohkalikai -->
+                <div class="top-waterfall-card">
+                    <div class="waterfall-card-inner">
+                        <div class="waterfall-rank rank-3">#3</div>
+                        <div class="waterfall-info">
+                            <div class="waterfall-name">Nohkalikai Falls</div>
+                            <div class="waterfall-location">📍 Cherrapunji (Sohra), East Khasi Hills, Meghalaya</div>
+                            <div class="waterfall-description">
+                                The tallest plunge waterfall in India, Nohkalikai plummets 340 metres from the edge of 
+                                the Khasi Hills plateau into a stunning emerald-green pool below. Located near Cherrapunji, 
+                                one of the wettest places on Earth, the falls are spectacularly full during monsoons but 
+                                maintain flow year-round. The name "Nohkalikai" translates to "Jump of Ka Likai" — a tragic 
+                                Khasi legend of a woman who leapt from the cliff after discovering her second husband had 
+                                killed and cooked her daughter. The plunge pool below displays an otherworldly blue-green 
+                                color created by mineral-rich water. The viewpoint offers panoramic views of the Bangladeshi 
+                                plains far below, creating one of the most dramatic landscapes in South Asia.
+                            </div>
+                            <div class="waterfall-tags">
+                                <span class="waterfall-tag tag-river">🌊 Unnamed Stream</span>
+                                <span class="waterfall-tag tag-type">⛰️ Single Plunge</span>
+                                <span class="waterfall-tag tag-season">🌧️ Wettest on Earth</span>
+                            </div>
+                        </div>
+                        <div class="waterfall-height-display">
+                            <div class="height-bar-container">
+                                <div class="height-bar" style="height:74.7%; background: linear-gradient(to top, #cd7f32, #a0522d);"></div>
+                            </div>
+                            <span class="height-value" style="color:#cd7f32;">340</span>
+                            <span class="height-unit">metres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Dudhsagar -->
+                <div class="top-waterfall-card">
+                    <div class="waterfall-card-inner">
+                        <div class="waterfall-rank">#4</div>
+                        <div class="waterfall-info">
+                            <div class="waterfall-name">Dudhsagar Falls</div>
+                            <div class="waterfall-location">📍 Goa–Karnataka Border, Bhagwan Mahavir Wildlife Sanctuary</div>
+                            <div class="waterfall-description">
+                                The "Sea of Milk" — Dudhsagar is a four-tiered cascade on the Mandovi River, straddling the 
+                                Goa–Karnataka border. The milky-white appearance during peak flow gives it its evocative name. 
+                                At 310 metres, it is among the tallest and most beautiful waterfalls in India. A railway track 
+                                runs across the falls, creating one of the most photographed scenes in Indian railroading. 
+                                The falls lie within the Bhagwan Mahavir Wildlife Sanctuary and Mollem National Park, surrounded 
+                                by deciduous forests that turn brilliantly green during monsoons. The base pool is popular for 
+                                swimming, and treks from Castle Rock or Kulem station are iconic monsoon adventures. The falls 
+                                are a designated protected area with restricted access during heavy monsoons.
+                            </div>
+                            <div class="waterfall-tags">
+                                <span class="waterfall-tag tag-river">🌊 Mandovi River</span>
+                                <span class="waterfall-tag tag-type">⛰️ Four-tiered</span>
+                                <span class="waterfall-tag tag-season">🚂 Railway Crossing</span>
+                            </div>
+                        </div>
+                        <div class="waterfall-height-display">
+                            <div class="height-bar-container">
+                                <div class="height-bar" style="height:68.1%; background: linear-gradient(to top, #4fc3f7, #0288d1);"></div>
+                            </div>
+                            <span class="height-value">310</span>
+                            <span class="height-unit">metres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Jog -->
+                <div class="top-waterfall-card">
+                    <div class="waterfall-card-inner">
+                        <div class="waterfall-rank">#5</div>
+                        <div class="waterfall-info">
+                            <div class="waterfall-name">Jog Falls (Gerosoppa Falls)</div>
+                            <div class="waterfall-location">📍 Sagar Taluk, Shimoga District, Karnataka</div>
+                            <div class="waterfall-description">
+                                One of India's most iconic waterfalls, Jog Falls is created by the Sharavathi River dropping 
+                                253 metres in four distinct cascades named Raja (King), Rani (Queen), Rover, and Rocket — 
+                                each with its own character. The Raja falls in a single majestic column; the Rani cascades 
+                                gracefully; the Rover twists through rocks; and the Rocket shoots out with tremendous force. 
+                                Before the Linganamakki Dam was built upstream, Jog was a year-round spectacle. Today, it 
+                                reaches its full glory during the monsoon when dam gates are opened. The 1,400-step trek to 
+                                the base is a rewarding adventure. The British termed it "Gerosoppa Falls." The Karnataka 
+                                government has developed extensive viewpoints, a geological park, and eco-tourism facilities. 
+                                The falls are a designated National Geological Monument.
+                            </div>
+                            <div class="waterfall-tags">
+                                <span class="waterfall-tag tag-river">🌊 Sharavathi River</span>
+                                <span class="waterfall-tag tag-type">⛰️ Segmented (4 cascades)</span>
+                                <span class="waterfall-tag tag-season">🏛️ Nat. Geo. Monument</span>
+                            </div>
+                        </div>
+                        <div class="waterfall-height-display">
+                            <div class="height-bar-container">
+                                <div class="height-bar" style="height:55.6%; background: linear-gradient(to top, #26a69a, #00897b);"></div>
+                            </div>
+                            <span class="height-value">253</span>
+                            <span class="height-unit">metres</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Height Comparison Chart -->
+        <div class="comparison-section scroll-animate">
+            <h3 class="comparison-title">📊 Height Comparison — India's Top 15 Waterfalls</h3>
+            <div class="height-chart" id="heightChart">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- State-wise Waterfalls -->
+        <div id="state-waterfalls">
+            <div class="section-header">
+                <span class="section-icon">📍</span>
+                <h2 class="section-title">State-Wise Waterfalls</h2>
+                <div class="section-divider"></div>
+                <p class="section-subtitle">
+                    A comprehensive listing of major waterfalls organized by state, covering 
+                    the Western Ghats, Eastern Ghats, Northeast hills, and Himalayan foothills.
+                </p>
+            </div>
+
+            <div class="state-waterfalls-grid">
+                <!-- Karnataka -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🏔️</div>
+                        <div>
+                            <div class="state-wf-name">Karnataka</div>
+                            <div class="state-wf-count">The Waterfall Capital — 50+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Kunchikal Falls</div><div class="wf-item-river">Varahi River, Shimoga</div></div><div class="wf-item-height">455 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Jog Falls (Gerosoppa)</div><div class="wf-item-river">Sharavathi River, Sagar</div></div><div class="wf-item-height">253 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Unchalli Falls (Lushington)</div><div class="wf-item-river">Aghanashini River, Sirsi</div></div><div class="wf-item-height">116 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Magod Falls</div><div class="wf-item-river">Bedthi River, Uttara Kannada</div></div><div class="wf-item-height">198 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Abbey Falls</div><div class="wf-item-river">Tributary of Cauvery, Coorg</div></div><div class="wf-item-height">21 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Iruppu Falls</div><div class="wf-item-river">Lakshmana Tirtha, Coorg</div></div><div class="wf-item-height">52 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Shivanasamudra Falls</div><div class="wf-item-river">Cauvery River, Mandya</div></div><div class="wf-item-height">98 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Gokak Falls</div><div class="wf-item-river">Ghataprabha River, Belagavi</div></div><div class="wf-item-height">52 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Hebbe Falls</div><div class="wf-item-river">Tributary, Chikmagalur</div></div><div class="wf-item-height">168 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Sathodi Falls</div><div class="wf-item-river">Multiple streams, Yellapur</div></div><div class="wf-item-height">15 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Barkana Falls</div><div class="wf-item-river">Sita River, Agumbe</div></div><div class="wf-item-height">259 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Onake Abbi Falls</div><div class="wf-item-river">Sharavathi, Shimoga</div></div><div class="wf-item-height">394 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Meghalaya -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🌧️</div>
+                        <div>
+                            <div class="state-wf-name">Meghalaya</div>
+                            <div class="state-wf-count">Abode of Clouds — 20+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Nohkalikai Falls</div><div class="wf-item-river">Stream, Cherrapunji</div></div><div class="wf-item-height">340 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Nohsngithiang Falls</div><div class="wf-item-river">Seven Sisters, Mawsmai</div></div><div class="wf-item-height">315 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Kynrem Falls</div><div class="wf-item-river">Thangkharang Park</div></div><div class="wf-item-height">305 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Elephant Falls</div><div class="wf-item-river">Shillong, 3-tiered</div></div><div class="wf-item-height">25 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Bishop Falls</div><div class="wf-item-river">Shillong</div></div><div class="wf-item-height">133 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Langshiang Falls</div><div class="wf-item-river">West Khasi Hills</div></div><div class="wf-item-height">337 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Sweet Falls</div><div class="wf-item-river">Cherrapunji</div></div><div class="wf-item-height">96 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Wei Sawdong Falls</div><div class="wf-item-river">Cherrapunji, 3-tiered</div></div><div class="wf-item-height">82 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Dainthlen Falls</div><div class="wf-item-river">Sohra</div></div><div class="wf-item-height">55 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Goa -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🏖️</div>
+                        <div>
+                            <div class="state-wf-name">Goa</div>
+                            <div class="state-wf-count">Western Ghats Edge — 8+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Dudhsagar Falls</div><div class="wf-item-river">Mandovi River</div></div><div class="wf-item-height">310 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Arvalem Falls</div><div class="wf-item-river">Sanquelim, North Goa</div></div><div class="wf-item-height">24 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Tambdi Surla Falls</div><div class="wf-item-river">Near Tambdi Surla Temple</div></div><div class="wf-item-height">15 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Kesarval Spring</div><div class="wf-item-river">Verna, South Goa</div></div><div class="wf-item-height">10 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Netravali Falls</div><div class="wf-item-river">Netravali WLS</div></div><div class="wf-item-height">18 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Odisha -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🌲</div>
+                        <div>
+                            <div class="state-wf-name">Odisha</div>
+                            <div class="state-wf-count">Eastern Ghats Splendor — 15+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Barehipani Falls</div><div class="wf-item-river">Budhabalanga, Simlipal</div></div><div class="wf-item-height">399 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Joranda Falls</div><div class="wf-item-river">Simlipal NP</div></div><div class="wf-item-height">157 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Duduma Falls</div><div class="wf-item-river">Machkund River, Koraput</div></div><div class="wf-item-height">157 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Khandadhar Falls</div><div class="wf-item-river">Sundargarh</div></div><div class="wf-item-height">244 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Pradhanpat Falls</div><div class="wf-item-river">Deogarh</div></div><div class="wf-item-height">30 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Sanaghagara Falls</div><div class="wf-item-river">Keonjhar</div></div><div class="wf-item-height">30 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Harishankara Falls</div><div class="wf-item-river">Kalahandi</div></div><div class="wf-item-height">40 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Kerala -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🌴</div>
+                        <div>
+                            <div class="state-wf-name">Kerala</div>
+                            <div class="state-wf-count">God's Own Country — 30+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Athirappilly Falls</div><div class="wf-item-river">Chalakudy River, Thrissur</div></div><div class="wf-item-height">24 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Vazhachal Falls</div><div class="wf-item-river">Chalakudy River</div></div><div class="wf-item-height">15 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Meenmutty Falls</div><div class="wf-item-river">Wayanad, 3-tiered</div></div><div class="wf-item-height">300 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Soochipara Falls</div><div class="wf-item-river">Wayanad (Sentinel Rock)</div></div><div class="wf-item-height">200 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Thommankuthu Falls</div><div class="wf-item-river">Idukki, 7-tiered</div></div><div class="wf-item-height">200 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Palaruvi Falls</div><div class="wf-item-river">Kollam ("Milky Stream")</div></div><div class="wf-item-height">91 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Thusharagiri Falls</div><div class="wf-item-river">Kozhikode, 3-tiered</div></div><div class="wf-item-height">75 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Cheeyappara Falls</div><div class="wf-item-river">Idukki</div></div><div class="wf-item-height">50 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Tamil Nadu -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🏛️</div>
+                        <div>
+                            <div class="state-wf-name">Tamil Nadu</div>
+                            <div class="state-wf-count">Nilgiri & Palani Hills — 20+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Thalaiyar Falls</div><div class="wf-item-river">Palani Hills ("Rat Tail")</div></div><div class="wf-item-height">297 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Courtallam Falls</div><div class="wf-item-river">Chittar River, Tenkasi</div></div><div class="wf-item-height">92 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Hogenakkal Falls</div><div class="wf-item-river">Cauvery River, Dharmapuri</div></div><div class="wf-item-height">20 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Catherine Falls</div><div class="wf-item-river">Kotagiri, Nilgiris</div></div><div class="wf-item-height">76 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Monkey Falls</div><div class="wf-item-river">Anaimalai Hills</div></div><div class="wf-item-height">18 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Pykara Falls</div><div class="wf-item-river">Pykara River, Ooty</div></div><div class="wf-item-height">61 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Kiliyur Falls</div><div class="wf-item-river">Yercaud, Salem</div></div><div class="wf-item-height">91 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Maharashtra -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">⛰️</div>
+                        <div>
+                            <div class="state-wf-name">Maharashtra</div>
+                            <div class="state-wf-count">Sahyadri Cascades — 25+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Thoseghar Falls</div><div class="wf-item-river">Satara</div></div><div class="wf-item-height">200 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Randha Falls</div><div class="wf-item-river">Pravara River, Ahmednagar</div></div><div class="wf-item-height">170 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Lingmala Falls</div><div class="wf-item-river">Mahabaleshwar</div></div><div class="wf-item-height">92 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Bhivpuri Falls</div><div class="wf-item-river">Karjat</div></div><div class="wf-item-height">22 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Zenith Falls</div><div class="wf-item-river">Khopoli</div></div><div class="wf-item-height">40 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Dabhosa Falls</div><div class="wf-item-river">Jawhar, Palghar</div></div><div class="wf-item-height">91 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Pandavkada Falls</div><div class="wf-item-river">Kharghar, Navi Mumbai</div></div><div class="wf-item-height">32 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Chhattisgarh -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🌳</div>
+                        <div>
+                            <div class="state-wf-name">Chhattisgarh</div>
+                            <div class="state-wf-count">Niagara of India — 15+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Chitrakote Falls</div><div class="wf-item-river">Indravati River, Bastar</div></div><div class="wf-item-height">29 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Tirathgarh Falls</div><div class="wf-item-river">Kanger Valley NP</div></div><div class="wf-item-height">91 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Amrit Dhara Falls</div><div class="wf-item-river">Hasdeo River, Koriya</div></div><div class="wf-item-height">27 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Ramdaha Falls</div><div class="wf-item-river">Surguja</div></div><div class="wf-item-height">30 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Tamra Ghoomar Falls</div><div class="wf-item-river">Jashpur</div></div><div class="wf-item-height">30 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Jharkhand -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🍃</div>
+                        <div>
+                            <div class="state-wf-name">Jharkhand</div>
+                            <div class="state-wf-count">Chota Nagpur Plateau — 15+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Hundru Falls</div><div class="wf-item-river">Subarnarekha River, Ranchi</div></div><div class="wf-item-height">98 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Dassam Falls</div><div class="wf-item-river">Kanchi River, Ranchi</div></div><div class="wf-item-height">40 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Jonha Falls (Gautamdhara)</div><div class="wf-item-river">Gunga River, Ranchi</div></div><div class="wf-item-height">43 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Lodh Falls (Buddha Ghagh)</div><div class="wf-item-river">Latehar</div></div><div class="wf-item-height">143 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Hirni Falls</div><div class="wf-item-river">West Singhbhum</div></div><div class="wf-item-height">37 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Panchghagh Falls</div><div class="wf-item-river">Khunti</div></div><div class="wf-item-height">15 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Northeast -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🌿</div>
+                        <div>
+                            <div class="state-wf-name">Other Northeast States</div>
+                            <div class="state-wf-count">Assam, Mizoram, Arunachal, Manipur, Nagaland</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Nuranang Falls</div><div class="wf-item-river">Tawang, Arunachal Pradesh</div></div><div class="wf-item-height">100 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Kakochang Falls</div><div class="wf-item-river">Bokakhat, Assam</div></div><div class="wf-item-height">40 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Vantawng Falls</div><div class="wf-item-river">Vanva River, Mizoram</div></div><div class="wf-item-height">229 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Dzukou Valley Falls</div><div class="wf-item-river">Nagaland-Manipur border</div></div><div class="wf-item-height">25 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Naga Falls</div><div class="wf-item-river">Dimapur, Nagaland</div></div><div class="wf-item-height">18 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Uttarakhand & Himachal -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🏔️</div>
+                        <div>
+                            <div class="state-wf-name">Uttarakhand & Himachal</div>
+                            <div class="state-wf-count">Himalayan Falls — 15+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Kempty Falls</div><div class="wf-item-river">Mussoorie, Uttarakhand</div></div><div class="wf-item-height">40 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Tiger Falls</div><div class="wf-item-river">Chakrata, Uttarakhand</div></div><div class="wf-item-height">98 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Bhalu Gaad Falls</div><div class="wf-item-river">Munsiari, Uttarakhand</div></div><div class="wf-item-height">61 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Vasundhara Falls</div><div class="wf-item-river">Mana Village, Uttarakhand</div></div><div class="wf-item-height">122 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Rahala Falls</div><div class="wf-item-river">Rohtang, Himachal Pradesh</div></div><div class="wf-item-height">30 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Chadwick Falls</div><div class="wf-item-river">Shimla, Himachal Pradesh</div></div><div class="wf-item-height">86 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Jogini Falls</div><div class="wf-item-river">Manali, Himachal Pradesh</div></div><div class="wf-item-height">49 m</div></div>
+                    </div>
+                </div>
+
+                <!-- Andhra Pradesh & Telangana -->
+                <div class="state-waterfall-card scroll-animate">
+                    <div class="state-wf-header">
+                        <div class="state-wf-icon">🌾</div>
+                        <div>
+                            <div class="state-wf-name">Andhra Pradesh & Telangana</div>
+                            <div class="state-wf-count">Eastern Ghats & Deccan — 12+ Major Falls</div>
+                        </div>
+                    </div>
+                    <div class="state-wf-body">
+                        <div class="wf-list-item"><div><div class="wf-item-name">Talakona Falls</div><div class="wf-item-river">Seshachalam Hills, AP</div></div><div class="wf-item-height">82 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Ethipothala Falls</div><div class="wf-item-river">Chandravanka River, AP</div></div><div class="wf-item-height">21 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Kuntala Falls</div><div class="wf-item-river">Kadam River, Telangana</div></div><div class="wf-item-height">61 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Pochera Falls</div><div class="wf-item-river">Adilabad, Telangana</div></div><div class="wf-item-height">20 m</div></div>
+                        <div class="wf-list-item"><div><div class="wf-item-name">Mallela Theertham</div><div class="wf-item-river">Nallamala Hills, Telangana</div></div><div class="wf-item-height">46 m</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!--               LAKES SECTION                  -->
+    <!-- ============================================ -->
+    <section id="lakes-section">
+        <div class="section-header">
+            <span class="section-icon">🏞️</span>
+            <h2 class="section-title">Lakes of Bharat</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle">
+                India harbors over 200 notable lakes spanning every imaginable type — freshwater, brackish, 
+                saline, glacial, crater, oxbow, and artificial reservoirs. These waterbodies are vital ecosystems, 
+                cultural landmarks, and economic lifelines.
+            </p>
+        </div>
+
+        <!-- A. NATURAL LAKES -->
+        <div class="lake-category" id="natural-lakes">
+            <div class="lake-category-header scroll-animate">
+                <span class="lake-cat-icon">🌿</span>
+                <div>
+                    <div class="lake-cat-title">A. Natural Lakes</div>
+                    <div class="lake-cat-desc">Freshwater, brackish, saline, and unique natural waterbodies formed by tectonic, fluvial, or coastal processes</div>
+                </div>
+            </div>
+
+            <div class="lakes-grid">
+                <!-- Wular Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🌊 Wular Lake</div>
+                            <div class="lake-state">📍 Bandipora, Jammu & Kashmir</div>
+                        </div>
+                        <span class="lake-type-badge badge-freshwater">Freshwater</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            India's largest freshwater lake by area, formed tectonically in the Kashmir Valley. 
+                            Fed by the Jhelum River and surrounded by the Himalayas, Wular is a critical flood 
+                            absorption basin, a Ramsar Wetland, and sustains fishing communities. The Mughal 
+                            Emperor Zain-ul-Abidin built a grand palace (Zaina Lank) on an island here. 
+                            The lake supports migratory birds from Central Asia and Siberia including the 
+                            endangered Brahminy duck and white-eyed pochard.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">189 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Depth</span><span class="lake-meta-value">14 m (max)</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">1,580 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chilika Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🦩 Chilika Lake</div>
+                            <div class="lake-state">📍 Puri, Khordha & Ganjam, Odisha</div>
+                        </div>
+                        <span class="lake-type-badge badge-brackish">Brackish</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            Asia's largest brackish water lagoon and India's largest coastal lake. A pear-shaped 
+                            waterbody connected to the Bay of Bengal via a narrow channel, Chilika is home to 
+                            the Irrawaddy dolphins, over 160 species of fish, and hosts over a million migratory 
+                            birds annually from the Caspian Sea, Baikal, and Siberia — including flamingos, 
+                            white-bellied sea eagles, and bar-headed geese. The lake has a central island called 
+                            Nalabana (Bird Island). It is a Ramsar site and was once a major ancient port.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">1,165 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Depth</span><span class="lake-meta-value">4.2 m (avg)</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Birds</span><span class="lake-meta-value">1 Million+/yr</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loktak Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🏝️ Loktak Lake</div>
+                            <div class="lake-state">📍 Bishnupur, Manipur</div>
+                        </div>
+                        <span class="lake-type-badge badge-freshwater">Freshwater</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            The largest freshwater lake in Northeast India, famous for its floating "phumdis" — 
+                            heterogeneous masses of vegetation, soil, and organic matter. These floating islands 
+                            support the world's only floating national park — Keibul Lamjao, the last natural 
+                            habitat of the endangered Sangai deer (Eld's deer/brow-antlered deer). Local fishermen 
+                            build floating huts called "phumshongs" on phumdis. The lake is vital for Manipur's 
+                            economy, providing water, hydropower, fisheries, and irrigation.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">287 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Unique</span><span class="lake-meta-value">Floating Phumdis</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Wildlife</span><span class="lake-meta-value">Sangai Deer</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pangong Tso -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">💎 Pangong Tso</div>
+                            <div class="lake-state">📍 Leh, Ladakh (extends to Tibet)</div>
+                        </div>
+                        <span class="lake-type-badge badge-saltwater">Saline</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            An endorheic high-altitude salt lake stretching 134 km across the India-China border — 
+                            one-third lies in India, two-thirds in Tibet. At 4,350 metres elevation, its waters 
+                            display mesmerizing color shifts from azure to turquoise to deep blue depending on 
+                            sunlight and minerals. Despite being saline, it freezes completely in winter. The lake 
+                            gained worldwide fame through the Bollywood film "3 Idiots." It is a strategically 
+                            important region near the Line of Actual Control. Breeding ground for bar-headed geese 
+                            and brahminy ducks.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Length</span><span class="lake-meta-value">134 km</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">4,350 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Type</span><span class="lake-meta-value">Endorheic Saline</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Trans-border</span><span class="lake-meta-value">India–China</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tso Moriri -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🏔️ Tso Moriri</div>
+                            <div class="lake-state">📍 Changthang, Ladakh</div>
+                        </div>
+                        <span class="lake-type-badge badge-saltwater">Oligosaline</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            A high-altitude lake at 4,522 metres in the Changthang Plateau of Ladakh. One of the 
+                            highest lakes in India, Tso Moriri is the largest high-altitude lake entirely within India 
+                            (28 km long). Surrounded by barren mountains and the Changthang Wildlife Sanctuary, it 
+                            supports the Changpa nomadic pastoralists who rear Pashmina goats. The lake is a Ramsar 
+                            Wetland and breeding ground for the black-necked crane, bar-headed goose, and great 
+                            crested grebe. In winter, temperatures plummet to -40°C.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">120 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">4,522 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Depth</span><span class="lake-meta-value">40 m (max)</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pulicat Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🦩 Pulicat Lake</div>
+                            <div class="lake-state">📍 Andhra Pradesh & Tamil Nadu Border</div>
+                        </div>
+                        <span class="lake-type-badge badge-brackish">Brackish</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            The second largest brackish water lagoon in India after Chilika, Pulicat lies on the 
+                            Coromandel Coast at the AP–TN border. Connected to the Bay of Bengal via the 
+                            Buckingham Canal and a narrow bar mouth. The lagoon is separated from the sea by 
+                            Sriharikota Island — home to India's rocket launch centre (ISRO). Pulicat Bird 
+                            Sanctuary hosts thousands of flamingos, pelicans, herons, and painted storks. 
+                            The Dutch established a fort and trading post here in the 17th century.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">759 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Depth</span><span class="lake-meta-value">1.5 m (avg)</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Island</span><span class="lake-meta-value">Sriharikota</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Birds</span><span class="lake-meta-value">Flamingo Hub</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vembanad Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🛶 Vembanad Lake</div>
+                            <div class="lake-state">📍 Kottayam, Alappuzha & Ernakulam, Kerala</div>
+                        </div>
+                        <span class="lake-type-badge badge-brackish">Brackish</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            The longest lake in India (96.5 km) and the largest lake in Kerala. Vembanad is the 
+                            lifeline of the Kerala backwaters — an interconnected network of canals, rivers, and 
+                            lagoons. The famous Nehru Trophy Boat Race (Vallam Kali) is held here at Punnamada. 
+                            Kuttanad, the rice bowl of Kerala and one of the few places in the world where farming 
+                            occurs below sea level, borders the lake. The Thanneermukkom Bund divides the lake 
+                            into fresh and saline sections. Rich in aquatic biodiversity and vital for fishing communities.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">2,033 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Length</span><span class="lake-meta-value">96.5 km</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Famous</span><span class="lake-meta-value">Boat Race</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dal Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🌸 Dal Lake</div>
+                            <div class="lake-state">📍 Srinagar, Jammu & Kashmir</div>
+                        </div>
+                        <span class="lake-type-badge badge-freshwater">Freshwater</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            The "Jewel in the crown of Kashmir" — an urban lake of extraordinary beauty in the heart 
+                            of Srinagar. Known for its ornately carved houseboats (originally built by the British who 
+                            were forbidden to own land), floating gardens called "Rad" for vegetable cultivation, and 
+                            the famous shikara boats. The Mughal gardens of Nishat Bagh and Shalimar Bagh grace its 
+                            shores. The Char Chinar island with its four iconic chinar trees is a beloved landmark. 
+                            Despite pollution challenges, Dal remains one of the most romantic destinations in the world.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">18 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">1,583 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Famous</span><span class="lake-meta-value">Houseboats</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Icon</span><span class="lake-meta-value">Char Chinar</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sambhar Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🧂 Sambhar Lake</div>
+                            <div class="lake-state">📍 Jaipur, Rajasthan</div>
+                        </div>
+                        <span class="lake-type-badge badge-saltwater">Saline</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            India's largest inland saline lake and the country's most important source of salt, 
+                            producing 196,000 tonnes annually — about 8.7% of India's salt production. The lake 
+                            is an elliptical shallow basin occupying a depression between parallel ridges of the 
+                            Aravalli Hills. During winter it hosts flamingos and other migratory waterfowl. The 
+                            Sambhar Salt Lake was designated a Ramsar site. Local legend attributes its creation 
+                            to Shakambhari Devi. The lake's ecosystem supports unique halophilic organisms.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">230 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Salt/yr</span><span class="lake-meta-value">196,000 tonnes</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Type</span><span class="lake-meta-value">Inland Saline</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lonar Crater Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">☄️ Lonar Crater Lake</div>
+                            <div class="lake-state">📍 Buldhana, Maharashtra</div>
+                        </div>
+                        <span class="lake-type-badge badge-crater">Crater</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            One of only four known impact craters in basaltic rock on Earth, created approximately 
+                            50,000 years ago by a meteorite impact. The nearly circular lake sits in a crater 1.8 km 
+                            in diameter and 150 m deep. The water is simultaneously saline and alkaline — a unique 
+                            combination rarely found. In 2020, the lake turned pink due to Haloarchaea microorganisms. 
+                            The lake supports microorganisms similar to those found on Mars, making it of interest 
+                            to NASA. Multiple ancient temples dot the crater rim, including the Daitya Sudan temple.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Diameter</span><span class="lake-meta-value">1.8 km</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Age</span><span class="lake-meta-value">~50,000 yrs</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">pH</span><span class="lake-meta-value">10.5 (alkaline)</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Nat. Geo Heritage</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kolleru Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🐦 Kolleru Lake</div>
+                            <div class="lake-state">📍 West Godavari & Krishna, Andhra Pradesh</div>
+                        </div>
+                        <span class="lake-type-badge badge-freshwater">Freshwater</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            One of India's largest freshwater lakes, situated between the Krishna and Godavari 
+                            river deltas. Kolleru acts as a natural flood-balancing reservoir between these two 
+                            great river systems. Declared a Wildlife Sanctuary, it hosts grey pelicans, painted 
+                            storks, and open-billed storks. The lake was historically much larger but has shrunk 
+                            due to encroachment for aquaculture. The Atapaka Bird Sanctuary within the lake is a 
+                            critical breeding ground for migratory waterfowl.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">308 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Rivers</span><span class="lake-meta-value">Krishna–Godavari</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Role</span><span class="lake-meta-value">Flood Basin</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hussain Sagar -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🗿 Hussain Sagar</div>
+                            <div class="lake-state">📍 Hyderabad, Telangana</div>
+                        </div>
+                        <span class="lake-type-badge badge-artificial">Artificial</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            Built in 1563 CE during the reign of Ibrahim Quli Qutb Shah, this heart-shaped lake 
+                            connects the twin cities of Hyderabad and Secunderabad. A 16-metre tall monolithic 
+                            Buddha statue (350 tonnes, carved from a single granite rock) stands on Gibraltar 
+                            Rock island in the lake's center. The Tank Bund road along its edge features 33 
+                            statues of notable Telugu personalities. The lake hosted the 2003 National Sailing 
+                            Championship and is a major urban recreation zone.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">5.7 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Built</span><span class="lake-meta-value">1563 CE</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Famous</span><span class="lake-meta-value">Buddha Statue</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Depth</span><span class="lake-meta-value">32 ft (max)</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- B. GLACIAL LAKES -->
+        <div class="lake-category" id="glacial-lakes">
+            <div class="lake-category-header scroll-animate">
+                <span class="lake-cat-icon">🏔️</span>
+                <div>
+                    <div class="lake-cat-title">B. Glacial Lakes</div>
+                    <div class="lake-cat-desc">High-altitude lakes formed by glacial activity in the Himalayas, Karakoram, and trans-Himalayan ranges</div>
+                </div>
+            </div>
+
+            <div class="lakes-grid">
+                <!-- Gurudongmar Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">❄️ Gurudongmar Lake</div>
+                            <div class="lake-state">📍 North Sikkim</div>
+                        </div>
+                        <span class="lake-type-badge badge-glacial">Glacial</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            One of the highest lakes in the world at 5,183 metres, located near the Tibetan border 
+                            in North Sikkim. Sacred to both Buddhists and Hindus — named after Guru Padmasambhava 
+                            (Guru Rinpoche), who is believed to have blessed the lake so a portion never freezes 
+                            even in winter (when temperatures drop to -25°C). The crystal-clear lake reflects the 
+                            snow-capped peaks of Kanchenjunga range. Access requires a special Inner Line Permit.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">5,183 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Sacred</span><span class="lake-meta-value">Buddhist/Hindu</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Feature</span><span class="lake-meta-value">Partial non-freeze</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Access</span><span class="lake-meta-value">ILP Required</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tsomgo Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🪷 Tsomgo (Changu) Lake</div>
+                            <div class="lake-state">📍 East Sikkim</div>
+                        </div>
+                        <span class="lake-type-badge badge-glacial">Glacial</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            A glacial lake at 3,753 metres on the Gangtok–Nathula highway. "Tsomgo" means 
+                            "source of the lake" in Bhutia. The lake surface reflects different colors through 
+                            seasons — frozen white in winter, emerald in spring, blue in summer. Surrounded by 
+                            steep mountains with rhododendrons and primulas. Sacred to local Sikkimese who hold 
+                            the Guru Purnima festival here. Yak rides are popular among tourists.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">3,753 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Depth</span><span class="lake-meta-value">15 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Length</span><span class="lake-meta-value">1 km</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Shape</span><span class="lake-meta-value">Oval</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roopkund Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">💀 Roopkund Lake</div>
+                            <div class="lake-state">📍 Chamoli, Uttarakhand</div>
+                        </div>
+                        <span class="lake-type-badge badge-glacial">Glacial</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            The famous "Skeleton Lake" — a high-altitude glacial lake containing the remains of 
+                            approximately 600-800 human skeletons dating from the 9th century CE. At 5,029 metres 
+                            in the lap of Trishul peak, the bones are visible when the snow melts. DNA studies 
+                            revealed people of South Asian and Mediterranean-Greek origin. The most accepted 
+                            theory suggests they were killed by a sudden, severe hailstorm while on a pilgrimage 
+                            to the Nanda Devi Raj Jat festival. The Roopkund trek is one of India's most popular 
+                            Himalayan treks.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">5,029 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Mystery</span><span class="lake-meta-value">600+ Skeletons</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Diameter</span><span class="lake-meta-value">40 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Period</span><span class="lake-meta-value">~9th Century</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Satopanth Lake -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🕉️ Satopanth Lake</div>
+                            <div class="lake-state">📍 Chamoli, Uttarakhand</div>
+                        </div>
+                        <span class="lake-type-badge badge-glacial">Glacial</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            A triangular-shaped glacial lake at 4,600 metres, sacred in Hindu mythology. 
+                            The three corners are believed to be the seats of Brahma, Vishnu, and Shiva. 
+                            Located below the Satopanth and Bhagirath Kharak glaciers near Badrinath. 
+                            The 25-km trek from Mana village passes through alpine meadows and moraines. 
+                            The lake has crystal-clear emerald-green water fed by glacial melt.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">4,600 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Shape</span><span class="lake-meta-value">Triangular</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Sacred</span><span class="lake-meta-value">Trimurti Legend</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Trek</span><span class="lake-meta-value">25 km from Mana</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hemkund -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">⛩️ Hemkund Sahib</div>
+                            <div class="lake-state">📍 Chamoli, Uttarakhand</div>
+                        </div>
+                        <span class="lake-type-badge badge-glacial">Glacial</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            A sacred glacial lake at 4,329 metres, surrounded by seven snow-capped peaks forming 
+                            a ring of mountains. The Sikh Gurudwara Hemkund Sahib on its shore is one of the 
+                            highest gurudwaras in the world — where Guru Gobind Singh is believed to have meditated 
+                            in a previous life. A Hindu Lakshman Temple also exists here. Accessible only June–October, 
+                            the trek from Govindghat is strenuous but spiritually rewarding. The Valley of Flowers 
+                            National Park is nearby.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">4,329 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Sacred</span><span class="lake-meta-value">Sikh + Hindu</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Peaks</span><span class="lake-meta-value">7 surrounding</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Season</span><span class="lake-meta-value">Jun–Oct only</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tso Kar -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🤍 Tso Kar</div>
+                            <div class="lake-state">📍 Rupshu Valley, Ladakh</div>
+                        </div>
+                        <span class="lake-type-badge badge-saltwater">Hypersaline</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            The "White Lake" — named for the white salt efflorescence on its shores. A fluctuating 
+                            high-altitude salt lake at 4,530 metres in the Rupshu Valley. Once a much larger lake 
+                            that has been shrinking for millennia. The salt was historically traded along ancient 
+                            caravan routes to Tibet. Tso Kar is a Ramsar site and an important breeding ground for 
+                            the black-necked crane — one of the rarest crane species on Earth. The Changpa nomads 
+                            camp near the lake with their yak and Pashmina goat herds.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Elevation</span><span class="lake-meta-value">4,530 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">26 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Bird</span><span class="lake-meta-value">Black-necked Crane</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Status</span><span class="lake-meta-value">Ramsar Site</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- C. ARTIFICIAL RESERVOIRS -->
+        <div class="lake-category" id="artificial-lakes">
+            <div class="lake-category-header scroll-animate">
+                <span class="lake-cat-icon">🏗️</span>
+                <div>
+                    <div class="lake-cat-title">C. Artificial Reservoirs</div>
+                    <div class="lake-cat-desc">Major man-made reservoirs created by dams for irrigation, hydropower, drinking water, and flood control</div>
+                </div>
+            </div>
+
+            <div class="lakes-grid">
+                <!-- Govind Ballabh Pant Sagar -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🏛️ Govind Ballabh Pant Sagar</div>
+                            <div class="lake-state">📍 Sonbhadra, Uttar Pradesh</div>
+                        </div>
+                        <span class="lake-type-badge badge-artificial">Reservoir</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            India's largest artificial lake by area, created by the Rihand Dam across the Rihand River 
+                            (tributary of the Sone River) in 1962. Named after India's first Deputy PM, the reservoir 
+                            provides water for the Singrauli Super Thermal Power Station and irrigation. The lake spans 
+                            the UP–Madhya Pradesh border and has developed into a significant fishery. The surrounding 
+                            Sonbhadra region is rich in minerals including gold deposits.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">468 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Dam</span><span class="lake-meta-value">Rihand Dam</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">River</span><span class="lake-meta-value">Rihand (Sone)</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Year</span><span class="lake-meta-value">1962</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indira Sagar -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">💧 Indira Sagar Reservoir</div>
+                            <div class="lake-state">📍 Khandwa, Madhya Pradesh</div>
+                        </div>
+                        <span class="lake-type-badge badge-artificial">Reservoir</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            India's largest reservoir by volume (12.22 billion m³), created by the Indira Sagar Dam 
+                            on the Narmada River. Completed in 2005, it is a key component of the Narmada Valley 
+                            Development Project. The dam generates 1,000 MW of hydroelectric power and irrigates 
+                            2.5 lakh hectares. The reservoir submerged 249 villages, leading to major displacement 
+                            controversies (Narmada Bachao Andolan by Medha Patkar). The lake has become an important 
+                            fishery supporting local livelihoods.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Volume</span><span class="lake-meta-value">12.22 Bn m³</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">River</span><span class="lake-meta-value">Narmada</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Power</span><span class="lake-meta-value">1,000 MW</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Irrigation</span><span class="lake-meta-value">2.5 Lakh ha</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hirakud -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🌅 Hirakud Reservoir</div>
+                            <div class="lake-state">📍 Sambalpur, Odisha</div>
+                        </div>
+                        <span class="lake-type-badge badge-artificial">Reservoir</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            Created by the Hirakud Dam — the longest earthen dam in the world (25.8 km including dykes) — 
+                            built across the Mahanadi River. Completed in 1957, it was one of independent India's first 
+                            major multipurpose river valley projects. The reservoir stretches 55 km and is surrounded by 
+                            forests home to gharials, mugger crocodiles, and migratory birds. The dam has tamed the 
+                            devastating floods that historically ravaged the Mahanadi delta, provides irrigation to 
+                            Sambalpur, and generates 347 MW of hydroelectric power.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">743 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Dam Length</span><span class="lake-meta-value">25.8 km</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">River</span><span class="lake-meta-value">Mahanadi</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Power</span><span class="lake-meta-value">347 MW</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nagarjuna Sagar -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🏗️ Nagarjuna Sagar</div>
+                            <div class="lake-state">📍 Nalgonda, Telangana & Guntur, AP</div>
+                        </div>
+                        <span class="lake-type-badge badge-artificial">Reservoir</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            One of the world's largest masonry dams, built on the Krishna River between 1955–1967. 
+                            Named after the Buddhist scholar Nagarjuna. The reservoir irrigates over 10 lakh acres 
+                            across Telangana and Andhra Pradesh. The Nagarjunakonda island (now partially submerged) 
+                            was a major Buddhist center in the 2nd–3rd centuries CE, with archaeological remains 
+                            relocated to a museum on the island. The dam generates 815.6 MW of hydropower and is 
+                            an engineering marvel of post-independence India.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">285 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">River</span><span class="lake-meta-value">Krishna</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Power</span><span class="lake-meta-value">815.6 MW</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Built</span><span class="lake-meta-value">1955–1967</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bhakra-Nangal -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">⚡ Gobind Sagar</div>
+                            <div class="lake-state">📍 Bilaspur, Himachal Pradesh</div>
+                        </div>
+                        <span class="lake-type-badge badge-artificial">Reservoir</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            Created by the Bhakra Dam — India's highest gravity dam (226 m) — on the Sutlej River. 
+                            Named after Guru Gobind Singh, the reservoir stores 9.34 billion m³ of water. Jawaharlal 
+                            Nehru called Bhakra Dam a "Temple of Resurgent India." The dam transformed Punjab and 
+                            Haryana into India's breadbasket through extensive canal irrigation. It generates 1,325 MW 
+                            of hydroelectric power. The reservoir also supports commercial fishing and is a scenic 
+                            destination with the Himalayan foothills as backdrop.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">168 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Dam Height</span><span class="lake-meta-value">226 m</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">River</span><span class="lake-meta-value">Sutlej</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Power</span><span class="lake-meta-value">1,325 MW</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stanley Reservoir -->
+                <div class="lake-card scroll-animate">
+                    <div class="lake-card-top">
+                        <div>
+                            <div class="lake-name">🌾 Stanley Reservoir (Mettur)</div>
+                            <div class="lake-state">📍 Salem, Tamil Nadu</div>
+                        </div>
+                        <span class="lake-type-badge badge-artificial">Reservoir</span>
+                    </div>
+                    <div class="lake-details">
+                        <p class="lake-desc">
+                            One of the oldest and largest reservoirs in India, created by the Mettur Dam across the 
+                            Cauvery River, completed in 1934. Named after Sir George Stanley, the then Governor of 
+                            Madras. The dam is the lifeline of Tamil Nadu's delta agriculture — its annual opening 
+                            on June 12th is celebrated as a festival. The reservoir irrigates millions of acres of 
+                            paddy fields in the Thanjavur delta (the "Rice Bowl of Tamil Nadu") and generates 
+                            hydroelectric power. The reservoir's capacity is 93.47 TMC.
+                        </p>
+                        <div class="lake-meta">
+                            <div class="lake-meta-item"><span class="lake-meta-label">Area</span><span class="lake-meta-value">152 km²</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">River</span><span class="lake-meta-value">Cauvery</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Year</span><span class="lake-meta-value">1934</span></div>
+                            <div class="lake-meta-item"><span class="lake-meta-label">Capacity</span><span class="lake-meta-value">93.47 TMC</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!--                  MAP SECTION                 -->
+    <!-- ============================================ -->
+    <section id="map" class="map-section">
+        <div class="section-header">
+            <span class="section-icon">🗺️</span>
+            <h2 class="section-title">Interactive Map</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle">
+                Explore the locations of India's major waterfalls and lakes on the interactive map below.
+            </p>
+        </div>
+
+        <div class="map-container scroll-animate">
+            <div id="waterfall-lake-map"></div>
+        </div>
+
+        <div class="map-legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #4fc3f7;"></div>
+                <span>Waterfall</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #26a69a;"></div>
+                <span>Natural Lake</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #b3e5fc;"></div>
+                <span>Glacial Lake</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #ffd54f;"></div>
+                <span>Reservoir</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!--              INTERESTING FACTS               -->
+    <!-- ============================================ -->
+    <section id="facts" class="facts-section">
+        <div class="section-header">
+            <span class="section-icon">💡</span>
+            <h2 class="section-title">Fascinating Facts</h2>
+            <div class="section-divider"></div>
+        </div>
+
+        <div class="facts-grid">
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">🌊</span>
+                <div class="fact-title">Widest Waterfall</div>
+                <div class="fact-text">Chitrakote Falls in Chhattisgarh on the Indravati River is called the "Niagara of India" — with a horseshoe shape spanning nearly 300 metres in width during monsoons, making it the widest waterfall in India.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">🏝️</span>
+                <div class="fact-title">Only Floating National Park</div>
+                <div class="fact-text">Keibul Lamjao National Park in Loktak Lake, Manipur is the world's only floating national park. The floating "phumdis" support the critically endangered Sangai deer — found nowhere else on Earth.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">☄️</span>
+                <div class="fact-title">Meteorite Lake</div>
+                <div class="fact-text">Lonar Crater Lake in Maharashtra was formed 50,000 years ago by a meteorite impact. It's the only hyper-velocity impact crater in basaltic rock on Earth. NASA studies its microorganisms for Mars analogues.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">💀</span>
+                <div class="fact-title">Lake of Skeletons</div>
+                <div class="fact-text">Roopkund Lake at 5,029m in Uttarakhand contains 600-800 human skeletons from the 9th century. DNA reveals people of South Asian and Mediterranean origin, likely killed by a catastrophic hailstorm.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">🚂</span>
+                <div class="fact-title">Railway Through a Waterfall</div>
+                <div class="fact-text">The Konkan Railway track passes directly in front of Dudhsagar Falls in Goa — creating one of India's most spectacular train journeys. During monsoons, trains are sometimes delayed as water flows across the tracks.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">🌸</span>
+                <div class="fact-title">Lake Turned Pink</div>
+                <div class="fact-text">In June 2020, Lonar Lake in Maharashtra turned pink overnight due to a bloom of Haloarchaea — salt-loving microorganisms. The phenomenon attracted worldwide media attention and scientific curiosity.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">🧂</span>
+                <div class="fact-title">India's Salt Factory</div>
+                <div class="fact-text">Sambhar Lake in Rajasthan produces nearly 9% of India's total salt output (196,000 tonnes/year). Salt extraction here has continued for over 2,500 years, making it one of the oldest salt-producing sites in the world.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">⛪</span>
+                <div class="fact-title">Highest Place of Worship</div>
+                <div class="fact-text">Hemkund Sahib Gurudwara on the shores of the glacial Hemkund Lake at 4,329m is one of the highest places of worship in the world. It remains accessible only 4 months a year due to extreme snow.</div>
+            </div>
+            <div class="fact-card scroll-animate">
+                <span class="fact-emoji">🌾</span>
+                <div class="fact-title">Below Sea Level Farming</div>
+                <div class="fact-text">Kuttanad region near Vembanad Lake in Kerala is one of the few places on Earth where farming happens below sea level (-2.2m). Known as the "Rice Bowl of Kerala," it uses an ingenious system of bunds and drainage.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!--       COMPLETE DATA TABLE                    -->
+    <!-- ============================================ -->
+    <section id="complete-data">
+        <div class="section-header">
+            <span class="section-icon">📊</span>
+            <h2 class="section-title">Complete Reference</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle">Comprehensive data tables for quick reference</p>
+        </div>
+
+        <h3 style="color:var(--cascade-cyan); margin-bottom:1rem; font-size:1.3rem;">Top 20 Waterfalls by Height</h3>
+        <div class="table-container scroll-animate">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Waterfall</th>
+                        <th>Height</th>
+                        <th>River</th>
+                        <th>State</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Kunchikal Falls</td><td>455 m</td><td>Varahi</td><td>Karnataka</td><td>Tiered Plunge</td></tr>
+                    <tr><td>2</td><td>Barehipani Falls</td><td>399 m</td><td>Budhabalanga</td><td>Odisha</td><td>Two-tiered</td></tr>
+                    <tr><td>3</td><td>Onake Abbi Falls</td><td>394 m</td><td>Sharavathi</td><td>Karnataka</td><td>Plunge</td></tr>
+                    <tr><td>4</td><td>Nohkalikai Falls</td><td>340 m</td><td>Stream</td><td>Meghalaya</td><td>Single Plunge</td></tr>
+                    <tr><td>5</td><td>Langshiang Falls</td><td>337 m</td><td>Stream</td><td>Meghalaya</td><td>Tiered</td></tr>
+                    <tr><td>6</td><td>Nohsngithiang Falls</td><td>315 m</td><td>Seven Sisters</td><td>Meghalaya</td><td>Segmented</td></tr>
+                    <tr><td>7</td><td>Dudhsagar Falls</td><td>310 m</td><td>Mandovi</td><td>Goa-Karnataka</td><td>Four-tiered</td></tr>
+                    <tr><td>8</td><td>Kynrem Falls</td><td>305 m</td><td>Stream</td><td>Meghalaya</td><td>Three-tiered</td></tr>
+                    <tr><td>9</td><td>Meenmutty Falls</td><td>300 m</td><td>Tributary</td><td>Kerala</td><td>Three-tiered</td></tr>
+                    <tr><td>10</td><td>Thalaiyar Falls</td><td>297 m</td><td>Stream</td><td>Tamil Nadu</td><td>Horsetail</td></tr>
+                    <tr><td>11</td><td>Barkana Falls</td><td>259 m</td><td>Sita River</td><td>Karnataka</td><td>Plunge</td></tr>
+                    <tr><td>12</td><td>Jog Falls</td><td>253 m</td><td>Sharavathi</td><td>Karnataka</td><td>Segmented (4)</td></tr>
+                    <tr><td>13</td><td>Khandadhar Falls</td><td>244 m</td><td>Stream</td><td>Odisha</td><td>Horsetail</td></tr>
+                    <tr><td>14</td><td>Vantawng Falls</td><td>229 m</td><td>Vanva</td><td>Mizoram</td><td>Plunge</td></tr>
+                    <tr><td>15</td><td>Soochipara Falls</td><td>200 m</td><td>Tributary</td><td>Kerala</td><td>Three-tiered</td></tr>
+                    <tr><td>16</td><td>Thommankuthu Falls</td><td>200 m</td><td>Tributary</td><td>Kerala</td><td>Seven-tiered</td></tr>
+                    <tr><td>17</td><td>Thoseghar Falls</td><td>200 m</td><td>Stream</td><td>Maharashtra</td><td>Tiered</td></tr>
+                    <tr><td>18</td><td>Magod Falls</td><td>198 m</td><td>Bedthi</td><td>Karnataka</td><td>Plunge</td></tr>
+                    <tr><td>19</td><td>Randha Falls</td><td>170 m</td><td>Pravara</td><td>Maharashtra</td><td>Cascade</td></tr>
+                    <tr><td>20</td><td>Hebbe Falls</td><td>168 m</td><td>Tributary</td><td>Karnataka</td><td>Two-tiered</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="color:var(--lake-emerald); margin: 2rem 0 1rem; font-size:1.3rem;">Major Lakes — Quick Reference</h3>
+        <div class="table-container scroll-animate">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Lake</th>
+                        <th>State</th>
+                        <th>Type</th>
+                        <th>Area</th>
+                        <th>Significance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Wular Lake</td><td>J&K</td><td>Freshwater</td><td>189 km²</td><td>Largest freshwater lake</td></tr>
+                    <tr><td>Chilika Lake</td><td>Odisha</td><td>Brackish</td><td>1,165 km²</td><td>Largest coastal lagoon in Asia</td></tr>
+                    <tr><td>Vembanad</td><td>Kerala</td><td>Brackish</td><td>2,033 km²</td><td>Longest lake in India (96.5 km)</td></tr>
+                    <tr><td>Loktak</td><td>Manipur</td><td>Freshwater</td><td>287 km²</td><td>Floating phumdis, Sangai deer</td></tr>
+                    <tr><td>Pangong Tso</td><td>Ladakh</td><td>Saline</td><td>—</td><td>134 km long, India–China border</td></tr>
+                    <tr><td>Tso Moriri</td><td>Ladakh</td><td>Oligosaline</td><td>120 km²</td><td>Largest high-altitude lake in India</td></tr>
+                    <tr><td>Dal Lake</td><td>J&K</td><td>Freshwater</td><td>18 km²</td><td>Houseboats, Mughal gardens</td></tr>
+                    <tr><td>Sambhar</td><td>Rajasthan</td><td>Saline</td><td>230 km²</td><td>Largest inland saline lake</td></tr>
+                    <tr><td>Pulicat</td><td>AP/TN</td><td>Brackish</td><td>759 km²</td><td>2nd largest lagoon, Sriharikota</td></tr>
+                    <tr><td>Lonar</td><td>Maharashtra</td><td>Crater</td><td>—</td><td>Meteorite impact crater</td></tr>
+                    <tr><td>Kolleru</td><td>Andhra Pradesh</td><td>Freshwater</td><td>308 km²</td><td>Krishna–Godavari flood basin</td></tr>
+                    <tr><td>Gurudongmar</td><td>Sikkim</td><td>Glacial</td><td>—</td><td>Among highest lakes (5,183 m)</td></tr>
+                    <tr><td>Roopkund</td><td>Uttarakhand</td><td>Glacial</td><td>—</td><td>Skeleton Lake, 5,029 m</td></tr>
+                    <tr><td>Hemkund</td><td>Uttarakhand</td><td>Glacial</td><td>—</td><td>Highest Gurudwara, 4,329 m</td></tr>
+                    <tr><td>G.B. Pant Sagar</td><td>UP</td><td>Reservoir</td><td>468 km²</td><td>Largest artificial lake</td></tr>
+                    <tr><td>Indira Sagar</td><td>MP</td><td>Reservoir</td><td>—</td><td>Largest by volume (12.22 Bn m³)</td></tr>
+                    <tr><td>Hirakud</td><td>Odisha</td><td>Reservoir</td><td>743 km²</td><td>Longest dam (25.8 km)</td></tr>
+                    <tr><td>Gobind Sagar</td><td>HP</td><td>Reservoir</td><td>168 km²</td><td>Bhakra Dam (highest gravity dam)</td></tr>
+                    <tr><td>Nagarjuna Sagar</td><td>Telangana/AP</td><td>Reservoir</td><td>285 km²</td><td>Largest masonry dam</td></tr>
+                    <tr><td>Tso Kar</td><td>Ladakh</td><td>Hypersaline</td><td>26 km²</td><td>Black-necked crane breeding</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!--              EXPLORE NEXT                    -->
+    <!-- ============================================ -->
+    <div class="explore-next scroll-animate">
+        <div class="explore-next-label">Explore Next Topic</div>
+        <div class="explore-next-title">⛏️ Natural Resources of Bharat</div>
+        <div class="explore-next-desc">
+            Discover India's vast mineral wealth, energy resources, forest cover, and the economic backbone 
+            that powers the nation — from coal fields to rare earth minerals.
+        </div>
+        <a href="resources.html" class="explore-next-btn">
+            Explore Resources
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+        </a>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="footer-brand">DharaVerse Encyclopedia</div>
+    <p>Waterfalls & Lakes of Bharat — Comprehensive Geographic Reference</p>
+    <p style="margin-top:0.5rem; opacity:0.6;">© 2025 DharaVerse. Crafted with 💦 for the love of Bharat's waters.</p>
+</footer>
+
+<script>
+// === WATER PARTICLES ===
+(function() {
+    const container = document.getElementById('particles');
+    const count = 30;
+    for (let i = 0; i < count; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'water-drop';
+        drop.style.left = Math.random() * 100 + '%';
+        drop.style.animationDuration = (3 + Math.random() * 5) + 's';
+        drop.style.animationDelay = Math.random() * 5 + 's';
+        drop.style.opacity = 0.1 + Math.random() * 0.3;
+        container.appendChild(drop);
+    }
+})();
+
+// === HEIGHT CHART ===
+(function() {
+    const data = [
+        { name: 'Kunchikal', height: 455, color: '#ffd54f' },
+        { name: 'Barehipani', height: 399, color: '#bdbdbd' },
+        { name: 'Onake Abbi', height: 394, color: '#cd7f32' },
+        { name: 'Nohkalikai', height: 340, color: '#4fc3f7' },
+        { name: 'Langshiang', height: 337, color: '#4db6ac' },
+        { name: 'Nohsngithiang', height: 315, color: '#81c784' },
+        { name: 'Dudhsagar', height: 310, color: '#ff8a65' },
+        { name: 'Kynrem', height: 305, color: '#ba68c8' },
+        { name: 'Meenmutty', height: 300, color: '#4dd0e1' },
+        { name: 'Thalaiyar', height: 297, color: '#aed581' },
+        { name: 'Barkana', height: 259, color: '#f48fb1' },
+        { name: 'Jog', height: 253, color: '#00bcd4' },
+        { name: 'Khandadhar', height: 244, color: '#ffb74d' },
+        { name: 'Vantawng', height: 229, color: '#9575cd' },
+        { name: 'Thoseghar', height: 200, color: '#7986cb' }
+    ];
+
+    const chart = document.getElementById('heightChart');
+    const maxH = 455;
+
+    data.forEach(d => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chart-bar-wrapper';
+
+        const val = document.createElement('div');
+        val.className = 'chart-bar-value';
+        val.textContent = d.height + 'm';
+
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.height = (d.height / maxH * 250) + 'px';
+        bar.style.background = `linear-gradient(to top, ${d.color}, ${d.color}cc)`;
+
+        const label = document.createElement('div');
+        label.className = 'chart-bar-label';
+        label.textContent = d.name;
+
+        wrapper.appendChild(val);
+        wrapper.appendChild(bar);
+        wrapper.appendChild(label);
+        chart.appendChild(wrapper);
+    });
+})();
+
+// === SCROLL ANIMATION ===
+(function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+})();
+
+// === ACTIVE NAV TAB ===
+(function() {
+    const tabs = document.querySelectorAll('.nav-tab');
+    const sections = [];
+    tabs.forEach(tab => {
+        const id = tab.getAttribute('href').substring(1);
+        const section = document.getElementById(id);
+        if (section) sections.push({ tab, section });
+    });
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY + 150;
+        let current = null;
+        sections.forEach(({ tab, section }) => {
+            if (section.offsetTop <= scrollY) current = tab;
+        });
+        tabs.forEach(t => t.classList.remove('active'));
+        if (current) current.classList.add('active');
+    });
+})();
+
+// === LEAFLET MAP ===
+(function() {
+    const map = L.map('waterfall-lake-map', {
+        zoomControl: true,
+        scrollWheelZoom: true
+    }).setView([22.5, 80], 5);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO',
+        maxZoom: 18
+    }).addTo(map);
+
+    function makeIcon(color, size) {
+        return L.divIcon({
+            className: '',
+            html: `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50%;border:2px solid rgba(255,255,255,0.5);box-shadow:0 0 10px ${color}80;"></div>`,
+            iconSize: [size, size],
+            iconAnchor: [size/2, size/2]
+        });
+    }
+
+    const waterfallIcon = makeIcon('#4fc3f7', 12);
+    const naturalLakeIcon = makeIcon('#26a69a', 14);
+    const glacialLakeIcon = makeIcon('#b3e5fc', 12);
+    const reservoirIcon = makeIcon('#ffd54f', 14);
+
+    // Waterfalls
+    const waterfalls = [
+        [13.916, 75.1, 'Kunchikal Falls', '455m — India\'s tallest waterfall, Karnataka'],
+        [21.633, 86.383, 'Barehipani Falls', '399m — Simlipal NP, Odisha'],
+        [25.271, 91.686, 'Nohkalikai Falls', '340m — Cherrapunji, Meghalaya'],
+        [15.314, 74.314, 'Dudhsagar Falls', '310m — Goa-Karnataka border'],
+        [14.229, 74.812, 'Jog Falls', '253m — Sharavathi River, Karnataka'],
+        [25.265, 91.696, 'Nohsngithiang Falls', '315m — Seven Sisters, Meghalaya'],
+        [25.272, 91.694, 'Kynrem Falls', '305m — Meghalaya'],
+        [11.615, 76.222, 'Meenmutty Falls', '300m — Wayanad, Kerala'],
+        [10.283, 76.569, 'Athirappilly Falls', '24m — Niagara of India, Kerala'],
+        [19.112, 79.354, 'Kuntala Falls', '61m — Tallest in Telangana'],
+        [19.03, 73.75, 'Thoseghar Falls', '200m — Satara, Maharashtra'],
+        [19.424, 76.509, 'Lonar (near falls)', 'Eastern Ghats, Maharashtra'],
+        [23.35, 83.483, 'Hundru Falls', '98m — Subarnarekha, Jharkhand'],
+        [19.167, 81.75, 'Chitrakote Falls', '29m — Niagara of India, Chhattisgarh'],
+        [19.167, 81.8, 'Tirathgarh Falls', '91m — Kanger Valley, Chhattisgarh'],
+        [10.37, 77.059, 'Thalaiyar Falls', '297m — Rat Tail, Tamil Nadu'],
+        [8.933, 77.267, 'Courtallam Falls', '92m — Spa of South India, Tamil Nadu'],
+        [27.455, 88.5, 'Nuranang Falls', '100m — Tawang, Arunachal Pradesh'],
+        [23.35, 92.75, 'Vantawng Falls', '229m — Mizoram\'s tallest'],
+        [30.466, 78.083, 'Kempty Falls', '40m — Mussoorie, Uttarakhand'],
+        [14.14, 75.75, 'Magod Falls', '198m — Bedthi River, Karnataka'],
+        [12.083, 75.75, 'Iruppu Falls', '52m — Coorg, Karnataka'],
+        [12.3, 75.8, 'Abbey Falls', '21m — Coorg, Karnataka'],
+        [30.75, 78.2, 'Tiger Falls', '98m — Chakrata, Uttarakhand'],
+        [13.15, 75.56, 'Hebbe Falls', '168m — Chikmagalur, Karnataka'],
+        [14.94, 74.63, 'Sathodi Falls', '15m — Yellapur, Karnataka'],
+        [12.33, 77.17, 'Shivanasamudra Falls', '98m — Cauvery, Karnataka'],
+    ];
+
+    waterfalls.forEach(([lat, lng, name, desc]) => {
+        L.marker([lat, lng], { icon: waterfallIcon })
+            .bindPopup(`<div class="popup-title">${name}</div><div class="popup-type">Waterfall</div><div class="popup-detail">${desc}</div>`)
+            .addTo(map);
+    });
+
+    // Natural Lakes
+    const naturalLakes = [
+        [34.383, 74.633, 'Wular Lake', 'Largest freshwater lake — 189 km², J&K'],
+        [19.75, 85.417, 'Chilika Lake', 'Largest brackish lagoon in Asia — 1,165 km², Odisha'],
+        [24.567, 93.783, 'Loktak Lake', 'Floating phumdis, Sangai deer — 287 km², Manipur'],
+        [34.085, 74.85, 'Dal Lake', 'Jewel of Kashmir — Houseboats & Shikaras'],
+        [26.933, 75.083, 'Sambhar Lake', 'Largest inland saline lake — 230 km², Rajasthan'],
+        [13.617, 80.167, 'Pulicat Lake', '2nd largest lagoon — 759 km², AP/TN'],
+        [9.583, 76.383, 'Vembanad Lake', 'Longest lake — 96.5 km, Kerala'],
+        [19.976, 76.507, 'Lonar Crater Lake', 'Meteorite impact crater, Maharashtra'],
+        [16.667, 81.167, 'Kolleru Lake', 'Krishna-Godavari flood basin, AP'],
+        [17.417, 78.483, 'Hussain Sagar', 'Heart-shaped, Buddha statue, Hyderabad'],
+    ];
+
+    naturalLakes.forEach(([lat, lng, name, desc]) => {
+        L.marker([lat, lng], { icon: naturalLakeIcon })
+            .bindPopup(`<div class="popup-title">${name}</div><div class="popup-type">Natural Lake</div><div class="popup-detail">${desc}</div>`)
+            .addTo(map);
+    });
+
+    // Glacial Lakes
+    const glacialLakes = [
+        [33.75, 78.65, 'Pangong Tso', '134 km long, 4,350m — Ladakh'],
+        [32.917, 78.317, 'Tso Moriri', '120 km², 4,522m — Ladakh'],
+        [28.033, 88.717, 'Gurudongmar Lake', '5,183m — North Sikkim'],
+        [27.383, 88.767, 'Tsomgo Lake', '3,753m — East Sikkim'],
+        [30.262, 79.731, 'Roopkund Lake', '5,029m — Skeleton Lake, Uttarakhand'],
+        [30.717, 79.617, 'Hemkund', '4,329m — Sacred lake, Uttarakhand'],
+        [30.6, 79.5, 'Satopanth Lake', '4,600m — Triangular sacred lake'],
+        [33.317, 78.017, 'Tso Kar', '4,530m — White Salt Lake, Ladakh'],
+    ];
+
+    glacialLakes.forEach(([lat, lng, name, desc]) => {
+        L.marker([lat, lng], { icon: glacialLakeIcon })
+            .bindPopup(`<div class="popup-title">${name}</div><div class="popup-type">Glacial Lake</div><div class="popup-detail">${desc}</div>`)
+            .addTo(map);
+    });
+
+    // Reservoirs
+    const reservoirs = [
+        [24.2, 83.017, 'G.B. Pant Sagar', 'Largest artificial lake — 468 km², UP'],
+        [22.517, 76.467, 'Indira Sagar', 'Largest by volume — 12.22 Bn m³, MP'],
+        [21.517, 83.867, 'Hirakud Reservoir', 'Longest dam — 25.8 km, Odisha'],
+        [16.567, 79.317, 'Nagarjuna Sagar', 'Largest masonry dam — 285 km², Telangana/AP'],
+        [31.417, 76.433, 'Gobind Sagar', 'Bhakra Dam — 226m high, Himachal Pradesh'],
+        [11.8, 77.8, 'Stanley Reservoir', 'Mettur Dam — Cauvery, Tamil Nadu'],
+    ];
+
+    reservoirs.forEach(([lat, lng, name, desc]) => {
+        L.marker([lat, lng], { icon: reservoirIcon })
+            .bindPopup(`<div class="popup-title">${name}</div><div class="popup-type">Reservoir</div><div class="popup-detail">${desc}</div>`)
+            .addTo(map);
+    });
+
+    // Delayed resize fix
+    setTimeout(() => map.invalidateSize(), 500);
+
+    // Re-invalidate on scroll into view
+    const mapObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            map.invalidateSize();
+        }
+    }, { threshold: 0.3 });
+    mapObserver.observe(document.querySelector('.map-container'));
+})();
+</script>
+ 
+<script src="/js/auto-inject.js"></script>
+<script src="/js/premium-wrapper.js"></script>
+<script src="/global-nav.js"></script>
+<script src="/js/dashboard.js"></script>
+
+</body>
+</html>
