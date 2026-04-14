@@ -2,7 +2,36 @@
 (function() {
     console.log('🔵 auto-inject.js loaded!');
 
-    // ✅ Absolute paths - works from ANY page!
+    // ✅ Inject global CSS automatically
+    (function injectCSS() {
+        if (document.getElementById("dv-global-css")) return;
+        var link = document.createElement("link");
+        link.id = "dv-global-css";
+        link.rel = "stylesheet";
+        link.href = "/css/global.css";
+        document.head.appendChild(link);
+        console.log("✅ Global CSS injected!");
+    })();
+
+    // ✅ Fix viewport
+    (function fixViewport() {
+        var viewport = document.querySelector("meta[name='viewport']");
+        if (viewport) {
+            var content = viewport.getAttribute("content");
+            content = content.replace(/,?\s*user-scalable\s*=\s*(no|0)/gi, "");
+            content = content.replace(/,?\s*maximum-scale\s*=\s*[\d.]+/gi, "");
+            content = content.trim().replace(/,\s*$/, "");
+            viewport.setAttribute("content", content);
+        } else {
+            var meta = document.createElement("meta");
+            meta.name = "viewport";
+            meta.content = "width=device-width, initial-scale=1.0";
+            document.head.appendChild(meta);
+        }
+        console.log("✅ Viewport fixed!");
+    })();
+
+    // ✅ Load premium scripts
     var scriptsToLoad = [
         '/js/config/plans-config.js',
         '/js/core/access-control.js',
