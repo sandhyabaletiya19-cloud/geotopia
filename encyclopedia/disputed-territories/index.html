@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ Disputed Territories of the World | Dharaverse Encyclopedia</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--blood-red:#8B0000;--war-black:#0A0A0A;--smoke-gray:#1C1C1C;--ash:#2A2A2A;
+--steel:#3A3A3A;--gunmetal:#4A4A4A;--barbed-wire:#6B6B6B;--trench:#333;
+--fire-orange:#E8590C;--missile-red:#DC2626;--explosion-yellow:#F59E0B;
+--peace-blue:#3B82F6;--hope-green:#10B981;--un-blue:#4B92DB;
+--nato-blue:#004990;--warning-amber:#F59E0B;--ceasefire-white:#E8E8E8;
+--nuke-glow:rgba(245,158,11,0.15);--blood-glow:rgba(139,0,0,0.1);
+--crack-dark:#111;--text-primary:#E0E0E0;--text-secondary:#A0A0A0;
+--text-muted:#707070;--card-bg:rgba(20,20,20,0.97);--border-crack:#333;
+}
+@keyframes missileLeft{
+0%{transform:translate(110vw,20vh) rotate(-160deg);opacity:0}
+10%{opacity:0.8}
+50%{opacity:0.6}
+90%{opacity:0.3}
+100%{transform:translate(-20vw,60vh) rotate(-160deg);opacity:0}
+}
+@keyframes missileRight{
+0%{transform:translate(-20vw,70vh) rotate(20deg);opacity:0}
+10%{opacity:0.7}
+50%{opacity:0.5}
+90%{opacity:0.2}
+100%{transform:translate(110vw,10vh) rotate(20deg);opacity:0}
+}
+@keyframes missileDown{
+0%{transform:translate(50vw,-10vh) rotate(80deg);opacity:0}
+15%{opacity:0.6}
+85%{opacity:0.3}
+100%{transform:translate(40vw,110vh) rotate(85deg);opacity:0}
+}
+@keyframes crackSpread{
+0%{clip-path:inset(0 100% 0 0)}
+100%{clip-path:inset(0 0 0 0)}
+}
+@keyframes pulseGlow{
+0%,100%{box-shadow:0 0 20px rgba(139,0,0,0.3)}
+50%{box-shadow:0 0 50px rgba(139,0,0,0.7),0 0 100px rgba(220,38,38,0.2)}
+}
+@keyframes warningPulse{
+0%,100%{opacity:0.6}
+50%{opacity:1}
+}
+@keyframes shakeSubtle{
+0%,100%{transform:translate(0,0)}
+25%{transform:translate(-1px,1px)}
+50%{transform:translate(1px,-1px)}
+75%{transform:translate(-1px,-1px)}
+}
+@keyframes smokeRise{
+0%{transform:translateY(0) scale(1);opacity:0.15}
+50%{transform:translateY(-60px) scale(1.5);opacity:0.08}
+100%{transform:translateY(-120px) scale(2);opacity:0}
+}
+@keyframes borderFlicker{
+0%,100%{border-color:rgba(139,0,0,0.3)}
+50%{border-color:rgba(220,38,38,0.6)}
+}
+@keyframes fadeInUp{
+from{opacity:0;transform:translateY(30px)}
+to{opacity:1;transform:translateY(0)}
+}
+@keyframes slideInFromLeft{
+from{opacity:0;transform:translateX(-50px)}
+to{opacity:1;transform:translateX(0)}
+}
+@keyframes typewriter{
+from{width:0}
+to{width:100%}
+}
+@keyframes explosionFlash{
+0%{opacity:0;transform:scale(0.5)}
+20%{opacity:0.2;transform:scale(1.2)}
+100%{opacity:0;transform:scale(2)}
+}
+@keyframes radarSweep{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+background:var(--war-black);color:var(--text-primary);line-height:1.7;overflow-x:hidden;
+}
+/* ===== MISSILE BACKGROUND ===== */
+.missile-field{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.missile{position:absolute;font-size:1.5rem;filter:drop-shadow(0 0 8px rgba(245,158,11,0.6));will-change:transform}
+.missile:nth-child(1){animation:missileLeft 8s linear infinite;animation-delay:0s}
+.missile:nth-child(2){animation:missileRight 10s linear infinite;animation-delay:2s}
+.missile:nth-child(3){animation:missileLeft 12s linear infinite;animation-delay:4s}
+.missile:nth-child(4){animation:missileDown 9s linear infinite;animation-delay:1s}
+.missile:nth-child(5){animation:missileRight 11s linear infinite;animation-delay:3s}
+.missile:nth-child(6){animation:missileLeft 14s linear infinite;animation-delay:5s}
+.missile:nth-child(7){animation:missileDown 7s linear infinite;animation-delay:6s}
+.missile:nth-child(8){animation:missileRight 13s linear infinite;animation-delay:7s}
+/* Smoke particles */
+.smoke{position:fixed;border-radius:50%;background:radial-gradient(circle,rgba(100,100,100,0.1),transparent);pointer-events:none;z-index:0}
+.smoke:nth-child(1){width:80px;height:80px;bottom:10%;left:20%;animation:smokeRise 6s ease-out infinite}
+.smoke:nth-child(2){width:60px;height:60px;bottom:5%;left:60%;animation:smokeRise 8s ease-out infinite 2s}
+.smoke:nth-child(3){width:100px;height:100px;bottom:15%;left:40%;animation:smokeRise 10s ease-out infinite 4s}
+/* ===== CRACK OVERLAY ===== */
+.crack-overlay{
+position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;
+background:
+linear-gradient(137deg,transparent 48.5%,rgba(139,0,0,0.08) 49%,rgba(139,0,0,0.15) 49.5%,transparent 50%),
+linear-gradient(43deg,transparent 49%,rgba(139,0,0,0.05) 49.5%,transparent 50%),
+linear-gradient(95deg,transparent 48%,rgba(60,0,0,0.06) 49%,transparent 50%),
+linear-gradient(170deg,transparent 47%,rgba(139,0,0,0.04) 48%,transparent 49%);
+}
+/* ===== BACK BUTTON ===== */
+.back-nav{position:fixed;top:15px;left:15px;z-index:10000}
+.back-btn{
+display:inline-flex;align-items:center;gap:8px;padding:10px 20px;
+background:rgba(10,10,10,0.9);color:var(--ceasefire-white);text-decoration:none;
+border-radius:50px;font-size:0.8rem;font-weight:600;letter-spacing:0.5px;
+border:1px solid rgba(139,0,0,0.4);backdrop-filter:blur(10px);
+transition:all 0.3s ease;
+}
+.back-btn:hover{background:rgba(139,0,0,0.3);border-color:var(--missile-red);transform:translateX(-3px)}
+.back-btn svg{width:14px;height:14px}
+/* ===== HERO ===== */
+.hero{
+position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;
+background:linear-gradient(180deg,#000 0%,#0a0000 30%,#100505 60%,var(--smoke-gray) 100%);
+overflow:hidden;
+}
+.hero::before{
+content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+background:
+radial-gradient(ellipse at 20% 50%,rgba(139,0,0,0.08),transparent 60%),
+radial-gradient(ellipse at 80% 30%,rgba(220,38,38,0.05),transparent 50%),
+radial-gradient(ellipse at 50% 80%,rgba(245,158,11,0.04),transparent 40%);
+}
+.hero::after{
+content:'';position:absolute;bottom:0;left:0;width:100%;height:200px;
+background:linear-gradient(0deg,var(--war-black),transparent);z-index:2;
+}
+.hero-content{position:relative;z-index:3;text-align:center;padding:2rem;max-width:1000px}
+.hero-badge{
+display:inline-block;padding:6px 20px;background:rgba(139,0,0,0.2);
+border:1px solid rgba(139,0,0,0.4);border-radius:50px;
+font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;
+color:var(--missile-red);margin-bottom:1.5rem;animation:warningPulse 2s ease-in-out infinite;
+}
+.hero h1{
+font-size:clamp(2.5rem,7vw,5rem);font-weight:800;
+letter-spacing:4px;line-height:1.1;margin-bottom:1rem;
+background:linear-gradient(135deg,var(--ceasefire-white) 0%,var(--missile-red) 40%,var(--explosion-yellow) 70%,var(--ceasefire-white) 100%);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+text-shadow:none;
+}
+.hero-sub{
+font-size:clamp(0.9rem,2vw,1.15rem);color:var(--text-secondary);
+max-width:700px;margin:0 auto 2rem;line-height:1.8;font-weight:300;letter-spacing:0.5px;
+}
+.hero-stats{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;margin-top:2rem}
+.hero-stat{text-align:center}
+.hero-stat-num{display:block;font-size:2.5rem;font-weight:800;color:var(--missile-red)}
+.hero-stat-label{font-size:0.7rem;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase}
+.scroll-indicator{
+position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:5;
+color:var(--text-muted);font-size:0.75rem;letter-spacing:2px;text-align:center;
+animation:warningPulse 2s ease-in-out infinite;
+}
+.scroll-indicator span{display:block;font-size:1.5rem;margin-top:5px}
+/* ===== MAP SECTION ===== */
+.map-section{position:relative;z-index:2;background:var(--war-black);padding:0}
+.map-header{text-align:center;padding:3rem 2rem 1.5rem}
+.map-header h2{font-size:1.8rem;color:var(--ceasefire-white);letter-spacing:3px;margin-bottom:0.5rem}
+.map-header p{color:var(--text-muted);font-size:0.9rem;letter-spacing:1px}
+.map-controls{
+display:flex;justify-content:center;align-items:center;gap:1rem;padding:0.5rem 2rem 1rem;
+flex-wrap:wrap;
+}
+.map-control-btn{
+padding:8px 18px;background:rgba(30,30,30,0.9);color:var(--text-secondary);
+border:1px solid var(--border-crack);border-radius:8px;cursor:pointer;
+font-family:inherit;font-size:0.78rem;letter-spacing:1px;
+transition:all 0.3s ease;display:inline-flex;align-items:center;gap:6px;
+}
+.map-control-btn:hover{background:rgba(139,0,0,0.2);border-color:var(--blood-red);color:var(--ceasefire-white)}
+.map-control-btn.active{background:rgba(139,0,0,0.3);border-color:var(--missile-red);color:var(--ceasefire-white)}
+.map-wrapper{position:relative;width:100%;height:70vh;min-height:450px}
+.map-wrapper.fullscreen{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;min-height:100vh}
+#world-map{width:100%;height:100%;background:var(--smoke-gray)}
+.fullscreen-btn{
+position:absolute;top:10px;right:10px;z-index:1000;padding:8px 14px;
+background:rgba(10,10,10,0.9);color:var(--ceasefire-white);border:1px solid var(--border-crack);
+border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.8rem;
+transition:all 0.3s ease;
+}
+.fullscreen-btn:hover{background:rgba(139,0,0,0.3);border-color:var(--missile-red)}
+.exit-fullscreen{
+position:absolute;top:10px;left:10px;z-index:1001;padding:10px 20px;
+background:rgba(139,0,0,0.8);color:white;border:none;border-radius:8px;
+cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:600;
+display:none;
+}
+.map-wrapper.fullscreen .exit-fullscreen{display:block}
+.map-legend{
+display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;
+padding:1rem 2rem;background:rgba(15,15,15,0.95);
+border-top:1px solid rgba(139,0,0,0.2);
+}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted)}
+.legend-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,0.2)}
+.legend-dot.territorial{background:var(--missile-red)}
+.legend-dot.border-d{background:var(--fire-orange)}
+.legend-dot.separatist{background:var(--explosion-yellow)}
+.legend-dot.occupation{background:var(--blood-red)}
+.legend-dot.maritime{background:var(--peace-blue)}
+.legend-dot.frozen{background:#8B5CF6}
+/* ===== DETAIL OVERLAY PANEL ===== */
+.detail-overlay{
+position:fixed;top:0;right:-650px;width:min(640px,95vw);height:100vh;
+background:var(--card-bg);z-index:10001;overflow-y:auto;
+border-left:2px solid rgba(139,0,0,0.4);
+transition:right 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+box-shadow:-10px 0 50px rgba(0,0,0,0.8);
+}
+.detail-overlay.open{right:0}
+.detail-overlay-backdrop{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.7);z-index:10000;opacity:0;pointer-events:none;
+transition:opacity 0.4s ease;
+}
+.detail-overlay-backdrop.open{opacity:1;pointer-events:auto}
+.detail-close{
+position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;
+align-items:center;padding:1rem 1.5rem;
+background:linear-gradient(180deg,rgba(10,10,10,0.98),rgba(10,10,10,0.9));
+border-bottom:1px solid rgba(139,0,0,0.3);backdrop-filter:blur(10px);
+}
+.detail-close-btn{
+padding:8px 20px;background:rgba(139,0,0,0.3);color:var(--ceasefire-white);
+border:1px solid rgba(139,0,0,0.5);border-radius:8px;cursor:pointer;
+font-family:inherit;font-size:0.8rem;font-weight:600;letter-spacing:1px;
+transition:all 0.3s ease;
+}
+.detail-close-btn:hover{background:rgba(220,38,38,0.5);transform:scale(1.05)}
+.detail-status{
+font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;
+padding:4px 12px;border-radius:20px;font-weight:600;
+}
+.detail-status.active-conflict{background:rgba(220,38,38,0.2);color:var(--missile-red);border:1px solid rgba(220,38,38,0.4)}
+.detail-status.frozen-conflict{background:rgba(139,92,246,0.2);color:#A78BFA;border:1px solid rgba(139,92,246,0.4)}
+.detail-status.tensions{background:rgba(245,158,11,0.2);color:var(--explosion-yellow);border:1px solid rgba(245,158,11,0.4)}
+.detail-status.resolved{background:rgba(16,185,129,0.2);color:var(--hope-green);border:1px solid rgba(16,185,129,0.4)}
+.detail-body{padding:2rem 1.5rem 4rem}
+.detail-title{font-size:1.8rem;font-weight:800;color:var(--ceasefire-white);margin-bottom:0.3rem;letter-spacing:1px}
+.detail-subtitle{font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.5px}
+.detail-quick-facts{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+gap:0.8rem;margin-bottom:2rem;
+}
+.detail-fact{
+background:rgba(30,30,30,0.8);border-radius:10px;padding:1rem;
+text-align:center;border:1px solid rgba(60,60,60,0.5);
+}
+.detail-fact-value{display:block;font-size:1.1rem;font-weight:700;color:var(--missile-red);margin-bottom:0.2rem}
+.detail-fact-label{font-size:0.65rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase}
+.detail-section{margin-bottom:2rem}
+.detail-section-header{
+display:flex;align-items:center;gap:0.7rem;margin-bottom:1rem;
+padding-bottom:0.7rem;border-bottom:1px solid rgba(139,0,0,0.2);
+}
+.detail-section-icon{font-size:1.3rem}
+.detail-section-title{font-size:1.1rem;font-weight:700;color:var(--ceasefire-white);letter-spacing:1px}
+.detail-section p{font-size:0.88rem;color:var(--text-secondary);line-height:1.85;margin-bottom:0.8rem;text-align:justify}
+.detail-section ul{list-style:none;padding:0}
+.detail-section ul li{
+padding:0.4rem 0 0.4rem 1.5rem;font-size:0.88rem;color:var(--text-secondary);
+position:relative;line-height:1.7;
+}
+.detail-section ul li::before{
+content:'◆';position:absolute;left:0;color:var(--missile-red);font-size:0.6rem;top:0.6rem;
+}
+.highlight-box{
+background:linear-gradient(135deg,rgba(139,0,0,0.1),rgba(220,38,38,0.05));
+border-left:3px solid var(--missile-red);border-radius:0 10px 10px 0;
+padding:1rem 1.2rem;margin:1rem 0;
+}
+.highlight-box p{font-size:0.85rem;color:var(--text-secondary);margin:0}
+.highlight-box strong{color:var(--explosion-yellow)}
+.verdict-box{
+background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(16,185,129,0.05));
+border-left:3px solid var(--peace-blue);border-radius:0 10px 10px 0;
+padding:1rem 1.2rem;margin:1rem 0;
+}
+.verdict-box p{font-size:0.85rem;color:var(--text-secondary);margin:0}
+.verdict-box strong{color:var(--peace-blue)}
+.analysis-box{
+background:rgba(25,25,25,0.9);border:1px solid rgba(245,158,11,0.2);
+border-radius:12px;padding:1.2rem;margin:1rem 0;
+}
+.analysis-box h4{font-size:0.9rem;color:var(--explosion-yellow);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem}
+.analysis-box p{font-size:0.85rem;color:var(--text-secondary);margin:0;line-height:1.7}
+/* ===== DISPUTES LIST ===== */
+.disputes-section{position:relative;z-index:2;padding:4rem 2rem;background:var(--war-black)}
+.disputes-inner{max-width:1400px;margin:0 auto}
+.disputes-header{text-align:center;margin-bottom:3rem}
+.disputes-header h2{font-size:2rem;color:var(--ceasefire-white);letter-spacing:3px;margin-bottom:0.5rem}
+.disputes-header p{color:var(--text-muted);font-size:0.9rem}
+.disputes-filters{
+display:flex;justify-content:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:2.5rem;
+}
+.filter-btn{
+padding:8px 18px;background:rgba(30,30,30,0.9);color:var(--text-secondary);
+border:1px solid var(--border-crack);border-radius:8px;cursor:pointer;
+font-family:inherit;font-size:0.78rem;letter-spacing:0.5px;transition:all 0.3s ease;
+}
+.filter-btn:hover,.filter-btn.active{
+background:rgba(139,0,0,0.2);border-color:var(--blood-red);color:var(--ceasefire-white);
+}
+.disputes-grid{
+display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+gap:1.5rem;
+}
+.dispute-card{
+background:rgba(18,18,18,0.95);border:1px solid rgba(60,60,60,0.4);
+border-radius:14px;overflow:hidden;cursor:pointer;
+transition:all 0.4s ease;position:relative;
+}
+.dispute-card::before{
+content:'';position:absolute;top:0;left:0;width:100%;height:3px;
+transition:height 0.4s ease;
+}
+.dispute-card[data-type="territorial"]::before{background:var(--missile-red)}
+.dispute-card[data-type="border"]::before{background:var(--fire-orange)}
+.dispute-card[data-type="separatist"]::before{background:var(--explosion-yellow)}
+.dispute-card[data-type="occupation"]::before{background:var(--blood-red)}
+.dispute-card[data-type="maritime"]::before{background:var(--peace-blue)}
+.dispute-card[data-type="frozen"]::before{background:#8B5CF6}
+.dispute-card:hover{
+transform:translateY(-4px);border-color:rgba(139,0,0,0.5);
+box-shadow:0 10px 40px rgba(139,0,0,0.15);
+}
+.dispute-card:hover::before{height:4px}
+.dispute-card-body{padding:1.5rem}
+.dispute-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.8rem}
+.dispute-card-emoji{font-size:2rem}
+.dispute-card-status{
+font-size:0.6rem;letter-spacing:1.5px;text-transform:uppercase;
+padding:3px 10px;border-radius:20px;font-weight:600;
+}
+.dispute-card h3{font-size:1.1rem;font-weight:700;color:var(--ceasefire-white);margin-bottom:0.3rem;letter-spacing:0.5px}
+.dispute-card .parties{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.8rem}
+.dispute-card .summary{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;margin-bottom:1rem}
+.dispute-card .tags{display:flex;flex-wrap:wrap;gap:0.4rem}
+.dispute-card .tag{
+font-size:0.65rem;padding:3px 8px;background:rgba(50,50,50,0.8);
+color:var(--text-muted);border-radius:4px;letter-spacing:0.5px;
+}
+/* ===== PEACE SECTION ===== */
+.peace-section{position:relative;z-index:2;padding:5rem 2rem;background:linear-gradient(180deg,var(--war-black),#050510)}
+.peace-inner{max-width:1000px;margin:0 auto;text-align:center}
+.peace-inner h2{font-size:2rem;color:var(--ceasefire-white);margin-bottom:0.5rem;letter-spacing:3px}
+.peace-inner .subtitle{color:var(--text-muted);font-size:0.9rem;margin-bottom:3rem}
+.peace-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;text-align:left}
+.peace-card{
+background:rgba(15,15,25,0.9);border:1px solid rgba(59,130,246,0.15);
+border-radius:14px;padding:1.8rem;transition:all 0.3s ease;
+}
+.peace-card:hover{border-color:rgba(59,130,246,0.4);transform:translateY(-3px)}
+.peace-card-icon{font-size:2rem;margin-bottom:0.8rem;display:block}
+.peace-card h3{font-size:1rem;color:var(--ceasefire-white);margin-bottom:0.6rem;letter-spacing:0.5px}
+.peace-card p{font-size:0.85rem;color:var(--text-secondary);line-height:1.7}
+/* ===== ORGANIZATIONS ===== */
+.orgs-section{position:relative;z-index:2;padding:4rem 2rem;background:#050510}
+.orgs-inner{max-width:1200px;margin:0 auto}
+.orgs-inner h2{text-align:center;font-size:1.8rem;color:var(--ceasefire-white);letter-spacing:3px;margin-bottom:0.5rem}
+.orgs-inner .subtitle{text-align:center;color:var(--text-muted);font-size:0.9rem;margin-bottom:3rem}
+.orgs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+.org-card{
+background:rgba(15,15,15,0.9);border:1px solid rgba(60,60,60,0.3);
+border-radius:14px;padding:1.8rem;transition:all 0.3s ease;
+}
+.org-card:hover{border-color:rgba(75,146,219,0.4);transform:translateY(-3px)}
+.org-card h3{font-size:1.1rem;color:var(--ceasefire-white);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.5rem}
+.org-card .org-role{font-size:0.75rem;color:var(--un-blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.8rem}
+.org-card p{font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:0.5rem}
+/* ===== FOOTER NAV ===== */
+.explore-nav{
+padding:4rem 2rem;
+background:linear-gradient(135deg,#050510 0%,#0a0000 50%,#050510 100%);
+position:relative;z-index:2;
+}
+.explore-nav::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--blood-red),transparent)}
+.explore-inner{max-width:1200px;margin:0 auto;text-align:center}
+.explore-inner h2{font-size:1.5rem;color:var(--ceasefire-white);letter-spacing:2px;margin-bottom:2rem}
+.explore-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:2rem}
+.explore-link{
+display:flex;align-items:center;gap:1rem;padding:1.2rem 1.5rem;
+background:rgba(20,20,20,0.9);border:1px solid rgba(60,60,60,0.3);
+border-radius:12px;text-decoration:none;color:var(--text-primary);
+transition:all 0.3s ease;
+}
+.explore-link:hover{border-color:rgba(139,0,0,0.5);transform:translateY(-2px)}
+.explore-link span:first-child{font-size:1.5rem}
+.explore-link-text h4{font-size:0.9rem;margin-bottom:0.1rem}
+.explore-link-text p{font-size:0.75rem;color:var(--text-muted)}
+.explore-back-btn{
+display:inline-flex;align-items:center;gap:8px;padding:12px 28px;
+background:rgba(139,0,0,0.3);color:var(--ceasefire-white);
+text-decoration:none;border-radius:50px;font-weight:600;font-size:0.9rem;
+border:1px solid rgba(139,0,0,0.5);transition:all 0.3s ease;
+}
+.explore-back-btn:hover{background:rgba(139,0,0,0.5);transform:scale(1.05)}
+.footer{
+background:#000;padding:2rem;text-align:center;color:var(--text-muted);
+font-size:0.75rem;letter-spacing:1px;position:relative;z-index:2;
+border-top:1px solid rgba(139,0,0,0.15);
+}
+.footer a{color:var(--missile-red);text-decoration:none}
+/* ===== SCROLL TOP ===== */
+.scroll-top{
+position:fixed;bottom:25px;right:25px;width:45px;height:45px;border-radius:50%;
+background:rgba(139,0,0,0.8);color:var(--ceasefire-white);border:1px solid rgba(220,38,38,0.4);
+cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;
+z-index:999;opacity:0;transform:translateY(20px);transition:all 0.3s ease;
+}
+.scroll-top.visible{opacity:1;transform:translateY(0)}
+.scroll-top:hover{background:rgba(220,38,38,0.9);transform:scale(1.1)}
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+.hero h1{letter-spacing:1px}
+.hero-stats{gap:1.5rem}
+.hero-stat-num{font-size:1.8rem}
+.disputes-grid{grid-template-columns:1fr}
+.detail-overlay{width:100vw}
+.map-wrapper{height:50vh;min-height:350px}
+.detail-quick-facts{grid-template-columns:repeat(2,1fr)}
+.back-nav{top:8px;left:8px}
+.back-btn{padding:7px 14px;font-size:0.7rem}
+.map-controls{gap:0.5rem}
+.map-control-btn{padding:6px 12px;font-size:0.7rem}
+}
+@media(max-width:480px){
+.hero-stats{flex-direction:column;gap:1rem}
+.detail-quick-facts{grid-template-columns:1fr 1fr}
+.peace-grid,.orgs-grid{grid-template-columns:1fr}
+.explore-links{grid-template-columns:1fr}
+.disputes-grid{grid-template-columns:1fr}
+}
+/* Leaflet custom */
+.leaflet-popup-content-wrapper{background:rgba(15,15,15,0.96)!important;color:var(--text-primary)!important;border:1px solid rgba(139,0,0,0.3)!important;border-radius:10px!important}
+.leaflet-popup-tip{background:rgba(15,15,15,0.96)!important}
+.leaflet-popup-content{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif!important;font-size:13px!important}
+.leaflet-control-zoom a{background:rgba(15,15,15,0.9)!important;color:var(--ceasefire-white)!important;border-color:rgba(60,60,60,0.5)!important}
+</style>
+</head>
+<body>
+
+<!-- Missile Background -->
+<div class="missile-field">
+<div class="missile">🚀</div><div class="missile">🚀</div><div class="missile">🚀</div>
+<div class="missile">💣</div><div class="missile">🚀</div><div class="missile">💣</div>
+<div class="missile">🚀</div><div class="missile">💣</div>
+</div>
+<div class="smoke"></div><div class="smoke"></div><div class="smoke"></div>
+<div class="crack-overlay"></div>
+
+<!-- Back -->
+<nav class="back-nav">
+<a href="/encyclopedia/bharat/index.html" class="back-btn">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+Bharat Home
+</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+<div class="hero-content">
+<div class="hero-badge">⚠️ ENCYCLOPEDIC ANALYSIS</div>
+<h1>DISPUTED<br>TERRITORIES</h1>
+<p class="hero-sub">
+A comprehensive geopolitical encyclopedia of every major territorial dispute on Earth — 
+the fractures that scar nations, the borders drawn in blood, and the paths toward peace 
+that humanity must find.
+</p>
+<div class="hero-stats">
+<div class="hero-stat"><span class="hero-stat-num">60+</span><span class="hero-stat-label">Active Disputes</span></div>
+<div class="hero-stat"><span class="hero-stat-num">150+</span><span class="hero-stat-label">Nations Involved</span></div>
+<div class="hero-stat"><span class="hero-stat-num">4M+</span><span class="hero-stat-label">Sq Km Disputed</span></div>
+<div class="hero-stat"><span class="hero-stat-num">2B+</span><span class="hero-stat-label">People Affected</span></div>
+</div>
+</div>
+<div class="scroll-indicator">SCROLL TO EXPLORE<span>▼</span></div>
+</section>
+
+<!-- ===== MAP ===== -->
+<section class="map-section" id="map-section">
+<div class="map-header">
+<h2>🗺️ GLOBAL DISPUTE MAP</h2>
+<p>Click any highlighted zone to explore the full history, analysis, and proposed solutions</p>
+</div>
+<div class="map-controls">
+<button class="map-control-btn active" onclick="filterMap('all')">🌍 All Disputes</button>
+<button class="map-control-btn" onclick="filterMap('asia')">🌏 Asia</button>
+<button class="map-control-btn" onclick="filterMap('europe')">🌍 Europe</button>
+<button class="map-control-btn" onclick="filterMap('africa')">🌍 Africa</button>
+<button class="map-control-btn" onclick="filterMap('americas')">🌎 Americas</button>
+<button class="map-control-btn" onclick="filterMap('maritime')">🌊 Maritime</button>
+</div>
+<div class="map-wrapper" id="mapWrapper">
+<div id="world-map"></div>
+<button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+<button class="exit-fullscreen" onclick="toggleFullscreen()">✕ Exit Fullscreen</button>
+</div>
+<div class="map-legend">
+<div class="legend-item"><div class="legend-dot territorial"></div>Territorial</div>
+<div class="legend-item"><div class="legend-dot border-d"></div>Border</div>
+<div class="legend-item"><div class="legend-dot separatist"></div>Separatist</div>
+<div class="legend-item"><div class="legend-dot occupation"></div>Occupation</div>
+<div class="legend-item"><div class="legend-dot maritime"></div>Maritime</div>
+<div class="legend-item"><div class="legend-dot frozen"></div>Frozen Conflict</div>
+</div>
+</section>
+
+<!-- ===== DETAIL PANEL ===== -->
+<div class="detail-overlay-backdrop" id="detailBackdrop" onclick="closeDetail()"></div>
+<div class="detail-overlay" id="detailPanel">
+<div class="detail-close">
+<span class="detail-status active-conflict" id="detailStatus">ACTIVE CONFLICT</span>
+<button class="detail-close-btn" onclick="closeDetail()">✕ CLOSE</button>
+</div>
+<div class="detail-body" id="detailBody">
+<!-- Content injected by JS -->
+</div>
+</div>
+
+<!-- ===== DISPUTES CARDS ===== -->
+<section class="disputes-section" id="disputes">
+<div class="disputes-inner">
+<div class="disputes-header">
+<h2>⚔️ ALL MAJOR DISPUTES</h2>
+<p>Click any card to open the full encyclopedic analysis</p>
+</div>
+<div class="disputes-filters">
+<button class="filter-btn active" onclick="filterCards('all')">All</button>
+<button class="filter-btn" onclick="filterCards('territorial')">Territorial</button>
+<button class="filter-btn" onclick="filterCards('border')">Border</button>
+<button class="filter-btn" onclick="filterCards('separatist')">Separatist</button>
+<button class="filter-btn" onclick="filterCards('occupation')">Occupation</button>
+<button class="filter-btn" onclick="filterCards('maritime')">Maritime</button>
+<button class="filter-btn" onclick="filterCards('frozen')">Frozen Conflict</button>
+</div>
+<div class="disputes-grid" id="disputesGrid">
+<!-- Cards generated by JS -->
+</div>
+</div>
+</section>
+
+<!-- ===== ORGANIZATIONS ===== -->
+<section class="orgs-section">
+<div class="orgs-inner">
+<h2>🏛️ ROLE OF INTERNATIONAL ORGANIZATIONS</h2>
+<p class="subtitle">The bodies tasked with maintaining global order — and their limitations</p>
+<div class="orgs-grid">
+<div class="org-card">
+<h3>🇺🇳 United Nations</h3>
+<div class="org-role">Global peacekeeping body</div>
+<p>The UN has deployed 71 peacekeeping missions since 1948. Currently, ~87,000 peacekeepers serve across 12 active missions. However, the UNSC veto power held by P5 nations (USA, Russia, China, UK, France) systematically blocks action when a permanent member is involved in a dispute. The UN passed resolutions on Kashmir (1948), but enforcement has been negligible due to geopolitical interests. The failure to prevent the Rwandan genocide (1994), Srebrenica massacre (1995), and ongoing Syrian civil war highlights structural weaknesses.</p>
+<p><strong>Assessment:</strong> The UN framework needs fundamental reform — expansion of the Security Council, restriction of veto power to Chapter VII matters, and creation of a standing rapid-deployment force rather than relying on member-state contributions.</p>
+</div>
+<div class="org-card">
+<h3>🛡️ NATO</h3>
+<div class="org-role">North Atlantic Treaty Organization</div>
+<p>NATO's Article 5 (collective defense) has been invoked only once — after 9/11. NATO's expansion eastward (from 16 members in 1999 to 32 in 2024) is cited by Russia as a provocation, contributing to tensions that erupted in the Ukraine conflict. NATO's 2011 Libya intervention (initially authorized for civilian protection) extended into regime change, creating lasting instability and establishing a precedent that made UNSC consensus harder to achieve thereafter.</p>
+<p><strong>Assessment:</strong> NATO must balance deterrence with diplomacy. Its existence as a Cold War relic needs re-evaluation — transformation into a broader security framework including non-Western perspectives could reduce the perception of it as an instrument of Western hegemony.</p>
+</div>
+<div class="org-card">
+<h3>⚖️ International Court of Justice</h3>
+<div class="org-role">Principal judicial organ of the UN</div>
+<p>The ICJ has adjudicated numerous territorial disputes — including Nicaragua v. Colombia (maritime boundary, 2012), Romania v. Ukraine (Black Sea delimitation, 2009), and the Pedra Branca dispute (Malaysia v. Singapore, 2008). However, compliance is voluntary for advisory opinions, and the ICJ cannot enforce judgments without UNSC support. The Philippines v. China arbitration (2016) on the South China Sea resulted in a ruling against China, which Beijing rejected entirely — exposing the limits of international law without enforcement.</p>
+<p><strong>Assessment:</strong> The ICJ and Permanent Court of Arbitration need enforcement mechanisms tied to economic consequences — trade sanctions, asset freezes, and international banking restrictions for non-compliant nations.</p>
+</div>
+<div class="org-card">
+<h3>🌍 African Union / ASEAN / EU</h3>
+<div class="org-role">Regional organizations</div>
+<p>Regional bodies have mixed records. The AU's "African solutions for African problems" doctrine has had success in mediating some conflicts (Ethiopian-Eritrean border) but failed in others (South Sudan, Cameroon-Nigeria). ASEAN's "non-interference" principle has prevented it from addressing the South China Sea dispute or the Myanmar crisis effectively. The EU's integration model successfully transformed post-WWII rivalries into cooperation, but Brexit and the Ukraine conflict have tested its cohesion.</p>
+<p><strong>Assessment:</strong> Regional organizations must develop stronger conflict prevention mechanisms, rapid mediation teams, and economic integration incentives that make territorial disputes economically irrational to pursue through force.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== PEACE ===== -->
+<section class="peace-section">
+<div class="peace-inner">
+<h2>🕊️ PATHWAYS TO GLOBAL PEACE</h2>
+<p class="subtitle">What the world must do to heal its fractured borders</p>
+<div class="peace-grid">
+<div class="peace-card">
+<span class="peace-card-icon">🤝</span>
+<h3>Diplomacy Over Force</h3>
+<p>Every territorial dispute must be addressed through sustained diplomatic engagement. The Camp David Accords (1978), Good Friday Agreement (1998), and India-Bangladesh Land Boundary Agreement (2015, swapping 162 enclaves peacefully) prove that even the most intractable disputes can be resolved through political will and creative negotiation.</p>
+</div>
+<div class="peace-card">
+<span class="peace-card-icon">📜</span>
+<h3>Strengthen International Law</h3>
+<p>UNCLOS, ICJ rulings, and international humanitarian law must be made enforceable. Nations that reject binding arbitration or ICJ rulings should face automatic economic consequences. A standing international enforcement mechanism — separate from the UNSC veto — is essential.</p>
+</div>
+<div class="peace-card">
+<span class="peace-card-icon">💰</span>
+<h3>Economic Interdependence</h3>
+<p>The EU model demonstrates that economic integration makes war unthinkable between former enemies. Creating economic corridors, joint development zones, and shared resource management across disputed areas can transform conflict zones into cooperation zones. The India-Bangladesh border haats (local markets) are a micro-level example.</p>
+</div>
+<div class="peace-card">
+<span class="peace-card-icon">👥</span>
+<h3>People-to-People Contact</h3>
+<p>Cultural exchanges, educational scholarships, joint sports events, and open travel policies humanize "the enemy." South Korea and Japan's relationship, despite historical trauma, has been stabilized partly through deep cultural exchange (K-pop, anime). People must see each other as fellow humans, not abstract threats.</p>
+</div>
+<div class="peace-card">
+<span class="peace-card-icon">🔄</span>
+<h3>UNSC Reform</h3>
+<p>The Security Council must expand to include permanent representation from Africa (Nigeria/South Africa), South America (Brazil), South Asia (India), and the Arab world. The P5 veto should be restricted — no single nation should be able to block action against genocide, territorial aggression, or crimes against humanity.</p>
+</div>
+<div class="peace-card">
+<span class="peace-card-icon">🌱</span>
+<h3>Climate & Resource Cooperation</h3>
+<p>Many future conflicts will be driven by water scarcity, climate migration, and resource competition. Preemptive transboundary water agreements, joint renewable energy projects, and climate adaptation funds for vulnerable regions can prevent tomorrow's disputes before they ignite.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== EXPLORE ===== -->
+<section class="explore-nav">
+<div class="explore-inner">
+<h2>🧭 Continue Exploring</h2>
+<div class="explore-links">
+<a href="eastern-ghats.html" class="explore-link"><span>🏔️</span><div class="explore-link-text"><h4>Eastern Ghats</h4><p>Ancient broken hill ranges of India</p></div></a>
+<a href="western-ghats.html" class="explore-link"><span>🌿</span><div class="explore-link-text"><h4>Western Ghats</h4><p>UNESCO biodiversity hotspot</p></div></a>
+<a href="states-south.html" class="explore-link"><span>🥥</span><div class="explore-link-text"><h4>Southern States</h4><p>Dravidian heartland & island territories</p></div></a>
+<a href="states-north.html" class="explore-link"><span>❄️</span><div class="explore-link-text"><h4>Northern States</h4><p>Himalayan states & Indo-Gangetic plains</p></div></a>
+</div>
+<a href="/encyclopedia/bharat/index.html" class="explore-back-btn">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+Back to Bharat Encyclopedia
+</a>
+</div>
+</section>
+
+<footer class="footer">
+<p>⚔️ <strong>DHARAVERSE ENCYCLOPEDIA</strong> — Disputed Territories of the World</p>
+<p style="margin-top:0.3rem">Part of <a href="/encyclopedia/bharat/index.html">Bharat Encyclopedia</a> | <a href="https://dharaverse.com">dharaverse.com</a></p>
+<p style="margin-top:0.8rem;opacity:0.5">This analysis is presented for educational purposes. Dharaverse stands for peace, sovereignty, and the resolution of disputes through dialogue. Borders of India depicted as per the official maps of the Government of India.</p>
+<p style="margin-top:0.3rem;opacity:0.3">© 2026 Dharaverse. All rights reserved.</p>
+</footer>
+
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===== DISPUTE DATA =====
+const disputes = [
+{
+id:"kashmir",
+name:"Jammu & Kashmir",
+emoji:"🏔️",
+parties:"India vs Pakistan & China",
+type:"territorial",
+status:"active-conflict",
+statusText:"ACTIVE CONFLICT",
+region:"asia",
+lat:34.0837,lng:74.7973,
+zoom:7,
+summary:"The world's most militarized zone. Pakistan illegally occupies PoK since 1947; China illegally occupies Aksai Chin since 1962.",
+tags:["Nuclear Powers","LOC","UN Resolutions","Article 370"],
+detail:{
+geo:`<p>Jammu & Kashmir encompasses approximately 222,236 km² of territory, stretching from the plains of Jammu in the south to the Karakoram Range in the north. The region is bordered by Pakistan to the west, China (Tibet & Xinjiang) to the north and east, and the Indian states of Himachal Pradesh and Punjab to the south. The geography includes the fertile Kashmir Valley (1,620 m elevation, 135 km long, 40 km wide), the Pir Panjal Range (4,100 m average), the Great Himalayan Range (5,000–7,000 m), the Zanskar Range, the Ladakh Plateau (3,500–5,500 m), and the Karakoram Range (with K2, 8,611 m — the world's second-highest peak, located in Pakistan-occupied Gilgit-Baltistan).</p>
+<p>The region is drained by the Jhelum River (Kashmir Valley), Chenab River (Jammu), Indus River (Ladakh), and Shyok River (northern Ladakh). The Siachen Glacier (76 km long, the world's highest battlefield at 6,300 m) lies in the northern extremity. Aksai Chin (37,244 km²) is a high-altitude desert plateau at 5,000 m, virtually uninhabited, through which China has built the illegal Aksai Chin Highway (National Highway G219) connecting Tibet to Xinjiang.</p>`,
+history:`<p>Kashmir's conflict has its roots in the chaotic Partition of India in 1947. The princely state of Jammu & Kashmir, ruled by Maharaja Hari Singh (a Hindu king over a Muslim-majority population), initially sought independence. On 22 October 1947, Pakistan sent tribal militias (disguised as irregulars but supported by Pakistani army officers) to invade Kashmir in what is known as the "tribal invasion." The raiders committed widespread atrocities — massacre at Baramulla, rape, and looting — giving the Maharaja time to request Indian military assistance.</p>
+<p>On 26 October 1947, Maharaja Hari Singh signed the Instrument of Accession, legally and irrevocably acceding Jammu & Kashmir to India. Indian troops airlifted to Srinagar on 27 October 1947 and pushed the invaders back. India took the matter to the United Nations in January 1948 — a decision many historians consider a strategic error, as it internationalized what was legally an internal matter (the accession was final under Indian law).</p>
+<p><strong>Pakistan's Illegal Actions:</strong> Pakistan has never vacated the territories it occupied during the 1947 invasion — now called "Pakistan-occupied Kashmir" (PoK) and "Gilgit-Baltistan." In 1963, Pakistan illegally ceded the Shaksgam Valley (5,180 km²) of PoK to China — a territory Pakistan had no legal right to cede, as it was Indian territory under the Instrument of Accession. Pakistan has waged four wars against India (1947, 1965, 1971, 1999 Kargil) and has sponsored cross-border terrorism since the late 1980s, using groups like Lashkar-e-Taiba (which carried out the 2008 Mumbai attacks, killing 166 people) and Jaish-e-Mohammed (which attacked the Indian Parliament in 2001 and the Pulwama CRPF convoy in 2019, killing 40 soldiers).</p>
+<p><strong>China's Illegal Occupation:</strong> China occupied Aksai Chin in the 1950s, building a highway through Indian territory without India's knowledge. When India discovered this, the 1962 Sino-Indian War erupted. China attacked India on 20 October 1962 and occupied 37,244 km² of Aksai Chin. China has no legal, historical, or cultural claim to this territory — it was part of the princely state of J&K, which acceded to India. China's claim is based purely on military occupation.</p>`,
+reasons:`<ul>
+<li>Pakistan's Two-Nation Theory ideology — the belief that Muslim-majority regions must belong to Pakistan — drives its claim. However, this theory was rejected by the people of Kashmir who chose India through a legal instrument of accession, and by East Pakistan which became Bangladesh in 1971.</li>
+<li>China's strategic interest in Aksai Chin lies in the highway connecting Tibet to Xinjiang (G219), crucial for controlling its restive western provinces. The CPEC (China-Pakistan Economic Corridor) through PoK further entangles China in the dispute.</li>
+<li>Pakistan's military establishment uses Kashmir as a tool to justify its enormous defense budget (consuming 18%+ of government spending) and its dominance over civilian politics.</li>
+<li>Water resources — the Indus, Jhelum, and Chenab rivers originate in Indian-administered J&K, giving India upstream control under the Indus Waters Treaty (1960).</li>
+</ul>`,
+present:`<p>India revoked Article 370 on 5 August 2019, fully integrating J&K into the Indian Union as two Union Territories (J&K and Ladakh). This was a sovereign legislative action by the Indian Parliament, exercising its constitutional authority. Since then, terrorism incidents have decreased significantly, development spending has increased, and local elections have been conducted (2024 Assembly elections with high voter turnout).</p>
+<p>The Galwan Valley clash (15 June 2020) was a Chinese provocation in Ladakh where PLA soldiers crossed the LAC (Line of Actual Control) and ambushed Indian soldiers with nail-studded clubs. India lost 20 soldiers; China initially denied casualties but later admitted 4 deaths (independent estimates suggest 35–45 PLA casualties). India's swift military response — occupying key heights on the Kailash Range — forced China to negotiate disengagement. This proved that India can and will defend every inch of its territory.</p>
+<p>The current situation: India controls Jammu, the Kashmir Valley, and Ladakh (including Siachen). Pakistan illegally occupies PoK (~13,297 km²) and Gilgit-Baltistan (~72,971 km²). China illegally occupies Aksai Chin (~37,244 km²) and the Shaksgam Valley (~5,180 km²).</p>`,
+solutions:`<ul>
+<li>Pakistan must vacate PoK and Gilgit-Baltistan — these are Indian territories under the legal Instrument of Accession. Pakistan's "claim" has no basis in international law.</li>
+<li>China must vacate Aksai Chin — its occupation is the result of military aggression in 1962 and has no legal foundation.</li>
+<li>Pakistan must permanently dismantle all terrorist infrastructure targeting India — including LeT, JeM, HuM, and their successors.</li>
+<li>The UN Security Council should enforce its own resolutions by requiring Pakistan to withdraw forces from PoK as a precondition — this was the first step outlined in UNSC Resolution 47 (1948), which Pakistan never fulfilled.</li>
+<li>CPEC through PoK must be re-routed — it is built on illegally occupied Indian territory without India's consent, violating Indian sovereignty.</li>
+</ul>`,
+un_role:`<p>The UN's handling of Kashmir has been one of its greatest failures. UNSC Resolution 47 (1948) clearly stated that Pakistan must first withdraw all forces and nationals from the territories it invaded — only then could a plebiscite be considered. <strong>Pakistan never withdrew.</strong> Instead, it settled non-Kashmiri populations in PoK, changed the demographics, conducted no elections, and allowed China to occupy part of the territory. The plebiscite precondition was never met, and subsequent events — Pakistan's aggression in 1965, 1971, and 1999, and India's democratic integration of J&K — have rendered the resolution obsolete.</p>
+<p><strong>UN's Duty:</strong> The UN must (1) condemn Pakistan's state-sponsored terrorism against India, (2) declare CPEC through PoK as a violation of sovereignty, (3) recognize India's democratic mandate in J&K, and (4) pressure China to accept the LAC as a permanent boundary pending final resolution.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> The Kashmir dispute is fundamentally asymmetric — India has legal accession, democratic governance, massive development investment, and the will of the Kashmiri people (expressed through elections). Pakistan has only military occupation, terrorism as state policy, and the exploitation of Kashmiri suffering for domestic political purposes. China has only force.</p>
+<p>The solution is clear: Pakistan and China must return illegally occupied territories. The international community must stop treating India's sovereignty over J&K as "disputed" — it is settled by law, ratified by democratic processes, and defended by the Indian armed forces. The only genuine "dispute" is whether Pakistan and China will accept international law or continue to defy it.</p>
+<p>India's approach — combining robust military defence with accelerated economic development, infrastructure building (Atal Tunnel, Zojila Tunnel, rail links), and democratic empowerment — is the model for resolving the dispute. Peace will come when Pakistan recognizes that terrorism is self-destructive and when China recognizes that Aksai Chin is not worth a permanent adversarial relationship with a rising India.</p>`
+}
+},
+{
+id:"arunachal",
+name:"Arunachal Pradesh",
+emoji:"🏔️",
+parties:"India vs China",
+type:"territorial",
+status:"tensions",
+statusText:"HIGH TENSIONS",
+region:"asia",
+lat:28.2180,lng:94.7278,
+zoom:7,
+summary:"China absurdly claims all of Arunachal Pradesh (83,743 km²) as 'South Tibet.' India rejects this fabricated claim entirely.",
+tags:["McMahon Line","South Tibet Claim","Tawang","LAC"],
+detail:{
+geo:`<p>Arunachal Pradesh — "Land of the Dawn-Lit Mountains" — is India's northeasternmost state, covering 83,743 km² between latitudes 26°28'N and 29°30'N. It borders Bhutan to the west, Myanmar to the east, Assam and Nagaland to the south, and China (Tibet) to the north along the McMahon Line (approximately 1,129 km). The terrain is spectacularly mountainous — from the tropical forests of the Brahmaputra foothills (100 m) to the snow-capped peaks of the Eastern Himalayas exceeding 7,000 m (Kangto, 7,042 m). The state contains the Siang Valley (through which the Brahmaputra enters India from Tibet), the Tawang Monastery (the largest Buddhist monastery in India, founded in 1681), and extraordinary biodiversity (500+ orchid species, 5,000+ plant species).</p>`,
+history:`<p>China's claim to Arunachal Pradesh has zero historical validity. The McMahon Line was agreed upon at the Simla Convention (1914) between British India and Tibet, demarcating the border along the highest ridgeline of the Eastern Himalayas. China was a party to these negotiations but refused to sign — however, Tibet (which was functionally independent at the time) signed the accord. India inherited this boundary upon independence in 1947.</p>
+<p>China's claim emerges from its 1950 invasion and annexation of Tibet. By claiming Tibet as a "historical part of China," Beijing extends its fabricated territorial claims southward to include Arunachal Pradesh — which it calls "Zangnan" or "South Tibet." This is historically fraudulent: Arunachal Pradesh has been inhabited by distinct tribal communities (Monpa, Nyishi, Adi, Apatani, Mishmi, Galo, Tagin, and others) for millennia who have no ethnic, linguistic, or cultural connection to Tibet or China. The Monpa people of Tawang have been Indian citizens, practicing their traditions under Indian sovereignty, long before the PRC existed (founded 1949).</p>
+<p>During the 1962 war, China briefly invaded Arunachal Pradesh (then NEFA — North-East Frontier Agency), reaching the Brahmaputra plains before unilaterally withdrawing — likely because it realized occupying such difficult terrain permanently was impossible. Since then, China has engaged in periodic provocations — issuing stapled visas to Arunachali residents, renaming places in Arunachal with Chinese names, objecting to visits by Indian leaders, and building infrastructure on the Tibetan side.</p>`,
+reasons:`<ul>
+<li>China's claim is strategic, not historical — controlling the Tawang corridor would give China a military advantage overlooking the Brahmaputra Valley and Assam.</li>
+<li>Tawang's significance: The 6th Dalai Lama was born in Tawang (1683), and China fears that Tawang's Tibetan Buddhist heritage undermines its narrative of total control over Tibet.</li>
+<li>Water resources: The Brahmaputra (Yarlung Tsangpo in Tibet) flows through a massive canyon in Arunachal — Chinese control would give it leverage over downstream water access for India and Bangladesh.</li>
+<li>The claim is part of China's broader pattern of "salami slicing" — claiming territory in small increments (Aksai Chin, Doklam, Galwan, South China Sea, Senkaku Islands) to gradually expand its borders.</li>
+</ul>`,
+present:`<p>India has categorically stated that Arunachal Pradesh is "an integral and inalienable part of India" and rejects China's claims entirely. India has massively increased military infrastructure — the Sela Tunnel (highest tunnel in the world at 4,170 m, providing all-weather access to Tawang), new ALGs (Advanced Landing Grounds), road construction by BRO (Border Roads Organisation), deployment of additional mountain divisions, and advanced weapons systems including BrahMos missiles.</p>
+<p>India's political response has been equally firm — Prime Minister Modi has visited Arunachal Pradesh multiple times, India has invested ₹50,000+ crore in development, and the state's 25 districts are fully integrated into India's democratic framework with elected representatives in Parliament.</p>`,
+solutions:`<ul>
+<li>China must formally recognize the McMahon Line as the international boundary — as it already does with Myanmar (which has the same McMahon Line-based border).</li>
+<li>The international community must unequivocally support India's sovereignty over Arunachal Pradesh — there is no legitimate "dispute."</li>
+<li>China must stop its provocative renaming of places in a sovereign Indian state — this is an act of cartographic aggression.</li>
+<li>India should continue building infrastructure, military capability, and economic development to make any Chinese adventure impossible and irrational.</li>
+</ul>`,
+un_role:`<p>The UN has been silent on China's fabricated claims against Arunachal Pradesh, largely because China is a P5 member with veto power. The UN must develop a mechanism to address territorial claims by Security Council members — the current system allows P5 nations to bully smaller states with impunity.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> China's claim to Arunachal Pradesh is a fiction manufactured to serve strategic ambitions. No historical document, no ethnic linkage, no cultural connection, and no international legal instrument supports China's claim. The people of Arunachal Pradesh are Indian — they vote in Indian elections, serve in the Indian armed forces, and identify as Indian citizens. China's claim is colonialism dressed in 21st-century rhetoric.</p>
+<p>India's strategy is correct: build infrastructure, strengthen military presence, develop the state economically, and diplomatically reject every Chinese provocation. The day China attempts military action against Arunachal Pradesh, it will face a military response from an India that is far stronger than 1962 — with mountain strike corps, advanced fighter aircraft, satellite surveillance, and nuclear deterrence.</p>`
+}
+},
+{
+id:"southchinasea",
+name:"South China Sea",
+emoji:"🌊",
+parties:"China vs Philippines, Vietnam, Malaysia, Brunei, Taiwan",
+type:"maritime",
+status:"active-conflict",
+statusText:"ACTIVE TENSIONS",
+region:"asia",
+lat:12.8797,lng:114.7631,
+zoom:5,
+summary:"China claims 90% of the South China Sea via the illegal 'Nine-Dash Line,' rejected by international tribunal in 2016.",
+tags:["Nine-Dash Line","UNCLOS","Spratly Islands","Freedom of Navigation"],
+detail:{
+geo:`<p>The South China Sea covers approximately 3.5 million km² — one of the world's busiest shipping lanes carrying $5.3 trillion in trade annually (one-third of global maritime trade). It is bordered by China to the north, the Philippines to the east, Malaysia and Brunei to the south, and Vietnam to the west. Key features include the Spratly Islands (~100 small islands and reefs claimed by six nations), the Paracel Islands (occupied by China since 1974, claimed by Vietnam and Taiwan), Scarborough Shoal (disputed between China and Philippines), and the Pratas Islands (controlled by Taiwan).</p>`,
+history:`<p>China's "Nine-Dash Line" claim — asserting sovereignty over ~90% of the South China Sea — first appeared on a 1947 Nationalist Chinese map with eleven dashes (reduced to nine by the PRC in 1953). This claim has no basis in international law. In 2013, the Philippines brought a case against China under UNCLOS (United Nations Convention on the Law of the Sea). The Permanent Court of Arbitration in The Hague ruled in July 2016 that China's Nine-Dash Line has "no legal basis" and that China had violated Philippine sovereignty. China rejected the ruling entirely, calling it "null and void" — an unprecedented defiance of international law by a major power.</p>
+<p>China has militarized the dispute by constructing artificial islands on reefs in the Spratly Islands — building airstrips (capable of handling fighter jets and bombers), radar systems, missile batteries, and military barracks on Fiery Cross Reef, Subi Reef, and Mischief Reef. These islands were built by dredging coral and sand, destroying irreplaceable marine ecosystems in the process.</p>`,
+reasons:`<ul>
+<li>Strategic control of the world's most important shipping lanes</li>
+<li>Estimated 11 billion barrels of oil and 190 trillion cubic feet of natural gas beneath the seabed</li>
+<li>Rich fishing grounds providing livelihood to millions across Southeast Asia</li>
+<li>Military projection — control of the SCS gives China ability to project power across the Indo-Pacific</li>
+<li>Domestic nationalism — the CCP has made the SCS claim a matter of "national pride" that it cannot retreat from without losing face</li>
+</ul>`,
+present:`<p>China continues to harass Philippine fishing vessels and coast guard ships near Scarborough Shoal and Second Thomas Shoal (where the Philippines has a deliberately grounded ship, BRP Sierra Madre, as a sovereignty marker). The US conducts regular Freedom of Navigation Operations (FONOPs). ASEAN nations remain divided, with Cambodia and Laos (heavily indebted to China via BRI loans) blocking united action.</p>`,
+solutions:`<ul>
+<li>Full enforcement of the 2016 PCA ruling — the international community must treat this as binding law</li>
+<li>ASEAN must develop a binding Code of Conduct with enforcement mechanisms</li>
+<li>Joint development zones where overlapping claims exist, with shared resource extraction</li>
+<li>Demilitarization of artificial islands under international monitoring</li>
+<li>Economic sanctions on entities involved in illegal island construction</li>
+</ul>`,
+un_role:`<p>The UN has failed to enforce the 2016 ruling because China, as a P5 member, can veto any UNSC action. This is a structural failure of the international order. The General Assembly should pass binding resolutions supporting UNCLOS, and nations should coordinate economic consequences for non-compliance.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> China's South China Sea aggression is the most dangerous maritime dispute in the world. It threatens the freedom of navigation principle that underpins global trade, destroys irreplaceable coral reef ecosystems, and bullies smaller nations through sheer military force. The international community must draw a clear line — UNCLOS and the 2016 ruling are international law, and no nation, regardless of its military power, is above the law. India's growing naval presence in the Indo-Pacific, through the Quad partnership and bilateral exercises with ASEAN navies, is a crucial balancing force.</p>`
+}
+},
+{
+id:"ukraine",
+name:"Ukraine–Russia Conflict",
+emoji:"🇺🇦",
+parties:"Ukraine vs Russia",
+type:"occupation",
+status:"active-conflict",
+statusText:"ACTIVE WAR",
+region:"europe",
+lat:48.3794,lng:35.0,
+zoom:6,
+summary:"Russia's illegal invasion of Ukraine (2022) — the largest land war in Europe since WWII. Crimea annexed in 2014.",
+tags:["Crimea","Donbas","NATO Expansion","Nuclear Threat"],
+detail:{
+geo:`<p>Ukraine is Europe's second-largest country by area (603,628 km²), bordering Russia to the northeast, Belarus to the north, Poland, Slovakia, and Hungary to the west, Romania and Moldova to the southwest, and the Black Sea to the south. The terrain is predominantly flat steppe and agricultural plains (chernozem — the world's most fertile soil), with the Carpathian Mountains in the west and the Crimean Mountains in the south. The Dnipro River bisects the country.</p>`,
+history:`<p>The conflict has deep roots in post-Soviet geopolitics. After the Soviet dissolution (1991), Ukraine became independent with its existing borders — including Crimea (transferred from Russia to Ukraine in 1954 by Khrushchev). The Budapest Memorandum (1994) saw Ukraine give up the world's third-largest nuclear arsenal in exchange for security guarantees from the US, UK, and Russia — guarantees Russia has spectacularly violated.</p>
+<p>Russia annexed Crimea in February-March 2014, using "little green men" (unmarked Russian soldiers) to seize government buildings, followed by a sham referendum. The same year, Russia fomented separatist movements in Donetsk and Luhansk (Donbas region), providing weapons, troops, and command-and-control. The MH17 shoot-down (17 July 2014, 298 killed) was caused by a Russian Buk missile system operated by Russian-backed separatists.</p>
+<p>On 24 February 2022, Russia launched a full-scale invasion of Ukraine, expecting a swift victory. Ukraine's unexpectedly fierce resistance, Western military aid (HIMARS, Leopard tanks, F-16s), and Russian military incompetence have resulted in a prolonged conflict with 500,000+ casualties (both sides), millions displaced, and enormous destruction.</p>`,
+reasons:`<ul>
+<li>Russian imperialism — Putin's stated belief that Ukraine is "not a real country" and is historically part of Russia</li>
+<li>NATO expansion anxiety — Russia views Ukraine's potential NATO membership as an existential threat (though NATO's Article 5 is defensive, not offensive)</li>
+<li>Control of Crimea and the Black Sea Fleet base at Sevastopol</li>
+<li>Energy politics — Ukraine is a key transit country for Russian gas to Europe</li>
+<li>Domestic politics — Putin uses external aggression to suppress internal dissent</li>
+</ul>`,
+present:`<p>As of 2024-2025, Russia occupies approximately 18% of Ukraine's territory (Crimea, parts of Donetsk, Luhansk, Zaporizhzhia, and Kherson oblasts). Ukraine has conducted counter-offensives and struck deep into Russian territory. The conflict has triggered the largest European refugee crisis since WWII (8 million+ refugees), reshaped global energy markets, and pushed Finland and Sweden into NATO. Russia faces unprecedented international sanctions but is sustained by oil revenue from India, China, and Turkey.</p>`,
+solutions:`<ul>
+<li>Complete Russian withdrawal from all Ukrainian territory, including Crimea — as required by international law and UNGA Resolution ES-11/1 (141 votes in favor)</li>
+<li>Security guarantees for Ukraine — either NATO membership or bilateral defense treaties</li>
+<li>International tribunal for war crimes committed during the invasion</li>
+<li>Reconstruction fund for Ukraine, funded partially by seized Russian state assets (~$300 billion frozen)</li>
+<li>Long-term: Russia must undergo democratization and accountability — autocracy is the root cause of aggression</li>
+</ul>`,
+un_role:`<p>Russia has vetoed every UNSC resolution on Ukraine — a permanent member using its veto to shield its own aggression. This is the most egregious abuse of the veto system in UN history. The General Assembly has overwhelmingly condemned Russia (141-5 in March 2022), but without enforcement power. This crisis proves that UNSC reform is not optional — it is existentially necessary for the international order.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> Russia's invasion of Ukraine is an illegal war of aggression — the "supreme international crime" as defined by the Nuremberg Tribunal. It has violated the UN Charter, the Budapest Memorandum, the Helsinki Final Act, and the fundamental principle that borders cannot be changed by force. The international community's response — sanctions, military aid, diplomatic isolation — has been significant but insufficient. The war will end only when the cost to Russia exceeds any conceivable benefit, or when internal political change occurs in Moscow.</p>`
+}
+},
+{
+id:"taiwan",
+name:"Taiwan Strait",
+emoji:"🇹🇼",
+parties:"China (PRC) vs Taiwan (ROC)",
+type:"territorial",
+status:"tensions",
+statusText:"HIGH TENSIONS",
+region:"asia",
+lat:23.6978,lng:120.9605,
+zoom:7,
+summary:"China claims Taiwan as a 'breakaway province.' Taiwan has been self-governing since 1949 with a vibrant democracy.",
+tags:["One China Policy","Semiconductor","Indo-Pacific","TSMC"],
+detail:{
+geo:`<p>Taiwan is an island nation of 36,193 km² located 180 km off China's southeastern coast, separated by the Taiwan Strait. The island is mountainous, with over 200 peaks above 3,000 m (Yu Shan at 3,952 m is the highest). Taiwan is a global economic powerhouse — TSMC produces 90% of the world's most advanced semiconductors. Population: 23.5 million.</p>`,
+history:`<p>Taiwan has been governed by the Republic of China (ROC) since 1945 (after Japan's WWII surrender). When the Chinese Communist Party won the civil war in 1949, the ROC government retreated to Taiwan. The PRC (founded 1 October 1949) has never controlled Taiwan for a single day in its history. Taiwan has evolved from an authoritarian regime into a vibrant, multi-party democracy (first direct presidential election in 1996). Taiwan has its own military, currency, passport, constitution, and foreign policy — it is a de facto sovereign state by every objective measure.</p>`,
+reasons:`<ul>
+<li>CCP legitimacy — the "reunification of the motherland" is a foundational narrative of the Communist Party</li>
+<li>Strategic denial — an independent Taiwan prevents China from projecting unchallenged naval power into the Pacific</li>
+<li>Semiconductor dominance — controlling TSMC would give China enormous leverage over global technology supply chains</li>
+<li>Precedent — if Taiwan remains permanently independent, it undermines China's claims over Tibet, Xinjiang, and Hong Kong</li>
+</ul>`,
+present:`<p>China has increased military provocations — sending record numbers of PLA Air Force aircraft (100+ daily at peak) into Taiwan's Air Defense Identification Zone, conducting large-scale military exercises simulating blockade and invasion (August 2022, following US Speaker Pelosi's visit), and engaging in "gray zone" warfare (cyber attacks, economic coercion, diplomatic isolation). The US maintains "strategic ambiguity" — recognizing the PRC as the government of China while maintaining unofficial relations with Taiwan and selling it advanced weapons. The Taiwan Relations Act (1979) requires the US to provide Taiwan with "arms of a defensive character."</p>`,
+solutions:`<ul>
+<li>Maintenance of the status quo with gradual international recognition of Taiwan's sovereignty</li>
+<li>US and allies must make clear that military aggression against Taiwan will trigger a full military response — ambiguity invites miscalculation</li>
+<li>Diversification of semiconductor manufacturing away from Taiwan to reduce the strategic incentive for aggression</li>
+<li>Cross-strait dialogue without preconditions — Taiwan's future must be decided by Taiwan's 23.5 million people, not by Beijing</li>
+</ul>`,
+un_role:`<p>Taiwan is excluded from the UN (lost its seat in 1971 when the PRC took over the China seat). This is an injustice — 23.5 million people in a democratic nation have no representation in the world body. The UN should at minimum grant Taiwan observer status (like Palestine) and allow its participation in WHO, ICAO, and other specialized agencies.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> Taiwan is functionally an independent nation. The PRC's claim is based on historical nationalism, not law — the PRC has never governed Taiwan. Any military attempt to take Taiwan would be an act of aggression comparable to Russia's invasion of Ukraine and would trigger the most destructive conflict since WWII, potentially involving nuclear powers. The world must clearly communicate to Beijing that peace is the only acceptable path.</p>`
+}
+},
+{
+id:"palestine",
+name:"Israel–Palestine",
+emoji:"🕊️",
+parties:"Israel vs Palestine (Hamas, PA)",
+type:"occupation",
+status:"active-conflict",
+statusText:"ACTIVE WAR",
+region:"asia",
+lat:31.5,lng:34.89,
+zoom:8,
+summary:"One of the longest-running conflicts in modern history. Occupation, settlements, and cycles of devastating violence.",
+tags:["Gaza","West Bank","Two-State Solution","Jerusalem","Settlements"],
+detail:{
+geo:`<p>The disputed territories include the West Bank (5,655 km², between Israel and Jordan), the Gaza Strip (365 km², on the Mediterranean coast between Israel and Egypt), and East Jerusalem. The total area of historic Palestine (Israel + West Bank + Gaza) is about 27,000 km² — smaller than Belgium.</p>`,
+history:`<p>The conflict traces back to the late 19th century Zionist movement seeking a Jewish homeland in Ottoman Palestine. The 1917 Balfour Declaration (Britain supporting a "national home for the Jewish people") set the stage. After WWII and the Holocaust, the UN proposed partitioning Palestine (Resolution 181, 1947) into Jewish and Arab states. Israel declared independence on 14 May 1948; neighboring Arab states invaded and lost. The 1967 Six-Day War saw Israel capture the West Bank, Gaza, Sinai, and Golan Heights. The Oslo Accords (1993) created the Palestinian Authority but did not resolve core issues — borders, Jerusalem, refugees, settlements.</p>
+<p>Israel has built 150+ settlements in the West Bank housing 700,000+ settlers, considered illegal under international law (Fourth Geneva Convention, Article 49). The Gaza Strip has been under Israeli blockade since 2007 (after Hamas took control). The October 7, 2023 Hamas attack (killing 1,200 Israelis) triggered Israel's devastating military campaign in Gaza (40,000+ Palestinian deaths by 2024 estimates).</p>`,
+reasons:`<ul>
+<li>Competing national narratives over the same land</li>
+<li>Jerusalem — sacred to Judaism, Islam, and Christianity</li>
+<li>Palestinian refugee right of return (5.9 million registered refugees)</li>
+<li>Israeli security concerns — surrounded by hostile actors</li>
+<li>Settlement expansion — creating "facts on the ground" that undermine two-state solution</li>
+<li>Regional geopolitics — Iran's support for Hamas and Hezbollah</li>
+</ul>`,
+present:`<p>Gaza has been devastated by the 2023-2024 war, with massive civilian casualties, destruction of 60%+ of housing, displacement of 1.9 million people, and a humanitarian catastrophe. The West Bank sees rising settler violence and IDF raids. International opinion is deeply divided — much of the Global South supports Palestinian statehood, while the US provides Israel with $3.8 billion in annual military aid.</p>`,
+solutions:`<ul>
+<li>Two-state solution based on 1967 borders with mutually agreed land swaps</li>
+<li>Jerusalem as shared capital — West Jerusalem for Israel, East Jerusalem for Palestine</li>
+<li>Immediate ceasefire, humanitarian access, and hostage/prisoner releases</li>
+<li>Settlement freeze and eventual withdrawal from West Bank settlements</li>
+<li>Regional integration — building on Abraham Accords with Palestinian inclusion</li>
+<li>International peacekeeping force for a transition period</li>
+</ul>`,
+un_role:`<p>The UN has passed more resolutions on Israel-Palestine than any other conflict. UNGA Resolution 67/19 (2012) granted Palestine non-member observer state status. The US has used its UNSC veto 53+ times to shield Israel from binding resolutions. The UN must insist on international law — occupation is illegal, settlements are illegal, collective punishment is illegal, and targeting civilians is a war crime regardless of which side commits it.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> This is a conflict where both peoples have legitimate claims and genuine suffering. The path to peace requires acknowledging both — Israel's right to exist in security AND Palestine's right to sovereignty and dignity. The current trajectory of occupation, settlement expansion, and military devastation is unsustainable. Without a political solution, the cycle of violence will continue indefinitely. India's position — supporting Palestinian statehood while maintaining relations with Israel — is balanced and pragmatic.</p>`
+}
+},
+{
+id:"crimea",
+name:"Crimea",
+emoji:"🏴",
+parties:"Ukraine vs Russia",
+type:"occupation",
+status:"active-conflict",
+statusText:"UNDER OCCUPATION",
+region:"europe",
+lat:45.3,lng:34.08,
+zoom:8,
+summary:"Annexed by Russia in 2014 via illegal referendum. Internationally recognized as Ukrainian territory.",
+tags:["Annexation","Sevastopol","Black Sea Fleet","2014 Referendum"],
+detail:{
+geo:`<p>Crimea is a peninsula of 27,000 km² on the northern coast of the Black Sea, connected to the Ukrainian mainland by the narrow Perekop Isthmus (5-7 km wide). Strategically, it controls access between the Black Sea and the Sea of Azov through the Kerch Strait.</p>`,
+history:`<p>Crimea was transferred from the Russian SFSR to the Ukrainian SSR in 1954 by Nikita Khrushchev — a largely administrative move within the Soviet Union. When the USSR dissolved in 1991, Crimea became part of independent Ukraine, recognized by Russia in the 1994 Budapest Memorandum and the 1997 Treaty on Friendship. In February 2014, following Ukraine's Euromaidan revolution, Russia sent unmarked military forces ("little green men") to seize Crimean government buildings. A hastily organized "referendum" (with armed soldiers at polling stations) produced an implausible 97% vote for annexation. Russia formally annexed Crimea on 18 March 2014.</p>`,
+reasons:`<ul><li>Sevastopol — home of Russia's Black Sea Fleet since 1783</li><li>Ethnic Russian majority (65%) used as justification</li><li>Strategic control of the Black Sea</li><li>Preventing Ukraine's NATO integration</li></ul>`,
+present:`<p>Russia has built the Crimean Bridge (19 km, connecting Crimea to Russia's Krasnodar Krai), deployed nuclear-capable weapons, and invested heavily in integrating Crimea. Ukraine has struck Russian military targets in Crimea with long-range missiles and drone attacks. The UNGA Resolution 68/262 (2014) affirmed Crimea as Ukrainian territory (100 votes in favor).</p>`,
+solutions:`<ul><li>Crimea must be returned to Ukraine as part of any peace settlement</li><li>Autonomous status for Crimea within Ukraine, protecting Russian-speaking population rights</li><li>Demilitarization of Crimea with international monitoring</li><li>Shared naval base arrangements (as existed pre-2014)</li></ul>`,
+un_role:`<p>The UNGA has affirmed Crimea's Ukrainian status. The UNSC is blocked by Russia's veto. This is a textbook case for why the veto must be reformed.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> Russia's annexation of Crimea was an illegal act of aggression that violated the UN Charter, the Budapest Memorandum, and the post-WWII international order. No "referendum" conducted under military occupation is legitimate. The precedent this sets — that a powerful nation can simply seize territory from a neighbor — is catastrophic for global stability.</p>`
+}
+},
+{
+id:"westsahara",
+name:"Western Sahara",
+emoji:"🏜️",
+parties:"Morocco vs Polisario Front (Sahrawi Republic)",
+type:"occupation",
+status:"frozen-conflict",
+statusText:"FROZEN CONFLICT",
+region:"africa",
+lat:24.2155,lng:-12.8858,
+zoom:6,
+summary:"Africa's last colony. Morocco controls 80% after Spain withdrew in 1975. UN-promised referendum never held.",
+tags:["Polisario","MINURSO","Self-Determination","Phosphates"],
+detail:{
+geo:`<p>Western Sahara covers 266,000 km² of mostly arid desert on the Atlantic coast of northwest Africa. It borders Morocco to the north, Algeria to the northeast, Mauritania to the south, and the Atlantic Ocean to the west. The region has the world's largest phosphate reserves (Bou Craa mine) and rich Atlantic fishing grounds.</p>`,
+history:`<p>A Spanish colony until 1975, when Spain withdrew under pressure. Morocco organized the "Green March" — 350,000 Moroccan civilians marching into the territory — and subsequently occupied the northern two-thirds. Mauritania took the south (but withdrew in 1979, allowing Morocco to occupy the rest). The Polisario Front (backed by Algeria) fought a guerrilla war until a 1991 ceasefire. The UN established MINURSO (peacekeeping mission) to oversee a self-determination referendum — which has never been held because Morocco and Polisario cannot agree on voter eligibility.</p>`,
+reasons:`<ul><li>Phosphate deposits (Bou Craa — world's largest conveyor belt system, 100 km long)</li><li>Atlantic fishing rights</li><li>Moroccan national identity — the monarchy has made Western Sahara a patriotic cause</li><li>Algeria-Morocco rivalry</li></ul>`,
+present:`<p>Morocco controls ~80% behind a 2,700-km sand wall (berm) embedded with landmines. Approximately 100,000+ Sahrawi refugees live in camps near Tindouf, Algeria — some have been there for 49 years. In 2020, the US (under Trump) recognized Moroccan sovereignty in exchange for Morocco normalizing relations with Israel. This has complicated diplomatic efforts.</p>`,
+solutions:`<ul><li>UN-supervised referendum on self-determination — as promised in 1991</li><li>Autonomy within Morocco (Morocco's proposal) with genuine self-governance</li><li>Regional integration that addresses Algeria's security concerns</li></ul>`,
+un_role:`<p>MINURSO is the only UN peacekeeping mission without a human rights monitoring mandate — a significant gap that allows abuses to go undocumented. The UN must insist on the referendum it promised.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> Western Sahara is the last colony in Africa. The Sahrawi people's right to self-determination is enshrined in international law. The world's selective attention to this conflict — compared to others — reveals uncomfortable double standards.</p>`
+}
+},
+{
+id:"senkaku",
+name:"Senkaku/Diaoyu Islands",
+emoji:"🏝️",
+parties:"Japan vs China vs Taiwan",
+type:"maritime",
+status:"tensions",
+statusText:"HIGH TENSIONS",
+region:"asia",
+lat:25.7744,lng:123.4728,
+zoom:8,
+summary:"Uninhabited islands controlled by Japan, claimed by China and Taiwan. Potential flashpoint in the East China Sea.",
+tags:["East China Sea","Oil & Gas","ADIZ","US-Japan Alliance"],
+detail:{
+geo:`<p>The Senkaku Islands (Japanese) / Diaoyu Islands (Chinese) are a group of 8 uninhabited islands and rocks totaling 7 km² in the East China Sea, approximately 170 km from Taiwan, 330 km from mainland China, and 410 km from Okinawa (Japan). The surrounding waters potentially contain 7+ billion barrels of oil and significant natural gas reserves.</p>`,
+history:`<p>Japan incorporated the islands in 1895 after surveying them and finding no evidence of Chinese control. They were administered by the US from 1945-1972 (as part of the Okinawa reversion) and returned to Japan. China and Taiwan began claiming them only after a 1969 UN survey suggested significant hydrocarbon deposits beneath the seabed — suggesting the claims are resource-driven rather than historical.</p>`,
+reasons:`<ul><li>Oil and gas resources</li><li>Fishing rights in the East China Sea</li><li>Strategic maritime control</li><li>Nationalism on all sides</li></ul>`,
+present:`<p>China sends coast guard vessels and fishing fleets into waters around the islands regularly. Japan scrambles fighter jets in response to Chinese aircraft approaching its Air Defense Identification Zone. The US has stated that the Senkaku Islands fall under Article 5 of the US-Japan Security Treaty (meaning the US would defend Japan if attacked over the islands).</p>`,
+solutions:`<ul><li>Joint development zone for maritime resources</li><li>Confidence-building measures — hotline between Japanese and Chinese coast guards</li><li>Shelving sovereignty claims while cooperating on fishing and resource management</li></ul>`,
+un_role:`<p>The UN should encourage both parties to submit claims to the ICJ or establish a joint commission. UNCLOS principles should govern maritime delimitation.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> The Senkaku dispute is primarily about resources and strategic positioning, not genuine historical claims. China's assertion of sovereignty appeared only after oil was discovered. Diplomacy, not confrontation, must prevail — a military clash here could escalate to involve the US and risk catastrophic consequences.</p>`
+}
+},
+{
+id:"falklands",
+name:"Falkland Islands",
+emoji:"🐧",
+parties:"United Kingdom vs Argentina",
+type:"territorial",
+status:"frozen-conflict",
+statusText:"FROZEN DISPUTE",
+region:"americas",
+lat:-51.7963,lng:-59.5236,
+zoom:7,
+summary:"Argentina claims the Falklands (Malvinas). UK fought a 74-day war in 1982 to retake them. Islanders overwhelmingly chose UK.",
+tags:["Malvinas","1982 War","Self-Determination","South Atlantic"],
+detail:{
+geo:`<p>The Falkland Islands are an archipelago of 778 islands covering 12,173 km² in the South Atlantic Ocean, approximately 480 km east of the Argentine coast and 1,200 km north of Antarctica. The terrain is windswept moorland with a sub-Antarctic climate. Population: ~3,500 (almost entirely British descent). Capital: Stanley.</p>`,
+history:`<p>The British first landed in 1690 and established a settlement in 1766. Argentina claims inheritance from Spain's colonial claims. In April 1982, Argentina's military junta invaded the Falklands. Britain dispatched a naval task force and recaptured the islands after a 74-day war (649 Argentine and 255 British soldiers killed). In a 2013 referendum, Falkland Islanders voted 99.8% to remain a British Overseas Territory.</p>`,
+reasons:`<ul><li>Argentine national identity — the Malvinas are deeply embedded in Argentine patriotism</li><li>Oil and gas potential in surrounding waters</li><li>Fishing rights in rich South Atlantic waters</li><li>Antarctic territorial claims (overlapping British, Argentine, and Chilean claims)</li></ul>`,
+present:`<p>Argentina maintains its diplomatic claim but has renounced military action. The UK has significantly fortified the islands — RAF Mount Pleasant serves as a major military base with Typhoon fighters, warships, and a 1,700-strong garrison. Diplomatic tensions flare periodically, especially during anniversary periods.</p>`,
+solutions:`<ul><li>The islanders' right to self-determination must be paramount — they have chosen British sovereignty overwhelmingly</li><li>Joint economic cooperation in fishing and hydrocarbons</li><li>Diplomatic normalization between UK and Argentina with the dispute "frozen"</li></ul>`,
+un_role:`<p>UNGA Resolution 2065 (1965) called for bilateral negotiations considering the "interests of the population." Argentina interprets this as requiring sovereignty negotiations; the UK maintains that the islanders' wishes are paramount.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> The Falkland Islanders have spoken — 99.8% chose to remain British. In the 21st century, the self-determination of people must override historical claims. Argentina's claim may have emotional resonance, but it cannot override the democratic will of the people who live there.</p>`
+}
+},
+{
+id:"nagorno",
+name:"Nagorno-Karabakh",
+emoji:"⛰️",
+parties:"Armenia vs Azerbaijan",
+type:"frozen",
+status:"resolved",
+statusText:"RESOLVED (2023)",
+region:"europe",
+lat:39.8133,lng:46.7519,
+zoom:8,
+summary:"After 30+ years of conflict, Azerbaijan retook full control in September 2023. 120,000 ethnic Armenians displaced.",
+tags:["South Caucasus","Ethnic Cleansing","2020 War","Artsakh"],
+detail:{
+geo:`<p>Nagorno-Karabakh (Artsakh in Armenian) is a mountainous region of approximately 4,400 km² in the South Caucasus, internationally recognized as part of Azerbaijan but populated predominantly by ethnic Armenians for centuries. The terrain is rugged — peaks reaching 3,724 m — with dense forests and the Hakari River valley.</p>`,
+history:`<p>The conflict erupted in 1988 when the Armenian-majority autonomous region within Soviet Azerbaijan voted to unify with Armenia. The First Nagorno-Karabakh War (1991-1994) resulted in Armenian forces controlling Nagorno-Karabakh and seven surrounding Azerbaijani districts — displacing 600,000+ Azerbaijani civilians. A ceasefire held until 2020.</p>
+<p>The Second Nagorno-Karabakh War (September-November 2020) saw Azerbaijan, equipped with Turkish-supplied Bayraktar TB2 drones and Israeli-made loitering munitions, recapture most of the surrounding territories. A Russian-brokered ceasefire left a Russian peacekeeping force in the rump Nagorno-Karabakh. In September 2023, Azerbaijan launched a final offensive — within 24 hours, the Armenian forces surrendered, and virtually the entire Armenian population (120,000+) fled to Armenia in a mass exodus described by many as ethnic cleansing.</p>`,
+reasons:`<ul><li>Ethnic Armenian majority in a territory within Azerbaijan's borders</li><li>Soviet-era arbitrary boundary drawing that placed Armenians under Azerbaijani administration</li><li>Religious and cultural differences (Christian Armenians vs Muslim Azerbaijanis)</li><li>Turkey's support for Azerbaijan</li><li>Oil wealth enabling Azerbaijan's military modernization</li></ul>`,
+present:`<p>Azerbaijan has full control. The Armenian cultural heritage in the region (churches, khachkars, monasteries dating to the 4th century) faces destruction. Over 100,000 displaced Armenians struggle to rebuild lives in Armenia.</p>`,
+solutions:`<ul><li>International monitoring of Armenian cultural sites under Azerbaijani control</li><li>Safe return provisions for displaced Armenians who wish to go back (with international security guarantees)</li><li>Armenia-Azerbaijan peace treaty normalizing relations</li><li>Opening of regional transport corridors benefiting all parties</li></ul>`,
+un_role:`<p>The UN called for Azerbaijan to allow humanitarian access during the 2023 blockade but had no enforcement mechanism. The human rights of 120,000 displaced people demand international attention.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> The Nagorno-Karabakh conflict shows how quickly a "frozen" conflict can unfreeze with devastating consequences. The international community's failure to protect the Armenian population — despite clear early warning signs — is a stain on the international order. The lesson: don't wait for "frozen" conflicts to explode; address them proactively.</p>`
+}
+},
+{
+id:"korea",
+name:"Korean Peninsula",
+emoji:"🇰🇷",
+parties:"South Korea vs North Korea",
+type:"border",
+status:"frozen-conflict",
+statusText:"FROZEN WAR (SINCE 1953)",
+region:"asia",
+lat:38.3,lng:127.0,
+zoom:7,
+summary:"Technically still at war — no peace treaty signed since 1953 armistice. The DMZ is the most fortified border on Earth.",
+tags:["DMZ","Nuclear Weapons","38th Parallel","Kim Dynasty"],
+detail:{
+geo:`<p>The Korean Peninsula extends 1,100 km from the Asian mainland, covering 220,847 km² total (South: 100,363 km², North: 120,540 km²). The Demilitarized Zone (DMZ) — 250 km long, 4 km wide — bisects the peninsula roughly along the 38th parallel. Ironically, the DMZ has become one of the most biodiverse areas in Asia due to 70+ years of human absence — rare species like red-crowned cranes and Amur leopards inhabit the zone.</p>`,
+history:`<p>Korea was unified for over 1,300 years before Japan's colonization (1910-1945). After WWII, it was divided along the 38th parallel — the Soviet-occupied north became the DPRK under Kim Il-sung, the US-occupied south became the ROK under Syngman Rhee. The Korean War (1950-53) killed 2.5 million+ people and ended in an armistice, not a peace treaty — meaning the two Koreas are technically still at war.</p>`,
+reasons:`<ul><li>Cold War division that became self-perpetuating</li><li>The Kim dynasty's totalitarian grip on the North</li><li>North Korea's nuclear weapons programme (estimated 50+ warheads)</li><li>Geopolitical rivalries — US/Japan vs China/Russia</li></ul>`,
+present:`<p>North Korea has developed ICBMs capable of reaching the US mainland and conducted six nuclear tests. Inter-Korean relations fluctuate between brief thaws (2018 Kim-Moon summit) and hostile rhetoric. 28,500 US troops remain stationed in South Korea.</p>`,
+solutions:`<ul><li>Formal peace treaty replacing the 1953 armistice</li><li>Phased denuclearization with verifiable inspections and corresponding sanctions relief</li><li>Economic engagement — special economic zones (like Kaesong, currently closed)</li><li>Family reunification programs (10 million+ families were separated)</li></ul>`,
+un_role:`<p>UNSC has imposed extensive sanctions on North Korea (Resolutions 1718, 2094, 2321, 2356, 2371, 2375, 2397). Enforcement remains weak due to Chinese and Russian non-compliance.</p>`,
+analysis:`<p><strong>Dharaverse Assessment:</strong> The Korean Peninsula is the last Cold War frontier. Reunification — while the ultimate goal — is a generational project. In the meantime, reducing nuclear risk, establishing communication channels, and building trust through small steps (family reunifications, humanitarian aid) are essential to prevent catastrophic miscalculation.</p>`
+}
+}
+];
+
+// ===== GENERATE CARDS =====
+function generateCards(filter='all'){
+const grid=document.getElementById('disputesGrid');
+grid.innerHTML='';
+const filtered=filter==='all'?disputes:disputes.filter(d=>d.type===filter);
+filtered.forEach((d,i)=>{
+const card=document.createElement('div');
+card.className='dispute-card';
+card.dataset.type=d.type;
+card.dataset.id=d.id;
+card.style.animationDelay=i*0.05+'s';
+card.innerHTML=`
+<div class="dispute-card-body">
+<div class="dispute-card-header">
+<span class="dispute-card-emoji">${d.emoji}</span>
+<span class="dispute-card-status detail-status ${d.status}">${d.statusText}</span>
+</div>
+<h3>${d.name}</h3>
+<div class="parties">${d.parties}</div>
+<div class="summary">${d.summary}</div>
+<div class="tags">${d.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+</div>`;
+card.onclick=()=>openDetail(d.id);
+grid.appendChild(card);
+});
+}
+
+function filterCards(type){
+document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+event.target.classList.add('active');
+generateCards(type);
+}
+
+// ===== DETAIL PANEL =====
+function openDetail(id){
+const d=disputes.find(x=>x.id===id);
+if(!d)return;
+const panel=document.getElementById('detailPanel');
+const backdrop=document.getElementById('detailBackdrop');
+const body=document.getElementById('detailBody');
+const status=document.getElementById('detailStatus');
+status.className='detail-status '+d.status;
+status.textContent=d.statusText;
+body.innerHTML=`
+<h2 class="detail-title">${d.emoji} ${d.name}</h2>
+<p class="detail-subtitle">${d.parties}</p>
+<div class="detail-quick-facts">
+<div class="detail-fact"><span class="detail-fact-value">${d.type.toUpperCase()}</span><span class="detail-fact-label">Dispute Type</span></div>
+<div class="detail-fact"><span class="detail-fact-value">${d.region.toUpperCase()}</span><span class="detail-fact-label">Region</span></div>
+<div class="detail-fact"><span class="detail-fact-value">${d.statusText}</span><span class="detail-fact-label">Current Status</span></div>
+<div class="detail-fact"><span class="detail-fact-value">${d.tags.length}</span><span class="detail-fact-label">Key Issues</span></div>
+</div>
+<div class="detail-section">
+<div class="detail-section-header"><span class="detail-section-icon">🌍</span><span class="detail-section-title">Geography</span></div>
+${d.detail.geo}
+</div>
+<div class="detail-section">
+<div class="detail-section-header"><span class="detail-section-icon">📜</span><span class="detail-section-title">History of the Conflict</span></div>
+${d.detail.history}
+</div>
+<div class="detail-section">
+<div class="detail-section-header"><span class="detail-section-icon">❓</span><span class="detail-section-title">Root Causes & Reasons</span></div>
+${d.detail.reasons}
+</div>
+<div class="detail-section">
+<div class="detail-section-header"><span class="detail-section-icon">📡</span><span class="detail-section-title">Present Situation & Current Government</span></div>
+${d.detail.present}
+</div>
+<div class="detail-section">
+<div class="detail-section-header"><span class="detail-section-icon">💡</span><span class="detail-section-title">Possible Solutions</span></div>
+${d.detail.solutions}
+</div>
+<div class="detail-section">
+<div class="detail-section-header"><span class="detail-section-icon">🇺🇳</span><span class="detail-section-title">Role of the UN & International Organizations</span></div>
+${d.detail.un_role}
+</div>
+<div class="detail-section">
+<div class="detail-section-header"><span class="detail-section-icon">🔍</span><span class="detail-section-title">Dharaverse Analysis & Assessment</span></div>
+<div class="analysis-box">
+<h4>🎯 Our Assessment</h4>
+${d.detail.analysis}
+</div>
+</div>`;
+panel.classList.add('open');
+backdrop.classList.add('open');
+document.body.style.overflow='hidden';
+}
+
+function closeDetail(){
+document.getElementById('detailPanel').classList.remove('open');
+document.getElementById('detailBackdrop').classList.remove('open');
+document.body.style.overflow='';
+}
+
+// ===== FULLSCREEN =====
+function toggleFullscreen(){
+const w=document.getElementById('mapWrapper');
+w.classList.toggle('fullscreen');
+setTimeout(()=>{if(window.worldMap)window.worldMap.invalidateSize()},300);
+}
+
+// ===== MAP =====
+document.addEventListener('DOMContentLoaded',function(){
+generateCards();
+const map=L.map('world-map',{
+zoomControl:true,
+scrollWheelZoom:true,
+worldCopyJump:true,
+minZoom:2,
+maxZoom:15
+}).setView([25,50],3);
+window.worldMap=map;
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+attribution:'© CartoDB © OSM',
+maxZoom:19
+}).addTo(map);
+
+const typeColors={
+territorial:'#DC2626',
+border:'#E8590C',
+separatist:'#F59E0B',
+occupation:'#8B0000',
+maritime:'#3B82F6',
+frozen:'#8B5CF6'
+};
+
+const markers=[];
+disputes.forEach(d=>{
+// Circle marker for disputed zone
+const circle=L.circleMarker([d.lat,d.lng],{
+radius:10,
+fillColor:typeColors[d.type]||'#DC2626',
+fillOpacity:0.6,
+color:typeColors[d.type]||'#DC2626',
+weight:2,
+opacity:0.9
+}).addTo(map);
+
+// Pulsing outer ring
+const pulse=L.circleMarker([d.lat,d.lng],{
+radius:18,
+fillColor:'transparent',
+fillOpacity:0,
+color:typeColors[d.type]||'#DC2626',
+weight:1,
+opacity:0.3,
+dashArray:'4,4'
+}).addTo(map);
+
+circle.bindPopup(`
+<div style="min-width:220px">
+<strong style="font-size:15px;color:${typeColors[d.type]}">${d.emoji} ${d.name}</strong><br>
+<span style="font-size:11px;color:#aaa">${d.parties}</span><br>
+<p style="font-size:12px;color:#ccc;margin:8px 0 4px;line-height:1.5">${d.summary}</p>
+<span style="font-size:10px;padding:2px 8px;background:rgba(139,0,0,0.3);border-radius:10px;color:#f88">${d.statusText}</span>
+</div>
+`,{className:'dark-popup'});
+
+circle.on('click',function(){
+setTimeout(()=>openDetail(d.id),300);
+});
+
+markers.push({marker:circle,pulse:pulse,data:d});
+});
+
+// Highlight disputed areas with polygons
+const disputedAreas=[
+{name:'Kashmir (PoK)',coords:[[35.5,73.5],[36,74.5],[35,76],[33.5,75],[34,73.5]],color:'#DC2626'},
+{name:'Aksai Chin',coords:[[35.5,77.5],[36.5,79],[35,80.5],[34,79.5],[34.5,77.5]],color:'#DC2626'},
+{name:'South China Sea (Nine-Dash)',coords:[[22,110],[18,114],[8,116],[4,112],[7,108],[15,107],[21,108]],color:'#3B82F680'},
+{name:'Crimea',coords:[[46.2,32.5],[46,36.6],[44.4,36.7],[44.4,33.5],[45.3,32.5]],color:'#8B0000'},
+{name:'Gaza Strip',coords:[[31.6,34.2],[31.6,34.6],[31.2,34.5],[31.2,34.2]],color:'#DC2626'},
+{name:'West Bank',coords:[[32.5,35],[32.5,35.6],[31.3,35.5],[31.3,34.9]],color:'#E8590C80'}
+];
+
+disputedAreas.forEach(area=>{
+L.polygon(area.coords,{
+color:area.color,
+fillColor:area.color,
+fillOpacity:0.15,
+weight:2,
+dashArray:'6,4'
+}).addTo(map).bindPopup(`<strong style="color:${area.color}">${area.name}</strong><br><span style="font-size:11px;color:#aaa">Disputed Territory</span>`);
+});
+
+// Map filter function
+window.filterMap=function(region){
+document.querySelectorAll('.map-control-btn').forEach(b=>b.classList.remove('active'));
+event.target.classList.add('active');
+const views={
+all:{center:[25,50],zoom:3},
+asia:{center:[25,90],zoom:4},
+europe:{center:[50,20],zoom:4},
+africa:{center:[5,20],zoom:4},
+americas:{center:[0,-60],zoom:3},
+maritime:{center:[10,115],zoom:4}
+};
+const v=views[region]||views.all;
+map.flyTo(v.center,v.zoom,{duration:1.5});
+};
+});
+
+// ===== SCROLL TOP =====
+const scrollBtn=document.getElementById('scrollTop');
+window.addEventListener('scroll',()=>{
+scrollBtn.classList.toggle('visible',window.scrollY>500);
+});
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown',e=>{
+if(e.key==='Escape'){
+closeDetail();
+const w=document.getElementById('mapWrapper');
+if(w.classList.contains('fullscreen'))toggleFullscreen();
+}
+});
+</script>
+</body>
+</html>
