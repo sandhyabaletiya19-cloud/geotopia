@@ -48,4 +48,25 @@
     }
     
     loadScript(0);
+
+    // ========== AUTO-WRAP ALL TABLES FOR MOBILE SCROLL ==========
+document.addEventListener("DOMContentLoaded", function () {
+    const tables = document.querySelectorAll("table");
+
+    tables.forEach(function (table) {
+        // Skip if already wrapped
+        if (table.parentElement.classList.contains("table-wrapper")) return;
+
+        // Create wrapper div
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("table-wrapper");
+
+        // Wrap the table
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+
+    console.log("✅ All tables wrapped for mobile scroll");
+});
+    
 })();
