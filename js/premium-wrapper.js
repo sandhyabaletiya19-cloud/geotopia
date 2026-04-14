@@ -655,6 +655,17 @@ body.premium-page-locked { overflow: hidden !important; }
     .dv-card-lock-icon, .dv-page-lock-icon { font-size: 2rem !important; }
 }
 
+/* ── BLOCK ALL CLICKS ON LOCKED CARDS ── */
+.dv-card-locked a {
+    pointer-events: none !important;
+}
+.dv-card-locked {
+    pointer-events: none !important;
+}
+.dv-card-lock-overlay {
+    pointer-events: all !important;
+}
+
         `;
         document.head.appendChild(s);
     }
