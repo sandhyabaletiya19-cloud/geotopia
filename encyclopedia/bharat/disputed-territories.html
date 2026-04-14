@@ -1,0 +1,2493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disputed Territories of India — Geographic Analysis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    :root {
+        --bg-primary: #0a0e17;
+        --bg-secondary: #111827;
+        --bg-card: #1a2235;
+        --bg-card-hover: #1f2a42;
+        --border-subtle: rgba(255,255,255,0.06);
+        --border-accent: rgba(251,191,36,0.3);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --accent-gold: #fbbf24;
+        --accent-amber: #f59e0b;
+        --accent-orange: #f97316;
+        --accent-red: #ef4444;
+        --accent-blue: #3b82f6;
+        --accent-cyan: #06b6d4;
+        --accent-emerald: #10b981;
+        --accent-purple: #a855f7;
+        --accent-rose: #f43f5e;
+        --india-saffron: #FF9933;
+        --india-green: #138808;
+        --india-blue: #000080;
+        --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.5);
+        --shadow-glow: 0 0 40px rgba(251,191,36,0.1);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 20px;
+        --radius-xl: 28px;
+        --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
+    }
+
+    *, *::before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        font-family: var(--font-sans);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 3px; }
+
+    /* Navigation */
+    .top-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        background: rgba(10,14,23,0.85);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 0 2rem;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .nav-back {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .nav-back:hover {
+        color: var(--accent-gold);
+        background: rgba(251,191,36,0.08);
+        border-color: rgba(251,191,36,0.15);
+    }
+
+    .nav-back svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .nav-back:hover svg {
+        transform: translateX(-3px);
+    }
+
+    .nav-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .nav-breadcrumb {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .nav-breadcrumb a {
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .nav-breadcrumb a:hover {
+        color: var(--accent-gold);
+    }
+
+    .nav-breadcrumb span {
+        margin: 0 6px;
+        opacity: 0.4;
+    }
+
+    /* Hero Section */
+    .hero {
+        position: relative;
+        min-height: 50vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 120px 2rem 60px;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 80% 50% at 50% 0%, rgba(251,191,36,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 20% 80%, rgba(239,68,68,0.05) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.05) 0%, transparent 50%);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 18px;
+        background: rgba(251,191,36,0.1);
+        border: 1px solid rgba(251,191,36,0.2);
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+    }
+
+    .hero h1 {
+        font-size: clamp(2.2rem, 5vw, 3.8rem);
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-gold) 50%, var(--accent-orange) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero p {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    /* Stats Row */
+    .stats-row {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--accent-gold);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-top: 4px;
+    }
+
+    /* Map Section */
+    .map-section {
+        position: relative;
+        padding: 0 2rem 4rem;
+    }
+
+    .map-wrapper {
+        position: relative;
+        max-width: 1400px;
+        margin: 0 auto;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--border-subtle);
+        box-shadow: var(--shadow-lg);
+    }
+
+    #map {
+        width: 100%;
+        height: 70vh;
+        min-height: 500px;
+        background: var(--bg-secondary);
+    }
+
+    .map-fullscreen #map {
+        position: fixed;
+        inset: 0;
+        height: 100vh;
+        z-index: 10000;
+        border-radius: 0;
+    }
+
+    /* Custom Leaflet overrides */
+    .leaflet-container {
+        font-family: var(--font-sans) !important;
+    }
+
+    .leaflet-control-zoom {
+        border: none !important;
+        box-shadow: var(--shadow-lg) !important;
+    }
+
+    .leaflet-control-zoom a {
+        background: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-subtle) !important;
+        width: 36px !important;
+        height: 36px !important;
+        line-height: 36px !important;
+        font-size: 16px !important;
+    }
+
+    .leaflet-control-zoom a:hover {
+        background: var(--bg-card-hover) !important;
+        color: var(--accent-gold) !important;
+    }
+
+    .leaflet-tile-pane {
+        filter: saturate(0.3) brightness(0.4) contrast(1.2);
+    }
+
+    /* Map Controls */
+    .map-controls {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .map-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .map-btn:hover {
+        background: var(--bg-card-hover);
+        color: var(--accent-gold);
+        border-color: var(--border-accent);
+    }
+
+    .map-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Legend */
+    .legend-panel {
+        position: absolute;
+        bottom: 24px;
+        left: 24px;
+        z-index: 1000;
+        background: rgba(26,34,53,0.95);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        min-width: 260px;
+        box-shadow: var(--shadow-lg);
+        transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .legend-panel.hidden {
+        transform: translateX(-120%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .legend-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .legend-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-secondary);
+    }
+
+    .legend-close {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.05);
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .legend-close:hover {
+        background: rgba(239,68,68,0.15);
+        color: var(--accent-red);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .legend-item:hover {
+        opacity: 0.8;
+    }
+
+    .legend-color {
+        width: 28px;
+        height: 4px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .legend-color.dashed {
+        background: repeating-linear-gradient(90deg, currentColor 0, currentColor 6px, transparent 6px, transparent 10px);
+        height: 3px;
+    }
+
+    .legend-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .legend-toggle-btn {
+        position: absolute;
+        bottom: 24px;
+        left: 24px;
+        z-index: 999;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        padding: 10px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: var(--font-sans);
+        display: none;
+        transition: all 0.3s;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .legend-toggle-btn.visible {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legend-toggle-btn:hover {
+        background: var(--bg-card-hover);
+        color: var(--accent-gold);
+    }
+
+    /* Detail Panel */
+    .detail-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10001;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: flex-end;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .detail-overlay.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    .detail-panel {
+        width: 100%;
+        max-width: 560px;
+        height: 100vh;
+        background: var(--bg-secondary);
+        border-left: 1px solid var(--border-subtle);
+        overflow-y: auto;
+        transform: translateX(100%);
+        transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+        padding: 0;
+    }
+
+    .detail-overlay.active .detail-panel {
+        transform: translateX(0);
+    }
+
+    .detail-panel-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(17,24,39,0.9);
+        backdrop-filter: blur(16px);
+        padding: 20px 28px;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .detail-panel-close {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.2s;
+    }
+
+    .detail-panel-close:hover {
+        background: rgba(239,68,68,0.15);
+        color: var(--accent-red);
+        border-color: rgba(239,68,68,0.3);
+    }
+
+    .detail-panel-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .detail-panel-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .detail-body {
+        padding: 28px;
+    }
+
+    .detail-section {
+        margin-bottom: 28px;
+    }
+
+    .detail-section-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--accent-gold);
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(251,191,36,0.15);
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .detail-grid-item {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        padding: 14px;
+    }
+
+    .detail-grid-item .label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+    }
+
+    .detail-grid-item .value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .detail-grid-item.full {
+        grid-column: 1 / -1;
+    }
+
+    .detail-text {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        line-height: 1.8;
+    }
+
+    .detail-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .detail-list li {
+        position: relative;
+        padding: 8px 0 8px 20px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .detail-list li:last-child {
+        border-bottom: none;
+    }
+
+    .detail-list li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 16px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-gold);
+        opacity: 0.7;
+    }
+
+    .detail-tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .detail-tag {
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        border: 1px solid;
+    }
+
+    .tag-india {
+        color: var(--india-saffron);
+        border-color: rgba(255,153,51,0.3);
+        background: rgba(255,153,51,0.08);
+    }
+
+    .tag-pakistan {
+        color: var(--accent-emerald);
+        border-color: rgba(16,185,129,0.3);
+        background: rgba(16,185,129,0.08);
+    }
+
+    .tag-china {
+        color: var(--accent-red);
+        border-color: rgba(239,68,68,0.3);
+        background: rgba(239,68,68,0.08);
+    }
+
+    .tag-nepal {
+        color: var(--accent-blue);
+        border-color: rgba(59,130,246,0.3);
+        background: rgba(59,130,246,0.08);
+    }
+
+    .tag-status {
+        color: var(--accent-purple);
+        border-color: rgba(168,85,247,0.3);
+        background: rgba(168,85,247,0.08);
+    }
+
+    .detail-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+        margin: 24px 0;
+    }
+
+    .detail-highlight-box {
+        background: rgba(251,191,36,0.05);
+        border: 1px solid rgba(251,191,36,0.15);
+        border-radius: var(--radius-sm);
+        padding: 16px 18px;
+        margin: 12px 0;
+    }
+
+    .detail-highlight-box .hl-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+        margin-bottom: 6px;
+    }
+
+    .detail-highlight-box .hl-text {
+        font-size: 0.83rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+    }
+
+    /* Sections */
+    .content-sections {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 2rem 4rem;
+    }
+
+    .section-block {
+        margin-bottom: 64px;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .section-header h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+    }
+
+    .section-header h2 small {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+
+    .region-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .region-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .region-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 3px 3px 0 0;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .region-card:hover::before {
+        opacity: 1;
+    }
+
+    .region-card:hover {
+        border-color: rgba(255,255,255,0.1);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .region-card .card-emoji {
+        font-size: 2rem;
+        margin-bottom: 12px;
+    }
+
+    .region-card h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+    }
+
+    .region-card .card-desc {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 14px;
+    }
+
+    .region-card .card-stats {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .region-card .card-stat {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+    }
+
+    .region-card .card-stat strong {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .card-jk::before { background: linear-gradient(90deg, var(--india-saffron), var(--accent-red)); }
+    .card-ap::before { background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)); }
+    .card-sc::before { background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan)); }
+    .card-kp::before { background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); }
+
+    /* Key Facts Bullets */
+    .key-facts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .key-fact {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: 50px;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .key-fact .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* Footer Navigation */
+    .footer-nav {
+        border-top: 1px solid var(--border-subtle);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .footer-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 32px;
+        background: rgba(251,191,36,0.08);
+        border: 1px solid rgba(251,191,36,0.2);
+        border-radius: var(--radius-xl);
+        text-decoration: none;
+        color: var(--accent-gold);
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .footer-next:hover {
+        background: rgba(251,191,36,0.15);
+        border-color: rgba(251,191,36,0.35);
+        transform: translateX(4px);
+    }
+
+    .footer-next svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.3s;
+    }
+
+    .footer-next:hover svg {
+        transform: translateX(4px);
+    }
+
+    .footer-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 12px;
+    }
+
+    /* Leaflet Popup Custom */
+    .leaflet-popup-content-wrapper {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-subtle) !important;
+        border-radius: var(--radius-md) !important;
+        box-shadow: var(--shadow-lg) !important;
+        color: var(--text-primary) !important;
+        padding: 0 !important;
+    }
+
+    .leaflet-popup-content {
+        margin: 0 !important;
+        font-family: var(--font-sans) !important;
+    }
+
+    .leaflet-popup-tip {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-subtle) !important;
+    }
+
+    .leaflet-popup-close-button {
+        color: var(--text-muted) !important;
+        font-size: 20px !important;
+        width: 30px !important;
+        height: 30px !important;
+        padding: 4px !important;
+    }
+
+    .leaflet-popup-close-button:hover {
+        color: var(--accent-red) !important;
+    }
+
+    .popup-content {
+        padding: 16px 20px;
+    }
+
+    .popup-content h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--text-primary);
+    }
+
+    .popup-content p {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+        line-height: 1.5;
+    }
+
+    .popup-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        background: rgba(251,191,36,0.12);
+        border: 1px solid rgba(251,191,36,0.25);
+        border-radius: 50px;
+        color: var(--accent-gold);
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: var(--font-sans);
+        transition: all 0.2s;
+    }
+
+    .popup-btn:hover {
+        background: rgba(251,191,36,0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .top-nav {
+            padding: 0 1rem;
+        }
+
+        .nav-breadcrumb {
+            display: none;
+        }
+
+        .hero {
+            padding: 100px 1.5rem 40px;
+        }
+
+        .stats-row {
+            gap: 24px;
+        }
+
+        .map-section {
+            padding: 0 1rem 3rem;
+        }
+
+        #map {
+            height: 50vh;
+            min-height: 380px;
+        }
+
+        .legend-panel {
+            bottom: 12px;
+            left: 12px;
+            min-width: 220px;
+            padding: 14px;
+        }
+
+        .detail-panel {
+            max-width: 100%;
+        }
+
+        .content-sections {
+            padding: 1.5rem 1.5rem 3rem;
+        }
+
+        .region-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+        opacity: 0;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+</style>
+   <link rel="stylesheet" href="/css/premium-lock.css">
+
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <a href="dharaverse.com/encyclopedia/bharat/index.html" class="nav-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Bharat
+    </a>
+    <span class="nav-title">⚖️ Disputed Territories</span>
+    <span class="nav-breadcrumb">
+        <a href="dharaverse.com/encyclopedia">Encyclopedia</a>
+        <span>›</span>
+        <a href="dharaverse.com/encyclopedia/bharat/index.html">Bharat</a>
+        <span>›</span>
+        Disputed Territories
+    </span>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge animate-in">⚖️ Factual Geographic Coverage</div>
+        <h1 class="animate-in delay-1">Disputed Territories</h1>
+        <p class="animate-in delay-2">A comprehensive geographic and factual analysis of territorial disputes involving India — covering boundaries, lines of control, areas, and current administrative status.</p>
+        <div class="stats-row animate-in delay-3">
+            <div class="stat-item">
+                <div class="stat-number">~2,22,236</div>
+                <div class="stat-label">km² Total Disputed Area</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">6+</div>
+                <div class="stat-label">Active Disputes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Neighbouring Nations</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3,323 km</div>
+                <div class="stat-label">LoC + LAC Length</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Key Quick Facts -->
+<div class="content-sections" style="padding-bottom: 0;">
+    <div class="key-facts animate-in delay-4">
+        <span class="key-fact"><span class="dot" style="background:var(--india-saffron)"></span>India claims entire J&K (2,22,236 km²)</span>
+        <span class="key-fact"><span class="dot" style="background:var(--accent-emerald)"></span>PoK: ~13,297 km² (Azad Kashmir)</span>
+        <span class="key-fact"><span class="dot" style="background:var(--accent-red)"></span>Aksai Chin: 37,244 km² (China-held)</span>
+        <span class="key-fact"><span class="dot" style="background:var(--accent-cyan)"></span>Siachen: World's highest battlefield</span>
+        <span class="key-fact"><span class="dot" style="background:var(--accent-purple)"></span>Arunachal: 83,743 km² claimed by China</span>
+        <span class="key-fact"><span class="dot" style="background:var(--accent-blue)"></span>Sir Creek: ~96 km marshy creek</span>
+    </div>
+</div>
+
+<!-- Interactive Map -->
+<section class="map-section">
+    <div class="map-wrapper" id="mapWrapper">
+        <div id="map"></div>
+
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <button class="map-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+                </svg>
+            </button>
+            <button class="map-btn" id="resetViewBtn" title="Reset View">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Legend Panel -->
+        <div class="legend-panel" id="legendPanel">
+            <div class="legend-header">
+                <span class="legend-title">Map Legend</span>
+                <button class="legend-close" id="legendClose">✕</button>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #FF9933;"></span>
+                <span class="legend-label">Line of Control (LoC)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #ef4444;"></span>
+                <span class="legend-label">Line of Actual Control (LAC)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #10b981;"></span>
+                <span class="legend-label">Pakistan Occupied Kashmir</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #f43f5e;"></span>
+                <span class="legend-label">Aksai Chin (China-held)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #06b6d4;"></span>
+                <span class="legend-label">Siachen Glacier</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #a855f7;"></span>
+                <span class="legend-label">Arunachal Pradesh / South Tibet</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #3b82f6;"></span>
+                <span class="legend-label">Sir Creek</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #fbbf24;"></span>
+                <span class="legend-label">Kalapani Area</span>
+            </div>
+        </div>
+
+        <!-- Legend Toggle (when closed) -->
+        <button class="legend-toggle-btn" id="legendToggle">
+            <span>☰</span> Legend
+        </button>
+    </div>
+</section>
+
+<!-- Content Sections -->
+<div class="content-sections">
+
+    <!-- Section 1: Jammu & Kashmir -->
+    <div class="section-block">
+        <div class="section-header">
+            <div class="section-icon" style="background: rgba(255,153,51,0.12); color: var(--india-saffron);">🏔️</div>
+            <h2>Jammu & Kashmir Region<small>India • Pakistan • China — Multi-party Territorial Dispute</small></h2>
+        </div>
+        <div class="region-cards">
+            <div class="region-card card-jk" onclick="openDetail('jk-overview')">
+                <div class="card-emoji">🗺️</div>
+                <h3>Total Region Overview</h3>
+                <p class="card-desc">The erstwhile princely state of Jammu & Kashmir — total claimed area, partition history, and current administrative divisions.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Area: <strong>2,22,236 km²</strong></span>
+                    <span class="card-stat">Claimants: <strong>3 nations</strong></span>
+                </div>
+            </div>
+            <div class="region-card card-jk" onclick="openDetail('pok')">
+                <div class="card-emoji">🟢</div>
+                <h3>Pakistan Occupied Kashmir (PoK)</h3>
+                <p class="card-desc">Geographical extent, sub-regions (Azad Kashmir & Gilgit-Baltistan), terrain, and demographic overview.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Area: <strong>~78,114 km²</strong></span>
+                    <span class="card-stat">Capital: <strong>Muzaffarabad</strong></span>
+                </div>
+            </div>
+            <div class="region-card card-jk" onclick="openDetail('aksai-chin')">
+                <div class="card-emoji">🔴</div>
+                <h3>Aksai Chin</h3>
+                <p class="card-desc">China-administered plateau — geography, strategic significance, elevation data, and the disputed boundary lines.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Area: <strong>37,244 km²</strong></span>
+                    <span class="card-stat">Elevation: <strong>~5,000m</strong></span>
+                </div>
+            </div>
+            <div class="region-card card-jk" onclick="openDetail('siachen')">
+                <div class="card-emoji">🧊</div>
+                <h3>Siachen Glacier</h3>
+                <p class="card-desc">The world's highest militarised zone — glacier geography, Actual Ground Position Line (AGPL), and strategic status.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Length: <strong>76 km</strong></span>
+                    <span class="card-stat">Altitude: <strong>5,753m+</strong></span>
+                </div>
+            </div>
+            <div class="region-card card-jk" onclick="openDetail('loc')">
+                <div class="card-emoji">⚔️</div>
+                <h3>Line of Control (LoC)</h3>
+                <p class="card-desc">The de facto border between India and Pakistan in J&K — origin, length, ceasefire specifics, and current status.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Length: <strong>~740 km</strong></span>
+                    <span class="card-stat">Since: <strong>1972</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Arunachal Pradesh -->
+    <div class="section-block">
+        <div class="section-header">
+            <div class="section-icon" style="background: rgba(168,85,247,0.12); color: var(--accent-purple);">🌄</div>
+            <h2>Arunachal Pradesh<small>India • China — McMahon Line Dispute</small></h2>
+        </div>
+        <div class="region-cards">
+            <div class="region-card card-ap" onclick="openDetail('arunachal')">
+                <div class="card-emoji">🏞️</div>
+                <h3>State Overview & China's Claim</h3>
+                <p class="card-desc">China's "South Tibet" claim, McMahon Line origin, LAC geography, state area, and India's administrative position.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Area: <strong>83,743 km²</strong></span>
+                    <span class="card-stat">China calls: <strong>Zangnan</strong></span>
+                </div>
+            </div>
+            <div class="region-card card-ap" onclick="openDetail('lac')">
+                <div class="card-emoji">🔶</div>
+                <h3>Line of Actual Control (LAC)</h3>
+                <p class="card-desc">The de facto boundary between India and China — three sectors, length, and key friction points.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Length: <strong>~3,488 km</strong></span>
+                    <span class="card-stat">Sectors: <strong>3</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Other Disputes -->
+    <div class="section-block">
+        <div class="section-header">
+            <div class="section-icon" style="background: rgba(59,130,246,0.12); color: var(--accent-blue);">📍</div>
+            <h2>Other Disputed Areas<small>Sir Creek • Kalapani • Minor Territorial Issues</small></h2>
+        </div>
+        <div class="region-cards">
+            <div class="region-card card-sc" onclick="openDetail('sir-creek')">
+                <div class="card-emoji">🌊</div>
+                <h3>Sir Creek</h3>
+                <p class="card-desc">A 96 km tidal estuary in the Rann of Kutch — India-Pakistan maritime boundary dispute, geographic details.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Length: <strong>~96 km</strong></span>
+                    <span class="card-stat">Dispute: <strong>India-Pak</strong></span>
+                </div>
+            </div>
+            <div class="region-card card-kp" onclick="openDetail('kalapani')">
+                <div class="card-emoji">⛰️</div>
+                <h3>Kalapani Territory</h3>
+                <p class="card-desc">Tri-junction area disputed between India and Nepal — includes Kalapani, Lipulekh, and Limpiyadhura.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Area: <strong>~372 km²</strong></span>
+                    <span class="card-stat">Dispute: <strong>India-Nepal</strong></span>
+                </div>
+            </div>
+            <div class="region-card card-kp" onclick="openDetail('minor')">
+                <div class="card-emoji">📎</div>
+                <h3>Minor Territorial Issues</h3>
+                <p class="card-desc">Susta (India-Nepal), India-Bangladesh enclaves (resolved 2015), and other minor boundary matters.</p>
+                <div class="card-stats">
+                    <span class="card-stat">Status: <strong>Varied</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Overlay Panel -->
+<div class="detail-overlay" id="detailOverlay">
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-panel-header">
+            <div>
+                <div class="detail-panel-title" id="panelTitle">Title</div>
+                <div class="detail-panel-subtitle" id="panelSubtitle">Subtitle</div>
+            </div>
+            <button class="detail-panel-close" onclick="closeDetail()">✕</button>
+        </div>
+        <div class="detail-body" id="panelBody">
+            <!-- Dynamic Content -->
+        </div>
+    </div>
+</div>
+
+<!-- Footer Navigation -->
+<footer class="footer-nav">
+    <div class="footer-label">Explore Next Topic</div>
+    <a href="resources.html" class="footer-next">
+        🌿 Natural Resources of India
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+        </svg>
+    </a>
+</footer>
+
+<script>
+// ========================
+// MAP INITIALIZATION
+// ========================
+
+const map = L.map('map', {
+    center: [33.5, 77.5],
+    zoom: 5,
+    zoomControl: false,
+    attributionControl: false
+});
+
+L.control.zoom({ position: 'topleft' }).addTo(map);
+
+// Dark tile layer
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 18,
+    subdomains: 'abcd'
+}).addTo(map);
+
+// ========================
+// BORDER & REGION DATA
+// ========================
+
+// LoC - Line of Control (approximate)
+const locCoords = [
+    [32.94, 73.77], [33.10, 73.85], [33.30, 73.92],
+    [33.55, 74.05], [33.80, 74.20], [34.00, 74.38],
+    [34.20, 74.55], [34.40, 74.68], [34.58, 74.80],
+    [34.75, 74.95], [34.90, 75.10], [35.10, 75.40],
+    [35.20, 75.60], [35.30, 75.85], [35.40, 76.10],
+    [35.50, 76.40], [35.60, 76.70], [35.68, 76.95],
+    [35.75, 77.10], [35.80, 77.30], [35.85, 77.50]
+];
+
+const locLine = L.polyline(locCoords, {
+    color: '#FF9933',
+    weight: 4,
+    opacity: 0.9,
+    dashArray: '12, 8',
+    className: 'loc-line'
+}).addTo(map);
+
+locLine.on('click', () => openDetail('loc'));
+locLine.bindPopup(createPopup('Line of Control (LoC)', 'De facto India-Pakistan border in J&K, ~740 km', 'loc'));
+
+// LAC - Line of Actual Control (approximate three-sector representation)
+// Western Sector
+const lacWest = [
+    [32.50, 78.00], [33.00, 78.40], [33.50, 78.80],
+    [34.00, 79.20], [34.50, 79.50], [35.00, 79.80],
+    [35.50, 80.00], [35.80, 80.20]
+];
+
+// Middle Sector
+const lacMiddle = [
+    [30.20, 80.30], [30.50, 80.50], [30.80, 80.80],
+    [31.20, 81.00], [31.60, 81.20], [32.00, 81.40],
+    [32.50, 78.00]
+];
+
+// Eastern Sector
+const lacEast = [
+    [27.00, 91.60], [27.30, 91.80], [27.60, 92.10],
+    [27.80, 92.50], [28.00, 93.00], [28.20, 93.50],
+    [28.50, 94.00], [28.80, 94.50], [29.00, 95.00],
+    [29.20, 95.50], [29.40, 96.00], [29.50, 96.50],
+    [29.60, 97.00]
+];
+
+const lacLineWest = L.polyline(lacWest, {
+    color: '#ef4444',
+    weight: 3.5,
+    opacity: 0.85,
+    dashArray: '8, 6'
+}).addTo(map);
+
+const lacLineMiddle = L.polyline(lacMiddle, {
+    color: '#ef4444',
+    weight: 3.5,
+    opacity: 0.85,
+    dashArray: '8, 6'
+}).addTo(map);
+
+const lacLineEast = L.polyline(lacEast, {
+    color: '#ef4444',
+    weight: 3.5,
+    opacity: 0.85,
+    dashArray: '8, 6'
+}).addTo(map);
+
+lacLineWest.on('click', () => openDetail('lac'));
+lacLineMiddle.on('click', () => openDetail('lac'));
+lacLineEast.on('click', () => openDetail('lac'));
+lacLineWest.bindPopup(createPopup('LAC — Western Sector', 'Aksai Chin region, ~3,488 km total LAC', 'lac'));
+lacLineMiddle.bindPopup(createPopup('LAC — Middle Sector', 'Uttarakhand-Himachal border with Tibet', 'lac'));
+lacLineEast.bindPopup(createPopup('LAC — Eastern Sector', 'Arunachal Pradesh / South Tibet', 'lac'));
+
+// PoK Region (approximate polygon)
+const pokCoords = [
+    [33.00, 73.50], [33.30, 73.30], [33.60, 73.20],
+    [34.00, 73.40], [34.50, 73.80], [35.00, 74.20],
+    [35.50, 74.80], [35.80, 75.20], [36.00, 75.60],
+    [36.50, 75.80], [37.00, 76.00], [37.10, 76.50],
+    [36.80, 76.80], [36.20, 76.50], [35.85, 77.50],
+    [35.50, 76.40], [35.20, 75.60], [34.90, 75.10],
+    [34.58, 74.80], [34.20, 74.55], [33.80, 74.20],
+    [33.55, 74.05], [33.30, 73.92], [33.10, 73.85],
+    [32.94, 73.77], [33.00, 73.50]
+];
+
+const pokPolygon = L.polygon(pokCoords, {
+    color: '#10b981',
+    weight: 2.5,
+    opacity: 0.8,
+    fillColor: '#10b981',
+    fillOpacity: 0.12,
+    dashArray: '6, 4'
+}).addTo(map);
+
+pokPolygon.on('click', () => openDetail('pok'));
+pokPolygon.bindPopup(createPopup('Pakistan Occupied Kashmir (PoK)', 'Azad Kashmir + Gilgit-Baltistan, ~78,114 km²', 'pok'));
+
+// Aksai Chin Region
+const aksaiChinCoords = [
+    [34.50, 78.00], [35.00, 78.50], [35.50, 79.00],
+    [36.00, 79.50], [36.50, 79.80], [36.80, 80.20],
+    [36.50, 80.80], [36.00, 81.00], [35.50, 80.80],
+    [35.00, 80.50], [34.50, 80.00], [34.00, 79.50],
+    [33.80, 79.00], [34.00, 78.50], [34.50, 78.00]
+];
+
+const aksaiChinPolygon = L.polygon(aksaiChinCoords, {
+    color: '#f43f5e',
+    weight: 2.5,
+    opacity: 0.8,
+    fillColor: '#f43f5e',
+    fillOpacity: 0.12,
+    dashArray: '6, 4'
+}).addTo(map);
+
+aksaiChinPolygon.on('click', () => openDetail('aksai-chin'));
+aksaiChinPolygon.bindPopup(createPopup('Aksai Chin', 'China-administered, claimed by India, 37,244 km²', 'aksai-chin'));
+
+// Siachen Glacier (marker + small area)
+const siachenCoords = [
+    [35.40, 76.85], [35.50, 76.90], [35.60, 77.00],
+    [35.65, 77.10], [35.70, 77.20], [35.65, 77.30],
+    [35.55, 77.25], [35.45, 77.15], [35.38, 77.00],
+    [35.40, 76.85]
+];
+
+const siachenPolygon = L.polygon(siachenCoords, {
+    color: '#06b6d4',
+    weight: 3,
+    opacity: 0.9,
+    fillColor: '#06b6d4',
+    fillOpacity: 0.2
+}).addTo(map);
+
+siachenPolygon.on('click', () => openDetail('siachen'));
+siachenPolygon.bindPopup(createPopup('Siachen Glacier', 'World\'s highest battlefield, 76 km length', 'siachen'));
+
+// Arunachal Pradesh (approximate)
+const arunachalCoords = [
+    [27.00, 91.60], [27.10, 92.00], [27.20, 92.50],
+    [27.40, 93.00], [27.60, 93.50], [27.80, 94.00],
+    [28.00, 94.50], [28.20, 95.00], [28.50, 95.50],
+    [28.80, 96.00], [29.00, 96.50], [29.20, 97.00],
+    [29.50, 97.40], [29.30, 97.30], [29.00, 97.00],
+    [28.80, 96.80], [28.50, 96.50], [28.20, 96.00],
+    [28.00, 95.50], [27.80, 95.00], [27.50, 94.50],
+    [27.30, 94.00], [27.10, 93.50], [26.90, 93.00],
+    [26.80, 92.50], [26.70, 92.00], [26.80, 91.60],
+    [27.00, 91.60]
+];
+
+const arunachalPolygon = L.polygon(arunachalCoords, {
+    color: '#a855f7',
+    weight: 2.5,
+    opacity: 0.8,
+    fillColor: '#a855f7',
+    fillOpacity: 0.1,
+    dashArray: '8, 5'
+}).addTo(map);
+
+arunachalPolygon.on('click', () => openDetail('arunachal'));
+arunachalPolygon.bindPopup(createPopup('Arunachal Pradesh', 'India-administered, claimed by China as "South Tibet", 83,743 km²', 'arunachal'));
+
+// Sir Creek (marker)
+const sirCreekMarker = L.circleMarker([23.95, 68.55], {
+    radius: 10,
+    color: '#3b82f6',
+    weight: 3,
+    fillColor: '#3b82f6',
+    fillOpacity: 0.25
+}).addTo(map);
+
+sirCreekMarker.on('click', () => openDetail('sir-creek'));
+sirCreekMarker.bindPopup(createPopup('Sir Creek', '96 km tidal estuary, India-Pakistan maritime dispute', 'sir-creek'));
+
+// Sir Creek line
+const sirCreekLine = L.polyline([
+    [23.60, 68.40], [23.80, 68.50], [24.00, 68.60], [24.20, 68.70], [24.40, 68.80]
+], {
+    color: '#3b82f6',
+    weight: 3,
+    opacity: 0.8,
+    dashArray: '10, 6'
+}).addTo(map);
+
+sirCreekLine.on('click', () => openDetail('sir-creek'));
+
+// Kalapani
+const kalapaniMarker = L.circleMarker([30.22, 80.97], {
+    radius: 10,
+    color: '#fbbf24',
+    weight: 3,
+    fillColor: '#fbbf24',
+    fillOpacity: 0.25
+}).addTo(map);
+
+kalapaniMarker.on('click', () => openDetail('kalapani'));
+kalapaniMarker.bindPopup(createPopup('Kalapani Territory', 'India-Nepal dispute, ~372 km²', 'kalapani'));
+
+// Lipulekh Pass marker
+const lipulekhMarker = L.circleMarker([30.25, 80.95], {
+    radius: 6,
+    color: '#fbbf24',
+    weight: 2,
+    fillColor: '#fbbf24',
+    fillOpacity: 0.4
+}).addTo(map);
+
+// Key cities for reference
+const cities = [
+    { name: 'Srinagar', lat: 34.08, lng: 74.79 },
+    { name: 'Leh', lat: 34.16, lng: 77.58 },
+    { name: 'Muzaffarabad', lat: 34.37, lng: 73.47 },
+    { name: 'Gilgit', lat: 35.92, lng: 74.31 },
+    { name: 'Itanagar', lat: 27.10, lng: 93.62 },
+    { name: 'Tawang', lat: 27.59, lng: 91.86 }
+];
+
+cities.forEach(city => {
+    L.circleMarker([city.lat, city.lng], {
+        radius: 4,
+        color: '#94a3b8',
+        weight: 1,
+        fillColor: '#f1f5f9',
+        fillOpacity: 0.7
+    }).addTo(map).bindTooltip(city.name, {
+        permanent: false,
+        direction: 'top',
+        className: 'city-tooltip',
+        offset: [0, -8]
+    });
+});
+
+// ========================
+// POPUP HELPER
+// ========================
+
+function createPopup(title, desc, detailKey) {
+    return `<div class="popup-content">
+        <h3>${title}</h3>
+        <p>${desc}</p>
+        <button class="popup-btn" onclick="openDetail('${detailKey}')">View Full Details →</button>
+    </div>`;
+}
+
+// ========================
+// MAP CONTROLS
+// ========================
+
+let isFullscreen = false;
+
+document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    isFullscreen = !isFullscreen;
+    document.getElementById('mapWrapper').classList.toggle('map-fullscreen', isFullscreen);
+    setTimeout(() => map.invalidateSize(), 300);
+});
+
+document.getElementById('resetViewBtn').addEventListener('click', () => {
+    map.setView([33.5, 77.5], 5, { animate: true });
+});
+
+// Legend toggle
+document.getElementById('legendClose').addEventListener('click', () => {
+    document.getElementById('legendPanel').classList.add('hidden');
+    document.getElementById('legendToggle').classList.add('visible');
+});
+
+document.getElementById('legendToggle').addEventListener('click', () => {
+    document.getElementById('legendPanel').classList.remove('hidden');
+    document.getElementById('legendToggle').classList.remove('visible');
+});
+
+// Close fullscreen on Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (isFullscreen) {
+            isFullscreen = false;
+            document.getElementById('mapWrapper').classList.remove('map-fullscreen');
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+        closeDetail();
+    }
+});
+
+// ========================
+// DETAIL PANEL DATA
+// ========================
+
+const detailData = {
+    'jk-overview': {
+        title: 'Jammu & Kashmir — Complete Overview',
+        subtitle: 'Erstwhile Princely State • Multi-party Dispute',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Total Claimed Area</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">India's Total Claim</div>
+                        <div class="value">2,22,236 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">India-administered</div>
+                        <div class="value">1,01,338 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Pakistan-occupied</div>
+                        <div class="value">~78,114 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">China-occupied</div>
+                        <div class="value">42,685 km²</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Administrative Divisions (India-administered)</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item full">
+                        <div class="label">After Aug 5, 2019 Reorganisation</div>
+                        <div class="value">J&K UT + Ladakh UT</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">J&K Union Territory</div>
+                        <div class="value">~42,241 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Ladakh Union Territory</div>
+                        <div class="value">~59,146 km²</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Profile</div>
+                <div class="detail-text">
+                    The former princely state of Jammu and Kashmir was the largest princely state in British India by area. It extends from the plains of Jammu in the south (about 300m elevation) through the Kashmir Valley (1,600m) to the Karakoram Pass in the north at over 5,500m. The region encompasses some of the world's most formidable mountain ranges — the Himalayas, Karakoram, Hindu Kush, and Kunlun.
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Boundary Context</div>
+                <ul class="detail-list">
+                    <li>The princely state acceded to India on 26 October 1947, signed by Maharaja Hari Singh via the Instrument of Accession</li>
+                    <li>Pakistan invaded with tribal militia in October 1947, capturing territory now called "Azad Kashmir" and later "Gilgit-Baltistan"</li>
+                    <li>China occupied Aksai Chin during the 1950s and consolidated control after the 1962 Sino-Indian War</li>
+                    <li>Pakistan ceded the Shaksgam Valley (Trans-Karakoram Tract, 5,180 km²) to China in 1963 — India does not recognise this</li>
+                    <li>UNSC Resolution 47 (1948) called for Pakistan to withdraw forces first — never implemented</li>
+                    <li>The Simla Agreement (1972) established the Line of Control (LoC), converting the earlier ceasefire line</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Disputed Claimants</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">🇮🇳 India — Claims entire region</span>
+                    <span class="detail-tag tag-pakistan">🇵🇰 Pakistan — Claims entire region</span>
+                    <span class="detail-tag tag-china">🇨🇳 China — Holds Aksai Chin + Shaksgam</span>
+                </div>
+            </div>
+            <div class="detail-highlight-box">
+                <div class="hl-title">Key Fact</div>
+                <div class="hl-text">India considers the entire region of Jammu & Kashmir (2,22,236 km²) as its integral territory. Any map of India published must show the complete region including PoK and Aksai Chin within India's boundaries, as per Indian law.</div>
+            </div>
+        `
+    },
+    'pok': {
+        title: 'Pakistan Occupied Kashmir (PoK)',
+        subtitle: 'Azad Kashmir + Gilgit-Baltistan',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Total Area</div>
+                        <div class="value">~78,114 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Azad Kashmir</div>
+                        <div class="value">13,297 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Gilgit-Baltistan</div>
+                        <div class="value">64,817 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Shaksgam (ceded to China)</div>
+                        <div class="value">5,180 km²</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Azad Kashmir — Geography</div>
+                <div class="detail-text">
+                    Azad Jammu & Kashmir (AJK) is the southern portion of PoK, stretching along the western slopes of the Pir Panjal range. It shares a boundary with Pakistan's Punjab and Khyber Pakhtunkhwa provinces. The terrain is mostly mountainous with deep valleys, including the Jhelum and Neelum river valleys. The capital is Muzaffarabad, located at the confluence of the Jhelum and Neelum rivers at an elevation of ~690m.
+                </div>
+                <div class="detail-grid" style="margin-top:14px;">
+                    <div class="detail-grid-item">
+                        <div class="label">Capital</div>
+                        <div class="value">Muzaffarabad</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Districts</div>
+                        <div class="value">10</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Elevation Range</div>
+                        <div class="value">360m — 6,325m</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Major Rivers</div>
+                        <div class="value">Jhelum, Neelum, Poonch</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Gilgit-Baltistan — Geography</div>
+                <div class="detail-text">
+                    The northern region, Gilgit-Baltistan, is a vast mountainous territory containing some of the world's highest peaks. It includes parts of the Karakoram, western Himalayas, and Hindu Kush ranges. Five peaks over 8,000m are located here — including K2 (8,611m), the world's second highest peak. The region is traversed by the Karakoram Highway connecting Pakistan to China via the Khunjerab Pass (4,693m).
+                </div>
+                <div class="detail-grid" style="margin-top:14px;">
+                    <div class="detail-grid-item">
+                        <div class="label">Capital</div>
+                        <div class="value">Gilgit</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Districts</div>
+                        <div class="value">14</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Highest Peak</div>
+                        <div class="value">K2 — 8,611m</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Key Pass</div>
+                        <div class="value">Khunjerab (4,693m)</div>
+                    </div>
+                    <div class="detail-grid-item full">
+                        <div class="label">8000m+ Peaks in Region</div>
+                        <div class="value">K2, Nanga Parbat, Gasherbrum I, Broad Peak, Gasherbrum II</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Strategic & Geographical Features</div>
+                <ul class="detail-list">
+                    <li>China-Pakistan Economic Corridor (CPEC) passes through Gilgit-Baltistan — India has formally protested this as a sovereignty violation</li>
+                    <li>The Karakoram Highway is the world's highest paved international road, connecting Kashgar (China) to Islamabad</li>
+                    <li>Shaksgam Valley (Trans-Karakoram Tract) was illegally ceded by Pakistan to China in 1963; India rejects this transfer</li>
+                    <li>Three of the world's greatest mountain ranges converge here: Himalayas, Karakoram, and Hindu Kush</li>
+                    <li>Numerous glaciers including Baltoro, Biafo, and Hispar — one of the most glaciated regions outside polar areas</li>
+                    <li>Pakistan does not constitutionally integrate PoK — it maintains a separate nominal administration</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">India's Position</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Official Stance</div>
+                    <div class="hl-text">India considers PoK (both Azad Kashmir and Gilgit-Baltistan) as illegally occupied Indian territory. The Indian Parliament unanimously passed a resolution on 22 February 1994 reaffirming that the entire state of J&K is an integral part of India, and demanding Pakistan vacate the occupied territories.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">Claimed by India</span>
+                    <span class="detail-tag tag-pakistan">Administered by Pakistan</span>
+                    <span class="detail-tag tag-status">CPEC Route</span>
+                </div>
+            </div>
+        `
+    },
+    'aksai-chin': {
+        title: 'Aksai Chin',
+        subtitle: 'China-administered • Claimed by India',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Total Area</div>
+                        <div class="value">37,244 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Average Elevation</div>
+                        <div class="value">~5,000m (16,400 ft)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Administered by</div>
+                        <div class="value">China (Hotan County)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Claimed by</div>
+                        <div class="value">India (part of Ladakh UT)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Physical Geography</div>
+                <div class="detail-text">
+                    Aksai Chin is a vast, desolate, high-altitude salt flat desert, often described as one of the most inhospitable places on Earth. The name translates from Uyghur/Turkic as "white stone desert" or "stream of white stones." The plateau sits at the junction of the Kunlun Mountains to the north and the Karakoram Range to the south. It is virtually uninhabited, with near-zero vegetation, extreme cold (temperatures dropping to -40°C), and severe winds. Despite its barrenness, the region holds immense strategic significance.
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Terrain Details</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Terrain Type</div>
+                        <div class="value">Salt desert plateau</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Highest Point</div>
+                        <div class="value">~6,900m</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Mountain Ranges</div>
+                        <div class="value">Kunlun, Karakoram</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Key Lake</div>
+                        <div class="value">Pangong Tso (partial)</div>
+                    </div>
+                    <div class="detail-grid-item full">
+                        <div class="label">Notable Feature</div>
+                        <div class="value">China's Highway G219 (Xinjiang-Tibet) traverses Aksai Chin — built in the 1950s, this is what triggered Indian awareness of Chinese presence</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Boundary Lines</div>
+                <ul class="detail-list">
+                    <li><strong>Johnson Line (1865):</strong> Drawn by W.H. Johnson of the Survey of India, places Aksai Chin in Jammu & Kashmir (India's claimed boundary)</li>
+                    <li><strong>Macartney–MacDonald Line (1899):</strong> British proposal that would place Aksai Chin in China — China claims this as the valid boundary</li>
+                    <li><strong>Current LAC:</strong> The Line of Actual Control runs approximately along China's claim, with Aksai Chin entirely on the Chinese side</li>
+                    <li>India maintains the Johnson Line represents the correct and legal boundary</li>
+                    <li>China built National Highway G219 through the territory in 1956-57 without India's knowledge — discovered by India in 1957</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Strategic Significance</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Why It Matters</div>
+                    <div class="hl-text">Aksai Chin provides China a critical overland connection between Xinjiang and Tibet (via Highway G219). For India, it represents a significant territorial loss and is legally part of Ladakh UT. The 1962 Sino-Indian War was fought partly over control of this region. India's position remains that Aksai Chin is an integral part of Indian territory under illegal Chinese occupation.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">Claimed by India</span>
+                    <span class="detail-tag tag-china">Administered by China</span>
+                    <span class="detail-tag tag-status">Uninhabited Plateau</span>
+                </div>
+            </div>
+        `
+    },
+    'siachen': {
+        title: 'Siachen Glacier',
+        subtitle: 'World\'s Highest Battlefield',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Length</div>
+                        <div class="value">76 km (47 mi)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Width</div>
+                        <div class="value">2–8 km</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Elevation Range</div>
+                        <div class="value">5,375m — 7,742m</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Area</div>
+                        <div class="value">~700 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Highest Post</div>
+                        <div class="value">Bana Post — 6,500m</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Key Pass</div>
+                        <div class="value">Sia La (5,589m)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Physical Geography</div>
+                <div class="detail-text">
+                    The Siachen Glacier is the world's second-longest glacier in the non-polar world (after Fedchenko Glacier in Tajikistan). Located in the eastern Karakoram Range, it lies between the Saltoro Ridge to the west and the main Karakoram Range to the east. The glacier originates near Indira Col (at ~5,753m) on the India-China border and flows southeastward to its terminus at about 5,375m where it feeds the Nubra River, a tributary of the Shyok River in Ladakh.
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Important Geographic Points</div>
+                <ul class="detail-list">
+                    <li><strong>Indira Col (5,753m):</strong> The northernmost point of India, located at the head of the Siachen Glacier, where India, Pakistan (claim) and China meet</li>
+                    <li><strong>Sia La & Bilafond La:</strong> Key passes on the Saltoro Ridge, controlled by Indian forces since Operation Meghdoot (1984)</li>
+                    <li><strong>Saltoro Ridge:</strong> The western boundary ridge — India holds the heights, Pakistan occupies the western base</li>
+                    <li><strong>AGPL (Actual Ground Position Line):</strong> The de facto military boundary along the Saltoro Ridge, distinct from the LoC which terminates at NJ9842</li>
+                    <li><strong>NJ9842:</strong> The terminal point of the LoC — the Siachen dispute arises from the undefined boundary north of this point</li>
+                    <li><strong>Temperatures drop to -60°C</strong> with winds up to 150 km/h — weather kills more soldiers than combat</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Current Military Status</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Operation Meghdoot</div>
+                    <div class="hl-text">On 13 April 1984, the Indian Army launched Operation Meghdoot and preemptively secured the entire Siachen Glacier and all key passes on the Saltoro Ridge. India has maintained continuous military presence since then, with approximately 10,000 troops deployed at any given time. It is the world's highest and costliest military operation — costing India ₹5-7 crore (~$600,000+) per day to maintain.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">Controlled by India</span>
+                    <span class="detail-tag tag-pakistan">Claimed by Pakistan</span>
+                    <span class="detail-tag tag-status">Active Military Zone</span>
+                </div>
+            </div>
+        `
+    },
+    'loc': {
+        title: 'Line of Control (LoC)',
+        subtitle: 'De facto India-Pakistan Border in J&K',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Line Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Total Length</div>
+                        <div class="value">~740 km (460 mi)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Established</div>
+                        <div class="value">1972 (Simla Agreement)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Northern Terminus</div>
+                        <div class="value">NJ9842 (Siachen area)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Southern Terminus</div>
+                        <div class="value">Near Sangam, Chhamb</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Historical Evolution</div>
+                <div class="detail-text">
+                    The LoC evolved from the original Ceasefire Line (CFL) established on 27 July 1949, following the first India-Pakistan war of 1947-48. The CFL was delineated by the Karachi Agreement under UN supervision. After the 1971 India-Pakistan War, the Simla Agreement of 2 July 1972 redesignated and adjusted the CFL into what is now called the Line of Control. The LoC was delineated on a map signed by military representatives of both nations.
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Details</div>
+                <ul class="detail-list">
+                    <li>The LoC runs from the International Border (IB) near Chhamb in the south to coordinate NJ9842 in the Shyok river/Siachen area in the north</li>
+                    <li>It traverses extremely varied terrain — from low hills near Rajouri (1,000m) to the high Karakoram passes (5,500m+)</li>
+                    <li>The LoC passes through five Indian districts: Poonch, Rajouri, Baramulla, Kupwara, and Bandipora (+ Kargil & Leh regions)</li>
+                    <li>Heavily militarised on both sides — India maintains a multi-tiered fence system along most of the LoC since 2003-04</li>
+                    <li>The LoC fence is an approximately 550 km double fence with concertina wire, thermal imaging devices, motion sensors, and floodlights</li>
+                    <li>North of NJ9842, the line is undefined — this ambiguity led to the Siachen conflict</li>
+                    <li>The LoC does NOT extend to the Siachen Glacier — the AGPL (Actual Ground Position Line) operates there separately</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Legal Status</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Important Distinction</div>
+                    <div class="hl-text">The LoC is NOT an international border. It is a military control line that both India and Pakistan agreed to respect under the Simla Agreement (1972). Neither side can unilaterally alter it. India maintains that the LoC is a temporary arrangement and the entire J&K belongs to India. Pakistan maintains its own claim. The Simla Agreement stipulates that the final settlement shall be through bilateral negotiations.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Ceasefire Status</div>
+                <div class="detail-text">
+                    A ceasefire was agreed in November 2003 after years of intense cross-border firing. It was renewed and reaffirmed in February 2021 via a joint statement by the Director Generals of Military Operations (DGMOs) of both countries. Since the 2021 reaffirmation, ceasefire violations have reduced dramatically.
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">India Side</span>
+                    <span class="detail-tag tag-pakistan">Pakistan Side</span>
+                    <span class="detail-tag tag-status">Ceasefire Active (2021+)</span>
+                </div>
+            </div>
+        `
+    },
+    'arunachal': {
+        title: 'Arunachal Pradesh — China\'s Claim',
+        subtitle: 'India-administered • China claims as "South Tibet" (Zangnan)',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Total Area</div>
+                        <div class="value">83,743 km²</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">State Capital</div>
+                        <div class="value">Itanagar</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Districts</div>
+                        <div class="value">26 (as of 2024)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Population</div>
+                        <div class="value">~1.38 million (2011)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Elevation Range</div>
+                        <div class="value">150m — 7,090m</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">China's Name</div>
+                        <div class="value">Zangnan (藏南)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Physical Geography</div>
+                <div class="detail-text">
+                    Arunachal Pradesh ("Land of the Dawn-Lit Mountains") is India's largest northeastern state. The terrain descends from the snow-capped eastern Himalayas in the north (with peaks like Kangto at 7,090m and Gorichen at 6,858m) through dense subtropical and tropical forests to the Brahmaputra plains in the south. The state is drained by major rivers including the Kameng, Subansiri, Siang (Brahmaputra), Dibang, and Lohit — all originating in or flowing through Tibet before entering India. The Siang/Brahmaputra gorge near the India-China border is one of the deepest gorges in the world.
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">China's Claim — "South Tibet"</div>
+                <ul class="detail-list">
+                    <li>China claims the entire state of Arunachal Pradesh (83,743 km²) as part of southern Tibet, which it calls "Zangnan"</li>
+                    <li>China refuses to recognise the McMahon Line — the boundary agreed at the Simla Convention of 1914 between British India and Tibet, which China (Republic of China) did not ratify</li>
+                    <li>China particularly focuses on the Tawang Tract (historically linked to Tibetan Buddhist monasteries) — the Tawang Monastery is the second-largest Tibetan Buddhist monastery after Potala Palace</li>
+                    <li>During the 1962 war, Chinese forces overran most of Arunachal (then NEFA — North East Frontier Agency) but voluntarily withdrew behind the McMahon Line</li>
+                    <li>China has issued stapled visas to residents of Arunachal Pradesh (rather than regular visas) to signal its territorial claim</li>
+                    <li>China has "renamed" several places in Arunachal Pradesh with Chinese names as part of its claim assertion — India has rejected all such renamings</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">India's Position</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Unambiguous Stance</div>
+                    <div class="hl-text">India considers Arunachal Pradesh an integral and inalienable part of the Indian Union. It became a full state on 20 February 1987 (previously a union territory). India asserts the McMahon Line as the legal, valid, and settled boundary. India has conducted multiple state elections, built extensive infrastructure, and maintains full sovereign administration over the entire state.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Key Geographic Features</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Highest Peak</div>
+                        <div class="value">Kangto — 7,090m</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Major Rivers</div>
+                        <div class="value">Siang, Kameng, Lohit</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Forest Cover</div>
+                        <div class="value">~80% of state area</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Border Countries</div>
+                        <div class="value">China, Myanmar, Bhutan</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">Administered by India</span>
+                    <span class="detail-tag tag-china">Claimed by China</span>
+                    <span class="detail-tag tag-status">McMahon Line Dispute</span>
+                </div>
+            </div>
+        `
+    },
+    'lac': {
+        title: 'Line of Actual Control (LAC)',
+        subtitle: 'De facto India-China Border',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Total Length</div>
+                        <div class="value">~3,488 km (2,167 mi)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Number of Sectors</div>
+                        <div class="value">3</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Origin of Term</div>
+                        <div class="value">Zhou Enlai (1959)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Formalised</div>
+                        <div class="value">1993 Agreement</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Three Sectors</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Western Sector (Ladakh)</div>
+                    <div class="hl-text">Runs through the Aksai Chin plateau between Ladakh (India) and Xinjiang/Tibet (China). Approximately 1,597 km. This sector has the maximum divergence between Indian and Chinese claim lines — about 38,000 km² of territory (Aksai Chin) is disputed here. Key friction areas: Depsang Plains, Galwan Valley, Hot Springs, Pangong Tso.</div>
+                </div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Middle Sector (Uttarakhand & Himachal Pradesh)</div>
+                    <div class="hl-text">Approximately 625 km through Himachal Pradesh and Uttarakhand. This is the most peaceful and least disputed sector. The two sides are relatively close in their perception of the LAC. Barahoti in Chamoli district (Uttarakhand) is one minor friction point.</div>
+                </div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Eastern Sector (Arunachal Pradesh & Sikkim)</div>
+                    <div class="hl-text">Approximately 1,346 km along the McMahon Line and the Sikkim-Tibet boundary. China disputes the McMahon Line and claims all of Arunachal Pradesh. Key areas: Tawang, Sumdorong Chu, and the Doklam plateau (near Bhutan tri-junction). The 2017 Doklam standoff occurred at the Sikkim-Bhutan-China tri-junction.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Key Features</div>
+                <ul class="detail-list">
+                    <li>The LAC is NOT a mutually agreed demarcated line — it exists only as a "perception" by each side, leading to overlapping claims in multiple areas</li>
+                    <li>India and China have exchanged maps of the Middle Sector but NOT of the Western or Eastern sectors — the most contentious ones</li>
+                    <li>There is no single, continuous, mutually recognized boundary line between the two countries</li>
+                    <li>Both sides conduct patrols in areas between their respective claimed LAC positions — leading to face-offs and standoffs</li>
+                    <li>Major recent confrontation: Galwan Valley clash (June 2020), resulting in 20 Indian and an estimated 40+ Chinese casualties</li>
+                    <li>Multiple border agreements exist (1993, 1996, 2005, 2013) establishing confidence-building measures and protocols</li>
+                    <li>Both sides maintain the LAC should be respected and observed pending final resolution</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Friction Points (Current/Recent)</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Depsang Plains</div>
+                        <div class="value">Ladakh — patrol standoff</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Galwan Valley</div>
+                        <div class="value">2020 deadly clash</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Pangong Tso</div>
+                        <div class="value">Lake — Fingers dispute</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Hot Springs</div>
+                        <div class="value">Patrol face-off zone</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Doklam</div>
+                        <div class="value">2017 standoff (73 days)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Tawang</div>
+                        <div class="value">Dec 2022 clash</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">India</span>
+                    <span class="detail-tag tag-china">China</span>
+                    <span class="detail-tag tag-status">No mutual demarcation</span>
+                </div>
+            </div>
+        `
+    },
+    'sir-creek': {
+        title: 'Sir Creek',
+        subtitle: 'India-Pakistan Maritime Boundary Dispute',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Length</div>
+                        <div class="value">~96 km (60 mi)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Location</div>
+                        <div class="value">Rann of Kutch</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Indian State</div>
+                        <div class="value">Gujarat (Kutch district)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Pakistan Province</div>
+                        <div class="value">Sindh</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Flows into</div>
+                        <div class="value">Arabian Sea</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Type</div>
+                        <div class="value">Tidal estuary/marsh</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Physical Geography</div>
+                <div class="detail-text">
+                    Sir Creek is a 96 km strip of water (tidal estuary) in the uninhabited marshlands of the Rann of Kutch, running in a roughly north-south direction before opening into the Arabian Sea. The creek is navigable in its lower reaches but becomes extremely shallow and marshy in its upper portions. The surrounding terrain is flat, saline marshland — part of the Great Rann of Kutch, one of the largest salt deserts in the world. The area is submerged during monsoon season and becomes a vast white salt flat in dry months. Named after a British official (Sir Creek is the anglicised name).
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Nature of Dispute</div>
+                <ul class="detail-list">
+                    <li><strong>India's position:</strong> The boundary should run along the mid-channel (thalweg principle, in accordance with international maritime law and the law of the sea). This would divide the creek roughly equally</li>
+                    <li><strong>Pakistan's position:</strong> The entire creek belongs to Pakistan, with the boundary running along the eastern (Indian) bank, based on a 1914 map/resolution of the Bombay Government</li>
+                    <li>The creek has shifted course over the decades — it is a dynamic tidal feature, making fixed boundary lines problematic</li>
+                    <li>The dispute is not just about the 96 km creek — it determines the maritime boundary in the Arabian Sea and rights over a potentially resource-rich Exclusive Economic Zone (EEZ) of approximately 30,000+ km²</li>
+                    <li>Both countries have conducted multiple rounds of talks (1969, 1989, 2007, 2012) without resolution</li>
+                    <li>The area is ecologically significant — rich in fish, shrimp, and other marine resources; also a flamingo breeding ground</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Strategic Importance</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">Maritime & Resource Implications</div>
+                    <div class="hl-text">The resolution of Sir Creek would determine each nation's baseline for measuring maritime zones (territorial waters, contiguous zone, EEZ, and continental shelf). The EEZ potentially contains significant hydrocarbon reserves (oil and natural gas). India has offered to resolve the dispute via the International Court of Justice or the International Tribunal for the Law of the Sea — Pakistan has not agreed to third-party adjudication.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">India's Claim (Thalweg)</span>
+                    <span class="detail-tag tag-pakistan">Pakistan's Claim (East Bank)</span>
+                    <span class="detail-tag tag-status">Maritime EEZ at Stake</span>
+                </div>
+            </div>
+        `
+    },
+    'kalapani': {
+        title: 'Kalapani Territory',
+        subtitle: 'India-Nepal Boundary Dispute',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Geographic Overview</div>
+                <div class="detail-grid">
+                    <div class="detail-grid-item">
+                        <div class="label">Disputed Area</div>
+                        <div class="value">~372 km² (35 km²–400 km²)</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Location</div>
+                        <div class="value">Tri-junction India-Nepal-China</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Indian District</div>
+                        <div class="value">Pithoragarh, Uttarakhand</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Elevation</div>
+                        <div class="value">3,600m — 5,334m</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Three Disputed Points</div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">1. Kalapani</div>
+                    <div class="hl-text">A small territory at the India-Nepal-Tibet tri-junction. India's Indo-Tibetan Border Police (ITBP) has maintained a post here since 1962 (post Sino-Indian War). The dispute centres on the origin and course of the Mahakali (Kali) River, which forms the India-Nepal boundary as per the Treaty of Sugauli (1816). India says the river originates from springs near Kalapani; Nepal says it originates from Limpiyadhura, further northwest.</div>
+                </div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">2. Lipulekh Pass (5,334m)</div>
+                    <div class="hl-text">A Himalayan pass on the border between Uttarakhand and Tibet Autonomous Region, used historically as a trade and pilgrimage route to Kailash Mansarovar. India inaugurated a road to Lipulekh in May 2020 (Dharchula-Lipulekh road), which Nepal protested. India maintains Lipulekh is firmly within Indian territory and was mentioned in agreements with China (1954, 2015).</div>
+                </div>
+                <div class="detail-highlight-box">
+                    <div class="hl-title">3. Limpiyadhura</div>
+                    <div class="hl-text">Nepal claims that the Kali River originates from Limpiyadhura (much further northwest of Kalapani), which, if accepted, would push the India-Nepal boundary significantly westward, adding about 335-400 km² of currently Indian-administered territory to Nepal. Nepal published a new political map in June 2020 incorporating this claim. India rejected the map.</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">The Core Issue</div>
+                <ul class="detail-list">
+                    <li>The Treaty of Sugauli (1816) between the East India Company and Nepal defines the Kali River as the western boundary of Nepal</li>
+                    <li>The dispute is over which stream constitutes the "source" of the Kali River — different streams lead to different boundary lines</li>
+                    <li>India identifies the source near Kalapani; Nepal identifies it at Limpiyadhura</li>
+                    <li>The area has been administered by India since at least 1962; Nepal has protested periodically</li>
+                    <li>Nepal's Parliament unanimously passed a new map in June 2020 including Kalapani, Lipulekh, and Limpiyadhura</li>
+                    <li>India stated the new map is not based on historical facts and evidence, and called for diplomatic dialogue</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">India's Position</div>
+                <div class="detail-text">
+                    India considers the Kalapani-Lipulekh area as part of Pithoragarh district, Uttarakhand. India has maintained that the issue should be resolved through bilateral dialogue based on historical evidence, maps, and treaties. India also notes that Lipulekh was explicitly mentioned in agreements between India and China (1954, 2015) as an Indian territory, without objection from Nepal at those times.
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-india">Administered by India</span>
+                    <span class="detail-tag tag-nepal">Claimed by Nepal</span>
+                    <span class="detail-tag tag-status">Bilateral Dialogue Pending</span>
+                </div>
+            </div>
+        `
+    },
+    'minor': {
+        title: 'Minor Territorial Issues',
+        subtitle: 'Susta, Bangladesh Enclaves & Others',
+        body: `
+            <div class="detail-section">
+                <div class="detail-section-title">Susta Area (India-Nepal)</div>
+                <div class="detail-text">
+                    Susta is a small area (~14,000 hectares) on the India-Nepal border in West Champaran district, Bihar. The dispute arose because the Gandak River (Narayani in Nepal), which forms the boundary, has shifted its course westward over time due to erosion and flooding. This means land that was on the Nepalese side has now moved to the Indian side (or vice versa). Nepal claims ~14,500 hectares; India administers the area as it currently lies east of the river. The dispute involves the question of whether the boundary should follow the original river course or the current one.
+                </div>
+                <div class="detail-grid" style="margin-top:14px;">
+                    <div class="detail-grid-item">
+                        <div class="label">Location</div>
+                        <div class="value">West Champaran, Bihar</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">River</div>
+                        <div class="value">Gandak (Narayani)</div>
+                    </div>
+                    <div class="detail-grid-item full">
+                        <div class="label">Issue</div>
+                        <div class="value">River course shift — boundary ambiguity</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-divider"></div>
+            <div class="detail-section">
+                <div class="detail-section-title">India-Bangladesh Enclaves (RESOLVED)</div>
+                <div class="detail-text">
+                    One of the world's most complex boundary issues — for decades, 162 enclaves existed: 111 Indian enclaves inside Bangladesh and 51 Bangladeshi enclaves inside India. These were pockets of one country's sovereign territory completely surrounded by the other country, some dating back to Mughal-era treaties. Residents were effectively stateless, lacking basic services, identification, and rights.
+                </div>
+                <div class="detail-highlight-box" style="margin-top:14px;">
+                    <div class="hl-title">Land Boundary Agreement (2015) ✅</div>
+                    <div class="hl-text">On 6 June 2015, India and Bangladesh ratified the historic Land Boundary Agreement (LBA), which had been originally signed in 1974 but never implemented. Under the agreement, 111 Indian enclaves (17,160 acres) were transferred to Bangladesh, and 51 Bangladeshi enclaves (7,110 acres) were transferred to India. Over 50,000 residents were given the choice of nationality. This is considered one of the most successful peaceful territorial resolutions in modern history.</div>
+                </div>
+                <div class="detail-grid" style="margin-top:14px;">
+                    <div class="detail-grid-item">
+                        <div class="label">Indian Enclaves</div>
+                        <div class="value">111 → Bangladesh</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Bangladeshi Enclaves</div>
+                        <div class="value">51 → India</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Resolved</div>
+                        <div class="value">31 July 2015</div>
+                    </div>
+                    <div class="detail-grid-item">
+                        <div class="label">Status</div>
+                        <div class="value">✅ Fully Resolved</div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-divider"></div>
+            <div class="detail-section">
+                <div class="detail-section-title">Other Minor Issues</div>
+                <ul class="detail-list">
+                    <li><strong>India-Myanmar:</strong> The border (1,643 km) is largely settled and demarcated. Minor issues relate to free movement regime and insurgent use of borderlands — territorial dispute is minimal</li>
+                    <li><strong>India-Bhutan:</strong> No significant territorial disputes. The boundary (~699 km) is largely settled, with cooperative demarcation. Doklam standoff (2017) involved China, not a direct India-Bhutan dispute</li>
+                    <li><strong>India-Sri Lanka (Katchatheevu):</strong> A small 285-acre uninhabited island ceded by India to Sri Lanka via agreements in 1974 and 1976. Some Indian Tamil Nadu fishermen and politicians seek its return, but the Government of India treats it as settled</li>
+                    <li><strong>Junagadh & Manavadar:</strong> Pakistan theoretically claims these princely states (now in Gujarat), whose rulers acceded to Pakistan in 1947. India conducted a plebiscite in 1948; the people voted overwhelmingly to join India. Pakistan's claim is considered dormant/inactive</li>
+                </ul>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Tags</div>
+                <div class="detail-tag-row">
+                    <span class="detail-tag tag-status">Multiple Minor Issues</span>
+                    <span class="detail-tag tag-nepal">Nepal — Susta</span>
+                    <span class="detail-tag" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.08);">Bangladesh LBA ✅</span>
+                </div>
+            </div>
+        `
+    }
+};
+
+// ========================
+// DETAIL PANEL FUNCTIONS
+// ========================
+
+function openDetail(key) {
+    const data = detailData[key];
+    if (!data) return;
+
+    document.getElementById('panelTitle').textContent = data.title;
+    document.getElementById('panelSubtitle').textContent = data.subtitle;
+    document.getElementById('panelBody').innerHTML = data.body;
+
+    const overlay = document.getElementById('detailOverlay');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // Close any open popups
+    map.closePopup();
+
+    // Fly to relevant area
+    const flyTargets = {
+        'jk-overview': [34.5, 76, 6],
+        'pok': [35.5, 75, 6],
+        'aksai-chin': [35.5, 79.5, 6],
+        'siachen': [35.55, 77.1, 9],
+        'loc': [34.5, 74.5, 7],
+        'arunachal': [28, 94, 6],
+        'lac': [32, 82, 5],
+        'sir-creek': [24, 68.6, 8],
+        'kalapani': [30.2, 81, 9],
+        'minor': [26, 82, 5]
+    };
+
+    if (flyTargets[key]) {
+        map.flyTo([flyTargets[key][0], flyTargets[key][1]], flyTargets[key][2], { duration: 1.5 });
+    }
+}
+
+function closeDetail() {
+    const overlay = document.getElementById('detailOverlay');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close on overlay click (not panel)
+document.getElementById('detailOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('detailOverlay')) {
+        closeDetail();
+    }
+});
+
+// ========================
+// INTERSECTION OBSERVER FOR ANIMATIONS
+// ========================
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.animationPlayState = 'running';
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.animate-in').forEach(el => {
+    observer.observe(el);
+});
+
+// Custom tooltip style injection
+const tooltipStyle = document.createElement('style');
+tooltipStyle.textContent = `
+    .city-tooltip {
+        background: rgba(26,34,53,0.92) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 6px !important;
+        color: #f1f5f9 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        padding: 4px 10px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    }
+    .city-tooltip::before {
+        border-top-color: rgba(26,34,53,0.92) !important;
+    }
+`;
+document.head.appendChild(tooltipStyle);
+</script>
+<script src="/js/auto-inject.js"></script>
+<script src="/js/premium-wrapper.js"></script>
+<script src="/global-nav.js"></script>
+<script src="/js/dashboard.js"></script>
+
+</body>
+</html>
