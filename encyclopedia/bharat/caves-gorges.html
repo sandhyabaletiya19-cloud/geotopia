@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕳️ Caves & Gorges of Bharat | DharaVerse Encyclopedia</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--cave-dark:#0a0a0f;--cave-deep:#12101d;--cave-mid:#1a1726;--cave-surface:#241f33;
+--stalactite:#c9a96e;--crystal:#7fdbca;--lava:#ff6b35;--amethyst:#9b59b6;
+--gold:#f1c40f;--pearl:#f0ead6;--moonstone:#adb8c8;--emerald:#2ecc71;
+--ruby:#e74c3c;--sapphire:#3498db;--topaz:#f39c12;--diamond:#e8e8e8;
+--glow-cave:rgba(127,219,202,0.08);--glow-gold:rgba(241,196,15,0.1);
+--font-display:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+--font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+font-family:var(--font-display);background:var(--cave-dark);color:var(--pearl);
+line-height:1.7;overflow-x:hidden;min-height:100vh;
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--cave-deep)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--stalactite),var(--amethyst));border-radius:4px}
+
+/* === ANIMATED BACKGROUND === */
+body::before{
+content:'';position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;
+background:
+  radial-gradient(ellipse 800px 600px at 20% 30%,rgba(127,219,202,0.03),transparent),
+  radial-gradient(ellipse 600px 800px at 80% 70%,rgba(155,89,182,0.03),transparent),
+  radial-gradient(ellipse 400px 400px at 50% 50%,rgba(201,169,110,0.02),transparent);
+animation:ambientShift 20s ease-in-out infinite alternate;
+}
+@keyframes ambientShift{
+0%{opacity:1;transform:scale(1)}
+50%{opacity:0.7;transform:scale(1.05)}
+100%{opacity:1;transform:scale(1)}
+}
+
+/* === NAVIGATION === */
+.back-nav{
+position:fixed;top:0;left:0;right:0;z-index:1000;
+background:linear-gradient(180deg,rgba(10,10,15,0.98),rgba(10,10,15,0.85));
+backdrop-filter:blur(20px);border-bottom:1px solid rgba(201,169,110,0.15);
+padding:0.8rem 2rem;display:flex;align-items:center;justify-content:space-between;
+}
+.back-btn{
+display:inline-flex;align-items:center;gap:0.5rem;
+color:var(--stalactite);text-decoration:none;font-weight:600;font-size:0.95rem;
+padding:0.5rem 1.2rem;border:1px solid rgba(201,169,110,0.3);border-radius:50px;
+transition:all 0.3s ease;background:rgba(201,169,110,0.05);
+}
+.back-btn:hover{background:rgba(201,169,110,0.15);transform:translateX(-3px);box-shadow:0 0 20px rgba(201,169,110,0.1)}
+.back-btn svg{width:18px;height:18px;transition:transform 0.3s}
+.back-btn:hover svg{transform:translateX(-3px)}
+.nav-breadcrumb{font-size:0.8rem;color:var(--moonstone);opacity:0.6}
+.nav-breadcrumb a{color:var(--crystal);text-decoration:none}
+
+/* === HERO === */
+.hero{
+position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;
+padding:6rem 2rem 4rem;overflow:hidden;
+}
+.hero-bg{
+position:absolute;inset:0;z-index:0;
+background:
+  linear-gradient(180deg,var(--cave-dark) 0%,transparent 30%,transparent 70%,var(--cave-dark) 100%),
+  radial-gradient(ellipse at 50% 40%,rgba(155,89,182,0.12),transparent 60%),
+  radial-gradient(ellipse at 30% 60%,rgba(127,219,202,0.08),transparent 50%),
+  radial-gradient(ellipse at 70% 30%,rgba(201,169,110,0.08),transparent 50%);
+}
+
+/* Stalactite decorations */
+.stalactites{position:absolute;top:0;left:0;right:0;height:200px;z-index:1;overflow:hidden}
+.stalactite{
+position:absolute;top:-5px;width:3px;
+background:linear-gradient(180deg,rgba(201,169,110,0.6),rgba(201,169,110,0.05));
+border-radius:0 0 50% 50%;animation:stalactiteDrip 4s ease-in-out infinite;
+}
+.stalactite:nth-child(1){left:8%;height:80px;animation-delay:0s}
+.stalactite:nth-child(2){left:15%;height:120px;animation-delay:0.5s}
+.stalactite:nth-child(3){left:25%;height:60px;animation-delay:1s}
+.stalactite:nth-child(4){left:35%;height:100px;animation-delay:1.5s}
+.stalactite:nth-child(5){left:45%;height:70px;animation-delay:2s}
+.stalactite:nth-child(6){left:55%;height:110px;animation-delay:0.3s}
+.stalactite:nth-child(7){left:65%;height:50px;animation-delay:1.2s}
+.stalactite:nth-child(8){left:75%;height:90px;animation-delay:0.8s}
+.stalactite:nth-child(9){left:85%;height:130px;animation-delay:1.8s}
+.stalactite:nth-child(10){left:92%;height:75px;animation-delay:2.3s}
+@keyframes stalactiteDrip{
+0%,100%{opacity:0.4}50%{opacity:1}
+}
+
+/* Water drops */
+.water-drops{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.drop{
+position:absolute;width:4px;height:4px;border-radius:50%;
+background:radial-gradient(circle,rgba(127,219,202,0.8),transparent);
+animation:dropFall linear infinite;
+}
+.drop:nth-child(1){left:15%;animation-duration:3s;animation-delay:0s}
+.drop:nth-child(2){left:25%;animation-duration:4s;animation-delay:1s}
+.drop:nth-child(3){left:55%;animation-duration:3.5s;animation-delay:0.5s}
+.drop:nth-child(4){left:75%;animation-duration:4.5s;animation-delay:2s}
+.drop:nth-child(5){left:85%;animation-duration:3.2s;animation-delay:1.5s}
+@keyframes dropFall{
+0%{top:-2%;opacity:0;transform:scale(1)}
+10%{opacity:1}
+90%{opacity:0.5}
+100%{top:102%;opacity:0;transform:scale(0.5)}
+}
+
+.hero-content{position:relative;z-index:2;text-align:center;max-width:900px}
+.hero-icon{
+font-size:5rem;display:block;margin-bottom:1.5rem;
+filter:drop-shadow(0 0 40px rgba(201,169,110,0.4));
+animation:heroFloat 6s ease-in-out infinite;
+}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.hero-title{
+font-size:clamp(2.5rem,7vw,5rem);font-weight:800;
+background:linear-gradient(135deg,var(--stalactite),var(--gold),var(--crystal),var(--stalactite));
+background-size:300% 300%;
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+background-clip:text;
+animation:titleShimmer 8s ease-in-out infinite;
+letter-spacing:-0.02em;line-height:1.1;margin-bottom:1rem;
+}
+@keyframes titleShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-subtitle{
+font-size:clamp(1rem,2.5vw,1.4rem);color:var(--moonstone);font-weight:300;
+max-width:700px;margin:0 auto 2rem;opacity:0.85;line-height:1.6;
+}
+.hero-stats{
+display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;margin-top:2.5rem;
+}
+.hero-stat{
+text-align:center;padding:1rem 1.5rem;
+background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+border-radius:16px;backdrop-filter:blur(10px);min-width:140px;
+transition:all 0.3s ease;
+}
+.hero-stat:hover{
+background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.2);
+transform:translateY(-3px);
+}
+.hero-stat-num{
+font-size:2rem;font-weight:800;
+background:linear-gradient(135deg,var(--gold),var(--crystal));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+display:block;line-height:1.2;
+}
+.hero-stat-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--moonstone);opacity:0.7;margin-top:0.3rem}
+
+/* === TOC === */
+.toc-section{
+position:relative;z-index:2;padding:3rem 2rem;max-width:900px;margin:0 auto;
+}
+.toc-box{
+background:linear-gradient(135deg,rgba(36,31,51,0.8),rgba(18,16,29,0.9));
+border:1px solid rgba(201,169,110,0.12);border-radius:20px;padding:2.5rem;
+backdrop-filter:blur(20px);
+}
+.toc-title{
+font-size:1.1rem;text-transform:uppercase;letter-spacing:0.2em;
+color:var(--stalactite);margin-bottom:1.5rem;
+display:flex;align-items:center;gap:0.8rem;
+}
+.toc-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(201,169,110,0.3),transparent)}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.5rem}
+.toc-link{
+display:flex;align-items:center;gap:0.6rem;padding:0.7rem 1rem;
+color:var(--pearl);text-decoration:none;border-radius:10px;
+transition:all 0.25s ease;font-size:0.92rem;
+}
+.toc-link:hover{background:rgba(127,219,202,0.08);color:var(--crystal);transform:translateX(5px)}
+.toc-link .toc-emoji{font-size:1.1rem;width:24px;text-align:center}
+
+/* === MAIN CONTENT === */
+.main-content{
+position:relative;z-index:2;max-width:1200px;margin:0 auto;
+padding:2rem 2rem 4rem;
+}
+
+/* === SECTION HEADERS === */
+.section-divider{
+display:flex;align-items:center;gap:1.5rem;margin:5rem 0 3rem;padding:0 1rem;
+}
+.section-divider-icon{
+font-size:2.5rem;width:70px;height:70px;
+display:flex;align-items:center;justify-content:center;
+border-radius:20px;flex-shrink:0;
+}
+.section-divider-text h2{
+font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;letter-spacing:-0.01em;line-height:1.2;
+}
+.section-divider-text p{font-size:0.9rem;color:var(--moonstone);opacity:0.7;margin-top:0.3rem}
+.section-divider::after{content:'';flex:1;height:2px;border-radius:1px}
+
+.caves-divider .section-divider-icon{background:linear-gradient(135deg,rgba(201,169,110,0.2),rgba(201,169,110,0.05))}
+.caves-divider .section-divider-text h2{color:var(--stalactite)}
+.caves-divider::after{background:linear-gradient(90deg,rgba(201,169,110,0.3),transparent)}
+
+.gorges-divider .section-divider-icon{background:linear-gradient(135deg,rgba(52,152,219,0.2),rgba(52,152,219,0.05))}
+.gorges-divider .section-divider-text h2{color:var(--sapphire)}
+.gorges-divider::after{background:linear-gradient(90deg,rgba(52,152,219,0.3),transparent)}
+
+/* === SUBSECTION HEADERS === */
+.subsection-header{
+margin:3.5rem 0 2rem;padding:1.5rem 2rem;
+border-radius:16px;position:relative;overflow:hidden;
+}
+.subsection-header::before{
+content:'';position:absolute;inset:0;opacity:0.05;
+background:repeating-linear-gradient(90deg,transparent,transparent 20px,rgba(255,255,255,0.03) 20px,rgba(255,255,255,0.03) 21px);
+}
+.subsection-header h3{
+font-size:1.4rem;font-weight:700;display:flex;align-items:center;gap:0.8rem;
+position:relative;z-index:1;
+}
+.subsection-header p{
+font-size:0.85rem;opacity:0.7;margin-top:0.5rem;position:relative;z-index:1;max-width:600px;
+}
+.sub-limestone{background:linear-gradient(135deg,rgba(201,169,110,0.1),rgba(201,169,110,0.02));border-left:3px solid var(--stalactite)}
+.sub-limestone h3{color:var(--stalactite)}
+.sub-rockcut{background:linear-gradient(135deg,rgba(231,76,60,0.1),rgba(231,76,60,0.02));border-left:3px solid var(--ruby)}
+.sub-rockcut h3{color:var(--ruby)}
+.sub-natural{background:linear-gradient(135deg,rgba(46,204,113,0.1),rgba(46,204,113,0.02));border-left:3px solid var(--emerald)}
+.sub-natural h3{color:var(--emerald)}
+.sub-state{background:linear-gradient(135deg,rgba(155,89,182,0.1),rgba(155,89,182,0.02));border-left:3px solid var(--amethyst)}
+.sub-state h3{color:var(--amethyst)}
+
+/* === CAVE CARDS === */
+.cave-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem}
+
+.cave-card{
+background:linear-gradient(160deg,rgba(36,31,51,0.7),rgba(18,16,29,0.9));
+border:1px solid rgba(255,255,255,0.06);border-radius:18px;
+padding:0;overflow:hidden;transition:all 0.4s cubic-bezier(0.23,1,0.32,1);
+position:relative;
+}
+.cave-card:hover{
+transform:translateY(-6px);
+border-color:rgba(201,169,110,0.25);
+box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 40px rgba(201,169,110,0.05);
+}
+
+.cave-card-header{
+padding:1.5rem 1.5rem 1rem;display:flex;align-items:flex-start;gap:1rem;
+position:relative;
+}
+.cave-card-icon{
+font-size:2rem;width:52px;height:52px;border-radius:14px;
+display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.cave-card-icon.limestone{background:linear-gradient(135deg,rgba(201,169,110,0.25),rgba(201,169,110,0.08))}
+.cave-card-icon.rockcut{background:linear-gradient(135deg,rgba(231,76,60,0.25),rgba(231,76,60,0.08))}
+.cave-card-icon.natural{background:linear-gradient(135deg,rgba(46,204,113,0.25),rgba(46,204,113,0.08))}
+.cave-card-icon.gorge{background:linear-gradient(135deg,rgba(52,152,219,0.25),rgba(52,152,219,0.08))}
+
+.cave-card-title-block{flex:1}
+.cave-card-name{font-size:1.15rem;font-weight:700;color:var(--pearl);line-height:1.3}
+.cave-card-location{
+font-size:0.8rem;color:var(--moonstone);opacity:0.7;margin-top:0.25rem;
+display:flex;align-items:center;gap:0.3rem;
+}
+.cave-card-badges{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem}
+.badge{
+font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:50px;
+font-weight:600;text-transform:uppercase;letter-spacing:0.08em;
+}
+.badge-unesco{background:rgba(241,196,15,0.15);color:var(--gold);border:1px solid rgba(241,196,15,0.25)}
+.badge-longest{background:rgba(127,219,202,0.15);color:var(--crystal);border:1px solid rgba(127,219,202,0.25)}
+.badge-deepest{background:rgba(155,89,182,0.15);color:var(--amethyst);border:1px solid rgba(155,89,182,0.25)}
+.badge-heritage{background:rgba(231,76,60,0.15);color:var(--ruby);border:1px solid rgba(231,76,60,0.25)}
+.badge-pilgrimage{background:rgba(46,204,113,0.15);color:var(--emerald);border:1px solid rgba(46,204,113,0.25)}
+.badge-canyon{background:rgba(52,152,219,0.15);color:var(--sapphire);border:1px solid rgba(52,152,219,0.25)}
+
+.cave-card-body{padding:0 1.5rem 1.5rem}
+.cave-card-desc{
+font-size:0.88rem;color:var(--moonstone);line-height:1.65;opacity:0.85;
+}
+.cave-card-details{
+margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;
+}
+.cave-detail{
+padding:0.6rem 0.8rem;background:rgba(255,255,255,0.02);border-radius:8px;
+border:1px solid rgba(255,255,255,0.04);
+}
+.cave-detail-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--moonstone);opacity:0.5}
+.cave-detail-value{font-size:0.85rem;font-weight:600;color:var(--pearl);margin-top:0.15rem}
+
+.cave-card-footer{
+padding:1rem 1.5rem;background:rgba(0,0,0,0.15);
+border-top:1px solid rgba(255,255,255,0.04);
+display:flex;align-items:center;justify-content:space-between;
+}
+.cave-card-footer-info{font-size:0.75rem;color:var(--moonstone);opacity:0.6}
+
+/* special highlight for record holders */
+.cave-card.highlight{
+border-color:rgba(241,196,15,0.2);
+background:linear-gradient(160deg,rgba(241,196,15,0.04),rgba(18,16,29,0.9) 40%);
+}
+.cave-card.highlight::after{
+content:'';position:absolute;top:0;left:0;right:0;height:3px;
+background:linear-gradient(90deg,var(--gold),var(--crystal),var(--gold));
+}
+
+/* === MAP SECTION === */
+.map-section{
+margin:3rem 0;border-radius:20px;overflow:hidden;
+border:1px solid rgba(201,169,110,0.12);
+background:rgba(18,16,29,0.5);
+}
+.map-title-bar{
+padding:1.2rem 1.5rem;
+background:linear-gradient(90deg,rgba(201,169,110,0.1),rgba(127,219,202,0.05));
+display:flex;align-items:center;gap:0.8rem;
+border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.map-title-bar h3{font-size:1.1rem;font-weight:700;color:var(--stalactite)}
+.map-container{height:500px;width:100%;position:relative}
+#cavesMap{height:100%;width:100%;z-index:1}
+
+/* leaflet overrides */
+.leaflet-popup-content-wrapper{
+background:var(--cave-surface)!important;color:var(--pearl)!important;
+border-radius:12px!important;border:1px solid rgba(201,169,110,0.2)!important;
+box-shadow:0 10px 40px rgba(0,0,0,0.5)!important;
+}
+.leaflet-popup-tip{background:var(--cave-surface)!important}
+.leaflet-popup-content{font-family:var(--font-display)!important;font-size:0.85rem!important;line-height:1.5!important}
+.popup-title{font-weight:700;font-size:1rem;color:var(--stalactite);margin-bottom:0.3rem}
+.popup-type{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--crystal);margin-bottom:0.5rem}
+
+/* === GORGE CARDS === */
+.gorge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+.gorge-card{
+background:linear-gradient(160deg,rgba(36,31,51,0.7),rgba(18,16,29,0.9));
+border:1px solid rgba(52,152,219,0.1);border-radius:18px;
+padding:2rem;position:relative;overflow:hidden;
+transition:all 0.4s cubic-bezier(0.23,1,0.32,1);
+}
+.gorge-card:hover{
+transform:translateY(-6px);border-color:rgba(52,152,219,0.25);
+box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 30px rgba(52,152,219,0.05);
+}
+.gorge-card::before{
+content:'';position:absolute;bottom:0;left:0;right:0;height:60%;
+background:linear-gradient(0deg,rgba(52,152,219,0.04),transparent);
+pointer-events:none;
+}
+.gorge-card-icon{font-size:2.5rem;margin-bottom:1rem;display:block}
+.gorge-card h4{font-size:1.2rem;font-weight:700;color:var(--sapphire);margin-bottom:0.3rem}
+.gorge-card .gorge-loc{font-size:0.8rem;color:var(--moonstone);opacity:0.7;margin-bottom:1rem}
+.gorge-card p{font-size:0.88rem;color:var(--moonstone);line-height:1.65;opacity:0.85}
+.gorge-card .gorge-stats{
+margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06);
+display:flex;flex-wrap:wrap;gap:1rem;
+}
+.gorge-stat{font-size:0.8rem}
+.gorge-stat strong{color:var(--crystal);font-weight:700}
+
+/* === STATE-WISE TABLE === */
+.state-table-container{
+overflow-x:auto;border-radius:16px;border:1px solid rgba(155,89,182,0.12);
+margin:2rem 0;
+}
+.state-table{width:100%;border-collapse:collapse;min-width:700px}
+.state-table thead{background:linear-gradient(90deg,rgba(155,89,182,0.15),rgba(155,89,182,0.05))}
+.state-table th{
+padding:1rem 1.2rem;text-align:left;font-size:0.75rem;
+text-transform:uppercase;letter-spacing:0.15em;color:var(--amethyst);
+font-weight:700;border-bottom:2px solid rgba(155,89,182,0.2);
+}
+.state-table td{
+padding:0.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);
+font-size:0.88rem;color:var(--pearl);vertical-align:top;
+}
+.state-table tbody tr{transition:background 0.2s}
+.state-table tbody tr:hover{background:rgba(155,89,182,0.05)}
+.state-table tbody tr:nth-child(even){background:rgba(255,255,255,0.01)}
+.state-table tbody tr:nth-child(even):hover{background:rgba(155,89,182,0.06)}
+.state-name{font-weight:700;color:var(--amethyst);white-space:nowrap}
+.cave-list-item{margin-bottom:0.3rem;line-height:1.5}
+.cave-list-item .clabel{color:var(--stalactite);font-weight:600}
+
+/* === TIMELINE SECTION === */
+.timeline-section{margin:3rem 0}
+.timeline{position:relative;padding-left:40px}
+.timeline::before{
+content:'';position:absolute;left:15px;top:0;bottom:0;width:2px;
+background:linear-gradient(180deg,var(--stalactite),var(--amethyst),var(--crystal));
+border-radius:1px;
+}
+.timeline-item{position:relative;margin-bottom:2.5rem;padding-left:2rem}
+.timeline-item::before{
+content:'';position:absolute;left:-31px;top:6px;
+width:14px;height:14px;border-radius:50%;
+border:2px solid var(--stalactite);background:var(--cave-dark);
+z-index:1;
+}
+.timeline-item:nth-child(even)::before{border-color:var(--amethyst)}
+.timeline-item:nth-child(3n)::before{border-color:var(--crystal)}
+.timeline-era{
+font-size:0.7rem;text-transform:uppercase;letter-spacing:0.15em;
+color:var(--stalactite);font-weight:700;margin-bottom:0.3rem;
+}
+.timeline-title{font-size:1.1rem;font-weight:700;color:var(--pearl);margin-bottom:0.3rem}
+.timeline-desc{font-size:0.85rem;color:var(--moonstone);opacity:0.8;line-height:1.6}
+
+/* === INFO BOX === */
+.info-box{
+padding:1.5rem 2rem;border-radius:14px;margin:2rem 0;
+display:flex;align-items:flex-start;gap:1rem;
+}
+.info-box-icon{font-size:1.5rem;flex-shrink:0;margin-top:0.1rem}
+.info-box-content h4{font-weight:700;margin-bottom:0.3rem;font-size:1rem}
+.info-box-content p{font-size:0.85rem;opacity:0.85;line-height:1.6}
+.info-box.crystal{
+background:linear-gradient(135deg,rgba(127,219,202,0.08),rgba(127,219,202,0.02));
+border:1px solid rgba(127,219,202,0.15);
+}
+.info-box.crystal h4{color:var(--crystal)}
+.info-box.gold{
+background:linear-gradient(135deg,rgba(241,196,15,0.08),rgba(241,196,15,0.02));
+border:1px solid rgba(241,196,15,0.15);
+}
+.info-box.gold h4{color:var(--gold)}
+.info-box.amethyst{
+background:linear-gradient(135deg,rgba(155,89,182,0.08),rgba(155,89,182,0.02));
+border:1px solid rgba(155,89,182,0.15);
+}
+.info-box.amethyst h4{color:var(--amethyst)}
+
+/* === NEXT TOPIC FOOTER === */
+.next-topic{
+margin:4rem 0 2rem;
+background:linear-gradient(135deg,rgba(46,204,113,0.08),rgba(52,152,219,0.05));
+border:1px solid rgba(46,204,113,0.15);border-radius:20px;
+padding:2.5rem;display:flex;align-items:center;justify-content:space-between;
+gap:2rem;transition:all 0.3s ease;text-decoration:none;color:inherit;
+}
+.next-topic:hover{
+background:linear-gradient(135deg,rgba(46,204,113,0.12),rgba(52,152,219,0.08));
+transform:translateY(-3px);box-shadow:0 20px 60px rgba(0,0,0,0.2);
+border-color:rgba(46,204,113,0.25);
+}
+.next-topic-left{flex:1}
+.next-topic-label{
+font-size:0.7rem;text-transform:uppercase;letter-spacing:0.2em;
+color:var(--emerald);font-weight:700;margin-bottom:0.5rem;
+}
+.next-topic-title{font-size:1.5rem;font-weight:800;color:var(--pearl)}
+.next-topic-desc{font-size:0.85rem;color:var(--moonstone);opacity:0.7;margin-top:0.3rem}
+.next-topic-arrow{
+font-size:2.5rem;color:var(--emerald);transition:transform 0.3s;flex-shrink:0;
+}
+.next-topic:hover .next-topic-arrow{transform:translateX(8px)}
+
+/* === FOOTER === */
+.site-footer{
+position:relative;z-index:2;
+margin-top:2rem;padding:3rem 2rem 2rem;
+border-top:1px solid rgba(255,255,255,0.06);
+text-align:center;
+background:linear-gradient(180deg,transparent,rgba(10,10,15,0.5));
+}
+.site-footer p{font-size:0.8rem;color:var(--moonstone);opacity:0.5;line-height:1.6}
+.site-footer a{color:var(--stalactite);text-decoration:none}
+.site-footer a:hover{text-decoration:underline}
+
+/* === ANIMATIONS === */
+.fade-up{opacity:0;transform:translateY(30px);transition:all 0.7s cubic-bezier(0.23,1,0.32,1)}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* === RESPONSIVE === */
+@media(max-width:768px){
+.back-nav{padding:0.6rem 1rem}
+.hero{min-height:80vh;padding:5rem 1.5rem 3rem}
+.hero-icon{font-size:3.5rem}
+.hero-stats{gap:1rem}
+.hero-stat{min-width:100px;padding:0.8rem 1rem}
+.hero-stat-num{font-size:1.5rem}
+.toc-box{padding:1.5rem}
+.cave-grid,.gorge-grid{grid-template-columns:1fr}
+.section-divider{margin:3rem 0 2rem;gap:1rem}
+.section-divider-icon{width:50px;height:50px;font-size:1.8rem;border-radius:14px}
+.cave-card-details{grid-template-columns:1fr}
+.map-container{height:350px}
+.next-topic{flex-direction:column;text-align:center;padding:2rem}
+.subsection-header{padding:1.2rem 1.5rem}
+.timeline{padding-left:30px}
+.timeline-item{padding-left:1.5rem}
+.timeline-item::before{left:-21px;width:10px;height:10px}
+}
+@media(max-width:480px){
+.hero-title{font-size:2rem}
+.hero-stats{flex-direction:column;align-items:center}
+.toc-grid{grid-template-columns:1fr}
+.back-btn span{display:none}
+.nav-breadcrumb{display:none}
+}
+</style>
+   <link rel="stylesheet" href="/css/premium-lock.css">
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="back-nav">
+<a href="./index.html" class="back-btn">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+<span>Back to Bharat</span>
+</a>
+<span class="nav-breadcrumb"><a href="./index.html">Bharat</a> / Caves & Gorges</span>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+<div class="hero-bg"></div>
+<div class="stalactites">
+<div class="stalactite"></div><div class="stalactite"></div><div class="stalactite"></div>
+<div class="stalactite"></div><div class="stalactite"></div><div class="stalactite"></div>
+<div class="stalactite"></div><div class="stalactite"></div><div class="stalactite"></div>
+<div class="stalactite"></div>
+</div>
+<div class="water-drops">
+<div class="drop"></div><div class="drop"></div><div class="drop"></div>
+<div class="drop"></div><div class="drop"></div>
+</div>
+<div class="hero-content">
+<span class="hero-icon">🕳️</span>
+<h1 class="hero-title">Caves & Gorges of Bharat</h1>
+<p class="hero-subtitle">
+From the ancient limestone caverns of Meghalaya plunging 30 kilometers into the earth, to the divine rock-cut temples of Ajanta and Ellora — and gorges where mighty rivers have carved their stories over millennia — explore the subterranean wonders and dramatic chasms of the Indian subcontinent.
+</p>
+<div class="hero-stats">
+<div class="hero-stat">
+<span class="hero-stat-num">1,500+</span>
+<span class="hero-stat-label">Known Caves</span>
+</div>
+<div class="hero-stat">
+<span class="hero-stat-num">30.9 km</span>
+<span class="hero-stat-label">Longest Cave</span>
+</div>
+<div class="hero-stat">
+<span class="hero-stat-num">6</span>
+<span class="hero-stat-label">UNESCO Sites</span>
+</div>
+<div class="hero-stat">
+<span class="hero-stat-num">5,382 m</span>
+<span class="hero-stat-label">Deepest Gorge</span>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Table of Contents -->
+<section class="toc-section fade-up">
+<div class="toc-box">
+<div class="toc-title">📋 Contents</div>
+<div class="toc-grid">
+<a href="#limestone-caves" class="toc-link"><span class="toc-emoji">🪨</span> Limestone Caves</a>
+<a href="#rock-cut-caves" class="toc-link"><span class="toc-emoji">🏛️</span> Rock-Cut Caves</a>
+<a href="#natural-caves" class="toc-link"><span class="toc-emoji">🏔️</span> Natural Caves</a>
+<a href="#caves-map" class="toc-link"><span class="toc-emoji">🗺️</span> Interactive Map</a>
+<a href="#state-wise" class="toc-link"><span class="toc-emoji">📊</span> State-wise Directory</a>
+<a href="#timeline" class="toc-link"><span class="toc-emoji">⏳</span> Formation Timeline</a>
+<a href="#gorges" class="toc-link"><span class="toc-emoji">🏜️</span> Gorges & Canyons</a>
+<a href="#significance" class="toc-link"><span class="toc-emoji">💎</span> Geological Significance</a>
+</div>
+</div>
+</section>
+
+<!-- Main Content -->
+<main class="main-content">
+
+<!-- ===================== -->
+<!-- SECTION 1: CAVES      -->
+<!-- ===================== -->
+<div class="section-divider caves-divider fade-up" id="caves">
+<div class="section-divider-icon">🕳️</div>
+<div class="section-divider-text">
+<h2>Caves of Bharat</h2>
+<p>Millions of years of geological artistry hidden beneath the earth</p>
+</div>
+</div>
+
+<!-- === A. LIMESTONE CAVES === -->
+<div class="subsection-header sub-limestone fade-up" id="limestone-caves">
+<h3>🪨 A. Limestone Caves</h3>
+<p>Formed through chemical dissolution of soluble rocks — limestone, dolomite, and marble — by slightly acidic groundwater percolating over millions of years. India's Meghalaya plateau is the undisputed capital of speleology.</p>
+</div>
+
+<div class="info-box crystal fade-up">
+<span class="info-box-icon">💧</span>
+<div class="info-box-content">
+<h4>How Limestone Caves Form</h4>
+<p>Rainwater absorbs carbon dioxide from the atmosphere and soil, forming weak carbonic acid. This acidic water seeps through cracks in limestone bedrock, dissolving calcium carbonate over thousands to millions of years. The result: vast underground chambers adorned with stalactites (hanging from ceiling), stalagmites (rising from floor), columns, flowstones, and other speleothems of breathtaking beauty.</p>
+</div>
+</div>
+
+<div class="cave-grid fade-up">
+<!-- Krem Liat Prah -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">🏆</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Krem Liat Prah</div>
+<div class="cave-card-location">📍 Jaintia Hills, Meghalaya</div>
+<div class="cave-card-badges">
+<span class="badge badge-longest">Longest in India</span>
+<span class="badge badge-longest">Longest in Subcontinent</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+At a staggering <strong>30.957 km</strong> of surveyed passages, Krem Liat Prah reigns as India's longest cave and one of the longest in the entire Asian continent. Located in the Shnongrim Ridge of the Jaintia Hills, this cave system was first explored by the Meghalaya Adventurers Association in collaboration with international caving expeditions. The cave features enormous chambers, underground rivers, pristine pools of crystal-clear water, and spectacular formations of stalactites and stalagmites that have been growing undisturbed for millions of years. Multiple entrances connect to an intricate labyrinth that continues to yield new passages with each expedition.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Total Length</div>
+<div class="cave-detail-value">30.957 km</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Rock Type</div>
+<div class="cave-detail-value">Cretaceous Limestone</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Age</div>
+<div class="cave-detail-value">~65 million years</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Explored</div>
+<div class="cave-detail-value">Ongoing since 1990s</div>
+</div>
+</div>
+</div>
+<div class="cave-card-footer">
+<span class="cave-card-footer-info">Part of the Shnongrim Ridge cave system</span>
+</div>
+</div>
+
+<!-- Krem Um Im-Liat Prah -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">🌊</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Krem Um Im-Liat Prah</div>
+<div class="cave-card-location">📍 Jaintia Hills, Meghalaya</div>
+<div class="cave-card-badges">
+<span class="badge badge-longest">Combined System</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+When the Krem Um Im system (discovered independently) was confirmed to connect with Krem Liat Prah through underwater passages, the combined system became even more significant. Features underground waterfalls, massive stalagmite forests, and rare cave fauna including blind fish and translucent crustaceans adapted to perpetual darkness over evolutionary timescales.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Combined Length</div>
+<div class="cave-detail-value">~31+ km (growing)</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Features</div>
+<div class="cave-detail-value">Sump passages, underground rivers</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Krem Mawmluh -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">🔬</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Mawmluh Cave (Krem Mawmluh)</div>
+<div class="cave-card-location">📍 Sohra (Cherrapunji), Meghalaya</div>
+<div class="cave-card-badges">
+<span class="badge badge-heritage">Geological Heritage</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+A scientifically paramount cave where stalagmite samples provided evidence for defining the <strong>Meghalayan Age</strong> — the latest geological age of the Holocene epoch, ratified by the International Commission on Stratigraphy in 2018. Located just south of the wettest place on Earth, the cave stretches over 7 km and contains an underground river. The Meghalayan Age, beginning 4,200 years ago, was marked by a mega-drought that collapsed civilizations worldwide, and the proof was locked inside a Mawmluh stalagmite.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Length</div>
+<div class="cave-detail-value">7.2 km</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Significance</div>
+<div class="cave-detail-value">Meghalayan Age GSSP</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Krem Puri -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">🦇</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Krem Puri</div>
+<div class="cave-card-location">📍 East Khasi Hills, Meghalaya</div>
+<div class="cave-card-badges">
+<span class="badge badge-longest">Longest Sandstone Cave (World)</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Discovered in its full extent in 2016 and surveyed to <strong>24.58 km</strong>, Krem Puri holds the world record for the longest sandstone cave — a remarkable feat since sandstone caves are far rarer than limestone ones. Contains fossils of dinosaur bones and ancient marine life. Its passages are adorned with unique sandstone formations sculpted by water over 70+ million years.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Length</div>
+<div class="cave-detail-value">24.58 km</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Rock Type</div>
+<div class="cave-detail-value">Cretaceous Sandstone</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Borra Caves -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">✨</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Borra Caves (Borra Guhalu)</div>
+<div class="cave-card-location">📍 Ananthagiri Hills, Visakhapatnam, Andhra Pradesh</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Nestled at an altitude of 705m in the Ananthagiri hills of the Eastern Ghats, Borra Caves are among the largest and deepest caves in India. Discovered in 1807 by William King George of the Geological Survey of India, these caves plunge to a depth of <strong>80 metres</strong>. The cave features spectacular stalactite and stalagmite formations illuminated for tourism — including formations resembling a Shiva Lingam, a mother-child duo, human brain, mushrooms, and a crocodile. The Gosthani River originates from deep within these caves. Local tribal legends (Valmiki tribes) consider it sacred. The caves are composed of Precambrian limestone dating back over 1 billion years.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Depth</div>
+<div class="cave-detail-value">80 metres</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Altitude</div>
+<div class="cave-detail-value">705 m ASL</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Age</div>
+<div class="cave-detail-value">~150 million years</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Discovered</div>
+<div class="cave-detail-value">1807</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Belum Caves -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">🏅</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Belum Caves</div>
+<div class="cave-card-location">📍 Kurnool District, Andhra Pradesh</div>
+<div class="cave-card-badges">
+<span class="badge badge-longest">Longest in Indian Plains</span>
+<span class="badge badge-longest">2nd Longest in Subcontinent</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Stretching <strong>3,229 metres</strong> (3.2 km) with a depth of 29 metres below the entrance, Belum Caves are the longest caves in the Indian plains and the second longest in the subcontinent after the Meghalayan systems. Located in black limestone of the Kurnool Group (Proterozoic age, ~1.5 billion years old), the cave was formed by the now-vanished Chitravathi River. The cave has a rich history — Buddhist monks used it as a retreat 4,500 years ago, and evidence of Jain occupation has also been found. Features include <em>Saptasvarala Guha</em> (Musical Chamber), <em>Simhadwaram</em> (Lion's Gate), <em>Pataalaganga</em> (Underground Stream), and <em>Dhyana Mandiram</em> (Meditation Hall). Robert Bruce Foote explored it in 1884, and German speleologist H. Daniel Gebauer fully mapped it in 1982-84.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Length</div>
+<div class="cave-detail-value">3,229 m</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Depth</div>
+<div class="cave-detail-value">29 m below entrance</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Rock Age</div>
+<div class="cave-detail-value">~1.5 billion years</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Buddhist Use</div>
+<div class="cave-detail-value">~4,500 years ago</div>
+</div>
+</div>
+</div>
+<div class="cave-card-footer">
+<span class="cave-card-footer-info">Now a protected tourist site by AP Tourism</span>
+</div>
+</div>
+
+<!-- Mawsmai -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">💡</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Mawsmai Cave</div>
+<div class="cave-card-location">📍 Cherrapunji, East Khasi Hills, Meghalaya</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+The most visited and tourist-friendly cave in Meghalaya, Mawsmai Cave is a 150-metre illuminated walk-through section of a larger cave system. Despite its relatively short length, it captivates visitors with narrow passages, dramatic stalactites and stalagmites, and the surreal experience of walking through a living geological formation in one of the wettest places on Earth. The cave is part of a much larger 7+ km unlit system.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Tourist Section</div>
+<div class="cave-detail-value">~150 m</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Full System</div>
+<div class="cave-detail-value">7+ km</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Kutumsar -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">🐟</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Kutumsar Cave</div>
+<div class="cave-card-location">📍 Kanger Valley NP, Bastar, Chhattisgarh</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Hidden within the Kanger Valley National Park, Kutumsar is a 1,327-metre long limestone cave plunging 35 metres deep. It's famous for its unique <strong>blind fish</strong> (<em>Nemacheilus evezardi</em>) — fish that evolved without eyes in the perpetual cave darkness. Also home to blind spiders and bats. Contains six chambers connected by narrow passages. Discovered by Professor Shankar Tiwari in 1951. Maintains a constant temperature of 27°C year-round. The cave also houses rare calcium carbonate formations including helictites — formations that defy gravity by growing in spirals.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Length</div>
+<div class="cave-detail-value">1,327 m</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Depth</div>
+<div class="cave-detail-value">35 m</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Chambers</div>
+<div class="cave-detail-value">6</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Fauna</div>
+<div class="cave-detail-value">Blind fish & spiders</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Dandak -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon limestone">🦇</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Dandak Cave</div>
+<div class="cave-card-location">📍 Kanger Valley NP, Bastar, Chhattisgarh</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Sister cave to Kutumsar within Kanger Valley, Dandak features a massive chamber with a 45-metre high ceiling — one of the tallest cave chambers in India. Named after the ancient Dandaka forest mentioned in the Ramayana. Rich in stalactite and stalagmite formations with brilliant colours from mineral deposits. The cave is home to large bat colonies and provides a dramatic, cathedral-like underground experience.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Chamber Height</div>
+<div class="cave-detail-value">45 metres</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Location</div>
+<div class="cave-detail-value">Kanger Valley NP</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- === B. ROCK-CUT CAVES === -->
+<div class="subsection-header sub-rockcut fade-up" id="rock-cut-caves">
+<h3>🏛️ B. Rock-Cut Caves (Archaeological)</h3>
+<p>India holds the world's greatest concentration of rock-cut architecture — temples, monasteries, and prayer halls carved entirely from living rock. These are not natural caves but masterpieces of human artistry spanning over 2,000 years.</p>
+</div>
+
+<div class="info-box gold fade-up">
+<span class="info-box-icon">🏆</span>
+<div class="info-box-content">
+<h4>India: The Rock-Cut Capital of the World</h4>
+<p>India has over <strong>1,500 known rock-cut structures</strong> spanning from the 3rd century BCE to the 12th century CE. These represent Buddhist, Hindu, and Jain traditions — often coexisting in the same complex, testifying to India's pluralistic heritage. No other country on Earth has rock-cut architecture of comparable scale, sophistication, or continuity.</p>
+</div>
+</div>
+
+<div class="cave-grid fade-up">
+<!-- Ajanta -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon rockcut">🎨</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Ajanta Caves</div>
+<div class="cave-card-location">📍 Aurangabad, Maharashtra</div>
+<div class="cave-card-badges">
+<span class="badge badge-unesco">UNESCO World Heritage</span>
+<span class="badge badge-heritage">Buddhist</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+A horseshoe-shaped escarpment containing <strong>30 rock-cut Buddhist cave monuments</strong> dating from the 2nd century BCE to about 480 CE. The caves comprise <em>chaityas</em> (prayer halls) and <em>viharas</em> (monasteries). Their <strong>paintings</strong> are considered the finest surviving examples of ancient Indian art, depicting Jataka tales (stories of the Buddha's previous lives) with extraordinary realism, emotion, and technical mastery. The murals use natural pigments — lapis lazuli for blue, ochre for yellow, lamp-black for outlines — applied on mud-plaster over rock. The paintings survived 1,500 years in darkness after the caves were abandoned and overgrown. Rediscovered in 1819 by British officer John Smith during a tiger hunt. Caves 1, 2, 16, 17, and 19 are the most celebrated.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Caves</div>
+<div class="cave-detail-value">30</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Period</div>
+<div class="cave-detail-value">2nd c. BCE – 480 CE</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Religion</div>
+<div class="cave-detail-value">Buddhist</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">UNESCO</div>
+<div class="cave-detail-value">1983</div>
+</div>
+</div>
+</div>
+<div class="cave-card-footer">
+<span class="cave-card-footer-info">Finest ancient paintings in the world</span>
+</div>
+</div>
+
+<!-- Ellora -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon rockcut">🛕</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Ellora Caves</div>
+<div class="cave-card-location">📍 Aurangabad, Maharashtra</div>
+<div class="cave-card-badges">
+<span class="badge badge-unesco">UNESCO World Heritage</span>
+<span class="badge badge-heritage">Multi-Faith</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+The most remarkable example of religious harmony in stone — <strong>34 caves</strong> carved between the 5th and 11th centuries CE, representing three faiths side by side: <strong>Buddhist (Caves 1-12)</strong>, <strong>Hindu (Caves 13-29)</strong>, and <strong>Jain (Caves 30-34)</strong>. The crown jewel is <strong>Cave 16 — the Kailasa Temple</strong>, a monolithic structure carved top-down from a single basalt cliff. It is the largest monolithic rock excavation in the world, estimated to involve removal of 200,000 tonnes of rock over 18 years. The temple represents Mount Kailash, abode of Lord Shiva, and features intricate carvings of deities, mythological narratives, and towering elephants. Engineers and art historians remain astonished — the precision with which sculptors worked top-down, removing rock without scope for error, is unparalleled.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Caves</div>
+<div class="cave-detail-value">34</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Period</div>
+<div class="cave-detail-value">5th – 11th c. CE</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Religions</div>
+<div class="cave-detail-value">Buddhist, Hindu, Jain</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">UNESCO</div>
+<div class="cave-detail-value">1983</div>
+</div>
+</div>
+</div>
+<div class="cave-card-footer">
+<span class="cave-card-footer-info">Kailasa Temple: world's largest monolith</span>
+</div>
+</div>
+
+<!-- Elephanta -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon rockcut">🔱</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Elephanta Caves</div>
+<div class="cave-card-location">📍 Elephanta Island, Mumbai Harbour, Maharashtra</div>
+<div class="cave-card-badges">
+<span class="badge badge-unesco">UNESCO World Heritage</span>
+<span class="badge badge-heritage">Hindu</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Accessible only by ferry from Mumbai's Gateway of India, Elephanta Island (ancient name: <em>Gharapuri</em> — City of Caves) houses <strong>7 rock-cut caves</strong> dating to the 5th-8th century CE, primarily dedicated to <strong>Lord Shiva</strong>. The main cave's centrepiece is the iconic <strong>Trimurti Sadashiva</strong> — a 6-metre high three-headed bust representing Shiva as Creator (Brahma face), Preserver (Vishnu face), and Destroyer (Shiva face). Considered one of the finest pieces of Indian sculpture, it rivals any Greco-Roman work in emotional power. The Portuguese named the island after a stone elephant found near the landing site (now in the Bhau Daji Lad Museum, Mumbai). Despite colonial-era damage to many sculptures, the surviving works remain masterpieces.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Caves</div>
+<div class="cave-detail-value">7</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Period</div>
+<div class="cave-detail-value">5th – 8th c. CE</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Highlight</div>
+<div class="cave-detail-value">Trimurti (6m height)</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">UNESCO</div>
+<div class="cave-detail-value">1987</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Badami -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon rockcut">🏯</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Badami Cave Temples</div>
+<div class="cave-card-location">📍 Bagalkot District, Karnataka</div>
+<div class="cave-card-badges">
+<span class="badge badge-heritage">Chalukya Dynasty</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+<strong>Four rock-cut cave temples</strong> carved in soft sandstone cliffs during the 6th century CE by the Early Chalukya dynasty. Cave 1 is dedicated to Shiva (featuring a magnificent 18-armed Nataraja with 81 dance poses), Cave 2 to Vishnu (as Trivikrama), Cave 3 — the largest and most ornate — also to Vishnu, and Cave 4 is a Jain temple with carvings of Tirthankara Parshvanatha and Mahavira. The reddish sandstone cliffs overlooking Agastya Lake create a dramatic setting. Badami (ancient <em>Vatapi</em>) was the Chalukya capital and these caves mark the genesis of the Chalukyan architectural style that later flowered into the temples of Aihole and Pattadakal.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Caves</div>
+<div class="cave-detail-value">4</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Period</div>
+<div class="cave-detail-value">6th century CE</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Dynasty</div>
+<div class="cave-detail-value">Early Chalukyas</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Religions</div>
+<div class="cave-detail-value">Hindu & Jain</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Udayagiri & Khandagiri -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon rockcut">🦁</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Udayagiri & Khandagiri Caves</div>
+<div class="cave-card-location">📍 Bhubaneswar, Odisha</div>
+<div class="cave-card-badges">
+<span class="badge badge-heritage">Jain Heritage</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Twin hills containing <strong>33 caves</strong> (18 in Udayagiri, 15 in Khandagiri) carved during the reign of Emperor <strong>Kharavela</strong> of the Chedi dynasty (2nd-1st century BCE). Primarily Jain in character, the most famous is the <strong>Rani Gumpha (Queen's Cave)</strong> — a two-storey monastery with exquisite reliefs of royal processions, battle scenes, and daily life. The <strong>Hathi Gumpha (Elephant Cave)</strong> in Udayagiri contains the renowned Hathi Gumpha inscription — a 17-line chronicle of Kharavela's achievements, one of the most important ancient Indian inscriptions. These are among the oldest surviving rock-cut caves in India.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Caves</div>
+<div class="cave-detail-value">33 total</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Period</div>
+<div class="cave-detail-value">2nd – 1st c. BCE</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Barabar Caves -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon rockcut">👑</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Barabar Caves</div>
+<div class="cave-card-location">📍 Jehanabad District, Bihar</div>
+<div class="cave-card-badges">
+<span class="badge badge-heritage">Oldest Rock-Cut in India</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+The <strong>oldest surviving rock-cut caves in India</strong>, dating to the <strong>Maurya Empire (3rd century BCE)</strong>. The four caves (Lomas Rishi, Sudama, Karan Chaupar, and Visvazhopri) were excavated on orders of Emperor <strong>Ashoka</strong> and his grandson Dasharatha for the Ajivika sect. The <strong>Lomas Rishi Cave</strong> features the earliest example of the chaitya-arch entrance that became a defining motif of Indian rock-cut architecture for the next millennium. The interior surfaces are polished to a mirror-like finish — the "Mauryan polish" that is impossible to replicate even with modern tools. E.M. Forster's <em>A Passage to India</em> features caves inspired by Barabar.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Date</div>
+<div class="cave-detail-value">3rd century BCE</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Patron</div>
+<div class="cave-detail-value">Emperor Ashoka</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- === C. NATURAL CAVES === -->
+<div class="subsection-header sub-natural fade-up" id="natural-caves">
+<h3>🏔️ C. Natural & Sacred Caves</h3>
+<p>Caves of geological origin that have become sites of profound spiritual significance, pilgrimage, and wonder — where nature and devotion converge.</p>
+</div>
+
+<div class="cave-grid fade-up">
+<!-- Amarnath -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon natural">🕉️</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Amarnath Cave</div>
+<div class="cave-card-location">📍 Pahalgam/Baltal, Anantnag, Jammu & Kashmir</div>
+<div class="cave-card-badges">
+<span class="badge badge-pilgrimage">Sacred Pilgrimage</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Situated at an altitude of <strong>3,888 metres (12,756 ft)</strong> in the Himalayas, Amarnath Cave is one of the holiest Hindu shrines. Inside the cave, water dripping from the ceiling freezes to form a natural <strong>ice Shiva Lingam</strong> (Svayambhu lingam) that waxes and wanes with the moon's cycle. The lingam can reach heights of up to 4 metres. According to Hindu tradition, this is where Lord Shiva revealed the secret of immortality (<em>Amar Katha</em>) to Goddess Parvati. The annual <strong>Amarnath Yatra</strong> (pilgrimage) sees 300,000-600,000 devotees trekking through treacherous mountain terrain — either the 36-km Pahalgam route or the shorter 14-km Baltal route — during the July-August season. The cave is approximately 40m deep and 12m high.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Altitude</div>
+<div class="cave-detail-value">3,888 m (12,756 ft)</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Cave Size</div>
+<div class="cave-detail-value">40m deep × 12m high</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Annual Pilgrims</div>
+<div class="cave-detail-value">3-6 lakh</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Season</div>
+<div class="cave-detail-value">July – August</div>
+</div>
+</div>
+</div>
+<div class="cave-card-footer">
+<span class="cave-card-footer-info">Natural ice Shiva Lingam — waxes & wanes with moon</span>
+</div>
+</div>
+
+<!-- Vaishno Devi -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon natural">🙏</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Vaishno Devi Cave Temple</div>
+<div class="cave-card-location">📍 Trikuta Mountains, Katra, Jammu & Kashmir</div>
+<div class="cave-card-badges">
+<span class="badge badge-pilgrimage">Most Visited Shrine</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+The second-most visited religious shrine in India (after Tirupati), the holy cave of <strong>Vaishno Devi</strong> sits at <strong>5,200 ft</strong> in the Trikuta Mountains. The cave houses three natural rock formations (<em>pindies</em>) representing the three forms of the Mother Goddess — <strong>Maha Kali, Maha Lakshmi, and Maha Saraswati</strong>. Pilgrims trek approximately 13 km uphill from the base town of Katra to reach the cave shrine. Over <strong>8-10 million</strong> pilgrims visit annually, making it one of the busiest pilgrimage sites in the world. The narrow cave passage, through which an underground stream flows, adds to the mystical experience. The Vaishno Devi Shrine Board manages the infrastructure.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Altitude</div>
+<div class="cave-detail-value">5,200 ft</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Trek Distance</div>
+<div class="cave-detail-value">~13 km from Katra</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Annual Pilgrims</div>
+<div class="cave-detail-value">8-10 million</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Deity</div>
+<div class="cave-detail-value">Tri-Devi (Three Goddesses)</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Undavalli -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon natural">🪷</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Undavalli Caves</div>
+<div class="cave-card-location">📍 Guntur District, Andhra Pradesh</div>
+<div class="cave-card-badges">
+<span class="badge badge-heritage">ASI Protected</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+A stunning <strong>four-storey rock-cut cave complex</strong> carved from a sandstone hillside, dating to the 4th-5th century CE (Vishnukundin dynasty period). Originally Buddhist viharas, they were later converted to Hindu temples. The highlight is a massive <strong>reclining Vishnu sculpture</strong> (Ananthashayana) carved from a single granite block on the second floor — one of the largest of its kind in South India. The caves overlook the Krishna River and combine both natural rock formations with exquisite human carving. The four storeys represent an architectural feat that predates many multi-level structures in the world.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Storeys</div>
+<div class="cave-detail-value">4</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Period</div>
+<div class="cave-detail-value">4th – 5th c. CE</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Highlight</div>
+<div class="cave-detail-value">Reclining Vishnu</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Dynasty</div>
+<div class="cave-detail-value">Vishnukundin</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Patal Bhuvaneshwar -->
+<div class="cave-card">
+<div class="cave-card-header">
+<div class="cave-card-icon natural">⛰️</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Patal Bhuvaneshwar</div>
+<div class="cave-card-location">📍 Pithoragarh, Uttarakhand</div>
+<div class="cave-card-badges">
+<span class="badge badge-pilgrimage">Sacred Cave</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+A massive underground limestone cave at 1,350m altitude, containing natural rock formations believed to represent all major Hindu deities. The cave descends through a narrow tunnel to an underground depth of 90 feet, with chambers spanning 160m × 90m. According to the <em>Skanda Purana</em>, the cave was discovered by King Rituparna during the Treta Yuga. Features formations identified as Sheshnag, Airavat (Indra's elephant), and the four Dhams. Thousands of pilgrims descend through a narrow, steep passage to worship in this natural underground temple. The cave maintains a constant cool temperature regardless of external weather.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Altitude</div>
+<div class="cave-detail-value">1,350 m</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Depth</div>
+<div class="cave-detail-value">90 feet underground</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Bhimbetka -->
+<div class="cave-card highlight">
+<div class="cave-card-header">
+<div class="cave-card-icon natural">🎨</div>
+<div class="cave-card-title-block">
+<div class="cave-card-name">Bhimbetka Rock Shelters</div>
+<div class="cave-card-location">📍 Raisen District, Madhya Pradesh</div>
+<div class="cave-card-badges">
+<span class="badge badge-unesco">UNESCO World Heritage</span>
+<span class="badge badge-heritage">Prehistoric</span>
+</div>
+</div>
+</div>
+<div class="cave-card-body">
+<p class="cave-card-desc">
+Over <strong>750 rock shelters</strong> spread across 10 km of the Vindhyan hills, of which <strong>500+ contain paintings</strong> dating from the Mesolithic period through the medieval age — the oldest being approximately <strong>30,000 years old</strong>. These are among the earliest known traces of human life on the Indian subcontinent. The paintings depict hunting scenes, horse and elephant riders, animal fights, honey collection, household scenes, body decoration, and religious symbols. Discovered by Dr. Vishnu Wakankar in 1957. The name comes from <em>Bhima</em> of the Mahabharata, who is said to have rested here. The shelters were created by natural weathering of the massive sandstone outcrops. Evidence shows continuous human habitation from <strong>100,000 BCE</strong> (Acheulian period) to the present day.
+</p>
+<div class="cave-card-details">
+<div class="cave-detail">
+<div class="cave-detail-label">Rock Shelters</div>
+<div class="cave-detail-value">750+</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">With Paintings</div>
+<div class="cave-detail-value">500+</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">Oldest Art</div>
+<div class="cave-detail-value">~30,000 years</div>
+</div>
+<div class="cave-detail">
+<div class="cave-detail-label">UNESCO</div>
+<div class="cave-detail-value">2003</div>
+</div>
+</div>
+</div>
+<div class="cave-card-footer">
+<span class="cave-card-footer-info">100,000+ years of continuous human habitation</span>
+</div>
+</div>
+</div>
+
+<!-- === INTERACTIVE MAP === -->
+<div class="map-section fade-up" id="caves-map">
+<div class="map-title-bar">
+<span>🗺️</span>
+<h3>Interactive Map — Major Caves & Gorges of India</h3>
+</div>
+<div class="map-container">
+<div id="cavesMap"></div>
+</div>
+</div>
+
+<!-- === FORMATION TIMELINE === -->
+<div class="subsection-header sub-limestone fade-up" id="timeline">
+<h3>⏳ Geological & Historical Timeline</h3>
+<p>From primordial rock formation to modern-day exploration</p>
+</div>
+
+<div class="timeline fade-up">
+<div class="timeline-item">
+<div class="timeline-era">~1.5 Billion Years Ago</div>
+<div class="timeline-title">Proterozoic Limestone Formation</div>
+<div class="timeline-desc">The Kurnool Group limestone (Belum Caves region) forms in ancient shallow seas. The Precambrian limestones of Borra Caves also begin forming during this era.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">~65 Million Years Ago</div>
+<div class="timeline-title">Cretaceous Limestone of Meghalaya</div>
+<div class="timeline-desc">The limestone beds that will eventually host Krem Liat Prah and other Meghalaya caves are deposited as the Indian plate drifts northward after separating from Gondwana.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">~30,000 Years Ago</div>
+<div class="timeline-title">Bhimbetka Cave Paintings Begin</div>
+<div class="timeline-desc">Early humans in central India begin painting on the weathered sandstone surfaces of Bhimbetka rock shelters, creating some of the oldest known art in the world.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">3rd Century BCE</div>
+<div class="timeline-title">Barabar Caves Excavated</div>
+<div class="timeline-desc">Emperor Ashoka commissions India's first rock-cut caves for the Ajivika monks in Bihar. The mirror-polished interiors set the standard for millennia of rock-cut architecture.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">2nd Century BCE</div>
+<div class="timeline-title">Ajanta Phase I Begins</div>
+<div class="timeline-desc">Satavahana-era Buddhist monks begin carving the first chaitya halls and viharas at Ajanta in the Sahyadri hills.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">5th – 6th Century CE</div>
+<div class="timeline-title">Golden Age of Rock-Cut Art</div>
+<div class="timeline-desc">Under Vakataka patronage, Ajanta's famous murals are painted. Badami Cave Temples carved by the Chalukyas. Elephanta's Trimurti takes form. Undavalli's four storeys are completed.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">8th Century CE</div>
+<div class="timeline-title">Kailasa Temple, Ellora</div>
+<div class="timeline-desc">The Rashtrakuta king Krishna I commissions the largest monolithic excavation in human history — the Kailasa Temple carved top-down from a basalt cliff.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">1807 CE</div>
+<div class="timeline-title">Borra Caves Discovered</div>
+<div class="timeline-desc">William King George of the Geological Survey of India discovers the massive limestone caverns in the Eastern Ghats of Andhra Pradesh.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">1819 CE</div>
+<div class="timeline-title">Ajanta Rediscovered</div>
+<div class="timeline-desc">British officer John Smith stumbles upon the overgrown cave entrances during a tiger hunt, revealing paintings that had been hidden for over 1,300 years.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">1990s – Present</div>
+<div class="timeline-title">Meghalaya Cave Exploration Era</div>
+<div class="timeline-desc">International caving expeditions systematically explore and survey Meghalaya's cave systems, revealing India as home to some of Asia's longest caves including Krem Liat Prah (30.9 km) and Krem Puri (24.6 km).</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-era">2018 CE</div>
+<div class="timeline-title">Meghalayan Age Ratified</div>
+<div class="timeline-desc">The International Commission on Stratigraphy officially names the current geological age after Meghalaya, based on stalagmite evidence from Mawmluh Cave — the only geological age named after an Indian location.</div>
+</div>
+</div>
+
+<!-- === STATE-WISE COMPLETE LIST === -->
+<div class="subsection-header sub-state fade-up" id="state-wise">
+<h3>📊 State-wise Cave Directory</h3>
+<p>Comprehensive state-by-state listing of notable caves across India</p>
+</div>
+
+<div class="state-table-container fade-up">
+<table class="state-table">
+<thead>
+<tr>
+<th>State / UT</th>
+<th>Notable Caves</th>
+<th>Type</th>
+<th>Key Highlights</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="state-name">Meghalaya</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Krem Liat Prah</span> (30.9 km)</div>
+<div class="cave-list-item"><span class="clabel">Krem Puri</span> (24.6 km)</div>
+<div class="cave-list-item"><span class="clabel">Krem Mawmluh</span> (7.2 km)</div>
+<div class="cave-list-item"><span class="clabel">Mawsmai Cave</span></div>
+<div class="cave-list-item"><span class="clabel">Krem Dam</span></div>
+<div class="cave-list-item"><span class="clabel">Krem Kotsati</span></div>
+<div class="cave-list-item"><span class="clabel">Siju Cave</span> (Garo Hills)</div>
+</td>
+<td>Limestone & Sandstone</td>
+<td>Longest caves in India & Asia; Meghalayan Age GSSP; World's longest sandstone cave; 1,500+ caves documented</td>
+</tr>
+<tr>
+<td class="state-name">Andhra Pradesh</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Belum Caves</span> (3.2 km)</div>
+<div class="cave-list-item"><span class="clabel">Borra Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Undavalli Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Mogalarajapuram Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Yaganti Cave Temple</span></div>
+</td>
+<td>Limestone, Rock-cut</td>
+<td>Longest cave in Indian plains; Buddhist heritage; 4-storey rock-cut complex</td>
+</tr>
+<tr>
+<td class="state-name">Maharashtra</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Ajanta</span> (30 caves)</div>
+<div class="cave-list-item"><span class="clabel">Ellora</span> (34 caves)</div>
+<div class="cave-list-item"><span class="clabel">Elephanta</span> (7 caves)</div>
+<div class="cave-list-item"><span class="clabel">Karla Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Bhaja Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Kanheri Caves</span> (109 caves)</div>
+<div class="cave-list-item"><span class="clabel">Pandavleni Caves</span> (Nashik)</div>
+<div class="cave-list-item"><span class="clabel">Bedse Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Lenyadri Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Kondana Caves</span></div>
+</td>
+<td>Rock-cut (Archaeological)</td>
+<td>3 UNESCO sites; World's finest rock-cut architecture; Kailasa Temple — world's largest monolith</td>
+</tr>
+<tr>
+<td class="state-name">Karnataka</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Badami Caves</span> (4 caves)</div>
+<div class="cave-list-item"><span class="clabel">Aihole</span></div>
+<div class="cave-list-item"><span class="clabel">Pattadakal</span> (UNESCO)</div>
+<div class="cave-list-item"><span class="clabel">Sittanavasal (Siddhanakolla)</span></div>
+</td>
+<td>Rock-cut</td>
+<td>Chalukya dynasty masterpieces; multi-faith architecture</td>
+</tr>
+<tr>
+<td class="state-name">Madhya Pradesh</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Bhimbetka</span> (750+ shelters, UNESCO)</div>
+<div class="cave-list-item"><span class="clabel">Udayagiri Caves</span> (Vidisha)</div>
+<div class="cave-list-item"><span class="clabel">Bagh Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Mandu Caves</span></div>
+</td>
+<td>Natural shelters, Rock-cut</td>
+<td>30,000-year-old cave paintings; prehistoric art; Gupta-era rock sculptures</td>
+</tr>
+<tr>
+<td class="state-name">Jammu & Kashmir</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Amarnath Cave</span></div>
+<div class="cave-list-item"><span class="clabel">Vaishno Devi Cave</span></div>
+</td>
+<td>Natural (Sacred)</td>
+<td>Ice Shiva Lingam; Most visited shrine (8-10M pilgrims/year)</td>
+</tr>
+<tr>
+<td class="state-name">Chhattisgarh</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Kutumsar Cave</span></div>
+<div class="cave-list-item"><span class="clabel">Dandak Cave</span></div>
+<div class="cave-list-item"><span class="clabel">Kailash Cave</span></div>
+<div class="cave-list-item"><span class="clabel">Jogimara Caves</span></div>
+</td>
+<td>Limestone, Natural</td>
+<td>Blind fish & cave fauna; 45m high chamber; ancient inscriptions</td>
+</tr>
+<tr>
+<td class="state-name">Bihar</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Barabar Caves</span> (4)</div>
+<div class="cave-list-item"><span class="clabel">Nagarjuni Caves</span> (3)</div>
+<div class="cave-list-item"><span class="clabel">Son Bhandar Caves</span></div>
+</td>
+<td>Rock-cut</td>
+<td>Oldest rock-cut caves in India (3rd c. BCE); Mauryan polish; Ashokan inscriptions</td>
+</tr>
+<tr>
+<td class="state-name">Odisha</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Udayagiri & Khandagiri</span> (33)</div>
+</td>
+<td>Rock-cut</td>
+<td>Jain heritage; Hathi Gumpha inscription; Rani Gumpha sculptures</td>
+</tr>
+<tr>
+<td class="state-name">Tamil Nadu</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Sittanavasal</span></div>
+<div class="cave-list-item"><span class="clabel">Mahabalipuram Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Trichy Rock-cut Temple</span></div>
+</td>
+<td>Rock-cut</td>
+<td>Jain paintings; Pallava architecture</td>
+</tr>
+<tr>
+<td class="state-name">Uttarakhand</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Patal Bhuvaneshwar</span></div>
+<div class="cave-list-item"><span class="clabel">Robber's Cave (Guchhupani)</span></div>
+<div class="cave-list-item"><span class="clabel">Sahastradhara Caves</span></div>
+</td>
+<td>Natural (Limestone)</td>
+<td>90-ft deep sacred cave; sulphur springs</td>
+</tr>
+<tr>
+<td class="state-name">Rajasthan</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Bhangarh Caves</span></div>
+<div class="cave-list-item"><span class="clabel">Mukundra Hills Caves</span></div>
+</td>
+<td>Natural, Rock shelters</td>
+<td>Prehistoric rock art; Aravalli geology</td>
+</tr>
+<tr>
+<td class="state-name">Goa</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Arvalem Caves (Pandava Caves)</span></div>
+<div class="cave-list-item"><span class="clabel">Rivona Caves</span></div>
+</td>
+<td>Rock-cut</td>
+<td>6th century Buddhist/Hindu caves</td>
+</tr>
+<tr>
+<td class="state-name">Mizoram</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Pukzing Cave</span></div>
+<div class="cave-list-item"><span class="clabel">Lamsial Puk</span></div>
+</td>
+<td>Natural</td>
+<td>Unique Mizo cultural heritage sites</td>
+</tr>
+<tr>
+<td class="state-name">Arunachal Pradesh</td>
+<td>
+<div class="cave-list-item"><span class="clabel">Malinithan Caves</span></div>
+</td>
+<td>Natural</td>
+<td>Near world's deepest gorge (Yarlung Tsangpo/Brahmaputra)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- ===================== -->
+<!-- SECTION 2: GORGES     -->
+<!-- ===================== -->
+<div class="section-divider gorges-divider fade-up" id="gorges">
+<div class="section-divider-icon">🏜️</div>
+<div class="section-divider-text">
+<h2>Gorges & Canyons of Bharat</h2>
+<p>Where mighty rivers have sliced through mountains over millions of years</p>
+</div>
+</div>
+
+<div class="info-box amethyst fade-up">
+<span class="info-box-icon">🌊</span>
+<div class="info-box-content">
+<h4>How Gorges Form</h4>
+<p>Gorges and canyons form through a combination of <strong>fluvial erosion</strong> (river cutting downward), <strong>tectonic uplift</strong> (land rising while river maintains its course — antecedent drainage), and <strong>weathering</strong>. The deepest gorges in India occur where ancient rivers like the Brahmaputra and Indus predate the Himalayan uplift and have maintained their course by cutting through the rising mountains over 40+ million years. These are known as antecedent rivers.</p>
+</div>
+</div>
+
+<div class="gorge-grid fade-up">
+<!-- Brahmaputra Gorge -->
+<div class="gorge-card" style="border-color:rgba(155,89,182,0.2)">
+<span class="gorge-card-icon">🏔️</span>
+<h4>Yarlung Tsangpo / Brahmaputra Gorge</h4>
+<div class="gorge-loc">📍 Arunachal Pradesh (near Indo-Tibet border)</div>
+<div class="cave-card-badges" style="margin-bottom:1rem">
+<span class="badge badge-deepest">Deepest Gorge in the World</span>
+</div>
+<p>
+The <strong>deepest gorge on Earth</strong>, where the Yarlung Tsangpo River (which becomes the Brahmaputra in India) plunges through the eastern Himalayas. The gorge reaches a maximum depth of <strong>5,382 metres (17,657 ft)</strong> — measured from the river bed to the peak of Namcha Barwa (7,782m). For comparison, the Grand Canyon's deepest point is only 1,857m. The gorge stretches approximately <strong>504.6 km</strong> in length, with the river dropping over 2,000 metres in elevation as it makes a dramatic U-turn (the "Great Bend") around Namcha Barwa. The gorge is so remote that its deepest sections were not fully explored until 1998. It contains some of the world's most powerful rapids and potentially the world's highest undiscovered waterfall. The ecosystem ranges from subtropical forests at the base to alpine meadows and glaciers at the rim.
+</p>
+<div class="gorge-stats">
+<div class="gorge-stat"><strong>Depth:</strong> 5,382 m</div>
+<div class="gorge-stat"><strong>Length:</strong> 504.6 km</div>
+<div class="gorge-stat"><strong>River:</strong> Brahmaputra</div>
+<div class="gorge-stat"><strong>Peaks:</strong> Namcha Barwa (7,782m) & Gyala Peri (7,294m)</div>
+</div>
+</div>
+
+<!-- Indus Gorge -->
+<div class="gorge-card">
+<span class="gorge-card-icon">🏗️</span>
+<h4>Indus Gorge</h4>
+<div class="gorge-loc">📍 Gilgit-Baltistan (PoK) / Ladakh</div>
+<p>
+The <strong>Indus River Gorge</strong> near Nanga Parbat is one of the deepest gorges in the world, with the river flowing at approximately 1,000m elevation while Nanga Parbat rises to <strong>8,126m</strong> just 27 km away — creating a vertical relief of over <strong>7,000 metres</strong>. The Indus is an antecedent river — it is older than the Himalayas themselves. As the mountains rose over the past 40-50 million years, the Indus continued cutting downward, maintaining its course. The gorge is a testament to the titanic struggle between tectonic uplift and fluvial erosion. The Karakoram Highway, one of the highest paved international roads, follows portions of this gorge.
+</p>
+<div class="gorge-stats">
+<div class="gorge-stat"><strong>Vertical Relief:</strong> ~7,000 m</div>
+<div class="gorge-stat"><strong>Adjacent Peak:</strong> Nanga Parbat (8,126m)</div>
+<div class="gorge-stat"><strong>River Age:</strong> Pre-Himalayan (~50 MY)</div>
+</div>
+</div>
+
+<!-- Marble Rocks -->
+<div class="gorge-card">
+<span class="gorge-card-icon">💎</span>
+<h4>Marble Rocks (Bhedaghat)</h4>
+<div class="gorge-loc">📍 Bhedaghat, Jabalpur, Madhya Pradesh</div>
+<p>
+One of India's most visually stunning geological formations — towering cliffs of white marble rising <strong>30 metres (100 ft)</strong> on both sides of the <strong>Narmada River</strong> at Bhedaghat. The marble (metamorphosed limestone) has been sculpted into smooth, glowing walls by the river over millions of years. When moonlight strikes the marble, the gorge appears to glow ethereally — boat rides during full moon nights are legendary. The famous <strong>Dhuandhar Falls</strong> (Smoke Cascade) is located nearby, where the Narmada plunges 10 metres through the narrow marble gorge, creating clouds of mist. The 19th-century geologist Captain J. Forsyth described it as "a marble symphony." The rocks contain veins of green and blue minerals creating mesmerizing patterns. The site was a location for several Bollywood films.
+</p>
+<div class="gorge-stats">
+<div class="gorge-stat"><strong>Cliff Height:</strong> ~30 m</div>
+<div class="gorge-stat"><strong>Gorge Length:</strong> ~3 km</div>
+<div class="gorge-stat"><strong>River:</strong> Narmada</div>
+<div class="gorge-stat"><strong>Rock:</strong> Marble (metamorphic)</div>
+</div>
+</div>
+
+<!-- Gandikota -->
+<div class="gorge-card" style="border-color:rgba(243,156,18,0.2)">
+<span class="gorge-card-icon">🏜️</span>
+<h4>Gandikota Canyon</h4>
+<div class="gorge-loc">📍 Kadapa District, Andhra Pradesh</div>
+<div class="cave-card-badges" style="margin-bottom:1rem">
+<span class="badge badge-canyon">"Grand Canyon of India"</span>
+</div>
+<p>
+The <strong>Pennar (Penna) River</strong> has carved a spectacular gorge through the reddish quartzite and sandstone of the Erramala Hills, creating a landscape that has earned it the title <strong>"Grand Canyon of India."</strong> The canyon stretches several kilometres with cliffs rising 50-100 metres above the river. Perched atop the gorge are the ruins of the <strong>Gandikota Fort</strong> — a medieval fortress that was virtually impregnable due to the natural canyon defense. The fort complex contains the Ranganatha Swamy Temple, Jamia Masjid, and granaries. The canyon is formed in rocks of the Cuddapah Supergroup, dating back over <strong>1.5 billion years</strong>. Despite its extraordinary beauty, Gandikota remains relatively unknown and undeveloped — one of India's best-kept geological secrets. Best viewed at sunrise and sunset when the reddish cliffs glow with warm light.
+</p>
+<div class="gorge-stats">
+<div class="gorge-stat"><strong>Cliff Height:</strong> 50-100 m</div>
+<div class="gorge-stat"><strong>River:</strong> Pennar</div>
+<div class="gorge-stat"><strong>Rock Age:</strong> 1.5+ billion years</div>
+<div class="gorge-stat"><strong>Fort:</strong> Medieval Gandikota Fort</div>
+</div>
+</div>
+
+<!-- Raneh Falls Gorge -->
+<div class="gorge-card">
+<span class="gorge-card-icon">🌈</span>
+<h4>Raneh Falls & Ken River Gorge</h4>
+<div class="gorge-loc">📍 Chhatarpur District, Madhya Pradesh</div>
+<p>
+A <strong>5 km long gorge</strong> of pure crystalline <strong>granite</strong> in shades of red, pink, grey, and green — the Ken River has carved through some of the oldest exposed rock in India. The <strong>Raneh Falls</strong> is a series of waterfalls (highest drop: 30m) cascading through this multicoloured granite canyon. The rocks are primarily dolomite and granite, with colours caused by different mineral compositions. The gorge is located within the Ken Gharial Sanctuary, home to the critically endangered gharial (fish-eating crocodile). The geological formations here date back to the Precambrian era — over 2 billion years old, among the oldest exposed rocks in the Indian peninsula.
+</p>
+<div class="gorge-stats">
+<div class="gorge-stat"><strong>Gorge Length:</strong> 5 km</div>
+<div class="gorge-stat"><strong>Rock Type:</strong> Crystalline Granite</div>
+<div class="gorge-stat"><strong>Wildlife:</strong> Gharial Sanctuary</div>
+</div>
+</div>
+
+<!-- Zanskar Gorge -->
+<div class="gorge-card">
+<span class="gorge-card-icon">❄️</span>
+<h4>Zanskar Gorge (Chadar Trek)</h4>
+<div class="gorge-loc">📍 Zanskar, Ladakh</div>
+<p>
+The <strong>Zanskar River</strong> carves one of the most dramatic gorges in the Himalayas as it flows to join the Indus. In winter, the river freezes to form a sheet of ice known as <strong>"Chadar"</strong> (blanket) — and for centuries, this frozen river has been the only winter route connecting the remote Zanskar Valley to the outside world. The <strong>Chadar Trek</strong> (walking on the frozen river through the gorge) is one of the most extreme and iconic treks in the world. The gorge walls rise hundreds of metres, with frozen waterfalls clinging to the cliffs. Temperatures drop to -35°C. As climate change thins the ice sheet each year, this route faces an uncertain future.
+</p>
+<div class="gorge-stats">
+<div class="gorge-stat"><strong>Trek Distance:</strong> ~105 km</div>
+<div class="gorge-stat"><strong>Winter Temp:</strong> -25°C to -35°C</div>
+<div class="gorge-stat"><strong>River:</strong> Zanskar</div>
+</div>
+</div>
+</div>
+
+<!-- === GEOLOGICAL SIGNIFICANCE === -->
+<div class="subsection-header sub-limestone fade-up" id="significance">
+<h3>💎 Geological & Cultural Significance</h3>
+<p>Why India's caves and gorges matter to science, history, and heritage</p>
+</div>
+
+<div class="cave-grid fade-up">
+<div class="info-box crystal" style="grid-column:1/-1">
+<span class="info-box-icon">🔬</span>
+<div class="info-box-content">
+<h4>Scientific Importance</h4>
+<p>India's caves serve as <strong>natural time capsules</strong>. Speleothems (stalactites/stalagmites) record thousands of years of climate data in their growth layers — each layer preserving information about rainfall, temperature, and atmospheric composition. The Mawmluh Cave stalagmite that defined the Meghalayan Age is a prime example. Cave fauna like the blind fish of Kutumsar provide insights into <strong>convergent evolution</strong> and adaptation. Bhimbetka's paintings are an unbroken archaeological record spanning 30,000+ years. India's gorges reveal the tectonic history of the subcontinent — particularly the antecedent drainage of the Indus and Brahmaputra, which proves these rivers are older than the Himalayas themselves.</p>
+</div>
+</div>
+
+<div class="info-box gold">
+<span class="info-box-icon">🛕</span>
+<div class="info-box-content">
+<h4>Architectural Legacy</h4>
+<p>India's rock-cut caves influenced architectural traditions across Southeast Asia. The chaitya arch from Barabar and Karla caves became a defining motif visible in Javanese temples (Borobudur), Cambodian (Angkor), and Sri Lankan architecture. The engineering feat of carving top-down (as in Kailasa Temple) has never been replicated at the same scale anywhere in the world.</p>
+</div>
+</div>
+
+<div class="info-box amethyst">
+<span class="info-box-icon">🌿</span>
+<div class="info-box-content">
+<h4>Ecological Value</h4>
+<p>Caves are <strong>fragile ecosystems</strong> hosting unique troglobites (cave-obligate species) — organisms found nowhere else on Earth. India's caves harbour endemic species of blind fish, spiders, crickets, and microorganisms. The bat colonies in Dandak and Siju caves play crucial roles in seed dispersal and insect control. Gorge ecosystems create microclimates that support biodiversity impossible in surrounding landscapes.</p>
+</div>
+</div>
+</div>
+
+<!-- Next Topic -->
+<a href="./resources.html" class="next-topic fade-up">
+<div class="next-topic-left">
+<div class="next-topic-label">Up Next — Continue Exploring</div>
+<div class="next-topic-title">⛏️ Natural Resources of Bharat</div>
+<div class="next-topic-desc">Minerals, energy, forests, water resources and the wealth beneath the land</div>
+</div>
+<span class="next-topic-arrow">→</span>
+</a>
+
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+<p>
+🕳️ <strong>Caves & Gorges of Bharat</strong> — <a href="./index.html">DharaVerse Encyclopedia: Bharat</a><br>
+Data sourced from the Geological Survey of India, Archaeological Survey of India, Meghalaya Adventurers Association, and UNESCO World Heritage Centre.<br>
+© DharaVerse 2025. Built with reverence for Bharat's subterranean wonders.
+</p>
+</footer>
+
+<script>
+// ==========================================
+// INTERSECTION OBSERVER FOR ANIMATIONS
+// ==========================================
+const observer = new IntersectionObserver((entries) => {
+entries.forEach(entry => {
+if (entry.isIntersecting) {
+entry.target.classList.add('visible');
+}
+});
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// ==========================================
+// LEAFLET MAP
+// ==========================================
+const map = L.map('cavesMap', {
+center: [22.5, 80],
+zoom: 5,
+scrollWheelZoom: true,
+zoomControl: true
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+attribution: '© OpenStreetMap contributors, © CARTO',
+subdomains: 'abcd',
+maxZoom: 19
+}).addTo(map);
+
+const caveIcon = (color) => L.divIcon({
+html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.8);box-shadow:0 0 10px ${color}80;"></div>`,
+iconSize: [14, 14],
+iconAnchor: [7, 7],
+className: ''
+});
+
+const locations = [
+// Limestone Caves
+{ lat: 25.35, lng: 92.30, name: "Krem Liat Prah", type: "Limestone Cave", detail: "Longest in India — 30.9 km", color: "#c9a96e" },
+{ lat: 25.26, lng: 91.72, name: "Mawsmai Cave", type: "Limestone Cave", detail: "Most visited cave in Meghalaya", color: "#c9a96e" },
+{ lat: 25.27, lng: 91.72, name: "Krem Mawmluh", type: "Limestone Cave", detail: "Meghalayan Age GSSP — 7.2 km", color: "#c9a96e" },
+{ lat: 25.30, lng: 91.80, name: "Krem Puri", type: "Sandstone Cave", detail: "World's longest sandstone cave — 24.6 km", color: "#c9a96e" },
+{ lat: 18.28, lng: 83.04, name: "Borra Caves", type: "Limestone Cave", detail: "Deepest cave in India — 80m depth", color: "#c9a96e" },
+{ lat: 15.10, lng: 78.11, name: "Belum Caves", type: "Limestone Cave", detail: "Longest in Indian plains — 3.2 km", color: "#c9a96e" },
+{ lat: 18.73, lng: 81.94, name: "Kutumsar Cave", type: "Limestone Cave", detail: "Famous blind fish — 1,327m", color: "#c9a96e" },
+{ lat: 18.72, lng: 81.95, name: "Dandak Cave", type: "Limestone Cave", detail: "45m high chamber in Kanger Valley", color: "#c9a96e" },
+{ lat: 25.25, lng: 90.55, name: "Siju Cave", type: "Limestone Cave", detail: "Garo Hills, bat colonies", color: "#c9a96e" },
+
+// Rock-Cut Caves
+{ lat: 20.55, lng: 75.70, name: "Ajanta Caves", type: "Rock-Cut (UNESCO)", detail: "30 Buddhist caves — world's finest ancient paintings", color: "#e74c3c" },
+{ lat: 20.02, lng: 75.18, name: "Ellora Caves", type: "Rock-Cut (UNESCO)", detail: "34 caves — Kailasa Temple, world's largest monolith", color: "#e74c3c" },
+{ lat: 18.96, lng: 72.93, name: "Elephanta Caves", type: "Rock-Cut (UNESCO)", detail: "Trimurti Sadashiva — 6m masterpiece", color: "#e74c3c" },
+{ lat: 15.92, lng: 75.68, name: "Badami Caves", type: "Rock-Cut", detail: "4 Chalukya cave temples — 6th c. CE", color: "#e74c3c" },
+{ lat: 18.77, lng: 73.48, name: "Karla Caves", type: "Rock-Cut", detail: "Largest chaitya hall in India", color: "#e74c3c" },
+{ lat: 19.21, lng: 72.91, name: "Kanheri Caves", type: "Rock-Cut", detail: "109 Buddhist caves in Sanjay Gandhi NP", color: "#e74c3c" },
+{ lat: 24.95, lng: 85.07, name: "Barabar Caves", type: "Rock-Cut", detail: "Oldest in India — 3rd c. BCE, Ashokan", color: "#e74c3c" },
+{ lat: 20.26, lng: 85.78, name: "Udayagiri & Khandagiri", type: "Rock-Cut", detail: "33 Jain caves — Kharavela era", color: "#e74c3c" },
+{ lat: 16.50, lng: 80.56, name: "Undavalli Caves", type: "Rock-Cut", detail: "4-storey cave with reclining Vishnu", color: "#e74c3c" },
+
+// Natural/Sacred Caves
+{ lat: 34.22, lng: 75.50, name: "Amarnath Cave", type: "Sacred (Natural)", detail: "Ice Shiva Lingam at 3,888m altitude", color: "#2ecc71" },
+{ lat: 33.03, lng: 74.95, name: "Vaishno Devi", type: "Sacred (Natural)", detail: "8-10 million pilgrims annually", color: "#2ecc71" },
+{ lat: 22.57, lng: 77.77, name: "Bhimbetka", type: "Natural Shelters (UNESCO)", detail: "30,000-year-old paintings — 750+ shelters", color: "#2ecc71" },
+{ lat: 29.77, lng: 80.20, name: "Patal Bhuvaneshwar", type: "Natural (Sacred)", detail: "90-ft deep limestone cave temple", color: "#2ecc71" },
+
+// Gorges
+{ lat: 29.70, lng: 95.20, name: "Brahmaputra/Tsangpo Gorge", type: "Gorge", detail: "Deepest gorge in the world — 5,382m", color: "#3498db" },
+{ lat: 35.40, lng: 74.60, name: "Indus Gorge", type: "Gorge", detail: "7,000m vertical relief near Nanga Parbat", color: "#3498db" },
+{ lat: 23.13, lng: 79.80, name: "Marble Rocks (Bhedaghat)", type: "Gorge", detail: "30m marble cliffs on Narmada River", color: "#3498db" },
+{ lat: 15.17, lng: 78.28, name: "Gandikota Canyon", type: "Canyon", detail: "\"Grand Canyon of India\" — Pennar River", color: "#3498db" },
+{ lat: 33.80, lng: 76.80, name: "Zanskar Gorge", type: "Gorge", detail: "Chadar Trek — frozen river route", color: "#3498db" },
+{ lat: 24.38, lng: 80.22, name: "Raneh Falls Gorge", type: "Gorge", detail: "Crystalline granite gorge — Ken River", color: "#3498db" }
+];
+
+locations.forEach(loc => {
+const marker = L.marker([loc.lat, loc.lng], { icon: caveIcon(loc.color) }).addTo(map);
+marker.bindPopup(`
+<div class="popup-title">${loc.name}</div>
+<div class="popup-type">${loc.type}</div>
+<div>${loc.detail}</div>
+`);
+});
+
+// Map legend
+const legend = L.control({ position: 'bottomright' });
+legend.onAdd = function() {
+const div = L.DomUtil.create('div');
+div.style.cssText = 'background:rgba(10,10,15,0.9);padding:12px 16px;border-radius:10px;border:1px solid rgba(201,169,110,0.2);font-family:system-ui;font-size:12px;color:#f0ead6;line-height:1.8;';
+div.innerHTML = `
+<div style="font-weight:700;margin-bottom:4px;color:#c9a96e;font-size:11px;text-transform:uppercase;letter-spacing:0.1em">Legend</div>
+<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#c9a96e;margin-right:6px;vertical-align:middle"></span>Limestone Caves</div>
+<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e74c3c;margin-right:6px;vertical-align:middle"></span>Rock-Cut Caves</div>
+<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#2ecc71;margin-right:6px;vertical-align:middle"></span>Natural / Sacred</div>
+<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3498db;margin-right:6px;vertical-align:middle"></span>Gorges & Canyons</div>
+`;
+return div;
+};
+legend.addTo(map);
+
+// Fix map rendering on scroll into view
+const mapObserver = new IntersectionObserver((entries) => {
+entries.forEach(entry => {
+if (entry.isIntersecting) {
+setTimeout(() => map.invalidateSize(), 200);
+}
+});
+}, { threshold: 0.1 });
+mapObserver.observe(document.getElementById('cavesMap'));
+</script>
+
+<script src="/js/auto-inject.js"></script>
+<script src="/js/premium-wrapper.js"></script>
+<script src="/global-nav.js"></script>
+<script src="/js/dashboard.js"></script>
+
+</body>
+</html>
