@@ -771,13 +771,17 @@ body.premium-page-locked { overflow: hidden !important; }
                     });
                 }
 
+           // Also handle links inside the card
                 const links = card.querySelectorAll('a');
                 links.forEach(link => {
+                    link.style.pointerEvents = 'none';
+                    link.setAttribute('tabindex', '-1');
                     link.addEventListener('click', function (e) {
                         if (card.classList.contains('dv-card-locked')) {
                             e.preventDefault();
                             e.stopPropagation();
                             showPremiumPopup(card, section, totalCards, freeCount);
+                            return false;
                         }
                     });
                 });
