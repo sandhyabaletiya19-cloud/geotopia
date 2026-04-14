@@ -225,6 +225,8 @@ function isPremiumUser() {
 // CARD-LEVEL LOCKING
 // ==========================================
 
+let _cardLockApplied = false;
+    
 function lockCards() {
     const path = getPath();
     const section = getSectionName(path);
@@ -275,6 +277,12 @@ function lockCards() {
 }
 
 function applyCardLocks(cards, freeCount, section) {
+    // GUARD: Don't re-apply if already done
+    if (_cardLockApplied) {
+        console.log('%c⚠️ Card locks already applied — skipping', 'color: #ff9800;');
+        return;
+    }
+
     // Deduplicate: a card might match multiple selectors
     const uniqueCards = [];
     const seen = new Set();
@@ -363,6 +371,9 @@ function applyCardLocks(cards, freeCount, section) {
     if (lockedCount > 0) {
         addCounterBar(totalCards, freeCount, lockedCount, section);
     }
+
+    // Mark as done so it never runs again
+    _cardLockApplied = true; // ← ADD THIS LINE
 
     console.log(
         `%c🔒 Card Lock | ${section} | ${freeCount} free / ${lockedCount} locked / ${totalCards} total`,
@@ -622,6 +633,7 @@ function getBackLink() {
 }
 
 function unlockPage() {
+     _cardLockApplied = false;
     document.body.classList.remove('premium-page-locked');
     document.body.classList.remove('premium-locked');
     document.body.classList.add('premium-verified');
@@ -733,8 +745,8 @@ window.addEventListener('load', () => {
         unlockPage();
         return;
     }
-    if (isCardLockPage(path)) {
-        // Re-apply card locks in case JS rendered cards late
+    if (isCardLockPage(path) && !_cardLockApplied) {
+        // Only retry if cards haven't been locked yet
         setTimeout(lockCards, 500);
         setTimeout(lockCards, 1500);
         setTimeout(lockCards, 3000);
