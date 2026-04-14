@@ -34,6 +34,11 @@
             this.injectStyles();
             this.initialized = true;
             
+            // ✅ NEW: Log admin status
+            if (this.isAdmin()) {
+                console.log('👑 GeoAccess: ADMIN user detected — full access granted');
+            }
+            
             console.log('🔐 GeoAccess: Access Control System Initialized');
             this.emit('initialized', { subscription: this.subscription });
         }
@@ -108,10 +113,20 @@
         // SECTION 2: ACCESS CHECKING METHODS
         // ═══════════════════════════════════════════════════════════════════
         
+        // ✅ NEW: Admin check method
+        /**
+         * Check if current user is admin
+         */
+        isAdmin() {
+            return localStorage.getItem('isAdmin') === 'true';
+        }
+        
         /**
          * Check if user has premium access
+         * ✅ MODIFIED: Now also checks admin status
          */
         isPremium() {
+            if (this.isAdmin()) return true;  // ← THIS IS THE KEY FIX
             return this.subscription !== null && this.isSubscriptionValid();
         }
         
@@ -127,8 +142,10 @@
         
         /**
          * Get current plan
+         * ✅ MODIFIED: Returns ADMIN for admin users
          */
         getCurrentPlan() {
+            if (this.isAdmin()) return 'ADMIN';
             return this.subscription?.plan || 'FREE';
         }
         
@@ -136,6 +153,7 @@
          * Check if user can access a specific feature
          */
         canAccessFeature(featureName) {
+            if (this.isAdmin()) return true;  // ✅ Admin bypass
             if (!this.isPremium()) return false;
             
             const plan = window.GeoPlans.plans[this.subscription.plan];
@@ -148,26 +166,24 @@
          * Check if user can access a category
          */
         canAccessCategory(categoryName) {
-            const category = window.GeoPlans.categories[categoryName];
-            if (!category) return true; // Unknown category = allow
+            if (this.isAdmin()) return true;  // ✅ Admin bypass
             
-            // Check if it's UPSC content
+            const category = window.GeoPlans.categories[categoryName];
+            if (!category) return true;
+            
             if (categoryName === 'upsc' || category.premium) {
                 return this.getCurrentPlan() === 'UPSC_PRO';
             }
             
-            // PRO and UPSC_PRO can access all regular categories
             if (['PRO', 'UPSC_PRO'].includes(this.getCurrentPlan())) {
                 return true;
             }
             
-            // BASIC plan has limited categories
             if (this.getCurrentPlan() === 'BASIC') {
                 const basicPlan = window.GeoPlans.plans.BASIC;
                 return basicPlan.contentAccess.categories.includes(categoryName);
             }
             
-            // Free users - limited access handled by getFilteredData
             return true;
         }
         
@@ -177,12 +193,6 @@
         
         /**
          * MAIN METHOD: Filter data based on user's access level
-         * This is the primary function all category pages should use
-         * 
-         * @param {Array} data - Original data array
-         * @param {String} category - Category name (mountains, rivers, upsc, etc.)
-         * @param {Object} options - Additional options
-         * @returns {Object} - { visible: [], locked: [], total: number }
          */
         getFilteredData(data, category, options = {}) {
             if (!Array.isArray(data)) {
@@ -192,14 +202,12 @@
             
             const cacheKey = `${category}_${this.getCurrentPlan()}_${data.length}`;
             
-            // Return cached result if available
             if (this.cachedAccess.has(cacheKey) && !options.noCache) {
                 return this.cachedAccess.get(cacheKey);
             }
             
             let result;
             
-            // Full access for premium users with appropriate plan
             if (this.hasFullAccess(category)) {
                 result = {
                     visible: [...data],
@@ -209,11 +217,9 @@
                     plan: this.getCurrentPlan()
                 };
             } else {
-                // Apply restrictions
                 result = this.applyRestrictions(data, category, options);
             }
             
-            // Cache the result
             this.cachedAccess.set(cacheKey, result);
             
             return result;
@@ -221,21 +227,21 @@
         
         /**
          * Check if user has full access to a category
+         * ✅ MODIFIED: Admin always has full access
          */
         hasFullAccess(category) {
+            if (this.isAdmin()) return true;  // ✅ Admin bypass
+            
             const plan = this.getCurrentPlan();
             
-            // UPSC content requires UPSC_PRO
             if (category === 'upsc') {
                 return plan === 'UPSC_PRO';
             }
             
-            // PRO and UPSC_PRO have full access to non-UPSC content
             if (['PRO', 'UPSC_PRO'].includes(plan)) {
                 return true;
             }
             
-            // BASIC has full access to limited categories
             if (plan === 'BASIC') {
                 const basicPlan = window.GeoPlans.plans.BASIC;
                 return basicPlan.contentAccess.categories.includes(category);
@@ -259,7 +265,6 @@
             const visible = data.slice(0, visibleCount);
             const locked = data.slice(visibleCount);
             
-            // Add preview items (visible but locked)
             const preview = locked.slice(0, previewCount).map(item => ({
                 ...item,
                 _locked: true,
@@ -281,7 +286,6 @@
         
         /**
          * Wrapper for existing global data arrays
-         * Use this to intercept window.mountainsData, etc.
          */
         wrapGlobalData(globalVarName, category) {
             const originalData = window[globalVarName];
@@ -291,7 +295,6 @@
                 return null;
             }
             
-            // Create filtered accessor
             Object.defineProperty(window, `${globalVarName}Filtered`, {
                 get: () => this.getFilteredData(originalData, category),
                 configurable: true
@@ -310,7 +313,6 @@
                 return null;
             }
             
-            // Combine all data files for this category
             const allData = [];
             const dataFileCount = categoryConfig.dataFiles || 10;
             
@@ -324,7 +326,6 @@
                 }
             }
             
-            // Also check for main data array
             const mainData = window[`${category}Data`] || window[`${category}_data`];
             if (mainData && Array.isArray(mainData) && allData.length === 0) {
                 allData.push(...mainData);
@@ -400,7 +401,6 @@
          * Show upgrade prompt modal
          */
         showUpgradePrompt(options = {}) {
-            // Prevent multiple modals
             if (document.querySelector('.geo-upgrade-modal')) return;
             
             const modal = document.createElement('div');
@@ -460,7 +460,6 @@
             
             document.body.appendChild(modal);
             
-            // Animate in
             requestAnimationFrame(() => {
                 modal.classList.add('active');
             });
@@ -490,7 +489,6 @@
         
         /**
          * Render content with access control
-         * Call this from your category page's render function
          */
         renderWithAccessControl(containerId, data, category, renderItemFn) {
             const container = document.getElementById(containerId);
@@ -531,7 +529,6 @@
                 container.appendChild(cta);
             }
             
-            // Emit render complete event
             this.emit('renderComplete', { category, filtered });
         }
         
@@ -581,11 +578,15 @@
         }
         
         setupEventListeners() {
-            // Listen for storage changes (sync across tabs)
             window.addEventListener('storage', (e) => {
                 if (e.key === 'geo_subscription') {
                     this.loadSubscription();
                     this.emit('subscriptionChanged', this.subscription);
+                    this.refreshUI();
+                }
+                // ✅ NEW: Also refresh when admin status changes
+                if (e.key === 'isAdmin') {
+                    this.cachedAccess.clear();
                     this.refreshUI();
                 }
             });
@@ -599,10 +600,8 @@
          * Refresh UI after subscription change
          */
         refreshUI() {
-            // Clear cache
             this.cachedAccess.clear();
             
-            // Remove all lock overlays
             document.querySelectorAll('.geo-locked-overlay').forEach(el => el.remove());
             document.querySelectorAll('.geo-locked-item').forEach(el => {
                 el.classList.remove('geo-locked-item');
@@ -610,16 +609,12 @@
                 el.style.pointerEvents = '';
             });
             
-            // Remove upgrade CTAs
             document.querySelectorAll('.geo-upgrade-cta').forEach(el => el.remove());
             
-            // Update premium badges
             this.updatePremiumBadges();
             
-            // Emit event for category pages to re-render
             this.emit('uiRefreshRequired');
             
-            // If there's a refresh callback registered, call it
             if (typeof window.geoRefreshContent === 'function') {
                 window.geoRefreshContent();
             }
@@ -637,7 +632,6 @@
                     badge.classList.add('active');
                 });
                 
-                // Add premium class to body
                 document.body.classList.add('geo-premium-user');
                 document.body.classList.remove('geo-free-user');
             } else {
@@ -1047,14 +1041,206 @@
     window.geoCheckPremium = () => window.GeoAccess.isPremium();
     window.geoGetFilteredData = (data, category) => window.GeoAccess.getFilteredData(data, category);
     window.geoShowUpgrade = () => window.GeoAccess.showUpgradePrompt();
-})();
-
-    (function() {
-    const originalCheckAccess = window.checkAccess;
+    
+    // ✅ NEW: Legacy admin check support (replaces the broken standalone block)
     window.checkAccess = function(feature) {
-        if (localStorage.getItem('isAdmin') === 'true') {
+        if (window.GeoAccess.isAdmin()) {
             return { allowed: true, plan: 'ADMIN', unlimited: true };
         }
-        return originalCheckAccess ? originalCheckAccess(feature) : { allowed: false };
+        if (window.GeoAccess.isPremium()) {
+            return { allowed: true, plan: window.GeoAccess.getCurrentPlan() };
+        }
+        return { allowed: false, plan: 'FREE' };
     };
+})();
+
+
+/**
+ * GEOGRAPHY APP - UTILITY HELPERS
+ * Common utility functions
+ */
+
+(function() {
+    'use strict';
+    
+    window.GeoHelpers = {
+        /**
+         * Format currency
+         */
+        formatCurrency(amount, currency = 'INR') {
+            const symbols = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
+            return `${symbols[currency] || ''}${amount}`;
+        },
+        
+        /**
+         * Format date
+         */
+        formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-IN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        },
+        
+        /**
+         * Calculate days until expiry
+         */
+        daysUntilExpiry(expiryDate) {
+            const now = new Date();
+            const expiry = new Date(expiryDate);
+            const diff = expiry - now;
+            return Math.ceil(diff / (1000 * 60 * 60 * 24));
+        },
+        
+        /**
+         * Check if subscription is expiring soon
+         */
+        isExpiringSoon(expiryDate, days = 7) {
+            return this.daysUntilExpiry(expiryDate) <= days;
+        },
+        
+        /**
+         * Generate random ID
+         */
+        generateId(prefix = 'geo') {
+            return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        },
+        
+        /**
+         * Debounce function
+         */
+        debounce(func, wait = 300) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        },
+        
+        /**
+         * Throttle function
+         */
+        throttle(func, limit = 300) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        },
+        
+        /**
+         * Show toast notification
+         */
+        showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `geo-toast geo-toast-${type}`;
+            toast.textContent = message;
+            
+            const styles = {
+                position: 'fixed',
+                bottom: '24px',
+                right: '24px',
+                background: type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#667eea',
+                color: 'white',
+                padding: '16px 24px',
+                borderRadius: '12px',
+                fontWeight: '500',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                zIndex: '10000',
+                animation: 'slideInRight 0.3s ease',
+                maxWidth: '300px'
+            };
+            
+            Object.assign(toast.style, styles);
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        },
+        
+        /**
+         * Copy to clipboard
+         */
+        async copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                this.showToast('Copied to clipboard!', 'success');
+                return true;
+            } catch (err) {
+                console.error('Copy failed:', err);
+                return false;
+            }
+        },
+        
+        /**
+         * Share content
+         */
+        async share(data) {
+            if (navigator.share) {
+                try {
+                    await navigator.share(data);
+                    return true;
+                } catch (err) {
+                    console.log('Share cancelled');
+                    return false;
+                }
+            } else {
+                if (data.url) {
+                    return this.copyToClipboard(data.url);
+                }
+                return false;
+            }
+        },
+        
+        /**
+         * Format large numbers
+         */
+        formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+    };
+    
+    // Add toast animations
+    const toastStyles = document.createElement('style');
+    toastStyles.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(toastStyles);
+    
 })();
