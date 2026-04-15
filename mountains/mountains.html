@@ -411,7 +411,7 @@
     <!-- Main Application -->
     <script src="mountains-app.js"></script>
 
-        <!-- 🚀 EMERGENCY FIX - Add before </body> -->
+       <!-- 🚀 EMERGENCY FIX - Add before </body> -->
 <script>
 (function() {
     // Fix 1: Patch any broken mountain data
@@ -429,17 +429,38 @@
         });
     }
 
-    // Fix 2: Re-apply locks after page fully loads
+    // Fix 2: Re-apply locks ONLY if NOT premium
     window.addEventListener('load', function() {
         setTimeout(function() {
-            if (window.PremiumWrapper) {
-                if (typeof PremiumWrapper.applyLocks === 'function') {
-                    PremiumWrapper.applyLocks();
-                } else if (typeof PremiumWrapper.init === 'function') {
-                    PremiumWrapper.init();
+            // Check if user is premium FIRST
+            var isPremium = false;
+            
+            try {
+                var dp = localStorage.getItem('dharaverse_premium');
+                if (dp) {
+                    var parsed = JSON.parse(dp);
+                    if (parsed.isPremium === true) {
+                        isPremium = true;
+                    }
                 }
+                var dvp = localStorage.getItem('dv_premium');
+                if (dvp === 'true') {
+                    isPremium = true;
+                }
+            } catch(e) {}
+
+            if (isPremium) {
+                console.log('👑 Premium user — skipping locks');
+            } else {
+                if (window.PremiumWrapper) {
+                    if (typeof PremiumWrapper.applyLocks === 'function') {
+                        PremiumWrapper.applyLocks();
+                    } else if (typeof PremiumWrapper.init === 'function') {
+                        PremiumWrapper.init();
+                    }
+                }
+                console.log('🔒 Locks applied for free user');
             }
-            console.log('🔒 Locks re-applied after full load');
         }, 500);
     });
 })();
