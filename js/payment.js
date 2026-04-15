@@ -345,6 +345,36 @@ function onPaymentSuccess(paymentId, planId, period, amount, currency, gateway) 
         localStorage.setItem('dv_user', JSON.stringify(user));
     } catch (e) {}
 
+    // =============================================
+    // ⭐ BRIDGE FOR PREMIUM-WRAPPER.JS - START ⭐
+    // =============================================
+
+    localStorage.setItem('dharaverse_premium', JSON.stringify({
+        isPremium:   true,
+        expiryDate:  expiry.toISOString(),
+        plan:        planId,
+        planName:    plan ? plan.name : planId,
+        period:      period,
+        paymentId:   paymentId,
+        activatedAt: now.toISOString()
+    }));
+
+    localStorage.setItem('dharaverse_user', JSON.stringify({
+        premium:    true,
+        isPremium:  true,
+        plan:       planId,
+        role:       'premium',
+        expiryDate: expiry.toISOString(),
+        email:      localStorage.getItem('dv_user_email') || '',
+        name:       localStorage.getItem('dv_user_name')  || ''
+    }));
+
+    console.log('✅ Premium bridge keys written for premium-wrapper.js 💜');
+
+    // =============================================
+    // ⭐ BRIDGE FOR PREMIUM-WRAPPER.JS - END ⭐
+    // =============================================
+
     console.log('✅ All data saved. Redirecting to success page...');
 
     // Redirect to success page
@@ -356,7 +386,6 @@ function onPaymentSuccess(paymentId, planId, period, amount, currency, gateway) 
         '&currency='+ currency +
         '&gateway=' + gateway;
 }
-
 // ── PAYMENT FAILED ──
 function onPaymentFailed(planId, reason, code) {
     console.error('Payment Failed:', planId, reason, code);
