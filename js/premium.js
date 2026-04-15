@@ -545,31 +545,25 @@
     // ══════════════════════════════════════════
     // AUTO INIT
     // ══════════════════════════════════════════
-
-       function init() {
+    function init() {
         injectStyles();
         showHeaderBadge();
 
-        // =============================================
-        // ⭐ SYNC WITH PREMIUM-WRAPPER.JS ⭐
-        // If user has any paid plan, tell premium-wrapper
-        // =============================================
-        const currentPlan = getCurrentPlan();
+        var currentPlan = getCurrentPlan();
 
         if (currentPlan !== 'basic') {
-            const existingExpiry = localStorage.getItem('dv_plan_expiry');
-            const expiry = existingExpiry || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+            var existingExpiry = localStorage.getItem('dv_plan_expiry');
+            var expiry = existingExpiry || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
-            // Only write if not already set or expired
-            const existing = localStorage.getItem('dharaverse_premium');
-            let needsSync = true;
+            var existing = localStorage.getItem('dharaverse_premium');
+            var needsSync = true;
 
             if (existing) {
                 try {
-                    const parsed = JSON.parse(existing);
+                    var parsed = JSON.parse(existing);
                     if (parsed.isPremium === true && parsed.expiryDate) {
                         if (new Date(parsed.expiryDate) > new Date()) {
-                            needsSync = false; // Already valid
+                            needsSync = false;
                         }
                     }
                 } catch(e) {}
@@ -577,15 +571,18 @@
 
             if (needsSync) {
                 localStorage.setItem('dharaverse_premium', JSON.stringify({
-                    isPremium:   true,
-                    expiryDate:  expiry,
-                    plan:        currentPlan,
-                    syncedFrom:  'premium.js',
-                    syncedAt:    new Date().toISOString()
+                    isPremium: true,
+                    expiryDate: expiry,
+                    plan: currentPlan,
+                    syncedFrom: 'premium.js',
+                    syncedAt: new Date().toISOString()
                 }));
-                console.log('✅ Synced to premium-wrapper: ' + currentPlan + ' 💜');
             }
         }
+
+        var info = getPlanInfo();
+        console.log('🌍 DharaVerse | ' + info.icon + ' ' + info.name + ' Plan');
+    }
         // =============================================
         // ⭐ SYNC END ⭐
         // =============================================
