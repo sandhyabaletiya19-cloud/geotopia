@@ -266,6 +266,7 @@ function payWithPayPal(planId, period) {
 }
 
 // ── PAYMENT SUCCESS ──
+// ── PAYMENT SUCCESS ──
 function onPaymentSuccess(paymentId, planId, period, amount, currency, gateway) {
     console.log('🎉 Payment Success! Saving data...');
 
@@ -273,14 +274,12 @@ function onPaymentSuccess(paymentId, planId, period, amount, currency, gateway) 
     var now    = new Date();
     var expiry = new Date();
 
-    // Calculate expiry date
     if (period === 'monthly') {
         expiry.setMonth(expiry.getMonth() + 1);
     } else {
         expiry.setFullYear(expiry.getFullYear() + 1);
     }
 
-    // Payment data object
     var planData = {
         planId:       planId,
         planName:     plan ? plan.name : planId,
@@ -293,89 +292,118 @@ function onPaymentSuccess(paymentId, planId, period, amount, currency, gateway) 
         expiryDate:   expiry.toISOString()
     };
 
-    // Save everything to localStorage
-    localStorage.setItem('dv_plan',          planId);
-    localStorage.setItem('dv_plan_data',     JSON.stringify(planData));
-    localStorage.setItem('dv_plan_period',   period);
-    localStorage.setItem('dv_plan_expiry',   expiry.toISOString());
-    localStorage.setItem('dv_premium',       'true');
-    localStorage.setItem('dv_payment_id',    paymentId);
-    localStorage.setItem('dv_purchase_date', now.toISOString());
+    // =============================================
+    // SAVE EVERYTHING FIRST — BEFORE REDIRECT
+    // =============================================
 
-    // Update plan features
-    var ultimateFeatures = {
-        games:            Infinity,
-        upsc:             planId === 'upsc' || planId === 'ultimate' ? Infinity : (planId === 'pro' ? 0 : 3),
-        landscapes:       planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
-        continents:       Infinity,
-        encyclopedia:     planId === 'pro' || planId === 'ultimate' ? Infinity : 2,
-        atlas:            planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
-        exploreCountries: planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
-        bharat:           planId === 'pro' || planId === 'ultimate' ? Infinity : 3,
-        spinGlobe:        Infinity,
-        timeline:         Infinity,
-        earthSystems:     Infinity,
-        earthSimulator:   Infinity,
-        adfree:           planId === 'pro' || planId === 'ultimate'
-    };
+    try {
+        localStorage.setItem('dv_plan',          planId);
+        localStorage.setItem('dv_plan_data',     JSON.stringify(planData));
+        localStorage.setItem('dv_plan_period',   period);
+        localStorage.setItem('dv_plan_expiry',   expiry.toISOString());
+        localStorage.setItem('dv_premium',       'true');
+        localStorage.setItem('dv_payment_id',    paymentId);
+        localStorage.setItem('dv_purchase_date', now.toISOString());
 
-    localStorage.setItem('dv_plan_features', JSON.stringify(ultimateFeatures));
+        var ultimateFeatures = {
+            games:            Infinity,
+            upsc:             planId === 'upsc' || planId === 'ultimate' ? Infinity : (planId === 'pro' ? 0 : 3),
+            landscapes:       planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
+            continents:       Infinity,
+            encyclopedia:     planId === 'pro' || planId === 'ultimate' ? Infinity : 2,
+            atlas:            planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
+            exploreCountries: planId === 'pro' || planId === 'ultimate' ? Infinity : 7,
+            bharat:           planId === 'pro' || planId === 'ultimate' ? Infinity : 3,
+            spinGlobe:        Infinity,
+            timeline:         Infinity,
+            earthSystems:     Infinity,
+            earthSimulator:   Infinity,
+            adfree:           planId === 'pro' || planId === 'ultimate'
+        };
 
-    // Early bird counter
-    if (planId === 'ultimate' && period === 'yearly') {
-        var ebCount = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
-        localStorage.setItem('dv_earlybird_count', String(ebCount + 1));
+        localStorage.setItem('dv_plan_features', JSON.stringify(ultimateFeatures));
+
+        if (planId === 'ultimate' && period === 'yearly') {
+            var ebCount = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
+            localStorage.setItem('dv_earlybird_count', String(ebCount + 1));
+        }
+
+        var history = [];
+        try {
+            history = JSON.parse(localStorage.getItem('dv_payment_history') || '[]');
+        } catch (e) {
+            history = [];
+        }
+        history.push(planData);
+        localStorage.setItem('dv_payment_history', JSON.stringify(history));
+
+        try {
+            var user = JSON.parse(localStorage.getItem('dv_user') || '{}');
+            user.plan       = planId;
+            user.planExpiry = expiry.toISOString();
+            localStorage.setItem('dv_user', JSON.stringify(user));
+        } catch (e) {}
+
+        // ⭐ BRIDGE FOR PREMIUM-WRAPPER.JS ⭐
+        localStorage.setItem('dharaverse_premium', JSON.stringify({
+            isPremium:   true,
+            expiryDate:  expiry.toISOString(),
+            plan:        planId,
+            planName:    plan ? plan.name : planId,
+            period:      period,
+            paymentId:   paymentId,
+            activatedAt: now.toISOString()
+        }));
+
+        console.log('✅ All data saved successfully');
+
+    } catch (err) {
+        console.error('❌ Error saving data:', err);
     }
 
-    // Payment history
-    var history = [];
-    try {
-        history = JSON.parse(localStorage.getItem('dv_payment_history') || '[]');
-    } catch (e) {
-        history = [];
+    // =============================================
+    // VERIFY DATA WAS SAVED BEFORE REDIRECT
+    // =============================================
+
+    var savedPlan = localStorage.getItem('dv_plan');
+    var savedPremium = localStorage.getItem('dv_premium');
+    var savedBridge = localStorage.getItem('dharaverse_premium');
+
+    if (savedPlan && savedPremium && savedBridge) {
+        console.log('✅ Verified: All data saved. Redirecting...');
+        window.location.href = '/payment-success.html?' +
+            'plan='     + planId +
+            '&period='  + period +
+            '&id='      + paymentId +
+            '&amount='  + amount +
+            '&currency='+ currency +
+            '&gateway=' + gateway;
+    } else {
+        console.error('❌ Data not saved! Retrying...');
+        
+        // RETRY saving
+        localStorage.setItem('dv_plan', planId);
+        localStorage.setItem('dv_premium', 'true');
+        localStorage.setItem('dv_plan_expiry', expiry.toISOString());
+        localStorage.setItem('dharaverse_premium', JSON.stringify({
+            isPremium: true,
+            expiryDate: expiry.toISOString(),
+            plan: planId
+        }));
+
+        // Wait then redirect
+        setTimeout(function() {
+            window.location.href = '/payment-success.html?' +
+                'plan='     + planId +
+                '&period='  + period +
+                '&id='      + paymentId +
+                '&amount='  + amount +
+                '&currency='+ currency +
+                '&gateway=' + gateway;
+        }, 1000);
     }
-    history.push(planData);
-    localStorage.setItem('dv_payment_history', JSON.stringify(history));
-
-    // Update user profile
-    try {
-        var user = JSON.parse(localStorage.getItem('dv_user') || '{}');
-        user.plan       = planId;
-        user.planExpiry = expiry.toISOString();
-        localStorage.setItem('dv_user', JSON.stringify(user));
-    } catch (e) {}
-
-    // =============================================
-    // ⭐ BRIDGE FOR PREMIUM-WRAPPER.JS - START ⭐
-    // =============================================
-
-    localStorage.setItem('dharaverse_premium', JSON.stringify({
-        isPremium:   true,
-        expiryDate:  expiry.toISOString(),
-        plan:        planId,
-        planName:    plan ? plan.name : planId,
-        period:      period,
-        paymentId:   paymentId,
-        activatedAt: now.toISOString()
-    }));
-
-    console.log('✅ Premium bridge keys written for premium-wrapper.js 💜');
-
-    // =============================================
-    // ⭐ BRIDGE FOR PREMIUM-WRAPPER.JS - END ⭐
-    // =============================================
-
-    console.log('✅ All data saved. Redirecting to success page...');
-
-    // Redirect to success page
-    window.location.href = '/payment-success.html?' +
-        'plan='     + planId +
-        '&period='  + period +
-        '&id='      + paymentId +
-        '&amount='  + amount +
-        '&currency='+ currency +
-        '&gateway=' + gateway;
 }
+
 // ── PAYMENT FAILED ──
 function onPaymentFailed(planId, reason, code) {
     console.error('Payment Failed:', planId, reason, code);
