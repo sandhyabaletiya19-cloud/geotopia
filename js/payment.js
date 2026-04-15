@@ -359,16 +359,6 @@ function onPaymentSuccess(paymentId, planId, period, amount, currency, gateway) 
         activatedAt: now.toISOString()
     }));
 
-    localStorage.setItem('dharaverse_user', JSON.stringify({
-        premium:    true,
-        isPremium:  true,
-        plan:       planId,
-        role:       'premium',
-        expiryDate: expiry.toISOString(),
-        email:      localStorage.getItem('dv_user_email') || '',
-        name:       localStorage.getItem('dv_user_name')  || ''
-    }));
-
     console.log('✅ Premium bridge keys written for premium-wrapper.js 💜');
 
     // =============================================
