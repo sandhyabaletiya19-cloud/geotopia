@@ -545,10 +545,11 @@
     // ══════════════════════════════════════════
     // AUTO INIT
     // ══════════════════════════════════════════
-    function init() {
+       function init() {
         injectStyles();
         showHeaderBadge();
 
+        // ⭐ AUTO SYNC TO PREMIUM-WRAPPER ⭐
         var currentPlan = getCurrentPlan();
 
         if (currentPlan !== 'basic') {
@@ -571,24 +572,19 @@
 
             if (needsSync) {
                 localStorage.setItem('dharaverse_premium', JSON.stringify({
-                    isPremium: true,
-                    expiryDate: expiry,
-                    plan: currentPlan,
-                    syncedFrom: 'premium.js',
-                    syncedAt: new Date().toISOString()
+                    isPremium:   true,
+                    expiryDate:  expiry,
+                    plan:        currentPlan,
+                    syncedFrom:  'premium.js',
+                    syncedAt:    new Date().toISOString()
                 }));
+                console.log('✅ Synced to premium-wrapper: ' + currentPlan);
             }
         }
+        // ⭐ SYNC END ⭐
 
         var info = getPlanInfo();
         console.log('🌍 DharaVerse | ' + info.icon + ' ' + info.name + ' Plan');
-    }
-        // =============================================
-        // ⭐ SYNC END ⭐
-        // =============================================
-
-        const info = getPlanInfo();
-        console.log(`🌍 DharaVerse | ${info.icon} ${info.name} Plan`);
     }
 
     if (document.readyState === 'loading') {
