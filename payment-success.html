@@ -522,6 +522,65 @@
         });
     }, 8000);
 </script>
+    <script>
+// =============================================
+// VERIFY + RESTORE PREMIUM ON SUCCESS PAGE
+// =============================================
+(function() {
+    var params = new URLSearchParams(window.location.search);
+    var planId   = params.get('plan');
+    var period   = params.get('period');
+    var payId    = params.get('id');
+    var amount   = params.get('amount');
+    var currency = params.get('currency');
+    var gateway  = params.get('gateway');
+
+    // If URL has payment info but localStorage doesn't
+    if (planId && payId) {
+        var existingPlan = localStorage.getItem('dv_plan');
+        
+        if (!existingPlan || existingPlan === 'basic') {
+            console.log('⚠️ Payment data missing! Restoring from URL...');
+            
+            var expiry = new Date();
+            if (period === 'monthly') {
+                expiry.setMonth(expiry.getMonth() + 1);
+            } else {
+                expiry.setFullYear(expiry.getFullYear() + 1);
+            }
+
+            localStorage.setItem('dv_plan', planId);
+            localStorage.setItem('dv_premium', 'true');
+            localStorage.setItem('dv_plan_expiry', expiry.toISOString());
+            localStorage.setItem('dv_payment_id', payId);
+            localStorage.setItem('dv_purchase_date', new Date().toISOString());
+
+            localStorage.setItem('dv_plan_data', JSON.stringify({
+                planId:       planId,
+                paymentId:    payId,
+                amount:       amount,
+                currency:     currency,
+                gateway:      gateway,
+                period:       period,
+                purchaseDate: new Date().toISOString(),
+                expiryDate:   expiry.toISOString()
+            }));
+
+            localStorage.setItem('dharaverse_premium', JSON.stringify({
+                isPremium:   true,
+                expiryDate:  expiry.toISOString(),
+                plan:        planId,
+                paymentId:   payId,
+                activatedAt: new Date().toISOString()
+            }));
+
+            console.log('✅ Premium restored from URL params!');
+        } else {
+            console.log('✅ Premium data already exists: ' + existingPlan);
+        }
+    }
+})();
+</script>
 
 </body>
 </html>
