@@ -1,224 +1,130 @@
 // ============================================
-// DHARAVERSE — SUPABASE CLIENT CONNECTION
 // js/supabase-client.js
+// DharaVerse — Supabase Client
 // ============================================
 
-// Supabase CDN (add this script tag in your HTML files)
-// <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+// Supabase credentials
+const DHARAVERSE_SUPABASE_URL = 'https://uubgjhchndervaamizzk.supabase.co';
+const DHARAVERSE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1YmdqaGNobmRlcnZhYW1penprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjg3OTUsImV4cCI6MjA5MTkwNDc5NX0.3KVEDCVcM67VQNDfls9nMRsnJT1vqxLSr4yUES_6bRQ';
 
-// YOUR SUPABASE CREDENTIALS (replace with your actual values)
-const SUPABASE_URL = 'https://uubgjhchndervaamizzk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1YmdqaGNobmRlcnZhYW1penprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjg3OTUsImV4cCI6MjA5MTkwNDc5NX0.3KVEDCVcM67VQNDfls9nMRsnJT1vqxLSr4yUES_6bRQ';
+// Create client — named "dharaClient" to avoid conflict with Supabase CDN's "supabase"
+const dharaClient = window.supabase.createClient(
+    DHARAVERSE_SUPABASE_URL, 
+    DHARAVERSE_ANON_KEY
+);
 
-// Create Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ============================================
-// SESSION MANAGEMENT
-// ============================================
-
-// Get current logged in user
+// ── GET CURRENT USER ──
 async function getCurrentUser() {
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) {
-      console.log('No user logged in');
-      return null;
-    }
-    return user;
-  } catch (err) {
-    console.error('Error getting user:', err);
-    return null;
-  }
+    try {
+        const { data: { user } } = await dharaClient.auth.getUser();
+        return user;
+    } catch(e) { return null; }
 }
 
-// Get current session
+// ── GET SESSION ──
 async function getSession() {
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) {
-      console.log('No active session');
-      return null;
-    }
-    return session;
-  } catch (err) {
-    console.error('Error getting session:', err);
-    return null;
-  }
+    try {
+        const { data: { session } } = await dharaClient.auth.getSession();
+        return session;
+    } catch(e) { return null; }
 }
 
-// Check if user is logged in
+// ── IS LOGGED IN ──
 async function isLoggedIn() {
-  const user = await getCurrentUser();
-  return user !== null;
+    const user = await getCurrentUser();
+    return !!user;
 }
 
-// ============================================
-// USER PROFILE
-// ============================================
-
-// Get user profile from database
+// ── GET USER PROFILE ──
 async function getUserProfile(userId) {
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return null;
-    }
-    return data;
-  } catch (err) {
-    console.error('Error:', err);
-    return null;
-  }
+    try {
+        const { data, error } = await dharaClient
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        if (error) return null;
+        return data;
+    } catch(e) { return null; }
 }
 
-// Update user profile
+// ── UPDATE USER PROFILE ──
 async function updateUserProfile(userId, updates) {
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating profile:', error);
-      return null;
-    }
-    return data;
-  } catch (err) {
-    console.error('Error:', err);
-    return null;
-  }
+    try {
+        const { data, error } = await dharaClient
+            .from('users')
+            .update(updates)
+            .eq('id', userId);
+        if (error) return { success: false, error: error.message };
+        return { success: true };
+    } catch(e) { return { success: false, error: e.message }; }
 }
 
-// ============================================
-// SUBSCRIPTION CHECK
-// ============================================
-
-// Get active subscription for user
+// ── GET ACTIVE SUBSCRIPTION ──
 async function getActiveSubscription(userId) {
-  try {
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .gte('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error) {
-      // No active subscription found
-      return null;
-    }
-    return data;
-  } catch (err) {
-    console.error('Error:', err);
-    return null;
-  }
+    try {
+        const { data, error } = await dharaClient
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('status', 'active')
+            .gt('expires_at', new Date().toISOString())
+            .order('expires_at', { ascending: false })
+            .limit(1)
+            .single();
+        if (error) return null;
+        return data;
+    } catch(e) { return null; }
 }
 
-// Check if user has premium access
+// ── CHECK PREMIUM STATUS ──
 async function checkPremiumStatus(userId) {
-  const subscription = await getActiveSubscription(userId);
-  
-  if (subscription) {
+    const sub = await getActiveSubscription(userId);
+    if (!sub) return { isPremium: false, plan: null };
     return {
-      isPremium: true,
-      plan: subscription.plan,
-      period: subscription.period,
-      expiresAt: subscription.expires_at,
-      status: subscription.status
+        isPremium: true,
+        plan: sub.plan,
+        period: sub.period,
+        expiresAt: sub.expires_at
     };
-  }
-
-  return {
-    isPremium: false,
-    plan: null,
-    period: null,
-    expiresAt: null,
-    status: null
-  };
 }
 
-// ============================================
-// PAYMENT HISTORY
-// ============================================
-
-// Get user's payment history
+// ── GET PAYMENT HISTORY ──
 async function getPaymentHistory(userId) {
-  try {
-    const { data, error } = await supabase
-      .from('payments')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching payments:', error);
-      return [];
-    }
-    return data;
-  } catch (err) {
-    console.error('Error:', err);
-    return [];
-  }
+    try {
+        const { data, error } = await dharaClient
+            .from('payments')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+        if (error) return [];
+        return data;
+    } catch(e) { return []; }
 }
 
-// ============================================
-// AUTH STATE LISTENER
-// ============================================
-
-// Listen for auth changes (login/logout/token refresh)
-supabase.auth.onAuthStateChange((event, session) => {
-  console.log('Auth event:', event);
-  
-  if (event === 'SIGNED_IN') {
-    console.log('User signed in:', session.user.email);
-    // Cache user data in localStorage
-    localStorage.setItem('dharaverse_user', JSON.stringify({
-      id: session.user.id,
-      email: session.user.email,
-      name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
-      loggedIn: true,
-      lastSync: new Date().toISOString()
-    }));
-  }
-
-  if (event === 'SIGNED_OUT') {
-    console.log('User signed out');
-    // Clear cached data
-    localStorage.removeItem('dharaverse_user');
-    localStorage.removeItem('dharaverse_premium');
-    localStorage.removeItem('dharaverse_subscription');
-  }
-
-  if (event === 'TOKEN_REFRESHED') {
-    console.log('Token refreshed');
-  }
+// ── AUTH STATE CHANGE ──
+dharaClient.auth.onAuthStateChange((event, session) => {
+    console.log('Auth event:', event);
+    if (event === 'SIGNED_IN') {
+        console.log('User signed in:', session?.user?.email);
+    }
+    if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
+        localStorage.removeItem('dv_premium_cache');
+    }
 });
 
-// ============================================
-// EXPORTS (available globally)
-// ============================================
+// ── EXPORT ──
 window.dharaverseDB = {
-  supabase,
-  getCurrentUser,
-  getSession,
-  isLoggedIn,
-  getUserProfile,
-  updateUserProfile,
-  getActiveSubscription,
-  checkPremiumStatus,
-  getPaymentHistory
+    client: dharaClient,
+    getCurrentUser,
+    getSession,
+    isLoggedIn,
+    getUserProfile,
+    updateUserProfile,
+    getActiveSubscription,
+    checkPremiumStatus,
+    getPaymentHistory
 };
 
-console.log('✅ Supabase client initialized for DharaVerse');
+console.log('✅ Supabase client ready for DharaVerse');
