@@ -33,6 +33,7 @@
 
     // ✅ Load premium scripts
 var scriptsToLoad = [
+    '/js/dv-core.js',          // ← ADD THIS ONE LINE
     '/js/config/plans-config.js',
     '/js/core/access-control.js',
     '/js/core/payment-handler.js',
