@@ -60,6 +60,7 @@ async function updateUserProfile(userId, updates) {
     } catch(e) { return { success: false, error: e.message }; }
 }
 
+
 // ── GET ACTIVE SUBSCRIPTION ──
 async function getActiveSubscription(userId) {
     try {
@@ -71,7 +72,7 @@ async function getActiveSubscription(userId) {
             .gt('expires_at', new Date().toISOString())
             .order('expires_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle(); // ← change .single() to .maybeSingle()
         if (error) return null;
         return data;
     } catch(e) { return null; }
