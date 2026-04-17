@@ -31,12 +31,8 @@
         console.log("✅ Viewport fixed!");
     })();
 
-    // ✅ Load all scripts in order
+    // ✅ Load premium scripts
 var scriptsToLoad = [
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
-    '/js/supabase-client.js',
-    '/js/auth-supabase.js',
-    '/js/premium-check.js',
     '/js/config/plans-config.js',
     '/js/core/access-control.js',
     '/js/core/payment-handler.js',
