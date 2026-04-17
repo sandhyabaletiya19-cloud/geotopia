@@ -38,6 +38,8 @@ var scriptsToLoad = [
     '/js/core/access-control.js',
     '/js/core/payment-handler.js',
     '/js/core/geo-helpers.js'
+    '/js/new-premium.js',
+'/js/p-w.js'
 ];
 
     function loadScript(index) {
