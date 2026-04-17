@@ -31,13 +31,17 @@
         console.log("✅ Viewport fixed!");
     })();
 
-    // ✅ Load premium scripts
-    var scriptsToLoad = [
-        '/js/config/plans-config.js',
-        '/js/core/access-control.js',
-        '/js/core/payment-handler.js',
-        '/js/core/geo-helpers.js'
-    ];
+    // ✅ Load all scripts in order
+var scriptsToLoad = [
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+    '/js/supabase-client.js',
+    '/js/auth-supabase.js',
+    '/js/premium-check.js',
+    '/js/config/plans-config.js',
+    '/js/core/access-control.js',
+    '/js/core/payment-handler.js',
+    '/js/core/geo-helpers.js'
+];
 
     function loadScript(index) {
         if (index >= scriptsToLoad.length) {
