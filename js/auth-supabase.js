@@ -8,6 +8,40 @@ function getClient() {
     return window.dharaverseDB?.client;
 }
 
+// ── SUPABASE FUNCTIONS URL ──
+var SUPABASE_FUNCTIONS_URL =
+    'https://uubgjhchndervaamizzk.supabase.co/functions/v1';
+
+// ── SEND WELCOME EMAIL (internal helper) ──
+async function sendWelcomeEmail(email, name) {
+    try {
+        await fetch(SUPABASE_FUNCTIONS_URL + '/send-welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name })
+        });
+        console.log('💜 Welcome email sent to:', email);
+    } catch(e) {
+        // Email failure must NEVER break signup
+        console.warn('Welcome email failed (non-critical):', e.message);
+    }
+}
+
+// ── SEND PASSWORD RESET EMAIL (internal helper) ──
+async function sendPasswordResetEmail(email, name, resetLink) {
+    try {
+        await fetch(SUPABASE_FUNCTIONS_URL + '/send-password-reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name, resetLink })
+        });
+        console.log('🔑 Reset email sent to:', email);
+    } catch(e) {
+        // Email failure must NEVER break reset flow
+        console.warn('Reset email failed (non-critical):', e.message);
+    }
+}
+
 // ── SIGNUP WITH EMAIL ──
 async function signupWithEmail(email, password, name, country, isIndia) {
     try {
@@ -18,24 +52,30 @@ async function signupWithEmail(email, password, name, country, isIndia) {
             email,
             password,
             options: {
-                data: { 
+                data: {
                     full_name: name,
-                    country: country,
-                    is_india: isIndia
+                    country:   country,
+                    is_india:  isIndia
                 }
             }
         });
 
-        if (error) return { 
-            success: false, 
-            error: formatAuthError(error.message) 
+        if (error) return {
+            success: false,
+            error: formatAuthError(error.message)
         };
 
         // Check if needs email confirmation
         const needsConfirmation = !data.session;
 
-        return { 
-            success: true, 
+        // ── SEND WELCOME EMAIL ──
+        // Fire and forget — does not block signup
+        if (data.user && data.user.email) {
+            sendWelcomeEmail(data.user.email, name);
+        }
+
+        return {
+            success: true,
             user: data.user,
             needsConfirmation
         };
@@ -57,9 +97,9 @@ async function loginWithEmail(email, password) {
             password
         });
 
-        if (error) return { 
-            success: false, 
-            error: formatAuthError(error.message) 
+        if (error) return {
+            success: false,
+            error: formatAuthError(error.message)
         };
 
         // Update last login
@@ -90,9 +130,9 @@ async function signInWithGoogle() {
             }
         });
 
-        if (error) return { 
-            success: false, 
-            error: formatAuthError(error.message) 
+        if (error) return {
+            success: false,
+            error: formatAuthError(error.message)
         };
 
         return { success: true };
@@ -108,14 +148,22 @@ async function resetPassword(email) {
         const client = getClient();
         if (!client) throw new Error('Supabase client not ready');
 
+        // Build the reset link
+        var resetLink =
+            'https://dharaverse.com/auth-new.html?reset=true';
+
         const { error } = await client.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://dharaverse.com/auth-new.html?reset=true'
+            redirectTo: resetLink
         });
 
-        if (error) return { 
-            success: false, 
-            error: formatAuthError(error.message) 
+        if (error) return {
+            success: false,
+            error: formatAuthError(error.message)
         };
+
+        // ── SEND BRANDED RESET EMAIL ──
+        // Fire and forget — does not block reset flow
+        sendPasswordResetEmail(email, null, resetLink);
 
         return { success: true };
 
@@ -134,9 +182,9 @@ async function updatePassword(newPassword) {
             password: newPassword
         });
 
-        if (error) return { 
-            success: false, 
-            error: formatAuthError(error.message) 
+        if (error) return {
+            success: false,
+            error: formatAuthError(error.message)
         };
 
         return { success: true };
@@ -181,7 +229,8 @@ function formatAuthError(msg) {
         return 'Incorrect email or password. Please try again.';
     if (m.includes('email not confirmed'))
         return 'Please confirm your email first. Check your inbox.';
-    if (m.includes('user already registered') || m.includes('already been registered'))
+    if (m.includes('user already registered') ||
+        m.includes('already been registered'))
         return 'An account with this email already exists. Please sign in.';
     if (m.includes('password should be'))
         return 'Password must be at least 8 characters.';
