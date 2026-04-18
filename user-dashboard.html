@@ -337,6 +337,20 @@
             font-weight: 600;
         }
 
+        /* FIX 2 — period pill (new, small, inline) */
+        .plan-period-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.08);
+            color: var(--text-dim);
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: capitalize;
+        }
+
         .btn-upgrade {
             display: inline-flex;
             align-items: center;
@@ -614,6 +628,19 @@
         }
 
         /* ═══════════════════════════════════════
+           FIX 4 — hide gateway col on mobile
+           (col 4 = gateway, col 3 = amount stays)
+        ═══════════════════════════════════════ */
+        @media (max-width: 600px) {
+            .plan-hero-top { flex-direction: column; }
+            .welcome-name { font-size: 24px; }
+            .plan-hero-title { font-size: 22px; }
+            /* hide Gateway column on mobile */
+            .history-table th:nth-child(4),
+            .history-table td:nth-child(4) { display: none; }
+        }
+
+        /* ═══════════════════════════════════════
            SPARKLE ANIMATION
         ═══════════════════════════════════════ */
         .sparkle {
@@ -671,12 +698,8 @@
         /* ═══════════════════════════════════════
            RESPONSIVE
         ═══════════════════════════════════════ */
-        @media (max-width: 600px) {
-            .plan-hero-top { flex-direction: column; }
-            .welcome-name { font-size: 24px; }
-            .plan-hero-title { font-size: 22px; }
-            .history-table th:nth-child(3),
-            .history-table td:nth-child(3) { display: none; }
+        @media (max-width: 768px) {
+            .dash-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -914,29 +937,66 @@
     });
 
     // ═══════════════════════════════════════════
-    // WAIT FOR CORE
+    // FIX 1 — waitForCore
+    // Uses dvCoreReady event + polls for premiumCheck too
     // ═══════════════════════════════════════════
     function waitForCore(callback) {
-        if (window.dharaverseDB && window.dharaverseAuth) {
+        // All 3 must be ready
+        function allReady() {
+            return window.dharaverseDB &&
+                   window.dharaverseAuth &&
+                   window.premiumCheck;
+        }
+
+        // Already ready — run immediately
+        if (allReady()) {
             callback();
             return;
         }
-        var attempts = 0;
-        var poll = setInterval(function() {
-            attempts++;
-            if (window.dharaverseDB && window.dharaverseAuth) {
-                clearInterval(poll);
-                callback();
+
+        // Listen for dvCoreReady event first
+        var fired = false;
+        window.addEventListener('dvCoreReady', function() {
+            if (fired) return;
+            // dvCoreReady fires after dv-core scripts load
+            // but premiumCheck loads via auto-inject AFTER
+            // so poll briefly for premiumCheck
+            var attempts = 0;
+            var poll = setInterval(function() {
+                attempts++;
+                if (allReady()) {
+                    clearInterval(poll);
+                    if (!fired) { fired = true; callback(); }
+                }
+                // max 3 seconds after dvCoreReady
+                if (attempts > 30) {
+                    clearInterval(poll);
+                    if (!fired) { fired = true; callback(); }
+                }
+            }, 100);
+        });
+
+        // Fallback — poll independently (in case event already fired)
+        var fallbackAttempts = 0;
+        var fallback = setInterval(function() {
+            fallbackAttempts++;
+            if (allReady()) {
+                clearInterval(fallback);
+                if (!fired) { fired = true; callback(); }
             }
-            if (attempts > 100) {
-                clearInterval(poll);
-                window.location.href = '/auth-new.html';
+            // Timeout after 10 seconds → redirect to login
+            if (fallbackAttempts > 100) {
+                clearInterval(fallback);
+                if (!fired) {
+                    fired = true;
+                    window.location.href = '/auth-new.html';
+                }
             }
         }, 100);
     }
 
     // ═══════════════════════════════════════════
-    // MAIN INIT
+    // MAIN INIT — unchanged except uses fixed waitForCore
     // ═══════════════════════════════════════════
     waitForCore(async function() {
 
@@ -951,7 +1011,7 @@
         var profile = await window.dharaverseDB.getUserProfile(user.id);
 
         // Fill welcome
-        var name = (profile && profile.name) || 
+        var name = (profile && profile.name) ||
                     user.email.split('@')[0];
         document.getElementById('userName').textContent = name;
         document.getElementById('userEmail').textContent = user.email;
@@ -987,13 +1047,15 @@
     });
 
     // ═══════════════════════════════════════════
-    // LOAD PLAN INFO
+    // FIX 2 — LOAD PLAN INFO
+    // Now shows period pill (Monthly / Yearly / Trial)
     // ═══════════════════════════════════════════
     async function loadPlanInfo() {
         if (!window.premiumCheck) return;
 
         var status = await window.premiumCheck.getPremiumStatus();
         var plan   = status.plan || 'free';
+        var period = status.period || null;
 
         var planMap = {
             free:    { label:'🆓 Free Plan',     cls:'free',
@@ -1020,8 +1082,18 @@
         badge.textContent = info.label;
         badge.className = 'plan-badge ' + info.cls;
 
-        // Title
-        document.getElementById('planTitle').textContent = info.title;
+        // Title + FIX 2: period pill next to title
+        var periodHtml = '';
+        if (period && period !== 'null') {
+            var periodLabel = period === 'trial'   ? '🎁 Trial'   :
+                              period === 'monthly' ? '📅 Monthly' :
+                              period === 'yearly'  ? '📆 Yearly'  :
+                              period;
+            periodHtml = '<span class="plan-period-pill">' +
+                periodLabel + '</span>';
+        }
+        document.getElementById('planTitle').innerHTML =
+            info.title + periodHtml;
 
         // Stat
         document.getElementById('statPlan').textContent =
@@ -1032,6 +1104,10 @@
             var exp = new Date(status.expiresAt);
             document.getElementById('planExpiry').innerHTML =
                 'Expires: <span>' + exp.toLocaleDateString() + '</span>';
+        } else if (status.isTrial && status.trialExpiresAt) {
+            var tExp = new Date(status.trialExpiresAt);
+            document.getElementById('planExpiry').innerHTML =
+                'Trial expires: <span>' + tExp.toLocaleDateString() + '</span>';
         } else if (plan === 'free') {
             document.getElementById('planExpiry').textContent =
                 'Upgrade to unlock more features';
@@ -1053,7 +1129,8 @@
     }
 
     // ═══════════════════════════════════════════
-    // LOAD PAYMENT HISTORY
+    // FIX 3 — LOAD PAYMENT HISTORY
+    // Added Gateway column (col 4)
     // ═══════════════════════════════════════════
     async function loadPaymentHistory(userId) {
         var history = document.getElementById('paymentHistory');
@@ -1076,11 +1153,18 @@
                 var date = new Date(p.created_at).toLocaleDateString();
                 var statusClass = p.status === 'success' ? 'success' :
                                   p.status === 'failed'  ? 'failed'  : 'pending';
+
+                // FIX 3: gateway display
+                var gatewayLabel = p.gateway === 'razorpay' ? '🇮🇳 Razorpay' :
+                                   p.gateway === 'paypal'   ? '🌐 PayPal'    :
+                                   (p.gateway || '—');
+
                 return '<tr>' +
                     '<td>' + date + '</td>' +
                     '<td>' + (p.plan || '—') + ' / ' + (p.period || '—') + '</td>' +
                     '<td>' + (p.currency || 'INR') + ' ' +
                         ((p.amount || 0) / 100).toFixed(2) + '</td>' +
+                    '<td>' + gatewayLabel + '</td>' +
                     '<td><span class="status-badge ' + statusClass + '">' +
                         p.status + '</span></td>' +
                     '</tr>';
@@ -1088,19 +1172,23 @@
 
             history.innerHTML = '<table class="history-table">' +
                 '<thead><tr>' +
-                '<th>Date</th><th>Plan</th>' +
-                '<th>Amount</th><th>Status</th>' +
+                '<th>Date</th>' +
+                '<th>Plan</th>' +
+                '<th>Amount</th>' +
+                '<th>Gateway</th>' +
+                '<th>Status</th>' +
                 '</tr></thead>' +
                 '<tbody>' + rows + '</tbody>' +
                 '</table>';
 
         } catch (err) {
-            history.innerHTML = '<div class="no-data">Could not load history</div>';
+            history.innerHTML =
+                '<div class="no-data">Could not load history</div>';
         }
     }
 
     // ═══════════════════════════════════════════
-    // SAVE PROFILE
+    // SAVE PROFILE — unchanged
     // ═══════════════════════════════════════════
     async function saveProfile() {
         var msg  = document.getElementById('profileMsg');
@@ -1130,7 +1218,7 @@
     }
 
     // ═══════════════════════════════════════════
-    // CHANGE PASSWORD
+    // CHANGE PASSWORD — unchanged
     // ═══════════════════════════════════════════
     async function changePassword() {
         var msg  = document.getElementById('passwordMsg');
@@ -1158,7 +1246,7 @@
     }
 
     // ═══════════════════════════════════════════
-    // LOGOUT
+    // LOGOUT — unchanged
     // ═══════════════════════════════════════════
     async function handleLogout() {
         await window.dharaverseAuth.logout();
@@ -1166,7 +1254,7 @@
     }
 
     // ═══════════════════════════════════════════
-    // SHOW MESSAGE
+    // SHOW MESSAGE — unchanged
     // ═══════════════════════════════════════════
     function showMsg(el, type, text) {
         el.className = 'msg-box ' + type;
