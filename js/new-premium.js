@@ -577,10 +577,45 @@
         );
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+        // ✅ Smart init with polling backup
+    function tryInitPremium() {
+        if (window.premiumCheck) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        } else {
+            window.addEventListener('dvCoreReady', function() {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', init);
+                } else {
+                    init();
+                }
+            });
+
+            // Backup poll every 100ms
+            var attempts = 0;
+            var poll = setInterval(function() {
+                attempts++;
+                if (window.premiumCheck) {
+                    clearInterval(poll);
+                    if (!window.DV_NEW_INITIALIZED) {
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', init);
+                        } else {
+                            init();
+                        }
+                    }
+                }
+                if (attempts > 100) {
+                    clearInterval(poll);
+                    console.error('❌ premiumCheck never loaded');
+                }
+            }, 100);
+        }
     }
+
+    tryInitPremium();
 
 })();
