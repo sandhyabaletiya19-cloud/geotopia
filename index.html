@@ -1986,6 +1986,148 @@
         font-size: 1rem;
     }
 }
+        /* ── Dashboard Auth Section ── */
+.dash-auth-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 4px;
+}
+
+.dash-logged-in {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: linear-gradient(135deg, 
+        rgba(139,92,246,0.12), 
+        rgba(236,72,153,0.08));
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 14px;
+    margin-bottom: 10px;
+}
+
+.dash-user-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    display: flex; align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.dash-user-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.dash-user-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dash-user-email {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dash-plan-badge {
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.dash-action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.dash-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    transition: 0.2s;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.dash-btn-account {
+    background: rgba(139,92,246,0.15);
+    color: #C084FC;
+    border: 1px solid rgba(139,92,246,0.3);
+}
+
+.dash-btn-account:hover {
+    background: rgba(139,92,246,0.3);
+}
+
+.dash-btn-logout {
+    background: rgba(239,68,68,0.1);
+    color: #F87171;
+    border: 1px solid rgba(239,68,68,0.2);
+}
+
+.dash-btn-logout:hover {
+    background: rgba(239,68,68,0.2);
+}
+
+.dash-login-box {
+    text-align: center;
+    padding: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    margin-bottom: 10px;
+}
+
+.dash-login-box p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.dash-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+}
+
+.dash-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139,92,246,0.4);
+}
+        
     </style>
 </head>
 <body data-theme="dark">
@@ -2122,12 +2264,18 @@
     <!-- Dashboard -->
     <div class="dashboard-overlay" id="dashboardOverlay" onclick="closeDashboard()"></div>
     <div class="dashboard-panel" id="dashboardPanel">
-        <div class="dashboard-header">
-            <h2>📊 Your Progress</h2>
-            <button class="dashboard-close" onclick="closeDashboard()">×</button>
-        </div>
-        <div class="dashboard-content">
-            <div class="user-card">
+       <div class="dashboard-header">
+    <h2>📊 Your Dashboard</h2>
+    <button class="dashboard-close" onclick="closeDashboard()">×</button>
+</div>
+<div class="dashboard-content">
+
+    <!-- ✅ AUTH SECTION - shows login or user info -->
+    <div class="dash-auth-section" id="dashAuthSection">
+        <!-- Filled by JS below -->
+    </div>
+
+    <div class="user-card">
                 <div class="user-avatar">🌍</div>
                 <div class="user-info">
                     <h3>Explorer</h3>
@@ -2784,10 +2932,15 @@ function handleDailyStreak() {
         }
 
         function toggleDashboard() {
-            document.getElementById('dashboardPanel').classList.add('active');
-            document.getElementById('dashboardOverlay').classList.add('active');
-            updateDashboard();
-        }
+    document.getElementById('dashboardPanel').classList.add('active');
+    document.getElementById('dashboardOverlay').classList.add('active');
+    updateDashboard();
+
+    // ✅ Load auth section
+    setTimeout(function() {
+        loadDashAuth();
+    }, 500);
+}
 
         function closeDashboard() {
             document.getElementById('dashboardPanel').classList.remove('active');
@@ -3028,6 +3181,123 @@ function handleDailyStreak() {
             if (e.target === this) closeModal();
         });
 
+
+        // ==================== DASHBOARD AUTH ====================
+function loadDashAuth() {
+    var section = document.getElementById('dashAuthSection');
+    if (!section) return;
+
+    // Wait for dharaverseDB
+    if (!window.dharaverseDB) {
+        section.innerHTML = '';
+        return;
+    }
+
+    window.dharaverseDB.getCurrentUser().then(function(user) {
+
+        if (!user) {
+            // NOT LOGGED IN
+            section.innerHTML =
+                '<div class="dash-login-box">' +
+                    '<p>Sign in to save your progress<br>and unlock premium features</p>' +
+                    '<a href="/auth-new.html" class="dash-login-btn">' +
+                        '🚀 Login / Sign Up' +
+                    '</a>' +
+                '</div>';
+            return;
+        }
+
+        // LOGGED IN - get plan
+        window.premiumCheck.getPremiumStatus().then(function(status) {
+
+            var plan = status.plan || 'free';
+            var planColors = {
+                free:     '#6B7280',
+                games:    '#06B6D4',
+                upsc:     '#8B5CF6',
+                pro:      '#EC4899',
+                ultimate: '#FFD700'
+            };
+            var planIcons = {
+                free: '🆓',
+                games: '🎮',
+                upsc: '📚',
+                pro: '⭐',
+                ultimate: '👑'
+            };
+
+            var planColor = planColors[plan] || '#6B7280';
+            var planIcon  = planIcons[plan]  || '🆓';
+            var planName  = plan.charAt(0).toUpperCase() + plan.slice(1);
+
+            var displayName = user.user_metadata?.name ||
+                              user.email.split('@')[0] ||
+                              'Explorer';
+
+            section.innerHTML =
+                '<div class="dash-logged-in">' +
+                    '<div class="dash-user-avatar">🌍</div>' +
+                    '<div class="dash-user-info">' +
+                        '<div class="dash-user-name">' + displayName + '</div>' +
+                        '<div class="dash-user-email">' + user.email + '</div>' +
+                    '</div>' +
+                    '<span class="dash-plan-badge" style="' +
+                        'background:' + planColor + '22;' +
+                        'border:1px solid ' + planColor + '44;' +
+                        'color:' + planColor + '">' +
+                        planIcon + ' ' + planName +
+                    '</span>' +
+                '</div>' +
+                '<div class="dash-action-btns">' +
+                    '<a href="/user-dashboard.html" class="dash-btn dash-btn-account">' +
+                        '👤 My Account' +
+                    '</a>' +
+                    '<button class="dash-btn dash-btn-logout" onclick="handleDashLogout()">' +
+                        '🚪 Logout' +
+                    '</button>' +
+                '</div>';
+        });
+    });
+}
+
+async function handleDashLogout() {
+    if (!confirm('Logout from DharaVerse?')) return;
+    if (window.dharaverseAuth) {
+        await window.dharaverseAuth.logout();
+    }
+    window.location.reload();
+}
+
+// ==================== SECRET ADMIN SHORTCUT ====================
+// Press Shift + Shift + A (shift twice then A) to open admin
+(function() {
+    var shiftCount = 0;
+    var shiftTimer;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Shift') {
+            shiftCount++;
+            clearTimeout(shiftTimer);
+            shiftTimer = setTimeout(function() {
+                shiftCount = 0;
+            }, 800);
+
+            if (shiftCount >= 2) {
+                shiftCount = 0;
+                // Wait for next key
+                document.addEventListener('keydown', waitForA, { once: true });
+            }
+        }
+    });
+
+    function waitForA(e) {
+        if (e.key === 'A' || e.key === 'a') {
+            window.open('/admin-dashboard.html', '_blank');
+        }
+    }
+})();
+
+        
         // ==================== INIT ====================
         updateDashboard();
 
@@ -3113,7 +3383,9 @@ function handleDailyStreak() {
             <li><a href="encyclopedia/encyclopedia.html"><span class="nav-icon">📖</span><span class="nav-label">More</span></a></li>
         </ul>
     </nav>
- 
+
+
+    
 <script src="/js/auto-inject.js"></script>
 <script src="/js/dashboard.js"></script>
 
