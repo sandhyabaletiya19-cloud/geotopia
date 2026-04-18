@@ -33,14 +33,14 @@
 
     // ✅ Load premium scripts
 var scriptsToLoad = [
-    '/js/dv-core.js',          // ← ADD THIS ONE LINE
+    '/js/dv-core.js',
+    '/js/new-payment.js',      // ← MOVE THIS TO SECOND PLACE
+    '/js/new-premium.js',
+    '/js/p-w.js',
     '/js/config/plans-config.js',
     '/js/core/access-control.js',
     '/js/core/payment-handler.js',
-    '/js/core/geo-helpers.js',
-    '/js/new-premium.js',
-    '/js/new-payment.js',
-'/js/p-w.js'
+    '/js/core/geo-helpers.js'
 ];
 
     function loadScript(index) {
