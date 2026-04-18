@@ -39,6 +39,7 @@ var scriptsToLoad = [
     '/js/core/payment-handler.js',
     '/js/core/geo-helpers.js',
     '/js/new-premium.js',
+    '/js/new-payment.js',
 '/js/p-w.js'
 ];
 
