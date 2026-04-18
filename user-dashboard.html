@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard — DharaVerse</title>
+    <link rel="icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ═══════════════════════════════════════
+           RESET & BASE
+        ═══════════════════════════════════════ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-1: #0a0015;
+            --purple-2: #110022;
+            --purple-3: #1a0033;
+            --accent:   #7C3AED;
+            --accent-2: #9D5FF5;
+            --accent-3: #C084FC;
+            --gold:     #FFD700;
+            --text:     #ffffff;
+            --text-dim: rgba(255,255,255,0.6);
+            --text-faint: rgba(255,255,255,0.3);
+            --card-bg:  rgba(124,58,237,0.08);
+            --card-border: rgba(124,58,237,0.2);
+            --glow: 0 0 30px rgba(124,58,237,0.3);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--purple-1);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════
+           GALAXY BACKGROUND
+        ═══════════════════════════════════════ */
+        .galaxy-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .galaxy-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%,
+                    rgba(124,58,237,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%,
+                    rgba(157,95,245,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%,
+                    rgba(10,0,21,1) 0%, transparent 100%);
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: twinkle var(--dur, 3s) ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50%       { opacity: 1;   transform: scale(1.3); }
+        }
+
+        /* ARMY Bomb glow */
+        .army-bomb {
+            position: absolute;
+            width: 8px;
+            height: 16px;
+            background: linear-gradient(180deg, #ffffff, #7C3AED);
+            border-radius: 4px 4px 2px 2px;
+            animation: bombGlow 2s ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+        }
+
+        @keyframes bombGlow {
+            0%, 100% {
+                box-shadow: 0 0 6px 2px rgba(124,58,237,0.4);
+                opacity: 0.4;
+            }
+            50% {
+                box-shadow: 0 0 20px 6px rgba(124,58,237,0.9);
+                opacity: 1;
+            }
+        }
+
+        /* Shooting star */
+        .shooting-star {
+            position: absolute;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent, rgba(255,255,255,0.8), transparent);
+            border-radius: 2px;
+            animation: shoot var(--dur, 4s) linear infinite;
+            animation-delay: var(--delay, 0s);
+            opacity: 0;
+        }
+
+        @keyframes shoot {
+            0%   { transform: translateX(-200px) translateY(0) rotate(-30deg); opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { transform: translateX(110vw) translateY(200px) rotate(-30deg); opacity: 0; }
+        }
+
+        /* ═══════════════════════════════════════
+           LAYOUT
+        ═══════════════════════════════════════ */
+        .dashboard-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+
+        /* ═══════════════════════════════════════
+           HEADER
+        ═══════════════════════════════════════ */
+        .dash-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0 40px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .dash-logo {
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .dash-logo span {
+            color: var(--accent-3);
+            -webkit-text-fill-color: var(--accent-3);
+        }
+
+        .dash-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home {
+            padding: 8px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .btn-home:hover {
+            background: rgba(124,58,237,0.2);
+            border-color: var(--accent);
+        }
+
+        .btn-logout {
+            padding: 8px 18px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-dim);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* ═══════════════════════════════════════
+           WELCOME SECTION
+        ═══════════════════════════════════════ */
+        .welcome-section {
+            text-align: center;
+            padding: 20px 0 50px;
+        }
+
+        .welcome-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 20px;
+            box-shadow: var(--glow);
+            animation: avatarPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes avatarPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.4); }
+            50%       { box-shadow: 0 0 50px rgba(124,58,237,0.8); }
+        }
+
+        .welcome-name {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .welcome-name span {
+            background: linear-gradient(135deg, var(--accent-3), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-sub {
+            font-size: 15px;
+            color: var(--text-dim);
+        }
+
+        /* ═══════════════════════════════════════
+           PLAN CARD (Hero)
+        ═══════════════════════════════════════ */
+        .plan-hero {
+            background: linear-gradient(135deg,
+                rgba(124,58,237,0.2),
+                rgba(157,95,245,0.1));
+            border: 1px solid rgba(124,58,237,0.4);
+            border-radius: 24px;
+            padding: 36px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle,
+                rgba(124,58,237,0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .plan-hero-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .plan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            border: 1px solid;
+        }
+
+        .plan-badge.free {
+            background: rgba(107,114,128,0.15);
+            border-color: rgba(107,114,128,0.4);
+            color: #9CA3AF;
+        }
+
+        .plan-badge.games {
+            background: rgba(6,182,212,0.15);
+            border-color: rgba(6,182,212,0.4);
+            color: #06B6D4;
+        }
+
+        .plan-badge.upsc {
+            background: rgba(124,58,237,0.15);
+            border-color: rgba(124,58,237,0.4);
+            color: #C084FC;
+        }
+
+        .plan-badge.pro {
+            background: rgba(236,72,153,0.15);
+            border-color: rgba(236,72,153,0.4);
+            color: #EC4899;
+        }
+
+        .plan-badge.ultimate {
+            background: rgba(255,215,0,0.1);
+            border-color: rgba(255,215,0,0.4);
+            color: #FFD700;
+        }
+
+        .plan-hero-title {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .plan-expiry {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .plan-expiry span {
+            color: var(--accent-3);
+            font-weight: 600;
+        }
+
+        .btn-upgrade {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--gold), #FFA500);
+            color: #0a0015;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,215,0,0.3);
+        }
+
+        /* Plan features mini grid */
+        .plan-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .plan-feat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .plan-feat-item i {
+            color: var(--accent-3);
+            font-size: 10px;
+        }
+
+        /* ═══════════════════════════════════════
+           STATS ROW
+        ═══════════════════════════════════════ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--glow);
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-faint);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ═══════════════════════════════════════
+           GRID (Profile + Password side by side)
+        ═══════════════════════════════════════ */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dash-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ═══════════════════════════════════════
+           CARDS
+        ═══════════════════════════════════════ */
+        .dash-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 28px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-3);
+        }
+
+        .card-title i {
+            font-size: 14px;
+        }
+
+        /* ═══════════════════════════════════════
+           FORM ELEMENTS
+        ═══════════════════════════════════════ */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            background: rgba(124,58,237,0.1);
+        }
+
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+            margin-top: 4px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+        }
+
+        /* ═══════════════════════════════════════
+           MESSAGE BOX
+        ═══════════════════════════════════════ */
+        .msg-box {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .msg-box.success {
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #34D399;
+            display: block;
+        }
+
+        .msg-box.error {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #F87171;
+            display: block;
+        }
+
+        /* ═══════════════════════════════════════
+           PAYMENT HISTORY TABLE
+        ═══════════════════════════════════════ */
+        .history-card {
+            margin-bottom: 30px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-faint);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .history-table td {
+            padding: 14px;
+            font-size: 13px;
+            color: var(--text-dim);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .history-table tr:hover td {
+            background: rgba(124,58,237,0.05);
+            color: var(--text);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-badge.success {
+            background: rgba(16,185,129,0.15);
+            color: #34D399;
+        }
+
+        .status-badge.failed {
+            background: rgba(239,68,68,0.15);
+            color: #F87171;
+        }
+
+        .status-badge.pending {
+            background: rgba(245,158,11,0.15);
+            color: #FBBF24;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-faint);
+            font-size: 14px;
+        }
+
+        /* ═══════════════════════════════════════
+           SPARKLE ANIMATION
+        ═══════════════════════════════════════ */
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 20px;
+            animation: sparkleAnim 1s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0%   { transform: translateY(0) scale(0); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+        }
+
+        /* ═══════════════════════════════════════
+           LOADING STATE
+        ═══════════════════════════════════════ */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--purple-1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-ring {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(124,58,237,0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+        @media (max-width: 600px) {
+            .plan-hero-top { flex-direction: column; }
+            .welcome-name { font-size: 24px; }
+            .plan-hero-title { font-size: 22px; }
+            .history-table th:nth-child(3),
+            .history-table td:nth-child(3) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader-ring"></div>
+        <div class="loader-text">Loading your galaxy... 💜</div>
+    </div>
+
+    <!-- Galaxy Background -->
+    <div class="galaxy-bg" id="galaxyBg"></div>
+
+    <!-- Main Content -->
+    <div class="dashboard-wrap">
+
+        <!-- Header -->
+        <header class="dash-header">
+            <a href="/" class="dash-logo">Dhara<span>Verse</span></a>
+            <nav class="dash-nav">
+                <a href="/" class="btn-home">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <button class="btn-logout" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </nav>
+        </header>
+
+        <!-- Welcome -->
+        <section class="welcome-section">
+            <div class="welcome-avatar" id="userAvatar">👤</div>
+            <h1 class="welcome-name">
+                Welcome back, <span id="userName">Explorer</span>!
+            </h1>
+            <p class="welcome-sub" id="userEmail">Loading...</p>
+        </section>
+
+        <!-- Plan Hero -->
+        <div class="plan-hero">
+            <div class="plan-hero-top">
+                <div>
+                    <div class="plan-badge free" id="planBadge">
+                        🆓 Free Plan
+                    </div>
+                    <h2 class="plan-hero-title" id="planTitle">
+                        Free Explorer
+                    </h2>
+                    <p class="plan-expiry" id="planExpiry"></p>
+                </div>
+                <a href="/pricing.html" class="btn-upgrade" id="upgradeBtn">
+                    <i class="fas fa-crown"></i> Upgrade Plan
+                </a>
+            </div>
+            <div class="plan-features" id="planFeatures"></div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon">💜</div>
+                <div class="stat-value" id="statDays">—</div>
+                <div class="stat-label">Days with DharaVerse</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💳</div>
+                <div class="stat-value" id="statPayments">—</div>
+                <div class="stat-label">Total Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value" id="statPlan">Free</div>
+                <div class="stat-label">Current Plan</div>
+            </div>
+        </div>
+
+        <!-- Profile + Password -->
+        <div class="dash-grid">
+
+            <!-- Profile Card -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <i class="fas fa-user"></i> My Profile
+                </div>
+                <div class="msg-box" id="profileMsg"></div>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input"
+                        id="profileName" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input"
+                        id="profileEmail" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-input"
+                        id="profilePhone" placeholder="+91 XXXXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Country</label>
+                    <input type="text" class="form-input"
+                        id="profileCountry" placeholder="India">
+                </div>
+                <button class="btn-save" onclick="saveProfile()">
+                    <i class="fas fa-save"></i> Save Profile
+                </button>
+            </div>
+
+            <!-- Password Card -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <i class="fas fa-lock"></i> Change Password
+                </div>
+                <div class="msg-box" id="passwordMsg"></div>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-input"
+                        id="newPassword" placeholder="Min 6 characters">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-input"
+                        id="confirmPassword" placeholder="Repeat password">
+                </div>
+                <button class="btn-save" onclick="changePassword()">
+                    <i class="fas fa-key"></i> Update Password
+                </button>
+
+                <!-- Danger Zone -->
+                <div style="margin-top: 30px; padding-top: 20px;
+                    border-top: 1px solid rgba(255,255,255,0.06);">
+                    <div class="card-title" style="color: #F87171;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Account
+                    </div>
+                    <button class="btn-save"
+                        style="background: rgba(239,68,68,0.15);
+                               color: #F87171;
+                               border: 1px solid rgba(239,68,68,0.3);"
+                        onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="dash-card history-card">
+            <div class="card-title">
+                <i class="fas fa-receipt"></i> Payment History
+            </div>
+            <div id="paymentHistory">
+                <div class="no-data">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading...
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end dashboard-wrap -->
+
+    <script src="/js/auto-inject.js"></script>
+
+    <script>
+    // ═══════════════════════════════════════════
+    // GALAXY BACKGROUND GENERATOR
+    // ═══════════════════════════════════════════
+    function buildGalaxy() {
+        var bg = document.getElementById('galaxyBg');
+        var html = '';
+
+        // 150 stars
+        for (var i = 0; i < 150; i++) {
+            var size = Math.random() * 3 + 1;
+            var x    = Math.random() * 100;
+            var y    = Math.random() * 100;
+            var dur  = (Math.random() * 4 + 2).toFixed(1);
+            var del  = (Math.random() * 5).toFixed(1);
+            html += '<div class="star" style="' +
+                'width:' + size + 'px;' +
+                'height:' + size + 'px;' +
+                'left:' + x + '%;' +
+                'top:' + y + '%;' +
+                '--dur:' + dur + 's;' +
+                '--delay:-' + del + 's;' +
+            '"></div>';
+        }
+
+        // 12 ARMY Bombs
+        for (var j = 0; j < 12; j++) {
+            var bx  = Math.random() * 100;
+            var by  = Math.random() * 100;
+            var bd  = (Math.random() * 3 + 1).toFixed(1);
+            var bdl = (Math.random() * 3).toFixed(1);
+            html += '<div class="army-bomb" style="' +
+                'left:' + bx + '%;' +
+                'top:' + by + '%;' +
+                '--delay:-' + bdl + 's;' +
+                'animation-duration:' + bd + 's;' +
+            '"></div>';
+        }
+
+        // 5 Shooting stars
+        for (var k = 0; k < 5; k++) {
+            var sy  = Math.random() * 60;
+            var sd  = (Math.random() * 6 + 4).toFixed(1);
+            var sdl = (Math.random() * 8).toFixed(1);
+            html += '<div class="shooting-star" style="' +
+                'top:' + sy + '%;' +
+                '--dur:' + sd + 's;' +
+                '--delay:-' + sdl + 's;' +
+            '"></div>';
+        }
+
+        bg.innerHTML = html;
+    }
+
+    buildGalaxy();
+
+    // ═══════════════════════════════════════════
+    // SPARKLE ON CLICK
+    // ═══════════════════════════════════════════
+    document.addEventListener('click', function(e) {
+        var emojis = ['💜', '⭐', '✨', '💫', '🌟'];
+        var el = document.createElement('div');
+        el.className = 'sparkle';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = e.clientX + 'px';
+        el.style.top  = e.clientY + 'px';
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 1000);
+    });
+
+    // ═══════════════════════════════════════════
+    // WAIT FOR CORE
+    // ═══════════════════════════════════════════
+    function waitForCore(callback) {
+        if (window.dharaverseDB && window.dharaverseAuth) {
+            callback();
+            return;
+        }
+        var attempts = 0;
+        var poll = setInterval(function() {
+            attempts++;
+            if (window.dharaverseDB && window.dharaverseAuth) {
+                clearInterval(poll);
+                callback();
+            }
+            if (attempts > 100) {
+                clearInterval(poll);
+                window.location.href = '/auth-new.html';
+            }
+        }, 100);
+    }
+
+    // ═══════════════════════════════════════════
+    // MAIN INIT
+    // ═══════════════════════════════════════════
+    waitForCore(async function() {
+
+        // Check logged in
+        var loggedIn = await window.dharaverseDB.isLoggedIn();
+        if (!loggedIn) {
+            window.location.href = '/auth-new.html?return=/user-dashboard.html';
+            return;
+        }
+
+        var user    = await window.dharaverseDB.getCurrentUser();
+        var profile = await window.dharaverseDB.getUserProfile(user.id);
+
+        // Fill welcome
+        var name = (profile && profile.name) || 
+                    user.email.split('@')[0];
+        document.getElementById('userName').textContent = name;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userAvatar').textContent =
+            name.charAt(0).toUpperCase();
+
+        // Fill profile form
+        document.getElementById('profileName').value =
+            (profile && profile.name) || '';
+        document.getElementById('profileEmail').value = user.email;
+        document.getElementById('profilePhone').value =
+            (profile && profile.phone) || '';
+        document.getElementById('profileCountry').value =
+            (profile && profile.country) || '';
+
+        // Days with DharaVerse
+        var created = new Date(user.created_at);
+        var days = Math.floor(
+            (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        document.getElementById('statDays').textContent = days;
+
+        // Load plan
+        await loadPlanInfo();
+
+        // Load payments
+        await loadPaymentHistory(user.id);
+
+        // Hide loader
+        var loader = document.getElementById('loadingScreen');
+        loader.classList.add('hidden');
+        setTimeout(function() { loader.remove(); }, 600);
+    });
+
+    // ═══════════════════════════════════════════
+    // LOAD PLAN INFO
+    // ═══════════════════════════════════════════
+    async function loadPlanInfo() {
+        if (!window.premiumCheck) return;
+
+        var status = await window.premiumCheck.getPremiumStatus();
+        var plan   = status.plan || 'free';
+
+        var planMap = {
+            free:    { label:'🆓 Free Plan',     cls:'free',
+                       title:'Free Explorer',
+                       features:['7 Landscapes','3 Games','3 UPSC Topics'] },
+            games:   { label:'🎮 Games Plan',    cls:'games',
+                       title:'Games Explorer',
+                       features:['All Games','7 Landscapes','3 UPSC Topics'] },
+            upsc:    { label:'📚 UPSC Plan',     cls:'upsc',
+                       title:'UPSC Warrior',
+                       features:['All UPSC Topics','7 Landscapes','3 Games'] },
+            pro:     { label:'⭐ Pro Plan',       cls:'pro',
+                       title:'Pro Explorer',
+                       features:['All Landscapes','All Games','Ad-Free','Dictionary'] },
+            ultimate:{ label:'👑 Ultimate Plan', cls:'ultimate',
+                       title:'Ultimate Explorer',
+                       features:['Everything Unlocked','Ad-Free','All Features'] }
+        };
+
+        var info = planMap[plan] || planMap.free;
+
+        // Badge
+        var badge = document.getElementById('planBadge');
+        badge.textContent = info.label;
+        badge.className = 'plan-badge ' + info.cls;
+
+        // Title
+        document.getElementById('planTitle').textContent = info.title;
+
+        // Stat
+        document.getElementById('statPlan').textContent =
+            plan.charAt(0).toUpperCase() + plan.slice(1);
+
+        // Expiry
+        if (status.expiresAt) {
+            var exp = new Date(status.expiresAt);
+            document.getElementById('planExpiry').innerHTML =
+                'Expires: <span>' + exp.toLocaleDateString() + '</span>';
+        } else if (plan === 'free') {
+            document.getElementById('planExpiry').textContent =
+                'Upgrade to unlock more features';
+        }
+
+        // Features
+        var featHtml = '';
+        info.features.forEach(function(f) {
+            featHtml += '<div class="plan-feat-item">' +
+                '<i class="fas fa-check"></i>' + f +
+                '</div>';
+        });
+        document.getElementById('planFeatures').innerHTML = featHtml;
+
+        // Hide upgrade button for ultimate
+        if (plan === 'ultimate') {
+            document.getElementById('upgradeBtn').style.display = 'none';
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // LOAD PAYMENT HISTORY
+    // ═══════════════════════════════════════════
+    async function loadPaymentHistory(userId) {
+        var history = document.getElementById('paymentHistory');
+
+        try {
+            var payments = await window.dharaverseDB.getPaymentHistory(userId);
+
+            document.getElementById('statPayments').textContent =
+                payments ? payments.length : 0;
+
+            if (!payments || payments.length === 0) {
+                history.innerHTML = '<div class="no-data">' +
+                    '💜 No payments yet. ' +
+                    '<a href="/pricing.html" style="color:#C084FC">' +
+                    'View plans</a></div>';
+                return;
+            }
+
+            var rows = payments.map(function(p) {
+                var date = new Date(p.created_at).toLocaleDateString();
+                var statusClass = p.status === 'success' ? 'success' :
+                                  p.status === 'failed'  ? 'failed'  : 'pending';
+                return '<tr>' +
+                    '<td>' + date + '</td>' +
+                    '<td>' + (p.plan || '—') + ' / ' + (p.period || '—') + '</td>' +
+                    '<td>' + (p.currency || 'INR') + ' ' +
+                        ((p.amount || 0) / 100).toFixed(2) + '</td>' +
+                    '<td><span class="status-badge ' + statusClass + '">' +
+                        p.status + '</span></td>' +
+                    '</tr>';
+            }).join('');
+
+            history.innerHTML = '<table class="history-table">' +
+                '<thead><tr>' +
+                '<th>Date</th><th>Plan</th>' +
+                '<th>Amount</th><th>Status</th>' +
+                '</tr></thead>' +
+                '<tbody>' + rows + '</tbody>' +
+                '</table>';
+
+        } catch (err) {
+            history.innerHTML = '<div class="no-data">Could not load history</div>';
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // SAVE PROFILE
+    // ═══════════════════════════════════════════
+    async function saveProfile() {
+        var msg  = document.getElementById('profileMsg');
+        var name = document.getElementById('profileName').value.trim();
+
+        if (!name) {
+            showMsg(msg, 'error', 'Please enter your name');
+            return;
+        }
+
+        try {
+            var user = await window.dharaverseDB.getCurrentUser();
+            await window.dharaverseDB.updateUserProfile(user.id, {
+                name:    name,
+                phone:   document.getElementById('profilePhone').value.trim(),
+                country: document.getElementById('profileCountry').value.trim()
+            });
+
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userAvatar').textContent =
+                name.charAt(0).toUpperCase();
+
+            showMsg(msg, 'success', '✅ Profile saved!');
+        } catch (err) {
+            showMsg(msg, 'error', 'Could not save. Try again.');
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // CHANGE PASSWORD
+    // ═══════════════════════════════════════════
+    async function changePassword() {
+        var msg  = document.getElementById('passwordMsg');
+        var np   = document.getElementById('newPassword').value;
+        var cp   = document.getElementById('confirmPassword').value;
+
+        if (!np || np.length < 6) {
+            showMsg(msg, 'error', 'Password must be at least 6 characters');
+            return;
+        }
+
+        if (np !== cp) {
+            showMsg(msg, 'error', 'Passwords do not match');
+            return;
+        }
+
+        try {
+            await window.dharaverseAuth.updatePassword(np);
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            showMsg(msg, 'success', '✅ Password updated!');
+        } catch (err) {
+            showMsg(msg, 'error', 'Could not update. Try again.');
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // LOGOUT
+    // ═══════════════════════════════════════════
+    async function handleLogout() {
+        await window.dharaverseAuth.logout();
+        window.location.href = '/';
+    }
+
+    // ═══════════════════════════════════════════
+    // SHOW MESSAGE
+    // ═══════════════════════════════════════════
+    function showMsg(el, type, text) {
+        el.className = 'msg-box ' + type;
+        el.textContent = text;
+        setTimeout(function() {
+            el.className = 'msg-box';
+            el.textContent = '';
+        }, 4000);
+    }
+    </script>
+
+</body>
+</html>
