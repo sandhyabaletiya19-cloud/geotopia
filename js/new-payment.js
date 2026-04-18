@@ -134,9 +134,33 @@ async function startRazorpayPayment(planId, period, amount) {
   }
 }
 
-// ✅ Export to window
-window.startRazorpayPayment = startRazorpayPayment;
-window.createOrder = createOrder;
-window.verifyPayment = verifyPayment;
+// ✅ Smart init - handles all timing scenarios
+function tryInit() {
+    if (window.dharaverseDB) {
+        initNewPayment();
+    } else {
+        // Listen for event AND also poll as backup
+        window.addEventListener('dvCoreReady', function() {
+            initNewPayment();
+        });
+        
+        // Backup: poll every 100ms for up to 10 seconds
+        var attempts = 0;
+        var poll = setInterval(function() {
+            attempts++;
+            if (window.dharaverseDB) {
+                clearInterval(poll);
+                // Only init if event didn't already do it
+                if (!window.startRazorpayPayment) {
+                    initNewPayment();
+                }
+            }
+            if (attempts > 100) {
+                clearInterval(poll);
+                console.error('❌ dharaverseDB never loaded');
+            }
+        }, 100);
+    }
+}
 
-console.log("✅ New Payment System Ready");
+tryInit();
