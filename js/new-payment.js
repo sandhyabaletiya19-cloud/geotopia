@@ -135,9 +135,42 @@ function initNewPayment() {
 
                         if (result.success) {
 
-                            if (window.premiumCheck?.clearPremiumCache) {
-                                window.premiumCheck.clearPremiumCache();
-                            }
+    // Clear premium cache
+    if (window.premiumCheck?.clearPremiumCache) {
+        window.premiumCheck.clearPremiumCache();
+    }
+
+    // ── SYNC TO LOCALSTORAGE ──
+    // So premium-wrapper.js unlocks content immediately
+    if (window.dvSync) {
+        await window.dvSync.sync();
+    }
+
+    // Get profile for name
+    var profile = await window.dharaverseDB.getUserProfile(currentUser.id);
+    var userName = (profile && profile.name)
+        || currentUser.email.split('@')[0];
+
+    var sub = await window.dharaverseDB.getActiveSubscription(currentUser.id);
+    var expiresAt = sub ? sub.expires_at : null;
+
+    sendPaymentReceiptEmail(
+        currentUser.email,
+        userName,
+        planId,
+        period,
+        order.amount,
+        'INR',
+        expiresAt,
+        response.razorpay_payment_id
+    );
+
+    alert('✅ Payment successful! Premium activated.');
+    window.location.href = '/user-dashboard.html';
+
+} else {
+    alert('❌ Payment verification failed.');
+}
 
                             // Get profile for name
                             var profile =
