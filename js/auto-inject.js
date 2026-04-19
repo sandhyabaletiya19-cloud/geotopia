@@ -33,7 +33,6 @@
 
     // ✅ Load premium scripts
 var scriptsToLoad = [
-    'https://checkout.razorpay.com/v1/checkout.js',
     '/js/dv-core.js',
     '/js/new-payment.js',
     '/js/new-premium.js',
