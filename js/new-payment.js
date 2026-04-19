@@ -165,8 +165,8 @@ function initNewPayment() {
         response.razorpay_payment_id
     );
 
-    alert('✅ Payment successful! Premium activated.');
-    window.location.href = '/user-dashboard.html';
+    // ✅ Redirect to beautiful success page
+    window.location.href = '/payment-success.html?plan=' + planId + '&period=' + period;
 
 } else {
     alert('❌ Payment verification failed.');
