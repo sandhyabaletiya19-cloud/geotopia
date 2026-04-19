@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="/logo.png">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -642,7 +643,6 @@
             color: var(--text2);
             line-height: 1.7;
         }
-
 
         footer {
             position: relative;
@@ -1285,19 +1285,15 @@ function detectRegion() {
             'International pricing — Pay via PayPal · ' +
             'UPSC & Ultimate are India-only';
 
-        // Disable UPSC for international
         var upscBtn = document.getElementById('upsc-cta-btn');
         if (upscBtn) {
-            upscBtn.innerHTML =
-                '<i class="fas fa-lock"></i> India Only 🇮🇳';
+            upscBtn.innerHTML = '<i class="fas fa-lock"></i> India Only 🇮🇳';
             upscBtn.disabled = true;
         }
 
-        // Disable Ultimate for international
         var ultBtn = document.getElementById('ultimate-cta-btn');
         if (ultBtn) {
-            ultBtn.innerHTML =
-                '<i class="fas fa-lock"></i> India Only 🇮🇳';
+            ultBtn.innerHTML = '<i class="fas fa-lock"></i> India Only 🇮🇳';
             ultBtn.disabled = true;
         }
     }
@@ -1317,28 +1313,26 @@ window.setPeriod = function(period) {
     var eb = document.getElementById('earlyBirdBanner');
     if (!eb) return;
 
-    var ebCount = parseInt(
-        localStorage.getItem('dv_earlybird_count') || '0'
-    );
+    var ebCount = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
 
     if (period === 'yearly' && currentCurrency === 'inr' && ebCount < 11) {
         eb.classList.add('show');
     } else {
         eb.classList.remove('show');
     }
-}
+};
 
 // ── CURRENCY TOGGLE ──
 window.setCurrency = function(currency) {
     currentCurrency = currency;
     updateCurrencyButtons();
     updateAllPrices();
-}
+};
 
 function updateCurrencyButtons() {
-    var btnINR   = document.getElementById('btnINR');
-    var btnUSD   = document.getElementById('btnUSD');
-    var isINR    = currentCurrency === 'inr';
+    var btnINR = document.getElementById('btnINR');
+    var btnUSD = document.getElementById('btnUSD');
+    var isINR  = currentCurrency === 'inr';
 
     btnINR.style.background = isINR
         ? 'linear-gradient(135deg,#6441A5,#4A2D7A)'
@@ -1421,7 +1415,6 @@ function updateAllPrices() {
             isYear ? 'Get UPSC — Yearly' : 'Get UPSC — Monthly'
         );
     } else {
-        // International — show unavailable
         setEl('upsc-price',  'N/A');
         setEl('upsc-period', '');
         setEl('upsc-sub',    'Not available internationally');
@@ -1459,9 +1452,7 @@ function updateAllPrices() {
 
     // ── ULTIMATE (INR only) ──
     if (c === 'inr') {
-        var ebCount  = parseInt(
-            localStorage.getItem('dv_earlybird_count') || '0'
-        );
+        var ebCount  = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
         var hasEB    = ebCount < 11 && isYear;
         var ultPrice = hasEB ? 2399 : PRICES.ultimate.inr[p];
 
@@ -1493,7 +1484,6 @@ function updateAllPrices() {
             isYear ? 'Get Ultimate — Yearly' : 'Get Ultimate — Monthly'
         );
     } else {
-        // International — show unavailable
         setEl('ult-price',  'N/A');
         setEl('ult-period', '');
         setEl('ult-sub',    'Not available internationally');
@@ -1505,9 +1495,7 @@ function updateAllPrices() {
 
 // ── EARLY BIRD ──
 function initEarlyBird() {
-    var ebCount = parseInt(
-        localStorage.getItem('dv_earlybird_count') || '0'
-    );
+    var ebCount = parseInt(localStorage.getItem('dv_earlybird_count') || '0');
     var left = Math.max(0, 11 - ebCount);
     var el   = document.getElementById('ebSpotsNum');
     if (el) el.textContent = left;
@@ -1520,36 +1508,27 @@ function initEarlyBird() {
 
 // ── HANDLE PLAN CLICK ──
 window.handlePlanClick = function(planId) {
-    // Check login via Supabase
-    var loggedIn = false;
-
     if (window.dharaverseDB) {
-        window.dharaverseDB.isLoggedIn().then(function(result) {
-            loggedIn = result;
-
+        window.dharaverseDB.isLoggedIn().then(function(loggedIn) {
             if (!loggedIn) {
                 showLoginPrompt(planId, function() {
-                    window.location.href =
-                        '/auth-new.html?return=/pricing.html';
+                    window.location.href = '/auth-new.html?return=/pricing.html';
                 });
-                return;
+            } else {
+                showEncouragePopup(planId, function() {
+                    initPayment(planId, currentPeriod);
+                });
             }
-
-            showEncouragePopup(planId, function() {
-                initPayment(planId, currentPeriod);
-            });
         });
     } else {
-        // Fallback — go to auth
         showLoginPrompt(planId, function() {
             window.location.href = '/auth-new.html?return=/pricing.html';
         });
     }
-}
+};
 
 // ── INIT PAYMENT ──
 function initPayment(planId, period) {
-    // Amounts in Paise (INR × 100)
     var amounts = {
         games:    { monthly: 4900,   yearly: 29900  },
         upsc:     { monthly: 9900,   yearly: 79900  },
@@ -1557,28 +1536,26 @@ function initPayment(planId, period) {
         ultimate: { monthly: 39900,  yearly: 249900 }
     };
 
-    var amount = amounts[planId]
-        ? amounts[planId][period]
-        : 4900;
+    var amount = amounts[planId] ? amounts[planId][period] : 4900;
 
     if (window.startRazorpayPayment) {
-    window.startRazorpayPayment(planId, period, amount);
-} else {
-    // Wait and retry
-    var attempts = 0;
-    var wait = setInterval(function() {
-        attempts++;
-        if (window.startRazorpayPayment) {
-            clearInterval(wait);
-            window.startRazorpayPayment(planId, period, amount);
-        }
-               if (attempts > 20) {
-            clearInterval(wait);
-            alert('Payment system loading. Please try again! 💜');
-        }
-    }, 300);
+        window.startRazorpayPayment(planId, period, amount);
+    } else {
+        var attempts = 0;
+        var wait = setInterval(function() {
+            attempts++;
+            if (window.startRazorpayPayment) {
+                clearInterval(wait);
+                window.startRazorpayPayment(planId, period, amount);
+            }
+            if (attempts > 20) {
+                clearInterval(wait);
+                alert('Payment system loading. Please try again! 💜');
+            }
+        }, 300);
+    }
 }
-}
+
 // ── LOGIN PROMPT ──
 function showLoginPrompt(planId, onConfirm) {
     var names = {
@@ -1629,9 +1606,7 @@ function showLoginPrompt(planId, onConfirm) {
         '</div>';
 
     document.body.appendChild(popup);
-
-    document.getElementById('dv-login-go-btn')
-        .addEventListener('click', onConfirm);
+    document.getElementById('dv-login-go-btn').addEventListener('click', onConfirm);
 }
 
 // ── ENCOURAGE POPUP ──
@@ -1717,14 +1692,13 @@ function showEncouragePopup(planId, onConfirm) {
 window.toggleDetails = function(planId, btn) {
     var details = document.getElementById('details-' + planId);
     if (!details) return;
-
     var isOpen = details.classList.contains('open');
     details.classList.toggle('open', !isOpen);
     btn.classList.toggle('open', !isOpen);
     btn.innerHTML = !isOpen
         ? 'Hide details <i class="fas fa-chevron-down"></i>'
         : 'What\'s included <i class="fas fa-chevron-down"></i>';
-}
+};
 
 // ── FAQ ──
 window.toggleFaq = function(el) {
@@ -1733,7 +1707,7 @@ window.toggleFaq = function(el) {
     document.querySelectorAll('.faq-item')
         .forEach(function(f) { f.classList.remove('open'); });
     if (!wasOpen) item.classList.add('open');
-}
+};
 
 // ── AUTO TRIGGER AFTER LOGIN ──
 (function autoTriggerPayment() {
@@ -1744,8 +1718,7 @@ window.toggleFaq = function(el) {
     if (!autoPlan) return;
 
     document.addEventListener('DOMContentLoaded', function() {
-        setPeriod(autoPeriod);
-
+        window.setPeriod(autoPeriod);
         setTimeout(function() {
             var card = document.getElementById('card-' + autoPlan);
             if (card) {
