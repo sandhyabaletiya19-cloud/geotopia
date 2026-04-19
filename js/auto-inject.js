@@ -41,7 +41,7 @@ var scriptsToLoad = [
     '/js/core/access-control.js',
     '/js/core/payment-handler.js',
     '/js/core/geo-helpers.js',
-    '/js/dv-sync.js'          // ← ADD THIS ONE LINE ONLY
+    '/js/dv-lock.js'
 ];
 
     function loadScript(index) {
