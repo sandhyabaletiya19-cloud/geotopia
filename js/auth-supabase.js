@@ -3,74 +3,58 @@
 // DharaVerse — Auth Functions
 // ============================================
 
-// Wait for supabase-client.js to load
 function getClient() {
     return window.dharaverseDB?.client;
 }
 
-// ── SUPABASE FUNCTIONS URL ──
 var SUPABASE_FUNCTIONS_URL =
     'https://uubgjhchndervaamizzk.supabase.co/functions/v1';
 
-// ── SEND WELCOME EMAIL (internal helper) ──
+var SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1YmdqaGNobmRlcnZhYW1penprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjg3OTUsImV4cCI6MjA5MTkwNDc5NX0.3KVEDCVcM67VQNDfls9nMRsnJT1vqxLSr4yUES_6bRQ';
+
+// ── SEND WELCOME EMAIL ──
 async function sendWelcomeEmail(email, name) {
     try {
-        const session = await window.dharaverseDB.getSession();
-        const token = session?.access_token;
-
-        if (!token) {
-            console.warn('No access token — cannot send welcome email');
-            return;
-        }
-
-        await fetch(
+        var res = await fetch(
             SUPABASE_FUNCTIONS_URL + '/send-welcome',
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
+                    'Content-Type':  'application/json',
+                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
                 },
-                body: JSON.stringify({ email, name })
+                body: JSON.stringify({ email: email, name: name })
             }
         );
-
-        console.log('💜 Welcome email sent to:', email);
+        var data = await res.json();
+        console.log('💜 Welcome email response:', data);
     } catch(e) {
         console.warn('Welcome email failed (non-critical):', e.message);
     }
 }
-        // Email failure must NEVER break signup
-        console.warn('Welcome email failed (non-critical):', e.message);
-    }
-}
 
-// ── SEND PASSWORD RESET EMAIL (internal helper) ──
+// ── SEND PASSWORD RESET EMAIL ──
 async function sendPasswordResetEmail(email, name, resetLink) {
     try {
-        const session = await window.dharaverseDB.getSession();
-        const token = session?.access_token;
-
-        if (!token) return;
-
-        await fetch(
+        var res = await fetch(
             SUPABASE_FUNCTIONS_URL + '/send-password-reset',
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
+                    'Content-Type':  'application/json',
+                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
                 },
-                body: JSON.stringify({ email, name, resetLink })
+                body: JSON.stringify({
+                    email:     email,
+                    name:      name,
+                    resetLink: resetLink
+                })
             }
         );
-
-        console.log('🔑 Reset email sent to:', email);
+        var data = await res.json();
+        console.log('🔑 Reset email response:', data);
     } catch(e) {
-        console.warn('Reset email failed (non-critical):', e.message);
-    }
-}
-        // Email failure must NEVER break reset flow
         console.warn('Reset email failed (non-critical):', e.message);
     }
 }
@@ -98,11 +82,9 @@ async function signupWithEmail(email, password, name, country, isIndia) {
             error: formatAuthError(error.message)
         };
 
-        // Check if needs email confirmation
         const needsConfirmation = !data.session;
 
-        // ── SEND WELCOME EMAIL ──
-        // Fire and forget — does not block signup
+        // Send welcome email
         if (data.user && data.user.email) {
             sendWelcomeEmail(data.user.email, name);
         }
@@ -135,7 +117,6 @@ async function loginWithEmail(email, password) {
             error: formatAuthError(error.message)
         };
 
-        // Update last login
         if (data.user) {
             await window.dharaverseDB.updateUserProfile(data.user.id, {
                 last_login: new Date().toISOString()
@@ -181,7 +162,6 @@ async function resetPassword(email) {
         const client = getClient();
         if (!client) throw new Error('Supabase client not ready');
 
-        // Build the reset link
         var resetLink =
             'https://dharaverse.com/auth-new.html?reset=true';
 
@@ -194,8 +174,7 @@ async function resetPassword(email) {
             error: formatAuthError(error.message)
         };
 
-        // ── SEND BRANDED RESET EMAIL ──
-        // Fire and forget — does not block reset flow
+        // Send branded reset email
         sendPasswordResetEmail(email, null, resetLink);
 
         return { success: true };
@@ -254,7 +233,7 @@ async function isLoggedIn() {
     } catch(e) { return false; }
 }
 
-// ── FORMAT AUTH ERRORS (user friendly) ──
+// ── FORMAT AUTH ERRORS ──
 function formatAuthError(msg) {
     if (!msg) return 'Something went wrong. Please try again.';
     const m = msg.toLowerCase();
