@@ -15,13 +15,31 @@ var SUPABASE_FUNCTIONS_URL =
 // ── SEND WELCOME EMAIL (internal helper) ──
 async function sendWelcomeEmail(email, name) {
     try {
-        await fetch(SUPABASE_FUNCTIONS_URL + '/send-welcome', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name })
-        });
+        const session = await window.dharaverseDB.getSession();
+        const token = session?.access_token;
+
+        if (!token) {
+            console.warn('No access token — cannot send welcome email');
+            return;
+        }
+
+        await fetch(
+            SUPABASE_FUNCTIONS_URL + '/send-welcome',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ email, name })
+            }
+        );
+
         console.log('💜 Welcome email sent to:', email);
     } catch(e) {
+        console.warn('Welcome email failed (non-critical):', e.message);
+    }
+}
         // Email failure must NEVER break signup
         console.warn('Welcome email failed (non-critical):', e.message);
     }
@@ -30,13 +48,28 @@ async function sendWelcomeEmail(email, name) {
 // ── SEND PASSWORD RESET EMAIL (internal helper) ──
 async function sendPasswordResetEmail(email, name, resetLink) {
     try {
-        await fetch(SUPABASE_FUNCTIONS_URL + '/send-password-reset', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name, resetLink })
-        });
+        const session = await window.dharaverseDB.getSession();
+        const token = session?.access_token;
+
+        if (!token) return;
+
+        await fetch(
+            SUPABASE_FUNCTIONS_URL + '/send-password-reset',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ email, name, resetLink })
+            }
+        );
+
         console.log('🔑 Reset email sent to:', email);
     } catch(e) {
+        console.warn('Reset email failed (non-critical):', e.message);
+    }
+}
         // Email failure must NEVER break reset flow
         console.warn('Reset email failed (non-critical):', e.message);
     }
