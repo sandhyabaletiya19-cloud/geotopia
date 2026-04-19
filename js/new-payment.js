@@ -5,47 +5,43 @@
 
 function initNewPayment() {
 
-    // ✅ Inside function = no conflict with other files
     var SUPABASE_FUNCTIONS_URL =
         'https://uubgjhchndervaamizzk.supabase.co/functions/v1';
 
-    var RAZORPAY_KEY = "rzp key here";
+    var SUPABASE_ANON_KEY =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1YmdqaGNobmRlcnZhYW1penprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjg3OTUsImV4cCI6MjA5MTkwNDc5NX0.3KVEDCVcM67VQNDfls9nMRsnJT1vqxLSr4yUES_6bRQ';
 
-    // ── SEND PAYMENT RECEIPT EMAIL (internal helper) ──
-async function sendPaymentReceiptEmail(
-    email, name, plan, period,
-    amount, currency, expiresAt, paymentId
-) {
-    try {
-        // Get session token
-        const session = await window.dharaverseDB.getSession();
-        const token = session?.access_token;
+    var RAZORPAY_KEY = "rzp_live_ScXeEzlZJLvNTL";
 
-        if (!token) {
-            console.warn('No access token — cannot send receipt email');
-            return;
-        }
-
-        await fetch(
-            SUPABASE_FUNCTIONS_URL + '/send-payment-receipt',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({
-                    email, name, plan, period,
-                    amount, currency, expiresAt, paymentId
-                })
-            }
-        );
-        console.log('💳 Receipt email sent to:', email);
-    } catch(e) {
-        console.warn('Receipt email failed (non-critical):', e.message);
-    }
-}
-            // Email failure must NEVER break payment success
+    // ── SEND PAYMENT RECEIPT EMAIL ──
+    async function sendPaymentReceiptEmail(
+        email, name, plan, period,
+        amount, currency, expiresAt, paymentId
+    ) {
+        try {
+            var res = await fetch(
+                SUPABASE_FUNCTIONS_URL + '/send-payment-receipt',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type':  'application/json',
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        email:     email,
+                        name:      name,
+                        plan:      plan,
+                        period:    period,
+                        amount:    amount,
+                        currency:  currency,
+                        expiresAt: expiresAt,
+                        paymentId: paymentId
+                    })
+                }
+            );
+            var data = await res.json();
+            console.log('💳 Receipt email response:', data);
+        } catch(e) {
             console.warn('Receipt email failed (non-critical):', e.message);
         }
     }
@@ -61,7 +57,10 @@ async function sendPaymentReceiptEmail(
             SUPABASE_FUNCTIONS_URL + '/create-order',
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type':  'application/json',
+                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                },
                 body: JSON.stringify({
                     plan:   planId,
                     period: period,
@@ -78,7 +77,10 @@ async function sendPaymentReceiptEmail(
             SUPABASE_FUNCTIONS_URL + '/verify-payment',
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type':  'application/json',
+                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                },
                 body: JSON.stringify(data)
             }
         );
@@ -87,13 +89,11 @@ async function sendPaymentReceiptEmail(
 
     async function startRazorpayPayment(planId, period, amount) {
 
-        // ✅ Check Razorpay SDK loaded
         if (typeof Razorpay === 'undefined') {
             alert('Payment system loading... please try again.');
             return;
         }
 
-        // ✅ Check user logged in
         const user = await window.dharaverseDB.getCurrentUser();
         if (!user) {
             window.location.href = '/auth-new.html?return=/pricing.html';
@@ -134,29 +134,27 @@ async function sendPaymentReceiptEmail(
                         });
 
                         if (result.success) {
-                            // Clear premium cache
+
                             if (window.premiumCheck?.clearPremiumCache) {
                                 window.premiumCheck.clearPremiumCache();
                             }
 
-                            // ── SEND RECEIPT EMAIL ──
-                            // Fire and forget
-                            // Get user profile for name
-                            var profile = await
-                                window.dharaverseDB.getUserProfile(
+                            // Get profile for name
+                            var profile =
+                                await window.dharaverseDB.getUserProfile(
                                     currentUser.id
                                 );
                             var userName = (profile && profile.name)
                                 || currentUser.email.split('@')[0];
 
-                            // Get expiry from active subscription
-                            var sub = await
-                                window.dharaverseDB.getActiveSubscription(
+                            // Get expiry
+                            var sub =
+                                await window.dharaverseDB.getActiveSubscription(
                                     currentUser.id
                                 );
-                            var expiresAt = sub
-                                ? sub.expires_at : null;
+                            var expiresAt = sub ? sub.expires_at : null;
 
+                            // Send receipt email
                             sendPaymentReceiptEmail(
                                 currentUser.email,
                                 userName,
@@ -170,6 +168,7 @@ async function sendPaymentReceiptEmail(
 
                             alert('✅ Payment successful! Premium activated.');
                             window.location.href = '/user-dashboard.html';
+
                         } else {
                             alert('❌ Payment verification failed.');
                         }
@@ -200,7 +199,6 @@ async function sendPaymentReceiptEmail(
         }
     }
 
-    // ✅ Export to window
     window.startRazorpayPayment = startRazorpayPayment;
     window.createOrder          = createOrder;
     window.verifyPayment        = verifyPayment;
@@ -208,7 +206,6 @@ async function sendPaymentReceiptEmail(
     console.log('✅ New Payment System Ready');
 }
 
-// ✅ Smart init - wait for dharaverseDB
 function tryInit() {
     if (window.dharaverseDB) {
         initNewPayment();
@@ -217,7 +214,6 @@ function tryInit() {
             initNewPayment();
         });
 
-        // Backup poll
         var attempts = 0;
         var poll = setInterval(function() {
             attempts++;
