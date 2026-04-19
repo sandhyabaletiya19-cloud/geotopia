@@ -12,24 +12,39 @@ function initNewPayment() {
     var RAZORPAY_KEY = "rzp key here";
 
     // ── SEND PAYMENT RECEIPT EMAIL (internal helper) ──
-    async function sendPaymentReceiptEmail(
-        email, name, plan, period,
-        amount, currency, expiresAt, paymentId
-    ) {
-        try {
-            await fetch(
-                SUPABASE_FUNCTIONS_URL + '/send-payment-receipt',
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email, name, plan, period,
-                        amount, currency, expiresAt, paymentId
-                    })
-                }
-            );
-            console.log('💳 Receipt email sent to:', email);
-        } catch(e) {
+async function sendPaymentReceiptEmail(
+    email, name, plan, period,
+    amount, currency, expiresAt, paymentId
+) {
+    try {
+        // Get session token
+        const session = await window.dharaverseDB.getSession();
+        const token = session?.access_token;
+
+        if (!token) {
+            console.warn('No access token — cannot send receipt email');
+            return;
+        }
+
+        await fetch(
+            SUPABASE_FUNCTIONS_URL + '/send-payment-receipt',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    email, name, plan, period,
+                    amount, currency, expiresAt, paymentId
+                })
+            }
+        );
+        console.log('💳 Receipt email sent to:', email);
+    } catch(e) {
+        console.warn('Receipt email failed (non-critical):', e.message);
+    }
+}
             // Email failure must NEVER break payment success
             console.warn('Receipt email failed (non-critical):', e.message);
         }
