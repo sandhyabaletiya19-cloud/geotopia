@@ -135,56 +135,24 @@ function initNewPayment() {
 
                         if (result.success) {
 
-    // Clear premium cache
-    if (window.premiumCheck?.clearPremiumCache) {
-        window.premiumCheck.clearPremiumCache();
-    }
+                            // Clear premium cache
+                            if (window.premiumCheck?.clearPremiumCache) {
+                                window.premiumCheck.clearPremiumCache();
+                            }
 
-    // ── SYNC TO LOCALSTORAGE ──
-    // So premium-wrapper.js unlocks content immediately
-    if (window.dvSync) {
-        await window.dvSync.sync();
-    }
-
-    // Get profile for name
-    var profile = await window.dharaverseDB.getUserProfile(currentUser.id);
-    var userName = (profile && profile.name)
-        || currentUser.email.split('@')[0];
-
-    var sub = await window.dharaverseDB.getActiveSubscription(currentUser.id);
-    var expiresAt = sub ? sub.expires_at : null;
-
-    sendPaymentReceiptEmail(
-        currentUser.email,
-        userName,
-        planId,
-        period,
-        order.amount,
-        'INR',
-        expiresAt,
-        response.razorpay_payment_id
-    );
-
-    // ✅ Redirect to beautiful success page
-    window.location.href = '/payment-success.html?plan=' + planId + '&period=' + period;
-
-} else {
-    alert('❌ Payment verification failed.');
-}
+                            // ── SYNC TO LOCALSTORAGE ──
+                            // So premium-wrapper.js unlocks content immediately
+                            if (window.dvSync) {
+                                await window.dvSync.sync();
+                            }
 
                             // Get profile for name
-                            var profile =
-                                await window.dharaverseDB.getUserProfile(
-                                    currentUser.id
-                                );
+                            var profile = await window.dharaverseDB.getUserProfile(currentUser.id);
                             var userName = (profile && profile.name)
                                 || currentUser.email.split('@')[0];
 
                             // Get expiry
-                            var sub =
-                                await window.dharaverseDB.getActiveSubscription(
-                                    currentUser.id
-                                );
+                            var sub = await window.dharaverseDB.getActiveSubscription(currentUser.id);
                             var expiresAt = sub ? sub.expires_at : null;
 
                             // Send receipt email
@@ -199,12 +167,13 @@ function initNewPayment() {
                                 response.razorpay_payment_id
                             );
 
-                            alert('✅ Payment successful! Premium activated.');
-                            window.location.href = '/user-dashboard.html';
+                            // ✅ Redirect to beautiful success page
+                            window.location.href = '/payment-success.html?plan=' + planId + '&period=' + period;
 
                         } else {
                             alert('❌ Payment verification failed.');
                         }
+
                     } catch(err) {
                         console.error('Verify error:', err);
                         alert('Error verifying payment. Contact support.');
