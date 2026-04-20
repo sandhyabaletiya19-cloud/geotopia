@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DharaVerse Maps — UPSC Master Map Series</title>
+  <link rel="stylesheet" href="maps-styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="preloader-inner">
+      <div class="preloader-globe">
+        <div class="globe-ring ring-1"></div>
+        <div class="globe-ring ring-2"></div>
+        <div class="globe-ring ring-3"></div>
+        <div class="globe-core">
+          <i class="fas fa-globe-asia"></i>
+        </div>
+      </div>
+      <div class="preloader-text">
+        <span class="brand-name">DharaVerse</span>
+        <span class="brand-sub">UPSC Master Map Series</span>
+        <div class="preloader-bar">
+          <div class="preloader-fill" id="preloaderFill"></div>
+        </div>
+        <span class="preloader-status" id="preloaderStatus">Initializing cartographic engine...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="main-header" id="mainHeader">
+    <div class="header-bg-grid"></div>
+    <div class="header-content">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="fas fa-globe-asia"></i>
+          <div class="brand-pulse"></div>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">DharaVerse</h1>
+          <p class="brand-subtitle">UPSC Master Map Series · 134 Maps · 14 Categories</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-pill">
+          <i class="fas fa-map"></i>
+          <span>134 Maps</span>
+        </div>
+        <div class="stat-pill">
+          <i class="fas fa-layer-group"></i>
+          <span>14 Categories</span>
+        </div>
+        <div class="stat-pill active-pill" id="currentMapPill">
+          <i class="fas fa-crosshairs"></i>
+          <span id="currentMapName">Select a Map</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="btnFullscreen" title="Fullscreen">
+          <i class="fas fa-expand"></i>
+        </button>
+        <button class="btn-icon" id="btnTheme" title="Toggle Theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="btn-icon" id="btnSidebar" title="Categories">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb-bar" id="breadcrumbBar">
+      <div class="breadcrumb-content">
+        <span class="bc-item" id="bcCategory">All Categories</span>
+        <i class="fas fa-chevron-right bc-sep"></i>
+        <span class="bc-item" id="bcMap">Select a Map</span>
+        <i class="fas fa-chevron-right bc-sep"></i>
+        <span class="bc-item active" id="bcMapNum">—</span>
+      </div>
+      <div class="breadcrumb-progress">
+        <span id="mapProgress">0 / 134</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <main class="main-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2><i class="fas fa-compass"></i> Map Categories</h2>
+        <button class="btn-close-sidebar" id="btnCloseSidebar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-search">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="mapSearch" placeholder="Search maps..." />
+          <button class="btn-clear-search" id="btnClearSearch">
+            <i class="fas fa-times-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-categories" id="sidebarCategories">
+        <!-- Injected by maps-app.js -->
+      </div>
+    </aside>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAP AREA -->
+    <section class="map-area">
+
+      <!-- CONTROLS BAR -->
+      <div class="controls-bar" id="controlsBar">
+        <div class="controls-left">
+          <!-- CATEGORY DROPDOWN -->
+          <div class="dropdown-wrap">
+            <button class="dropdown-btn" id="categoryDropBtn">
+              <i class="fas fa-layer-group"></i>
+              <span id="categoryDropLabel">Select Category</span>
+              <i class="fas fa-chevron-down drop-arrow"></i>
+            </button>
+            <div class="dropdown-menu" id="categoryDropMenu">
+              <!-- Injected -->
+            </div>
+          </div>
+
+          <!-- MAP DROPDOWN -->
+          <div class="dropdown-wrap">
+            <button class="dropdown-btn" id="mapDropBtn" disabled>
+              <i class="fas fa-map-marked-alt"></i>
+              <span id="mapDropLabel">Select Map</span>
+              <i class="fas fa-chevron-down drop-arrow"></i>
+            </button>
+            <div class="dropdown-menu" id="mapDropMenu">
+              <!-- Injected -->
+            </div>
+          </div>
+        </div>
+
+        <div class="controls-right">
+          <button class="ctrl-btn" id="btnPrevMap" title="Previous Map" disabled>
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="map-counter" id="mapCounter">—</span>
+          <button class="ctrl-btn" id="btnNextMap" title="Next Map" disabled>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="ctrl-btn" id="btnResetView" title="Reset View">
+            <i class="fas fa-home"></i>
+          </button>
+          <button class="ctrl-btn" id="btnLegend" title="Toggle Legend">
+            <i class="fas fa-list-ul"></i>
+          </button>
+          <button class="ctrl-btn" id="btnInfo" title="Map Info">
+            <i class="fas fa-info-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAP CONTAINER -->
+      <div class="map-container" id="mapContainer">
+
+        <!-- WELCOME SCREEN -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-inner">
+            <div class="welcome-globe">
+              <div class="wg-ring wg-r1"></div>
+              <div class="wg-ring wg-r2"></div>
+              <div class="wg-ring wg-r3"></div>
+              <i class="fas fa-globe-asia wg-icon"></i>
+            </div>
+            <h2 class="welcome-title">DharaVerse UPSC Map Series</h2>
+            <p class="welcome-sub">Gateway to IAS — 134 Master Maps</p>
+            <div class="welcome-stats">
+              <div class="ws-item">
+                <span class="ws-num">134</span>
+                <span class="ws-label">Maps</span>
+              </div>
+              <div class="ws-divider"></div>
+              <div class="ws-item">
+                <span class="ws-num">14</span>
+                <span class="ws-label">Categories</span>
+              </div>
+              <div class="ws-divider"></div>
+              <div class="ws-item">
+                <span class="ws-num">∞</span>
+                <span class="ws-label">Knowledge</span>
+              </div>
+            </div>
+            <p class="welcome-instruction">
+              <i class="fas fa-arrow-up"></i> Use the dropdown above to select a category and map
+            </p>
+          </div>
+        </div>
+
+        <!-- LEAFLET MAP -->
+        <div id="leafletMap"></div>
+
+        <!-- MAP LOADING OVERLAY -->
+        <div class="map-loading" id="mapLoading">
+          <div class="ml-spinner">
+            <div class="ml-ring"></div>
+            <i class="fas fa-map ml-icon"></i>
+          </div>
+          <p class="ml-text" id="mlText">Loading map...</p>
+        </div>
+
+      </div>
+
+      <!-- LEGEND PANEL -->
+      <div class="legend-panel" id="legendPanel">
+        <div class="legend-header">
+          <h3 id="legendTitle">Map Legend</h3>
+          <button class="btn-close-legend" id="btnCloseLegend">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="legend-body" id="legendBody">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- INFO PANEL -->
+      <div class="info-panel" id="infoPanel">
+        <div class="info-header">
+          <h3 id="infoPanelTitle">Map Information</h3>
+          <button class="btn-close-info" id="btnCloseInfo">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="info-body" id="infoPanelBody">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- SCRIPTS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="maps-data.js"></script>
+  <script src="india-physical-maps.js"></script>
+  <script src="india-drainage-maps.js"></script>
+  <script src="india-climate-maps.js"></script>
+  <script src="india-resources-maps.js"></script>
+  <script src="biogeography-maps.js"></script>
+  <script src="environment-maps.js"></script>
+  <script src="geomorphology-maps.js"></script>
+  <script src="world-climate-maps.js"></script>
+  <script src="oceanography-maps.js"></script>
+  <script src="economic-maps.js"></script>
+  <script src="human-geography-maps.js"></script>
+  <script src="base-political-maps.js"></script>
+  <script src="world-landforms-maps.js"></script>
+  <script src="models-maps.js"></script>
+  <script src="/js/auto-inject.js"></script>
+  <script src="maps-app.js"></script>
+  
+
+</body>
+</html>
