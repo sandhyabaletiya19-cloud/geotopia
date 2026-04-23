@@ -5,7 +5,7 @@
  * All mountains, plains, plateaus, coasts, islands
  * Version 2026 | Gateway to IAS
  * ═══════════════════════════════════════════════════════════════
- */
+ */ 
 
 (function () {
 
