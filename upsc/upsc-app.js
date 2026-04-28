@@ -30,7 +30,7 @@
 // 1. GLOBAL VARIABLES & STATE
 // ============================================
 
-const GeoMasterApp = {
+const DharaVerseApp = {
     // Application State
     state: {
         allTopics: [],
@@ -98,9 +98,9 @@ const GeoMasterApp = {
         { id: 'streak_7', icon: '💪', title: 'Week Warrior', desc: '7 day study streak', condition: (data) => data.streakDays >= 7 },
         { id: 'streak_30', icon: '🎖️', title: 'Consistent Champion', desc: '30 day study streak', condition: (data) => data.streakDays >= 30 },
         { id: 'bookmark_10', icon: '🔖', title: 'Collector', desc: 'Bookmark 10 topics', condition: (data) => data.bookmarks.length >= 10 },
-        { id: 'category_complete', icon: '📁', title: 'Category Master', desc: 'Complete all topics in a category', condition: (data) => GeoMasterApp.checkCategoryComplete(data) },
-        { id: 'all_physical', icon: '🌍', title: 'Physical Geography Expert', desc: 'Complete all physical geography', condition: (data) => GeoMasterApp.checkPhysicalComplete(data) },
-        { id: 'india_expert', icon: '🇮🇳', title: 'India Expert', desc: 'Complete all India geography', condition: (data) => GeoMasterApp.checkIndiaComplete(data) }
+        { id: 'category_complete', icon: '📁', title: 'Category Master', desc: 'Complete all topics in a category', condition: (data) => DharaVerseApp.checkCategoryComplete(data) },
+        { id: 'all_physical', icon: '🌍', title: 'Physical Geography Expert', desc: 'Complete all physical geography', condition: (data) => DharaVerseApp.checkPhysicalComplete(data) },
+        { id: 'india_expert', icon: '🇮🇳', title: 'India Expert', desc: 'Complete all India geography', condition: (data) => DharaVerseApp.checkIndiaComplete(data) }
     ],
 
     // DOM Elements Cache
@@ -108,7 +108,7 @@ const GeoMasterApp = {
 
     // Initialization
     init() {
-        console.log('🌍 GeoMaster UPSC Initializing...');
+        console.log('🌍 DharaVerse UPSC Initializing...');
         
         // Cache DOM elements
         this.cacheElements();
@@ -131,7 +131,7 @@ const GeoMasterApp = {
         // Initialize animations
         this.initParticles();
         
-        console.log('✅ GeoMaster UPSC Ready!');
+        console.log('✅ DharaVerse UPSC Ready!');
     },
 
     // Cache frequently accessed DOM elements
@@ -238,9 +238,9 @@ const GeoMasterApp = {
 // 2. INITIALIZATION FUNCTIONS
 // ============================================
 
-GeoMasterApp.loadUserData = function() {
+DharaVerseApp.loadUserData = function() {
     try {
-        const savedData = localStorage.getItem('geomaster_userData');
+        const savedData = localStorage.getItem('DharaVerse_userData');
         if (savedData) {
             const parsed = JSON.parse(savedData);
             this.userData = { ...this.userData, ...parsed };
@@ -253,15 +253,15 @@ GeoMasterApp.loadUserData = function() {
     }
 };
 
-GeoMasterApp.saveUserData = function() {
+DharaVerseApp.saveUserData = function() {
     try {
-        localStorage.setItem('geomaster_userData', JSON.stringify(this.userData));
+        localStorage.setItem('DharaVerse_userData', JSON.stringify(this.userData));
     } catch (error) {
         console.error('Error saving user data:', error);
     }
 };
 
-GeoMasterApp.loadTopicData = function() {
+DharaVerseApp.loadTopicData = function() {
     this.state.isLoading = true;
     this.showLoading();
     
@@ -337,7 +337,7 @@ GeoMasterApp.loadTopicData = function() {
     }, 500);
 };
 
-GeoMasterApp.getSampleTopics = function() {
+DharaVerseApp.getSampleTopics = function() {
     // Return sample topics if no data files are loaded
     return [
         {
@@ -763,18 +763,18 @@ GeoMasterApp.getSampleTopics = function() {
 // 3. DATA MANAGEMENT
 // ============================================
 
-GeoMasterApp.getTopicById = function(id) {
+DharaVerseApp.getTopicById = function(id) {
     return this.state.allTopics.find(topic => topic.id === id);
 };
 
-GeoMasterApp.getTopicsByCategory = function(category) {
+DharaVerseApp.getTopicsByCategory = function(category) {
     if (category === 'all') {
         return this.state.allTopics;
     }
     return this.state.allTopics.filter(topic => topic.category === category);
 };
 
-GeoMasterApp.getTopicProgress = function(topicId) {
+DharaVerseApp.getTopicProgress = function(topicId) {
     if (this.userData.completedTopics.includes(topicId)) {
         return 100;
     }
@@ -784,7 +784,7 @@ GeoMasterApp.getTopicProgress = function(topicId) {
     return 0;
 };
 
-GeoMasterApp.isTopicBookmarked = function(topicId) {
+DharaVerseApp.isTopicBookmarked = function(topicId) {
     return this.userData.bookmarks.includes(topicId);
 };
 
@@ -792,7 +792,7 @@ GeoMasterApp.isTopicBookmarked = function(topicId) {
 // 4. UI RENDERING - TOPIC CARDS
 // ============================================
 
-GeoMasterApp.showLoading = function() {
+DharaVerseApp.showLoading = function() {
     if (this.elements.loadingState) {
         this.elements.loadingState.classList.remove('hidden');
         this.elements.loadingState.style.display = 'flex';
@@ -805,7 +805,7 @@ GeoMasterApp.showLoading = function() {
     }
 };
 
-GeoMasterApp.hideLoading = function() {
+DharaVerseApp.hideLoading = function() {
     if (this.elements.loadingState) {
         this.elements.loadingState.classList.add('hidden');
         this.elements.loadingState.style.display = 'none';
@@ -815,7 +815,7 @@ GeoMasterApp.hideLoading = function() {
     }
 };
 
-GeoMasterApp.renderTopics = function() {
+DharaVerseApp.renderTopics = function() {
     const grid = this.elements.topicsGrid;
     if (!grid) return;
     
@@ -848,7 +848,7 @@ GeoMasterApp.renderTopics = function() {
     this.animateCardsEntrance();
 };
 
-GeoMasterApp.createTopicCard = function(topic, index) {
+DharaVerseApp.createTopicCard = function(topic, index) {
     const card = document.createElement('div');
     card.className = 'topic-card';
     card.setAttribute('data-id', topic.id);
@@ -869,6 +869,24 @@ GeoMasterApp.createTopicCard = function(topic, index) {
         starsHTML += `<span class="star ${i < stars ? 'filled' : ''}">★</span>`;
     }
     
+       // ── STEP A: Build explore buttons HTML ──────────────
+    const exploreLinks = this.getExploreLinks(topic);
+    let exploreHTML = '';
+    if (exploreLinks.length > 0) {
+        const btns = exploreLinks.map(link =>
+            `<a href="${link.url}"
+                class="card-explore-btn"
+                title="${link.title}"
+                ${link.external ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+                <span>${link.icon}</span>
+                <span>${link.label}</span>
+                <span class="explore-arrow">→</span>
+            </a>`
+        ).join('');
+        exploreHTML = `<div class="card-explore-row">${btns}</div>`;
+    }
+    // ────────────────────────────────────────────────────
+
     card.innerHTML = `
         <div class="card-header">
             <div class="card-icon-wrapper">
@@ -911,12 +929,14 @@ GeoMasterApp.createTopicCard = function(topic, index) {
                 </div>
             ` : ''}
         </div>
+
+        ${exploreHTML}
     `;
     
-    // Add click event
+        // Add click event
     card.addEventListener('click', (e) => {
-        // Ignore if clicking bookmark button
-        if (e.target.closest('.card-bookmark')) {
+        // Ignore if clicking bookmark button OR explore buttons
+        if (e.target.closest('.card-bookmark') || e.target.closest('.card-explore-btn')) {
             return;
         }
         this.openTopicModal(topic.id);
@@ -943,7 +963,65 @@ GeoMasterApp.createTopicCard = function(topic, index) {
     return card;
 };
 
-GeoMasterApp.getTopicSubtitle = function(topic) {
+// ============================================
+// EXPLORE LINKS — which buttons show on cards
+// ============================================
+DharaVerseApp.getExploreLinks = function(topic) {
+    const links = [];
+    const cat = topic.category;
+
+    // Map category to maps.html category id
+    const mapCategoryMap = {
+        'geomorphology'  : 'geomorphology',
+        'climatology'    : 'world-climate',
+        'oceanography'   : 'oceanography',
+        'biogeography'   : 'biogeography',
+        'landforms'      : 'world-landforms',
+        'india-physical' : 'india-physical',
+        'india-climate'  : 'india-climate',
+        'india-drainage' : 'india-drainage',
+        'india-resources': 'india-resources',
+        'economic'       : 'economic',
+        'human'          : 'human-geography',
+        'models'         : 'models',
+        'environment'    : 'environment'
+    };
+
+    // Every topic gets a Maps button
+    const mapCat = mapCategoryMap[cat];
+    if (mapCat) {
+        links.push({
+            icon    : '🗺️',
+            label   : 'Maps',
+            title   : 'View Maps for ' + topic.name,
+            url     : 'map/maps.html?category=' + mapCat,
+            external: false
+        });
+    }
+
+    // India topics also get Bharat Encyclopedia button
+    const indiaCategories = [
+        'india-physical',
+        'india-climate',
+        'india-drainage',
+        'india-resources',
+        'economic',
+        'human'
+    ];
+    if (indiaCategories.includes(cat)) {
+        links.push({
+            icon    : '🇮🇳',
+            label   : 'Bharat',
+            title   : 'Explore Bharat Encyclopedia',
+            url     : 'https://dharaverse.com/encyclopedia/bharat/index.html',
+            external: true
+        });
+    }
+
+    return links;
+};
+
+DharaVerseApp.getTopicSubtitle = function(topic) {
     // Generate subtitle from concept blocks or return default
     if (topic.conceptBlocks && topic.conceptBlocks.length > 0) {
         return topic.conceptBlocks[0].title;
@@ -955,7 +1033,7 @@ GeoMasterApp.getTopicSubtitle = function(topic) {
     return `Learn about ${topic.name}`;
 };
 
-GeoMasterApp.animateCardsEntrance = function() {
+DharaVerseApp.animateCardsEntrance = function() {
     const cards = document.querySelectorAll('.topic-card');
     cards.forEach((card, index) => {
         card.style.opacity = '0';
@@ -969,7 +1047,7 @@ GeoMasterApp.animateCardsEntrance = function() {
     });
 };
 
-GeoMasterApp.showEmptyState = function() {
+DharaVerseApp.showEmptyState = function() {
     if (this.elements.emptyState) {
         this.elements.emptyState.classList.remove('hidden');
     }
@@ -978,7 +1056,7 @@ GeoMasterApp.showEmptyState = function() {
     }
 };
 
-GeoMasterApp.hideEmptyState = function() {
+DharaVerseApp.hideEmptyState = function() {
     if (this.elements.emptyState) {
         this.elements.emptyState.classList.add('hidden');
     }
@@ -991,7 +1069,7 @@ GeoMasterApp.hideEmptyState = function() {
 // 5. CATEGORY & FILTERING
 // ============================================
 
-GeoMasterApp.setCategory = function(category) {
+DharaVerseApp.setCategory = function(category) {
     this.state.currentCategory = category;
     
     // Update active pill
@@ -1012,7 +1090,7 @@ GeoMasterApp.setCategory = function(category) {
     this.applyFilters();
 };
 
-GeoMasterApp.applyFilters = function() {
+DharaVerseApp.applyFilters = function() {
     let topics = [...this.state.allTopics];
     
     // Category filter
@@ -1047,7 +1125,7 @@ GeoMasterApp.applyFilters = function() {
     this.renderTopics();
 };
 
-GeoMasterApp.sortTopics = function(topics) {
+DharaVerseApp.sortTopics = function(topics) {
     const sortBy = this.state.sortBy;
     
     switch (sortBy) {
@@ -1074,7 +1152,7 @@ GeoMasterApp.sortTopics = function(topics) {
     }
 };
 
-GeoMasterApp.updateCategoryCounts = function() {
+DharaVerseApp.updateCategoryCounts = function() {
     const counts = { all: this.state.allTopics.length };
     
     // Count topics per category
@@ -1096,7 +1174,7 @@ GeoMasterApp.updateCategoryCounts = function() {
     }
 };
 
-GeoMasterApp.resetAllFilters = function() {
+DharaVerseApp.resetAllFilters = function() {
     this.state.currentCategory = 'all';
     this.state.searchQuery = '';
     this.state.filters = {
@@ -1138,7 +1216,7 @@ GeoMasterApp.resetAllFilters = function() {
     this.showToast('Filters Reset', 'Showing all topics', 'info');
 };
 
-GeoMasterApp.setViewMode = function(mode) {
+DharaVerseApp.setViewMode = function(mode) {
     this.state.viewMode = mode;
     
     // Update buttons
@@ -1162,7 +1240,7 @@ GeoMasterApp.setViewMode = function(mode) {
 // 6. SEARCH FUNCTIONALITY
 // ============================================
 
-GeoMasterApp.initSearch = function() {
+DharaVerseApp.initSearch = function() {
     const searchInput = this.elements.searchInput;
     const searchResults = this.elements.searchResults;
     const searchClear = this.elements.searchClear;
@@ -1214,7 +1292,7 @@ GeoMasterApp.initSearch = function() {
     });
 };
 
-GeoMasterApp.handleSearch = function(query) {
+DharaVerseApp.handleSearch = function(query) {
     this.state.searchQuery = query;
     
     if (!query) {
@@ -1230,7 +1308,7 @@ GeoMasterApp.handleSearch = function(query) {
     this.applyFilters();
 };
 
-GeoMasterApp.searchTopics = function(query) {
+DharaVerseApp.searchTopics = function(query) {
     const q = query.toLowerCase();
     
     return this.state.allTopics.filter(topic => {
@@ -1263,7 +1341,7 @@ GeoMasterApp.searchTopics = function(query) {
     }).slice(0, 8); // Limit to 8 results
 };
 
-GeoMasterApp.showSearchResults = function(results) {
+DharaVerseApp.showSearchResults = function(results) {
     const container = this.elements.searchResults;
     if (!container) return;
     
@@ -1307,20 +1385,20 @@ GeoMasterApp.showSearchResults = function(results) {
     container.classList.add('active');
 };
 
-GeoMasterApp.hideSearchResults = function() {
+DharaVerseApp.hideSearchResults = function() {
     if (this.elements.searchResults) {
         this.elements.searchResults.classList.remove('active');
     }
 };
 
-GeoMasterApp.highlightMatch = function(text, query) {
+DharaVerseApp.highlightMatch = function(text, query) {
     if (!query) return text;
     
     const regex = new RegExp(`(${this.escapeRegex(query)})`, 'gi');
     return text.replace(regex, '<mark style="background: var(--accent-primary); color: var(--bg-primary); padding: 0 2px; border-radius: 2px;">$1</mark>');
 };
 
-GeoMasterApp.escapeRegex = function(string) {
+DharaVerseApp.escapeRegex = function(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
@@ -1328,7 +1406,7 @@ GeoMasterApp.escapeRegex = function(string) {
 // 7. MODAL MANAGEMENT
 // ============================================
 
-GeoMasterApp.openTopicModal = function(topicId) {
+DharaVerseApp.openTopicModal = function(topicId) {
     const topic = this.getTopicById(topicId);
     if (!topic) {
         this.showToast('Error', 'Topic not found', 'error');
@@ -1379,7 +1457,7 @@ GeoMasterApp.openTopicModal = function(topicId) {
     }, 100);
 };
 
-GeoMasterApp.closeTopicModal = function() {
+DharaVerseApp.closeTopicModal = function() {
     this.state.isModalOpen = false;
     this.state.currentTopic = null;
     
@@ -1395,7 +1473,7 @@ GeoMasterApp.closeTopicModal = function() {
     this.renderTopics();
 };
 
-GeoMasterApp.updateModalHeader = function(topic) {
+DharaVerseApp.updateModalHeader = function(topic) {
     if (this.elements.modalIcon) {
         this.elements.modalIcon.textContent = topic.icon;
     }
@@ -1420,7 +1498,7 @@ GeoMasterApp.updateModalHeader = function(topic) {
     }
 };
 
-GeoMasterApp.setModalTheme = function(theme) {
+DharaVerseApp.setModalTheme = function(theme) {
     const modalThemeBg = this.elements.modalThemeBg;
     if (!modalThemeBg) return;
     
@@ -1444,7 +1522,7 @@ GeoMasterApp.setModalTheme = function(theme) {
     this.generateModalParticles(theme);
 };
 
-GeoMasterApp.generateModalParticles = function(theme) {
+DharaVerseApp.generateModalParticles = function(theme) {
     const container = document.getElementById('modalParticles');
     if (!container) return;
     
@@ -1555,14 +1633,14 @@ GeoMasterApp.generateModalParticles = function(theme) {
     }
 };
 
-GeoMasterApp.clearModalParticles = function() {
+DharaVerseApp.clearModalParticles = function() {
     const container = document.getElementById('modalParticles');
     if (container) {
         container.innerHTML = '';
     }
 };
 
-GeoMasterApp.updateModalNavigation = function() {
+DharaVerseApp.updateModalNavigation = function() {
     const total = this.state.filteredTopics.length;
     const current = this.state.currentTopicIndex + 1;
     
@@ -1584,7 +1662,7 @@ GeoMasterApp.updateModalNavigation = function() {
     }
 };
 
-GeoMasterApp.navigateTopic = function(direction) {
+DharaVerseApp.navigateTopic = function(direction) {
     const newIndex = this.state.currentTopicIndex + direction;
     
     if (newIndex < 0 || newIndex >= this.state.filteredTopics.length) {
@@ -1597,7 +1675,7 @@ GeoMasterApp.navigateTopic = function(direction) {
     }
 };
 
-GeoMasterApp.updateModalBookmarkButton = function(topicId) {
+DharaVerseApp.updateModalBookmarkButton = function(topicId) {
     const btn = this.elements.modalBookmark;
     if (!btn) return;
     
@@ -1606,7 +1684,7 @@ GeoMasterApp.updateModalBookmarkButton = function(topicId) {
     btn.setAttribute('aria-label', isBookmarked ? 'Remove bookmark' : 'Add bookmark');
 };
 
-GeoMasterApp.switchSection = function(sectionId) {
+DharaVerseApp.switchSection = function(sectionId) {
     this.state.activeSection = sectionId;
     this.updateActiveSectionTab();
     
@@ -1621,7 +1699,7 @@ GeoMasterApp.switchSection = function(sectionId) {
     }
 };
 
-GeoMasterApp.updateActiveSectionTab = function() {
+DharaVerseApp.updateActiveSectionTab = function() {
     document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.classList.remove('active');
         if (tab.dataset.section === this.state.activeSection) {
@@ -1635,7 +1713,7 @@ this.fixModalScroll();
 // 8. MIND MAP RENDERING (COMPLETE FIXED VERSION)
 // ============================================
 
-GeoMasterApp.renderMindMap = function(topic) {
+DharaVerseApp.renderMindMap = function(topic) {
     const container = document.getElementById('mindmapCanvas');
     
     if (!container) {
@@ -1854,7 +1932,7 @@ GeoMasterApp.renderMindMap = function(topic) {
     console.log('✅ Mind map rendered for:', topic.name);
 };
 
-GeoMasterApp.animateMindMap = function() {
+DharaVerseApp.animateMindMap = function() {
     // Get all lines and branches
     const lines = document.querySelectorAll('.branch-line');
     const branches = document.querySelectorAll('.mindmap-branch');
@@ -1882,7 +1960,7 @@ GeoMasterApp.animateMindMap = function() {
     });
 };
 
-GeoMasterApp.initMindMapControls = function() {
+DharaVerseApp.initMindMapControls = function() {
     let scale = 1;
     const minScale = 0.5;
     const maxScale = 2;
@@ -1961,7 +2039,7 @@ GeoMasterApp.initMindMapControls = function() {
     console.log('✅ Mind map controls initialized');
 };
 
-GeoMasterApp.fixModalScroll = function() {
+DharaVerseApp.fixModalScroll = function() {
     setTimeout(() => {
         const modal = document.querySelector('.modal-container');
         const header = document.querySelector('.modal-header');
@@ -2010,7 +2088,7 @@ GeoMasterApp.fixModalScroll = function() {
 // 9. CONTENT SECTION RENDERING
 // ============================================
 
-GeoMasterApp.renderModalContent = function(topic) {
+DharaVerseApp.renderModalContent = function(topic) {
     // Render all sections
     this.renderMindMap(topic);
     this.renderMemoryHooks(topic);
@@ -2025,7 +2103,7 @@ GeoMasterApp.renderModalContent = function(topic) {
     this.updateMarkCompleteButton(topic.id);
 };
 
-GeoMasterApp.renderMemoryHooks = function(topic) {
+DharaVerseApp.renderMemoryHooks = function(topic) {
     const container = this.elements.memoryHooksContainer;
     if (!container) return;
     
@@ -2055,7 +2133,7 @@ GeoMasterApp.renderMemoryHooks = function(topic) {
     `).join('');
 };
 
-GeoMasterApp.renderConceptBlocks = function(topic) {
+DharaVerseApp.renderConceptBlocks = function(topic) {
     const container = this.elements.conceptBlocksContainer;
     if (!container) return;
     
@@ -2087,7 +2165,7 @@ GeoMasterApp.renderConceptBlocks = function(topic) {
     `).join('');
 };
 
-GeoMasterApp.formatPointText = function(text) {
+DharaVerseApp.formatPointText = function(text) {
     // Remove leading bullet if present
     text = text.replace(/^[•\-\*]\s*/, '');
     
@@ -2100,7 +2178,7 @@ GeoMasterApp.formatPointText = function(text) {
     return text;
 };
 
-GeoMasterApp.renderDiagrams = function(topic) {
+DharaVerseApp.renderDiagrams = function(topic) {
     const container = this.elements.diagramsContainer;
     if (!container) return;
     
@@ -2132,7 +2210,7 @@ GeoMasterApp.renderDiagrams = function(topic) {
     `).join('');
 };
 
-GeoMasterApp.getDiagramIcon = function(type) {
+DharaVerseApp.getDiagramIcon = function(type) {
     const icons = {
         'comparison-chart': '📊',
         'cross-section': '🔍',
@@ -2145,7 +2223,7 @@ GeoMasterApp.getDiagramIcon = function(type) {
     return icons[type] || '📋';
 };
 
-GeoMasterApp.renderQuickFacts = function(topic) {
+DharaVerseApp.renderQuickFacts = function(topic) {
     const container = this.elements.quickFactsContainer;
     if (!container) return;
     
@@ -2176,7 +2254,7 @@ GeoMasterApp.renderQuickFacts = function(topic) {
     }).join('');
 };
 
-GeoMasterApp.formatFactText = function(text) {
+DharaVerseApp.formatFactText = function(text) {
     // Highlight numbers
     text = text.replace(/(\d+(?:\.\d+)?(?:\s*%)?)/g, '<span class="fact-number">$1</span>');
     
@@ -2186,7 +2264,7 @@ GeoMasterApp.formatFactText = function(text) {
     return text;
 };
 
-GeoMasterApp.renderUpscTraps = function(topic) {
+DharaVerseApp.renderUpscTraps = function(topic) {
     const container = this.elements.trapsContainer;
     if (!container) return;
     
@@ -2232,7 +2310,7 @@ GeoMasterApp.renderUpscTraps = function(topic) {
     `).join('');
 };
 
-GeoMasterApp.renderRevisionBox = function(topic) {
+DharaVerseApp.renderRevisionBox = function(topic) {
     const container = this.elements.revisionContainer;
     if (!container) return;
     
@@ -2270,7 +2348,7 @@ GeoMasterApp.renderRevisionBox = function(topic) {
     `;
 };
 
-GeoMasterApp.formatRevisionPoint = function(text) {
+DharaVerseApp.formatRevisionPoint = function(text) {
     // Remove leading bullet
     text = text.replace(/^[•\-\*]\s*/, '');
     
@@ -2283,7 +2361,7 @@ GeoMasterApp.formatRevisionPoint = function(text) {
     return text;
 };
 
-GeoMasterApp.renderPYQs = function(topic) {
+DharaVerseApp.renderPYQs = function(topic) {
     const container = this.elements.pyqsContainer;
     if (!container) return;
     
@@ -2338,7 +2416,7 @@ GeoMasterApp.renderPYQs = function(topic) {
     `).join('');
 };
 
-GeoMasterApp.updateMarkCompleteButton = function(topicId) {
+DharaVerseApp.updateMarkCompleteButton = function(topicId) {
     const btn = this.elements.markCompleteBtn;
     if (!btn) return;
     
@@ -2362,7 +2440,7 @@ GeoMasterApp.updateMarkCompleteButton = function(topicId) {
 // 10. BOOKMARKS SYSTEM
 // ============================================
 
-GeoMasterApp.toggleBookmark = function(topicId) {
+DharaVerseApp.toggleBookmark = function(topicId) {
     const index = this.userData.bookmarks.indexOf(topicId);
     
     if (index === -1) {
@@ -2388,7 +2466,7 @@ GeoMasterApp.toggleBookmark = function(topicId) {
     this.checkAchievements();
 };
 
-GeoMasterApp.updateBookmarkCount = function() {
+DharaVerseApp.updateBookmarkCount = function() {
     const count = this.userData.bookmarks.length;
     
     if (this.elements.bookmarkCount) {
@@ -2397,7 +2475,7 @@ GeoMasterApp.updateBookmarkCount = function() {
     }
 };
 
-GeoMasterApp.updateBookmarkButtons = function(topicId) {
+DharaVerseApp.updateBookmarkButtons = function(topicId) {
     // Update card bookmark button
     const cardBtn = document.querySelector(`.card-bookmark[data-id="${topicId}"]`);
     if (cardBtn) {
@@ -2410,20 +2488,20 @@ GeoMasterApp.updateBookmarkButtons = function(topicId) {
     }
 };
 
-GeoMasterApp.openBookmarksSidebar = function() {
+DharaVerseApp.openBookmarksSidebar = function() {
     if (this.elements.bookmarksSidebar) {
         this.elements.bookmarksSidebar.classList.add('active');
         this.renderBookmarksSidebar();
     }
 };
 
-GeoMasterApp.closeBookmarksSidebar = function() {
+DharaVerseApp.closeBookmarksSidebar = function() {
     if (this.elements.bookmarksSidebar) {
         this.elements.bookmarksSidebar.classList.remove('active');
     }
 };
 
-GeoMasterApp.renderBookmarksSidebar = function() {
+DharaVerseApp.renderBookmarksSidebar = function() {
     const list = this.elements.bookmarksList;
     const empty = this.elements.bookmarksEmpty;
     
@@ -2479,7 +2557,7 @@ GeoMasterApp.renderBookmarksSidebar = function() {
     });
 };
 
-GeoMasterApp.clearAllBookmarks = function() {
+DharaVerseApp.clearAllBookmarks = function() {
     if (this.userData.bookmarks.length === 0) {
         this.showToast('No Bookmarks', 'You have no bookmarks to clear', 'info');
         return;
@@ -2499,7 +2577,7 @@ GeoMasterApp.clearAllBookmarks = function() {
 // 11. PROGRESS TRACKING
 // ============================================
 
-GeoMasterApp.markTopicInProgress = function(topicId) {
+DharaVerseApp.markTopicInProgress = function(topicId) {
     // Skip if already completed
     if (this.userData.completedTopics.includes(topicId)) {
         return;
@@ -2513,7 +2591,7 @@ GeoMasterApp.markTopicInProgress = function(topicId) {
     }
 };
 
-GeoMasterApp.markTopicComplete = function(topicId) {
+DharaVerseApp.markTopicComplete = function(topicId) {
     // Remove from in-progress
     const inProgressIndex = this.userData.inProgressTopics.indexOf(topicId);
     if (inProgressIndex !== -1) {
@@ -2565,7 +2643,7 @@ GeoMasterApp.markTopicComplete = function(topicId) {
     }
 };
 
-GeoMasterApp.showCompletionCelebration = function(topic) {
+DharaVerseApp.showCompletionCelebration = function(topic) {
     // Show toast
     this.showToast(
         'Topic Completed! 🎉',
@@ -2577,7 +2655,7 @@ GeoMasterApp.showCompletionCelebration = function(topic) {
     this.createConfetti();
 };
 
-GeoMasterApp.createConfetti = function() {
+DharaVerseApp.createConfetti = function() {
     const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181'];
     const confettiCount = 50;
     
@@ -2640,7 +2718,7 @@ GeoMasterApp.createConfetti = function() {
     }, 3000);
 };
 
-GeoMasterApp.updateStreak = function() {
+DharaVerseApp.updateStreak = function() {
     const today = new Date().toISOString().split('T')[0];
     const lastStudied = this.userData.lastStudied;
     
@@ -2679,7 +2757,7 @@ GeoMasterApp.updateStreak = function() {
     }
 };
 
-GeoMasterApp.updateStats = function() {
+DharaVerseApp.updateStats = function() {
     const completed = this.userData.completedTopics.length;
     const inProgress = this.userData.inProgressTopics.length;
     const total = this.state.allTopics.length;
@@ -2702,7 +2780,7 @@ GeoMasterApp.updateStats = function() {
     }
 };
 
-GeoMasterApp.updateProgress = function() {
+DharaVerseApp.updateProgress = function() {
     const completed = this.userData.completedTopics.length;
     const total = this.state.allTopics.length;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -2720,7 +2798,7 @@ GeoMasterApp.updateProgress = function() {
     this.updateBookmarkCount();
 };
 
-GeoMasterApp.logActivity = function(action, topic) {
+DharaVerseApp.logActivity = function(action, topic) {
     if (!topic) return;
     
     const activity = {
@@ -2742,7 +2820,7 @@ GeoMasterApp.logActivity = function(action, topic) {
     this.saveUserData();
 };
 
-GeoMasterApp.checkAchievements = function() {
+DharaVerseApp.checkAchievements = function() {
     const newAchievements = [];
     
     this.achievements.forEach(achievement => {
@@ -2770,7 +2848,7 @@ GeoMasterApp.checkAchievements = function() {
     }
 };
 
-GeoMasterApp.showAchievementUnlock = function(achievement) {
+DharaVerseApp.showAchievementUnlock = function(achievement) {
     // Show special achievement modal
     const modal = document.getElementById('achievementModal');
     if (modal) {
@@ -2798,7 +2876,7 @@ GeoMasterApp.showAchievementUnlock = function(achievement) {
     }
 };
 
-GeoMasterApp.checkCategoryComplete = function(userData) {
+DharaVerseApp.checkCategoryComplete = function(userData) {
     const categories = Object.keys(this.categories).filter(c => c !== 'all');
     
     for (const category of categories) {
@@ -2815,7 +2893,7 @@ GeoMasterApp.checkCategoryComplete = function(userData) {
     return false;
 };
 
-GeoMasterApp.checkPhysicalComplete = function(userData) {
+DharaVerseApp.checkPhysicalComplete = function(userData) {
     const physicalCategories = ['geomorphology', 'climatology', 'oceanography', 'biogeography', 'landforms'];
     const physicalTopics = this.state.allTopics.filter(t => physicalCategories.includes(t.category));
     const completedPhysical = physicalTopics.filter(t => userData.completedTopics.includes(t.id));
@@ -2823,7 +2901,7 @@ GeoMasterApp.checkPhysicalComplete = function(userData) {
     return physicalTopics.length > 0 && completedPhysical.length === physicalTopics.length;
 };
 
-GeoMasterApp.checkIndiaComplete = function(userData) {
+DharaVerseApp.checkIndiaComplete = function(userData) {
     const indiaCategories = ['india-physical', 'india-climate', 'india-drainage', 'india-resources'];
     const indiaTopics = this.state.allTopics.filter(t => indiaCategories.includes(t.category));
     const completedIndia = indiaTopics.filter(t => userData.completedTopics.includes(t.id));
@@ -2835,12 +2913,12 @@ GeoMasterApp.checkIndiaComplete = function(userData) {
 // 12. THEME MANAGEMENT
 // ============================================
 
-GeoMasterApp.initTheme = function() {
+DharaVerseApp.initTheme = function() {
     const savedTheme = this.userData.settings.theme || 'dark';
     this.setTheme(savedTheme);
 };
 
-GeoMasterApp.setTheme = function(theme) {
+DharaVerseApp.setTheme = function(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     this.userData.settings.theme = theme;
     this.saveUserData();
@@ -2852,7 +2930,7 @@ GeoMasterApp.setTheme = function(theme) {
     }
 };
 
-GeoMasterApp.toggleTheme = function() {
+DharaVerseApp.toggleTheme = function() {
     const currentTheme = this.userData.settings.theme || 'dark';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     this.setTheme(newTheme);
@@ -2862,7 +2940,7 @@ GeoMasterApp.toggleTheme = function() {
 // 13. TOAST NOTIFICATIONS
 // ============================================
 
-GeoMasterApp.showToast = function(title, message, type = 'info', duration = 4000) {
+DharaVerseApp.showToast = function(title, message, type = 'info', duration = 4000) {
     const container = this.elements.toastContainer;
     if (!container) return;
     
@@ -2903,7 +2981,7 @@ GeoMasterApp.showToast = function(title, message, type = 'info', duration = 4000
     return toast;
 };
 
-GeoMasterApp.removeToast = function(toast) {
+DharaVerseApp.removeToast = function(toast) {
     if (!toast || !toast.parentNode) return;
     
     toast.classList.add('removing');
@@ -2919,7 +2997,7 @@ GeoMasterApp.removeToast = function(toast) {
 // 14. KEYBOARD SHORTCUTS
 // ============================================
 
-GeoMasterApp.initKeyboardShortcuts = function() {
+DharaVerseApp.initKeyboardShortcuts = function() {
     document.addEventListener('keydown', (e) => {
         // Ignore if typing in input
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
@@ -3018,13 +3096,13 @@ GeoMasterApp.initKeyboardShortcuts = function() {
     });
 };
 
-GeoMasterApp.openShortcutsModal = function() {
+DharaVerseApp.openShortcutsModal = function() {
     if (this.elements.shortcutsModal) {
         this.elements.shortcutsModal.classList.add('active');
     }
 };
 
-GeoMasterApp.closeShortcutsModal = function() {
+DharaVerseApp.closeShortcutsModal = function() {
     if (this.elements.shortcutsModal) {
         this.elements.shortcutsModal.classList.remove('active');
     }
@@ -3034,7 +3112,7 @@ GeoMasterApp.closeShortcutsModal = function() {
 // 15. ANIMATIONS & PARTICLES
 // ============================================
 
-GeoMasterApp.initParticles = function() {
+DharaVerseApp.initParticles = function() {
     const container = this.elements.particles;
     if (!container) return;
     
@@ -3093,7 +3171,7 @@ GeoMasterApp.initParticles = function() {
     }
 };
 
-GeoMasterApp.initScrollEffects = function() {
+DharaVerseApp.initScrollEffects = function() {
     // Scroll to top button
     const scrollBtn = this.elements.scrollTopBtn;
     
@@ -3137,7 +3215,7 @@ GeoMasterApp.initScrollEffects = function() {
 // FIX: Category Scroll Functionality
 // ============================================
 
-GeoMasterApp.initCategoryScroll = function() {
+DharaVerseApp.initCategoryScroll = function() {
     const scroll = document.getElementById('categoryScroll');
     const leftBtn = document.getElementById('scrollLeft');
     const rightBtn = document.getElementById('scrollRight');
@@ -3244,7 +3322,7 @@ GeoMasterApp.initCategoryScroll = function() {
 // 16. DASHBOARD FUNCTIONS
 // ============================================
 
-GeoMasterApp.initDashboard = function() {
+DharaVerseApp.initDashboard = function() {
     console.log('📊 Initializing Dashboard...');
     
     // Check if on profile page
@@ -3273,7 +3351,7 @@ GeoMasterApp.initDashboard = function() {
     this.initTheme();
 };
 
-GeoMasterApp.loadTopicDataForDashboard = function() {
+DharaVerseApp.loadTopicDataForDashboard = function() {
     this.state.allTopics = [];
     
     const dataSources = [
@@ -3305,7 +3383,7 @@ GeoMasterApp.loadTopicDataForDashboard = function() {
     }
 };
 
-GeoMasterApp.renderDashboardStats = function() {
+DharaVerseApp.renderDashboardStats = function() {
     const completed = this.userData.completedTopics.length;
     const inProgress = this.userData.inProgressTopics.length;
     const total = this.state.allTopics.length;
@@ -3379,7 +3457,7 @@ GeoMasterApp.renderDashboardStats = function() {
     this.renderAchievements();
 };
 
-GeoMasterApp.renderStreakCalendar = function() {
+DharaVerseApp.renderStreakCalendar = function() {
     const container = document.getElementById('streakCalendar');
     if (!container) return;
     
@@ -3406,7 +3484,7 @@ GeoMasterApp.renderStreakCalendar = function() {
     }
 };
 
-GeoMasterApp.isStudyDay = function(dateStr) {
+DharaVerseApp.isStudyDay = function(dateStr) {
     // Check if there's activity on this date
     return this.userData.activityLog.some(activity => {
         const activityDate = activity.timestamp.split('T')[0];
@@ -3414,7 +3492,7 @@ GeoMasterApp.isStudyDay = function(dateStr) {
     });
 };
 
-GeoMasterApp.renderTimeGraph = function() {
+DharaVerseApp.renderTimeGraph = function() {
     const container = document.getElementById('timeGraph');
     if (!container) return;
     
@@ -3427,7 +3505,7 @@ GeoMasterApp.renderTimeGraph = function() {
     `).join('');
 };
 
-GeoMasterApp.renderAchievements = function() {
+DharaVerseApp.renderAchievements = function() {
     const container = document.getElementById('achievementsGrid');
     if (!container) return;
     
@@ -3448,7 +3526,7 @@ GeoMasterApp.renderAchievements = function() {
     if (totalAchievements) totalAchievements.textContent = this.achievements.length;
 };
 
-GeoMasterApp.renderCategoryProgress = function() {
+DharaVerseApp.renderCategoryProgress = function() {
     const container = document.getElementById('categoryProgressGrid');
     if (!container) return;
     
@@ -3484,7 +3562,7 @@ GeoMasterApp.renderCategoryProgress = function() {
     }).join('');
 };
 
-GeoMasterApp.renderActivityTimeline = function() {
+DharaVerseApp.renderActivityTimeline = function() {
     const container = document.getElementById('activityTimeline');
     const emptyState = document.getElementById('activityEmpty');
     
@@ -3527,7 +3605,7 @@ GeoMasterApp.renderActivityTimeline = function() {
     }).join('');
 };
 
-GeoMasterApp.getTimeAgo = function(date) {
+DharaVerseApp.getTimeAgo = function(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
     
     const intervals = {
@@ -3549,7 +3627,7 @@ GeoMasterApp.getTimeAgo = function(date) {
     return 'Just now';
 };
 
-GeoMasterApp.renderDashboardBookmarks = function() {
+DharaVerseApp.renderDashboardBookmarks = function() {
     const container = document.getElementById('bookmarksScroll');
     const emptyState = document.getElementById('dashboardBookmarksEmpty');
     
@@ -3587,7 +3665,7 @@ GeoMasterApp.renderDashboardBookmarks = function() {
     });
 };
 
-GeoMasterApp.renderWeakAreas = function() {
+DharaVerseApp.renderWeakAreas = function() {
     const container = document.getElementById('weakAreasGrid');
     const emptyState = document.getElementById('weakAreasEmpty');
     
@@ -3640,7 +3718,7 @@ GeoMasterApp.renderWeakAreas = function() {
     `).join('');
 };
 
-GeoMasterApp.renderRecommendations = function() {
+DharaVerseApp.renderRecommendations = function() {
     const container = document.getElementById('recommendationsGrid');
     if (!container) return;
     
@@ -3692,7 +3770,7 @@ GeoMasterApp.renderRecommendations = function() {
     });
 };
 
-GeoMasterApp.initDashboardEventListeners = function() {
+DharaVerseApp.initDashboardEventListeners = function() {
     // Edit profile button
     const editProfileBtn = document.getElementById('editProfileBtn');
     const editProfileModal = document.getElementById('editProfileModal');
@@ -3829,7 +3907,7 @@ GeoMasterApp.initDashboardEventListeners = function() {
     }
 };
 
-GeoMasterApp.exportProgress = function() {
+DharaVerseApp.exportProgress = function() {
     const data = {
         userData: this.userData,
         exportDate: new Date().toISOString(),
@@ -3841,14 +3919,14 @@ GeoMasterApp.exportProgress = function() {
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = `geomaster-progress-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `DharaVerse-progress-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     
     URL.revokeObjectURL(url);
     this.showToast('Exported! 📤', 'Your progress has been downloaded', 'success');
 };
 
-GeoMasterApp.importProgress = function(file) {
+DharaVerseApp.importProgress = function(file) {
     if (!file) return;
     
     const reader = new FileReader();
@@ -3877,7 +3955,7 @@ GeoMasterApp.importProgress = function(file) {
     reader.readAsText(file);
 };
 
-GeoMasterApp.resetAllProgress = function() {
+DharaVerseApp.resetAllProgress = function() {
     this.userData = {
         name: 'UPSC Aspirant',
         avatar: '👨‍🎓',
@@ -3910,7 +3988,7 @@ GeoMasterApp.resetAllProgress = function() {
 // 17. UTILITIES
 // ============================================
 
-GeoMasterApp.debounce = function(func, wait) {
+DharaVerseApp.debounce = function(func, wait) {
     let timeout;
     return function executedFunction(...args) {
         const later = () => {
@@ -3922,7 +4000,7 @@ GeoMasterApp.debounce = function(func, wait) {
     };
 };
 
-GeoMasterApp.throttle = function(func, limit) {
+DharaVerseApp.throttle = function(func, limit) {
     let inThrottle;
     return function(...args) {
         if (!inThrottle) {
@@ -3933,7 +4011,7 @@ GeoMasterApp.throttle = function(func, limit) {
     };
 };
 
-GeoMasterApp.formatDate = function(dateString) {
+DharaVerseApp.formatDate = function(dateString) {
     const date = new Date(dateString);
     const options = { 
         year: 'numeric', 
@@ -3943,7 +4021,7 @@ GeoMasterApp.formatDate = function(dateString) {
     return date.toLocaleDateString('en-IN', options);
 };
 
-GeoMasterApp.formatTime = function(minutes) {
+DharaVerseApp.formatTime = function(minutes) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     
@@ -3953,11 +4031,11 @@ GeoMasterApp.formatTime = function(minutes) {
     return `${mins}m`;
 };
 
-GeoMasterApp.generateId = function() {
+DharaVerseApp.generateId = function() {
     return 'id_' + Math.random().toString(36).substr(2, 9);
 };
 
-GeoMasterApp.copyToClipboard = function(text) {
+DharaVerseApp.copyToClipboard = function(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
             this.showToast('Copied! 📋', 'Text copied to clipboard', 'success');
@@ -3970,7 +4048,7 @@ GeoMasterApp.copyToClipboard = function(text) {
     }
 };
 
-GeoMasterApp.fallbackCopyToClipboard = function(text) {
+DharaVerseApp.fallbackCopyToClipboard = function(text) {
     const textArea = document.createElement('textarea');
     textArea.value = text;
     textArea.style.position = 'fixed';
@@ -3989,7 +4067,7 @@ GeoMasterApp.fallbackCopyToClipboard = function(text) {
     document.body.removeChild(textArea);
 };
 
-GeoMasterApp.shareContent = function(title, text, url) {
+DharaVerseApp.shareContent = function(title, text, url) {
     if (navigator.share) {
         navigator.share({
             title: title,
@@ -4004,7 +4082,7 @@ GeoMasterApp.shareContent = function(title, text, url) {
     }
 };
 
-GeoMasterApp.getQueryParams = function() {
+DharaVerseApp.getQueryParams = function() {
     const params = new URLSearchParams(window.location.search);
     const result = {};
     
@@ -4015,13 +4093,13 @@ GeoMasterApp.getQueryParams = function() {
     return result;
 };
 
-GeoMasterApp.setQueryParam = function(key, value) {
+DharaVerseApp.setQueryParam = function(key, value) {
     const url = new URL(window.location.href);
     url.searchParams.set(key, value);
     window.history.pushState({}, '', url);
 };
 
-GeoMasterApp.removeQueryParam = function(key) {
+DharaVerseApp.removeQueryParam = function(key) {
     const url = new URL(window.location.href);
     url.searchParams.delete(key);
     window.history.pushState({}, '', url);
@@ -4031,7 +4109,7 @@ GeoMasterApp.removeQueryParam = function(key) {
 // 18. EVENT LISTENERS SETUP
 // ============================================
 
-GeoMasterApp.setupEventListeners = function() {
+DharaVerseApp.setupEventListeners = function() {
     console.log('🎯 Setting up event listeners...');
     
     // Initialize search
@@ -4139,7 +4217,7 @@ GeoMasterApp.setupEventListeners = function() {
                 const topic = this.state.currentTopic;
                 const url = `${window.location.origin}${window.location.pathname}?topic=${topic.id}`;
                 this.shareContent(
-                    `${topic.name} - GeoMaster UPSC`,
+                    `${topic.name} - DharaVerse UPSC`,
                     `Learn about ${topic.name} for UPSC Geography`,
                     url
                 );
@@ -4208,7 +4286,7 @@ GeoMasterApp.setupEventListeners = function() {
     console.log('✅ Event listeners setup complete');
 };
 
-GeoMasterApp.setupFilterDropdowns = function() {
+DharaVerseApp.setupFilterDropdowns = function() {
     // Difficulty filter
     const difficultyFilter = document.getElementById('difficultyFilter');
     const difficultyMenu = document.getElementById('difficultyMenu');
@@ -4278,7 +4356,7 @@ GeoMasterApp.setupFilterDropdowns = function() {
     });
 };
 
-GeoMasterApp.toggleDropdown = function(type) {
+DharaVerseApp.toggleDropdown = function(type) {
     const dropdowns = {
         difficulty: document.getElementById('difficultyFilter')?.parentElement,
         relevance: document.getElementById('relevanceFilter')?.parentElement,
@@ -4298,7 +4376,7 @@ GeoMasterApp.toggleDropdown = function(type) {
     }
 };
 
-GeoMasterApp.updateDifficultyFilter = function() {
+DharaVerseApp.updateDifficultyFilter = function() {
     const checkboxes = document.querySelectorAll('#difficultyMenu input[type="checkbox"]');
     const selected = [];
     
@@ -4312,7 +4390,7 @@ GeoMasterApp.updateDifficultyFilter = function() {
     this.applyFilters();
 };
 
-GeoMasterApp.updateRelevanceFilter = function() {
+DharaVerseApp.updateRelevanceFilter = function() {
     const checkboxes = document.querySelectorAll('#relevanceMenu input[type="checkbox"]');
     const selected = [];
     
@@ -4326,12 +4404,12 @@ GeoMasterApp.updateRelevanceFilter = function() {
     this.applyFilters();
 };
 
-GeoMasterApp.setSortOrder = function(sort) {
+DharaVerseApp.setSortOrder = function(sort) {
     this.state.sortBy = sort;
     this.applyFilters();
 };
 
-GeoMasterApp.handleUrlParams = function() {
+DharaVerseApp.handleUrlParams = function() {
     const params = this.getQueryParams();
     
     // Open topic if specified
@@ -4362,7 +4440,7 @@ GeoMasterApp.handleUrlParams = function() {
     }
 };
 
-GeoMasterApp.handleResize = function() {
+DharaVerseApp.handleResize = function() {
     // Re-render mind map on resize if modal is open
     if (this.state.isModalOpen && this.state.currentTopic) {
         this.renderMindMap(this.state.currentTopic);
@@ -4387,26 +4465,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (isProfilePage) {
         // Initialize dashboard
-        GeoMasterApp.cacheElements();
-        GeoMasterApp.initDashboard();
+        DharaVerseApp.cacheElements();
+        DharaVerseApp.initDashboard();
     } else {
         // Initialize main app
-        GeoMasterApp.init();
+        DharaVerseApp.init();
     }
 });
 
 // Handle page navigation (for SPAs or back button)
 window.addEventListener('popstate', function(event) {
-    const params = GeoMasterApp.getQueryParams();
+    const params = DharaVerseApp.getQueryParams();
     
     if (params.topic) {
-        GeoMasterApp.openTopicModal(params.topic);
-    } else if (GeoMasterApp.state.isModalOpen) {
-        GeoMasterApp.closeTopicModal();
+        DharaVerseApp.openTopicModal(params.topic);
+    } else if (DharaVerseApp.state.isModalOpen) {
+        DharaVerseApp.closeTopicModal();
     }
     
     if (params.category) {
-        GeoMasterApp.setCategory(params.category);
+        DharaVerseApp.setCategory(params.category);
     }
 });
 
@@ -4425,7 +4503,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // Export for global access
-window.GeoMasterApp = GeoMasterApp;
+window.DharaVerseApp = DharaVerseApp;
 
 // ============================================
 // 20. POLYFILLS & COMPATIBILITY
@@ -4534,6 +4612,6 @@ if (!Object.entries) {
         };
 }());
 
-console.log('🌍 GeoMaster UPSC App Loaded Successfully!');
-console.log('📚 Total Functions:', Object.keys(GeoMasterApp).length);
+console.log('🌍 DharaVerse UPSC App Loaded Successfully!');
+console.log('📚 Total Functions:', Object.keys(DharaVerseApp).length);
 console.log('🎯 Ready for UPSC Geography Learning!');
