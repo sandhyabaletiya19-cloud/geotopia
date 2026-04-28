@@ -868,25 +868,24 @@ DharaVerseApp.createTopicCard = function(topic, index) {
     for (let i = 0; i < 3; i++) {
         starsHTML += `<span class="star ${i < stars ? 'filled' : ''}">★</span>`;
     }
-    
-       // ── STEP A: Build explore buttons HTML ──────────────
+
+       // Build explore buttons
     const exploreLinks = this.getExploreLinks(topic);
     let exploreHTML = '';
     if (exploreLinks.length > 0) {
-        const btns = exploreLinks.map(link =>
-            `<a href="${link.url}"
-                class="card-explore-btn"
-                title="${link.title}"
-                ${link.external ? 'target="_blank" rel="noopener noreferrer"' : ''}>
-                <span>${link.icon}</span>
-                <span>${link.label}</span>
+        const btns = exploreLinks.map(lk =>
+            `<a href="${lk.url}"
+                class="card-explore-btn${lk.css}"
+                title="${lk.title}"
+                ${lk.external ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+                <span>${lk.icon}</span>
+                <span>${lk.label}</span>
                 <span class="explore-arrow">→</span>
             </a>`
         ).join('');
         exploreHTML = `<div class="card-explore-row">${btns}</div>`;
     }
-    // ────────────────────────────────────────────────────
-
+   
     card.innerHTML = `
         <div class="card-header">
             <div class="card-icon-wrapper">
@@ -929,14 +928,15 @@ DharaVerseApp.createTopicCard = function(topic, index) {
                 </div>
             ` : ''}
         </div>
-
-        ${exploreHTML}
+        
+         ${exploreHTML}
     `;
     
-        // Add click event
-    card.addEventListener('click', (e) => {
-        // Ignore if clicking bookmark button OR explore buttons
-        if (e.target.closest('.card-bookmark') || e.target.closest('.card-explore-btn')) {
+    // Add click event
+        card.addEventListener('click', (e) => {
+        // Ignore if clicking bookmark button or explore buttons
+        if (e.target.closest('.card-bookmark') || 
+            e.target.closest('.card-explore-btn')) {
             return;
         }
         this.openTopicModal(topic.id);
@@ -963,15 +963,11 @@ DharaVerseApp.createTopicCard = function(topic, index) {
     return card;
 };
 
-// ============================================
-// EXPLORE LINKS — which buttons show on cards
-// ============================================
 DharaVerseApp.getExploreLinks = function(topic) {
     const links = [];
     const cat = topic.category;
 
-    // Map category to maps.html category id
-    const mapCategoryMap = {
+    const mapCatMap = {
         'geomorphology'  : 'geomorphology',
         'climatology'    : 'world-climate',
         'oceanography'   : 'oceanography',
@@ -987,20 +983,19 @@ DharaVerseApp.getExploreLinks = function(topic) {
         'environment'    : 'environment'
     };
 
-    // Every topic gets a Maps button
-    const mapCat = mapCategoryMap[cat];
+    const mapCat = mapCatMap[cat];
     if (mapCat) {
         links.push({
             icon    : '🗺️',
             label   : 'Maps',
             title   : 'View Maps for ' + topic.name,
             url     : 'map/maps.html?category=' + mapCat,
+            css     : '',
             external: false
         });
     }
 
-    // India topics also get Bharat Encyclopedia button
-    const indiaCategories = [
+    const indiaCats = [
         'india-physical',
         'india-climate',
         'india-drainage',
@@ -1008,12 +1003,13 @@ DharaVerseApp.getExploreLinks = function(topic) {
         'economic',
         'human'
     ];
-    if (indiaCategories.includes(cat)) {
+    if (indiaCats.includes(cat)) {
         links.push({
             icon    : '🇮🇳',
             label   : 'Bharat',
             title   : 'Explore Bharat Encyclopedia',
             url     : 'https://dharaverse.com/encyclopedia/bharat/index.html',
+            css     : ' explore-bharat',
             external: true
         });
     }
