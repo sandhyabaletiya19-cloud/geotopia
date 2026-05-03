@@ -91,8 +91,7 @@ class DharaVerseMapsApp {
     mapEl.classList.add('visible');
 
     // Force map container to proper z-index
-    mapEl.style.zIndex = '1';
-    mapEl.style.position = 'relative';
+  
 
     if (this.map) {
       this.map.remove();
