@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSC Geography Quiz Master</title>
+    <style>
+        /* ============================================
+           ROOT VARIABLES & RESET
+        ============================================ */
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --gold: #e94560;
+            --gold-light: #f5a623;
+            --green: #00b894;
+            --red: #d63031;
+            --blue: #0984e3;
+            --purple: #6c5ce7;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0b0;
+            --card-bg: #1e2140;
+            --card-border: #2d3561;
+            --success-bg: #00b89420;
+            --error-bg: #d6303120;
+            --option-hover: #2d3561;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           ANIMATED BACKGROUND
+        ============================================ */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #0f346020 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #6c5ce720 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation: pulse 6s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* ============================================
+           MAIN CONTAINER
+        ============================================ */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ============================================
+           HEADER
+        ============================================ */
+        .header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: white;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: clamp(28px, 5vw, 48px);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a0c4ff 50%, var(--gold-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ============================================
+           SCREEN MANAGEMENT
+        ============================================ */
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================
+           CATEGORY SELECTION SCREEN
+        ============================================ */
+        .section-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--cat-color, var(--gold));
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .category-card:hover::before,
+        .category-card.selected::before {
+            transform: scaleX(1);
+        }
+
+        .category-card:hover {
+            border-color: var(--cat-color, var(--gold));
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .category-card.selected {
+            border-color: var(--cat-color, var(--gold));
+            background: linear-gradient(135deg, var(--card-bg), #2a2f5a);
+            box-shadow: 0 0 20px var(--cat-color, var(--gold))30;
+        }
+
+        .cat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .cat-icon {
+            font-size: 28px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cat-color, var(--gold))20;
+            border-radius: 12px;
+        }
+
+        .cat-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .cat-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .cat-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .cat-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            background: var(--accent);
+            border-radius: 50px;
+            color: var(--text-secondary);
+        }
+
+        .selected-check {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: var(--cat-color, var(--gold));
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .category-card.selected .selected-check {
+            display: flex;
+        }
+
+        /* ============================================
+           START QUIZ BUTTON
+        ============================================ */
+        .start-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--gold), #c0392b);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 20px var(--gold)50;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--gold)70;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--card-border);
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* ============================================
+           QUIZ SCREEN
+        ============================================ */
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .quiz-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .quiz-category-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .quiz-progress-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .quiz-stats {
+            display: flex;
+            gap: 12px;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .stat-chip.correct {
+            background: var(--success-bg);
+            color: var(--green);
+            border: 1px solid var(--green)40;
+        }
+
+        .stat-chip.wrong {
+            background: var(--error-bg);
+            color: var(--red);
+            border: 1px solid var(--red)40;
+        }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            margin-bottom: 24px;
+        }
+
+        .progress-bar-wrapper {
+            height: 6px;
+            background: var(--card-bg);
+            border-radius: 50px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 50px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--card-border);
+            transition: var(--transition);
+        }
+
+        .progress-dot.answered-correct {
+            background: var(--green);
+        }
+
+        .progress-dot.answered-wrong {
+            background: var(--red);
+        }
+
+        .progress-dot.current {
+            background: var(--gold-light);
+            transform: scale(1.4);
+        }
+
+        /* QUESTION CARD */
+        .question-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .question-number-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--gold), #c0392b);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .current-affairs-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--gold-light)20;
+            border: 1px solid var(--gold-light)40;
+            color: var(--gold-light);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .question-text {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* STATEMENT BOXES */
+        .statements-box {
+            background: var(--accent)30;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+
+        .statement-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .statement-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .statement-num {
+            color: var(--gold-light);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* OPTIONS */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--secondary);
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+            width: 100%;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--blue);
+            background: var(--option-hover);
+            transform: translateX(4px);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .option-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .option-btn.selected-correct {
+            border-color: var(--green);
+            background: var(--success-bg);
+        }
+
+        .option-btn.selected-correct .option-letter {
+            background: var(--green);
+            color: white;
+        }
+
+        .option-btn.selected-wrong {
+            border-color: var(--red);
+            background: var(--error-bg);
+        }
+
+        .option-btn.selected-wrong .option-letter {
+            background: var(--red);
+            color: white;
+        }
+
+        .option-btn.show-correct {
+            border-color: var(--green)60;
+            background: var(--success-bg);
+        }
+
+        .option-btn.show-correct .option-letter {
+            background: var(--green);
+            color: white;
+        }
+
+        .option-result-icon {
+            font-size: 18px;
+            margin-left: auto;
+        }
+
+        /* ============================================
+           EXPLANATION SECTION
+        ============================================ */
+        .explanation-section {
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .answer-result-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .answer-result-banner.correct {
+            background: var(--success-bg);
+            border: 1px solid var(--green)40;
+            color: var(--green);
+        }
+
+        .answer-result-banner.wrong {
+            background: var(--error-bg);
+            border: 1px solid var(--red)40;
+            color: var(--red);
+        }
+
+        .explanations-container {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .explanation-card {
+            background: var(--secondary);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .explanation-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .explanation-header.correct-option {
+            background: var(--success-bg);
+            border-color: var(--green)30;
+        }
+
+        .explanation-header.wrong-option {
+            background: var(--error-bg)50;
+            border-color: var(--red)20;
+        }
+
+        .exp-letter-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .correct-option .exp-letter-badge {
+            background: var(--green);
+            color: white;
+        }
+
+        .wrong-option .exp-letter-badge {
+            background: var(--red)60;
+            color: white;
+        }
+
+        .exp-label {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .correct-option .exp-label {
+            color: var(--green);
+        }
+
+        .wrong-option .exp-label {
+            color: var(--red);
+        }
+
+        .exp-option-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .explanation-body {
+            padding: 14px 16px;
+        }
+
+        .explanation-points {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .explanation-points li {
+            display: flex;
+            gap: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .explanation-points li::before {
+            content: '▸';
+            color: var(--gold-light);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .deep-dive-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: var(--accent)30;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .deep-dive-link strong {
+            color: var(--blue);
+        }
+
+        /* CURRENT AFFAIRS BOX */
+        .current-affairs-box {
+            background: linear-gradient(135deg, #1a1a3e, #2d1b4e);
+            border: 1px solid var(--gold-light)30;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .ca-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gold-light);
+        }
+
+        .ca-content {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .ca-tag {
+            display: inline-block;
+            background: var(--gold-light)20;
+            color: var(--gold-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        /* NEXT BUTTON */
+        .next-btn-container {
+            text-align: right;
+        }
+
+        /* ============================================
+           RESULTS SCREEN
+        ============================================ */
+        .results-screen {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .score-circle-container {
+            margin: 30px auto;
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--green) 0deg,
+                var(--green) calc(var(--score-deg) * 1deg),
+                var(--card-bg) calc(var(--score-deg) * 1deg)
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .score-circle::after {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .score-number {
+            position: absolute;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .score-number .big-num {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .score-number .out-of {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .result-grade {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .result-message {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .result-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .result-stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .result-stat-card .stat-num {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .result-stat-card .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* REVIEW SECTION IN RESULTS */
+        .review-section {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .review-section h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .review-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+
+        .review-item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .review-status-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .review-q-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .review-answer-row {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            margin-left: 30px;
+        }
+
+        .your-answer {
+            color: var(--red);
+        }
+
+        .correct-answer {
+            color: var(--green);
+        }
+
+        /* ============================================
+           TIMER
+        ============================================ */
+        .timer-widget {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 8px 14px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .timer-widget.warning {
+            border-color: var(--gold)60;
+            color: var(--gold-light);
+            animation: timerPulse 0.5s ease infinite;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ============================================
+           TOAST NOTIFICATION
+        ============================================ */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            box-shadow: var(--shadow);
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* ============================================
+           LOADING STATE
+        ============================================ */
+        .skeleton {
+            background: linear-gradient(90deg, var(--card-bg) 25%, var(--card-border) 50%, var(--card-bg) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ============================================
+           FILTER BAR
+        ============================================ */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 1px solid var(--card-border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--gold)10;
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 768px) {
+            .quiz-header {
+                flex-direction: column;
+            }
+
+            .result-stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .question-card {
+                padding: 20px;
+            }
+        }
+
+        /* ============================================
+           SCROLLBAR
+        ============================================ */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 3px;
+        }
+
+        /* ============================================
+           DIFFICULTY INDICATOR
+        ============================================ */
+        .difficulty-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .difficulty-badge.easy {
+            background: var(--green)20;
+            color: var(--green);
+        }
+
+        .difficulty-badge.medium {
+            background: var(--gold-light)20;
+            color: var(--gold-light);
+        }
+
+        .difficulty-badge.hard {
+            background: var(--red)20;
+            color: var(--red);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Background Animation -->
+<div class="bg-animation"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+    <span id="toast-icon">✅</span>
+    <span id="toast-text">Answer submitted!</span>
+</div>
+
+<div class="container">
+
+    <!-- ========== HEADER ========== -->
+    <div class="header">
+        <div class="header-badge">🇮🇳 UPSC Civil Services Prep</div>
+        <h1>🌍 Geography Quiz Master</h1>
+        <p>Master every geography concept with UPSC-style questions & current affairs</p>
+    </div>
+
+    <!-- ========== SCREEN 1: CATEGORY SELECTION ========== -->
+    <div class="screen active" id="screen-category">
+
+        <div class="section-title">Choose Your Topic</div>
+        <div class="section-subtitle">Select a category to start your 20-question quiz session</div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterCategories('all', this)">All Topics</button>
+            <button class="filter-btn" onclick="filterCategories('physical', this)">Physical</button>
+            <button class="filter-btn" onclick="filterCategories('indian', this)">Indian</button>
+            <button class="filter-btn" onclick="filterCategories('human', this)">Human & Economic</button>
+            <button class="filter-btn" onclick="filterCategories('current', this)">Current Affairs</button>
+        </div>
+
+        <div class="categories-grid" id="categories-grid">
+            <!-- Generated by JS -->
+        </div>
+
+        <div class="start-section">
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;" id="selected-text">
+                Select a topic to begin
+            </p>
+            <button class="btn-primary" id="start-btn" disabled onclick="startQuiz()">
+                🚀 Start Quiz
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== SCREEN 2: QUIZ ========== -->
+    <div class="screen" id="screen-quiz">
+
+        <!-- Quiz Header -->
+        <div class="quiz-header">
+            <div class="quiz-meta">
+                <div class="quiz-category-badge">
+                    <span id="quiz-cat-icon">🌋</span>
+                    <span id="quiz-cat-name">Geomorphology</span>
+                </div>
+                <div class="quiz-progress-text" id="quiz-progress-text">Question 1 of 20</div>
+            </div>
+            <div class="quiz-stats">
+                <div class="stat-chip correct">✅ <span id="correct-count">0</span></div>
+                <div class="stat-chip wrong">❌ <span id="wrong-count">0</span></div>
+                <div class="timer-widget" id="timer-widget">⏱ <span id="timer">90s</span></div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill" id="progress-bar" style="width: 5%"></div>
+            </div>
+            <div class="progress-dots" id="progress-dots"></div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="question-card" id="question-card">
+            <!-- Generated by JS -->
+        </div>
+
+        <!-- Options -->
+        <div class="options-grid" id="options-grid">
+            <!-- Generated by JS -->
+        </div>
+
+        <!-- Explanation Section (hidden until answer) -->
+        <div class="explanation-section" id="explanation-section" style="display:none;">
+            <!-- Generated by JS -->
+        </div>
+
+    </div>
+
+    <!-- ========== SCREEN 3: RESULTS ========== -->
+    <div class="screen" id="screen-results">
+        <div class="results-screen">
+            <div class="header-badge" id="result-badge">Quiz Complete!</div>
+
+            <div class="score-circle-container">
+                <div class="score-circle" id="score-circle">
+                    <div class="score-number">
+                        <div class="big-num" id="final-score">0</div>
+                        <div class="out-of" id="final-out-of">/ 20</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-grade" id="result-grade">🌟 Excellent!</div>
+            <div class="result-message" id="result-message">
+                Outstanding performance! You are well prepared.
+            </div>
+
+            <div class="result-stats-grid">
+                <div class="result-stat-card">
+                    <div class="stat-num" style="color: var(--green)" id="r-correct">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="result-stat-card">
+                    <div class="stat-num" style="color: var(--red)" id="r-wrong">0</div>
+                    <div class="stat-label">Wrong</div>
+                </div>
+                <div class="result-stat-card">
+                    <div class="stat-num" style="color: var(--gold-light)" id="r-accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn-primary" onclick="restartQuiz()">🔄 Try Again</button>
+                <button class="btn-secondary" onclick="goHome()">🏠 Choose Topic</button>
+                <button class="btn-secondary" onclick="showReview()">📋 Review Answers</button>
+            </div>
+
+            <!-- Review Section -->
+            <div class="review-section" id="review-section" style="display:none;">
+                <h3>📚 Answer Review</h3>
+                <div id="review-list"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ============================================================
+   DATA: CATEGORIES
+============================================================ */
+const CATEGORIES = [
+    {
+        id: 'geomorphology',
+        name: 'Geomorphology',
+        icon: '🌋',
+        color: '#e17055',
+        filter: 'physical',
+        subtopics: ['Plate Tectonics', 'Earthquakes', 'Volcanism', 'Fluvial Landforms'],
+        questionCount: 20
+    },
+    {
+        id: 'climatology',
+        name: 'Climatology',
+        icon: '🌦️',
+        color: '#0984e3',
+        filter: 'physical',
+        subtopics: ['Monsoon', 'ENSO', 'Cyclones', 'Jet Streams'],
+        questionCount: 20
+    },
+    {
+        id: 'oceanography',
+        name: 'Oceanography',
+        icon: '🌊',
+        color: '#00cec9',
+        filter: 'physical',
+        subtopics: ['Ocean Currents', 'Coral Reefs', 'Tides', 'AMOC'],
+        questionCount: 20
+    },
+    {
+        id: 'biogeography',
+        name: 'Biogeography',
+        icon: '🌱',
+        color: '#00b894',
+        filter: 'physical',
+        subtopics: ['Ecosystems', 'Biodiversity', 'Succession', 'Hotspots'],
+        questionCount: 20
+    },
+    {
+        id: 'indian-geography',
+        name: 'Indian Geography',
+        icon: '🇮🇳',
+        color: '#fd7272',
+        filter: 'indian',
+        subtopics: ['Himalayas', 'Rivers', 'Soils', 'Agriculture'],
+        questionCount: 20
+    },
+    {
+        id: 'human-geography',
+        name: 'Human Geography',
+        icon: '🏙️',
+        color: '#a29bfe',
+        filter: 'human',
+        subtopics: ['Population', 'Settlement', 'Migration', 'Urbanization'],
+        questionCount: 20
+    },
+    {
+        id: 'economic-geography',
+        name: 'Economic Geography',
+        icon: '⚡',
+        color: '#fdcb6e',
+        filter: 'human',
+        subtopics: ['Industries', 'Energy', 'Trade Routes', 'Agriculture'],
+        questionCount: 20
+    },
+    {
+        id: 'geopolitical',
+        name: 'Geopolitical Geography',
+        icon: '🌍',
+        color: '#e84393',
+        filter: 'current',
+        subtopics: ['Chokepoints', 'Arctic', 'South China Sea', 'Rimland Theory'],
+        questionCount: 20
+    },
+    {
+        id: 'disaster-geography',
+        name: 'Disaster Geography',
+        icon: '🌪️',
+        color: '#636e72',
+        filter: 'current',
+        subtopics: ['Floods', 'Droughts', 'Landslides', 'Heatwaves'],
+        questionCount: 20
+    },
+    {
+        id: 'geo-tools',
+        name: 'Geographical Tools',
+        icon: '🛰️',
+        color: '#74b9ff',
+        filter: 'current',
+        subtopics: ['Remote Sensing', 'GIS', 'Map Projections', 'GPS'],
+        questionCount: 20
+    },
+    {
+        id: 'current-affairs-geo',
+        name: 'Current Affairs + Geo',
+        icon: '📰',
+        color: '#f5a623',
+        filter: 'current',
+        subtopics: ['2024-25 Events', 'Climate Reports', 'Disasters', 'Geopolitics'],
+        questionCount: 20
+    },
+    {
+        id: 'earth-interior',
+        name: 'Earth Interior',
+        icon: '🔬',
+        color: '#fd79a8',
+        filter: 'physical',
+        subtopics: ['Seismic Waves', 'Discontinuities', 'Isostasy', 'Core Layers'],
+        questionCount: 20
+    }
+];
+
+/* ============================================================
+   SAMPLE QUESTIONS (Geomorphology - Full UPSC Style)
+============================================================ */
+const QUESTIONS_DB = {
+    'geomorphology': [
+        {
+            id: 1,
+            text: "Consider the following statements regarding the Indian tectonic plate:",
+            statements: [
+                "1. The Indian plate is moving in the north-northeast direction.",
+                "2. The Himalayan mountain range was formed due to the convergence of the Indian and Eurasian plates.",
+                "3. The Indian plate is moving faster than most other major tectonic plates.",
+                "4. The collision of the Indian plate began approximately 10 million years ago."
+            ],
+            question_suffix: "Which of the statements given above is/are correct?",
+            options: [
+                "1 and 2 only",
+                "1, 2 and 3 only",
+                "2, 3 and 4 only",
+                "1, 2, 3 and 4"
+            ],
+            correct: 1,
+            difficulty: 'medium',
+            hasCurrentAffairs: true,
+            explanations: [
+                {
+                    isCorrect: false,
+                    points: [
+                        "Statement 1 is correct: The Indian plate moves NNE at ~5 cm/year.",
+                        "Statement 2 is correct: Himalayan formation = classic continent-continent convergence.",
+                        "Statement 3 is also correct: Indian plate moves at one of the fastest rates (~5-6 cm/yr) among major plates.",
+                        "Statement 4 is INCORRECT: Collision began ~50-55 million years ago (Paleocene-Eocene boundary), not 10 MYA."
+                    ],
+                    deepDive: "Plate Tectonics → Convergent Boundaries",
+                    upscSection: "Geomorphology"
+                },
+                {
+                    isCorrect: true,
+                    points: [
+                        "Statements 1, 2, 3 are all correct as explained.",
+                        "Statement 4 is wrong — collision initiated ~50 MYA not 10 MYA.",
+                        "This is a classic UPSC trap — testing precise knowledge of geological timescales.",
+                        "The ongoing collision still causes Himalayan seismic activity and uplift."
+                    ],
+                    deepDive: "Indian Plate Movement + Wilson Cycle",
+                    upscSection: "Geomorphology"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "Statement 2 is correct about Himalayan formation via plate convergence.",
+                        "Statement 3 is correct about Indian plate speed.",
+                        "Statement 4 is WRONG — 50 MYA, not 10 MYA — this option falls because of Statement 4.",
+                        "Also excludes Statement 1 which is correct — making this doubly wrong."
+                    ],
+                    deepDive: "Himalayan Orogeny Timeline",
+                    upscSection: "Geomorphology"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "This option includes ALL 4 statements as correct.",
+                        "Statement 4 is factually incorrect (collision = 50 MYA, not 10 MYA).",
+                        "UPSC questions often include 'All of the above' as a trap when one statement is subtly wrong.",
+                        "Always verify each statement independently before choosing 'all'."
+                    ],
+                    deepDive: "Geological Timescales in UPSC",
+                    upscSection: "Geomorphology"
+                }
+            ],
+            currentAffairs: {
+                title: "Himalayan Seismic Stress (2024-25)",
+                content: "Recent studies confirm accumulating stress in 'locked zones' of the Himalayan thrust belt. The Main Himalayan Thrust (MHT) shows increasing strain — geologists warn of potential M8+ earthquakes. This directly links to Indian plate movement and convergence dynamics.",
+                tags: ["Seismic Gap Theory", "MHT", "2024 Warning Reports"]
+            }
+        },
+        {
+            id: 2,
+            text: "Which one of the following correctly explains the formation of a 'rain shadow' region in the context of orographic precipitation?",
+            statements: [],
+            question_suffix: "",
+            options: [
+                "The windward side receives less rainfall due to moisture loss in upper atmosphere",
+                "The leeward side receives less rainfall as descending air warms and holds more moisture",
+                "The windward side receives less rainfall due to high pressure formation",
+                "The leeward side receives more rainfall due to convective heating"
+            ],
+            correct: 1,
+            difficulty: 'easy',
+            hasCurrentAffairs: false,
+            explanations: [
+                {
+                    isCorrect: false,
+                    points: [
+                        "This reverses the concept — windward side receives MORE rainfall, not less.",
+                        "Windward side: moist air rises → cools → condenses → precipitation.",
+                        "Windward slopes of Western Ghats receive 2000-6000mm rainfall annually.",
+                        "Upper atmosphere moisture loss does not explain rain shadow."
+                    ],
+                    deepDive: "Orographic Precipitation Mechanism",
+                    upscSection: "Climatology"
+                },
+                {
+                    isCorrect: true,
+                    points: [
+                        "CORRECT: Leeward side = 'rain shadow' — air descends and warms (adiabatic warming).",
+                        "Descending air gains capacity to hold moisture → relative humidity drops → no rain.",
+                        "Classic example: Western Ghats — Windward (Kerala/coastal Karnataka) vs. Leeward (Deccan Plateau).",
+                        "Sahyadri creates rain shadow for much of interior Maharashtra (Pune gets ~700mm vs Mahabaleshwar ~6000mm)."
+                    ],
+                    deepDive: "Rain Shadow Effect + Western Ghats",
+                    upscSection: "Climatology"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "High pressure forms on leeward side (descending air), not windward.",
+                        "Windward side has low pressure due to rising air — this is what causes cloud formation.",
+                        "Confusing windward-leeward pressure dynamics is a common mistake.",
+                        "ITCZ and monsoon dynamics involve similar rising-air low-pressure mechanisms."
+                    ],
+                    deepDive: "Pressure Dynamics in Orographic Systems",
+                    upscSection: "Climatology"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "Leeward side receives LESS rainfall — it is the rain shadow zone.",
+                        "Convective heating on leeward may cause local afternoon showers occasionally but not significant rainfall.",
+                        "The primary mechanism is adiabatic warming of descending air.",
+                        "This option contradicts the definition of rain shadow."
+                    ],
+                    deepDive: "Convective vs Orographic Rainfall",
+                    upscSection: "Climatology"
+                }
+            ],
+            currentAffairs: null
+        },
+        {
+            id: 3,
+            text: "With reference to 'Liquefaction' as a geohazard, consider the following:",
+            statements: [
+                "1. Liquefaction occurs when saturated soil loses shear strength due to earthquake shaking.",
+                "2. Loose, cohesionless, water-saturated soil is most susceptible to liquefaction.",
+                "3. Liquefaction can only occur in coastal areas.",
+                "4. The 2024 Japan earthquake caused significant liquefaction damage in urban areas."
+            ],
+            question_suffix: "Which of the statements given above are correct?",
+            options: [
+                "1 and 3 only",
+                "2 and 4 only",
+                "1, 2 and 4 only",
+                "1, 2, 3 and 4"
+            ],
+            correct: 2,
+            difficulty: 'hard',
+            hasCurrentAffairs: true,
+            explanations: [
+                {
+                    isCorrect: false,
+                    points: [
+                        "Statement 1 is correct about liquefaction mechanism.",
+                        "Statement 3 is WRONG — liquefaction can occur anywhere with saturated loose soils.",
+                        "River deltas, lake beds, and alluvial plains are all susceptible.",
+                        "This option misses Statement 2 (correct) and includes wrong Statement 3."
+                    ],
+                    deepDive: "Liquefaction Mechanism",
+                    upscSection: "Geomorphology"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "Statement 2 is correct — loose cohesionless saturated soil is most vulnerable.",
+                        "Statement 4 is correct — Japan 2024 Noto Peninsula earthquake caused severe liquefaction.",
+                        "But this option MISSES Statement 1 which defines the mechanism correctly.",
+                        "In UPSC, be careful of options that correctly identify some statements but exclude other correct ones."
+                    ],
+                    deepDive: "Soil Properties and Seismic Vulnerability",
+                    upscSection: "Disaster Geography"
+                },
+                {
+                    isCorrect: true,
+                    points: [
+                        "Statement 1 CORRECT: Earthquake shaking → pore water pressure builds → soil behaves like liquid.",
+                        "Statement 2 CORRECT: Sandy, loose, water-saturated soils = highest risk (rivers, coasts, deltas).",
+                        "Statement 3 WRONG: Liquefaction is NOT limited to coastal areas — Bhuj 2001 caused inland liquefaction.",
+                        "Statement 4 CORRECT: January 2024 Noto earthquake in Japan caused widespread urban liquefaction and infrastructure damage."
+                    ],
+                    deepDive: "Liquefaction + Japan 2024 Earthquake",
+                    upscSection: "Disaster Geography"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "This includes ALL 4 statements — but Statement 3 is factually incorrect.",
+                        "Liquefaction has occurred in Latur (1993), Bhuj (2001) — both inland, not coastal.",
+                        "UPSC 'all of the above' options often include one wrong statement.",
+                        "Always verify geographic claims in science-based statements."
+                    ],
+                    deepDive: "Historical Liquefaction Events in India",
+                    upscSection: "Disaster Geography"
+                }
+            ],
+            currentAffairs: {
+                title: "Japan Noto Peninsula Earthquake (January 2024)",
+                content: "The 7.6 magnitude Noto earthquake triggered massive liquefaction in Ishikawa Prefecture. Roads sank, buildings tilted, and entire neighborhoods experienced ground failure. This event renewed focus on liquefaction risk mapping in coastal and river-delta cities worldwide — highly relevant for Indian cities on Ganga alluvium.",
+                tags: ["Japan 2024", "Liquefaction", "Urban Disaster Planning", "Alluvial Soil Risk"]
+            }
+        }
+        // More questions would be loaded from files...
+    ],
+    'climatology': [
+        {
+            id: 1,
+            text: "Consider the following statements about El Niño-Southern Oscillation (ENSO):",
+            statements: [
+                "1. During El Niño, the trade winds weaken or reverse, causing warm water to move eastward in the Pacific.",
+                "2. El Niño typically results in below-normal monsoon rainfall over India.",
+                "3. La Niña conditions generally enhance Indian monsoon rainfall.",
+                "4. The 2023-24 El Niño was one of the strongest on record."
+            ],
+            question_suffix: "How many of the above statements are correct?",
+            options: [
+                "Only one",
+                "Only two",
+                "Only three",
+                "All four"
+            ],
+            correct: 3,
+            difficulty: 'medium',
+            hasCurrentAffairs: true,
+            explanations: [
+                {
+                    isCorrect: false,
+                    points: [
+                        "More than one statement is correct here.",
+                        "Statement 1 correctly describes El Niño mechanism (trade wind weakening → warm water eastward shift).",
+                        "Statement 2 is also correct — El Niño suppresses Indian monsoon.",
+                        "Need to check all 4 statements before answering."
+                    ],
+                    deepDive: "ENSO Basics",
+                    upscSection: "Climatology"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "More than two statements are correct.",
+                        "Statements 1, 2, and 3 are all factually correct.",
+                        "Statement 4 about 2023-24 El Niño strength needs verification.",
+                        "Three statements are correct — not two."
+                    ],
+                    deepDive: "ENSO and Indian Monsoon",
+                    upscSection: "Climatology"
+                },
+                {
+                    isCorrect: false,
+                    points: [
+                        "Three statements (1, 2, 3) are correct. Let's verify Statement 4.",
+                        "The 2023-24 El Niño WAS indeed one of the strongest events — SST anomalies exceeded 2°C in Niño 3.4 region.",
+                        "So Statement 4 is ALSO correct — making ALL FOUR statements correct.",
+                        "This option (Only three) is therefore wrong."
+                    ],
+                    deepDive: "2023-24 El Niño Event Data",
+                    upscSection: "Climatology"
+                },
+                {
+                    isCorrect: true,
+                    points: [
+                        "Statement 1 ✅: El Niño = weakened trade winds + warm water pools eastward (Peru coast).",
+                        "Statement 2 ✅: El Niño correlation with deficit Indian monsoon is well-established (1877, 1972, 2009 famines).",
+                        "Statement 3 ✅: La Niña enhances Walker Circulation → stronger monsoon over India.",
+                        "Statement 4 ✅: 2023-24 El Niño was 5th strongest since 1950 — caused global heatwaves, coral bleaching, and India's uneven monsoon."
+                    ],
+                    deepDive: "ENSO Complete + 2023-24 Event",
+                    upscSection: "Climatology"
+                }
+            ],
+            currentAffairs: {
+                title: "2023-24 El Niño & 2025 La Niña Transition",
+                content: "The 2023-24 El Niño caused global surface temperatures to breach 1.5°C above pre-industrial for the first time (2024 was hottest year on record). Forecasts for 2025 suggest transition to La Niña conditions, which may bring above-normal Indian monsoon. IMD and NOAA are closely monitoring the ENSO transition for agricultural planning.",
+                tags: ["El Niño 2024", "Global Warming", "IMD Forecast", "La Niña 2025"]
+            }
+        }
+    ]
+};
+
+/* ============================================================
+   STATE MANAGEMENT
+============================================================ */
+let state = {
+    selectedCategory: null,
+    currentQuestions: [],
+    currentIndex: 0,
+    score: 0,
+    wrongCount: 0,
+    answers: [],
+    timer: null,
+    timeLeft: 90,
+    answered: false
+};
+
+/* ============================================================
+   INIT
+============================================================ */
+function init() {
+    renderCategories(CATEGORIES);
+}
+
+/* ============================================================
+   RENDER CATEGORIES
+============================================================ */
+function renderCategories(cats) {
+    const grid = document.getElementById('categories-grid');
+    grid.innerHTML = '';
+    cats.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.style.setProperty('--cat-color', cat.color);
+        card.dataset.filter = cat.filter;
+        card.dataset.id = cat.id;
+        card.onclick = () => selectCategory(cat, card);
+        card.innerHTML = `
+            <div class="selected-check">✓</div>
+            <div class="cat-header">
+                <div class="cat-icon">${cat.icon}</div>
+                <div>
+                    <div class="cat-name">${cat.name}</div>
+                    <div class="cat-count">20 Questions / Session</div>
+                </div>
+            </div>
+            <div class="cat-topics">
+                ${cat.subtopics.map(t => `<span class="cat-tag">${t}</span>`).join('')}
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+/* ============================================================
+   FILTER CATEGORIES
+============================================================ */
+function filterCategories(filter, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cards = document.querySelectorAll('.category-card');
+    cards.forEach(card => {
+        if (filter === 'all' || card.dataset.filter === filter) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+/* ============================================================
+   SELECT CATEGORY
+============================================================ */
+function selectCategory(cat, cardEl) {
+    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+    cardEl.classList.add('selected');
+    state.selectedCategory = cat;
+
+    document.getElementById('selected-text').textContent =
+        `📚 "${cat.name}" selected — 20 questions ready`;
+    document.getElementById('start-btn').disabled = false;
+}
+
+/* ============================================================
+   START QUIZ
+============================================================ */
+function startQuiz() {
+    if (!state.selectedCategory) return;
+
+    const catId = state.selectedCategory.id;
+    const questions = QUESTIONS_DB[catId];
+
+    if (!questions || questions.length === 0) {
+        showToast('⚠️', 'Questions for this topic are loading in next file!');
+        return;
+    }
+
+    state.currentQuestions = shuffleArray([...questions]).slice(0, 20);
+    state.currentIndex = 0;
+    state.score = 0;
+    state.wrongCount = 0;
+    state.answers = [];
+
+    showScreen('screen-quiz');
+    setupQuizHeader();
+    renderProgressDots();
+    renderQuestion();
+}
+
+/* ============================================================
+   SETUP QUIZ HEADER
+============================================================ */
+function setupQuizHeader() {
+    const cat = state.selectedCategory;
+    document.getElementById('quiz-cat-icon').textContent = cat.icon;
+    document.getElementById('quiz-cat-name').textContent = cat.name;
+    document.getElementById('correct-count').textContent = '0';
+    document.getElementById('wrong-count').textContent = '0';
+}
+
+/* ============================================================
+   RENDER PROGRESS DOTS
+============================================================ */
+function renderProgressDots() {
+    const container = document.getElementById('progress-dots');
+    container.innerHTML = '';
+    const total = state.currentQuestions.length;
+    for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot' + (i === 0 ? ' current' : '');
+        dot.id = `dot-${i}`;
+        container.appendChild(dot);
+    }
+}
+
+/* ============================================================
+   RENDER QUESTION
+============================================================ */
+function renderQuestion() {
+    const q = state.currentQuestions[state.currentIndex];
+    const total = state.currentQuestions.length;
+    const idx = state.currentIndex;
+
+    // Update progress
+    document.getElementById('quiz-progress-text').textContent =
+        `Question ${idx + 1} of ${total}`;
+    document.getElementById('progress-bar').style.width =
+        `${((idx + 1) / total) * 100}%`;
+
+    // Question Card
+    const card = document.getElementById('question-card');
+    const diffColors = { easy: 'easy', medium: 'medium', hard: 'hard' };
+
+    let statementsHTML = '';
+    if (q.statements && q.statements.length > 0) {
+        statementsHTML = `
+            <div class="statements-box">
+                ${q.statements.map(s => `
+                    <div class="statement-item">
+                        <span class="statement-num">${s.split('.')[0]}.</span>
+                        <span>${s.split('.').slice(1).join('.')}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    card.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+            <span class="question-number-badge">Q${idx + 1}</span>
+            <span class="difficulty-badge ${diffColors[q.difficulty]}">
+                ${{ easy: '⬡ Easy', medium: '⬡ Medium', hard: '⬡ Hard' }[q.difficulty]}
+            </span>
+            ${q.hasCurrentAffairs ? '<span class="current-affairs-tag">📰 Current Affairs</span>' : ''}
+        </div>
+        <div class="question-text">${q.text}</div>
+        ${statementsHTML}
+        ${q.question_suffix ? `<div style="margin-top:12px; color: var(--gold-light); font-weight:600; font-size:15px;">${q.question_suffix}</div>` : ''}
+    `;
+
+    // Options
+    const optGrid = document.getElementById('options-grid');
+    optGrid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.onclick = () => selectAnswer(i);
+        btn.id = `opt-${i}`;
+        btn.innerHTML = `
+            <span class="option-letter">${letters[i]}</span>
+            <span class="option-text">${opt}</span>
+            <span class="option-result-icon" id="opt-icon-${i}"></span>
+        `;
+        optGrid.appendChild(btn);
+    });
+
+    // Hide explanation
+    document.getElementById('explanation-section').style.display = 'none';
+
+    // Reset state
+    state.answered = false;
+
+    // Start timer
+    startTimer();
+}
+
+/* ============================================================
+   SELECT ANSWER
+============================================================ */
+function selectAnswer(selectedIdx) {
+    if (state.answered) return;
+    state.answered = true;
+
+    clearInterval(state.timer);
+
+    const q = state.currentQuestions[state.currentIndex];
+    const correct = q.correct;
+    const isCorrect = selectedIdx === correct;
+
+    // Update score
+    if (isCorrect) {
+        state.score++;
+        document.getElementById('correct-count').textContent = state.score;
+        showToast('✅', 'Correct! Well done!');
+    } else {
+        state.wrongCount++;
+        document.getElementById('wrong-count').textContent = state.wrongCount;
+        showToast('❌', 'Incorrect. Review the explanation!');
+    }
+
+    // Store answer
+    state.answers.push({
+        questionIdx: state.currentIndex,
+        selected: selectedIdx,
+        correct: correct,
+        isCorrect: isCorrect
+    });
+
+    // Update dot
+    const dot = document.getElementById(`dot-${state.currentIndex}`);
+    dot.classList.remove('current');
+    dot.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+    // Style options
+    const letters = ['A', 'B', 'C', 'D'];
+    q.options.forEach((_, i) => {
+        const btn = document.getElementById(`opt-${i}`);
+        btn.disabled = true;
+        const icon = document.getElementById(`opt-icon-${i}`);
+
+        if (i === correct) {
+            btn.classList.add('show-correct');
+            icon.textContent = '✅';
+        }
+        if (i === selectedIdx && !isCorrect) {
+            btn.classList.add('selected-wrong');
+            icon.textContent = '❌';
+        }
+    });
+
+    // Show explanation
+    showExplanation(q, selectedIdx, isCorrect);
+}
+
+/* ============================================================
+   SHOW EXPLANATION
+============================================================ */
+function showExplanation(q, selectedIdx, isCorrect) {
+    const section = document.getElementById('explanation-section');
+    const letters = ['A', 'B', 'C', 'D'];
+
+    // Result banner
+    let html = `
+        <div class="answer-result-banner ${isCorrect ? 'correct' : 'wrong'}">
+            ${isCorrect
+                ? '🎉 Excellent! You selected the correct answer!'
+                : `❌ Incorrect. The correct answer was Option ${letters[q.correct]}: "${q.options[q.correct]}"`
+            }
+        </div>
+    `;
+
+    // Explanations for all options
+    html += '<div class="explanations-container">';
+    q.explanations.forEach((exp, i) => {
+        const isCorrectOpt = i === q.correct;
+        html += `
+            <div class="explanation-card">
+                <div class="explanation-header ${isCorrectOpt ? 'correct-option' : 'wrong-option'}">
+                    <span class="exp-letter-badge">${letters[i]}</span>
+                    <span class="exp-label">${isCorrectOpt ? '✅ CORRECT' : '❌ INCORRECT'}</span>
+                    <span class="exp-option-text">${q.options[i]}</span>
+                </div>
+                <div class="explanation-body">
+                    <ul class="explanation-points">
+                        ${exp.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <div class="deep-dive-link">
+                        📚 <strong>Deep Dive:</strong> ${exp.deepDive} 
+                        <span style="margin-left:auto; color: var(--text-secondary);">→ UPSC: ${exp.upscSection}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    // Current Affairs Box
+    if (q.currentAffairs) {
+        const ca = q.currentAffairs;
+        html += `
+            <div class="current-affairs-box">
+                <div class="ca-header">
+                    📰 CURRENT AFFAIRS CONNECT — ${ca.title}
+                </div>
+                <div class="ca-content">
+                    ${ca.tags.map(t => `<span class="ca-tag">${t}</span>`).join('')}
+                    <br><br>${ca.content}
+                </div>
+            </div>
+        `;
+    }
+
+    // Next button
+    const isLast = state.currentIndex === state.currentQuestions.length - 1;
+    html += `
+        <div class="next-btn-container">
+            <button class="btn-primary" onclick="${isLast ? 'showResults()' : 'nextQuestion()'}">
+                ${isLast ? '🏁 See Results' : 'Next Question →'}
+            </button>
+        </div>
+    `;
+
+    section.innerHTML = html;
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ============================================================
+   NEXT QUESTION
+============================================================ */
+function nextQuestion() {
+    state.currentIndex++;
+
+    if (state.currentIndex >= state.currentQuestions.length) {
+        showResults();
+        return;
+    }
+
+    // Update next dot
+    const nextDot = document.getElementById(`dot-${state.currentIndex}`);
+    if (nextDot) nextDot.classList.add('current');
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    renderQuestion();
+}
+
+/* ============================================================
+   TIMER
+============================================================ */
+function startTimer() {
+    state.timeLeft = 90;
+    const timerEl = document.getElementById('timer');
+    const timerWidget = document.getElementById('timer-widget');
+
+    timerEl.textContent = `${state.timeLeft}s`;
+    timerWidget.classList.remove('warning');
+
+    state.timer = setInterval(() => {
+        state.timeLeft--;
+        timerEl.textContent = `${state.timeLeft}s`;
+
+        if (state.timeLeft <= 20) {
+            timerWidget.classList.add('warning');
+        }
+
+        if (state.timeLeft <= 0) {
+            clearInterval(state.timer);
+            if (!state.answered) {
+                showToast('⏰', 'Time up! Auto-submitting...');
+                selectAnswer(-1); // no selection = wrong
+            }
+        }
+    }, 1000);
+}
+
+/* ============================================================
+   SHOW RESULTS
+============================================================ */
+function showResults() {
+    clearInterval(state.timer);
+    showScreen('screen-results');
+
+    const total = state.currentQuestions.length;
+    const score = state.score;
+    const accuracy = Math.round((score / total) * 100);
+    const scoreDeg = Math.round((score / total) * 360);
+
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-out-of').textContent = `/ ${total}`;
+    document.getElementById('r-correct').textContent = score;
+    document.getElementById('r-wrong').textContent = state.wrongCount;
+    document.getElementById('r-accuracy').textContent = accuracy + '%';
+
+    // Score circle
+    document.getElementById('score-circle').style.setProperty('--score-deg', scoreDeg);
+
+    // Grade
+    let grade, message, badge;
+    if (accuracy >= 85) {
+        grade = '🏆 Outstanding!';
+        message = 'Exceptional performance! You are UPSC-ready on this topic.';
+        badge = '🌟 UPSC Ready';
+    } else if (accuracy >= 70) {
+        grade = '🥇 Excellent!';
+        message = 'Great score! Review the explanations of wrong answers.';
+        badge = '✅ Strong Performance';
+    } else if (accuracy >= 55) {
+        grade = '🥈 Good Effort';
+        message = 'Decent performance. Focus on the weak areas identified.';
+        badge = '📚 Keep Studying';
+    } else if (accuracy >= 40) {
+        grade = '🥉 Needs Work';
+        message = 'Revisit the topic fundamentals and try again.';
+        badge = '🔄 Practice More';
+    } else {
+        grade = '📖 Keep Learning';
+        message = 'Don\'t give up! Review the topic carefully and retry.';
+        badge = '💪 You Can Do It';
+    }
+
+    document.getElementById('result-grade').textContent = grade;
+    document.getElementById('result-message').textContent = message;
+    document.getElementById('result-badge').textContent = badge;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================================
+   SHOW REVIEW
+============================================================ */
+function showReview() {
+    const section = document.getElementById('review-section');
+    const list = document.getElementById('review-list');
+
+    if (section.style.display === 'block') {
+        section.style.display = 'none';
+        return;
+    }
+
+    const letters = ['A', 'B', 'C', 'D'];
+    list.innerHTML = state.answers.map((ans, i) => {
+        const q = state.currentQuestions[ans.questionIdx];
+        return `
+            <div class="review-item">
+                <div class="review-item-header">
+                    <span class="review-status-icon">${ans.isCorrect ? '✅' : '❌'}</span>
+                    <div class="review-q-text"><strong>Q${i + 1}:</strong> ${q.text}</div>
+                </div>
+                <div class="review-answer-row">
+                    ${!ans.isCorrect ? `<span class="your-answer">Your Answer: ${ans.selected === -1 ? 'Not answered' : letters[ans.selected] + ') ' + q.options[ans.selected]}</span>` : ''}
+                    <span class="correct-answer">✅ Correct: ${letters[q.correct]}) ${q.options[q.correct]}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ============================================================
+   NAVIGATION HELPERS
+============================================================ */
+function restartQuiz() {
+    showScreen('screen-category');
+    setTimeout(() => startQuiz(), 100);
+}
+
+function goHome() {
+    clearInterval(state.timer);
+    showScreen('screen-category');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+/* ============================================================
+   UTILITY
+============================================================ */
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function showToast(icon, text) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-text').textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ============================================================
+   START
+============================================================ */
+init();
+</script>
+
+</body>
+</html>
