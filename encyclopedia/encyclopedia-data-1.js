@@ -1,5 +1,5 @@
 /**
- * GeoVerse Encyclopedia - Country Data File 1
+ * DharaVerse Encyclopedia - Country Data File 1
  * Contains: South Asia (8) + Iran (1) = 9 Countries
  * Version: 2.0 - Clean Data
  */
