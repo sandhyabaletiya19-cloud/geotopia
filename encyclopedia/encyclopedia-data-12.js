@@ -1,5 +1,5 @@
 /**
- * GeoVerse Encyclopedia - Country Data File 12
+ * DharaVerse Encyclopedia - Country Data File 12
  * Contains: FIFA Territories + Olympic NOCs NOT in UN membership
  * FIFA Extra Members (beyond UN 193+2): 16 territories
  * Olympic Extra NOCs (beyond UN 193+2): Some overlap with FIFA extras
