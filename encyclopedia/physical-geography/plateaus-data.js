@@ -1,5 +1,5 @@
 // ============================================
-// 🌍 GEOTOPIA PLATEAUS - COMPREHENSIVE DATA
+// 🌍 DharaVerse PLATEAUS - COMPREHENSIVE DATA
 // ============================================
 // Version: 2.0.0
 // Last Updated: 2024
