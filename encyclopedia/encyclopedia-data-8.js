@@ -1,5 +1,5 @@
 /**
- * ENCYCLOPEDIA DATA FILE 8
+ * Dharaverse ENCYCLOPEDIA DATA FILE 8
  * Contains: West Africa (4) + Central Africa (9) + East Africa (7) = 20 Countries
  * Version: 2.0 - Clean Data
  */
