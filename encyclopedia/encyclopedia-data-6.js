@@ -1,5 +1,5 @@
 /**
- * ENCYCLOPEDIA DATA FILE 6
+ * DharaVerse ENCYCLOPEDIA DATA FILE 6
  * Contains: Southern Europe (6) + Western Europe (10) = 16 Countries
  * Version: 2.0 - Clean Data
  */
