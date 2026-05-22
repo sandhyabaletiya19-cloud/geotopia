@@ -1,6 +1,6 @@
 
 /**
- * GeoVerse Encyclopedia - Country Data File 10
+ *DharaVerse Encyclopedia - Country Data File 10
  * Contains: Oceania (9) + North America (3) + Caribbean (5) + Central America (3) = 20 Countries
  * Version: 2.0 - Clean Data
  */
