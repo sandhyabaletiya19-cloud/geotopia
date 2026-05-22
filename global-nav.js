@@ -43,7 +43,7 @@
     footer.className = 'global-footer';
     footer.innerHTML = `
         <div class="global-footer-content">
-            <p>© 2025 Geotopia. All rights reserved.</p>
+            <p>© 2026 DharaVerse. All rights reserved.</p>
             <div class="global-footer-links">
                 <a href="${basePath}index.html"><i class="fas fa-home"></i> Home</a>
                 <a href="${basePath}legal/privacy-policy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
