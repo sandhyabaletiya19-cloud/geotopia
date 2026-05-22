@@ -1,5 +1,5 @@
 /**
- * GeoVerse Encyclopedia - Master Data File
+ * DharaVerse Encyclopedia - Master Data File
  * Contains: Physical Features, Disputes, Climate Zones, Earth Systems
  * Version: 2.0
  */
