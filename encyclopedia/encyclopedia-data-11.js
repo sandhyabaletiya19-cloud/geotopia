@@ -1,5 +1,5 @@
 /**
- * ENCYCLOPEDIA DATA FILE 11
+ * DharaVerse ENCYCLOPEDIA DATA FILE 11
  * Contains: Caribbean + Central America + South America = 24 Countries
  * Version: 2.0 - Clean Data
  */
