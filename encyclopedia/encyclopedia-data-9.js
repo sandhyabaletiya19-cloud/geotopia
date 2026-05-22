@@ -1,5 +1,5 @@
 /**
- * GeoVerse Encyclopedia - Country Data File 9
+ * DharaVerse Encyclopedia - Country Data File 9
  * Contains: East Africa (7) + Southern Africa (8) + Oceania (5) = 20 Countries
  * Version: 2.0 - Clean Data
  */
