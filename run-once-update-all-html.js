@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // ═══════════════════════════════════════════════════════════════
-// GEOTOPIA - UPDATE ALL HTML FILES
+// DharaVerse - UPDATE ALL HTML FILES
 // ═══════════════════════════════════════════════════════════════
 
 // Your categories (HTML is INSIDE subfolders)
