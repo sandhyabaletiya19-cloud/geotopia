@@ -1,5 +1,5 @@
 /**
- * GeoVerse Encyclopedia - Country Data File 3
+ * DharaVerse Encyclopedia - Country Data File 3
  * Contains: Middle East (18 Countries)
  * Version: 2.0 - Clean Data
  */
