@@ -1,5 +1,5 @@
 /**
- * GeoVerse Encyclopedia - Country Data File 4
+ * DharaVerse Encyclopedia - Country Data File 4
  * Contains: Central Asia (5) + Eastern Europe (9) + Russia = 15 Countries
  * Version: 2.0 - Clean Data
  */
