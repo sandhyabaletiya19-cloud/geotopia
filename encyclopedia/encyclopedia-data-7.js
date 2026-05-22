@@ -1,6 +1,6 @@
 /**
 
-GeoVerse Encyclopedia - Country Data File 7
+DharaVerse Encyclopedia - Country Data File 7
 Contains: North Africa (7) + West Africa (16) = 23 Countries
 Version: 2.0 - Clean Data
 */
