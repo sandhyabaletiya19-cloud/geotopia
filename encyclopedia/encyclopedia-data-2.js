@@ -1,5 +1,5 @@
 /**
- * GeoVerse Encyclopedia - Country Data File 2
+ * DharaVerse Encyclopedia - Country Data File 2
  * Contains: Southeast Asia (11) + East Asia (5) = 16 Countries
  * Version: 2.0 - Clean Data
  * Special: South Korea includes BTS content
