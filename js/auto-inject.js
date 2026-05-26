@@ -13,6 +13,27 @@
         console.log("✅ Global CSS injected!");
     })();
 
+  
+
+// ============================================
+// 1. ADSENSE AUTO INJECT - ADD AT VERY TOP
+// ============================================
+function injectAdSense() {
+    // Check if already injected (avoid duplicates)
+    if (document.querySelector('script[data-adsense]')) return;
+    
+    const adScript = document.createElement('script');
+    adScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8567396490753612';
+    adScript.async = true;
+    adScript.crossOrigin = 'anonymous';
+    adScript.setAttribute('data-adsense', 'true'); // marker to avoid duplicates
+    
+    document.head.appendChild(adScript);
+}
+
+// Call it immediately
+injectAdSense();
+
     // ✅ Fix viewport
     (function fixViewport() {
         var viewport = document.querySelector("meta[name='viewport']");
