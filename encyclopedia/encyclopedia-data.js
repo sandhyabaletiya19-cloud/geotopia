@@ -991,7 +991,8 @@ const EncyclopediaHelpers = {
             typeof CountriesData8 !== 'undefined' ? CountriesData8 : [],
             typeof CountriesData9 !== 'undefined' ? CountriesData9 : [],
             typeof CountriesData10 !== 'undefined' ? CountriesData10 : [],
-            typeof CountriesData11 !== 'undefined' ? CountriesData11 : []
+            typeof CountriesData11 !== 'undefined' ? CountriesData11 : [],
+            typeof CountriesData12 !== 'undefined' ? CountriesData12 : []
         ];
         
         return allData.flat();
