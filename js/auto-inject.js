@@ -18,18 +18,17 @@
 // ============================================
 // 1. ADSENSE AUTO INJECT - ADD AT VERY TOP
 // ============================================
-function injectAdSense() {
-    // Check if already injected (avoid duplicates)
-    if (document.querySelector('script[data-adsense]')) return;
-    
-    const adScript = document.createElement('script');
-    adScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8567396490753612';
-    adScript.async = true;
-    adScript.crossOrigin = 'anonymous';
-    adScript.setAttribute('data-adsense', 'true'); // marker to avoid duplicates
-    
-    document.head.appendChild(adScript);
-}
+    // ✅ Inject Google AdSense automatically
+    (function injectAdSense() {
+        if (document.getElementById('dv-adsense-script')) return;
+        var adScript = document.createElement('script');
+        adScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8567396490753612';
+        adScript.async = true;
+        adScript.crossOrigin = 'anonymous';
+        adScript.id = 'dv-adsense-script'; // ← FIXED!
+        document.head.appendChild(adScript);
+        console.log('✅ AdSense injected!');
+    })();
 
 // Call it immediately
 injectAdSense();
