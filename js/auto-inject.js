@@ -30,8 +30,6 @@
         console.log('✅ AdSense injected!');
     })();
 
-// Call it immediately
-injectAdSense();
 
     // ✅ Fix viewport
     (function fixViewport() {
