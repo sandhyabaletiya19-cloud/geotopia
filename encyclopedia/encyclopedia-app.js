@@ -158,11 +158,11 @@ setTimeout(() => {
         }
 
         // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.hideSearchResults();
-                this.closeComingSoonModal();
-            }
+       document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        try { hideSearchResults(); } catch(err) {}
+        try { closeComingSoonModal(); } catch(err) {}
+    }
             if (e.key === '/' && !e.target.matches('input, textarea')) {
                 e.preventDefault();
                 document.getElementById('globalSearch')?.focus();
