@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dharaverse - Meet Dhara 🦊</title>
     <style>
+        /* ═══════════════════════════════════════════
+           PAGE STYLES
+           ═══════════════════════════════════════════ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -16,6 +19,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            overflow-x: hidden;
         }
 
         .hero {
@@ -25,152 +29,1899 @@
         }
 
         .hero h1 {
-            font-size: 3em;
+            font-size: 2.8em;
             background: linear-gradient(135deg, #ff8c00, #e74c3c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .hero p {
             color: rgba(255,255,255,0.6);
             font-size: 1.1em;
             line-height: 1.6;
-            margin-bottom: 20px;
         }
-
-        .hero .subtitle {
-            font-size: 0.9em;
-            color: rgba(255,255,255,0.3);
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .feature {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: left;
-        }
-
-        .feature .icon { font-size: 24px; margin-bottom: 8px; }
-        .feature h3 { font-size: 14px; margin-bottom: 5px; color: #ff8c00; }
-        .feature p { font-size: 12px; color: rgba(255,255,255,0.4); }
 
         .arrow-hint {
             position: fixed;
             bottom: 100px;
-            right: 80px;
-            color: rgba(255,140,0,0.5);
+            right: 90px;
+            color: #ff8c00;
             font-size: 14px;
-            animation: bounce 2s ease-in-out infinite;
+            font-weight: 600;
+            animation: hintBounce 2s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 999998;
         }
 
-        .arrow-hint::after {
-            content: '↘';
-            font-size: 24px;
-            display: block;
-            text-align: right;
+        @keyframes hintBounce {
+            0%, 100% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-10px); opacity: 0.7; }
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
+        /* ═══════════════════════════════════════════
+           DHARA WIDGET
+           ═══════════════════════════════════════════ */
 
-        .controls {
+        #dhara-widget {
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
+            z-index: 999999;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        #dhara-widget * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ── BUBBLE (Minimized) ── */
+        .dhara-bubble {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff8c00, #c0392b);
+            cursor: pointer;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            animation: bubbleBreathe 3s ease-in-out infinite;
+            border: none;
+            outline: none;
+        }
+
+        .dhara-bubble:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 30px rgba(255, 140, 0, 0.7);
+        }
+
+        .dhara-bubble .bubble-fox {
+            font-size: 34px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            line-height: 1;
+        }
+
+        .dhara-bubble .bubble-dot {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 20px;
+            height: 20px;
+            background: #e74c3c;
+            border-radius: 50%;
+            border: 3px solid #0a0a0f;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bubbleBreathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        /* ── WINDOW (Expanded) ── */
+        .dhara-window {
+            width: 380px;
+            height: 600px;
+            background: #0d0d14;
+            border-radius: 24px;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 140, 0, 0.15),
+                0 0 40px rgba(255, 140, 0, 0.08);
+        }
+
+        .dhara-window.open {
+            display: flex;
+            animation: windowSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes windowSlide {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── TOP BAR ── */
+        .dhara-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(255, 140, 0, 0.05);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .dhara-topbar-left {
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
-        .controls button {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.5);
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
+        .dhara-topbar-dot {
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(46, 204, 113, 0.5);
         }
 
-        .controls button:hover {
-            background: rgba(255,140,0,0.1);
-            border-color: rgba(255,140,0,0.3);
+        .dhara-topbar-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .dhara-topbar-streak {
+            font-size: 11px;
+            background: linear-gradient(135deg, #ff8c00, #e74c3c);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .dhara-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .dhara-close:hover { color: #ff8c00; }
+
+        /* ═══════════════════════════════════════════
+           THE CHARACTER - DHARA 🦊
+           This is the real deal. Pure CSS girl.
+           ═══════════════════════════════════════════ */
+
+        .dhara-avatar-area {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(180deg, #0f0818 0%, #150a20 40%, #0d0d14 100%);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        /* Stars */
+        .dhara-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite alternate;
+        }
+
+        .star:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 20%; left: 45%; animation-delay: 0.5s; width: 3px; height: 3px; background: #ffcc00; }
+        .star:nth-child(3) { top: 8%; left: 70%; animation-delay: 1s; }
+        .star:nth-child(4) { top: 30%; left: 85%; animation-delay: 1.5s; }
+        .star:nth-child(5) { top: 15%; left: 30%; animation-delay: 0.8s; }
+        .star:nth-child(6) { top: 25%; left: 60%; animation-delay: 1.2s; width: 1px; height: 1px; }
+        .star:nth-child(7) { top: 5%; left: 50%; animation-delay: 0.3s; }
+        .star:nth-child(8) { top: 35%; left: 20%; animation-delay: 1.8s; }
+
+        @keyframes twinkle {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        /* ── THE GIRL ── */
+        .dhara-girl {
+            position: relative;
+            width: 140px;
+            height: 190px;
+            margin-bottom: -5px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dhara-girl:hover {
+            transform: scale(1.03);
+        }
+
+        .dhara-girl:active {
+            transform: scale(0.97);
+        }
+
+        /* ── HAIR BACK (behind face) ── */
+        .hair-back {
+            position: absolute;
+            width: 100px;
+            height: 120px;
+            background: #1a0a00;
+            border-radius: 50px 50px 20px 20px;
+            top: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        /* Hair strands falling */
+        .hair-strand-l {
+            position: absolute;
+            width: 22px;
+            height: 90px;
+            background: linear-gradient(180deg, #1a0a00, #2d1200);
+            top: 70px;
+            left: 17px;
+            border-radius: 0 0 12px 15px;
+            z-index: 5;
+            transform: rotate(3deg);
+        }
+
+        .hair-strand-r {
+            position: absolute;
+            width: 22px;
+            height: 90px;
+            background: linear-gradient(180deg, #1a0a00, #2d1200);
+            top: 70px;
+            right: 17px;
+            border-radius: 0 0 15px 12px;
+            z-index: 5;
+            transform: rotate(-3deg);
+        }
+
+        /* ── FOX EARS ── */
+        .fox-ear {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 6;
+            transition: transform 0.4s ease;
+        }
+
+        .fox-ear-left {
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-bottom: 42px solid #d4763a;
+            top: 2px;
+            left: 20px;
+            transform: rotate(-12deg);
+        }
+
+        .fox-ear-right {
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-bottom: 42px solid #d4763a;
+            top: 2px;
+            right: 20px;
+            transform: rotate(12deg);
+        }
+
+        /* Inner ear */
+        .fox-ear-inner {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 7;
+        }
+
+        .fox-ear-inner-left {
+            border-left: 9px solid transparent;
+            border-right: 9px solid transparent;
+            border-bottom: 26px solid #ffcba4;
+            top: 14px;
+            left: 27px;
+            transform: rotate(-12deg);
+        }
+
+        .fox-ear-inner-right {
+            border-left: 9px solid transparent;
+            border-right: 9px solid transparent;
+            border-bottom: 26px solid #ffcba4;
+            top: 14px;
+            right: 27px;
+            transform: rotate(12deg);
+        }
+
+        /* Ear animations */
+        .dhara-girl.listening .fox-ear-left { transform: rotate(-3deg) translateY(-6px); }
+        .dhara-girl.listening .fox-ear-right { transform: rotate(3deg) translateY(-6px); }
+        .dhara-girl.listening .fox-ear-inner-left { transform: rotate(-3deg) translateY(-6px); }
+        .dhara-girl.listening .fox-ear-inner-right { transform: rotate(3deg) translateY(-6px); }
+
+        .dhara-girl.sad .fox-ear-left { transform: rotate(-30deg) translateY(5px); }
+        .dhara-girl.sad .fox-ear-right { transform: rotate(30deg) translateY(5px); }
+        .dhara-girl.sad .fox-ear-inner-left { transform: rotate(-30deg) translateY(5px); }
+        .dhara-girl.sad .fox-ear-inner-right { transform: rotate(30deg) translateY(5px); }
+
+        .dhara-girl.excited .fox-ear-left { transform: rotate(-5deg) translateY(-8px); }
+        .dhara-girl.excited .fox-ear-right { transform: rotate(5deg) translateY(-8px); }
+
+        /* ── FACE ── */
+        .face {
+            position: absolute;
+            width: 88px;
+            height: 96px;
+            background: linear-gradient(170deg, #d4a574 0%, #c68642 50%, #b5733a 100%);
+            border-radius: 44px 44px 38px 38px;
+            top: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            box-shadow: inset -4px -4px 12px rgba(0,0,0,0.12);
+        }
+
+        /* ── HAIR FRONT (bangs) ── */
+        .hair-front {
+            position: absolute;
+            width: 96px;
+            height: 42px;
+            background: #1a0a00;
+            border-radius: 48px 48px 5px 5px;
+            top: 33px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 8;
+        }
+
+        /* Hair shine */
+        .hair-front::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background: linear-gradient(135deg, transparent, rgba(80, 40, 10, 0.4), transparent);
+            border-radius: 50%;
+            top: 8px;
+            left: 20px;
+        }
+
+        /* ── EYES ── */
+        .eyes {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 62px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .eye {
+            width: 20px;
+            height: 22px;
+            background: white;
+            border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 -1px 3px rgba(0,0,0,0.05);
+            transition: all 0.15s ease;
+        }
+
+        /* Iris */
+        .eye-iris {
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            background: radial-gradient(circle at 35% 35%, #ffb347, #ff8c00 50%, #cc6600);
+            border-radius: 50%;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        /* Pupil */
+        .eye-pupil {
+            position: absolute;
+            width: 7px;
+            height: 8px;
+            background: #0a0500;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Eye shine */
+        .eye-shine {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 3px;
+            z-index: 11;
+        }
+
+        .eye-shine-small {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            bottom: 4px;
+            left: 3px;
+            z-index: 11;
+        }
+
+        /* Blink */
+        .dhara-girl.blink .eye {
+            height: 3px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .dhara-girl.blink .eye-iris,
+        .dhara-girl.blink .eye-pupil,
+        .dhara-girl.blink .eye-shine,
+        .dhara-girl.blink .eye-shine-small {
+            opacity: 0;
+        }
+
+        /* Excited eyes */
+        .dhara-girl.excited .eye {
+            width: 24px;
+            height: 26px;
+        }
+
+        /* Suspicious/sly eyes */
+        .dhara-girl.suspicious .eye {
+            height: 11px;
+        }
+
+        /* Eye follow */
+        .dhara-girl.look-left .eye-iris { transform: translateX(-70%); }
+        .dhara-girl.look-right .eye-iris { transform: translateX(-30%); }
+
+        /* ── EYEBROWS ── */
+        .eyebrow {
+            position: absolute;
+            width: 18px;
+            height: 3px;
+            background: #1a0a00;
+            border-radius: 3px;
+            z-index: 11;
+            transition: all 0.3s ease;
+        }
+
+        .eyebrow-l { top: 53px; left: 28px; transform: rotate(-3deg); }
+        .eyebrow-r { top: 53px; right: 28px; transform: rotate(3deg); }
+
+        /* Sassy eyebrow raise */
+        .dhara-girl.sassy .eyebrow-r {
+            transform: rotate(12deg) translateY(-6px);
+        }
+
+        /* Worried */
+        .dhara-girl.worried .eyebrow-l { transform: rotate(8deg) translateY(-4px); }
+        .dhara-girl.worried .eyebrow-r { transform: rotate(-8deg) translateY(-4px); }
+
+        /* ── BLUSH ── */
+        .blush {
+            position: absolute;
+            width: 16px;
+            height: 8px;
+            background: rgba(255, 100, 100, 0.35);
+            border-radius: 50%;
+            top: 80px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .blush-l { left: 22px; }
+        .blush-r { right: 22px; }
+
+        .dhara-girl.happy .blush,
+        .dhara-girl.excited .blush { opacity: 1; }
+
+        /* ── NOSE ── */
+        .nose {
+            position: absolute;
+            width: 7px;
+            height: 5px;
+            background: #a0623a;
+            border-radius: 50%;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        /* ── MOUTH ── */
+        .mouth {
+            position: absolute;
+            top: 88px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            transition: all 0.12s ease;
+        }
+
+        /* Default smile */
+        .mouth-shape {
+            width: 18px;
+            height: 8px;
+            border: none;
+            border-bottom: 3px solid #c0392b;
+            border-radius: 0 0 12px 12px;
+            transition: all 0.12s ease;
+            background: transparent;
+        }
+
+        /* Talking - open */
+        .dhara-girl.mouth-o .mouth-shape {
+            width: 14px;
+            height: 12px;
+            background: #3d0f0f;
+            border: 2.5px solid #c0392b;
+            border-radius: 50%;
+        }
+
+        /* Talking - wide */
+        .dhara-girl.mouth-aa .mouth-shape {
+            width: 18px;
+            height: 14px;
+            background: #3d0f0f;
+            border: 2.5px solid #c0392b;
+            border-radius: 50%;
+        }
+
+        /* Talking - small */
+        .dhara-girl.mouth-u .mouth-shape {
+            width: 9px;
+            height: 9px;
+            background: #3d0f0f;
+            border: 2.5px solid #c0392b;
+            border-radius: 50%;
+        }
+
+        /* Big smile */
+        .dhara-girl.mouth-smile .mouth-shape {
+            width: 22px;
+            height: 10px;
+            border: none;
+            border-bottom: 3px solid #c0392b;
+            border-radius: 0 0 14px 14px;
+            background: transparent;
+        }
+
+        /* Grin */
+        .dhara-girl.mouth-grin .mouth-shape {
+            width: 26px;
+            height: 12px;
+            background: #3d0f0f;
+            border: 2.5px solid #c0392b;
+            border-radius: 0 0 15px 15px;
+        }
+
+        /* ── BODY ── */
+        .body {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 56px;
+            z-index: 2;
+        }
+
+        .jacket {
+            width: 90px;
+            height: 56px;
+            background: linear-gradient(180deg, #2c1810, #1a0e08);
+            border-radius: 22px 22px 0 0;
+            position: relative;
+        }
+
+        /* Neck/skin showing */
+        .jacket::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 22px;
+            height: 16px;
+            background: #c68642;
+            border-radius: 0 0 11px 11px;
+        }
+
+        /* Jacket center line */
+        .jacket::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 40px;
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* ── COMPASS NECKLACE ── */
+        .compass {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            border: 2px solid #f39c12;
+            border-radius: 50%;
+            z-index: 4;
+            box-shadow: 0 0 6px rgba(243, 156, 18, 0.3);
+        }
+
+        .compass::after {
+            content: '✦';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 7px;
+            color: #f39c12;
+        }
+
+        /* ── FLOATING GLOBE ── */
+        .globe {
+            position: absolute;
+            top: 20px;
+            right: -5px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a5276, #2e86c1, #1a5276);
+            box-shadow: 0 0 15px rgba(46, 134, 193, 0.4);
+            animation: globeFloat 3s ease-in-out infinite;
+            z-index: 15;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        /* Simplified continents */
+        .globe::before {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 16px;
+            background: #27ae60;
+            border-radius: 30% 70% 60% 40% / 50% 40% 60% 50%;
+            top: 4px;
+            left: 4px;
+            opacity: 0.7;
+        }
+
+        .globe::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #27ae60;
+            border-radius: 40% 60% 50% 50%;
+            bottom: 4px;
+            right: 5px;
+            opacity: 0.7;
+        }
+
+        /* Globe shine */
+        .globe-shine {
+            position: absolute;
+            top: 20px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
+            border-radius: 50%;
+            z-index: 16;
+            pointer-events: none;
+        }
+
+        @keyframes globeFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        /* ── ACCESSORIES ── */
+
+        /* Sunglasses (streak 5+) */
+        .sunglasses {
+            position: absolute;
+            top: 58px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: none;
+        }
+
+        .dhara-girl.streak-high .sunglasses { display: block; }
+
+        .sunglass-lens {
+            position: absolute;
+            width: 24px;
+            height: 16px;
+            background: rgba(0,0,0,0.85);
+            border-radius: 5px;
+            border: 2px solid #333;
+        }
+
+        .sunglass-lens.left { left: -27px; }
+        .sunglass-lens.right { right: -27px; }
+
+        .sunglass-bridge {
+            width: 8px;
+            height: 2px;
+            background: #333;
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Rain cloud (sad) */
+        .rain-cloud {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45px;
+            height: 20px;
+            background: #636e72;
+            border-radius: 20px;
+            z-index: 20;
+            display: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .rain-cloud::before {
+            content: '💧';
+            position: absolute;
+            bottom: -16px;
+            left: 30%;
+            font-size: 10px;
+            animation: rainDrop 0.8s ease-in infinite;
+        }
+
+        .rain-cloud::after {
+            content: '💧';
+            position: absolute;
+            bottom: -16px;
+            right: 30%;
+            font-size: 8px;
+            animation: rainDrop 0.8s ease-in infinite 0.3s;
+        }
+
+        .dhara-girl.sad .rain-cloud { display: block; }
+
+        @keyframes rainDrop {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(18px); opacity: 0; }
+        }
+
+        /* Mood glow bar */
+        .mood-glow {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff8c00, #e74c3c, #ff8c00);
+            background-size: 200% 100%;
+            animation: moodFlow 3s linear infinite;
+        }
+
+        @keyframes moodFlow {
+            from { background-position: 0% 50%; }
+            to { background-position: 200% 50%; }
+        }
+
+        /* ═══════════════════════════════════════════
+           CHAT AREA
+           ═══════════════════════════════════════════ */
+
+        .dhara-chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,140,0,0.2) transparent;
+        }
+
+        .dhara-chat::-webkit-scrollbar { width: 4px; }
+        .dhara-chat::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.2); border-radius: 2px; }
+
+        .msg {
+            max-width: 82%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            animation: msgPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            word-wrap: break-word;
+        }
+
+        @keyframes msgPop {
+            from { opacity: 0; transform: translateY(8px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .msg.from-dhara {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e0e0e0;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(255, 140, 0, 0.08);
+        }
+
+        .msg.from-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #ff8c00, #e67e22);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        /* Typing dots */
+        .typing-dots {
+            display: none;
+            align-self: flex-start;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(255, 140, 0, 0.08);
+            gap: 5px;
+            align-items: center;
+        }
+
+        .typing-dots.show { display: flex; }
+
+        .t-dot {
+            width: 7px;
+            height: 7px;
+            background: rgba(255, 140, 0, 0.5);
+            border-radius: 50%;
+            animation: tBounce 1.4s ease-in-out infinite;
+        }
+
+        .t-dot:nth-child(2) { animation-delay: 0.2s; }
+        .t-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes tBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-9px); }
+        }
+
+        /* ═══════════════════════════════════════════
+           INPUT AREA
+           ═══════════════════════════════════════════ */
+
+        .dhara-input-bar {
+            padding: 12px 14px;
+            background: rgba(13, 13, 20, 0.98);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .mode-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .mode-btn.reply { background: linear-gradient(135deg, #ff8c00, #e67e22); }
+        .mode-btn.mimic { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .mode-btn:hover { transform: scale(1.1); }
+
+        .text-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 22px;
+            padding: 10px 18px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s;
+            min-width: 0;
+        }
+
+        .text-input:focus { border-color: rgba(255, 140, 0, 0.4); }
+        .text-input::placeholder { color: rgba(255,255,255,0.25); }
+
+        .mic-btn, .send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .mic-btn {
+            background: transparent;
+            border: 2px solid rgba(255, 140, 0, 0.4);
             color: #ff8c00;
+        }
+
+        .mic-btn:hover { background: rgba(255, 140, 0, 0.1); }
+
+        .mic-btn.recording {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+            animation: recPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes recPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(231, 76, 60, 0); }
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #ff8c00, #e67e22);
+            color: white;
+            opacity: 0.4;
+        }
+
+        .send-btn.active { opacity: 1; }
+        .send-btn.active:hover { transform: scale(1.1); }
+
+        /* Mode label */
+        .mode-label {
+            padding: 5px 14px;
+            background: rgba(13, 13, 20, 0.98);
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.25);
+            border-top: 1px solid rgba(255,255,255,0.02);
+            flex-shrink: 0;
+        }
+
+        /* ═══════════════════════════════════════════
+           CONFETTI
+           ═══════════════════════════════════════════ */
+
+        .confetti-box {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .confetti-p {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            top: -10px;
+            animation: confFall 2s ease-in forwards;
+        }
+
+        @keyframes confFall {
+            to { top: 100%; transform: rotate(720deg) translateX(var(--dx)); opacity: 0; }
+        }
+
+        /* Window shake */
+        .dhara-window.shake {
+            animation: wShake 0.5s ease-in-out;
+        }
+
+        @keyframes wShake {
+            0%, 100% { transform: translateX(0); }
+            15%, 45%, 75% { transform: translateX(-4px); }
+            30%, 60%, 90% { transform: translateX(4px); }
+        }
+
+        /* ═══════════════════════════════════════════
+           MOBILE
+           ═══════════════════════════════════════════ */
+
+        @media (max-width: 420px) {
+            .dhara-window {
+                width: calc(100vw - 16px);
+                height: calc(100vh - 80px);
+                border-radius: 20px;
+                right: 8px;
+                bottom: 8px;
+            }
+
+            .dhara-bubble { width: 60px; height: 60px; }
+            .dhara-bubble .bubble-fox { font-size: 28px; }
+            .dhara-avatar-area { height: 180px; }
+            .dhara-girl { width: 110px; height: 155px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <button onclick="DharaControl.toggle()">Toggle Dhara</button>
-        <button onclick="DharaControl.reset()">Reset Memory</button>
-    </div>
-
+    <!-- Your page content -->
     <div class="hero">
         <h1>Dharaverse 🌍</h1>
-        <p>
-            Your portal to every country, border, and map mystery on Earth.
-            <br>
-            Now featuring <strong style="color: #ff8c00;">Dhara</strong> — 
-            your fox-eared geography companion.
-        </p>
-        
-        <p class="subtitle">
-            Click the 🦊 bubble in the bottom-right corner to meet her →
-        </p>
+        <p>Click the fox bubble in the bottom right corner →</p>
+    </div>
 
-        <div class="features">
-            <div class="feature">
-                <div class="icon">🧠</div>
-                <h3>Reply Mode</h3>
-                <p>Ask about any country, capital, border, or geography fact</p>
+    <div class="arrow-hint">Click the 🦊 →</div>
+
+    <!-- ═══════════════════════════════════════════
+         DHARA WIDGET - THE WHOLE THING
+         ═══════════════════════════════════════════ -->
+    <div id="dhara-widget">
+
+        <!-- Bubble -->
+        <div class="dhara-bubble" id="dharaBubble">
+            <span class="bubble-fox">🦊</span>
+            <span class="bubble-dot"></span>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="dhara-window" id="dharaWindow">
+
+            <!-- Top Bar -->
+            <div class="dhara-topbar">
+                <div class="dhara-topbar-left">
+                    <div class="dhara-topbar-dot"></div>
+                    <span class="dhara-topbar-name">Dhara</span>
+                    <span class="dhara-topbar-streak" id="streakBadge">🔥 0</span>
+                </div>
+                <button class="dhara-close" id="dharaClose">✕</button>
             </div>
-            <div class="feature">
-                <div class="icon">🦜</div>
-                <h3>Mimic Mode</h3>
-                <p>She repeats what you say in a funny chipmunk voice</p>
+
+            <!-- Avatar Area with Character -->
+            <div class="dhara-avatar-area">
+
+                <!-- Stars -->
+                <div class="dhara-stars">
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                </div>
+
+                <!-- THE GIRL -->
+                <div class="dhara-girl" id="dharaGirl">
+
+                    <!-- Rain Cloud -->
+                    <div class="rain-cloud"></div>
+
+                    <!-- Fox Ears -->
+                    <div class="fox-ear fox-ear-left"></div>
+                    <div class="fox-ear fox-ear-right"></div>
+                    <div class="fox-ear-inner fox-ear-inner-left"></div>
+                    <div class="fox-ear-inner fox-ear-inner-right"></div>
+
+                    <!-- Hair Back -->
+                    <div class="hair-back"></div>
+
+                    <!-- Hair Front (bangs) -->
+                    <div class="hair-front"></div>
+
+                    <!-- Hair Strands -->
+                    <div class="hair-strand-l"></div>
+                    <div class="hair-strand-r"></div>
+
+                    <!-- Face -->
+                    <div class="face">
+
+                        <!-- Eyebrows -->
+                        <div class="eyebrow eyebrow-l"></div>
+                        <div class="eyebrow eyebrow-r"></div>
+
+                        <!-- Eyes -->
+                        <div class="eyes">
+                            <div class="eye">
+                                <div class="eye-iris">
+                                    <div class="eye-pupil"></div>
+                                </div>
+                                <div class="eye-shine"></div>
+                                <div class="eye-shine-small"></div>
+                            </div>
+                            <div class="eye">
+                                <div class="eye-iris">
+                                    <div class="eye-pupil"></div>
+                                </div>
+                                <div class="eye-shine"></div>
+                                <div class="eye-shine-small"></div>
+                            </div>
+                        </div>
+
+                        <!-- Blush -->
+                        <div class="blush blush-l"></div>
+                        <div class="blush blush-r"></div>
+
+                        <!-- Nose -->
+                        <div class="nose"></div>
+
+                        <!-- Mouth -->
+                        <div class="mouth">
+                            <div class="mouth-shape"></div>
+                        </div>
+
+                        <!-- Sunglasses -->
+                        <div class="sunglasses">
+                            <div class="sunglass-lens left"></div>
+                            <div class="sunglass-bridge"></div>
+                            <div class="sunglass-lens right"></div>
+                        </div>
+                    </div>
+
+                    <!-- Compass -->
+                    <div class="compass"></div>
+
+                    <!-- Body -->
+                    <div class="body">
+                        <div class="jacket"></div>
+                    </div>
+
+                    <!-- Globe -->
+                    <div class="globe" id="dharaGlobe"></div>
+                    <div class="globe-shine"></div>
+                </div>
+
+                <div class="mood-glow"></div>
             </div>
-            <div class="feature">
-                <div class="icon">🎤</div>
-                <h3>Voice Chat</h3>
-                <p>Hold the mic button and talk. She talks back.</p>
+
+            <!-- Chat Messages -->
+            <div class="dhara-chat" id="dharaChat">
             </div>
-            <div class="feature">
-                <div class="icon">🔥</div>
-                <h3>Streak System</h3>
-                <p>Visit daily. She remembers. She tracks. She judges.</p>
+
+            <!-- Typing -->
+            <div class="typing-dots" id="typingDots">
+                <div class="t-dot"></div>
+                <div class="t-dot"></div>
+                <div class="t-dot"></div>
             </div>
-            <div class="feature">
-                <div class="icon">🗺️</div>
-                <h3>Daily Mystery</h3>
-                <p>One geography riddle every day. Can you solve it?</p>
+
+            <!-- Input -->
+            <div class="dhara-input-bar">
+                <button class="mode-btn reply" id="modeBtn" title="Switch Mode">🧠</button>
+                <input type="text" class="text-input" id="dharaInput" placeholder="Ask Dhara anything about the world..." autocomplete="off" maxlength="200">
+                <button class="mic-btn" id="micBtn" title="Hold to speak">🎤</button>
+                <button class="send-btn" id="sendBtn" title="Send">➤</button>
             </div>
-            <div class="feature">
-                <div class="icon">🦊</div>
-                <h3>She Has Nakhre</h3>
-                <p>27, fox-eared, wise, sly, dramatic. She's unforgettable.</p>
-            </div>
+
+            <div class="mode-label" id="modeLabel">🧠 Reply Mode — Ask me anything about the world</div>
+
+            <!-- Confetti -->
+            <div class="confetti-box" id="confettiBox"></div>
         </div>
     </div>
 
-    <div class="arrow-hint">
-        Click the fox →
-    </div>
+    <!-- ═══════════════════════════════════════════
+         ALL JAVASCRIPT - ONE BLOCK
+         ═══════════════════════════════════════════ -->
+    <script>
+    (function() {
+        'use strict';
 
-    <!-- THIS IS THE ONLY LINE YOU NEED ON ANY PAGE -->
-    <script src="auto-inject.js"></script>
+        // ═══════════════════════════════════════
+        // KNOWLEDGE DATABASE
+        // ═══════════════════════════════════════
+
+        const COUNTRIES = {
+            "IN": { name: "India", capital: "New Delhi", region: "Asia", pop: "1.4 billion", borders: 6, fun: "Has 22 official languages and 19,500+ dialects", weird: "Has a village called Shani Shingnapur where no house has doors" },
+            "CN": { name: "China", capital: "Beijing", region: "Asia", pop: "1.4 billion", borders: 14, fun: "Shares borders with 14 countries — tied most in world", weird: "All of China uses ONE time zone despite spanning 5 geographical ones" },
+            "US": { name: "United States", capital: "Washington D.C.", region: "Americas", pop: "331 million", borders: 2, fun: "Has no official language at the federal level", weird: "Point Roberts can only be reached by driving through Canada" },
+            "RU": { name: "Russia", capital: "Moscow", region: "Europe", pop: "146 million", borders: 14, fun: "Spans 11 time zones — more than any country", weird: "Lake Baikal has 20% of all unfrozen fresh water on Earth" },
+            "JP": { name: "Japan", capital: "Tokyo", region: "Asia", pop: "126 million", borders: 0, fun: "Has 6,800+ islands but people live on only 430", weird: "Has an island overrun by friendly wild rabbits" },
+            "BR": { name: "Brazil", capital: "Brasília", region: "Americas", pop: "213 million", borders: 10, fun: "Borders every South American country except Chile and Ecuador", weird: "Has a city called Não-Me-Toque meaning Don't Touch Me" },
+            "AU": { name: "Australia", capital: "Canberra", region: "Oceania", pop: "25 million", borders: 0, fun: "Has more kangaroos than people", weird: "The Great Barrier Reef has its own mailbox" },
+            "EG": { name: "Egypt", capital: "Cairo", region: "Africa", pop: "102 million", borders: 4, fun: "Great Pyramid was tallest structure for 3,800 years", weird: "Cleopatra lived closer to the Moon landing than to the Pyramids being built" },
+            "KR": { name: "South Korea", capital: "Seoul", region: "Asia", pop: "51 million", borders: 1, fun: "Has the fastest average internet speed globally", weird: "All men must serve in military — even K-pop idols" },
+            "KZ": { name: "Kazakhstan", capital: "Astana", region: "Asia", pop: "19 million", borders: 5, fun: "Largest landlocked country in the world", weird: "Apples originated here — Almaty means Father of Apples" },
+            "TR": { name: "Turkey", capital: "Ankara", region: "Asia/Europe", pop: "84 million", borders: 8, fun: "Straddles two continents — Europe and Asia", weird: "Istanbul Grand Bazaar has been a mall since 1461" },
+            "BT": { name: "Bhutan", capital: "Thimphu", region: "Asia", pop: "772,000", borders: 2, fun: "Measures Gross National Happiness instead of GDP", weird: "Television was not introduced until 1999" },
+            "IS": { name: "Iceland", capital: "Reykjavik", region: "Europe", pop: "341,000", borders: 0, fun: "Has no army, navy, or air force", weird: "Has an app to check if you're dating a relative" },
+            "PA": { name: "Panama", capital: "Panama City", region: "Americas", pop: "4.3 million", borders: 2, fun: "Canal saves ships 12,000 km around South America", weird: "Sun rises over Pacific and sets over Atlantic here" },
+            "NP": { name: "Nepal", capital: "Kathmandu", region: "Asia", pop: "29 million", borders: 2, fun: "Only country with a non-rectangular flag", weird: "Has a living goddess called Kumari" },
+            "ZA": { name: "South Africa", capital: "Pretoria", region: "Africa", pop: "59 million", borders: 6, fun: "Has 11 official languages", weird: "Has an entire country INSIDE it — Lesotho" },
+            "CO": { name: "Colombia", capital: "Bogotá", region: "Americas", pop: "51 million", borders: 5, fun: "Named after Columbus who never visited", weird: "Has a river called River of Five Colors" },
+            "FR": { name: "France", capital: "Paris", region: "Europe", pop: "67 million", borders: 8, fun: "Most visited country in the world", weird: "Has a time zone in every continent due to overseas territories" },
+            "DE": { name: "Germany", capital: "Berlin", region: "Europe", pop: "83 million", borders: 9, fun: "Has over 1,500 different beers", weird: "Has a university founded in 1386 that's still running" },
+            "IT": { name: "Italy", capital: "Rome", region: "Europe", pop: "60 million", borders: 6, fun: "Has more UNESCO World Heritage Sites than any country", weird: "Has a free wine fountain that runs 24/7 in Abruzzo" },
+        };
+
+        const QUIZ_BANK = [
+            { q: "Which country has borders with 14 nations?", a: "china", hint: "Think BIG", alt: ["russia"] },
+            { q: "What's the only country that's also a continent?", a: "australia", hint: "Down under", alt: ["aus"] },
+            { q: "Capital of Kazakhstan?", a: "astana", hint: "Changed from Almaty", alt: [] },
+            { q: "Which country is completely inside South Africa?", a: "lesotho", hint: "Mountain kingdom", alt: [] },
+            { q: "Only country with a non-rectangular flag?", a: "nepal", hint: "Between India and China", alt: [] },
+            { q: "Which country has 11 official languages?", a: "south africa", hint: "Rainbow nation", alt: ["za"] },
+            { q: "Largest landlocked country?", a: "kazakhstan", hint: "Central Asian giant", alt: [] },
+            { q: "Which country measures happiness instead of GDP?", a: "bhutan", hint: "Near India", alt: [] },
+            { q: "Which country has no army?", a: "iceland", hint: "Fire and ice", alt: [] },
+            { q: "In which country does the sun rise over the Pacific?", a: "panama", hint: "Famous canal", alt: [] },
+            { q: "What is the largest country by area?", a: "russia", hint: "11 time zones", alt: [] },
+            { q: "Most visited country in the world?", a: "france", hint: "Eiffel Tower", alt: [] },
+        ];
+
+        const DAILY_MYSTERIES = [
+            { clue: "This country's flag is NOT rectangular. It's between two giants in Asia.", answer: "nepal", alt: [] },
+            { clue: "This entire country is INSIDE another country. Both in Africa.", answer: "lesotho", alt: [] },
+            { clue: "In this country, nodding your head means NO.", answer: "albania", alt: [] },
+            { clue: "This country measures happiness, not GDP.", answer: "bhutan", alt: [] },
+            { clue: "Apples were born in this country. Its old capital means Father of Apples.", answer: "kazakhstan", alt: [] },
+            { clue: "This country uses ONE time zone despite being massive enough for 5.", answer: "china", alt: [] },
+            { clue: "This island nation had NO television until 1999.", answer: "bhutan", alt: [] },
+        ];
+
+        // ═══════════════════════════════════════
+        // MEMORY
+        // ═══════════════════════════════════════
+
+        const MEM_KEY = 'dhara_mem';
+
+        function loadMemory() {
+            try {
+                const d = JSON.parse(localStorage.getItem(MEM_KEY));
+                if (d) {
+                    // Calculate streak
+                    if (d.lastVisit) {
+                        const diff = Math.floor((Date.now() - new Date(d.lastVisit).getTime()) / 86400000);
+                        d.daysGone = diff;
+                        if (diff === 1) { d.streak = (d.streak || 0) + 1; }
+                        else if (diff > 1) { d.oldStreak = d.streak; d.streak = 1; d.streakBroken = true; }
+                    }
+                    d.lastVisit = new Date().toISOString();
+                    d.visits = (d.visits || 0) + 1;
+                    saveMemory(d);
+                    return d;
+                }
+            } catch(e) {}
+            const fresh = { name: null, streak: 0, lastVisit: new Date().toISOString(), visits: 1, daysGone: 0, quizScore: 0, streakBroken: false, oldStreak: 0 };
+            saveMemory(fresh);
+            return fresh;
+        }
+
+        function saveMemory(m) {
+            try { localStorage.setItem(MEM_KEY, JSON.stringify(m)); } catch(e) {}
+        }
+
+        // ═══════════════════════════════════════
+        // RESPONSE ENGINE (No API needed)
+        // ═══════════════════════════════════════
+
+        let currentQuiz = null;
+        let currentMystery = null;
+
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function findCountry(input) {
+            const low = input.toLowerCase();
+            for (const key in COUNTRIES) {
+                if (low.includes(COUNTRIES[key].name.toLowerCase())) return COUNTRIES[key];
+            }
+            for (const key in COUNTRIES) {
+                const words = COUNTRIES[key].name.toLowerCase().split(' ');
+                for (const w of words) { if (w.length > 3 && low.includes(w)) return COUNTRIES[key]; }
+            }
+            return null;
+        }
+
+        function respond(input, mem) {
+            const low = input.toLowerCase().trim();
+
+            // ── Active quiz check ──
+            if (currentQuiz) {
+                const q = currentQuiz;
+                currentQuiz = null;
+                const isRight = low.includes(q.a) || q.alt.some(a => low.includes(a));
+                if (isRight) {
+                    mem.quizScore = (mem.quizScore || 0) + 1;
+                    saveMemory(mem);
+                    triggerConfetti();
+                    setGirlState('excited');
+                    return pick([
+                        `YES! Correct! Score: ${mem.quizScore} 🔥 My globe just did a backflip. Another round?`,
+                        `RIGHT! I'm... almost impressed ${mem.name || ''}. ${mem.quizScore} correct so far. Again?`,
+                        `Nailed it! My fox ears are tingling with pride. Want a harder one?`
+                    ]);
+                } else {
+                    setGirlState('sassy');
+                    return pick([
+                        `Oof. It was "${q.a}". Even my globe is judging you. Try another?`,
+                        `Nope! The answer was "${q.a}". I gave you a hint and everything 😤 Revenge round?`,
+                        `Wrong! It's "${q.a}". My fox ears drooped. Want to redeem yourself?`
+                    ]);
+                }
+            }
+
+            // ── Active mystery check ──
+            if (currentMystery) {
+                const m = currentMystery;
+                const isRight = low.includes(m.answer) || m.alt.some(a => low.includes(a));
+                if (isRight) {
+                    currentMystery = null;
+                    triggerConfetti();
+                    setGirlState('excited');
+                    return `YES! It's ${m.answer.charAt(0).toUpperCase() + m.answer.slice(1)}! You cracked the Daily Map Mystery! My globe is spinning with joy 🌍`;
+                } else {
+                    return pick([
+                        "Nope! Try again. My fox ears believe in you... barely.",
+                        "Wrong guess! Think harder. The map doesn't lie 🗺️",
+                        "Not that one! Keep trying. I'm watching with my fox eyes 👀"
+                    ]);
+                }
+            }
+
+            // ── Greetings ──
+            if (/^(hi|hello|hey|morning|evening|yo|sup|namaste|hola)/i.test(low)) {
+                const hour = new Date().getHours();
+                const greet = hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening";
+                
+                if (!mem.name) {
+                    return pick([
+                        `${greet}! I'm Dhara — fox-eared, globe-obsessed, zero chill about geography. What's your name? 🦊`,
+                        `${greet}! Welcome to my corner of Dharaverse. I'm Dhara. I know every country and I'm not humble about it. Your name?`
+                    ]);
+                }
+
+                if (mem.streakBroken && mem.daysGone > 2) {
+                    setGirlState('sad');
+                    return `${mem.name}. ${mem.daysGone} days. I rotated my globe ${mem.daysGone * 200} times looking for you. What country were you hiding in? 😤`;
+                }
+
+                if (mem.streak >= 5) {
+                    setGirlState('excited');
+                    return `${greet} ${mem.name}! Day ${mem.streak} streak 🔥 At this rate you'll know more than my globe. Ready for today's mystery?`;
+                }
+
+                return pick([
+                    `${greet} ${mem.name}! Day ${mem.streak || 1}. Want a quiz, a fact, or the Daily Map Mystery? 🌍`,
+                    `${greet} ${mem.name}! My globe was waiting for you. What are we exploring today?`,
+                    `${mem.name}! Back for more? Good. I have facts that'll make your brain spin 🌍`
+                ]);
+            }
+
+            // ── Name detection ──
+            const nameMatch = low.match(/(?:i'm|i am|my name is|call me|name's)\s+(\w+)/i);
+            if (nameMatch) {
+                const n = nameMatch[1];
+                const skip = ['a','the','yes','no','hi','hello','not','what','fine','good','ok'];
+                if (!skip.includes(n.toLowerCase()) && n.length > 1 && n.length < 20) {
+                    mem.name = n.charAt(0).toUpperCase() + n.slice(1);
+                    saveMemory(mem);
+                    setGirlState('happy');
+                    return pick([
+                        `${mem.name}! Love it. Now I'll never forget you. Ready to explore the world with me? 🌍`,
+                        `${mem.name}! Perfect. Now we're friends. And I quiz my friends. Capital of Kazakhstan — go!`,
+                        `Nice to meet you ${mem.name}! My fox ears just perked up. Let's talk geography 🦊`
+                    ]);
+                }
+            }
+
+            // ── Country questions ──
+            if (/tell me about|what about|facts about|info on|know about/i.test(low)) {
+                const c = findCountry(low);
+                if (!c) return pick([
+                    "Which country? I know all 195. Be specific 🌍",
+                    "WHICH country? I need a name, not vibes. Try again.",
+                    "Country name please. I'm wise, not psychic 🦊"
+                ]);
+
+                setGirlState('sassy');
+                return pick([
+                    `${c.name}! Capital: ${c.capital}. Population: ${c.pop}. ${c.fun}. Want the weird fact? 🌍`,
+                    `Ah, ${c.name}. ${c.weird}. Bet you didn't know that. Want a quiz about ${c.region}?`,
+                    `${c.name} — ${c.borders > 0 ? c.borders + ' border countries.' : 'Island nation!'} ${c.fun}. Impressed yet?`
+                ]);
+            }
+
+            // ── Capital questions ──
+            if (/capital of|capital city/i.test(low)) {
+                const c = findCountry(low.replace(/capital of|capital city of|what is the|what's the/gi, ''));
+                if (!c) return "Which country's capital? Give me a name 🌍";
+                return pick([
+                    `${c.capital}. Obviously. Too easy for me 🌍`,
+                    `${c.capital}! You're welcome. Do you know how many borders ${c.name} has?`,
+                    `The capital of ${c.name} is ${c.capital}. I knew that without checking. Always do 🦊`
+                ]);
+            }
+
+            // ── Quiz request ──
+            if (/quiz|test me|question|challenge/i.test(low)) {
+                const q = QUIZ_BANK[Math.floor(Math.random() * QUIZ_BANK.length)];
+                currentQuiz = q;
+                setGirlState('sassy');
+                return pick([
+                    `Alright! ${q.q} Hint: ${q.hint}. Don't Google — I WILL know 🌍`,
+                    `Quiz time! ${q.q} You have 10 seconds in your head. Go!`,
+                    `Oh you want a challenge? ${q.q} Hint: ${q.hint} 🔥`
+                ]);
+            }
+
+            // ── Daily mystery ──
+            if (/mystery|daily|riddle/i.test(low)) {
+                const dayIdx = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+                const m = DAILY_MYSTERIES[dayIdx % DAILY_MYSTERIES.length];
+                currentMystery = m;
+                setGirlState('suspicious');
+                return `Daily Map Mystery 🗺️ — ${m.clue} You get 3 guesses. My fox ears are watching.`;
+            }
+
+            // ── About Dhara ──
+            if (/who are you|what are you|are you ai|are you real|are you a bot|about yourself/i.test(low)) {
+                setGirlState('sassy');
+                return pick([
+                    "I'm Dhara. 27. Fox-eared. The geographical consciousness of Earth wrapped in attitude. AI is such a limiting word for me 🦊",
+                    "70% geography, 20% sass, 10% fox DNA. I live on Dharaverse and I know every border on this planet 🌍",
+                    "I'm the girl who knows every capital, every border, every weird fact. And I have fox ears. Questions?"
+                ]);
+            }
+
+            // ── Off topic ──
+            if (/love|date|girlfriend|boyfriend|politics|vote|medical|doctor|movie|song|weather/i.test(low)) {
+                setGirlState('sassy');
+                return pick([
+                    "That's cute, but can you point to it on a map? No? Geography only 🌍",
+                    "My expertise is countries, not whatever that was. Ask me about borders!",
+                    "I only have chemistry with cartography. Try a geography question 🦊"
+                ]);
+            }
+
+            // ── Rude ──
+            if (/stupid|dumb|shut up|hate you|ugly|useless|idiot/i.test(low)) {
+                setGirlState('sassy');
+                return pick([
+                    "The map shows the exit. Come back when you find your manners 🌍",
+                    "I've survived continental drift. Your words are adorable. Geography questions?",
+                    "Bouvet Island is the most isolated place on Earth. Maybe visit there and reflect 🦊"
+                ]);
+            }
+
+            // ── Compliments ──
+            if (/smart|amazing|love you|beautiful|cool|awesome|great|best|cute/i.test(low)) {
+                setGirlState('happy');
+                return pick([
+                    `I know. But keep saying it — my fox ears love flattery. Bonus fact: shortest war ever was 38 minutes! 🌍`,
+                    "Obviously I'm amazing. But YOUR compliment made my compass spin. Want a special fact?",
+                    `Finally someone with taste, ${mem.name || 'stranger'}! You just earned a bonus weird country fact 🦊`
+                ]);
+            }
+
+            // ── Map/Globe ──
+            if (/map|globe|spin|world/i.test(low)) {
+                return pick([
+                    "You want to spin the globe? I'll judge your knowledge wherever it lands 🌍",
+                    "Maps are my love language. What are we finding — country, border, or mystery?",
+                    "My globe is RIGHT HERE. Spin it. I dare you 🦊"
+                ]);
+            }
+
+            // ── Thanks ──
+            if (/thank|thanks|thx/i.test(low)) {
+                return pick([
+                    `You're welcome ${mem.name || ''}. I know I'm brilliant. More questions? 🌍`,
+                    "Obviously I was helpful. It's what I do. What else?",
+                    "Don't thank me, thank the 195 countries for being interesting 🦊"
+                ]);
+            }
+
+            // ── Bye ──
+            if (/bye|goodbye|see you|gotta go|later|cya/i.test(low)) {
+                return pick([
+                    `Fine. But tomorrow's fact will break your brain. Don't miss it ${mem.name || ''} 🌍`,
+                    `Bye! Streak: ${mem.streak || 0}. Don't you DARE break it. See you tomorrow 🦊`,
+                    "The globe keeps spinning. I'll remember where we left off. Bye!"
+                ]);
+            }
+
+            // ── Random country if nothing matches ──
+            const keys = Object.keys(COUNTRIES);
+            const rc = COUNTRIES[keys[Math.floor(Math.random() * keys.length)]];
+            return pick([
+                `Hmm. Speaking of random — did you know? ${rc.weird}. That's ${rc.name} for you. Want more? 🌍`,
+                `Interesting. But here's something MORE interesting: ${rc.fun}. That's ${rc.name}. Ask me about any country 🦊`,
+                `My fox ears didn't catch that. But here's a fact: ${rc.weird}. Country? ${rc.name}. You're welcome 🌍`,
+                `I work best with geography. Try: "tell me about Japan" or "quiz me" or "daily mystery" 🦊`
+            ]);
+        }
+
+        // ═══════════════════════════════════════
+        // VOICE ENGINE (Free browser APIs)
+        // ═══════════════════════════════════════
+
+        let synthesis = window.speechSynthesis;
+        let recognition = null;
+        let dharaVoice = null;
+        let isSpeaking = false;
+
+        function initVoice() {
+            // Find best voice
+            function pickVoice() {
+                const v = synthesis.getVoices();
+                const tests = [
+                    x => x.lang.includes('en-IN'),
+                    x => x.lang.includes('en-GB') && x.name.toLowerCase().includes('female'),
+                    x => x.lang.includes('en-GB'),
+                    x => x.lang.startsWith('en') && /female|zira|samantha|karen|fiona/i.test(x.name),
+                    x => x.name.includes('Google') && x.lang.startsWith('en'),
+                    x => x.lang.startsWith('en')
+                ];
+                for (const t of tests) { const m = v.find(t); if (m) { dharaVoice = m; return; } }
+                if (v.length) dharaVoice = v[0];
+            }
+            pickVoice();
+            if (synthesis.onvoiceschanged !== undefined) synthesis.onvoiceschanged = pickVoice;
+
+            // Speech recognition
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SR) {
+                recognition = new SR();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    setGirlState('listening');
+                    document.getElementById('micBtn').classList.add('recording');
+                };
+                recognition.onend = () => {
+                    setGirlState('idle');
+                    document.getElementById('micBtn').classList.remove('recording');
+                };
+                recognition.onresult = (e) => {
+                    let txt = '';
+                    for (let i = e.resultIndex; i < e.results.length; i++) {
+                        if (e.results[i].isFinal) txt += e.results[i][0].transcript;
+                    }
+                    if (txt) {
+                        document.getElementById('dharaInput').value = txt;
+                        setTimeout(sendMsg, 300);
+                    }
+                };
+                recognition.onerror = () => {
+                    document.getElementById('micBtn').classList.remove('recording');
+                    setGirlState('idle');
+                };
+            }
+        }
+
+        function speak(text, mimic) {
+            return new Promise(resolve => {
+                if (!synthesis) { resolve(); return; }
+                synthesis.cancel();
+
+                const u = new SpeechSynthesisUtterance(text);
+                if (dharaVoice) u.voice = dharaVoice;
+                u.rate = mimic ? 1.6 : 1.05;
+                u.pitch = mimic ? 1.8 : 1.15;
+                u.volume = 0.9;
+
+                let mouthInt;
+                const shapes = ['mouth-o', 'mouth-aa', 'mouth-u', 'mouth-o', 'mouth-aa'];
+                let si = 0;
+
+                u.onstart = () => {
+                    isSpeaking = true;
+                    mouthInt = setInterval(() => {
+                        clearMouth();
+                        girl.classList.add(shapes[si % shapes.length]);
+                        si++;
+                    }, 130);
+                };
+
+                u.onend = () => {
+                    isSpeaking = false;
+                    clearInterval(mouthInt);
+                    clearMouth();
+                    girl.classList.add('mouth-smile');
+                    setTimeout(() => girl.classList.remove('mouth-smile'), 2000);
+                    resolve();
+                };
+
+                u.onerror = () => {
+                    isSpeaking = false;
+                    clearInterval(mouthInt);
+                    clearMouth();
+                    resolve();
+                };
+
+                synthesis.speak(u);
+            });
+        }
+
+        function clearMouth() {
+            girl.classList.remove('mouth-o', 'mouth-aa', 'mouth-u', 'mouth-smile', 'mouth-grin');
+        }
+
+        // ═══════════════════════════════════════
+        // UI CONTROLLER
+        // ═══════════════════════════════════════
+
+        const mem = loadMemory();
+        let mode = 'reply'; // 'reply' or 'mimic'
+        let girl;
+        let isProcessing = false;
+
+        function setup() {
+            girl = document.getElementById('dharaGirl');
+
+            // Update streak badge
+            document.getElementById('streakBadge').textContent = `🔥 ${mem.streak || 0}`;
+            if (mem.streak >= 5) girl.classList.add('streak-high');
+
+            // ── Bubble click ──
+            document.getElementById('dharaBubble').addEventListener('click', () => {
+                openWindow();
+                // Auto greeting on first open
+                setTimeout(() => {
+                    const greeting = respond('hi', mem);
+                    addMsg('dhara', greeting);
+                    speak(greeting);
+                }, 400);
+            });
+
+            // ── Close ──
+            document.getElementById('dharaClose').addEventListener('click', closeWindow);
+
+            // ── Send ──
+            document.getElementById('sendBtn').addEventListener('click', sendMsg);
+
+            // ── Enter key ──
+            document.getElementById('dharaInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMsg();
+            });
+
+            // ── Input change ──
+            document.getElementById('dharaInput').addEventListener('input', (e) => {
+                document.getElementById('sendBtn').classList.toggle('active', !!e.target.value.trim());
+            });
+
+            // ── Mode toggle ──
+            document.getElementById('modeBtn').addEventListener('click', toggleMode);
+
+            // ── Voice ──
+            const mic = document.getElementById('micBtn');
+            mic.addEventListener('mousedown', () => { if (recognition) try { recognition.start(); } catch(e) {} });
+            mic.addEventListener('mouseup', () => { if (recognition) recognition.stop(); });
+            mic.addEventListener('touchstart', (e) => { e.preventDefault(); if (recognition) try { recognition.start(); } catch(e2) {} });
+            mic.addEventListener('touchend', () => { if (recognition) recognition.stop(); });
+
+            // ── Character poke ──
+            girl.addEventListener('click', (e) => {
+                if (e.target.id === 'dharaGlobe' || e.target.closest('#dharaGlobe')) {
+                    pokeReact('globe');
+                } else {
+                    pokeReact('body');
+                }
+            });
+
+            // ── Eye follow ──
+            document.addEventListener('mousemove', (e) => {
+                if (!girl || isSpeaking) return;
+                const r = girl.getBoundingClientRect();
+                const cx = r.left + r.width / 2;
+                girl.classList.remove('look-left', 'look-right');
+                if (e.clientX < cx - 60) girl.classList.add('look-left');
+                else if (e.clientX > cx + 60) girl.classList.add('look-right');
+            });
+
+            // ── Blink ──
+            setInterval(() => {
+                if (!girl || isSpeaking) return;
+                girl.classList.add('blink');
+                setTimeout(() => girl.classList.remove('blink'), 160);
+            }, 3500 + Math.random() * 2000);
+
+            // ── Idle message ──
+            let idleTimeout;
+            function resetIdle() {
+                clearTimeout(idleTimeout);
+                idleTimeout = setTimeout(() => {
+                    if (!document.getElementById('dharaWindow').classList.contains('open')) return;
+                    if (isSpeaking) return;
+                    const msgs = [
+                        "Still there? My globe is getting lonely 🌍",
+                        "*yawns* 195 countries of facts waiting. Ask me something!",
+                        "The silence is louder than a volcano. Quiz? Fact? Mystery? 🦊"
+                    ];
+                    const m = pick(msgs);
+                    addMsg('dhara', m);
+                    speak(m);
+                }, 20000);
+            }
+            resetIdle();
+
+            // Init voice
+            initVoice();
+        }
+
+        function openWindow() {
+            document.getElementById('dharaBubble').style.display = 'none';
+            document.getElementById('dharaWindow').classList.add('open');
+            document.querySelector('.arrow-hint').style.display = 'none';
+        }
+
+        function closeWindow() {
+            document.getElementById('dharaBubble').style.display = 'flex';
+            document.getElementById('dharaWindow').classList.remove('open');
+        }
+
+        function sendMsg() {
+            const input = document.getElementById('dharaInput');
+            const text = input.value.trim();
+            if (!text || isProcessing) return;
+
+            isProcessing = true;
+            input.value = '';
+            document.getElementById('sendBtn').classList.remove('active');
+
+            addMsg('user', text);
+            showTyping(true);
+
+            const delay = 500 + Math.random() * 700;
+
+            setTimeout(() => {
+                showTyping(false);
+
+                if (mode === 'mimic') {
+                    addMsg('dhara', `*chipmunk voice* "${text}" 🦜`);
+                    setGirlState('excited');
+                    speak(text, true).then(() => {
+                        setGirlState('idle');
+                        isProcessing = false;
+                    });
+                } else {
+                    const reply = respond(text, mem);
+                    addMsg('dhara', reply);
+                    speak(reply).then(() => {
+                        setGirlState('idle');
+                        isProcessing = false;
+                    });
+                }
+            }, delay);
+        }
+
+        function addMsg(who, text) {
+            const chat = document.getElementById('dharaChat');
+            const div = document.createElement('div');
+            div.className = `msg ${who === 'dhara' ? 'from-dhara' : 'from-user'}`;
+            div.textContent = text;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function showTyping(show) {
+            document.getElementById('typingDots').classList.toggle('show', show);
+        }
+
+        function toggleMode() {
+            mode = mode === 'reply' ? 'mimic' : 'reply';
+            const btn = document.getElementById('modeBtn');
+            const label = document.getElementById('modeLabel');
+            const input = document.getElementById('dharaInput');
+
+            btn.className = `mode-btn ${mode}`;
+            btn.textContent = mode === 'mimic' ? '🦜' : '🧠';
+            label.textContent = mode === 'mimic'
+                ? '🦜 Mimic Mode — I repeat what you say!'
+                : '🧠 Reply Mode — Ask me anything about the world';
+            input.placeholder = mode === 'mimic'
+                ? 'Say something for Dhara to mimic...'
+                : 'Ask Dhara anything about the world...';
+
+            const modeMsg = mode === 'mimic'
+                ? "Mimic mode ON! Say something and I'll copy you 🦜"
+                : "Reply mode! Ask me about countries, capitals, anything 🌍";
+            addMsg('dhara', modeMsg);
+            speak(modeMsg);
+        }
+
+        function setGirlState(state) {
+            if (!girl) return;
+            girl.classList.remove('listening', 'excited', 'happy', 'sad', 'sassy', 'suspicious', 'worried');
+            if (state !== 'idle') girl.classList.add(state);
+        }
+
+        function pokeReact(target) {
+            const msgs = target === 'globe'
+                ? ["Hey! That's MY globe! 🌍", "Careful with that — it has 195 countries inside!", "Spin your own globe!"]
+                : ["Hey! Personal space! I'm made of code but STILL 🦊", "Did you just poke a fox-eared goddess? Bold.", "Touch the globe, not me!"];
+
+            const msg = pick(msgs);
+            addMsg('dhara', msg);
+            setGirlState('sassy');
+            document.getElementById('dharaWindow').classList.add('shake');
+            setTimeout(() => document.getElementById('dharaWindow').classList.remove('shake'), 500);
+            speak(msg);
+        }
+
+        function triggerConfetti() {
+            const box = document.getElementById('confettiBox');
+            const colors = ['#ff8c00', '#e74c3c', '#2ecc71', '#3498db', '#f39c12', '#9b59b6'];
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'confetti-p';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                p.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+                p.style.animationDelay = Math.random() * 0.4 + 's';
+                p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                box.appendChild(p);
+            }
+            setTimeout(() => { box.innerHTML = ''; }, 2500);
+        }
+
+        // ── START ──
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setup);
+        } else {
+            setup();
+        }
+
+    })();
+    </script>
 
 </body>
 </html>
