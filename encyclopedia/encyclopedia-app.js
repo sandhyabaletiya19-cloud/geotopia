@@ -1039,3 +1039,33 @@ let app;
 document.addEventListener('DOMContentLoaded', () => {
     app = new EncyclopediaApp();
 });
+// Initialize countries from ALL_211
+document.addEventListener('DOMContentLoaded', function() {
+    if(typeof ALL_211 !== 'undefined' && ALL_211.length > 0) {
+        window.allCountries = ALL_211.slice();
+        window.allCountries.sort(function(a,b) {
+            return (a.name || '').localeCompare(b.name || '');
+        });
+        window.filteredCountries = window.allCountries.slice();
+        
+        // Render first batch
+        window.displayedCountries = window.allCountries.slice(0, 40);
+        
+        if(typeof renderCountries === 'function') {
+            renderCountries();
+        }
+        if(typeof updateBtn === 'function') {
+            updateBtn();
+        }
+        if(typeof updateTabCounts === 'function') {
+            updateTabCounts();
+        }
+        if(typeof loadContinents === 'function') {
+            loadContinents();
+        }
+        
+        console.log('✅ Countries initialized: ' + window.allCountries.length);
+    } else {
+        console.log('❌ ALL_211 not found or empty');
+    }
+});
