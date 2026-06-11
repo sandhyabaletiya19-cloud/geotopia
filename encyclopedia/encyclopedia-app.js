@@ -1,3 +1,32 @@
+// Check if this is the new encyclopedia page
+if(document.getElementById('carousel3dTrack')) {
+    // This is new encyclopedia.html — skip old app
+    window.addEventListener('DOMContentLoaded', function() {
+        // Initialize new system using ALL_211
+        if(typeof ALL_211 !== 'undefined') {
+            window.allCountries = ALL_211.slice();
+            window.allCountries.sort(function(a,b){
+                return (a.name||'').localeCompare(b.name||'');
+            });
+            window.filteredCountries = window.allCountries.slice();
+            window.displayedCountries = [];
+            
+            // Load first 40
+            window.displayedCountries = window.allCountries.slice(0,40);
+            
+            if(typeof renderCountries==='function') renderCountries();
+            if(typeof updateBtn==='function') updateBtn();
+            if(typeof updateTabCounts==='function') updateTabCounts();
+            if(typeof loadContinents==='function') loadContinents();
+            if(typeof build3DCarousel==='function') build3DCarousel();
+            
+            console.log('New encyclopedia: '+window.allCountries.length+' countries loaded');
+        }
+    });
+    // Stop old app from loading
+    throw new Error('New encyclopedia page detected - old app stopped');
+}
+
 /* ============================================
    ENCYCLOPEDIA APPLICATION
    Main JavaScript Controller
