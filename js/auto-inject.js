@@ -31,17 +31,23 @@
     })();
 
     
-// =============================================
-// 2. DHARA - Loaded from /dhara folder
-// =============================================
-(function loadDhara() {
+// ============================================
+// 🦊 DHARA AUTO INJECT - SAFER VERSION
+// ============================================
+(function injectDhara() {
     if (document.getElementById('dhara-loader-script')) return;
     var dharaScript = document.createElement('script');
     dharaScript.src = '/dhara/dhara-loader.js';
     dharaScript.id = 'dhara-loader-script';
-    dharaScript.async = true;
+    dharaScript.defer = true;  // ← Changed from async to defer
+    dharaScript.onerror = function() {
+        console.error('❌ Dhara loader failed to load!');
+    };
+    dharaScript.onload = function() {
+        console.log('✅ Dhara loader script downloaded');
+    };
     document.head.appendChild(dharaScript);
-    console.log('🦊 Dhara loader injected!');
+    console.log('🦊 Dhara loader injecting...');
 })();
 
 
