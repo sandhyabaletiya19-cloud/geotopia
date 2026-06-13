@@ -30,6 +30,20 @@
         console.log('✅ AdSense injected!');
     })();
 
+    
+// =============================================
+// 2. DHARA - Loaded from /dhara folder
+// =============================================
+(function loadDhara() {
+    if (document.getElementById('dhara-loader-script')) return;
+    var dharaScript = document.createElement('script');
+    dharaScript.src = '/dhara/dhara-loader.js';
+    dharaScript.id = 'dhara-loader-script';
+    dharaScript.async = true;
+    document.head.appendChild(dharaScript);
+    console.log('🦊 Dhara loader injected!');
+})();
+
 
     // ✅ Fix viewport
     (function fixViewport() {
