@@ -691,20 +691,19 @@
     // Called by: app.js → init() start/end
     // ═══════════════════════════════════════════
     showLoadingScreen: function (show) {
-      var screen = el('loading-screen');
-      if (!screen) return;
+  var screen = document.getElementById('loading-screen');
+  if (!screen) return;
 
-      if (show) {
-        screen.hidden = false;
-        screen.removeAttribute('hidden');
-        screen.classList.remove('hide');
-      } else {
-        screen.classList.add('hide');
-        setTimeout(function () {
-          screen.hidden = true;
-        }, 450);
-      }
-    },
+  if (show) {
+    screen.classList.remove('hide');
+    screen.style.display = 'flex';
+  } else {
+    screen.classList.add('hide');
+    setTimeout(function () {
+      screen.style.display = 'none';
+    }, 450);
+  }
+},
 
 
     // ═══════════════════════════════════════════
