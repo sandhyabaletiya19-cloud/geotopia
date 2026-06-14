@@ -1,486 +1,750 @@
-/**
- * DHARAVERSE DAILY MAP MYSTERY
- * File: js/state.js
- * Purpose: Game state management — LocalStorage persistence,
- *          daily reset, guess history, game status
- * Depends on: js/data.js (must load first)
- * Used by: app.js, ui.js, share.js, streak.js
- * Version: 1.0
- */
+/* ═══════════════════════════════════════════════════════════
+   DHARAVERSE MAP MYSTERY — GAME STATE MANAGER
+   File: /games/daily-mystery/js/state.js
+   
+   DEPENDS ON: data.js (window.COUNTRIES)
+   USED BY: app.js, ui.js, share.js, streak.js
+   
+   EXPORTS:
+     window.GameState          → state object
+     window.initState()        → initialize/restore state
+     window.getTodayCountry()  → seeded daily pick
+     window.getDayNumber()     → day since launch
+     window.saveGuess(result)  → store guess + update status
+     window.loadTodayProgress()→ read from localStorage
+     window.saveTodayProgress()→ write to localStorage
+     window.hasPlayedToday()   → boolean
+     window.getTodayKey()      → "dmm_progress_YYYY-MM-DD"
+     window.getStats()         → all-time stats object
+     window.saveStats(stats)   → persist stats
+     window.getPrefs()         → user preferences
+     window.savePrefs(prefs)   → persist preferences
+   
+   LOCALSTORAGE KEYS:
+     "dmm_progress_YYYY-MM-DD" → daily game state
+     "dmm_streak"              → streak data (read by streak.js)
+     "dmm_stats"               → all-time statistics
+     "dmm_prefs"               → user preferences
+   ═══════════════════════════════════════════════════════════ */
 
-'use strict';
+(function () {
+  'use strict';
 
-// ═══════════════════════════════════════════
-// GUARD
-// ═══════════════════════════════════════════
+  // ─────────────────────────────────────────────
+  // CONSTANTS
+  // ─────────────────────────────────────────────
 
-if (typeof window.DharaData === 'undefined') {
-  throw new Error('[DharaState] data.js must load before state.js');
-}
+  /** Game launch date — Day #1 */
+  var LAUNCH_DATE = new Date(Date.UTC(2025, 0, 1)); // January 1, 2025
 
-const { getDailyCountry, getTodayDayNumber, COUNTRIES } = window.DharaData;
+  /** Maximum guesses per game */
+  var MAX_GUESSES = 6;
 
-// ═══════════════════════════════════════════
-// STORAGE KEYS
-// All stored under these exact keys in localStorage
-// ═══════════════════════════════════════════
+  /** LocalStorage key prefixes */
+  var LS_PREFIX = 'dmm_progress_';
+  var LS_STREAK = 'dmm_streak';
+  var LS_STATS = 'dmm_stats';
+  var LS_PREFS = 'dmm_prefs';
 
-const STORAGE_KEYS = {
-  DAILY_STATE:   'dharaverse_daily_state',   // Today's game
-  STREAK:        'dharaverse_streak',         // Streak data
-  STATS:         'dharaverse_stats',          // All-time stats
-  SETTINGS:      'dharaverse_settings',       // User prefs
-  PLAYED_DAYS:   'dharaverse_played_days',    // Array of day numbers
-  DAILY_FACT:    'dharaverse_daily_fact',     // Today's news fact
-};
 
-// ═══════════════════════════════════════════
-// DEFAULT STATE SHAPES
-// ═══════════════════════════════════════════
+  // ═══════════════════════════════════════════════
+  // 1. GAME STATE OBJECT
+  // ═══════════════════════════════════════════════
 
-const DEFAULT_DAILY_STATE = {
-  dayNumber:       null,       // Today's day number
-  targetCode:      null,       // ISO code of answer
-  guesses:         [],         // Array of guess results
-  status:          'playing',  // 'playing'|'won'|'lost'
-  startedAt:       null,       // ISO timestamp
-  finishedAt:      null,       // ISO timestamp
-  revealedTarget:  false,      // True after win/lose
-  currentAttempt:  0,          // 0-5
-  score:           0,          // Final score
-};
+  /**
+   * The central game state.
+   * Read by: ui.js, share.js, streak.js, app.js
+   * Written by: initState(), saveGuess()
+   */
+  window.GameState = {
+    todayAnswer: null,       // Country object from data.js
+    todayIndex: null,        // Index into COUNTRIES array
+    dayNumber: null,         // Day # since launch (1, 2, 3...)
+    guesses: [],             // Array of evaluateGuess() results
+    gameStatus: 'playing',   // "playing" | "won" | "lost"
+    maxGuesses: MAX_GUESSES,
+    startTime: null,         // Timestamp when game started
+    endTime: null,           // Timestamp when game ended
+    todayDate: null          // "YYYY-MM-DD" string
+  };
 
-const DEFAULT_STATS = {
-  totalPlayed:   0,
-  totalWon:      0,
-  totalLost:     0,
-  winRate:       0,
-  avgAttempts:   0,
-  bestAttempt:   6,
-  distribution:  { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 },
-  lastPlayed:    null,
-  highScore:     0,
-};
 
-const DEFAULT_SETTINGS = {
-  language:      'auto',        // 'auto'|'en'|'hi'
-  colorblind:    false,
-  reducedMotion: false,
-  notifications: false,
-  darkMode:      true,          // Always true for now
-};
+  // ═══════════════════════════════════════════════
+  // 2. DATE UTILITIES
+  // ═══════════════════════════════════════════════
 
-// ═══════════════════════════════════════════
-// SAFE LOCALSTORAGE WRAPPER
-// ═══════════════════════════════════════════
+  /**
+   * Get today's date as "YYYY-MM-DD" string in UTC.
+   * @returns {string}
+   */
+  function getTodayDateString() {
+    var now = new Date();
+    var year = now.getUTCFullYear();
+    var month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    var day = String(now.getUTCDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
 
-const Storage = {
-  get(key, defaultValue = null) {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
-    } catch (err) {
-      console.warn(`[DharaState] Storage.get failed for key "${key}":`, err);
-      return defaultValue;
+  /**
+   * Get milliseconds since epoch at UTC midnight today.
+   * @returns {number}
+   */
+  function getTodayMidnightUTC() {
+    var now = new Date();
+    return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  }
+
+  /**
+   * Get milliseconds until next UTC midnight.
+   * Used by: app.js → countdown timer
+   * @returns {number} milliseconds remaining
+   */
+  window.getMillisUntilNextGame = function () {
+    var now = Date.now();
+    var todayMidnight = getTodayMidnightUTC();
+    var tomorrowMidnight = todayMidnight + 86400000; // +24 hours
+    return Math.max(0, tomorrowMidnight - now);
+  };
+
+  /**
+   * Format milliseconds into HH:MM:SS string.
+   * Used by: app.js → countdown display
+   * @param {number} ms - milliseconds
+   * @returns {string} "HH:MM:SS"
+   */
+  window.formatCountdown = function (ms) {
+    if (ms <= 0) return '00:00:00';
+
+    var totalSeconds = Math.floor(ms / 1000);
+    var hours = Math.floor(totalSeconds / 3600);
+    var minutes = Math.floor((totalSeconds % 3600) / 60);
+    var seconds = totalSeconds % 60;
+
+    return (
+      String(hours).padStart(2, '0') + ':' +
+      String(minutes).padStart(2, '0') + ':' +
+      String(seconds).padStart(2, '0')
+    );
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 3. DAILY COUNTRY PICKER (deterministic)
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Get the day number since game launch.
+   * Day #1 = LAUNCH_DATE (Jan 1, 2025)
+   *
+   * @returns {number} Day number (1-based)
+   *
+   * Used by: app.js → UIController.updateDayNumber()
+   */
+  window.getDayNumber = function () {
+    var todayMs = getTodayMidnightUTC();
+    var launchMs = LAUNCH_DATE.getTime();
+    var diffDays = Math.floor((todayMs - launchMs) / 86400000);
+    return diffDays + 1; // 1-based
+  };
+
+  /**
+   * Seeded pseudo-random number generator.
+   * Mulberry32 algorithm — deterministic, same seed = same sequence.
+   *
+   * @param {number} seed - Integer seed
+   * @returns {function} Generator function returning 0-1 float
+   */
+  function seededRandom(seed) {
+    return function () {
+      seed |= 0;
+      seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /**
+   * Fisher-Yates shuffle with seeded RNG.
+   * Creates a deterministic permutation of array indices.
+   *
+   * @param {number} length - Array length
+   * @param {number} seed - RNG seed
+   * @returns {Array} Shuffled array of indices [0..length-1]
+   */
+  function seededShuffle(length, seed) {
+    var rng = seededRandom(seed);
+    var indices = [];
+    var i, j, temp;
+
+    for (i = 0; i < length; i++) {
+      indices[i] = i;
     }
-  },
-  
-  set(key, value) {
+
+    for (i = length - 1; i > 0; i--) {
+      j = Math.floor(rng() * (i + 1));
+      temp = indices[i];
+      indices[i] = indices[j];
+      indices[j] = temp;
+    }
+
+    return indices;
+  }
+
+  /**
+   * Get today's mystery country using a seeded shuffle.
+   *
+   * Algorithm:
+   * 1. Use a fixed seed to create a shuffled order of all countries
+   * 2. dayNumber maps to a position in the shuffled array
+   * 3. Same day = same country worldwide
+   * 4. Countries cycle after all 197 are used, with different seed
+   *
+   * This ensures:
+   * - No repeat until all countries shown
+   * - Deterministic (same result for all users)
+   * - Not predictable by looking at data.js order
+   *
+   * @returns {object} Country object from window.COUNTRIES
+   *
+   * Used by: initState()
+   */
+  window.getTodayCountry = function () {
+    var countryCount = window.COUNTRIES.length;
+    var dayNum = window.getDayNumber();
+
+    // Which cycle are we in? (each cycle covers all countries)
+    var cycle = Math.floor((dayNum - 1) / countryCount);
+
+    // Position within current cycle
+    var position = (dayNum - 1) % countryCount;
+
+    // Seed changes each cycle so order is different
+    var seed = 20250101 + cycle;
+
+    // Get shuffled indices for this cycle
+    var shuffled = seededShuffle(countryCount, seed);
+
+    // Pick country at this position
+    var countryIndex = shuffled[position];
+
+    return window.COUNTRIES[countryIndex];
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 4. LOCALSTORAGE HELPERS
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Safely read from localStorage.
+   * @param {string} key
+   * @returns {*} Parsed value or null
+   */
+  function lsGet(key) {
+    try {
+      var data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.warn('[state.js] Error reading localStorage:', key, e);
+      return null;
+    }
+  }
+
+  /**
+   * Safely write to localStorage.
+   * @param {string} key
+   * @param {*} value - Will be JSON-stringified
+   */
+  function lsSet(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch (err) {
-      console.warn(`[DharaState] Storage.set failed for key "${key}":`, err);
-      return false;
+    } catch (e) {
+      console.warn('[state.js] Error writing localStorage:', key, e);
     }
-  },
-  
-  remove(key) {
+  }
+
+  /**
+   * Check if localStorage is available.
+   * @returns {boolean}
+   */
+  function lsAvailable() {
     try {
-      localStorage.removeItem(key);
+      var test = '__dmm_test__';
+      localStorage.setItem(test, '1');
+      localStorage.removeItem(test);
       return true;
-    } catch (err) {
-      return false;
-    }
-  },
-  
-  clear() {
-    try {
-      // Only clear dharaverse keys, not entire localStorage
-      Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
-      return true;
-    } catch (err) {
+    } catch (e) {
       return false;
     }
   }
-};
 
-// ═══════════════════════════════════════════
-// DAILY STATE MANAGEMENT
-// ═══════════════════════════════════════════
 
-/**
- * Initialize or load today's game state
- * Called once on page load by app.js
- * @returns {Object} Current game state
- */
-function initDailyState() {
-  const todayNum   = getTodayDayNumber();
-  const target     = getDailyCountry(todayNum);
-  const saved      = Storage.get(STORAGE_KEYS.DAILY_STATE);
-  
-  // Check if saved state is for TODAY
-  if (saved && saved.dayNumber === todayNum) {
-    // Resume today's game
-    console.log(`[DharaState] Resuming Day #${todayNum} — ${saved.status}`);
+  // ═══════════════════════════════════════════════
+  // 5. TODAY'S KEY
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Get the localStorage key for today's game progress.
+   *
+   * @returns {string} e.g. "dmm_progress_2025-01-15"
+   *
+   * Used by: loadTodayProgress(), saveTodayProgress()
+   */
+  window.getTodayKey = function () {
+    return LS_PREFIX + getTodayDateString();
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 6. SAVE / LOAD TODAY'S PROGRESS
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Load saved progress for today from localStorage.
+   *
+   * @returns {object|null} Saved state or null if no save exists
+   *
+   * Saved shape:
+   * {
+   *   date: "2025-01-15",
+   *   dayNumber: 15,
+   *   countryId: "india",
+   *   guesses: [ ...evaluateGuess results ],
+   *   gameStatus: "playing"|"won"|"lost",
+   *   startTime: timestamp,
+   *   endTime: timestamp|null
+   * }
+   */
+  window.loadTodayProgress = function () {
+    var key = window.getTodayKey();
+    var saved = lsGet(key);
+
+    if (!saved) return null;
+
+    // Verify it's actually for today
+    if (saved.date !== getTodayDateString()) {
+      return null;
+    }
+
+    // Verify the country hasn't changed (edge case: data update)
+    var todayCountry = window.getTodayCountry();
+    if (saved.countryId !== todayCountry.id) {
+      console.warn('[state.js] Saved country mismatch, resetting');
+      return null;
+    }
+
     return saved;
-  }
-  
-  // New day or first time — fresh state
-  const freshState = {
-    ...DEFAULT_DAILY_STATE,
-    dayNumber:    todayNum,
-    targetCode:   target.code,
-    startedAt:    new Date().toISOString(),
-    guesses:      [],
-    status:       'playing',
-    currentAttempt: 0,
   };
-  
-  Storage.set(STORAGE_KEYS.DAILY_STATE, freshState);
-  console.log(`[DharaState] New game — Day #${todayNum}, target: [hidden]`);
-  return freshState;
-}
 
-/**
- * Save current game state
- * @param {Object} state - Updated state object
- */
-function saveDailyState(state) {
-  Storage.set(STORAGE_KEYS.DAILY_STATE, state);
-}
+  /**
+   * Save current progress to localStorage.
+   *
+   * @returns {void}
+   *
+   * Called by: saveGuess(), handleGameEnd() in app.js
+   */
+  window.saveTodayProgress = function () {
+    var key = window.getTodayKey();
 
-/**
- * Get current game state (read-only)
- * @returns {Object} Game state
- */
-function getDailyState() {
-  return Storage.get(STORAGE_KEYS.DAILY_STATE, DEFAULT_DAILY_STATE);
-}
+    var saveData = {
+      date: getTodayDateString(),
+      dayNumber: window.GameState.dayNumber,
+      countryId: window.GameState.todayAnswer.id,
+      guesses: window.GameState.guesses,
+      gameStatus: window.GameState.gameStatus,
+      startTime: window.GameState.startTime,
+      endTime: window.GameState.endTime
+    };
 
-// ═══════════════════════════════════════════
-// GUESS RECORDING
-// ═══════════════════════════════════════════
+    lsSet(key, saveData);
+  };
 
-/**
- * Record a new guess to state
- * Called by app.js after evaluateGuess()
- * 
- * @param {Object} state       - Current game state
- * @param {Object} guessResult - Output of evaluateGuess() from logic.js
- * @returns {Object}           - Updated state
- */
-function recordGuess(state, guessResult) {
-  if (state.status !== 'playing') {
-    console.warn('[DharaState] Cannot record guess — game already over');
-    return state;
+
+  // ═══════════════════════════════════════════════
+  // 7. HAS PLAYED TODAY
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Check if the user has already completed today's game.
+   *
+   * @returns {boolean} true if game is won or lost
+   *
+   * Used by: app.js → init() to decide whether to restore
+   */
+  window.hasPlayedToday = function () {
+    var saved = window.loadTodayProgress();
+    if (!saved) return false;
+    return saved.gameStatus === 'won' || saved.gameStatus === 'lost';
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 8. SAVE A GUESS
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Store a guess result in GameState and persist to localStorage.
+   * Also updates gameStatus if the game is now won or lost.
+   *
+   * @param {object} evaluationResult - From evaluateGuess()
+   * @returns {void}
+   *
+   * Called by: app.js → handleGuessSubmit()
+   */
+  window.saveGuess = function (evaluationResult) {
+    if (!evaluationResult) return;
+
+    // Add to guesses array
+    window.GameState.guesses.push(evaluationResult);
+
+    // Check win condition
+    if (evaluationResult.isCorrect) {
+      window.GameState.gameStatus = 'won';
+      window.GameState.endTime = Date.now();
+    }
+    // Check lose condition
+    else if (window.GameState.guesses.length >= MAX_GUESSES) {
+      window.GameState.gameStatus = 'lost';
+      window.GameState.endTime = Date.now();
+    }
+
+    // Persist
+    window.saveTodayProgress();
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 9. ALL-TIME STATISTICS
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Default stats object shape.
+   * Stored in localStorage under "dmm_stats".
+   */
+  var DEFAULT_STATS = {
+    totalGames: 0,
+    totalWins: 0,
+    totalLosses: 0,
+    currentStreak: 0,
+    bestStreak: 0,
+    guessDistribution: {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0
+    },
+    averageGuesses: 0,
+    lastPlayedDate: null,
+    firstPlayedDate: null
+  };
+
+  /**
+   * Get all-time stats from localStorage.
+   *
+   * @returns {object} Stats object (merged with defaults)
+   *
+   * Used by: app.js, ui.js → sidebar stats
+   */
+  window.getStats = function () {
+    var saved = lsGet(LS_STATS);
+    if (!saved) return JSON.parse(JSON.stringify(DEFAULT_STATS));
+
+    // Merge with defaults to handle missing keys from old saves
+    var stats = JSON.parse(JSON.stringify(DEFAULT_STATS));
+    for (var key in saved) {
+      if (saved.hasOwnProperty(key)) {
+        if (key === 'guessDistribution' && typeof saved[key] === 'object') {
+          for (var g in saved[key]) {
+            if (saved[key].hasOwnProperty(g)) {
+              stats.guessDistribution[g] = saved[key][g];
+            }
+          }
+        } else {
+          stats[key] = saved[key];
+        }
+      }
+    }
+
+    return stats;
+  };
+
+  /**
+   * Save all-time stats to localStorage.
+   *
+   * @param {object} stats - Stats object
+   * @returns {void}
+   *
+   * Called by: app.js → handleGameEnd()
+   */
+  window.saveStats = function (stats) {
+    lsSet(LS_STATS, stats);
+  };
+
+  /**
+   * Update stats after a game ends.
+   *
+   * @param {boolean} won - Whether the player won
+   * @param {number} numGuesses - Number of guesses taken
+   * @returns {object} Updated stats
+   *
+   * Called by: app.js → handleGameEnd()
+   */
+  window.updateStats = function (won, numGuesses) {
+    var stats = window.getStats();
+    var today = getTodayDateString();
+
+    // Prevent double-counting same day
+    if (stats.lastPlayedDate === today) {
+      return stats;
+    }
+
+    stats.totalGames++;
+
+    if (won) {
+      stats.totalWins++;
+
+      // Update guess distribution
+      if (numGuesses >= 1 && numGuesses <= 6) {
+        stats.guessDistribution[numGuesses] =
+          (stats.guessDistribution[numGuesses] || 0) + 1;
+      }
+
+      // Recalculate average guesses
+      var totalGuesses = 0;
+      var totalWinsCount = 0;
+      for (var g = 1; g <= 6; g++) {
+        var count = stats.guessDistribution[g] || 0;
+        totalGuesses += g * count;
+        totalWinsCount += count;
+      }
+      stats.averageGuesses = totalWinsCount > 0
+        ? Math.round((totalGuesses / totalWinsCount) * 10) / 10
+        : 0;
+    } else {
+      stats.totalLosses++;
+    }
+
+    stats.lastPlayedDate = today;
+
+    if (!stats.firstPlayedDate) {
+      stats.firstPlayedDate = today;
+    }
+
+    window.saveStats(stats);
+    return stats;
+  };
+
+  /**
+   * Get win percentage.
+   *
+   * @returns {number} Percentage 0-100
+   */
+  window.getWinPercentage = function () {
+    var stats = window.getStats();
+    if (stats.totalGames === 0) return 0;
+    return Math.round((stats.totalWins / stats.totalGames) * 100);
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 10. USER PREFERENCES
+  // ═══════════════════════════════════════════════
+
+  /** Default preferences */
+  var DEFAULT_PREFS = {
+    language: 'en',
+    hasSeenTutorial: false,
+    soundEnabled: true,
+    theme: 'dark'
+  };
+
+  /**
+   * Get user preferences from localStorage.
+   *
+   * @returns {object} Preferences object
+   */
+  window.getPrefs = function () {
+    var saved = lsGet(LS_PREFS);
+    if (!saved) return JSON.parse(JSON.stringify(DEFAULT_PREFS));
+
+    // Merge with defaults
+    var prefs = JSON.parse(JSON.stringify(DEFAULT_PREFS));
+    for (var key in saved) {
+      if (saved.hasOwnProperty(key)) {
+        prefs[key] = saved[key];
+      }
+    }
+    return prefs;
+  };
+
+  /**
+   * Save user preferences.
+   *
+   * @param {object} prefs - Preferences object
+   * @returns {void}
+   */
+  window.savePrefs = function (prefs) {
+    lsSet(LS_PREFS, prefs);
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 11. INIT STATE (main entry point)
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Initialize the game state.
+   * Called ONCE by app.js → init() at startup.
+   *
+   * Flow:
+   * 1. Determine today's country
+   * 2. Check for saved progress
+   * 3. Restore or start fresh
+   *
+   * @returns {void}
+   *
+   * After calling:
+   * - GameState.todayAnswer is set
+   * - GameState.dayNumber is set
+   * - GameState.guesses may have restored data
+   * - GameState.gameStatus may be "won"/"lost" if already played
+   */
+  window.initState = function () {
+    // Check localStorage availability
+    if (!lsAvailable()) {
+      console.warn('[state.js] localStorage not available. Game will work but won\'t save.');
+    }
+
+    // Get today's date and country
+    var today = getTodayDateString();
+    var dayNumber = window.getDayNumber();
+    var todayCountry = window.getTodayCountry();
+
+    console.log('[state.js] Day #' + dayNumber + ' | Date: ' + today + ' | Country: [hidden]');
+
+    // Set base state
+    window.GameState.todayAnswer = todayCountry;
+    window.GameState.todayIndex = window.COUNTRIES.indexOf(todayCountry);
+    window.GameState.dayNumber = dayNumber;
+    window.GameState.todayDate = today;
+    window.GameState.maxGuesses = MAX_GUESSES;
+
+    // Try to restore saved progress
+    var saved = window.loadTodayProgress();
+
+    if (saved) {
+      // Restore saved game
+      window.GameState.guesses = saved.guesses || [];
+      window.GameState.gameStatus = saved.gameStatus || 'playing';
+      window.GameState.startTime = saved.startTime || Date.now();
+      window.GameState.endTime = saved.endTime || null;
+
+      console.log('[state.js] Restored saved game: ' +
+        window.GameState.guesses.length + ' guesses, status: ' +
+        window.GameState.gameStatus);
+    } else {
+      // Fresh game
+      window.GameState.guesses = [];
+      window.GameState.gameStatus = 'playing';
+      window.GameState.startTime = Date.now();
+      window.GameState.endTime = null;
+
+      // Save initial state
+      window.saveTodayProgress();
+
+      console.log('[state.js] New game started');
+    }
+
+    // Clean up old progress entries (keep last 30 days)
+    cleanupOldProgress();
+  };
+
+
+  // ═══════════════════════════════════════════════
+  // 12. CLEANUP OLD SAVES
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Remove localStorage entries older than 30 days.
+   * Prevents localStorage bloat over time.
+   * Runs silently during init.
+   */
+  function cleanupOldProgress() {
+    try {
+      var keysToRemove = [];
+      var today = new Date();
+      var cutoff = new Date(today.getTime() - 30 * 86400000);
+
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && key.startsWith(LS_PREFIX)) {
+          var dateStr = key.replace(LS_PREFIX, '');
+          var keyDate = new Date(dateStr + 'T00:00:00Z');
+
+          if (!isNaN(keyDate.getTime()) && keyDate < cutoff) {
+            keysToRemove.push(key);
+          }
+        }
+      }
+
+      for (var j = 0; j < keysToRemove.length; j++) {
+        localStorage.removeItem(keysToRemove[j]);
+      }
+
+      if (keysToRemove.length > 0) {
+        console.log('[state.js] Cleaned up ' + keysToRemove.length + ' old saves');
+      }
+    } catch (e) {
+      // Silently fail — cleanup is non-critical
+    }
   }
-  
-  const updatedState = { ...state };
-  
-  // Add guess result to history
-  // Store serializable version (no circular refs)
-  updatedState.guesses = [...state.guesses, {
-    guessCode:    guessResult.guess.code,
-    guessName:    guessResult.guess.name,
-    guessFlag:    guessResult.guess.flag,
-    isCorrect:    guessResult.isCorrect,
-    km:           guessResult.distance.km,
-    formatted:    guessResult.distance.formatted,
-    distanceTone: guessResult.distance.tier.tone,
-    dirEmoji:     guessResult.direction.emoji,
-    dirLabel:     guessResult.direction.label,
-    dirDegrees:   guessResult.direction.degrees,
-    continentMatch: guessResult.continent.match,
-    continentEmoji: guessResult.continent.emoji,
-    continentLabel: guessResult.continent.label,
-    continentTile:  guessResult.continent.tile,
-    sizeLabel:    guessResult.size.label,
-    sizeEmoji:    guessResult.size.emoji,
-    sizeDesc:     guessResult.size.description,
-    popDesc:      guessResult.population.description,
-    message:      guessResult.message,
-    tileColor:    guessResult.tileColor,
-    timestamp:    new Date().toISOString()
-  }];
-  
-  updatedState.currentAttempt = updatedState.guesses.length;
-  
-  // Check win/lose
-  if (guessResult.isCorrect) {
-    updatedState.status         = 'won';
-    updatedState.finishedAt     = new Date().toISOString();
-    updatedState.revealedTarget = true;
-  } else if (updatedState.currentAttempt >= 6) {
-    updatedState.status         = 'lost';
-    updatedState.finishedAt     = new Date().toISOString();
-    updatedState.revealedTarget = true;
-  }
-  
-  saveDailyState(updatedState);
-  return updatedState;
-}
 
-// ═══════════════════════════════════════════
-// STATS MANAGEMENT
-// ═══════════════════════════════════════════
 
-/**
- * Get all-time statistics
- * @returns {Object} Stats object
- */
-function getStats() {
-  return { ...DEFAULT_STATS, ...Storage.get(STORAGE_KEYS.STATS, {}) };
-}
+  // ═══════════════════════════════════════════════
+  // 13. HELPER: Get remaining guesses
+  // ═══════════════════════════════════════════════
 
-/**
- * Update stats after game ends
- * Called by app.js when status changes to won/lost
- * @param {Object} state - Final game state
- */
-function updateStats(state) {
-  const stats = getStats();
-  
-  stats.totalPlayed++;
-  stats.lastPlayed = new Date().toISOString();
-  
-  if (state.status === 'won') {
-    stats.totalWon++;
-    const attempts = state.currentAttempt;
-    
-    // Update distribution
-    stats.distribution[attempts] = (stats.distribution[attempts] || 0) + 1;
-    
-    // Update average
-    stats.avgAttempts = (
-      (stats.avgAttempts * (stats.totalWon - 1) + attempts) / stats.totalWon
+  /**
+   * Get the number of guesses remaining.
+   *
+   * @returns {number} 0-6
+   *
+   * Used by: ui.js → updateAttemptsRemaining()
+   */
+  window.getRemainingGuesses = function () {
+    return Math.max(0, MAX_GUESSES - window.GameState.guesses.length);
+  };
+
+  /**
+   * Check if the game is still in progress.
+   *
+   * @returns {boolean}
+   *
+   * Used by: app.js → input validation
+   */
+  window.isGameActive = function () {
+    return window.GameState.gameStatus === 'playing';
+  };
+
+  /**
+   * Get the time taken to complete the game (in seconds).
+   *
+   * @returns {number|null} Seconds, or null if game not finished
+   */
+  window.getTimeTaken = function () {
+    if (!window.GameState.endTime || !window.GameState.startTime) {
+      return null;
+    }
+    return Math.round(
+      (window.GameState.endTime - window.GameState.startTime) / 1000
     );
-    
-    // Update best
-    if (attempts < stats.bestAttempt || stats.bestAttempt === 6) {
-      stats.bestAttempt = attempts;
-    }
-    
-    // Update high score
-    if (state.score > stats.highScore) {
-      stats.highScore = state.score;
-    }
-  } else {
-    stats.totalLost++;
-  }
-  
-  stats.winRate = Math.round((stats.totalWon / stats.totalPlayed) * 100);
-  
-  Storage.set(STORAGE_KEYS.STATS, stats);
-  
-  // Track played days
-  const playedDays = Storage.get(STORAGE_KEYS.PLAYED_DAYS, []);
-  if (!playedDays.includes(state.dayNumber)) {
-    playedDays.push(state.dayNumber);
-    Storage.set(STORAGE_KEYS.PLAYED_DAYS, playedDays);
-  }
-  
-  return stats;
-}
-
-// ═══════════════════════════════════════════
-// SETTINGS MANAGEMENT
-// ═══════════════════════════════════════════
-
-/**
- * Get user settings
- * @returns {Object}
- */
-function getSettings() {
-  return { ...DEFAULT_SETTINGS, ...Storage.get(STORAGE_KEYS.SETTINGS, {}) };
-}
-
-/**
- * Update a single setting
- * @param {string} key   - Setting key
- * @param {*}      value - New value
- */
-function updateSetting(key, value) {
-  const settings = getSettings();
-  settings[key] = value;
-  Storage.set(STORAGE_KEYS.SETTINGS, settings);
-  return settings;
-}
-
-// ═══════════════════════════════════════════
-// DAILY FACT (from Supabase/API)
-// ═══════════════════════════════════════════
-
-/**
- * Cache today's daily fact locally
- * @param {Object} fact - {country_code, headline, joke, source}
- */
-function cacheDailyFact(fact) {
-  const cached = {
-    ...fact,
-    dayNumber:  getTodayDayNumber(),
-    cachedAt:   new Date().toISOString()
   };
-  Storage.set(STORAGE_KEYS.DAILY_FACT, cached);
-}
 
-/**
- * Get cached daily fact (if today's)
- * @returns {Object|null}
- */
-function getCachedDailyFact() {
-  const cached = Storage.get(STORAGE_KEYS.DAILY_FACT);
-  if (!cached) return null;
-  if (cached.dayNumber !== getTodayDayNumber()) return null;
-  return cached;
-}
 
-// ═══════════════════════════════════════════
-// TARGET COUNTRY ACCESSOR
-// ═══════════════════════════════════════════
+  // Log initialization
+  console.log('[state.js] State manager loaded');
 
-/**
- * Get today's target country object
- * IMPORTANT: Only call after game is over (won/lost)
- * During game, this is intentionally hidden from UI
- * @returns {Object} Country from data.js
- */
-function getTodayTarget() {
-  const todayNum = getTodayDayNumber();
-  return getDailyCountry(todayNum);
-}
-
-/**
- * Get target country code (used for comparison in app.js)
- * @returns {string} ISO 2-letter code
- */
-function getTodayTargetCode() {
-  return getTodayTarget().code;
-}
-
-// ═══════════════════════════════════════════
-// UTILITY: GUESS HISTORY FORMATTING
-// ═══════════════════════════════════════════
-
-/**
- * Get all guesses from current state, enriched with Country objects
- * @param {Object} state - Current game state
- * @returns {Array} Array of enriched guess objects
- */
-function getEnrichedGuesses(state) {
-  const { COUNTRIES } = window.DharaData;
-  return state.guesses.map((g, index) => ({
-    ...g,
-    number:       index + 1,
-    countryObj:   COUNTRIES.find(c => c.code === g.guessCode) || null
-  }));
-}
-
-/**
- * Check if player has already played today
- * @returns {boolean}
- */
-function hasPlayedToday() {
-  const state = getDailyState();
-  if (!state || !state.dayNumber) return false;
-  return state.dayNumber === getTodayDayNumber() && 
-         state.status !== 'playing';
-}
-
-/**
- * Check if game is still in progress today
- * @returns {boolean}
- */
-function isGameInProgress() {
-  const state = getDailyState();
-  if (!state) return false;
-  return state.dayNumber === getTodayDayNumber() && 
-         state.status === 'playing';
-}
-
-// ═══════════════════════════════════════════
-// DEBUG HELPERS (development only)
-// ═══════════════════════════════════════════
-
-/**
- * Reset today's game (for testing)
- * Remove in production or guard with flag
- */
-function debugResetToday() {
-  Storage.remove(STORAGE_KEYS.DAILY_STATE);
-  console.log('[DharaState] ⚠️ Daily state reset for debugging');
-}
-
-/**
- * Reveal today's target in console (dev only)
- */
-function debugRevealTarget() {
-  const target = getTodayTarget();
-  console.log('[DharaState] 🎯 Today\'s target:', target.name, target.flag);
-  return target;
-}
-
-// ═══════════════════════════════════════════
-// EXPORTS
-// ═══════════════════════════════════════════
-
-// Names used by other files:
-// - app.js:    initDailyState, recordGuess, updateStats, 
-//              getDailyState, getTodayTarget, getTodayTargetCode,
-//              hasPlayedToday, getEnrichedGuesses
-// - ui.js:     getDailyState, getStats, getSettings, hasPlayedToday
-// - share.js:  getDailyState, getStats, getTodayTarget,
-//              getTodayDayNumber
-// - streak.js: getDailyState, getStats, updateStats,
-//              hasPlayedToday
-
-window.DharaState = {
-  // Storage keys (for streak.js reference)
-  STORAGE_KEYS,
-  Storage,
-  
-  // Daily state
-  initDailyState,
-  getDailyState,
-  saveDailyState,
-  recordGuess,
-  
-  // Target
-  getTodayTarget,
-  getTodayTargetCode,
-  
-  // Guesses
-  getEnrichedGuesses,
-  
-  // Stats
-  getStats,
-  updateStats,
-  
-  // Settings
-  getSettings,
-  updateSetting,
-  
-  // Daily fact cache
-  cacheDailyFact,
-  getCachedDailyFact,
-  
-  // Status checks
-  hasPlayedToday,
-  isGameInProgress,
-  
-  // Debug (remove in prod)
-  debugResetToday,
-  debugRevealTarget
-};
-
-console.log('[DharaState] State manager loaded ✓');
+})();
