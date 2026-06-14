@@ -188,18 +188,19 @@ window.DharaCore = (function() {
         var low = input.toLowerCase().trim();
 
         // ── QUIZ ANSWER CHECK ──
-        if (activeQuiz) {
-            var q = activeQuiz;
-            activeQuiz = null;
-            if (low.indexOf(q.a) !== -1) {
-                window.DharaCharacter.setPose('idle');
-                callback("Correct. You might actually know something.");
-                return;
-            } else {
-                callback("Wrong. It was " + q.a + ". Remember that.");
-                return;
-            }
-        }
+       
+    var q = activeQuiz;
+    activeQuiz = null;  // Clear AFTER checking
+    var userAnswer = low.replace(/[^a-z0-9\s]/g, '').trim();
+    var correctAnswer = q.a.toLowerCase().trim();
+    
+    if (userAnswer.indexOf(correctAnswer) !== -1 || correctAnswer.indexOf(userAnswer) !== -1) {
+        callback("Correct. You might actually know something.");
+    } else {
+        callback("Wrong. The answer was " + q.a + ". Remember that.");
+    }
+    return;  // STOP HERE - don't continue to other responses
+}
 
         // ── GREETINGS ──
         if (/^(hi|hello|hey|morning|namaste)/i.test(low)) {
@@ -418,22 +419,29 @@ window.DharaCore = (function() {
             sayAndShow(greet, 6000);
         }, 2500);
 
-        // Idle loop (every 40 seconds)
-        setInterval(function() {
-            if (isSpeaking || isProcessing) return;
-            if (window.DharaCharacter.isMoving()) return;
-            if (document.querySelector('.dhara-menu.show')) return;
-            if (document.querySelector('.dhara-chat-bar.show')) return;
-            if (window.DharaActions.isFullscreen()) return;
-
-            if (Math.random() > 0.4) {
-                window.DharaCharacter.randomWalk();
-            } else {
-                var msg = pick(idleMessages);
-                sayAndShow(msg);
-            }
-        }, 40000);
+        // Idle loop (every 60 seconds, only when truly idle)
+setInterval(function() {
+    // DON'T interrupt if:
+    if (isSpeaking) return;                                    // She's talking
+    if (isProcessing) return;                                  // Processing a question
+    if (window.DharaCharacter.isMoving()) return;              // She's walking
+    if (document.querySelector('.dhara-menu.show')) return;    // Menu is open
+    if (document.querySelector('.dhara-chat-bar.show')) return; // Chat is open
+    if (window.DharaActions.isFullscreen()) return;            // Fullscreen mode
+    if (activeQuiz) return;                                    // Quiz is active - WAITING FOR ANSWER
+    
+    // Check if user is typing
+    var chatInput = document.getElementById('dharaChatInput');
+    if (chatInput && document.activeElement === chatInput) return; // User is typing
+    
+    // Only 30% chance to say something (less intrusive)
+    if (Math.random() > 0.3) {
+        window.DharaCharacter.randomWalk();
+    } else {
+        var msg = pick(idleMessages);
+        sayAndShow(msg);
     }
+}, 60000); // Changed to 60 seconds (was 40)
 
     // ───────────────────────────────────────
     // PUBLIC API
