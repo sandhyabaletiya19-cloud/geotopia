@@ -1,13 +1,9 @@
 // /dhara/dhara-actions.js
-// ═══════════════════════════════════════════════════════
-// DHARA ACTIONS - Clicks, swipes, drag, fullscreen, fox
-// ═══════════════════════════════════════════════════════
-
 window.DharaActions = (function() {
 
     var isFullscreenMode = false;
     var isDragging = false;
-    var dragStartX, dragStartY, dragOffsetX, dragOffsetY;
+    var dragOffsetX, dragOffsetY;
     var swipeStartX, swipeStartY, swipeStartTime;
 
     // ───────────────────────────────────────
@@ -19,12 +15,8 @@ window.DharaActions = (function() {
         if (!dhara || !body) return;
 
         function startDrag(e) {
-            isDragging = true;
-            dhara.classList.add('dragging');
-
+            isDragging = false; // reset
             var touch = e.touches ? e.touches[0] : e;
-            dragStartX = touch.clientX;
-            dragStartY = touch.clientY;
 
             var rect = dhara.getBoundingClientRect();
             dragOffsetX = touch.clientX - rect.left;
@@ -34,6 +26,8 @@ window.DharaActions = (function() {
             swipeStartY = touch.clientY;
             swipeStartTime = Date.now();
 
+            isDragging = true;
+            dhara.classList.add('dragging');
             e.preventDefault();
         }
 
@@ -44,12 +38,14 @@ window.DharaActions = (function() {
             var newX = touch.clientX - dragOffsetX;
             var newY = touch.clientY - dragOffsetY;
 
-            newX = Math.max(0, Math.min(newX, window.innerWidth - dhara.offsetWidth));
-            newY = Math.max(0, Math.min(newY, window.innerHeight - dhara.offsetHeight));
+            // Keep her ALWAYS visible on screen
+            newX = Math.max(10, Math.min(newX, window.innerWidth - 160));
+            newY = Math.max(10, Math.min(newY, window.innerHeight - 230));
 
             dhara.style.left = newX + 'px';
             dhara.style.top = newY + 'px';
             dhara.style.bottom = 'auto';
+            dhara.style.right = 'auto';
 
             e.preventDefault();
         }
@@ -63,8 +59,10 @@ window.DharaActions = (function() {
             var deltaX = touch.clientX - swipeStartX;
             var deltaY = touch.clientY - swipeStartY;
             var deltaTime = Date.now() - swipeStartTime;
+            var totalMove = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-            if (deltaTime < 400 && (Math.abs(deltaX) > 100 || Math.abs(deltaY) > 100)) {
+            // Only handle as swipe if fast AND short distance (not a drag)
+            if (deltaTime < 400 && totalMove > 80 && totalMove < 300) {
                 handleSwipe(deltaX, deltaY);
             }
         }
@@ -79,24 +77,37 @@ window.DharaActions = (function() {
         document.addEventListener('touchend', endDrag);
     }
 
+    // ───────────────────────────────────────
+    // SWIPE HANDLER
+    // ───────────────────────────────────────
     function handleSwipe(dx, dy) {
         var absX = Math.abs(dx);
         var absY = Math.abs(dy);
 
         if (absX > absY) {
+            // Horizontal swipe
             if (dx > 0) {
-                window.DharaCore.sayAndShow("Interesting. You swiped me right.");
+                // Right swipe
+                window.DharaCore.sayAndShow("Interesting.");
             } else {
-                window.DharaCore.sayAndShow("Fine. Moving.");
-                window.DharaCharacter.walkTo(50);
+                // Left swipe — move left a bit but STAY visible
+                var currentX = window.DharaCharacter.getPosition().x || (window.innerWidth - 200);
+                var newX = Math.max(50, currentX - 150);
+                window.DharaCharacter.walkTo(newX);
             }
         } else {
+            // Vertical swipe
             if (dy < 0) {
+                // Up swipe
                 window.DharaCore.sayAndShow("Noted.");
                 window.DharaCharacter.setPose('idle');
             } else {
+                // Down swipe — sit
                 window.DharaCharacter.setPose('sitting');
                 window.DharaCore.sayAndShow("Sitting. Not because you asked.");
+                setTimeout(function() {
+                    window.DharaCharacter.setPose('idle');
+                }, 3000);
             }
         }
     }
@@ -131,6 +142,15 @@ window.DharaActions = (function() {
         if (exitBtn) exitBtn.classList.remove('visible');
         window.DharaCharacter.setSize('small');
         window.DharaCharacter.setPose('idle');
+
+        // Restore position
+        var dhara = document.getElementById('dhara-living');
+        if (dhara) {
+            dhara.style.left = (window.innerWidth - 200) + 'px';
+            dhara.style.bottom = '20px';
+            dhara.style.top = 'auto';
+            dhara.style.right = 'auto';
+        }
     }
 
     function shrink() {
@@ -144,13 +164,14 @@ window.DharaActions = (function() {
     }
 
     // ───────────────────────────────────────
-    // RUN AWAY AS FOX (Calm exit)
+    // RUN AWAY AS FOX
+    // ONLY triggers from X button or voice command
     // ───────────────────────────────────────
     function runAwayAsFox() {
         var dhara = document.getElementById('dhara-living');
         var img = document.getElementById('dharaImage');
         var body = document.getElementById('dharaBody');
-        if (!dhara || !img) return;
+        if (!dhara || !img || !body) return;
 
         window.DharaCore.sayAndShow("Fine. You know where to find me.");
 
@@ -159,22 +180,34 @@ window.DharaActions = (function() {
             img.src = window.DHARA_CONFIG.images.fox;
             body.className = 'dhara-body running-fox';
 
-            dhara.style.transition = 'all 2.5s ease-in-out';
+            dhara.style.transition = 'left 2.5s ease-in-out';
             dhara.style.left = '-200px';
-            dhara.style.bottom = '0';
+            dhara.style.bottom = '20px';
             dhara.style.top = 'auto';
 
             setTimeout(function() {
+                // Hide her
                 dhara.style.display = 'none';
+
+                // Show the fox button
                 var showBtn = document.getElementById('dharaShowBtn');
                 if (showBtn) showBtn.classList.add('visible');
 
+                // Reset everything silently
                 setTimeout(function() {
                     img.src = window.DHARA_CONFIG.images.idle;
+                    body.className = 'dhara-body idle facing-right';
                     window.DharaCharacter.setSize('small');
-                    window.DharaCharacter.setPose('idle');
+
+                    // Reset position to right side
+                    dhara.style.transition = 'none';
+                    dhara.style.left = (window.innerWidth - 200) + 'px';
+                    dhara.style.bottom = '20px';
+                    dhara.style.top = 'auto';
+                    dhara.style.right = 'auto';
                 }, 500);
-            }, 2500);
+
+            }, 2600);
         }, 2000);
     }
 
@@ -183,7 +216,7 @@ window.DharaActions = (function() {
     // ───────────────────────────────────────
     function comeHere() {
         window.DharaCore.sayAndShow("Coming.");
-        var centerX = (window.innerWidth / 2) - 70;
+        var centerX = Math.floor(window.innerWidth / 2) - 70;
         window.DharaCharacter.walkTo(centerX);
     }
 
@@ -213,7 +246,7 @@ window.DharaActions = (function() {
     }
 
     // ───────────────────────────────────────
-    // HOVER REACTIONS (Sharp, not excited)
+    // HOVER REACTIONS
     // ───────────────────────────────────────
     function detectElementType(element) {
         var text = (element.textContent || '').toLowerCase().trim();
@@ -221,16 +254,18 @@ window.DharaActions = (function() {
         var id = (element.id || '').toLowerCase();
         var combined = text + ' ' + classes + ' ' + id;
 
-        for (var country in window.DharaKnowledge.COUNTRIES) {
-            if (combined.indexOf(country) !== -1) {
-                return { type: 'country', country: country };
+        if (window.DharaKnowledge) {
+            for (var country in window.DharaKnowledge.COUNTRIES) {
+                if (combined.indexOf(country) !== -1) {
+                    return { type: 'country', country: country };
+                }
             }
         }
 
-        if (/quiz|test|trivia/i.test(combined)) return { type: 'quiz' };
-        if (/map|globe|earth|world/i.test(combined)) return { type: 'map' };
-        if (/premium|pro|upgrade|subscribe/i.test(combined)) return { type: 'premium' };
-        if (/login|sign in|signup|register/i.test(combined)) return { type: 'login' };
+        if (/quiz|test|trivia/.test(combined)) return { type: 'quiz' };
+        if (/map|globe|earth|world/.test(combined)) return { type: 'map' };
+        if (/premium|pro|upgrade|subscribe/.test(combined)) return { type: 'premium' };
+        if (/login|sign in|signup|register/.test(combined)) return { type: 'login' };
 
         var tag = element.tagName.toLowerCase();
         if (tag === 'h1') return { type: 'heading' };
@@ -240,13 +275,13 @@ window.DharaActions = (function() {
     }
 
     function reactToElement(element) {
-        if (window.DharaCharacter.isMoving() || window.DharaCore.isSpeaking()) return;
+        if (!window.DharaCharacter || !window.DharaCore) return;
+        if (window.DharaCharacter.isMoving()) return;
+        if (window.DharaCore.isSpeaking()) return;
         if (isFullscreenMode) return;
 
         var detected = detectElementType(element);
         if (!detected) return;
-
-        var pick = window.DharaCore.pick;
 
         var reactions = {
             country: function() {
@@ -259,7 +294,7 @@ window.DharaActions = (function() {
             },
             quiz: function() {
                 window.DharaCharacter.walkToElement(element, function() {
-                    window.DharaCore.sayAndShow("A quiz. Let's see if you actually know anything.");
+                    window.DharaCore.sayAndShow("A quiz. Let us see what you actually know.");
                     window.DharaCharacter.leaveAfter(element, 5000);
                 });
             },
@@ -275,6 +310,12 @@ window.DharaActions = (function() {
                     window.DharaCharacter.leaveAfter(element, 5000);
                 });
             },
+            login: function() {
+                window.DharaCharacter.walkToElement(element, function() {
+                    window.DharaCore.sayAndShow("Sign in. I remember returning users.");
+                    window.DharaCharacter.leaveAfter(element, 5000);
+                });
+            },
             heading: function() {
                 window.DharaCharacter.walkToElement(element, function() {
                     window.DharaCore.sayAndShow("Noted.");
@@ -283,7 +324,7 @@ window.DharaActions = (function() {
             },
             button: function() {
                 window.DharaCharacter.walkToElement(element, function() {
-                    window.DharaCore.sayAndShow(pick([
+                    window.DharaCore.sayAndShow(window.DharaCore.pick([
                         "That exists for a reason.",
                         "Worth exploring."
                     ]));
@@ -332,14 +373,17 @@ window.DharaActions = (function() {
                 window.DharaCharacter.setPose('poked');
                 window.DharaCore.sayAndShow(window.DharaCore.pick([
                     "What?",
-                    "I'm listening.",
+                    "I am listening.",
                     "Go ahead. Ask.",
                     "You have my attention."
                 ]));
-                setTimeout(function() { window.DharaCharacter.setPose('idle'); }, 600);
+                setTimeout(function() {
+                    window.DharaCharacter.setPose('idle');
+                }, 800);
             });
         }
 
+        // X button — ONLY way to trigger fox exit
         var hideBtn = document.getElementById('dharaHideBtn');
         if (hideBtn) {
             hideBtn.addEventListener('click', function(e) {
@@ -348,14 +392,17 @@ window.DharaActions = (function() {
             });
         }
 
+        // Show button (fox icon) — bring her back
         var showBtn = document.getElementById('dharaShowBtn');
         if (showBtn) {
             showBtn.addEventListener('click', function() {
                 var dhara = document.getElementById('dhara-living');
-                if (dhara) dhara.style.display = 'block';
+                if (dhara) {
+                    dhara.style.display = 'block';
+                }
                 showBtn.classList.remove('visible');
                 window.DharaCharacter.setPose('idle');
-                window.DharaCore.sayAndShow("I'm back. What do you need?");
+                window.DharaCore.sayAndShow("I am back. What do you need?");
             });
         }
 
@@ -364,6 +411,7 @@ window.DharaActions = (function() {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 var action = btn.dataset.dharaAction;
+                var menu = document.getElementById('dharaMenu');
 
                 if (action === 'chat') {
                     var chatBar = document.getElementById('dharaChatBar');
@@ -372,24 +420,26 @@ window.DharaActions = (function() {
                         var input = document.getElementById('dharaChatInput');
                         if (input) input.focus();
                     }, 300);
-                    var menu = document.getElementById('dharaMenu');
                     if (menu) menu.classList.remove('show');
                 }
                 else if (action === 'mic') {
-                    window.DharaCore.startListening();
-                    var menu2 = document.getElementById('dharaMenu');
-                    if (menu2) menu2.classList.remove('show');
+                    if (window.DharaCore) window.DharaCore.startListening();
+                    if (menu) menu.classList.remove('show');
                 }
                 else if (action === 'quiz') {
-                    var quizList = window.DharaKnowledge.QUIZ;
-                    var q = quizList[Math.floor(Math.random() * quizList.length)];
-                    window.DharaCore.setActiveQuiz(q);
-                    window.DharaCore.sayAndShow("Let's test you. " + q.q);
-                    var chatBar2 = document.getElementById('dharaChatBar');
-                    if (chatBar2) chatBar2.classList.add('show');
+                    if (window.DharaKnowledge) {
+                        var quizList = window.DharaKnowledge.QUIZ;
+                        var q = quizList[Math.floor(Math.random() * quizList.length)];
+                        window.DharaCore.setActiveQuiz(q);
+                        window.DharaCore.sayAndShow("Let us test you. " + q.q, 8000);
+                        var chatBar2 = document.getElementById('dharaChatBar');
+                        if (chatBar2) chatBar2.classList.add('show');
+                        if (menu) menu.classList.remove('show');
+                    }
                 }
                 else if (action === 'fullscreen') {
                     fullscreen();
+                    if (menu) menu.classList.remove('show');
                 }
             });
         });
@@ -397,31 +447,34 @@ window.DharaActions = (function() {
         // Exit fullscreen
         var exitFS = document.getElementById('dharaExitFullscreen');
         if (exitFS) exitFS.addEventListener('click', exitFullscreen);
+
         var overlay = document.getElementById('dharaFullscreenOverlay');
         if (overlay) overlay.addEventListener('click', exitFullscreen);
 
-        // Chat send
+        // Chat send button
         var sendBtn = document.getElementById('dharaSendBtn');
         if (sendBtn) {
             sendBtn.addEventListener('click', function() {
                 var input = document.getElementById('dharaChatInput');
                 if (input && input.value.trim()) {
-                    window.DharaCore.handleInput(input.value);
+                    window.DharaCore.handleInput(input.value.trim());
                     input.value = '';
                 }
             });
         }
 
+        // Chat enter key
         var chatInput = document.getElementById('dharaChatInput');
         if (chatInput) {
             chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && e.target.value.trim()) {
-                    window.DharaCore.handleInput(e.target.value);
+                    window.DharaCore.handleInput(e.target.value.trim());
                     e.target.value = '';
                 }
             });
         }
 
+        // Close chat
         var closeChat = document.getElementById('dharaCloseChatBtn');
         if (closeChat) {
             closeChat.addEventListener('click', function() {
@@ -444,9 +497,15 @@ window.DharaActions = (function() {
     // ───────────────────────────────────────
     function setupGlobalAPI() {
         window.Dhara = {
-            say: function(text) { window.DharaCore.sayAndShow(text); },
-            ask: function(text) { window.DharaCore.handleInput(text); },
-            walkTo: function(x) { window.DharaCharacter.walkTo(x); },
+            say: function(text) {
+                window.DharaCore.sayAndShow(text);
+            },
+            ask: function(text) {
+                window.DharaCore.handleInput(text);
+            },
+            walkTo: function(x) {
+                window.DharaCharacter.walkTo(x);
+            },
             comeHere: comeHere,
             fullscreen: fullscreen,
             exitFullscreen: exitFullscreen,
@@ -481,9 +540,13 @@ window.DharaActions = (function() {
         attachHoverListeners();
         setupGlobalAPI();
 
+        // Rescan for new elements every 5 seconds
         setInterval(attachHoverListeners, 5000);
     }
 
+    // ───────────────────────────────────────
+    // PUBLIC API
+    // ───────────────────────────────────────
     return {
         init: init,
         fullscreen: fullscreen,
