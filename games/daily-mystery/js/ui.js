@@ -546,6 +546,9 @@ initMap: function () {
 
         // Add won class to body
         document.body.classList.add('game-won');
+         // Allow scrolling after game over
+document.body.style.overflow = '';
+document.body.style.overflowY = 'auto';
 
       } else {
         // Show lose panel
