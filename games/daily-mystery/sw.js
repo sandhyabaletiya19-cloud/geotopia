@@ -3,7 +3,7 @@
    File: /games/daily-mystery/sw.js
    ═══════════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'dmm-v1';
+var CACHE_NAME = 'dmm-v2';
 
 var ASSETS_TO_CACHE = [
   '/games/daily-mystery/',
