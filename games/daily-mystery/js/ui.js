@@ -88,55 +88,68 @@
 
 
     // ═══════════════════════════════════════════
-    // 1. MAP INIT
-    // ID: #game-map
-    // Called by: app.js → init()
-    // ═══════════════════════════════════════════
-    initMap: function () {
-      var mapEl = el('game-map');
-      if (!mapEl) {
-        console.error('[ui.js] #game-map not found');
-        return;
-      }
+// 1. MAP INIT
+// ID: #game-map
+// Called by: app.js → init()
+// ═══════════════════════════════════════════
+initMap: function () {
+  var mapEl = el('game-map');
+  if (!mapEl) {
+    console.error('[ui.js] #game-map not found');
+    return;
+  }
 
-      // Create Leaflet map
-      this.map = L.map('game-map', {
-        center: [20, 0],
-        zoom: 2,
-        minZoom: 1,
-        maxZoom: 8,
-        zoomControl: true,
-        attributionControl: true,
-        worldCopyJump: false,
-        // Mobile optimizations
-        tap: true,
-        tapTolerance: 15,
-        touchZoom: true,
-        bounceAtZoomLimits: false,
-        // Disable double-click zoom (conflicts with mobile)
-        doubleClickZoom: false
-      });
+  // Safety check — Leaflet must be loaded
+  if (typeof L === 'undefined') {
+    console.error('[ui.js] Leaflet not loaded! Check CDN link.');
+    mapEl.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;' +
+      'height:100%;color:#A0ADB8;font-family:Inter,sans-serif;font-size:14px;' +
+      'flex-direction:column;gap:8px;">' +
+      '<span style="font-size:32px">🗺️</span>' +
+      '<span>Map loading failed</span>' +
+      '<span style="font-size:12px;opacity:0.6">Check internet connection</span>' +
+      '</div>';
+    return;
+  }
 
-      // Dark tile layer
-      L.tileLayer(TILE_URL, {
-        attribution: TILE_ATTR,
-        subdomains: 'abcd',
-        maxZoom: 19,
-        crossOrigin: true
-      }).addTo(this.map);
+  // Create Leaflet map
+  this.map = L.map('game-map', {
+    center: [20, 0],
+    zoom: 2,
+    minZoom: 1,
+    maxZoom: 8,
+    zoomControl: true,
+    attributionControl: true,
+    worldCopyJump: false,
+    tap: true,
+    tapTolerance: 15,
+    touchZoom: true,
+    bounceAtZoomLimits: false,
+    doubleClickZoom: false
+  });
 
-      // Move zoom control to bottom-right on mobile
-      this.map.zoomControl.setPosition('bottomright');
+  // Dark tile layer
+  L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }
+  ).addTo(this.map);
 
-      // Fix map size after CSS renders
-      var self = this;
-      setTimeout(function () {
-        if (self.map) self.map.invalidateSize();
-      }, 100);
+  // Zoom control position
+  this.map.zoomControl.setPosition('bottomright');
 
-      console.log('[ui.js] Map initialized');
-    },
+  // Fix map size after CSS renders
+  var self = this;
+  setTimeout(function () {
+    if (self.map) self.map.invalidateSize();
+  }, 100);
 
+  console.log('[ui.js] Map initialized');
+},
 
     // ═══════════════════════════════════════════
     // 2. ADD GUESS MARKER
