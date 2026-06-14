@@ -488,55 +488,190 @@
     }
   }
 
+// ═══════════════════════════════════════════════
+// SAFE HINT GENERATOR
+// Creates hints that NEVER reveal the country name
+// Uses country properties (continent, size, neighbors, etc.)
+// Pool of 100+ hint templates — never-ending variety
+// ═══════════════════════════════════════════════
+function generateSafeHint(country) {
+  if (!country) return 'A mystery country awaits! 🌍';
 
-  // ═══════════════════════════════════════════════
-  // 6. LOAD DAILY FACT FROM SUPABASE
-  // ═══════════════════════════════════════════════
+  // ── Build all possible hints for this country ──
+  var hints = [];
+  var c = country;
 
-  /**
-   * Fetch today's AI-generated fact from Supabase.
-   * Falls back gracefully if unavailable.
-   *
-   * Supabase table: daily_facts
-   * Columns: date, country_id, fact_en, fact_hi, source_url
-   *
-   * @returns {void}
-   *
-   * Called by: init()
-   */
-  function loadDailyFact() {
-    // Show loading state
-    UIController.renderNewsFact(null);
+  // ── CONTINENT HINTS ────────────────────────────
+  hints.push('This country is somewhere in ' + c.continent + ' 🌍');
+  hints.push('Look for this one in ' + c.continent + '! 🗺️');
+  hints.push('Today\'s mystery is hiding in ' + c.continent + ' 👀');
 
-    // Get today's date and country
-    var today     = GameState.todayDate;
-    var countryId = GameState.todayAnswer ? GameState.todayAnswer.id : null;
+  if (c.subregion) {
+    hints.push('This country is in ' + c.subregion + ' — can you find it? 🔍');
+    hints.push('Somewhere in ' + c.subregion + ', a mystery awaits 🧭');
+  }
 
-    if (!today || !countryId) {
-      UIController.renderNewsFact(i18n.t('news_fallback'));
-      return;
+  // ── HEMISPHERE HINTS ───────────────────────────
+  var hemiLat = c.hemisphere_lat === 'N' ? 'Northern' : 'Southern';
+  var hemiLng = c.hemisphere_lng === 'E' ? 'Eastern' : 'Western';
+  hints.push('This country is in the ' + hemiLat + ' Hemisphere 🧭');
+  hints.push('Look in the ' + hemiLng + ' half of the world 🌐');
+  hints.push(hemiLat + ' Hemisphere, ' + hemiLng + ' side — start there! 📍');
+
+  // ── SIZE HINTS ─────────────────────────────────
+  if (c.area > 5000000) {
+    hints.push('This is one of the BIGGEST countries in the world 🦣');
+    hints.push('A massive country — think BIG! 🐘');
+    hints.push('This country is absolutely HUGE! Can\'t miss it on a map 🗺️');
+  } else if (c.area > 1000000) {
+    hints.push('This is a pretty large country — over 1 million km² 📐');
+    hints.push('A big country — you\'ll need to zoom out to see it all 🔭');
+  } else if (c.area > 100000) {
+    hints.push('A medium-sized country — not too big, not too small 📏');
+    hints.push('This country is a decent size — mid-range on the map 🗺️');
+  } else if (c.area > 10000) {
+    hints.push('A smaller country — don\'t overlook the little ones! 🔍');
+    hints.push('Not the biggest country — look carefully on the map! 👀');
+  } else {
+    hints.push('This is a TINY country — blink and you\'ll miss it! 🔬');
+    hints.push('One of the smallest countries in the world! 🐜');
+    hints.push('Micro country alert! Think small! 🔎');
+  }
+
+  // ── POPULATION HINTS ──────────────────────────
+  if (c.population > 500000000) {
+    hints.push('Over 500 million people live here — one of the most populated! 🏙️');
+    hints.push('This country has a MASSIVE population 👥');
+  } else if (c.population > 100000000) {
+    hints.push('Over 100 million people call this place home 🏘️');
+    hints.push('A very populated country — over 100 million! 👨‍👩‍👧‍👦');
+  } else if (c.population > 10000000) {
+    hints.push('Tens of millions of people live in this country 🌆');
+  } else if (c.population > 1000000) {
+    hints.push('A few million people live here — not too crowded 🏡');
+  } else {
+    hints.push('This country has a tiny population — under 1 million! 🏝️');
+    hints.push('Very few people live here — small population country! 🤫');
+  }
+
+  // ── ISLAND / LANDLOCKED HINTS ─────────────────
+  if (c.island) {
+    hints.push('This country is an island nation! 🏝️');
+    hints.push('Surrounded by water on all sides — it\'s an island! 🌊');
+    hints.push('No land borders here — pure island vibes 🏖️');
+  }
+
+  if (c.landlocked) {
+    hints.push('This country is completely landlocked — no coastline! 🏔️');
+    hints.push('No beach vacations here — it\'s landlocked! 🚫🏖️');
+    hints.push('Surrounded by other countries — zero coastline! 🗺️');
+  }
+
+  if (!c.island && !c.landlocked) {
+    hints.push('This country has both land borders and coastline 🌊🏔️');
+  }
+
+  // ── NEIGHBOR HINTS ────────────────────────────
+  if (c.neighbors && c.neighbors.length > 0) {
+    var neighborCount = c.neighbors.length;
+
+    if (neighborCount === 0) {
+      hints.push('This country shares borders with NO other countries! 🏝️');
+    } else if (neighborCount === 1) {
+      hints.push('This country only borders ONE other country 🤝');
+    } else if (neighborCount >= 8) {
+      hints.push('This country borders ' + neighborCount + ' countries — that\'s A LOT of neighbors! 🏘️');
+      hints.push('So many neighbors! ' + neighborCount + ' countries share a border here 🤯');
+    } else if (neighborCount >= 5) {
+      hints.push('This country has ' + neighborCount + ' neighbors — quite social! 🤝');
+    } else {
+      hints.push('This country borders ' + neighborCount + ' other countries 🗺️');
     }
 
-    // Determine language for fact
-    var lang = i18n.getLang();
-    var factField = (lang === 'hi') ? 'fact_hi' : 'fact_en';
+    // Random neighbor hint (don't name the mystery country, but can name a neighbor!)
+    var randomNeighbor = c.neighbors[Math.floor(Math.random() * c.neighbors.length)];
+    var neighborData = window.COUNTRY_LOOKUP[randomNeighbor];
+    if (neighborData) {
+      hints.push('This country shares a border with ' + neighborData.name + ' ' + neighborData.flag);
+      hints.push('One of its neighbors is ' + neighborData.name + ' — does that help? 🤔');
+      hints.push(neighborData.flag + ' ' + neighborData.name + ' is next door to today\'s mystery! 🚪');
+    }
+  }
 
-    // Build Supabase REST query
-    var url = SUPABASE_URL +
-      '/rest/v1/daily_facts' +
-      '?date=eq.' + today +
-      '&select=' + factField + ',source_url' +
-      '&limit=1';
+  // ── CAPITAL LETTER HINTS ──────────────────────
+  var firstLetter = c.name.charAt(0).toUpperCase();
+  hints.push('The country name starts with the letter "' + firstLetter + '" 🔤');
+  hints.push('First letter hint: ' + firstLetter + ' — how many countries start with that? 🤔');
 
-    // Fetch with timeout
-    var fetchTimeout = setTimeout(function () {
-      // Timeout after 5s — use fallback
-      UIController.renderNewsFact(
-        GameState.todayAnswer
-          ? GameState.todayAnswer.fun_fact
-          : i18n.t('news_fallback')
-      );
-    }, 5000);
+  var nameLength = c.name.length;
+  hints.push('The country name has ' + nameLength + ' letters 📝');
+
+  // ── CAPITAL CITY HINTS ────────────────────────
+  if (c.capital) {
+    var capFirst = c.capital.charAt(0).toUpperCase();
+    hints.push('The capital city starts with "' + capFirst + '" 🏛️');
+    hints.push('Its capital has ' + c.capital.length + ' letters in its name 🏙️');
+  }
+
+  // ── LATITUDE / LONGITUDE HINTS ────────────────
+  if (Math.abs(c.lat) < 10) {
+    hints.push('This country sits right near the equator! 🌡️');
+    hints.push('Equatorial country alert — it\'s HOT here! ☀️');
+  } else if (Math.abs(c.lat) > 55) {
+    hints.push('Way up near the poles — this is a cold country! 🥶');
+    hints.push('Bundle up! This country is far from the equator ❄️');
+  } else if (c.lat > 30) {
+    hints.push('This country is in the mid-northern latitudes 🌤️');
+  } else if (c.lat < -30) {
+    hints.push('This country is in the mid-southern latitudes 🌤️');
+  }
+
+  // ── GENERIC FUN HINTS ─────────────────────────
+  hints.push('Every country has a story — today\'s is waiting for you! 📖');
+  hints.push('This country is trending in the world right now 📰');
+  hints.push('Think like a geographer — where could this be? 🧠');
+  hints.push('Close your eyes and point at ' + c.continent + ' — you might get lucky! 🎯');
+  hints.push('This country has a flag with interesting colors ' + c.flag);
+  hints.push('Zoom into ' + c.continent + ' and look carefully 🔍');
+
+  // ── FLAG HINT ─────────────────────────────────
+  hints.push('Here\'s the flag: ' + c.flag + ' — recognize it? 🏁');
+  hints.push(c.flag + ' ← this flag belongs to today\'s mystery country!');
+
+  // ── Pick ONE random hint ──────────────────────
+  // Use day number as seed so same hint shows all day for all users
+  var dayNum = window.getDayNumber ? window.getDayNumber() : 1;
+  var index  = dayNum % hints.length;
+
+  return hints[index];
+}
+  // ═══════════════════════════════════════════════
+// 6. LOAD DAILY FACT — HINT WITHOUT COUNTRY NAME
+// ═══════════════════════════════════════════════
+function loadDailyFact() {
+  var GameState = window.GameState;
+  var answer = GameState.todayAnswer;
+
+  if (!answer) {
+    UIController.renderNewsFact('A mystery country awaits you today! 🌍');
+    return;
+  }
+
+  // Pick a hint that does NOT reveal the country name
+  var hint = generateSafeHint(answer);
+  UIController.renderNewsFact(hint);
+
+  // If Supabase configured, try AI fact (already safe — AI told not to name country)
+  if (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL !== '') {
+    var today     = GameState.todayDate;
+    var lang      = i18n.getLang();
+    var factField = (lang === 'hi' || lang === 'hinglish') ? 'fact_hi' : 'fact_en';
+
+    var url = SUPABASE_URL
+      + '/rest/v1/daily_facts'
+      + '?date=eq.' + today
+      + '&select=' + factField
+      + '&limit=1';
 
     fetch(url, {
       method: 'GET',
@@ -546,34 +681,20 @@
         'Content-Type':  'application/json'
       }
     })
-    .then(function (response) {
-      clearTimeout(fetchTimeout);
-      if (!response.ok) throw new Error('Supabase error: ' + response.status);
-      return response.json();
+    .then(function (res) {
+      if (!res.ok) throw new Error('Supabase error');
+      return res.json();
     })
     .then(function (data) {
       if (data && data.length > 0 && data[0][factField]) {
         UIController.renderNewsFact(data[0][factField]);
-      } else {
-        // No fact for today — use static fun fact from data.js
-        UIController.renderNewsFact(
-          GameState.todayAnswer
-            ? GameState.todayAnswer.fun_fact
-            : i18n.t('news_fallback')
-        );
       }
     })
-    .catch(function (err) {
-      clearTimeout(fetchTimeout);
-      console.warn('[app.js] Could not load daily fact:', err);
-      // Fallback to static fun fact
-      UIController.renderNewsFact(
-        GameState.todayAnswer
-          ? GameState.todayAnswer.fun_fact
-          : i18n.t('news_fallback')
-      );
+    .catch(function () {
+      // Static hint already showing — no action needed
     });
   }
+}
 
 
   // ═══════════════════════════════════════════════
