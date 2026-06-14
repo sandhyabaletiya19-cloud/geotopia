@@ -1,21 +1,24 @@
 // /dhara/dhara-character.js
 // ═══════════════════════════════════════════════════════
-// DHARA CHARACTER - Visual, poses, movement
+// DHARA CHARACTER - Poses, Movement, Speech, Animation
 // ═══════════════════════════════════════════════════════
 
 window.DharaCharacter = (function() {
 
-    var position = { x: 100, y: 0, mode: 'floor' };
+    var position = { x: null, y: 20 };
     var isMoving = false;
-    var speechTimeout;
-    var currentPoseImage = null;
+    var speechTimeout = null;
+    var walkInterval = null;
+    var leaveTimer = null;
 
     // ───────────────────────────────────────
     // INJECT HTML
     // ───────────────────────────────────────
     function injectHTML() {
+        if (document.getElementById('dhara-living')) return;
+        
         var cfg = window.DHARA_CONFIG;
-        var html = 
+        var html =
             '<div id="dhara-living">' +
                 '<button class="dhara-hide-x" id="dharaHideBtn">✕</button>' +
                 '<div class="dhara-speech" id="dharaSpeech"></div>' +
@@ -31,7 +34,7 @@ window.DharaCharacter = (function() {
                 '</div>' +
             '</div>' +
             '<div class="dhara-chat-bar" id="dharaChatBar">' +
-                '<input type="text" id="dharaChatInput" placeholder="Type your message...">' +
+                '<input type="text" id="dharaChatInput" placeholder="Talk to Dhara...">' +
                 '<button class="dhara-send" id="dharaSendBtn">➤</button>' +
                 '<button class="dhara-close" id="dharaCloseChatBtn">✕</button>' +
             '</div>' +
@@ -49,6 +52,32 @@ window.DharaCharacter = (function() {
     }
 
     // ───────────────────────────────────────
+    // SET STARTING POSITION
+    // ───────────────────────────────────────
+    function setStartPosition() {
+        var dhara = document.getElementById('dhara-living');
+        if (!dhara) return;
+
+        // Start at right side of screen
+        var startX = window.innerWidth - 200;
+        position.x = startX;
+        position.y = 20;
+
+        dhara.style.position = 'fixed';
+        dhara.style.left = startX + 'px';
+        dhara.style.bottom = '20px';
+        dhara.style.top = 'auto';
+        dhara.style.right = 'auto';
+        dhara.style.width = '140px';
+        dhara.style.height = '220px';
+        dhara.style.zIndex = '999999';
+        dhara.style.display = 'block';
+        dhara.style.pointerEvents = 'auto';
+        
+        console.log('✅ Dhara positioned at x:', startX);
+    }
+
+    // ───────────────────────────────────────
     // POSE & FACING
     // ───────────────────────────────────────
     function setPose(poseName) {
@@ -56,8 +85,6 @@ window.DharaCharacter = (function() {
         if (!body) return;
         var facing = body.classList.contains('facing-left') ? 'facing-left' : 'facing-right';
         body.className = 'dhara-body ' + poseName + ' ' + facing;
-
-        // Optionally swap image based on pose
         swapImageForPose(poseName);
     }
 
@@ -65,25 +92,30 @@ window.DharaCharacter = (function() {
         var img = document.getElementById('dharaImage');
         if (!img) return;
         var cfg = window.DHARA_CONFIG;
-        
+
         var poseImageMap = {
-            'idle': cfg.images.idle,
-            'walking': cfg.images.idle,
-            'talking': cfg.images.talking || cfg.images.idle,
-            'excited': cfg.images.happy || cfg.images.idle,
-            'sad': cfg.images.sad || cfg.images.idle,
-            'sitting': cfg.images.sitting || cfg.images.idle,
-            'pointing': cfg.images.pointing || cfg.images.idle,
-            'waving': cfg.images.waving || cfg.images.idle,
+            'idle':      cfg.images.idle,
+            'walking':   cfg.images.idle,
+            'talking':   cfg.images.talking  || cfg.images.idle,
+            'excited':   cfg.images.happy    || cfg.images.idle,
+            'poked':     cfg.images.happy    || cfg.images.idle,
+            'sad':       cfg.images.sad      || cfg.images.idle,
+            'sitting':   cfg.images.sitting  || cfg.images.idle,
+            'pointing':  cfg.images.pointing || cfg.images.idle,
+            'waving':    cfg.images.waving   || cfg.images.idle,
             'listening': cfg.images.idle,
-            'dancing': cfg.images.happy || cfg.images.idle,
-            'fox': cfg.images.fox
+            'dancing':   cfg.images.happy    || cfg.images.idle,
+            'fox':       cfg.images.fox
         };
-        
+
         var targetImg = poseImageMap[poseName] || cfg.images.idle;
-        if (img.src.indexOf(targetImg) === -1) {
-            // Smooth transition
-            img.style.opacity = '0.7';
+        
+        // Only swap if different image
+        var currentSrc = img.src.split('/').pop();
+        var targetSrc = targetImg.split('/').pop();
+        
+        if (currentSrc !== targetSrc) {
+            img.style.opacity = '0';
             setTimeout(function() {
                 img.src = targetImg;
                 img.style.opacity = '1';
@@ -104,119 +136,153 @@ window.DharaCharacter = (function() {
     function showSpeech(text, duration) {
         var bubble = document.getElementById('dharaSpeech');
         if (!bubble) return;
+        
+        if (speechTimeout) clearTimeout(speechTimeout);
+        
         bubble.textContent = text;
         bubble.classList.add('show');
-        clearTimeout(speechTimeout);
-        var dur = duration || Math.max(3500, text.length * 65);
-        speechTimeout = setTimeout(function() { bubble.classList.remove('show'); }, dur);
+        
+        var dur = duration || 5000;
+        speechTimeout = setTimeout(function() {
+            bubble.classList.remove('show');
+        }, dur);
+    }
+
+    function hideSpeech() {
+        var bubble = document.getElementById('dharaSpeech');
+        if (bubble) bubble.classList.remove('show');
+        if (speechTimeout) clearTimeout(speechTimeout);
     }
 
     // ───────────────────────────────────────
-    // MOVEMENT
+    // WALK TO X POSITION
     // ───────────────────────────────────────
-    function walkTo(x, callback) {
-        if (isMoving) return;
-        isMoving = true;
-        
+    function walkTo(targetX, callback) {
         var dhara = document.getElementById('dhara-living');
-        var direction = x > position.x ? 'right' : 'left';
-        
-        setFacing(direction);
-        setPose('walking');
-        dhara.classList.add('walking-fast');
-        
-        dhara.style.top = 'auto';
-        dhara.style.bottom = '0';
-        dhara.style.left = x + 'px';
-        
-        position = { x: x, y: 0, mode: 'floor' };
-        
-        setTimeout(function() {
-            setPose('idle');
-            dhara.classList.remove('walking-fast');
-            isMoving = false;
+        if (!dhara) { if (callback) callback(); return; }
+
+        // Clamp target to viewport
+        var maxX = window.innerWidth - 160;
+        targetX = Math.max(10, Math.min(targetX, maxX));
+
+        if (isMoving) {
+            // Already moving - just update position
             if (callback) callback();
-        }, 2200);
+            return;
+        }
+
+        isMoving = true;
+        setPose('walking');
+
+        // Set facing direction
+        if (targetX < position.x) {
+            setFacing('left');
+        } else {
+            setFacing('right');
+        }
+
+        // Smooth CSS transition walk
+        dhara.style.transition = 'left 1.5s cubic-bezier(0.45, 0, 0.55, 1)';
+        dhara.style.left = targetX + 'px';
+        dhara.style.bottom = '20px';
+        dhara.style.top = 'auto';
+
+        position.x = targetX;
+
+        // After walk completes
+        setTimeout(function() {
+            isMoving = false;
+            setPose('idle');
+            dhara.style.transition = 'all 0.3s ease';
+            if (callback) callback();
+        }, 1600);
     }
 
+    // ───────────────────────────────────────
+    // WALK TO ELEMENT
+    // ───────────────────────────────────────
     function walkToElement(element, callback) {
-        if (!element || isMoving) return;
-        isMoving = true;
+        if (!element) { if (callback) callback(); return; }
         
         var rect = element.getBoundingClientRect();
-        var targetX = Math.max(50, Math.min(rect.left + rect.width / 2 - 70, window.innerWidth - 200));
+        var targetX = rect.left + (rect.width / 2) - 70;
         
-        var dhara = document.getElementById('dhara-living');
-        var direction = targetX > position.x ? 'right' : 'left';
+        // Clamp to viewport
+        targetX = Math.max(10, Math.min(targetX, window.innerWidth - 160));
         
-        setFacing(direction);
-        setPose('walking');
-        dhara.classList.add('walking-fast');
-        
-        dhara.style.left = targetX + 'px';
-        
-        if (rect.top < window.innerHeight - 300 && rect.top > 50) {
-            dhara.style.bottom = 'auto';
-            dhara.style.top = Math.max(20, rect.top - 100) + 'px';
-            position = { x: targetX, y: rect.top - 100, mode: 'sitting' };
-        } else {
-            dhara.style.bottom = '0';
-            dhara.style.top = 'auto';
-            position = { x: targetX, y: 0, mode: 'floor' };
-        }
-        
-        setTimeout(function() {
-            setPose('sitting');
-            dhara.classList.remove('walking-fast');
-            element.classList.add('dhara-highlight');
-            isMoving = false;
-            if (callback) callback();
-        }, 2200);
+        walkTo(targetX, callback);
     }
 
+    // ───────────────────────────────────────
+    // LEAVE AFTER DELAY
+    // ───────────────────────────────────────
     function leaveAfter(element, delay) {
-        setTimeout(function() {
-            element.classList.remove('dhara-highlight');
-            var newX = 100 + Math.random() * Math.max(100, window.innerWidth - 400);
-            walkTo(newX);
-        }, delay);
+        if (leaveTimer) clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(function() {
+            randomWalk();
+        }, delay || 5000);
     }
 
+    // ───────────────────────────────────────
+    // RANDOM WALK (Idle wandering)
+    // ───────────────────────────────────────
     function randomWalk() {
         if (isMoving) return;
-        var minX = 50;
-        var maxX = Math.max(100, window.innerWidth - 200);
-        var randomX = minX + Math.random() * (maxX - minX);
-        walkTo(randomX);
+        
+        var maxX = window.innerWidth - 160;
+        var minX = 10;
+        
+        // Pick random position
+        var targetX = Math.floor(Math.random() * (maxX - minX)) + minX;
+        
+        walkTo(targetX, function() {
+            setPose('idle');
+        });
     }
 
     // ───────────────────────────────────────
-    // DANCE!
+    // DANCE
     // ───────────────────────────────────────
     function dance() {
-        var body = document.getElementById('dharaBody');
-        if (!body) return;
-        var facing = body.classList.contains('facing-left') ? 'facing-left' : 'facing-right';
-        body.className = 'dhara-body dancing ' + facing;
-        swapImageForPose('dancing');
+        if (isMoving) return;
         
-        var msg = "Look at me go! Woo!";
-        showSpeech(msg);
+        setPose('dancing');
+        var msg = window.DharaCore.pick([
+            "Watch my moves!",
+            "I was born to dance!",
+            "Geography and dance — my two talents!",
+            "Don't judge my moves!"
+        ]);
+        showSpeech(msg, 4000);
         window.DharaCore.speak(msg);
-        
+
+        // Dance for 4 seconds then stop
         setTimeout(function() {
             setPose('idle');
-        }, 6000);
+        }, 4000);
     }
 
     // ───────────────────────────────────────
-    // SIZE CHANGE
+    // SET SIZE
     // ───────────────────────────────────────
     function setSize(sizeName) {
         var dhara = document.getElementById('dhara-living');
         if (!dhara) return;
+        
+        var sizes = window.DHARA_CONFIG.sizes;
+        
+        // Remove all size classes
         dhara.classList.remove('size-mini', 'size-small', 'size-medium', 'size-large', 'size-fullscreen');
         dhara.classList.add('size-' + sizeName);
+
+        // Apply inline size for non-fullscreen
+        if (sizeName !== 'fullscreen') {
+            var s = sizes[sizeName];
+            if (s) {
+                dhara.style.width = s.w + 'px';
+                dhara.style.height = s.h + 'px';
+            }
+        }
     }
 
     // ───────────────────────────────────────
@@ -224,13 +290,22 @@ window.DharaCharacter = (function() {
     // ───────────────────────────────────────
     function init() {
         injectHTML();
+        
+        // Small delay to ensure DOM is ready
+        setTimeout(function() {
+            setStartPosition();
+        }, 100);
     }
 
+    // ───────────────────────────────────────
+    // PUBLIC API
+    // ───────────────────────────────────────
     return {
         init: init,
         setPose: setPose,
         setFacing: setFacing,
         showSpeech: showSpeech,
+        hideSpeech: hideSpeech,
         walkTo: walkTo,
         walkToElement: walkToElement,
         leaveAfter: leaveAfter,
