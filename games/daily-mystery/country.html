@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a1a" />
+
+  <title id="page-title">Country — Map Mystery | Dharaverse</title>
+  <meta name="description" id="page-desc"
+        content="Learn about today's Map Mystery country on Dharaverse." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="" />
+
+  <!-- Game Styles -->
+  <link rel="stylesheet" href="css/game.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+
+  <style>
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .country-header-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px var(--space-md);
+      background: rgba(10,10,26,0.95);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .country-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      font-size: var(--small);
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      text-decoration: none;
+      min-height: 44px;
+      transition: background var(--transition-fast),
+                  color var(--transition-fast);
+    }
+
+    .country-back-btn:hover {
+      background: var(--accent-purple);
+      color: #fff;
+    }
+
+    .country-page-wrap {
+      flex: 1;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      padding-bottom: 60px;
+    }
+
+    /* Hero */
+    .country-hero {
+      padding: var(--space-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+    }
+
+    #country-flag {
+      font-size: clamp(56px, 14vw, 96px);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .country-hero-text {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    #country-name {
+      font-size: var(--h1);
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: var(--space-xs);
+    }
+
+    #country-capital {
+      font-size: var(--body);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: var(--space-xs);
+    }
+
+    .country-continent-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(139,92,246,0.15);
+      border: 1px solid var(--accent-purple);
+      border-radius: var(--radius-full);
+      font-size: var(--small);
+      font-weight: 600;
+      color: var(--accent-purple);
+    }
+
+    /* Map */
+    .country-map-wrap {
+      width: 100%;
+      height: clamp(220px, 40vw, 360px);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    #country-map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Info grid */
+    .country-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+
+    @media (min-width: 600px) {
+      .country-info-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .country-info-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .info-item {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-item-label {
+      font-size: var(--tiny);
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-item-value {
+      font-size: var(--body);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .info-item-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    /* Fun fact */
+    .country-fact-card {
+      padding: var(--space-md) var(--space-lg);
+      background: rgba(139,92,246,0.07);
+      border: 1px solid var(--accent-purple);
+      border-radius: var(--radius-lg);
+    }
+
+    .fact-label {
+      font-size: var(--tiny);
+      font-weight: 700;
+      color: var(--accent-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-xs);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #country-fun-fact {
+      font-size: var(--body);
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    /* Neighbors */
+    .section-title {
+      font-size: var(--small);
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-sm);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #country-neighbors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .neighbor-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      font-size: var(--small);
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background var(--transition-fast),
+                  color var(--transition-fast),
+                  border-color var(--transition-fast);
+      min-height: 36px;
+    }
+
+    .neighbor-tag:hover {
+      background: rgba(139,92,246,0.15);
+      color: var(--text-primary);
+      border-color: var(--accent-purple);
+    }
+
+    .landlocked-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid var(--game-yellow);
+      border-radius: var(--radius-full);
+      font-size: var(--small);
+      font-weight: 600;
+      color: var(--game-yellow);
+    }
+
+    /* Ad sidebar (desktop) */
+    .country-layout {
+      display: flex;
+      gap: var(--space-md);
+      align-items: flex-start;
+    }
+
+    .country-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .country-sidebar {
+      display: none;
+      width: 300px;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 1024px) {
+      .country-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
+        position: sticky;
+        top: 80px;
+      }
+    }
+
+    .ad-card {
+      padding: var(--space-md);
+      min-height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      border: 1px dashed rgba(139,92,246,0.2);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      font-size: var(--small);
+    }
+
+    /* Back to game CTA */
+    .back-cta {
+      padding: var(--space-md) var(--space-lg);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .back-cta p {
+      font-size: var(--small);
+      color: var(--text-muted);
+    }
+
+    /* Error state */
+    .error-state {
+      text-align: center;
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .error-emoji { font-size: 64px; }
+
+    .error-title {
+      font-size: var(--h2);
+      font-weight: 800;
+      color: var(--text-secondary);
+    }
+
+    /* Leaflet dark overrides (same as game.css) */
+    .leaflet-container { background: var(--bg-primary) !important; }
+    .leaflet-control-zoom a {
+      background: var(--bg-card) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-color) !important;
+    }
+    .leaflet-control-attribution {
+      font-size: 9px !important;
+      background: rgba(10,10,26,0.7) !important;
+      color: var(--text-muted) !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header bar -->
+  <header class="country-header-bar" role="banner">
+    <a
+      id="back-to-game"
+      href="index.html"
+      class="country-back-btn"
+      aria-label="Back to game"
+    >← Back to Game</a>
+
+    <span style="font-size:20px;font-weight:800">
+      🌍 Map Mystery
+    </span>
+
+    <a
+      href="/atlas/"
+      class="country-back-btn"
+      aria-label="Open World Atlas"
+      style="font-size:var(--tiny)"
+    >World Atlas 🗺️</a>
+  </header>
+
+  <!-- Main page -->
+  <div class="country-page-wrap">
+    <div class="country-layout">
+
+      <!-- Main content -->
+      <div class="country-content" id="country-content">
+
+        <!-- Loading state (shown initially) -->
+        <div id="loading-state" class="glass-card" style="padding:var(--space-xl);text-align:center">
+          <div style="font-size:48px;margin-bottom:16px">🌍</div>
+          <p style="color:var(--text-secondary)">Loading country data...</p>
+        </div>
+
+        <!-- Country hero (hidden until loaded) -->
+        <div
+          id="country-hero"
+          class="country-hero glass-card fade-in"
+          hidden
+          aria-label="Country overview"
+        >
+          <div id="country-flag" aria-hidden="true">🏳️</div>
+          <div class="country-hero-text">
+            <h1 id="country-name">Unknown</h1>
+            <div id="country-capital">🏛️ <span>Unknown</span></div>
+            <div id="country-continent" class="country-continent-badge">Unknown</div>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div
+          id="map-wrap"
+          class="country-map-wrap fade-in"
+          hidden
+          aria-label="Country location on world map"
+        >
+          <div
+            id="country-map"
+            role="application"
+            aria-label="Interactive map"
+          ></div>
+        </div>
+
+        <!-- Info grid -->
+        <div id="info-grid-wrap" hidden class="fade-in">
+          <div class="country-info-grid" id="country-info-grid">
+            <div class="info-item">
+              <div class="info-item-icon" aria-hidden="true">👥</div>
+              <div class="info-item-label">Population</div>
+              <div class="info-item-value" id="country-population">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-icon" aria-hidden="true">📐</div>
+              <div class="info-item-label">Area</div>
+              <div class="info-item-value" id="country-area">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-icon" aria-hidden="true">🌐</div>
+              <div class="info-item-label">Subregion</div>
+              <div class="info-item-value" id="country-subregion">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-icon" aria-hidden="true">🌊</div>
+              <div class="info-item-label">Access</div>
+              <div class="info-item-value" id="country-access">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fun fact -->
+        <div
+          id="fun-fact-wrap"
+          class="country-fact-card fade-in"
+          hidden
+        >
+          <div class="fact-label">
+            <span>💡</span> Fun Fact
+          </div>
+          <p id="country-fun-fact">Loading...</p>
+        </div>
+
+        <!-- Neighbors -->
+        <div id="neighbors-wrap" hidden class="glass-card fade-in"
+             style="padding:var(--space-md)">
+          <div class="section-title">
+            <span aria-hidden="true">🤝</span>
+            Neighboring Countries
+          </div>
+          <div
+            id="country-neighbors"
+            role="list"
+            aria-label="Neighboring countries"
+          ></div>
+        </div>
+
+        <!-- In-article ad -->
+        <div
+          class="ad-card fade-in"
+          id="country-ad-article"
+          aria-label="Advertisement"
+        >
+          <!--
+          <ins class="adsbygoogle"
+               style="display:block;text-align:center"
+               data-ad-layout="in-article"
+               data-ad-format="fluid"
+               data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+               data-ad-slot="XXXXXXXXXX">
+          </ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          -->
+          <span>Ad</span>
+        </div>
+
+        <!-- Back CTA -->
+        <div
+          id="back-cta-wrap"
+          class="back-cta glass-card fade-in"
+          hidden
+        >
+          <p>Come back tomorrow for a new mystery country!</p>
+          <a
+            href="index.html"
+            class="btn-primary"
+            aria-label="Play Map Mystery"
+          >🗺️ Play Map Mystery</a>
+          <a
+            href="result.html"
+            class="btn-secondary"
+            aria-label="View your result"
+          >📊 View My Result</a>
+        </div>
+
+        <!-- Error state (shown if country not found) -->
+        <div id="error-state" class="error-state" hidden>
+          <div class="error-emoji">😕</div>
+          <h1 class="error-title">Country not found</h1>
+          <p style="color:var(--text-muted)">
+            That country doesn't exist in our database.
+          </p>
+          <a href="index.html" class="btn-primary">← Back to Game</a>
+        </div>
+
+      </div><!-- /.country-content -->
+
+      <!-- Desktop sidebar ads -->
+      <aside class="country-sidebar" aria-label="Advertisement sidebar">
+        <div
+          class="ad-card"
+          id="country-ad-sidebar"
+          aria-label="Advertisement"
+        >
+          <!--
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+               data-ad-slot="XXXXXXXXXX"
+               data-ad-format="auto"
+               data-full-width-responsive="true">
+          </ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          -->
+          <span>Ad</span>
+        </div>
+
+        <div class="glass-card" style="padding:var(--space-md)">
+          <div class="section-title">Quick Links</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <a href="index.html" class="sidebar-link">🗺️ Play Today's Game</a>
+            <a href="result.html" class="sidebar-link">📊 My Stats</a>
+            <a href="/atlas/" class="sidebar-link">🌍 World Atlas</a>
+            <a href="/encyclopedia/" class="sidebar-link">📚 Encyclopedia</a>
+            <a href="/games/" class="sidebar-link">🎮 More Games</a>
+          </div>
+        </div>
+      </aside>
+
+    </div><!-- /.country-layout -->
+  </div><!-- /.country-page-wrap -->
+
+  <!-- Scripts -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLs="
+    crossorigin=""
+  ></script>
+  <script src="js/data.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/i18n.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var SUPABASE_URL      = 'https://your-project.supabase.co';
+    var SUPABASE_ANON_KEY = 'your-anon-key-here';
+    var TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    var TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO';
+
+    function el(id) { return document.getElementById(id); }
+
+    function show(id) {
+      var e = el(id);
+      if (e) {
+        e.hidden = false;
+        e.removeAttribute('hidden');
+      }
+    }
+
+    function hide(id) {
+      var e = el(id);
+      if (e) e.hidden = true;
+    }
+
+    /* ── GET COUNTRY FROM URL PARAM ─────────── */
+    function getCountryFromURL() {
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('c');
+      if (id) return COUNTRY_LOOKUP[id.toLowerCase()] || null;
+
+      /* Fallback: today's country */
+      initState();
+      return GameState.todayAnswer || null;
+    }
+
+    /* ── INIT MAP ────────────────────────────── */
+    function initMap(country) {
+      var mapEl = el('country-map');
+      if (!mapEl || !country) return;
+
+      var map = L.map('country-map', {
+        center: [country.lat, country.lng],
+        zoom: 4,
+        zoomControl: true,
+        attributionControl: true,
+        scrollWheelZoom: false
+      });
+
+      L.tileLayer(TILE_URL, {
+        attribution: TILE_ATTR,
+        subdomains: 'abcd',
+        maxZoom: 18,
+        crossOrigin: true
+      }).addTo(map);
+
+      /* Country marker */
+      var marker = L.circleMarker([country.lat, country.lng], {
+        radius: 12,
+        fillColor: '#8B5CF6',
+        color: '#ffffff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.9
+      }).addTo(map);
+
+      marker.bindPopup(
+        '<strong style="color:#fff;font-family:Inter,sans-serif">' +
+        country.flag + ' ' + country.name + '</strong>'
+      ).openPopup();
+
+      setTimeout(function () { map.invalidateSize(); }, 100);
+    }
+
+    /* ── RENDER COUNTRY ──────────────────────── */
+    function render(country) {
+      /* Page meta */
+      var titleEl = document.getElementById('page-title');
+      var descEl  = document.getElementById('page-desc');
+      if (titleEl) titleEl.textContent = country.name + ' — Map Mystery | Dharaverse';
+      if (descEl)  descEl.setAttribute('content',
+        'Learn about ' + country.name + ', today\'s Map Mystery country.');
+
+      /* Hero */
+      var flagEl = el('country-flag');
+      var nameEl = el('country-name');
+      var capEl  = el('country-capital');
+      var contEl = el('country-continent');
+
+      if (flagEl) flagEl.textContent = country.flag;
+      if (nameEl) nameEl.textContent = country.name;
+      if (capEl)  capEl.innerHTML = '🏛️ <span>' + country.capital + '</span>';
+      if (contEl) {
+        contEl.textContent = '🌍 ' + country.continent;
+        contEl.className = 'country-continent-badge';
+      }
+
+      /* Info grid */
+      var popEl    = el('country-population');
+      var areaEl   = el('country-area');
+      var subEl    = el('country-subregion');
+      var accessEl = el('country-access');
+
+      if (popEl)    popEl.textContent    = formatPopulation(country.population);
+      if (areaEl)   areaEl.textContent   = formatArea(country.area);
+      if (subEl)    subEl.textContent    = country.subregion;
+      if (accessEl) {
+        if (country.island) {
+          accessEl.textContent = '🏝️ Island';
+        } else if (country.landlocked) {
+          accessEl.textContent = '🔒 Landlocked';
+        } else {
+          accessEl.textContent = '🌊 Coastal';
+        }
+      }
+
+      /* Fun fact */
+      var factEl = el('country-fun-fact');
+      if (factEl) factEl.textContent = country.fun_fact;
+
+      /* Neighbors */
+      var neighborsEl = el('country-neighbors');
+      if (neighborsEl) {
+        neighborsEl.innerHTML = '';
+
+        if (!country.neighbors || country.neighbors.length === 0) {
+          neighborsEl.innerHTML =
+            '<span style="color:var(--text-muted);font-size:var(--small)">' +
+            (country.island ? '🏝️ Island nation — no land borders'
+                            : '🌊 No neighboring countries') +
+            '</span>';
+        } else {
+          for (var i = 0; i < country.neighbors.length; i++) {
+            var nbId      = country.neighbors[i];
+            var nb        = COUNTRY_LOOKUP[nbId];
+            if (!nb) continue;
+
+            var tag = document.createElement('a');
+            tag.href = 'country.html?c=' + nbId;
+            tag.className = 'neighbor-tag';
+            tag.setAttribute('role', 'listitem');
+            tag.innerHTML =
+              '<span aria-hidden="true">' + nb.flag + '</span>' +
+              '<span>' + nb.name + '</span>';
+
+            neighborsEl.appendChild(tag);
+          }
+        }
+      }
+
+      /* Show all sections */
+      hide('loading-state');
+      show('country-hero');
+      show('map-wrap');
+      show('info-grid-wrap');
+      show('fun-fact-wrap');
+      show('neighbors-wrap');
+      show('back-cta-wrap');
+
+      /* Init map after sections shown */
+      setTimeout(function () { initMap(country); }, 100);
+
+      /* Load AI fact from Supabase */
+      loadAIFact(country);
+    }
+
+    /* ── LOAD AI FACT ────────────────────────── */
+    function loadAIFact(country) {
+      var factEl   = el('country-fun-fact');
+      var lang     = i18n ? i18n.getLang() : 'en';
+      var field    = lang === 'hi' ? 'fact_hi' : 'fact_en';
+
+      /* Get today's date */
+      var now   = new Date();
+      var today = now.getUTCFullYear() + '-' +
+        String(now.getUTCMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getUTCDate()).padStart(2, '0');
+
+      var url = SUPABASE_URL +
+        '/rest/v1/daily_facts' +
+        '?country_id=eq.' + country.id +
+        '&date=eq.' + today +
+        '&select=' + field +
+        '&limit=1';
+
+      fetch(url, {
+        headers: {
+          'apikey':        SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        }
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data[0] && data[0][field] && factEl) {
+          factEl.textContent = data[0][field];
+        }
+        /* else keep static fun_fact */
+      })
+      .catch(function () { /* keep static fun_fact */ });
+    }
+
+    /* ── START ───────────────────────────────── */
+    function init() {
+      i18n.detect();
+
+      var country = getCountryFromURL();
+
+      if (!country) {
+        hide('loading-state');
+        show('error-state');
+        return;
+      }
+
+      render(country);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+
+</body>
+</html>
