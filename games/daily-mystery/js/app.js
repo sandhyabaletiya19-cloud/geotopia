@@ -35,8 +35,8 @@
   // SUPABASE CONFIG
   // Replace with your actual Supabase URL and anon key
   // ═══════════════════════════════════════════════
-  var SUPABASE_URL = 'https://your-project.supabase.co';
-  var SUPABASE_ANON_KEY = 'your-anon-key-here';
+  var SUPABASE_URL = 'https://uubgjhchndervaamizzk.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_L-bJ9sLh-hFvB_x0YSePsQ_Kaq34Okv';
 
 
   // ═══════════════════════════════════════════════
