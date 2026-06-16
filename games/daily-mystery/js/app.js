@@ -822,7 +822,26 @@ function loadDailyFact() {
     // Silently handle — most are network errors
   });
 
+// Theme switcher
+function initTheme() {
+  const saved = localStorage.getItem('dv-theme') || 'default';
+  applyTheme(saved);
+}
 
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme',
+    theme === 'default' ? '' : theme);
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.theme === theme);
+  });
+  localStorage.setItem('dv-theme', theme);
+}
+
+document.getElementById('theme-switcher')?.addEventListener('click', e => {
+  const swatch = e.target.closest('.theme-swatch');
+  if (swatch) applyTheme(swatch.dataset.theme);
+});
+   
   console.log('[app.js] Main controller loaded');
 
 })();
