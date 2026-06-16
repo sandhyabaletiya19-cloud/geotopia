@@ -841,6 +841,71 @@ document.getElementById('theme-switcher')?.addEventListener('click', e => {
   const swatch = e.target.closest('.theme-swatch');
   if (swatch) applyTheme(swatch.dataset.theme);
 });
+
+   // ── Map Tile URLs per theme ──
+const MAP_TILES = {
+  default: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  candy:   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  ocean:   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  jungle:  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  sunset:  'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg',
+  lemon:   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+};
+
+let currentTileLayer = null;
+
+function applyTheme(theme) {
+  // 1. Set CSS theme
+  if (theme === 'default') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  // 2. Update swatches
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.theme === theme);
+  });
+
+  // 3. SWAP MAP TILES
+  if (window.gameMap && MAP_TILES[theme]) {
+    if (currentTileLayer) {
+      window.gameMap.removeLayer(currentTileLayer);
+    }
+    currentTileLayer = L.tileLayer(MAP_TILES[theme], {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18
+    }).addTo(window.gameMap);
+  }
+
+  // 4. Save preference
+  localStorage.setItem('dv-theme', theme);
+}
+
+// Init on load
+function initTheme() {
+  const saved = localStorage.getItem('dv-theme') || 'default';
+  applyTheme(saved);
+}
+
+// Click handler
+document.getElementById('theme-switcher')?.addEventListener('click', e => {
+  const swatch = e.target.closest('.theme-swatch');
+  if (swatch) applyTheme(swatch.dataset.theme);
+});
+
+   function initSparkles() {
+  const field = document.getElementById('sparkle-field');
+  if (!field) return;
+  for (let i = 0; i < 20; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.setProperty('--sp-dur', (4 + Math.random() * 6) + 's');
+    s.style.setProperty('--sp-delay', (Math.random() * 8) + 's');
+    field.appendChild(s);
+  }
+}
    
   console.log('[app.js] Main controller loaded');
 
