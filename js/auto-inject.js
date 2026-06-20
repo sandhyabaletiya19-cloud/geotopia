@@ -30,7 +30,15 @@
         console.log('✅ AdSense injected!');
     })();
 
-    
+        // ✅ Inject Google Search Console verification
+    (function injectSearchConsole() {
+        if (document.querySelector('meta[name="google-site-verification"]')) return;
+        var meta = document.createElement('meta');
+        meta.name = 'google-site-verification';
+        meta.content = '<meta name="google-site-verification" content="BrJLdMZBeGPNYi_kIz91WnBBxjzHPjUKeSR5NVnTtmY" />'; // <--- Paste your code here
+        document.head.appendChild(meta);
+        console.log('✅ GSC Verification injected!');
+    })();
 // ============================================
 // 🦊 DHARA AUTO INJECT - SAFER VERSION
 // ============================================
