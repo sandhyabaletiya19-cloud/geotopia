@@ -1,24 +1,19 @@
 /* ═══════════════════════════════════════════════════════════
-   DHARAVERSE MAP MYSTERY — GAME LOGIC & MATH (V2)
+   DHARAVERSE MAP MYSTERY — GAME LOGIC & MATH
    File: /games/daily-mystery/js/logic.js
    
    DEPENDS ON: data.js (window.COUNTRIES, window.COUNTRY_LOOKUP)
-   USED BY: app.js, ui.js
+   USED BY: app.js → handleGuessSubmit()
    
-   IMPROVEMENTS OVER V1:
-   ✅ All original features kept (Haversine, bearing, arrows, etc.)
-   ✅ NEW: Progressive hint builder (6 levels)
-   ✅ NEW: Smart fuzzy country resolver
-   ✅ NEW: Animated bearing rotation helper
-   ✅ NEW: Distance color CSS class mapper
-   ✅ NEW: Distance meter percentage (improved logarithmic)
-   ✅ NEW: Better continent matching (uses subregion too)
-   ✅ NEW: Hemisphere comparison from lat/lng (no more hemisphere_lat field needed)
-   ✅ NEW: Direction with "Head East" phrasing
-   ✅ NEW: Streak-aware difficulty calibration helper
-   ✅ NEW: Smart hint generator that picks relevant facts
-   ✅ NEW: 60+ fun messages (was 30)
-   ✅ Better JSDoc, better testing helpers
+   EXPORTS:
+     window.calculateDistance(lat1, lng1, lat2, lng2) → km
+     window.calculateBearing(lat1, lng1, lat2, lng2) → degrees
+     window.bearingToArrow(degrees) → arrow string
+     window.bearingToDirection(degrees) → direction name
+     window.getSizeComparison(guessArea, targetArea) → object
+     window.getContinentMatch(guessCont, targetCont, guessHemi, targetHemi) → object
+     window.getDistanceFeedback(km) → object
+     window.evaluateGuess(guessId, targetId) → full result object
    ═══════════════════════════════════════════════════════════ */
 
 (function () {
@@ -31,15 +26,15 @@
   /** Earth's mean radius in kilometers */
   var EARTH_RADIUS_KM = 6371;
 
-  /** Max possible distance on Earth (antipodal) */
-  var MAX_DISTANCE_KM = 20015;
+  /** Convert degrees to radians */
+  function toRad(deg) {
+    return deg * (Math.PI / 180);
+  }
 
-  /** Max guesses per game */
-  var MAX_GUESSES = 6;
-
-  /** Math helpers */
-  function toRad(deg) { return deg * (Math.PI / 180); }
-  function toDeg(rad) { return rad * (180 / Math.PI); }
+  /** Convert radians to degrees */
+  function toDeg(rad) {
+    return rad * (180 / Math.PI);
+  }
 
 
   // ═══════════════════════════════════════════════
@@ -47,19 +42,32 @@
   // ═══════════════════════════════════════════════
 
   /**
-   * Calculate great-circle distance between two points using Haversine.
-   * @param {number} lat1, lng1, lat2, lng2
-   * @returns {number} Distance in km (rounded)
+   * Calculate great-circle distance between two points
+   * using the Haversine formula.
+   *
+   * @param {number} lat1 - Latitude of point 1
+   * @param {number} lng1 - Longitude of point 1
+   * @param {number} lat2 - Latitude of point 2
+   * @param {number} lng2 - Longitude of point 2
+   * @returns {number} Distance in kilometers (rounded to nearest integer)
+   *
+   * Used by: evaluateGuess()
    */
   window.calculateDistance = function (lat1, lng1, lat2, lng2) {
     var dLat = toRad(lat2 - lat1);
     var dLng = toRad(lng2 - lng1);
+
     var a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Math.round(EARTH_RADIUS_KM * c);
+    var distance = EARTH_RADIUS_KM * c;
+
+    return Math.round(distance);
   };
 
 
@@ -69,17 +77,30 @@
 
   /**
    * Calculate initial bearing from point 1 to point 2.
-   * @returns {number} Bearing in degrees (0-360)
+   * Returns the compass direction you need to travel
+   * FROM your guess TO the target.
+   *
+   * @param {number} lat1 - Latitude of guess
+   * @param {number} lng1 - Longitude of guess
+   * @param {number} lat2 - Latitude of target
+   * @param {number} lng2 - Longitude of target
+   * @returns {number} Bearing in degrees (0-360, where 0=North, 90=East)
+   *
+   * Used by: evaluateGuess()
    */
   window.calculateBearing = function (lat1, lng1, lat2, lng2) {
     var dLng = toRad(lng2 - lng1);
     var radLat1 = toRad(lat1);
     var radLat2 = toRad(lat2);
+
     var y = Math.sin(dLng) * Math.cos(radLat2);
     var x =
       Math.cos(radLat1) * Math.sin(radLat2) -
       Math.sin(radLat1) * Math.cos(radLat2) * Math.cos(dLng);
+
     var bearing = toDeg(Math.atan2(y, x));
+
+    // Normalize to 0-360
     return (bearing + 360) % 360;
   };
 
@@ -88,8 +109,29 @@
   // 3. BEARING → ARROW EMOJI
   // ═══════════════════════════════════════════════
 
+  /**
+   * Convert bearing degrees to a compass arrow.
+   * 8 directions, each covering 45°.
+   *
+   * @param {number} degrees - Bearing (0-360)
+   * @returns {string} Arrow character
+   *
+   * Mapping:
+   *   337.5 - 22.5   → ⬆️  North
+   *    22.5 - 67.5   → ↗️  Northeast
+   *    67.5 - 112.5  → ➡️  East
+   *   112.5 - 157.5  → ↘️  Southeast
+   *   157.5 - 202.5  → ⬇️  South
+   *   202.5 - 247.5  → ↙️  Southwest
+   *   247.5 - 292.5  → ⬅️  West
+   *   292.5 - 337.5  → ↖️  Northwest
+   *
+   * Used by: evaluateGuess(), ui.js
+   */
   window.bearingToArrow = function (degrees) {
+    // Normalize
     var d = ((degrees % 360) + 360) % 360;
+
     if (d >= 337.5 || d < 22.5)   return '⬆️';
     if (d >= 22.5  && d < 67.5)   return '↗️';
     if (d >= 67.5  && d < 112.5)  return '➡️';
@@ -97,7 +139,9 @@
     if (d >= 157.5 && d < 202.5)  return '⬇️';
     if (d >= 202.5 && d < 247.5)  return '↙️';
     if (d >= 247.5 && d < 292.5)  return '⬅️';
-    return '↖️';
+    if (d >= 292.5 && d < 337.5)  return '↖️';
+
+    return '⬆️'; // fallback
   };
 
 
@@ -105,103 +149,170 @@
   // 4. BEARING → DIRECTION NAME
   // ═══════════════════════════════════════════════
 
+  /**
+   * Convert bearing degrees to human-readable direction.
+   *
+   * @param {number} degrees - Bearing (0-360)
+   * @returns {string} Direction name ("North", "Northeast", etc.)
+   *
+   * Used by: evaluateGuess(), ui.js for accessibility
+   */
   window.bearingToDirection = function (degrees) {
     var d = ((degrees % 360) + 360) % 360;
+
     if (d >= 337.5 || d < 22.5)   return 'North';
-    if (d >= 22.5  && d < 67.5)   return 'North-East';
+    if (d >= 22.5  && d < 67.5)   return 'Northeast';
     if (d >= 67.5  && d < 112.5)  return 'East';
-    if (d >= 112.5 && d < 157.5)  return 'South-East';
+    if (d >= 112.5 && d < 157.5)  return 'Southeast';
     if (d >= 157.5 && d < 202.5)  return 'South';
-    if (d >= 202.5 && d < 247.5)  return 'South-West';
+    if (d >= 202.5 && d < 247.5)  return 'Southwest';
     if (d >= 247.5 && d < 292.5)  return 'West';
-    return 'North-West';
+    if (d >= 292.5 && d < 337.5)  return 'Northwest';
+
+    return 'North'; // fallback
   };
 
 
   // ═══════════════════════════════════════════════
-  // 5. BEARING → CSS ROTATION + ANIMATION HELPER (NEW)
+  // 5. BEARING → CSS ROTATION DEGREES
   // ═══════════════════════════════════════════════
 
+  /**
+   * Get the CSS rotation angle for the direction arrow.
+   * Used by ui.js to set --arrow-rotation CSS variable
+   * for the .arrow-spin animation.
+   *
+   * @param {number} degrees - Bearing (0-360)
+   * @returns {number} CSS rotation in degrees
+   *
+   * Mapping: 0°=up, 90°=right, 180°=down, 270°=left
+   */
   window.bearingToRotation = function (degrees) {
     return ((degrees % 360) + 360) % 360;
   };
 
-  /**
-   * NEW: Get smoothest CSS rotation considering previous rotation.
-   * Prevents arrow from spinning 350° when 10° is shorter.
-   * @param {number} fromDeg - Previous rotation
-   * @param {number} toDeg - Target rotation
-   * @returns {number} Optimized rotation degree
-   */
-  window.getShortestRotation = function (fromDeg, toDeg) {
-    var diff = ((toDeg - fromDeg) % 360 + 540) % 360 - 180;
-    return fromDeg + diff;
-  };
-
 
   // ═══════════════════════════════════════════════
-  // 6. HEMISPHERE FROM COORDINATES (NEW)
+  // 6. SIZE COMPARISON
   // ═══════════════════════════════════════════════
 
   /**
-   * NEW: Auto-derive hemisphere from lat/lng.
-   * Replaces dependence on hemisphere_lat/hemisphere_lng fields.
+   * Compare the area of the guessed country to the target.
+   *
+   * @param {number} guessArea - Area of guessed country (km²)
+   * @param {number} targetArea - Area of target country (km²)
+   * @returns {object} {
+   *   ratio:   number  — how many times bigger/smaller
+   *   type:    string  — "bigger"|"smaller"|"same"
+   *   emoji:   string  — visual indicator
+   *   message: string  — human-readable description
+   * }
+   *
+   * Thresholds:
+   *   ratio < 1.1 → "same" (within 10%)
+   *   target bigger → "bigger"
+   *   target smaller → "smaller"
+   *
+   * Used by: evaluateGuess()
    */
-  window.getHemisphere = function (lat, lng) {
+  window.getSizeComparison = function (guessArea, targetArea) {
+    // Prevent division by zero
+    if (!guessArea || guessArea <= 0) guessArea = 1;
+    if (!targetArea || targetArea <= 0) targetArea = 1;
+
+    var ratio;
+    var type;
+    var emoji;
+    var message;
+
+    if (targetArea > guessArea) {
+      ratio = Math.round((targetArea / guessArea) * 10) / 10;
+
+      if (ratio < 1.1) {
+        type = 'same';
+        emoji = '🟰';
+        message = 'About the same size';
+      } else if (ratio < 2) {
+        type = 'bigger';
+        emoji = '📐';
+        message = 'Target is ' + ratio + 'x bigger';
+      } else if (ratio < 5) {
+        type = 'bigger';
+        emoji = '🐘';
+        message = 'Target is ' + ratio + 'x BIGGER';
+      } else if (ratio < 20) {
+        type = 'bigger';
+        emoji = '🦣';
+        message = 'Target is ' + ratio + 'x BIGGER!';
+      } else {
+        type = 'bigger';
+        emoji = '🌍';
+        message = 'Target is ' + ratio + 'x MASSIVE!';
+      }
+    } else if (guessArea > targetArea) {
+      ratio = Math.round((guessArea / targetArea) * 10) / 10;
+
+      if (ratio < 1.1) {
+        type = 'same';
+        emoji = '🟰';
+        message = 'About the same size';
+      } else if (ratio < 2) {
+        type = 'smaller';
+        emoji = '📐';
+        message = 'Target is ' + ratio + 'x smaller';
+      } else if (ratio < 5) {
+        type = 'smaller';
+        emoji = '🐜';
+        message = 'Target is ' + ratio + 'x smaller';
+      } else if (ratio < 20) {
+        type = 'smaller';
+        emoji = '🔬';
+        message = 'Target is ' + ratio + 'x SMALLER!';
+      } else {
+        type = 'smaller';
+        emoji = '🔎';
+        message = 'Target is ' + ratio + 'x TINY!';
+      }
+    } else {
+      ratio = 1;
+      type = 'same';
+      emoji = '🟰';
+      message = 'Exact same size!';
+    }
+
     return {
-      lat: lat >= 0 ? 'N' : 'S',
-      lng: lng >= 0 ? 'E' : 'W'
+      ratio: ratio,
+      type: type,
+      emoji: emoji,
+      message: message
     };
   };
 
 
   // ═══════════════════════════════════════════════
-  // 7. SIZE COMPARISON (IMPROVED)
+  // 7. CONTINENT MATCHING
   // ═══════════════════════════════════════════════
 
-  window.getSizeComparison = function (guessArea, targetArea) {
-    if (!guessArea || guessArea <= 0) guessArea = 1;
-    if (!targetArea || targetArea <= 0) targetArea = 1;
-
-    var ratio, type, emoji, message, intensity;
-
-    if (Math.abs(targetArea - guessArea) / guessArea < 0.1) {
-      return {
-        ratio: 1,
-        type: 'same',
-        emoji: '🟰',
-        message: 'About the same size',
-        intensity: 'low'
-      };
-    }
-
-    if (targetArea > guessArea) {
-      ratio = Math.round((targetArea / guessArea) * 10) / 10;
-      type = 'bigger';
-      if (ratio < 2)      { emoji = '📐'; intensity = 'low';  message = 'Target is ' + ratio + 'x bigger'; }
-      else if (ratio < 5) { emoji = '🐘'; intensity = 'med';  message = 'Target is ' + ratio + 'x BIGGER'; }
-      else if (ratio < 20){ emoji = '🦣'; intensity = 'high'; message = 'Target is ' + ratio + 'x HUGE'; }
-      else                { emoji = '🌍'; intensity = 'max';  message = 'Target is ' + ratio + 'x MASSIVE!'; }
-    } else {
-      ratio = Math.round((guessArea / targetArea) * 10) / 10;
-      type = 'smaller';
-      if (ratio < 2)      { emoji = '📐'; intensity = 'low';  message = 'Target is ' + ratio + 'x smaller'; }
-      else if (ratio < 5) { emoji = '🐜'; intensity = 'med';  message = 'Target is ' + ratio + 'x smaller'; }
-      else if (ratio < 20){ emoji = '🔬'; intensity = 'high'; message = 'Target is ' + ratio + 'x TINY'; }
-      else                { emoji = '🔎'; intensity = 'max';  message = 'Target is ' + ratio + 'x MICROSCOPIC!'; }
-    }
-
-    return { ratio: ratio, type: type, emoji: emoji, message: message, intensity: intensity };
-  };
-
-
-  // ═══════════════════════════════════════════════
-  // 8. CONTINENT MATCHING (IMPROVED — auto-hemisphere)
-  // ═══════════════════════════════════════════════
-
-  window.getContinentMatch = function (guess, target) {
+  /**
+   * Check if the guessed country matches the target's continent.
+   * Three tiers: exact match, same hemisphere, completely wrong.
+   *
+   * @param {string} guessContinent - Continent of guess
+   * @param {string} targetContinent - Continent of target
+   * @param {object} guessHemi - { lat: "N"|"S", lng: "E"|"W" }
+   * @param {object} targetHemi - { lat: "N"|"S", lng: "E"|"W" }
+   * @returns {object} {
+   *   match:   string  — "exact"|"hemisphere"|"wrong"
+   *   emoji:   string  — 🟢|🟡|🔴
+   *   message: string
+   *   color:   string  — for CSS class: "correct"|"close"|"wrong"
+   * }
+   *
+   * Used by: evaluateGuess()
+   */
+  window.getContinentMatch = function (guessContinent, targetContinent, guessHemi, targetHemi) {
     // Exact continent match
-    if (guess.continent === target.continent) {
+    if (guessContinent === targetContinent) {
       return {
         match: 'exact',
         emoji: '🟢',
@@ -210,10 +321,7 @@
       };
     }
 
-    // Auto-derive hemispheres from lat/lng
-    var guessHemi = window.getHemisphere(guess.lat, guess.lng);
-    var targetHemi = window.getHemisphere(target.lat, target.lng);
-
+    // Check hemisphere match (at least same half of the globe)
     var sameLat = guessHemi.lat === targetHemi.lat;
     var sameLng = guessHemi.lng === targetHemi.lng;
 
@@ -221,104 +329,124 @@
       return {
         match: 'hemisphere',
         emoji: '🟡',
-        message: 'Same hemisphere',
+        message: 'Same hemisphere, wrong continent',
         color: 'close'
       };
     }
 
     if (sameLat || sameLng) {
       return {
-        match: 'partial',
+        match: 'hemisphere',
         emoji: '🟡',
         message: 'Partially same hemisphere',
         color: 'close'
       };
     }
 
+    // Completely wrong
     return {
       match: 'wrong',
       emoji: '🔴',
-      message: 'Other side of the world',
+      message: 'Wrong side of the world! 🌏',
       color: 'wrong'
     };
   };
 
 
   // ═══════════════════════════════════════════════
-  // 9. DISTANCE FEEDBACK (EXPANDED — 60+ messages)
+  // 8. DISTANCE FEEDBACK (with fun messages)
   // ═══════════════════════════════════════════════
 
+  /**
+   * Get distance-based feedback with emoji and message.
+   * Uses a tiered system for increasingly specific hints.
+   *
+   * @param {number} km - Distance in kilometers
+   * @returns {object} {
+   *   emoji:      string  — heat emoji
+   *   label:      string  — short label
+   *   message:    string  — fun message (Zomato/Blinkit style)
+   *   tier:       string  — "win"|"burning"|"hot"|"warm"|"cold"|"freezing"|"arctic"
+   *   color:      string  — CSS class: "correct"|"close"|"wrong"
+   *   percentage: number  — 0-100, how close (100 = exact, 0 = max distance)
+   * }
+   *
+   * Distance tiers:
+   *   0       → WIN 🎯
+   *   < 200   → BURNING 🔥
+   *   < 500   → HOT 🥵
+   *   < 1000  → WARM ☀️
+   *   < 3000  → COLD 🌧️
+   *   < 8000  → FREEZING 🥶
+   *   8000+   → ARCTIC ❄️
+   *
+   * Used by: evaluateGuess()
+   */
+
+  /** Max possible distance on Earth (half circumference) */
+  var MAX_DISTANCE = 20015;
+
+  /** Fun messages per tier — randomly picked */
   var MESSAGES = {
     burning: [
       'Almost there! Can you feel it? 🔥',
       'SO close you could walk there! 🚶',
       'You can practically see it from here! 👀',
       'Burning hot! Neighbors basically 🏘️',
-      'One border away maybe? 🤔',
-      'Bhai aas paas hi hai! 🎯',
-      'Right next door! 🚪',
-      'Drive-able distance! 🚗'
+      'One border away maybe? 🤔'
     ],
     hot: [
       'Getting hotter! You\'re in the zone 🥵',
       'Same neighborhood of the world! 🌍',
       'Warmer than your morning chai ☕',
       'Close! Think nearby countries 🗺️',
-      'Hot hot hot! Keep going! 🌶️',
-      'Same region, wrong country 📍',
-      'A short flight away ✈️',
-      'You can smell the spices from here 🌶️'
+      'Hot hot hot! Keep going! 🌶️'
     ],
     warm: [
       'Warm! Same part of the world 🌤️',
       'Not bad! You\'re on the right track 🛤️',
-      'Getting warmer... narrow it down ☀️',
+      'Getting warmer... keep narrowing it down ☀️',
       'Right region, wrong country 🧐',
-      'Warmish! A few countries off 📍',
-      'Half a continent away 🌐',
-      'Think bigger or smaller in the same area 📏',
-      'You\'re circling it! 🌀'
+      'Warmish! A few countries off 📍'
     ],
     cold: [
       'Cold... different part of the world 🌧️',
-      'Brrr... quite far off ❄️',
+      'Brrr... you\'re quite far off ❄️',
       'Wrong neighborhood entirely 🏗️',
-      'Cold! Try another continent? 🤷',
-      'Not even close to the right area 📡',
-      'Different timezone for sure ⏰',
-      'You\'re lost in the wrong region 🧭',
-      'Way off the mark 🎯'
+      'Cold! Maybe try another continent? 🤷',
+      'Not even close to the right area 📡'
     ],
     freezing: [
-      'Freezing! Other side of the world 🥶',
+      'Freezing! Other side of the world almost 🥶',
       'Bhai itna door? Mars pe gira guess 🚀',
       'You\'d need a really long flight ✈️',
       'ICE cold! Think completely differently 🧊',
-      'Opposite end of the map vibes 🗺️',
-      'Are you trying to get it wrong? 😅',
-      'Polar opposite directions! 🐧',
-      'Continental disaster guess 🌍'
+      'Opposite end of the map vibes 🗺️'
     ],
     arctic: [
       'ARCTIC! Literally the other side of Earth 🌏',
       'Maximum distance! Flip your thinking 180° 🔄',
       'You literally couldn\'t be further away 😱',
       'Antipodal territory! Everything is wrong here 💀',
-      'So far that light takes longer to reach there 🌌',
-      'This is the most wrong guess possible! 🛸',
-      'Mars would be closer than this! 🚀',
-      'You picked the EXACT opposite 🎭'
+      'So far that light takes longer to reach there 🌌'
     ]
   };
 
-  function pickMessage(tier, seed) {
+  /**
+   * Pick a random message from a tier array.
+   * Uses a simple deterministic approach based on distance
+   * so the same distance always gives the same message.
+   */
+  function pickMessage(tier, km) {
     var arr = MESSAGES[tier];
     if (!arr || arr.length === 0) return '';
-    return arr[seed % arr.length];
+    var index = km % arr.length;
+    return arr[index];
   }
 
   window.getDistanceFeedback = function (km) {
-    var pct = Math.max(0, Math.round((1 - km / MAX_DISTANCE_KM) * 100));
+    // Calculate percentage (100 = on target, 0 = max distance)
+    var pct = Math.max(0, Math.round((1 - km / MAX_DISTANCE) * 100));
 
     if (km === 0) {
       return {
@@ -327,247 +455,194 @@
         message: 'Perfect! You nailed it! 🎉',
         tier: 'win',
         color: 'correct',
-        cssClass: 'distance-correct',
         percentage: 100
       };
     }
+
     if (km < 200) {
       return {
-        emoji: '🔥', label: 'BURNING!',
+        emoji: '🔥',
+        label: 'BURNING!',
         message: pickMessage('burning', km),
-        tier: 'burning', color: 'correct',
-        cssClass: 'distance-very-close',
+        tier: 'burning',
+        color: 'correct',
         percentage: pct
       };
     }
+
+    if (km < 500) {
+      return {
+        emoji: '🥵',
+        label: 'HOT!',
+        message: pickMessage('hot', km),
+        tier: 'hot',
+        color: 'close',
+        percentage: pct
+      };
+    }
+
     if (km < 1000) {
       return {
-        emoji: '🥵', label: 'HOT!',
-        message: pickMessage('hot', km),
-        tier: 'hot', color: 'close',
-        cssClass: 'distance-very-close',
-        percentage: pct
-      };
-    }
-    if (km < 4000) {
-      return {
-        emoji: '☀️', label: 'WARM',
+        emoji: '☀️',
+        label: 'WARM',
         message: pickMessage('warm', km),
-        tier: 'warm', color: 'close',
-        cssClass: 'distance-close',
+        tier: 'warm',
+        color: 'close',
         percentage: pct
       };
     }
+
+    if (km < 3000) {
+      return {
+        emoji: '🌧️',
+        label: 'COLD',
+        message: pickMessage('cold', km),
+        tier: 'cold',
+        color: 'wrong',
+        percentage: pct
+      };
+    }
+
     if (km < 8000) {
       return {
-        emoji: '🌧️', label: 'COLD',
-        message: pickMessage('cold', km),
-        tier: 'cold', color: 'wrong',
-        cssClass: 'distance-medium',
-        percentage: pct
-      };
-    }
-    if (km < 13000) {
-      return {
-        emoji: '🥶', label: 'FREEZING',
+        emoji: '🥶',
+        label: 'FREEZING',
         message: pickMessage('freezing', km),
-        tier: 'freezing', color: 'wrong',
-        cssClass: 'distance-far',
+        tier: 'freezing',
+        color: 'wrong',
         percentage: pct
       };
     }
+
     return {
-      emoji: '❄️', label: 'ARCTIC!',
+      emoji: '❄️',
+      label: 'ARCTIC!',
       message: pickMessage('arctic', km),
-      tier: 'arctic', color: 'wrong',
-      cssClass: 'distance-far',
+      tier: 'arctic',
+      color: 'wrong',
       percentage: pct
     };
   };
 
 
   // ═══════════════════════════════════════════════
-  // 10. FORMAT HELPERS
+  // 9. FORMAT DISTANCE FOR DISPLAY
   // ═══════════════════════════════════════════════
 
+  /**
+   * Format a distance number for human-friendly display.
+   * Adds commas and unit.
+   *
+   * @param {number} km - Distance in kilometers
+   * @returns {string} Formatted string like "1,234 km" or "< 1 km"
+   *
+   * Used by: ui.js → renderAttemptRow()
+   */
   window.formatDistance = function (km) {
     if (km === 0) return '0 km';
-    if (km < 1)   return '< 1 km';
-    return km.toLocaleString() + ' km';
+    if (km < 1) return '< 1 km';
+
+    // Add commas for thousands
+    var parts = km.toString().split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    return parts.join('.') + ' km';
   };
 
+
+  // ═══════════════════════════════════════════════
+  // 10. FORMAT AREA FOR DISPLAY
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Format an area number for display.
+   *
+   * @param {number} area - Area in km²
+   * @returns {string} Formatted string like "1.2M km²" or "298 km²"
+   *
+   * Used by: country.html, ui.js
+   */
   window.formatArea = function (area) {
-    if (area >= 1000000) return (area / 1000000).toFixed(1) + 'M km²';
-    if (area >= 1000)    return Math.round(area).toLocaleString() + ' km²';
+    if (area >= 1000000) {
+      return (area / 1000000).toFixed(1) + 'M km²';
+    }
+    if (area >= 1000) {
+      return Math.round(area).toLocaleString() + ' km²';
+    }
     return area + ' km²';
   };
 
+
+  // ═══════════════════════════════════════════════
+  // 11. FORMAT POPULATION FOR DISPLAY
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Format a population number for display.
+   *
+   * @param {number} pop - Population
+   * @returns {string} Formatted string like "1.4B" or "39K"
+   *
+   * Used by: country.html, ui.js
+   */
   window.formatPopulation = function (pop) {
-    if (pop >= 1000000000) return (pop / 1000000000).toFixed(1) + 'B';
-    if (pop >= 1000000)    return (pop / 1000000).toFixed(1) + 'M';
-    if (pop >= 1000)       return (pop / 1000).toFixed(0) + 'K';
+    if (pop >= 1000000000) {
+      return (pop / 1000000000).toFixed(1) + 'B';
+    }
+    if (pop >= 1000000) {
+      return (pop / 1000000).toFixed(1) + 'M';
+    }
+    if (pop >= 1000) {
+      return (pop / 1000).toFixed(0) + 'K';
+    }
     return pop.toString();
   };
 
 
   // ═══════════════════════════════════════════════
-  // 11. PROXIMITY BAR (IMPROVED LOG SCALE)
-  // ═══════════════════════════════════════════════
-
-  window.getProximityPercent = function (km) {
-    if (km === 0) return 100;
-    if (km >= MAX_DISTANCE_KM) return 0;
-    var logMax = Math.log(MAX_DISTANCE_KM);
-    var logDist = Math.log(km + 1);
-    var pct = Math.round((1 - logDist / logMax) * 100);
-    return Math.max(5, Math.min(100, pct)); // Min 5% so bar is always visible
-  };
-
-
-  // ═══════════════════════════════════════════════
-  // 12. ⭐ PROGRESSIVE HINT BUILDER (BRAND NEW)
+  // 12. MASTER: evaluateGuess()
   // ═══════════════════════════════════════════════
 
   /**
-   * NEW: Build progressive hints based on guess number.
-   * Implements the 6-hint spec from the master doc.
+   * The main game evaluation function.
+   * Takes a guess country ID and the target country ID,
+   * calculates ALL feedback data.
    *
-   * Hint 1: Amazing fact (animal/flag)
-   * Hint 2: Direction from guess
-   * Hint 3: Climate + Landlocked status
-   * Hint 4: Sports fact
-   * Hint 5: Continent
-   * Hint 6: First/Last letter + Landmark + Warning
+   * @param {string} guessId - ID of the guessed country (from data.js)
+   * @param {string} targetId - ID of the target country (from state.js)
+   * @returns {object|null} Full evaluation result, or null if invalid
    *
-   * @param {number} guessNumber - 1-6
-   * @param {object} target - Target country
-   * @param {object} guess - Guessed country (for direction)
-   * @param {string} direction - "North-East" etc.
-   * @returns {Array} Array of hint chip objects
+   * Return shape:
+   * {
+   *   guessId:           string  — "brazil"
+   *   targetId:          string  — "india"
+   *   guessName:         string  — "Brazil"
+   *   targetName:        string  — "India"
+   *   guessFlag:         string  — "🇧🇷"
+   *   guessLat:          number
+   *   guessLng:          number
+   *   targetLat:         number
+   *   targetLng:         number
+   *   distance:          number  — km
+   *   distanceFormatted: string  — "8,456 km"
+   *   bearing:           number  — degrees
+   *   bearingRotation:   number  — CSS rotation degrees
+   *   arrow:             string  — "↗️"
+   *   direction:         string  — "Northeast"
+   *   distanceFeedback:  object  — { emoji, label, message, tier, color, percentage }
+   *   continentMatch:    object  — { match, emoji, message, color }
+   *   sizeComparison:    object  — { ratio, type, emoji, message }
+   *   isCorrect:         boolean — true if guessId === targetId
+   *   timestamp:         number  — Date.now()
+   * }
+   *
+   * Used by: app.js → handleGuessSubmit()
+   * Result stored by: state.js → saveGuess()
+   * Rendered by: ui.js → renderAttemptRow()
+   * Shared by: share.js → generateEmojiGrid()
    */
-  window.buildProgressiveHints = function (guessNumber, target, guess, direction) {
-    var hints = [];
-
-    // HINT 1 — Amazing fact
-    if (guessNumber >= 1 && target.amazingFact) {
-      hints.push({
-        type: 'amazing-fact',
-        icon: '🦁',
-        label: 'Fact',
-        text: target.amazingFact,
-        priority: 1
-      });
-    }
-
-    // HINT 2 — Direction
-    if (guessNumber >= 2 && direction && guess) {
-      hints.push({
-        type: 'direction',
-        icon: '🧭',
-        label: 'Head',
-        text: 'Head ' + direction + ' from ' + guess.name,
-        priority: 2
-      });
-    }
-
-    // HINT 3a — Climate
-    if (guessNumber >= 3 && target.climate) {
-      var climateEmojis = {
-        'Tropical': '🌴',
-        'Arid': '🏜️',
-        'Temperate': '🌤️',
-        'Continental': '❄️',
-        'Polar': '🧊',
-        'Mediterranean': '☀️'
-      };
-      hints.push({
-        type: 'climate',
-        icon: climateEmojis[target.climate] || '🌡️',
-        label: 'Climate',
-        text: target.climate,
-        priority: 3
-      });
-    }
-
-    // HINT 3b — Landlocked
-    if (guessNumber >= 3) {
-      hints.push({
-        type: 'landlocked',
-        icon: target.landlocked ? '🏔️' : '🏖️',
-        label: target.landlocked ? 'Landlocked' : 'Has coast',
-        text: target.landlocked ? 'Landlocked country' : 'Has a coastline',
-        priority: 3
-      });
-    }
-
-    // HINT 4 — Sports fact
-    if (guessNumber >= 4 && target.sportsFact) {
-      hints.push({
-        type: 'sports',
-        icon: '⚽',
-        label: 'Sports',
-        text: target.sportsFact,
-        priority: 4
-      });
-    }
-
-    // HINT 5 — Continent
-    if (guessNumber >= 5 && target.continent) {
-      hints.push({
-        type: 'continent',
-        icon: '📍',
-        label: 'Continent',
-        text: target.continent,
-        priority: 5
-      });
-    }
-
-    // HINT 6 — First/Last letter + Landmark + Warning
-    if (guessNumber >= 6) {
-      if (target.firstLast) {
-        hints.push({
-          type: 'first-last',
-          icon: '🔤',
-          label: 'Letters',
-          text: target.firstLast,
-          priority: 6
-        });
-      }
-      if (target.landmark) {
-        hints.push({
-          type: 'landmark',
-          icon: '',
-          label: 'Landmark',
-          text: target.landmark,
-          priority: 6
-        });
-      }
-      hints.push({
-        type: 'warning',
-        icon: '⚠️',
-        label: 'Warning',
-        text: 'LAST CHANCE — Think hard!',
-        priority: 6
-      });
-    }
-
-    return hints;
-  };
-
-
-  // ═══════════════════════════════════════════════
-  // 13. ⭐ MASTER: evaluateGuess() (UPGRADED)
-  // ═══════════════════════════════════════════════
-
-  /**
-   * Master evaluation function. Returns EVERYTHING the UI needs.
-   *
-   * @param {string} guessId
-   * @param {string} targetId
-   * @param {number} guessNumber - Optional, for hint building
-   * @returns {object|null}
-   */
-  window.evaluateGuess = function (guessId, targetId, guessNumber) {
+  window.evaluateGuess = function (guessId, targetId) {
+    // Validate inputs
     var guess = window.COUNTRY_LOOKUP[guessId];
     var target = window.COUNTRY_LOOKUP[targetId];
 
@@ -576,81 +651,96 @@
       return null;
     }
 
-    guessNumber = guessNumber || 1;
+    // Check if correct
     var isCorrect = (guessId === targetId);
 
-    // Distance
-    var distance = isCorrect ? 0 : window.calculateDistance(
-      guess.lat, guess.lng, target.lat, target.lng
+    // Calculate distance
+    var distance = window.calculateDistance(
+      guess.lat, guess.lng,
+      target.lat, target.lng
     );
 
-    // Bearing
-    var bearing = isCorrect ? 0 : window.calculateBearing(
-      guess.lat, guess.lng, target.lat, target.lng
-    );
+    // If correct, distance is 0 (override rounding artifacts)
+    if (isCorrect) {
+      distance = 0;
+    }
 
-    // Visual indicators
+    // Calculate bearing (direction FROM guess TO target)
+    var bearing = 0;
+    if (!isCorrect) {
+      bearing = window.calculateBearing(
+        guess.lat, guess.lng,
+        target.lat, target.lng
+      );
+    }
+
+    // Get arrow and direction
     var arrow = isCorrect ? '🎯' : window.bearingToArrow(bearing);
     var direction = isCorrect ? 'Found it!' : window.bearingToDirection(bearing);
     var bearingRotation = isCorrect ? 0 : window.bearingToRotation(bearing);
 
-    // Feedback objects
+    // Get distance feedback
     var distanceFeedback = window.getDistanceFeedback(distance);
-    var continentMatch = isCorrect
-      ? { match: 'exact', emoji: '🟢', message: 'Correct! 🎉', color: 'correct' }
-      : window.getContinentMatch(guess, target);
-    var sizeComparison = isCorrect
-      ? { ratio: 1, type: 'same', emoji: '🟰', message: 'Exact match!', intensity: 'low' }
-      : window.getSizeComparison(guess.area, target.area);
 
-    // Progressive hints
-    var hints = window.buildProgressiveHints(guessNumber, target, guess, direction);
+    // Get continent match
+    var guessHemi = {
+      lat: guess.hemisphere_lat,
+      lng: guess.hemisphere_lng
+    };
+    var targetHemi = {
+      lat: target.hemisphere_lat,
+      lng: target.hemisphere_lng
+    };
+    var continentMatch = window.getContinentMatch(
+      guess.continent,
+      target.continent,
+      guessHemi,
+      targetHemi
+    );
 
-    // Proximity for visual bar
-    var proximity = window.getProximityPercent(distance);
+    // If correct, override continent match
+    if (isCorrect) {
+      continentMatch = {
+        match: 'exact',
+        emoji: '🟢',
+        message: 'Correct! 🎉',
+        color: 'correct'
+      };
+    }
 
+    // Get size comparison
+    var sizeComparison = window.getSizeComparison(guess.area, target.area);
+
+    // If correct, override size comparison
+    if (isCorrect) {
+      sizeComparison = {
+        ratio: 1,
+        type: 'same',
+        emoji: '🟰',
+        message: 'Exact match!'
+      };
+    }
+
+    // Build result
     return {
-      // IDs
       guessId: guessId,
       targetId: targetId,
-      guessNumber: guessNumber,
-
-      // Display data
       guessName: guess.name,
       targetName: target.name,
       guessFlag: guess.flag,
-      targetFlag: target.flag,
-
-      // Coordinates
       guessLat: guess.lat,
       guessLng: guess.lng,
       targetLat: target.lat,
       targetLng: target.lng,
-
-      // Full country objects (for UI access)
-      guessedCountry: guess,
-      targetCountry: target,
-
-      // Distance data
       distance: distance,
       distanceFormatted: window.formatDistance(distance),
-      distanceFeedback: distanceFeedback,
-      proximityPercent: proximity,
-
-      // Direction data
       bearing: bearing,
       bearingRotation: bearingRotation,
       arrow: arrow,
       direction: direction,
-
-      // Comparison data
+      distanceFeedback: distanceFeedback,
       continentMatch: continentMatch,
       sizeComparison: sizeComparison,
-
-      // Progressive hints (NEW)
-      hints: hints,
-
-      // Game state
       isCorrect: isCorrect,
       timestamp: Date.now()
     };
@@ -658,166 +748,106 @@
 
 
   // ═══════════════════════════════════════════════
-  // 14. SMART COUNTRY RESOLVER (NEW)
+  // 13. HELPER: Find country ID by name
   // ═══════════════════════════════════════════════
 
   /**
-   * NEW: Smart resolver that handles many input formats.
-   * Tries exact match → alias → fuzzy → returns best guess.
+   * Look up a country ID from its display name.
+   * Case-insensitive, trimmed.
    *
-   * @param {string} input - User input
-   * @returns {object|null} Country object or null
+   * @param {string} name - Country display name (e.g. "Brazil")
+   * @returns {string|null} Country ID (e.g. "brazil") or null
+   *
+   * Used by: app.js → handleGuessSubmit()
    */
-  window.resolveCountry = function (input) {
-    if (!input || typeof input !== 'string') return null;
-    var query = input.trim();
-    if (query.length < 2) return null;
+  window.findCountryIdByName = function (name) {
+    if (!name || typeof name !== 'string') return null;
 
-    // Use fuzzy search from data.js
-    if (typeof window.searchCountry === 'function') {
-      var matches = window.searchCountry(query);
-      if (matches.length === 0) return null;
+    var search = name.trim().toLowerCase();
 
-      // Prefer exact name match
-      var lowerQuery = query.toLowerCase();
-      for (var i = 0; i < matches.length; i++) {
-        if (matches[i].name.toLowerCase() === lowerQuery) {
-          return matches[i];
-        }
-      }
-
-      // Otherwise return first fuzzy match
-      return matches[0];
-    }
-
-    // Fallback: case-insensitive name search
-    var search = query.toLowerCase();
-    for (var j = 0; j < window.COUNTRIES.length; j++) {
-      if (window.COUNTRIES[j].name.toLowerCase() === search) {
-        return window.COUNTRIES[j];
+    for (var i = 0; i < window.COUNTRIES.length; i++) {
+      if (window.COUNTRIES[i].name.toLowerCase() === search) {
+        return window.COUNTRIES[i].id;
       }
     }
+
     return null;
   };
 
 
   // ═══════════════════════════════════════════════
-  // 15. HELPERS (kept from V1 + improved)
+  // 14. HELPER: Check if country name is valid
   // ═══════════════════════════════════════════════
 
-  window.findCountryIdByName = function (name) {
-    var country = window.resolveCountry(name);
-    return country ? country.id : null;
-  };
-
+  /**
+   * Check if a given name matches any country.
+   * Case-insensitive.
+   *
+   * @param {string} name - Country name to validate
+   * @returns {boolean}
+   *
+   * Used by: app.js → input validation
+   */
   window.isValidCountryName = function (name) {
-    return window.resolveCountry(name) !== null;
+    return window.findCountryIdByName(name) !== null;
   };
 
+
+  // ═══════════════════════════════════════════════
+  // 15. HELPER: Check if guess was already made
+  // ═══════════════════════════════════════════════
+
+  /**
+   * Check if a country ID has already been guessed
+   * in the current game session.
+   *
+   * @param {string} countryId - Country ID to check
+   * @param {Array} guesses - Array of previous evaluation results
+   * @returns {boolean}
+   *
+   * Used by: app.js → duplicate guess prevention
+   */
   window.isDuplicateGuess = function (countryId, guesses) {
     if (!guesses || !Array.isArray(guesses)) return false;
+
     for (var i = 0; i < guesses.length; i++) {
-      if (guesses[i].guessId === countryId) return true;
+      if (guesses[i].guessId === countryId) {
+        return true;
+      }
     }
+
     return false;
   };
 
 
   // ═══════════════════════════════════════════════
-  // 16. ⭐ DIFFICULTY CALIBRATION (NEW)
+  // 16. HELPER: Get proximity percentage for visual bar
   // ═══════════════════════════════════════════════
 
   /**
-   * NEW: Returns an estimated difficulty score for a country.
-   * Used to balance daily picks (avoid always picking obscure islands).
+   * Calculate a visual proximity percentage.
+   * Uses logarithmic scale so nearby guesses show more difference.
    *
-   * Factors:
-   * - Population (higher = easier)
-   * - Area (bigger = easier)
-   * - Has famous landmark
+   * @param {number} km - Distance in kilometers
+   * @returns {number} Percentage 0-100 (100 = on target)
    *
-   * @param {object} country
-   * @returns {number} 1 (easy) to 5 (very hard)
+   * Used by: ui.js → distance bar width
    */
-  window.getDifficultyScore = function (country) {
-    var score = 3; // medium default
+  window.getProximityPercent = function (km) {
+    if (km === 0) return 100;
+    if (km >= MAX_DISTANCE) return 0;
 
-    // Population factor
-    if (country.population > 100000000) score -= 2;       // 100M+ (China, India, US)
-    else if (country.population > 30000000) score -= 1;   // 30M+ (well-known)
-    else if (country.population < 1000000) score += 2;    // < 1M (obscure)
-    else if (country.population < 5000000) score += 1;    // < 5M
+    // Logarithmic scale for better visual feedback
+    // Close distances should show big bar, far = small bar
+    var logMax = Math.log(MAX_DISTANCE);
+    var logDist = Math.log(km + 1); // +1 to avoid log(0)
+    var pct = Math.round((1 - logDist / logMax) * 100);
 
-    // Area factor
-    if (country.area > 1000000) score -= 1;     // Huge countries
-    else if (country.area < 1000) score += 1;   // Tiny island nations
-
-    // Famous countries override
-    var famous = ['usa', 'china', 'india', 'russia', 'brazil', 'japan',
-                  'germany', 'france', 'united-kingdom', 'united-states',
-                  'italy', 'spain', 'australia', 'canada', 'mexico'];
-    if (famous.indexOf(country.id) !== -1) score = 1;
-
-    return Math.max(1, Math.min(5, score));
+    return Math.max(0, Math.min(100, pct));
   };
 
 
-  // ═══════════════════════════════════════════════
-  // 17. ⭐ GUESS SUMMARY (NEW — for share/result)
-  // ═══════════════════════════════════════════════
-
-  /**
-   * NEW: Generate emoji grid representation of all guesses.
-   * Used by share feature.
-   *
-   * @param {Array} guesses - Array of evaluateGuess results
-   * @param {boolean} won - Did the player win?
-   * @returns {string} Emoji grid
-   */
-  window.buildEmojiGrid = function (guesses, won) {
-    var grid = '';
-    for (var i = 0; i < guesses.length; i++) {
-      var g = guesses[i];
-      if (g.isCorrect) {
-        grid += '🟢';
-      } else {
-        var d = g.distance;
-        if (d < 1000)       grid += '🟡';
-        else if (d < 4000)  grid += '🟠';
-        else if (d < 8000)  grid += '🔴';
-        else                grid += '⚫';
-      }
-    }
-    // Fill remaining slots
-    var remaining = MAX_GUESSES - guesses.length;
-    for (var j = 0; j < remaining; j++) {
-      grid += '⬜';
-    }
-    return grid;
-  };
-
-
-  // ═══════════════════════════════════════════════
-  // 18. EXPORTS SUMMARY (for debugging)
-  // ═══════════════════════════════════════════════
-
-  window.Logic = {
-    version: '2.0',
-    constants: {
-      MAX_DISTANCE_KM: MAX_DISTANCE_KM,
-      MAX_GUESSES: MAX_GUESSES,
-      EARTH_RADIUS_KM: EARTH_RADIUS_KM
-    },
-    // Re-export for namespaced access
-    calculateDistance: window.calculateDistance,
-    calculateBearing: window.calculateBearing,
-    evaluateGuess: window.evaluateGuess,
-    buildProgressiveHints: window.buildProgressiveHints,
-    resolveCountry: window.resolveCountry,
-    buildEmojiGrid: window.buildEmojiGrid,
-    getDifficultyScore: window.getDifficultyScore
-  };
-
-  console.log('[logic.js v2] Loaded — 18 functions, 60+ messages, hint builder ready');
+  // Log initialization
+  console.log('[logic.js] Game logic loaded');
 
 })();
